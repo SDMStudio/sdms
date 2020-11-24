@@ -1,0 +1,69 @@
+# This is a Dec-POMDP (.dpomdp) file for the broadcast channel problem.
+agents: 2
+discount: 1.0
+values: "reward"
+states: "S00" "S01" "S10" "S11"
+start:
+0.0 0.0 0.0 1.0
+actions:
+"send" "wait"
+"send" "wait"
+observations:
+"Collision" "No-Collision"
+"Collision" "No-Collision"
+T: "send" "send" : "*" : "S00" : 0.09
+T: "send" "send" : "*" : "S10" : 0.81
+T: "send" "send" : "*" : "S01" : 0.01
+T: "send" "send" : "*" : "S11" : 0.09
+T: "send" "wait" : "S11" : "S11" : 0.9
+T: "send" "wait" : "S11" : "S01" : 0.1
+T: "send" "wait" : "S01" : "S11" : 0.9
+T: "send" "wait" : "S01" : "S01" : 0.1
+T: "send" "wait" : "S10" : "S11" : 0.09
+T: "send" "wait" : "S10" : "S01" : 0.01
+T: "send" "wait" : "S00" : "S11" : 0.09
+T: "send" "wait" : "S00" : "S01" : 0.01
+T: "send" "wait" : "S10" : "S10" : 0.81
+T: "send" "wait" : "S10" : "S00" : 0.09
+T: "send" "wait" : "S00" : "S10" : 0.81
+T: "send" "wait" : "S00" : "S00" : 0.09
+T: "wait" "send" : "S11" : "S11" : 0.1
+T: "wait" "send" : "S11" : "S10" : 0.9
+T: "wait" "send" : "S10" : "S11" : 0.1
+T: "wait" "send" : "S10" : "S10" : 0.9
+T: "wait" "send" : "S01" : "S11" : 0.09
+T: "wait" "send" : "S01" : "S10" : 0.81
+T: "wait" "send" : "S00" : "S11" : 0.09
+T: "wait" "send" : "S00" : "S10" : 0.81
+T: "wait" "send" : "S01" : "S01" : 0.01
+T: "wait" "send" : "S01" : "S00" : 0.09
+T: "wait" "send" : "S00" : "S01" : 0.01
+T: "wait" "send" : "S00" : "S00" : 0.09
+T: "wait" "wait" : "S11" : "S11" : 1.0
+T: "wait" "wait" : "S01" : "S11" : 0.9
+T: "wait" "wait" : "S01" : "S01" : 0.1
+T: "wait" "wait" : "S10" : "S11" : 0.1
+T: "wait" "wait" : "S10" : "S10" : 0.9
+T: "wait" "wait" : "S00" : "S11" : 0.09
+T: "wait" "wait" : "S00" : "S01" : 0.01
+T: "wait" "wait" : "S00" : "S10" : 0.81
+T: "wait" "wait" : "S00" : "S00" : 0.09
+O: "*" : "*" : "Collision" "Collision" : 0.01
+O: "*" : "*" : "No-Collision" "Collision" : 0.09
+O: "*" : "*" : "Collision" "No-Collision" : 0.09
+O: "*" : "*" : "No-Collision" "No-Collision" : 0.81
+O: "send" "send" : "*" : "Collision" "Collision" : 0.81
+O: "send" "send" : "*" : "No-Collision" "Collision" : 0.09
+O: "send" "send" : "*" : "Collision" "No-Collision" : 0.09
+O: "send" "send" : "*" : "No-Collision" "No-Collision" : 0.01
+R: "send" "send" : "*" : 0
+R: "wait" "wait" : "*" : 0
+R: "send" "wait" : "S11" : 1
+R: "send" "wait" : "S10" : 1
+R: "send" "wait" : "S01" : 0
+R: "send" "wait" : "S00" : 0
+R: "wait" "send" : "S11" : 1
+R: "wait" "send" : "S10" : 0
+R: "wait" "send" : "S01" : 1
+R: "wait" "send" : "S00" : 0
+#

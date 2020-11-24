@@ -1,0 +1,39 @@
+11H
+numOfAgents=11
+numOfTargets=3
+InteractionGraph
+Edges:12
+e0:0,8
+e1:1,8
+e2:2,8
+e3:3,8
+e4:2,9
+e5:3,9
+e6:4,9
+e7:5,9
+e8:4,10
+e9:5,10
+e10:6,10
+e11:7,10
+TargetTransitions
+T0:e1,e0,e2:e1
+e1:e1(0.2),e0(0.8)
+e0:e0(0.2),e2(0.8)
+e2:e2(0.2),e1(0.8)
+T1:e5,e4,e6,e7:e4
+e5:e5(0.2),e4(0.8)
+e4:e4(0.2),e6(0.8)
+e6:e6(0.2),e7(0.8)
+e7:e7(0.2),e5(0.8)
+T2:e10,e11,e9:e10
+e10:e10(0.2),e11(0.8)
+e11:e11(0.2),e9(0.8)
+e9:e9(0.2),e10(0.8)
+InternalStates
+5
+Reward
+Recharge:-1
+Penalty:-1
+T0:80 0
+T1:80 0
+T2:80 0

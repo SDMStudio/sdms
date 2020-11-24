@@ -1,0 +1,82 @@
+# This is a ZS-POSG (.zsposg) file for the shooter/intercepter problem (inspired by broadcast channel problem).
+# Player 1 (the shooter) : he must shoot when opponent is waiting and wait when he is jumping (score or avoid to loose the ball).
+# Player 2 (the intercepter): he must jump when shooter shoots and try to catch the ball when he is waiting.
+agents: 2
+discount: 1.0
+values: "reward"
+states: "S00" "S01" "S10" "S11"
+start:
+0.0 0.0 0.0 1.0
+actions:
+"shoot" "wait"
+"jump" "catch"
+observations:
+"Collision" "No-Collision"
+"Collision" "No-Collision"
+T: "shoot" "jump" : "*" : "S00" : 0.09
+T: "shoot" "jump" : "*" : "S10" : 0.81
+T: "shoot" "jump" : "*" : "S01" : 0.01
+T: "shoot" "jump" : "*" : "S11" : 0.09
+T: "shoot" "catch" : "S11" : "S11" : 0.9
+T: "shoot" "catch" : "S11" : "S01" : 0.1
+T: "shoot" "catch" : "S01" : "S11" : 0.9
+T: "shoot" "catch" : "S01" : "S01" : 0.1
+T: "shoot" "catch" : "S10" : "S11" : 0.09
+T: "shoot" "catch" : "S10" : "S01" : 0.01
+T: "shoot" "catch" : "S00" : "S11" : 0.09
+T: "shoot" "catch" : "S00" : "S01" : 0.01
+T: "shoot" "catch" : "S10" : "S10" : 0.81
+T: "shoot" "catch" : "S10" : "S00" : 0.09
+T: "shoot" "catch" : "S00" : "S10" : 0.81
+T: "shoot" "catch" : "S00" : "S00" : 0.09
+T: "wait" "jump" : "S11" : "S11" : 0.1
+T: "wait" "jump" : "S11" : "S10" : 0.9
+T: "wait" "jump" : "S10" : "S11" : 0.1
+T: "wait" "jump" : "S10" : "S10" : 0.9
+T: "wait" "jump" : "S01" : "S11" : 0.09
+T: "wait" "jump" : "S01" : "S10" : 0.81
+T: "wait" "jump" : "S00" : "S11" : 0.09
+T: "wait" "jump" : "S00" : "S10" : 0.81
+T: "wait" "jump" : "S01" : "S01" : 0.01
+T: "wait" "jump" : "S01" : "S00" : 0.09
+T: "wait" "jump" : "S00" : "S01" : 0.01
+T: "wait" "jump" : "S00" : "S00" : 0.09
+T: "wait" "catch" : "S11" : "S11" : 1.0
+T: "wait" "catch" : "S01" : "S11" : 0.9
+T: "wait" "catch" : "S01" : "S01" : 0.1
+T: "wait" "catch" : "S10" : "S11" : 0.1
+T: "wait" "catch" : "S10" : "S10" : 0.9
+T: "wait" "catch" : "S00" : "S11" : 0.09
+T: "wait" "catch" : "S00" : "S01" : 0.01
+T: "wait" "catch" : "S00" : "S10" : 0.81
+T: "wait" "catch" : "S00" : "S00" : 0.09
+O: "*" : "*" : "Collision" "Collision" : 0.01
+O: "*" : "*" : "No-Collision" "Collision" : 0.09
+O: "*" : "*" : "Collision" "No-Collision" : 0.09
+O: "*" : "*" : "No-Collision" "No-Collision" : 0.81
+O: "shoot" "jump" : "*" : "Collision" "Collision" : 0.81
+O: "shoot" "jump" : "*" : "No-Collision" "Collision" : 0.09
+O: "shoot" "jump" : "*" : "Collision" "No-Collision" : 0.09
+O: "shoot" "jump" : "*" : "No-Collision" "No-Collision" : 0.01
+R: "shoot" "jump" : "*" : 0
+R: "wait" "catch" : "*" : 0
+R: "shoot" "catch" : "S11" : 1
+R: "shoot" "catch" : "S10" : 1
+R: "shoot" "catch" : "S01" : 0
+R: "shoot" "catch" : "S00" : 0
+R: "wait" "jump" : "S11" : 1
+R: "wait" "jump" : "S10" : 0
+R: "wait" "jump" : "S01" : 1
+R: "wait" "jump" : "S00" : 0
+
+R: "shoot" "jump" : "*" : 0
+R: "wait" "catch" : "*" : 0
+R: "shoot" "catch" : "S11" : 1
+R: "shoot" "catch" : "S10" : 1
+R: "shoot" "catch" : "S01" : 0
+R: "shoot" "catch" : "S00" : 0
+R: "wait" "jump" : "S11" : 1
+R: "wait" "jump" : "S10" : 0
+R: "wait" "jump" : "S01" : 1
+R: "wait" "jump" : "S00" : 0
+#
