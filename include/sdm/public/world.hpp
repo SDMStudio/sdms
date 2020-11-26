@@ -29,8 +29,8 @@ namespace sdm
 
   public:
     virtual ~World();
-    virtual state init() = 0;
-    virtual agent getNumAgents() const = 0;
-    virtual void execute(action, feedback *) = 0;
+    // virtual state init() = 0;
+    // virtual number getNumAgents() const = 0;
+    // virtual void execute(action, feedback *) = 0;
   };
 } // namespace sdm

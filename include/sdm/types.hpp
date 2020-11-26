@@ -73,6 +73,11 @@ namespace sdm{
       OCCUPANCY
   };
 
+  enum Criterion
+  {
+      COST_MIN
+      REW_MAX,
+  };
 
   class World;
   class State;

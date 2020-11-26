@@ -5,7 +5,9 @@ Copyright (c) 2016 Jilles Steeve Dibangoye
 
 #include <sdm/parser/ast.hpp>
 #include <sdm/core/dpomdp.hpp>
-#include <sdm/core/__state__.hpp>
+#include <sdm/core/discrete_space.hpp>
+#include <sdm/core/multi_discrete_space.hpp>
+#include <sdm/world/decpomdp.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
 
@@ -119,323 +121,199 @@ namespace sdm
       }
     };
 
-    struct action_encoder : boost::static_visitor<action>
+    //! \struct element_encoder
+    //! \brief encodes the input into a number (index)
+    struct element_encoder : boost::static_visitor<number>
     {
-      __action__ act_space_;
-      agent ag;
+      MultiDiscreteSpace md_space_;
+      number ag;
 
-      action_encoder(__action__ act_space, agent ag) : boost::static_visitor<action>()
+      element_encoder(MultiDiscreteSpace md_space, number ag) : boost::static_visitor<number>()
       {
         this->ag = ag;
-        this->act_space_ = act_space;
+        this->md_space_ = md_space;
       }
 
-      action operator()(action a) const
+      number operator()(number a) const
       {
         return a;
       }
 
-      action operator()(const std::string &a_str) const
+      number operator()(const std::string &a_str) const
       {
-        return this->act_space_.getActionIndex(this->ag, a_str);
+        return this->md_space_.getElementIndex(this->ag, a_str);
       }
     };
 
-    class joint_action_encoder
+    //! \struct joint_element_encoder
+    //! \brief encodes the input into a joint element (vector of number)
+    class joint_element_encoder
     {
     protected:
-      __action__ act_space_;
-      __agent__ ag_space_;
+      MultiDiscreteSpace element_space_;
+      DiscreteSpace ag_space_;
 
     public:
-      joint_action_encoder(__action__ act_space, __agent__ ag_space)
+      joint_element_encoder(MultiDiscreteSpace element_space, DiscreteSpace ag_space)
       {
         this->ag_space_ = ag_space;
-        this->act_space_ = act_space;
+        this->element_space_ = element_space;
       }
 
-      std::vector<action> encode(const std::vector<identifier_t> &as) const
+      std::vector<number> encode(const std::vector<identifier_t> &as) const
       {
-        std::vector<action> a_vec;
+        std::vector<number> a_vec;
         if (as.size() == 1)
         {
-          for (action a = 0; a < this->act_space_.getNumActions(); ++a)
+          for (number a = 0; a < this->element_space_.getNumJElements(); ++a)
           {
             a_vec.push_back(a);
           }
         }
         else
         {
-          std::vector<action> ja;
-          for (agent ag = 0; ag < this->ag_space_.getNumAgents(); ++ag)
+          std::vector<number> ja;
+          for (agent ag = 0; ag < this->ag_space_.getNumElements(); ++ag)
           {
-            action_encoder a_encoder(this->act_space_, ag);
-            action a_ = boost::apply_visitor(a_encoder, as[ag]);
+            element_encoder a_encoder(this->element_space_, ag);
+            number a_ = boost::apply_visitor(a_encoder, as[ag]);
             ja.push_back(a_);
           }
-          a_vec.push_back(joint_action::getJointItemIdx(ja));
+          a_vec.push_back(this->element_space_.joint2single(ja));
         }
         return a_vec;
       }
     };
 
-    struct observation_encoder : boost::static_visitor<observation>
-    {
-      __observation__ obs_space_;
-      agent ag;
-
-      observation_encoder(__observation__ obs_space, agent ag) : boost::static_visitor<observation>()
-      {
-        this->ag = ag;
-        this->obs_space_ = obs_space;
-      }
-
-      observation operator()(observation o) const
-      {
-        return o;
-      }
-
-      observation operator()(const std::string &o_str) const
-      {
-        return this->obs_space_.getObservationIndex(this->ag, o_str);
-      }
-    };
-
-    class joint_observation_encoder
-    {
-    protected:
-      __observation__ obs_space_;
-      __agent__ ag_space_;
-
-    public:
-      joint_observation_encoder(__observation__ obs_space, __agent__ ag_space)
-      {
-        this->ag_space_ = ag_space;
-        this->obs_space_ = obs_space;
-      }
-
-      std::vector<observation> encode(const std::vector<identifier_t> &os) const
-      {
-        std::vector<observation> o_vec;
-        if (os.size() == 1)
-        {
-          for (observation o = 0; o < this->obs_space_.getNumObservations(); ++o)
-          {
-            o_vec.push_back(o);
-          }
-        }
-        else
-        {
-          std::vector<observation> jo;
-          for (agent ag = 0; ag < this->ag_space_.getNumAgents(); ++ag)
-          {
-            observation_encoder o_encoder(this->obs_space_, ag);
-            jo.push_back(boost::apply_visitor(o_encoder, os[ag]));
-          }
-
-          o_vec.push_back(joint_observation::getJointItemIdx(jo));
-        }
-
-        return o_vec;
-      }
-    };
-
-    struct state_encoder : boost::static_visitor<std::vector<state>>
+    //! \struct state_encoder
+    //! \brief encodes the input into a vector of number (vector of states)
+    //! "*" -> [0,1,2,3,4,...,n]
+    //! "s0" -> [0]
+    //! 0 -> [0]
+    struct state_encoder : boost::static_visitor<std::vector<number>>
     {
 
-      __state__ state_space_;
+      DiscreteSpace state_space_;
 
-      state_encoder(__state__ state_space) : boost::static_visitor<std::vector<state>>()
+      state_encoder(DiscreteSpace state_space) : boost::static_visitor<std::vector<number>>()
       {
         this->state_space_ = state_space;
       }
 
-      std::vector<state> operator()(state s) const
+      std::vector<number> operator()(number s) const
       {
-        std::vector<state> st_ptr;
-        st_ptr.push_back(s);
-        return st_ptr;
+        return {s};
       }
 
-      std::vector<state> operator()(const std::string &s_str) const
+      std::vector<number> operator()(const std::string &s_str) const
       {
-        std::vector<state> st_ptr;
+        std::vector<number> st_ptr;
         if (s_str == "*")
         {
-          for (state s = 0; s < this->state_space_.getNumStates(); ++s)
+          for (state s = 0; s < this->state_space_.getNumElements(); ++s)
           {
             st_ptr.push_back(s);
           }
         }
         else
         {
-          st_ptr.push_back(this->state_space_.getStateIndex(s_str));
+          st_ptr.push_back(this->state_space_.getElementIndex(s_str));
         }
 
         return st_ptr;
       }
     };
 
-    struct agent_encoder : boost::static_visitor<__agent__>
+    //! \struct discrete_space_encoder
+    //! \brief encodes the input into a discrete space class
+    struct discrete_space_encoder : boost::static_visitor<DiscreteSpace>
     {
-      __agent__ operator()(agent ag) const
+      DiscreteSpace operator()(number ag) const
       {
-        return __agent__(ag);
+        return DiscreteSpace(ag);
       }
 
-      __agent__ operator()(const std::vector<std::string> &ags) const
+      DiscreteSpace operator()(const std::vector<std::string> &ags) const
       {
-        return __agent__(ags);
+        return DiscreteSpace(ags);
       }
     };
 
-    struct state_space_encoder : boost::static_visitor<__state__>
+    //! \struct multi_discrete_space_encoder
+    //! \brief encodes the input into a multi discrete space class
+    struct multi_discrete_space_encoder : boost::static_visitor<MultiDiscreteSpace>
     {
-      __state__ operator()(state s) const
+      MultiDiscreteSpace operator()(const std::vector<number> &dim_spaces) const
       {
-        return __state__(s);
-      }
-
-      __state__ operator()(const std::vector<std::string> &ss) const
-      {
-        return __state__(ss);
-      }
-    };
-
-    struct action_space_encoder : boost::static_visitor<__action__>
-    {
-      __action__ operator()(const std::vector<action> &actions) const
-      {
-        __action__ act_space;
-        act_space.setNumActions(actions);
+        MultiDiscreteSpace act_space(dim_spaces);
         return act_space;
       }
 
-      __action__ operator()(const std::vector<std::vector<std::string>> &actions_str) const
+      MultiDiscreteSpace operator()(const std::vector<std::vector<std::string>> &names) const
       {
-        __action__ act_space;
-        act_space.setNumActions(actions_str);
+        MultiDiscreteSpace act_space(names);
         return act_space;
       }
     };
 
-    struct observation_space_encoder : boost::static_visitor<__observation__>
+    //! \struct state_transition_encoder
+    //! \brief used to encode state transition dynamics (i.e. StateDynamics class)
+    struct state_transition_encoder : boost::static_visitor<>
     {
-      __observation__ operator()(const std::vector<observation> &observations) const
+      std::vector<Matrix> t_model;
+
+      DiscreteSpace st_space_;
+      DiscreteSpace ag_space_;
+      MultiDiscreteSpace act_space_;
+
+      state_transition_encoder(DiscreteSpace st_space, DiscreteSpace ag_space, MultiDiscreteSpace act_space) : boost::static_visitor<>(), st_space_(st_space), ag_space_(ag_space), act_space_(act_space)
       {
-        __observation__ obs_space;
-        obs_space.setNumObservations(observations);
-        return obs_space;
-      }
-
-      __observation__ operator()(const std::vector<std::vector<std::string>> &observations_str) const
-      {
-        __observation__ obs_space;
-        obs_space.setNumObservations(observations_str);
-        return obs_space;
-      }
-    };
-
-    struct dynamic_encoder : boost::static_visitor<>
-    {
-      std::vector<Matrix> t_model, o_model;
-
-      __state__ st_space_;
-      __agent__ ag_space_;
-      __action__ act_space_;
-      __observation__ obs_space_;
-
-      dynamic_encoder(__state__ st_space, __agent__ ag_space, __action__ act_space, __observation__ obs_space) : boost::static_visitor<>(), st_space_(st_space), ag_space_(ag_space), act_space_(act_space), obs_space_(obs_space)
-      {
-        for (action a = 0; a < this->act_space_.getNumActions(); ++a)
+        for (number a = 0; a < this->act_space_.getNumJElements(); ++a)
         {
-          auto t = Matrix(this->st_space_.getNumStates(), this->st_space_.getNumStates());
-          auto o = Matrix(this->st_space_.getNumStates(), this->obs_space_.getNumObservations());
+          auto t = Matrix(this->st_space_.getNumElements(), this->st_space_.getNumElements());
 
-          for (state x = 0; x < this->st_space_.getNumStates(); ++x)
+          for (number x = 0; x < this->st_space_.getNumElements(); ++x)
           {
-            for (state y = 0; y < this->st_space_.getNumStates(); ++y)
+            for (number y = 0; y < this->st_space_.getNumElements(); ++y)
             {
               t(x, y) = 0.0;
             }
-
-            for (observation z = 0; z < this->obs_space_.getNumObservations(); ++z)
-            {
-              o(x, z) = 0.0;
-            }
           }
-
           this->t_model.push_back(t);
-          this->o_model.push_back(o);
-        }
-      }
-
-      void operator()(const observation_entry_3_t &z3)
-      {
-        joint_action_encoder ja_encoder(this->act_space_, this->ag_space_);
-        std::vector<action> ja = ja_encoder.encode(z3.jaction);
-
-        matrix_encoder m_encoder(this->st_space_.getNumStates(), this->obs_space_.getNumObservations());
-        Matrix prob = boost::apply_visitor(m_encoder, z3.probabilities);
-
-        for (action a : ja)
-        {
-          this->o_model[a] = prob;
         }
       }
 
       void operator()(const transition_entry_3_t &t3)
       {
 
-        joint_action_encoder ja_encoder(this->act_space_, this->ag_space_);
-        std::vector<action> ja = ja_encoder.encode(t3.jaction);
+        joint_element_encoder ja_encoder(this->act_space_, this->ag_space_);
+        std::vector<number> ja = ja_encoder.encode(t3.jaction);
 
-        matrix_encoder m_encoder(this->st_space_.getNumStates(), this->st_space_.getNumStates());
+        matrix_encoder m_encoder(this->st_space_.getNumElements(), this->st_space_.getNumElements());
         Matrix prob = boost::apply_visitor(m_encoder, t3.transitions);
 
-        for (action a : ja)
+        for (number a : ja)
         {
           this->t_model[a] = prob;
         }
       }
 
-      void operator()(const observation_entry_2_t &z2)
-      {
-        vector_encoder bl_encoder(this->obs_space_.getNumObservations());
-        Vector prob = boost::apply_visitor(bl_encoder, z2.probabilities);
-
-        joint_action_encoder ja_encoder(this->act_space_, this->ag_space_);
-        std::vector<action> ja = ja_encoder.encode(z2.jaction);
-
-        state_encoder s_encoder(this->st_space_);
-        auto s_space = boost::apply_visitor(s_encoder, z2.next_state);
-
-        for (action a : ja)
-          for (observation z = 0; z < this->obs_space_.getNumObservations(); ++z)
-          {
-            for (state y : s_space)
-            {
-              this->o_model[a](y, z) = prob[z];
-            }
-          }
-      }
-
       void operator()(const transition_entry_2_t &t2)
       {
-        vector_encoder bl_encoder(this->st_space_.getNumStates());
+        vector_encoder bl_encoder(this->st_space_.getNumElements());
         Vector prob = boost::apply_visitor(bl_encoder, t2.probabilities);
 
-        joint_action_encoder ja_encoder(this->act_space_, this->ag_space_);
-        std::vector<action> ja = ja_encoder.encode(t2.jaction);
+        joint_element_encoder ja_encoder(this->act_space_, this->ag_space_);
+        std::vector<number> ja = ja_encoder.encode(t2.jaction);
 
         state_encoder x_encoder(this->st_space_);
         auto x_space = boost::apply_visitor(x_encoder, t2.current_state);
 
-        for (action a : ja)
+        for (number a : ja)
         {
-          for (state x : x_space)
+          for (number x : x_space)
           {
-            for (state y = 0; y < this->st_space_.getNumStates(); ++y)
+            for (number y = 0; y < this->st_space_.getNumElements(); ++y)
             {
               this->t_model[a](x, y) = prob[y];
             }
@@ -443,41 +321,19 @@ namespace sdm
         }
       }
 
-      void operator()(const observation_entry_1_t &z1)
-      {
-        joint_action_encoder ja_encoder(this->act_space_, this->ag_space_);
-        std::vector<action> ja = ja_encoder.encode(z1.jaction);
-
-        joint_observation_encoder jz_encoder(this->obs_space_, this->ag_space_);
-        std::vector<observation> jz = jz_encoder.encode(z1.next_observation);
-
-        state_encoder s_encoder(this->st_space_);
-        auto y_space = boost::apply_visitor(s_encoder, z1.next_state);
-
-        double prob = z1.probability;
-        for (action a : ja)
-          for (observation z : jz)
-          {
-            for (state y : y_space)
-            {
-              this->o_model[a](y, z) = prob;
-            }
-          }
-      }
-
       void operator()(const transition_entry_1_t &t1)
       {
         state_encoder s_encoder(this->st_space_);
         auto y_space = boost::apply_visitor(s_encoder, t1.next_state);
         auto x_space = boost::apply_visitor(s_encoder, t1.current_state);
-        joint_action_encoder ja_encoder(this->act_space_, this->ag_space_);
-        std::vector<action> ja = ja_encoder.encode(t1.jaction);
+        joint_element_encoder ja_encoder(this->act_space_, this->ag_space_);
+        std::vector<number> ja = ja_encoder.encode(t1.jaction);
         double prob = t1.probability;
-        for (action a : ja)
+        for (number a : ja)
         {
-          for (state x : x_space)
+          for (number x : x_space)
           {
-            for (state y : y_space)
+            for (number y : y_space)
             {
               this->t_model[a](x, y) = prob;
             }
@@ -486,16 +342,126 @@ namespace sdm
       }
     };
 
-    class dynamics_encoder
+    class state_dynamics_encoder
     {
     protected:
-      __state__ state_space_;
-      __agent__ agent_space_;
-      __action__ action_space_;
-      __observation__ obs_space_;
+      DiscreteSpace state_space_;
+      DiscreteSpace agent_space_;
+      MultiDiscreteSpace action_space_;
 
     public:
-      dynamics_encoder(__state__ state_space, __agent__ agent_space, __action__ action_space, __observation__ obs_space)
+      state_dynamics_encoder(DiscreteSpace state_space, DiscreteSpace agent_space, MultiDiscreteSpace action_space) : state_space_(state_space), agent_space_(agent_space), action_space_(action_space) {}
+
+      StateDynamics encode(const transition_t &transits)
+      {
+        StateDynamics s_dyn(this->action_space_.getNumJElements(), this->state_space_.getNumElements());
+        state_transition_encoder state_d_encoder(this->state_space_, this->agent_space_, this->action_space_);
+        for (transition_entry_t const &tr : transits)
+        {
+          boost::apply_visitor(state_d_encoder, tr);
+        }
+        s_dyn.setTransitions(state_d_encoder.t_model);
+        return s_dyn;
+      }
+    };
+
+    //! \struct observation_transition_encoder
+    //! \brief encodes the input into a dynamic class
+    struct observation_transition_encoder : boost::static_visitor<>
+    {
+      std::vector<Matrix> o_model;
+
+      DiscreteSpace st_space_;
+      DiscreteSpace ag_space_;
+      MultiDiscreteSpace act_space_;
+      MultiDiscreteSpace obs_space_;
+
+      observation_transition_encoder(DiscreteSpace st_space, DiscreteSpace ag_space, MultiDiscreteSpace act_space, MultiDiscreteSpace obs_space) : boost::static_visitor<>(), st_space_(st_space), ag_space_(ag_space), act_space_(act_space), obs_space_(obs_space)
+      {
+        for (number a = 0; a < this->act_space_.getNumJElements(); ++a)
+        {
+          auto o = Matrix(this->st_space_.getNumElements(), this->obs_space_.getNumJElements());
+
+          for (number x = 0; x < this->st_space_.getNumElements(); ++x)
+          {
+            for (number z = 0; z < this->obs_space_.getNumJElements(); ++z)
+            {
+              o(x, z) = 0.0;
+            }
+          }
+
+          this->o_model.push_back(o);
+        }
+      }
+
+      void operator()(const observation_entry_3_t &z3)
+      {
+        joint_element_encoder ja_encoder(this->act_space_, this->ag_space_);
+        std::vector<number> ja = ja_encoder.encode(z3.jaction);
+
+        matrix_encoder m_encoder(this->st_space_.getNumElements(), this->obs_space_.getNumJElements());
+        Matrix prob = boost::apply_visitor(m_encoder, z3.probabilities);
+
+        for (number a : ja)
+        {
+          this->o_model[a] = prob;
+        }
+      }
+
+      void operator()(const observation_entry_2_t &z2)
+      {
+        vector_encoder bl_encoder(this->obs_space_.getNumJElements());
+        Vector prob = boost::apply_visitor(bl_encoder, z2.probabilities);
+
+        joint_element_encoder ja_encoder(this->act_space_, this->ag_space_);
+        std::vector<number> ja = ja_encoder.encode(z2.jaction);
+
+        state_encoder s_encoder(this->st_space_);
+        auto s_space = boost::apply_visitor(s_encoder, z2.next_state);
+
+        for (number a : ja)
+          for (number z = 0; z < this->obs_space_.getNumJElements(); ++z)
+          {
+            for (number y : s_space)
+            {
+              this->o_model[a](y, z) = prob[z];
+            }
+          }
+      }
+
+      void operator()(const observation_entry_1_t &z1)
+      {
+        joint_element_encoder ja_encoder(this->act_space_, this->ag_space_);
+        std::vector<number> ja = ja_encoder.encode(z1.jaction);
+
+        joint_element_encoder jz_encoder(this->obs_space_, this->ag_space_);
+        std::vector<number> jz = jz_encoder.encode(z1.next_observation);
+
+        state_encoder s_encoder(this->st_space_);
+        auto y_space = boost::apply_visitor(s_encoder, z1.next_state);
+
+        double prob = z1.probability;
+        for (number a : ja)
+          for (number z : jz)
+          {
+            for (number y : y_space)
+            {
+              this->o_model[a](y, z) = prob;
+            }
+          }
+      }
+    };
+
+    class obs_dynamics_encoder
+    {
+    protected:
+      DiscreteSpace state_space_;
+      DiscreteSpace agent_space_;
+      MultiDiscreteSpace action_space_;
+      MultiDiscreteSpace obs_space_;
+
+    public:
+      obs_dynamics_encoder(DiscreteSpace state_space, DiscreteSpace agent_space, MultiDiscreteSpace action_space, MultiDiscreteSpace obs_space)
       {
         this->state_space_ = state_space;
         this->agent_space_ = agent_space;
@@ -503,33 +469,26 @@ namespace sdm
         this->obs_space_ = obs_space;
       }
 
-      __dynamics__ encode(const transition_t &transits, const observation_t &observs)
+      ObservationDynamics encode(const observation_t &observs, StateDynamics st_dyn)
       {
-        __dynamics__ dynamics;
-        dynamics.initDynamics(this->action_space_.getNumActions(), this->obs_space_.getNumObservations(), this->state_space_.getNumStates());
-
-        dynamic_encoder d_encoder(this->state_space_, this->agent_space_, this->action_space_, this->obs_space_);
-        for (transition_entry_t const &tr : transits)
-        {
-          boost::apply_visitor(d_encoder, tr);
-        }
-        dynamics.setTransitions(d_encoder.t_model);
+        ObservationDynamics dynamics(this->action_space_.getNumJElements(), this->obs_space_.getNumJElements(), this->state_space_.getNumElements());
+        observation_transition_encoder obs_d_encoder(this->state_space_, this->agent_space_, this->action_space_, this->obs_space_);
 
         for (observation_entry_t const &obs : observs)
         {
-          boost::apply_visitor(d_encoder, obs);
+          boost::apply_visitor(obs_d_encoder, obs);
         }
-        dynamics.setObservations(d_encoder.o_model);
+        dynamics.setObservations(obs_d_encoder.o_model);
 
-        for (action u = 0; u < this->action_space_.getNumActions(); ++u)
+        for (number u = 0; u < this->action_space_.getNumJElements(); ++u)
         {
-          for (state x = 0; x < this->state_space_.getNumStates(); ++x)
+          for (number x = 0; x < this->state_space_.getNumElements(); ++x)
           {
-            for (state y = 0; y < this->state_space_.getNumStates(); ++y)
+            for (number y = 0; y < this->state_space_.getNumElements(); ++y)
             {
-              for (observation z = 0; z < this->obs_space_.getNumObservations(); ++z)
+              for (number z = 0; z < this->obs_space_.getNumJElements(); ++z)
               {
-                dynamics.setDynamics(x, u, z, y, d_encoder.t_model[u](x, y) * d_encoder.o_model[u](y, z));
+                dynamics.setDynamics(x, u, z, y, st_dyn.getTransitionProbability(x, u, y) * obs_d_encoder.o_model[u](y, z));
               }
             }
           }
@@ -540,12 +499,12 @@ namespace sdm
 
     struct reward_encoder : boost::static_visitor<>
     {
-      __state__ state_space_;
-      __agent__ ag_space_;
-      __action__ action_space_;
-      __reward__ *rewards_;
+      DiscreteSpace state_space_;
+      DiscreteSpace ag_space_;
+      MultiDiscreteSpace action_space_;
+      Reward *rewards_;
 
-      reward_encoder(__state__ state_space, __agent__ ag_space, __action__ action_space, __reward__ *rewards) : boost::static_visitor<>()
+      reward_encoder(DiscreteSpace state_space, DiscreteSpace ag_space, MultiDiscreteSpace action_space, Reward *rewards) : boost::static_visitor<>()
       {
         this->state_space_ = state_space;
         this->ag_space_ = ag_space;
@@ -558,14 +517,14 @@ namespace sdm
         double r = r1.reward;
         state_encoder s_encoder(this->state_space_);
 
-        std::vector<state> s_ptr = boost::apply_visitor(s_encoder, r1.state);
+        std::vector<number> s_ptr = boost::apply_visitor(s_encoder, r1.state);
 
-        for (state s : s_ptr)
+        for (number s : s_ptr)
         {
-          joint_action_encoder ja_encoder(this->action_space_, this->ag_space_);
+          joint_element_encoder ja_encoder(this->action_space_, this->ag_space_);
 
-          std::vector<action> ja = ja_encoder.encode(r1.jaction);
-          for (action a : ja)
+          std::vector<number> ja = ja_encoder.encode(r1.jaction);
+          for (number a : ja)
           {
             this->rewards_->setReward(s, a, r);
           }
@@ -574,12 +533,12 @@ namespace sdm
 
       void operator()(const reward_entry_2_t &r2)
       {
-        vector_encoder bl_encoder(this->state_space_.getNumStates());
+        vector_encoder bl_encoder(this->state_space_.getNumElements());
         Vector v = boost::apply_visitor(bl_encoder, r2.rewards);
 
-        joint_action_encoder ja_encoder(this->action_space_, this->ag_space_);
-        std::vector<action> ja = ja_encoder.encode(r2.jaction);
-        for (action a : ja)
+        joint_element_encoder ja_encoder(this->action_space_, this->ag_space_);
+        std::vector<number> ja = ja_encoder.encode(r2.jaction);
+        for (number a : ja)
           this->rewards_->setReward(a, v);
       }
     };
@@ -587,22 +546,21 @@ namespace sdm
     class rewards_encoder
     {
     protected:
-      __state__ state_space_;
-      __action__ action_space_;
-      __agent__ agent_space_;
+      DiscreteSpace state_space_;
+      MultiDiscreteSpace action_space_;
+      DiscreteSpace agent_space_;
 
     public:
-      rewards_encoder(__state__ state_space, __agent__ agent_space, __action__ action_space)
+      rewards_encoder(DiscreteSpace state_space, DiscreteSpace agent_space, MultiDiscreteSpace action_space)
       {
         this->state_space_ = state_space;
         this->agent_space_ = agent_space;
         this->action_space_ = action_space;
       }
 
-      __reward__ encode(const reward_t &r)
+      Reward encode(const reward_t &r)
       {
-        __reward__ rewards;
-        rewards.initReward(this->action_space_.getNumActions(), this->state_space_.getNumStates());
+        Reward rewards(this->action_space_.getNumJElements(), this->state_space_.getNumElements());
         reward_encoder r_encoder(this->state_space_, this->agent_space_, this->action_space_, &rewards);
         for (reward_entry_t const &rew : r)
         {
@@ -612,50 +570,51 @@ namespace sdm
       }
     };
 
-    struct dpomdp_encoder : boost::static_visitor<sdm::dpomdp>
+    struct decpomdp_encoder : boost::static_visitor<sdm::DecPOMDP>
     {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      // dpomdp encoder
+      // DecPOMDP encoder
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      sdm::dpomdp operator()(dpomdp_t const &ast)
+      sdm::DecPOMDP operator()(dpomdp_t const &ast)
       {
 
-        sdm::dpomdp parsed_model;
-        // parsed_model = std::make_shared<sdm::dpomdp>();
+        discrete_space_encoder ds_encoder;
+        multi_discrete_space_encoder mds_encoder;
+
+        // Encodes agent space
+        DiscreteSpace agent_space = boost::apply_visitor(ds_encoder, ast.agent_param);
+
+        // Encodes state space
+        DiscreteSpace state_space = boost::apply_visitor(ds_encoder, ast.state_param);
+
+        // Encodes action space
+        MultiDiscreteSpace action_space = boost::apply_visitor(mds_encoder, ast.action_param);
+
+        // Encodes observation space
+        MultiDiscreteSpace obs_space = boost::apply_visitor(mds_encoder, ast.observation_param);
+
+        // Encodes the reward function
+        rewards_encoder rews_encoder(state_space, agent_space, action_space);
+        Reward rew = rews_encoder.encode(ast.reward_spec);
+
+        // Set start probabilities
+        vector_encoder bl_encoder(state_space.getNumElements());
+        // auto start_distrib = std::make_shared<Vector>(state_space.getNumElements());
+        Vector start_distrib = boost::apply_visitor(bl_encoder, ast.start_param);
+
+        // Encodes the state dynamics
+        state_dynamics_encoder state_dyn_enc(state_space, agent_space, action_space);
+        StateDynamics state_dyn = state_dyn_enc.encode(ast.transition_spec);
+
+        // Encodes the observation dynamics
+        obs_dynamics_encoder d_encoder(state_space, agent_space, action_space, obs_space);
+        ObservationDynamics obs_dyn = d_encoder.encode(ast.observation_spec, state_dyn);
+
+        sdm::DecPOMDP parsed_model(state_space, agent_space, action_space, obs_space, state_dyn, obs_dyn, rew, start_distrib);
 
         parsed_model.setDiscount(ast.discount_param);
         parsed_model.setCriterion(ast.value_param == "reward");
-
-        // Encodes agent space
-        agent_encoder ag_encoder;
-        parsed_model.setAgentSpace(boost::apply_visitor(ag_encoder, ast.agent_param));
-
-        // Encodes state space
-        state_space_encoder st_encoder;
-        parsed_model.setStateSpace(boost::apply_visitor(st_encoder, ast.state_param));
-
-        // Encodes action space
-        action_space_encoder a_space_encoder;
-        parsed_model.setActionSpace(boost::apply_visitor(a_space_encoder, ast.action_param));
-
-        // Encodes observation space
-        observation_space_encoder o_encoder;
-        parsed_model.setObservationSpace(boost::apply_visitor(o_encoder, ast.observation_param));
-
-        // Encodes the reward function
-        rewards_encoder rews_encoder(parsed_model.getStateSpace(), parsed_model.getAgentSpace(), parsed_model.getActionSpace());
-        parsed_model.setReward(rews_encoder.encode(ast.reward_spec));
-
-        // // Set start probabilities
-        auto v = std::make_shared<Vector>(parsed_model.getStateSpace().getNumStates());
-        vector_encoder bl_encoder(parsed_model.getStateSpace().getNumStates());
-        *v = boost::apply_visitor(bl_encoder, ast.start_param);
-        parsed_model.setStart(v);
-
-        // // Encodes the dynamics
-        dynamics_encoder d_encoder(parsed_model.getStateSpace(), parsed_model.getAgentSpace(), parsed_model.getActionSpace(), parsed_model.getObservationSpace());
-        parsed_model.setDynamics(d_encoder.encode(ast.transition_spec, ast.observation_spec));
 
 #ifdef DEBUG
         std::cout << "Model Soundness=" << (parsed_model->isSound() ? "yes" : "no") << std::endl;
