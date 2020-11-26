@@ -14,3 +14,12 @@ target_link_libraries(test_world
   ${Boost_IOSTREAMS_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
   )
+
+add_executable (test_space test_space.cpp) 
+target_link_libraries(test_space
+  ${LIB_NAME}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  ${Boost_IOSTREAMS_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  )
