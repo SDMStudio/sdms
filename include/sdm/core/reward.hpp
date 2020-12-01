@@ -96,13 +96,13 @@ namespace sdm{
     friend std::ostream &operator<<(std::ostream &os, const Reward &reward_fct)
     {
       
-      action ja;
-      os << "\033[1m\033[32m ######################## \t\t<reward> \033[0m" << std::endl;
+      number ja;
+      os << "<reward> " << std::endl;
       for (ja = 0; ja < reward_fct.rewards.size(); ++ja)
       {
-        os << "\033[1m\033[32m #" << reward_fct.getReward(ja) << "\033[0m" << std::endl;
+        os << "\t" << reward_fct.getReward(ja) << "" << std::endl;
       }
-      os << "\033[1m\033[32m ######################## \t\t</reward> \033[0m" << std::endl;
+      os << "</reward> " << std::endl;
       return os;
     }
   };

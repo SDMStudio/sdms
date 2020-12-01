@@ -33,7 +33,7 @@ namespace sdm
         DiscreteSpace state_space_;
 
         //! The initial state distribution
-        std::shared_ptr<Vector> start_distrib_ = std::shared_ptr<Vector>(nullptr);
+        Vector start_distrib_;
 
         //! \fn       number getState()
         //! \brief    Get the internal state.

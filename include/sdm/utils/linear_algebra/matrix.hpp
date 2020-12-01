@@ -39,11 +39,11 @@ namespace sdm{
     //! \brief This constructor allocates an uninitialized matrix that holds zero elements.
     matrix();
 
-    //! \fn matrix(number, number)
+    //! \fn matrix(size_t, size_t)
     //! \brief This constructor Allocates an uninitialized matrix that holds \@param1 rows of \@param2 elements.
-    //! \param number
-    //! \param number
-    matrix(number, number);
+    //! \param size_t
+    //! \param size_t
+    matrix(size_t, size_t);
 
     //! \fn ~matrix()
     //! \brief This destructor destroies the matrix.
@@ -51,41 +51,41 @@ namespace sdm{
 
     matrix transpose() const;
 
-    //! \fn void resize(number, number)
+    //! \fn void resize(size_t, size_t)
     //! \brief Reallocates a matrix to hold \@param1 rows of \@param2 elements. The existing elements of the matrix
     //!        are preseved when specified.
-    //! \param number
-    //! \param number
-    void resize(number, number);
+    //! \param size_t
+    //! \param size_t
+    void resize(size_t, size_t);
 
-    //! \fn value& operator()(number, number)
+    //! \fn value& operator()(size_t, size_t)
     //! \brief Returns a reference of the \@param1-th element in the \@param2-th row.
-    //! \param  number
-    //! \param  number
+    //! \param  size_t
+    //! \param  size_t
     //! \return value&
-    value& operator()(number, number);
+    value& operator()(size_t, size_t);
 
     //! \fn value operator()(std::size_t, std::size_t) const
     //! \brief Returns a value of the \@param1-th element in the \@param2-th row.
-    //! \param  number
-    //! \param  number
+    //! \param  size_t
+    //! \param  size_t
     //! \return value
-    value operator()(number, number) const;
+    value operator()(size_t, size_t) const;
 
-    //! \fn number rows()
-    //! \brief Returns the number of rows.
-    //! \return number
-    number rows();
+    //! \fn size_t rows()
+    //! \brief Returns the size_t of rows.
+    //! \return size_t
+    size_t rows();
 
-    //! \fn vector<vtype, value> rows(number)
+    //! \fn vector<vtype, value> rows(size_t)
     //! \brief Returns the row at a specified index.
     //! \return vector<vtype, value> : the row vector.
-    vector<vtype, value> row(number);
+    vector<vtype, value> row(size_t);
 
-    //! \fn number cols()
-    //! \brief Returns the number of cols.
-    //! \return number
-    number cols();
+    //! \fn size_t cols()
+    //! \brief Returns the size_t of cols.
+    //! \return size_t
+    size_t cols();
 
     //! \fn void compress()
     //! \brief Compress the matrix if possible.

@@ -9,6 +9,8 @@ namespace sdm
 {
   Reward::Reward(){}
 
+  // Reward::Reward(const){}
+
   Reward::Reward(number num_jactions, number num_states)
   {
     this->initReward(num_jactions, num_states);

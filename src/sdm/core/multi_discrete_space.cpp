@@ -1,5 +1,6 @@
 #include <sdm/core/multi_discrete_space.hpp>
 #include <sdm/core/space.hpp>
+#include <sdm/utils/decision_rules/variations.hpp>
 
 namespace sdm
 {
@@ -37,18 +38,14 @@ namespace sdm
         return sample;
     }
 
-    number MultiDiscreteSpace::joint2single(const std::vector<number> &) const
+    number MultiDiscreteSpace::joint2single(const std::vector<number> &jel) const
     {
-        std::cout << "(joint2single) Not implemented method" << std::endl;
+        return this->getJointElementIndex(jel);
     }
 
-    const std::vector<number> &MultiDiscreteSpace::single2joint(number) const
+    const std::vector<number> &MultiDiscreteSpace::single2joint(number jel) const
     {
-        std::cout << "(single2joint) Not implemented method" << std::endl;
-    }
-
-    void MultiDiscreteSpace::generateJointElements(number)
-    {
+        return this->getJointElement(jel);
     }
 
     number MultiDiscreteSpace::getNumJElements() const
@@ -126,6 +123,7 @@ namespace sdm
         {
             this->num_jelement *= spaces[ag].getNumElements();
         }
+        this->generateJointElements();
     }
 
     void MultiDiscreteSpace::setSpaces(const std::vector<number> &num_elements)
@@ -142,6 +140,7 @@ namespace sdm
             this->spaces_.push_back(DiscreteSpace(num_elements[ag]));
             this->num_jelement *= num_elements[ag];
         }
+        this->generateJointElements();
     }
 
     void MultiDiscreteSpace::setSpaces(const std::vector<int> &num_elements)
@@ -158,6 +157,7 @@ namespace sdm
             this->spaces_.push_back(DiscreteSpace(num_elements[ag]));
             this->num_jelement *= num_elements[ag];
         }
+        this->generateJointElements();
     }
 
     void MultiDiscreteSpace::setSpaces(const std::vector<std::vector<std::string>> &e_names)
@@ -175,11 +175,70 @@ namespace sdm
             this->spaces_.push_back(DiscreteSpace(e_names[ag]));
             this->num_jelement *= e_names[ag].size();
         }
+        this->generateJointElements();
+    }
+
+    void MultiDiscreteSpace::generateJointElements()
+    {
+        if (this->joint_items_bimap.size() == 0)
+        {
+
+            number ag;
+            number counter = 0;
+            std::vector<number> v_agents;
+            std::vector<number> v_dspace;
+            for (ag = 0; ag < this->getNumSpaces(); ++ag)
+            {
+                v_agents.push_back(ag);
+                v_dspace.push_back(this->getNumElements(ag));
+            }
+            //! generator of variations for joint items
+            variations<std::vector<number>, JointItem> jaction_generator(v_agents, v_dspace);
+            std::vector<std::unique_ptr<JointItem>> ja;
+
+            ja.push_back(std::unique_ptr<JointItem>(jaction_generator.begin()));
+            this->joint_items_bimap.insert(jitems2index(*ja[counter], counter));
+
+            do
+            {
+                counter++;
+                ja.push_back(std::unique_ptr<JointItem>(jaction_generator.next()));
+                if (ja[counter] != nullptr)
+                    this->joint_items_bimap.insert(jitems2index(*ja[counter], counter));
+
+            } while (ja[counter] != nullptr);
+        }
+        else
+        {
+            std::cerr << "#> Joint items cannot be generated twice.";
+        }
+    }
+
+    number MultiDiscreteSpace::getJointElementIndex(const std::vector<number> &v) const
+    {
+        typename jitems_bimap::const_iterator iter;
+
+        for (iter = this->joint_items_bimap.begin(); iter != this->joint_items_bimap.end(); ++iter)
+        {
+            if (iter->left == v)
+            {
+                return iter->right;
+            }
+        }
+
+        return iter->right;
+    }
+
+    const JointItem &MultiDiscreteSpace::getJointElement(number idx) const
+    {
+        assert(joint_items_bimap.right.find(idx) != joint_items_bimap.right.end());
+        return joint_items_bimap.right.at(idx);
     }
 
     MultiDiscreteSpace &MultiDiscreteSpace::operator=(const MultiDiscreteSpace &sp)
     {
         this->names_.clear();
+        this->joint_items_bimap.clear();
         this->setSpaces(sp.getSpaces());
         return *this;
     }
@@ -216,6 +275,7 @@ namespace sdm
         {
             os << "\n\t" << sp.getElementName(i) << " : " << sp.getSpace(i);
         }
+        os << "\n]";
         return os;
     }
 } // namespace sdm

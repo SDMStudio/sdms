@@ -4,6 +4,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 #include <sdm/types.hpp>
 
@@ -31,6 +32,7 @@ namespace sdm
 	//! \class  DecPOMDP
 	class DecPOMDP : public POSG
 	{
+
 	public:
 		DecPOMDP();
 
@@ -60,7 +62,7 @@ namespace sdm
 		//! \param    rew reward function common to all agents
 		//! \param    start_distrib start distribution (optional)
 		DecPOMDP(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &, const MultiDiscreteSpace &,
-				 const StateDynamics &, const ObservationDynamics &, Reward &, const Vector &);
+				 const StateDynamics &, const ObservationDynamics &, const Reward &, const Vector &);
 
 		/**
          * \fn Reward getReward();
@@ -103,6 +105,10 @@ namespace sdm
          * \brief Get cost from joint action  
          */
 		double getCost(number state, std::vector<number> jaction) const;
+
+		// virtual state init();
+
+		// virtual void execute(action, feedback *);
 	};
 
 	typedef DecPOMDP DecentralizedPOMDP;

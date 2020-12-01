@@ -106,6 +106,7 @@ namespace sdm
         {
             os << "" << sp.getElementName(i) << " ";
         }
+        os << "]";
         return os;
     }
 } // namespace sdm

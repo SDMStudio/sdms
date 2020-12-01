@@ -32,6 +32,7 @@ namespace sdm
   //! \class  ZSPOSG
   class ZSPOSG : public POSG
   {
+  public:
     ZSPOSG();
 
     ZSPOSG(const DecPOMDP &);

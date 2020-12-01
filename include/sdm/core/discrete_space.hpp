@@ -29,7 +29,7 @@ namespace sdm
         number num_elements_;
 
         //! \brief map of names.
-        boost::bimaps::bimap<std::string, number> names_bimap_;
+        boost::bimaps::bimap<std::string, sdm::size_t> names_bimap_;
 
     public:
         //! \fn     DiscreteSpace()

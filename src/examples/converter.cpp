@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cassert>
-#include <sdm/core/dpomdp.hpp>
+#include <sdm/world/decpomdp.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/parser/exception.hpp>
 
@@ -24,8 +24,8 @@ int main(int argc, char **argv)
 
 	try
 	{
-		sdm::dpomdp dpomdp_world = sdm::parser::parse_file(filename_in);
-		dpomdp_world.generate(filename_out);
+		sdm::DecPOMDP dpomdp_world = sdm::parser::parse_file(filename_in);
+		dpomdp_world.generateFile(filename_out);
 	}
 	catch (sdm::exception::Except &e)
 	{

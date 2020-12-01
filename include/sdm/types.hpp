@@ -23,7 +23,9 @@
 //! Namespace grouping all tools required for sequential decision making.
 namespace sdm{
 
-  typedef std::size_t number;
+  typedef std::size_t size_t; // = uint32_t
+
+  typedef unsigned short number; // = uint16_t
 
   typedef unsigned short dtype;
 
@@ -37,7 +39,7 @@ namespace sdm{
 
   typedef unsigned short observation;
 
-  typedef boost::bimaps::bimap<std::string, number> bimap;
+  typedef boost::bimaps::bimap<std::string, sdm::size_t> bimap;
 
   typedef typename bimap::value_type name2index;
 
@@ -75,8 +77,8 @@ namespace sdm{
 
   enum Criterion
   {
-      COST_MIN
-      REW_MAX,
+      COST_MIN,
+      REW_MAX
   };
 
   class World;
@@ -89,6 +91,4 @@ namespace sdm{
 
   template<typename S, typename A>
   class BinaryFunction;
-
-  class dpomdp;
 }

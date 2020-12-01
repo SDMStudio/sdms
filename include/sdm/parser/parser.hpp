@@ -4,8 +4,7 @@
 #pragma once
 
 #include <sdm/parser/ast.hpp>
-#include <sdm/core/dpomdp.hpp>
-
+#include <sdm/world/decpomdp.hpp>
 #include <boost/spirit/home/x3.hpp>
 
 namespace sdm
@@ -26,9 +25,9 @@ namespace sdm
     BOOST_SPIRIT_DECLARE(dpomdp_type)
     // BOOST_SPIRIT_DECLARE(ndpomdp_type)
 
-    sdm::dpomdp parse_file(char const *);
+    sdm::DecPOMDP parse_file(char const *);
 
-    sdm::dpomdp parse_string(std::string);
+    sdm::DecPOMDP parse_string(std::string);
 
   } // namespace parser
 

@@ -192,7 +192,7 @@ namespace sdm
         /**
          * \brief Get the number of agents
          */
-        virtual number getNumAgents() const;
+        number getNumAgents() const;
 
         /**
          * \brief Get index of an agent from his name

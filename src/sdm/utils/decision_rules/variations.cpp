@@ -9,8 +9,8 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 
 // #include "../include/dpomdp/dpomdp.hpp"
 #include <sdm/utils/decision_rules/variations.hpp>
-#include <sdm/utils/decision_rules/joint_action.hpp>
-#include <sdm/utils/decision_rules/joint_observation.hpp>
+#include <sdm/utils/decision_rules/joint.hpp>
+// #include <sdm/utils/decision_rules/joint_observation.hpp>
 // #include <sdm/include/utils/decision_rules/joint_decision_rule.hpp>
 // #include <sdm/include/utils/decision_rules/individual_policy_tree.hpp>
 // #include <sdm/include/utils/decision_rules/individual_decision_rule.hpp>
@@ -101,8 +101,8 @@ namespace sdm{
     return new output(this->parameters, std::vector<action>(this->cbegin, this->cbegin + this->parameters.size()));
   }
 
-  template class variations<std::vector<agent>, joint_action>;
-  template class variations<std::vector<agent>, joint_observation>;
+  template class variations<std::vector<number>, JointItem>;
+  // template class variations<std::vector<agent>, joint_observation>;
   // template class variations<std::vector<observation>, individual_policy_tree>;
   // template class variations<std::vector<std::shared_ptr<Vector>>, light_decision_rule>;
   // template class variations<std::vector<observation_ihistory*>, individual_decision_rule>;

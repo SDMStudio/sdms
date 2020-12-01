@@ -7,7 +7,7 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 namespace sdm
 {
   template <typename mtype, typename vtype, typename value>
-  vector<vtype, value> matrix<mtype, vtype, value>::row(number i)
+  vector<vtype, value> matrix<mtype, vtype, value>::row(size_t i)
   {
     vector<vtype, value> r;
     r.setContainer(this->container.row(i));
@@ -107,7 +107,7 @@ namespace sdm
   }
 
   /**
-  Get Matrix number of rows
+  Get Matrix size_t of rows
   */
   template <typename mtype, typename vtype, typename value>
   std::size_t matrix<mtype, vtype, value>::rows()
@@ -116,7 +116,7 @@ namespace sdm
   }
 
   /**
-  Get Matrix number of columns
+  Get Matrix size_t of columns
   */
   template <typename mtype, typename vtype, typename value>
   std::size_t matrix<mtype, vtype, value>::cols()
@@ -226,7 +226,7 @@ namespace sdm
   }
 
   template <>
-  vector<boost::numeric::ublas::vector<double>, double> matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>::row(number i)
+  vector<boost::numeric::ublas::vector<double>, double> matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>::row(size_t i)
   {
     vector<boost::numeric::ublas::vector<double>, double> r;
     r.setContainer(boost::numeric::ublas::row(this->container, i));
@@ -234,7 +234,7 @@ namespace sdm
   }
 
   template <>
-  vector<boost::numeric::ublas::vector<double>, double> matrix<boost::numeric::ublas::mapped_matrix<double>, boost::numeric::ublas::vector<double>, double>::row(number i)
+  vector<boost::numeric::ublas::vector<double>, double> matrix<boost::numeric::ublas::mapped_matrix<double>, boost::numeric::ublas::vector<double>, double>::row(size_t i)
   {
     vector<boost::numeric::ublas::vector<double>, double> r;
     r.setContainer(boost::numeric::ublas::row(this->container, i));

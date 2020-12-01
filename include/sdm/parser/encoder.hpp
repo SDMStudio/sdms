@@ -4,7 +4,6 @@ Copyright (c) 2016 Jilles Steeve Dibangoye
 #pragma once
 
 #include <sdm/parser/ast.hpp>
-#include <sdm/core/dpomdp.hpp>
 #include <sdm/core/discrete_space.hpp>
 #include <sdm/core/multi_discrete_space.hpp>
 #include <sdm/world/decpomdp.hpp>
@@ -128,7 +127,7 @@ namespace sdm
       MultiDiscreteSpace md_space_;
       number ag;
 
-      element_encoder(MultiDiscreteSpace md_space, number ag) : boost::static_visitor<number>()
+      element_encoder(const MultiDiscreteSpace &md_space, number ag) : boost::static_visitor<number>()
       {
         this->ag = ag;
         this->md_space_ = md_space;
@@ -154,7 +153,7 @@ namespace sdm
       DiscreteSpace ag_space_;
 
     public:
-      joint_element_encoder(MultiDiscreteSpace element_space, DiscreteSpace ag_space)
+      joint_element_encoder(const MultiDiscreteSpace &element_space, const DiscreteSpace &ag_space)
       {
         this->ag_space_ = ag_space;
         this->element_space_ = element_space;
@@ -195,7 +194,7 @@ namespace sdm
 
       DiscreteSpace state_space_;
 
-      state_encoder(DiscreteSpace state_space) : boost::static_visitor<std::vector<number>>()
+      state_encoder(const DiscreteSpace &state_space) : boost::static_visitor<std::vector<number>>()
       {
         this->state_space_ = state_space;
       }
@@ -210,7 +209,7 @@ namespace sdm
         std::vector<number> st_ptr;
         if (s_str == "*")
         {
-          for (state s = 0; s < this->state_space_.getNumElements(); ++s)
+          for (number s = 0; s < this->state_space_.getNumElements(); ++s)
           {
             st_ptr.push_back(s);
           }
@@ -266,7 +265,7 @@ namespace sdm
       DiscreteSpace ag_space_;
       MultiDiscreteSpace act_space_;
 
-      state_transition_encoder(DiscreteSpace st_space, DiscreteSpace ag_space, MultiDiscreteSpace act_space) : boost::static_visitor<>(), st_space_(st_space), ag_space_(ag_space), act_space_(act_space)
+      state_transition_encoder(const DiscreteSpace &st_space, const DiscreteSpace &ag_space, const MultiDiscreteSpace &act_space) : boost::static_visitor<>(), st_space_(st_space), ag_space_(ag_space), act_space_(act_space)
       {
         for (number a = 0; a < this->act_space_.getNumJElements(); ++a)
         {
@@ -327,7 +326,7 @@ namespace sdm
         auto y_space = boost::apply_visitor(s_encoder, t1.next_state);
         auto x_space = boost::apply_visitor(s_encoder, t1.current_state);
         joint_element_encoder ja_encoder(this->act_space_, this->ag_space_);
-        std::vector<number> ja = ja_encoder.encode(t1.jaction);
+        auto ja = ja_encoder.encode(t1.jaction);
         double prob = t1.probability;
         for (number a : ja)
         {
@@ -350,7 +349,12 @@ namespace sdm
       MultiDiscreteSpace action_space_;
 
     public:
-      state_dynamics_encoder(DiscreteSpace state_space, DiscreteSpace agent_space, MultiDiscreteSpace action_space) : state_space_(state_space), agent_space_(agent_space), action_space_(action_space) {}
+      state_dynamics_encoder(const DiscreteSpace &state_space, const DiscreteSpace &agent_space, const MultiDiscreteSpace &action_space)
+      {
+        this->state_space_ = state_space;
+        this->agent_space_ = agent_space;
+        this->action_space_ = action_space;
+      }
 
       StateDynamics encode(const transition_t &transits)
       {
@@ -376,7 +380,7 @@ namespace sdm
       MultiDiscreteSpace act_space_;
       MultiDiscreteSpace obs_space_;
 
-      observation_transition_encoder(DiscreteSpace st_space, DiscreteSpace ag_space, MultiDiscreteSpace act_space, MultiDiscreteSpace obs_space) : boost::static_visitor<>(), st_space_(st_space), ag_space_(ag_space), act_space_(act_space), obs_space_(obs_space)
+      observation_transition_encoder(const DiscreteSpace &st_space, const DiscreteSpace &ag_space, const MultiDiscreteSpace &act_space, const MultiDiscreteSpace &obs_space) : boost::static_visitor<>(), st_space_(st_space), ag_space_(ag_space), act_space_(act_space), obs_space_(obs_space)
       {
         for (number a = 0; a < this->act_space_.getNumJElements(); ++a)
         {
@@ -461,7 +465,7 @@ namespace sdm
       MultiDiscreteSpace obs_space_;
 
     public:
-      obs_dynamics_encoder(DiscreteSpace state_space, DiscreteSpace agent_space, MultiDiscreteSpace action_space, MultiDiscreteSpace obs_space)
+      obs_dynamics_encoder(const DiscreteSpace &state_space, const DiscreteSpace &agent_space, const MultiDiscreteSpace &action_space, const MultiDiscreteSpace &obs_space)
       {
         this->state_space_ = state_space;
         this->agent_space_ = agent_space;
@@ -504,7 +508,7 @@ namespace sdm
       MultiDiscreteSpace action_space_;
       Reward *rewards_;
 
-      reward_encoder(DiscreteSpace state_space, DiscreteSpace ag_space, MultiDiscreteSpace action_space, Reward *rewards) : boost::static_visitor<>()
+      reward_encoder(const DiscreteSpace &state_space, const DiscreteSpace &ag_space, const MultiDiscreteSpace &action_space, Reward *rewards) : boost::static_visitor<>()
       {
         this->state_space_ = state_space;
         this->ag_space_ = ag_space;
@@ -551,7 +555,7 @@ namespace sdm
       DiscreteSpace agent_space_;
 
     public:
-      rewards_encoder(DiscreteSpace state_space, DiscreteSpace agent_space, MultiDiscreteSpace action_space)
+      rewards_encoder(const DiscreteSpace &state_space, const DiscreteSpace &agent_space, const MultiDiscreteSpace &action_space)
       {
         this->state_space_ = state_space;
         this->agent_space_ = agent_space;
@@ -570,7 +574,7 @@ namespace sdm
       }
     };
 
-    struct decpomdp_encoder : boost::static_visitor<sdm::DecPOMDP>
+    struct dpomdp_encoder : boost::static_visitor<sdm::DecPOMDP>
     {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // DecPOMDP encoder
@@ -606,7 +610,7 @@ namespace sdm
         // Encodes the state dynamics
         state_dynamics_encoder state_dyn_enc(state_space, agent_space, action_space);
         StateDynamics state_dyn = state_dyn_enc.encode(ast.transition_spec);
-
+        
         // Encodes the observation dynamics
         obs_dynamics_encoder d_encoder(state_space, agent_space, action_space, obs_space);
         ObservationDynamics obs_dyn = d_encoder.encode(ast.observation_spec, state_dyn);
@@ -616,11 +620,12 @@ namespace sdm
         parsed_model.setDiscount(ast.discount_param);
         parsed_model.setCriterion(ast.value_param == "reward");
 
+
 #ifdef DEBUG
         std::cout << "Model Soundness=" << (parsed_model->isSound() ? "yes" : "no") << std::endl;
 #ifdef VERBOSE
         std::cout << "Print model" << std::endl;
-        std::cout << *parsed_model << std::endl;
+        std::cout << parsed_model << std::endl;
 #endif
 #endif
         return parsed_model;

@@ -4,6 +4,10 @@
 #pragma once
 
 #include <vector>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 #include <sdm/types.hpp>
 
@@ -69,9 +73,9 @@ namespace sdm
         //! \param    rews reward functions for each agent
         //! \param    start_distrib start distribution (optional)
         POSG(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &, const MultiDiscreteSpace &,
-             const StateDynamics &, const ObservationDynamics &, const std::vector<Reward> &,  const Vector &);
+             const StateDynamics &, const ObservationDynamics &, const std::vector<Reward> &, const Vector &);
 
-        const ObservationDynamics& getObsDynamics() const;
+        const ObservationDynamics &getObsDynamics() const;
 
         //! \fn       double getObservationProbability(number, number, number) const
         //! \param    jaction a specific joint action
@@ -108,6 +112,42 @@ namespace sdm
         //! \brief    Returns transition matrix
         //! \return   const matrix&
         const Matrix &getDynamics(number jaction, number jobservation) const;
+
+        //! \fn std::string toStdFormat()
+        //! \brief Encodes POSG class into a string (standard .posg or .dpomdp or .zsposg format).
+        //! \return the resulting standard file format like string
+        std::string toStdFormat() const;
+
+        //! \fn std::string toXML()
+        //! \brief Encodes POSG class into a string (XML format).
+        //! \return the resulting XML like string
+        std::string toXML() const;
+
+        //! \fn std::string toStdFormat()
+        //! \brief Encodes POSG class into a string (JSON format).
+        //! \return the resulting JSON like string
+        std::string toJSON() const;
+
+        //! \fn void generateFile(std::string)
+        //! \brief Save problem in file with given format (.xml, .json or .{dpomdp, posg, zsposg}).
+        //! \param filename the file name
+		void generateFile(std::string) const;
+
+
+        /*!
+    	 * \fn std::ostream& operator<<(std::ostream&, const dpomdp&)
+    	 * \brief print the dpomdp
+    	 * \param std::ostream&
+    	 * \param const dpomdp& the individual decision rule to be printed
+    	 * \return std::ostream&
+    	 *
+    	 * This method should produce an output of this form:
+    	 */
+        friend std::ostream &operator<<(std::ostream &os, const POSG &model)
+        {
+            os << model.toXML();
+            return os;
+        }
     };
 
     typedef POSG POStochasticGame;

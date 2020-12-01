@@ -8,6 +8,7 @@
 
 #include <sdm/core/space.hpp>
 #include <sdm/core/discrete_space.hpp>
+#include <sdm/utils/decision_rules/joint.hpp>
 #include <sdm/types.hpp>
 
 //!
@@ -28,6 +29,9 @@ namespace sdm
     class MultiDiscreteSpace : public Space
     {
     protected:
+        typedef boost::bimaps::bimap<JointItem, number> jitems_bimap;
+        typedef typename jitems_bimap::value_type jitems2index;
+
         //! \brief list of action names for each agent.
         std::vector<DiscreteSpace> spaces_;
 
@@ -37,13 +41,16 @@ namespace sdm
         //! \brief Number of joint element
         number num_jelement;
 
+        //! \brief Mapping of joint and single items
+        jitems_bimap joint_items_bimap;
+
         /**
         *  \fn  void generateJointActions(number num_agents)
         *  \param num_agents  number of agents involved
         *  \brief generates all joint elements and maintains a bimap of indexes and
         *         corresponding pointers of joint elements.
         */
-        void generateJointElements(number);
+        void generateJointElements();
 
         //! \fn       void setNumJElements(number)
         //! \param    num_je number of joint elements
@@ -51,6 +58,7 @@ namespace sdm
         void setNumJElements(number);
 
     public:
+
         //! \fn     MultiDiscreteSpace()
         //! \brief  instantiate a default discrete space (MultiDiscreteSpace class)
         //! \return instance of MultiDiscreteSpace
@@ -89,14 +97,14 @@ namespace sdm
         //! \brief  Transform joint element to single one
         //! \param  jelement a specific joint element
         //! \return the corresponding single element
-        number joint2single(const std::vector<number>&) const;
+        number joint2single(const std::vector<number> &) const;
 
         //! \fn     const std::vector<number>& single2joint(number jelement)
         //! \brief  Transform a joint element represented as a single one into the initial joint element
         //! \param  selement a single element
         //! \return the corresponding joint element
-        const std::vector<number>& single2joint(number) const;
-        
+        const std::vector<number> &single2joint(number) const;
+
         //! \brief Getter
         number getNumSpaces() const;
 
@@ -111,8 +119,8 @@ namespace sdm
         //! \brief    Returns the number of elements (i.e. alias to getNumSpaces)
         //! \return   number of spaces
         number getNumElements() const;
-        
-        //! \brief 
+
+        //! \brief
         number getNumElements(number idx) const;
 
         //! \fn       number getNumJElements() const
@@ -124,24 +132,19 @@ namespace sdm
         //! \brief    Returns the number of elements for a given agent
         //! \param    ag_id index of the agent
         //! \param    name  element name
-        //! \return   number of elements for a given agent
+        //! \return   the index associated with the element name (for a given agent)
         number getElementIndex(number, const std::string &) const;
 
-        std::string getElementName(number) const;
-
+        //! \fn       std::string getElementName(number ag_id, number action_id)
+        //! \param    ag_id agent index
+        //! \param    action_id individual action index
+        //! \brief    the name associated with the action index
         std::string getElementName(number, number) const;
 
-        //! \return  individual action from joint element
-        // number getActionIndex(number ag, number jelement);
-
-        // action getJointActionIndex(joint_action *) const;
-
-        // number getJointActionIndex(std::vector<action> const &) const;
-
-        //! \fn  joint_action* getJointAction(action)
-        //! \brief getter of the joint-action pointer
-        //! \return const joint_action& the pointer to the joint-action index
-        // JointElement& getJointElement(action);
+        //! \fn       std::string getElementName(number ag_id)
+        //! \param    ag_id agent index
+        //! \brief    the name of the n ieme space
+        std::string getElementName(number) const;
 
         void setNames(const std::vector<std::string> &);
 
@@ -152,6 +155,29 @@ namespace sdm
         void setSpaces(const std::vector<std::vector<std::string>> &);
 
         void setSpaces(const std::vector<DiscreteSpace> &);
+
+        /*!
+       * \fn  number getJointElementIndex(JointItem*)
+       * \brief Getter of the joint-element index
+       * \param jitem pointer of JointItem
+       * \return the corresponding index
+       */
+        number getJointElementIndex(JointItem *) const;
+
+        /*!
+         * \fn  number getJointElementIndex(JointItem*)
+         * \brief Getter of the joint-element index
+         * \param jitem a joint item as vector
+         * \return the corresponding index
+         */
+        number getJointElementIndex(std::vector<number> const &) const;
+
+        /*!
+       * \fn  JointElement getJointElement(number)
+       * \brief getter of the joint-item
+       * \return the joint item given his index
+       */
+        const JointItem &getJointElement(number) const;
 
         MultiDiscreteSpace &operator=(const MultiDiscreteSpace &);
         bool operator==(const MultiDiscreteSpace &) const;

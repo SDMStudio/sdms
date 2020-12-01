@@ -7,8 +7,7 @@ Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
 
 #include <boost/bimap.hpp>
 
-// #include "variations.hpp"
-
+#include <sdm/types.hpp>
 
 //!
 //! \file     joint.hpp
@@ -24,79 +23,50 @@ Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
  *  \namespace  sdm
  *  namespace   grouping all tools required for sequential decision making.
  */
-namespace sdm{
+namespace sdm
+{
   /*!
-   *  \class      joint       "joint.hpp"
+   *  \class      Joint
    *  \brief      class of joint item instances.
    * 
-   * TODO : change counter and joint_item_bimap to non-static
    */
-   template<typename item, int instance>
-   class joint{
-   protected:
-     typedef boost::bimaps::bimap<joint<item, instance>*, item> bimap;
-     typedef typename bimap::value_type jitem2index;
-     static bimap joint_item_bimap;
-     std::vector<item> cdecisions;
-     static number counter;
-     agent num_agents;
+  template <typename item>
+  class Joint : public std::vector<item>
+  {
+  protected:
+    //! \brief the joint item
+    // std::vector<item> joint_items_;
 
-   public:
-     /*!
-      * \fn  joint(agent, item*)
-      * \brief constructor of joint item instances
-      * \param agent the number of agents
-      * \param item* items assigned to agents
-      */
-     joint(agent, const std::vector<item>&);
+    //! \brief the number of agents
+    number num_agents_;
 
-     ~joint();
+  public:
+    Joint(const std::vector<item> &joint_item) : num_agents_(joint_item.size()), std::vector<item>(joint_item)
+    {
+    }
 
-     /*!
-      * \fn  item getIndividualitem(agent)
-      * \brief getter of the item assigned to an agent
-      * \param agent a specified agent
-      * \return item the decision assigned to agent
-      */
-     item getIndividualItem(agent);
+    Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : num_agents_(num_agents.size()), std::vector<item>(joint_item) {}
 
-
-     /*!
-      * \fn  static item getJointItemIdx(joint<item, instance>*)
-      * \brief getter of the joint item index
-      * \param joint<item, instance>*
-      * \return item the item index
-      */
-     static item getJointItemIdx(joint*);
-
-     /*!
-      * \fn  static joint* getJointItem(item)
-      * \brief getter of the joint item pointer
-      * \return joint* the pointer to joint item
-      */
-     static joint* getJointItem(item);
-
-
-     /*!
-      * \fn   static item getJointItemIdx(std::vector<item>const &) const
-      * \brief getter of the joint item pointer
-      * \return item the item associated with the joint item
-      */
-      static item getJointItemIdx(std::vector<item>const &);
-
-     /*!
+    /*!
       * \fn std::ostream& operator<<(std::ostream&, const joint<item, instance>&)
       * \brief print the joint item
       * \param std::ostream&
       * \param const joint<item, instance>& joint item to be printed
       * \return std::ostream&
       */
-     friend std::ostream& operator<<(std::ostream& os, const joint& j){
-       agent ag;
-       for(ag=0; ag<j.num_agents-1; ++ag){
-         os << j.getIndividualItem(ag) << " ";
-       } os << j.getIndividualItem(ag);
-       return os;
-     }
-   };
-}
+    friend std::ostream &operator<<(std::ostream &os, const Joint &j)
+    {
+      number ag;
+      for (ag = 0; ag < j.size() - 1; ++ag)
+      {
+        os << j[ag] << " ";
+      }
+      os << j[ag];
+      return os;
+    }
+  };
+
+  template class Joint<number>;
+
+  typedef Joint<number> JointItem;
+} // namespace sdm

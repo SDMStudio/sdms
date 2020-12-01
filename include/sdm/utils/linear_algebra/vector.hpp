@@ -32,7 +32,7 @@ namespace sdm{
   template<typename type, typename value>
   class vector{
   protected:
-    number _size_;
+    size_t _size_;
 
     //! TODO Make this attribute private, be aware that it might have been used somewhere else
     //! as a public attribute.
@@ -43,10 +43,10 @@ namespace sdm{
     //! \brief This constructor allocates an uninitialized vector that holds zero elements.
     vector();
 
-    //! \fn vector(number)
-    //! \brief This constructor allocates an uninitialized vector that holds "number" elements.
-    //! \param number
-    vector(number);
+    //! \fn vector(size_t)
+    //! \brief This constructor allocates an uninitialized vector that holds "size_t" elements.
+    //! \param size_t
+    vector(size_t);
 
     //! \fn vector(const vector&)
     //! \brief This is a copy constructor.
@@ -90,12 +90,12 @@ namespace sdm{
     value max() const;
 
 
-    number size() const;
+    size_t size() const;
 
-    //! \fn void resize(number)
-    //! \brief Reallocates a vector to hold "number" elements.
-    //! \param number
-    void resize(number);
+    //! \fn void resize(size_t)
+    //! \brief Reallocates a vector to hold "size_t" elements.
+    //! \param size_t
+    void resize(size_t);
 
     //! \fn
     //! \brief Initialize the vector
@@ -108,17 +108,17 @@ namespace sdm{
 
     void setContainer(const type&);
 
-    //! \fn value& operator[](number)
+    //! \fn value& operator[](size_t)
     //! \brief Returns a reference of the i-th element.
-    //! \param number
+    //! \param size_t
     //! \return value&
-    value& operator[](number);
+    value& operator[](size_t);
 
-    //! \fn value operator[](number) const
+    //! \fn value operator[](size_t) const
     //! \brief Returns a value of the i-th element.
-    //! \param number
+    //! \param size_t
     //! \return value
-    value operator[](number) const;
+    value operator[](size_t) const;
 
     //! \fn friend vector<type, value>& operator/=(const vector<type, value>&, const value&)
     //! \brief Returns the vector normalized by a scalar

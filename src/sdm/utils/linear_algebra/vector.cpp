@@ -51,14 +51,14 @@ namespace sdm{
 
   template<typename type, typename value>
   void vector<type, value>::init(value arg){
-    number i;
+    size_t i;
     for(i=0; i<_size_; ++i){
       (*this)[i] = arg;   //<! TODO should avoid explicit enumeration of all states.(intial states)
     }
   }
 
   template<typename type, typename value>
-  number vector<type, value>::size() const{
+  size_t vector<type, value>::size() const{
     return this->container.size();
   }
 
@@ -108,7 +108,7 @@ namespace sdm{
   template<typename type, typename value>
   value vector<type, value>::norm_2() const{
     value v = 0;
-    for(number i=0; i<_size_; ++i){
+    for(size_t i=0; i<_size_; ++i){
       v += std::pow((*this)[i], 2);   //<! TODO should avoid explicit enumeration of all states.
     }
 
@@ -118,7 +118,7 @@ namespace sdm{
   template<typename type, typename value>
   value vector<type, value>::norm_1() const{
     value v = 0;
-    for(number i=0; i<_size_; ++i){
+    for(size_t i=0; i<_size_; ++i){
       v += std::abs((*this)[i]);   //<! TODO should avoid explicit enumeration of all states.
     }
 
@@ -130,7 +130,7 @@ namespace sdm{
     double min = 1.0;
 
     //<! computes the distance metric, be carefull some histories may not be part of 's'
-    for(number i=0; i<_size_; ++i) if(this->container[i] > 0){
+    for(size_t i=0; i<_size_; ++i) if(this->container[i] > 0){
       min = std::min(min, arg.container[i] / this->container[i]);
     }
 
@@ -246,7 +246,7 @@ namespace sdm{
       */
       template<>
       double vector<boost::numeric::ublas::vector<double>, double>::operator^(const vector<boost::numeric::ublas::vector<double>, double>& arg) const {
-        number i, _size_ = arg.container.size();
+        size_t i, _size_ = arg.container.size();
 
         double result = 0.0;
         for(i=0; i<_size_; i++){

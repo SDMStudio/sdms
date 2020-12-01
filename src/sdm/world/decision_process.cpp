@@ -44,7 +44,7 @@ namespace sdm
 
     DecisionProcess::DecisionProcess(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp, const MultiDiscreteSpace &action_sp,
                                      const StateDynamics &s_dyn, const std::vector<Reward> &rews, const Vector &start_distrib)
-        : DecisionProcess(state_sp, agent_sp, action_sp, start_distrib)
+        : StochasticProcess(state_sp, start_distrib), agent_space_(agent_sp), action_space_(action_sp)
     {
         this->s_dynamics_ = s_dyn;
         this->rew_ = rews;
@@ -75,8 +75,8 @@ namespace sdm
         std::vector<double> costs;
         for (number ag = 0; ag < this->getNumAgents(); ag++)
         {
-            double cost = std::abs((this->rew_[ag].getMinReward() - this->rew_[ag].getReward(state, jaction) / (this->rew_[ag].getMaxReward() - this->rew_[ag].getMinReward()));
-            costs.push_back(cost)
+            double cost = std::abs((this->rew_[ag].getMinReward() - this->rew_[ag].getReward(state, jaction)) / (this->rew_[ag].getMaxReward() - this->rew_[ag].getMinReward()));
+            costs.push_back(cost);
         }
         return costs;
     }

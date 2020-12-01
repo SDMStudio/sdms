@@ -25,7 +25,7 @@ namespace sdm
   {
     BOOST_SPIRIT_INSTANTIATE(dpomdp_type, iterator_type, context_type)
 
-    sdm::dpomdp parse_string(std::string storage)
+    sdm::DecPOMDP parse_string(std::string storage)
     {
       using sdm::parser::dpomdp_t; // Our grammar
       sdm::ast::dpomdp_t ast;      // Our tree
@@ -44,9 +44,8 @@ namespace sdm
 
       if (r && iter == end)
       {
+
         // Convert ast to DPOMDP class
-        // std::string name(filename);
-        // model->setFileName(name);
         sdm::ast::dpomdp_encoder encoder;
         return encoder(ast);
       }
@@ -58,7 +57,7 @@ namespace sdm
       }
     }
 
-    sdm::dpomdp parse_file(char const *filename)
+    sdm::DecPOMDP parse_file(char const *filename)
     {
       std::ifstream in(filename, std::ios_base::in);
 
@@ -74,7 +73,9 @@ namespace sdm
           std::istream_iterator<char>(),
           std::back_inserter(storage));
 
-      return sdm::parser::parse_string(storage);
+      sdm::DecPOMDP parsed_model = sdm::parser::parse_string(storage);
+      parsed_model.setFileName(filename);
+      return parsed_model;
     }
   } // namespace parser
 
