@@ -1,5 +1,5 @@
 SDM'Studio: The Reconstruction ToolKit
-===============================
+======================================
 
 
 <!-- [![Build Status](https://travis-ci.com/hill-a/stable-baselines.svg?branch=master)](https://travis-ci.com/hill-a/stable-baselines) 
@@ -11,10 +11,12 @@ SDM'Studio: The Reconstruction ToolKit
 <!-- [![PyPI](https://img.shields.io/pypi/v/itk-rtk.svg)](https://pypi.python.org/pypi/itk-rtk) -->
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://gitlab.inria.fr/jdibango/sdms/-/blob/master/LICENSE)
 
-- [1. Requirements](1-requirements)
-- [2. Installation](2-installation)
-- [3. Formaisms](3-formalism)
-- [4. Algorithms](4-algorithms)
+- [1. Requirements](#1-requirements)
+- [2. Installation](#2-installation-of-sdms)
+- [3. Formaisms](#3-formalisms)
+  - [3.1. Multi-agent](#31-multi-agent)
+  - [3.2. Single-agent](#32-single-agent)
+- [4. Algorithms](#4-algorithms)
 
 
 ## 1. Requirements
