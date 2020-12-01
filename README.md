@@ -17,6 +17,7 @@ SDM'Studio: The Reconstruction ToolKit
   - [3.1. Multi-agent](#31-multi-agent)
   - [3.2. Single-agent](#32-single-agent)
 - [4. Algorithms](#4-algorithms)
+- [5. Usage](#5-usage)
 
 
 ## 1. Requirements
@@ -80,3 +81,24 @@ make install
 | HSVI  | Q-Learning | Value Iteration | Policy Iteration | JESP  |
 | :---: | :--------: | :-------------: | :--------------: | :---: |
 |  :x:  |    :x:     |       :x:       |       :x:        |  :x:  |
+
+
+## 5. Usage
+
+```cpp
+#include <iostream>
+#include <sdm/worlds.hpp>
+#include <sdm/parser/parser.hpp>
+
+int main(int argc, char **argv)
+{
+	sdm::DecPOMDP dpomdp_world= sdm::parser::parse_file("my_problem.dpomdp");
+
+  std::cout << "Nb States : " << dpomdp_world.getNumStates() << std::endl;
+	std::cout << "Nb Agents : " << dpomdp_world.getNumAgents() << std::endl;
+	std::cout << "Nb Joint Actions : " << dpomdp_world.getNumJActions() << std::endl;
+	std::cout << "Nb Joint Observations : " << dpomdp_world.getNumJObservations() << std::endl;
+
+  return 0;
+}
+```
