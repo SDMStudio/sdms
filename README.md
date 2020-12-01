@@ -93,7 +93,7 @@ make install
 int main(int argc, char **argv)
 {
 	sdm::DecPOMDP dpomdp_world= sdm::parser::parse_file("my_problem.dpomdp");
-
+  
   std::cout << "Nb States : " << dpomdp_world.getNumStates() << std::endl;
 	std::cout << "Nb Agents : " << dpomdp_world.getNumAgents() << std::endl;
 	std::cout << "Nb Joint Actions : " << dpomdp_world.getNumJActions() << std::endl;
