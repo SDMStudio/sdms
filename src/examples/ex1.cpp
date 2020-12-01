@@ -21,20 +21,20 @@ int main(int argc, char **argv)
 	dpomdp_3 = dpomdp_2;
 
 	// Construct ZSPOSG from DecPOMDP problem
-	sdm::ZSPOSG zs_posg1(dpomdp_2);
+	sdm::ZSPOSG zsposg_1(dpomdp_2);
 
 	// Construct ZSPOSG from filename (use parser)
-	// sdm::ZSPOSG zs_posg2("../data/world/dpomdp/mabc.zsposg");
+	// sdm::ZSPOSG zsposg_3("../data/world/dpomdp/mabc.zsposg");
 
 	// Construct ZSPOSG using parser
-	sdm::ZSPOSG zs_posg2 = sdm::parser::parse_file("../data/world/zsposg/fake_prisoners.zsposg");
+	sdm::ZSPOSG zsposg_2 = sdm::parser::parse_file("../data/world/zsposg/fake_prisoners.zsposg");
 
 	std::cout << "#> DPOMDP_1" << dpomdp_1 << "\n\n";
 	std::cout << "#> DPOMDP_2" << dpomdp_2 << "\n\n";
 	std::cout << "#> DPOMDP_3" << dpomdp_3 << "\n\n";
 
-	std::cout << "#> ZSPOSG_1" << zs_posg << "\n\n";
-	std::cout << "#> ZSPOSG_2" << zs_posg2 << "\n\n";
+	std::cout << "#> ZSPOSG_1" << zsposg_1 << "\n\n";
+	std::cout << "#> ZSPOSG_2" << zsposg_2 << "\n\n";
 
 	return 0;
 }

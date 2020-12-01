@@ -1,0 +1,20 @@
+# This is a Dec-POMDP (.dpomdp) file for the broadcast channel problem.
+agents: 2
+discount: 1.0
+values: "reward"
+states: "S"
+start:
+1.0
+actions:
+"confess" "lie"
+"confess" "lie"
+observations:
+"O"
+"O"
+T: "*" : "S" : "S" : 1.0
+O: "*" : "*" : "O" "O" : 1.0
+R: "lie" "lie" : "*" : 0
+R: "confess" "confess" : "*" : 0
+R: "lie" "confess" : "*" : 3
+R: "confess" "lie" : "*" : -3
+#
