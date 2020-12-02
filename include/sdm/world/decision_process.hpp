@@ -100,6 +100,15 @@ namespace sdm
         //! \brief    Sets the discount factor
         void setDiscount(double);
 
+        //! \fn       number getPlanningHorizon() const
+        //! \brief    Returns the planning horizon
+        //! \return   the horizon
+        number getPlanningHorizon() const;
+
+        //! \fn       void setPlanningHorizon(number)
+        //! \brief    Sets the planning horizon
+        void setPlanningHorizon(number);
+
         /**
          * \brief Get the state dynamics
          */
@@ -124,6 +133,8 @@ namespace sdm
          * \brief Transit to next state given a joint action
          */
         void nextState(std::vector<number> jaction);
+
+        const std::vector<Reward> &getRewards() const;
 
         /**
          * \brief Get transition probability from joint action (as a single one) for all agents
@@ -152,7 +163,7 @@ namespace sdm
          * \brief Get reward from joint action for all agents
          */
         std::vector<double> getCost(number state, number jaction) const;
-        
+
         /**
          * \fn std::vector<double> getReward(number state, std::vector<number> jaction);
          * \brief Get cost from joint action for all agents

@@ -5,8 +5,6 @@ Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
 
 #include <vector>
 
-#include <boost/bimap.hpp>
-
 #include <sdm/types.hpp>
 
 //!
@@ -41,11 +39,11 @@ namespace sdm
     number num_agents_;
 
   public:
-    Joint(const std::vector<item> &joint_item) : num_agents_(joint_item.size()), std::vector<item>(joint_item)
+    Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size())
     {
     }
 
-    Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : num_agents_(num_agents.size()), std::vector<item>(joint_item) {}
+    Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(num_agents.size()) {}
 
     /*!
       * \fn std::ostream& operator<<(std::ostream&, const joint<item, instance>&)

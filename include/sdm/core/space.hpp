@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <boost/bimap.hpp>
+#include <sdm/types.hpp>
 
 //!
 //! \file     space.hpp
@@ -19,8 +20,11 @@
 //! \brief Namespace grouping all tools required for sequential decision making.
 namespace sdm
 {
-    //! \class  Space  space.hpp
-    class Space
-    {
-    };
+  //! \class  Space  space.hpp
+  class Space
+  {
+  public:
+    virtual std::vector<number> getDim() const = 0;
+    virtual std::string str() const = 0;
+  };
 } // namespace sdm

@@ -3,6 +3,7 @@
 ==============================================================================*/
 #pragma once
 
+#include <random>
 #include <vector>
 #include <sdm/types.hpp>
 #include <sdm/core/discrete_space.hpp>
@@ -35,15 +36,8 @@ namespace sdm
         //! The initial state distribution
         Vector start_distrib_;
 
-        //! \fn       number getState()
-        //! \brief    Get the internal state.
-        //! \return   the internal state
-        number getState() const;
-
-        //! \fn       void setState(number)
-        //! \param    internal_state the new internal state
-        //! \brief    Sets the internal state.
-        void setState(number);
+        //! \brief generator of starting state
+        std::discrete_distribution<number> start_generator;
 
     public:
         StochasticProcess();
@@ -53,8 +47,27 @@ namespace sdm
         StochasticProcess(const DiscreteSpace &);
         StochasticProcess(const DiscreteSpace &, const Vector &);
 
+        //! \fn       number getInternalState()
+        //! \brief    Get the internal state.
+        //! \return   the internal state
+        number getInternalState() const;
+
+        //! \fn       void setInternalState(number)
+        //! \param    internal_state the new internal state
+        //! \brief    Sets the internal state.
+        void setInternalState(number);
+
+        void setupStartGenerator();
+
+        //! \fn       number init()
+        //! \brief    Init processus and return initial sampled state
+        //! \return   the initial state
+        number init();
+
         const Vector &getStartDistrib() const;
+
         void setStartDistrib(const std::vector<double> &);
+
         void setStartDistrib(const Vector &);
 
         const DiscreteSpace &getStateSpace() const;
