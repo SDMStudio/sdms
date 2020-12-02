@@ -18,14 +18,14 @@ project(SDMStudio)
 set(LIB_NAME "sdm")
 
 add_subdirectory(src)
-add_subdirectory(doc)
+# add_subdirectory(doc)
 
 
-add_subdirectory(tests)
-enable_testing ()
-add_test (NAME TestWorld 
-          COMMAND test_world
-      )
-add_test (NAME TestSpace 
-        COMMAND test_space
-)
+# add_subdirectory(tests)
+# enable_testing ()
+# add_test (NAME TestWorld 
+#           COMMAND test_world
+#       )
+# add_test (NAME TestSpace 
+#         COMMAND test_space
+# )

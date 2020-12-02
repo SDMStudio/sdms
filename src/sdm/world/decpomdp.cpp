@@ -24,6 +24,9 @@ namespace sdm
     {
     }
 
+    DecPOMDP::DecPOMDP(const POSG& posg) : POSG(posg){}
+
+
     const Reward &DecPOMDP::getReward() const
     {
         return this->rew_[0];

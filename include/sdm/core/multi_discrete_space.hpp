@@ -58,7 +58,6 @@ namespace sdm
         void setNumJElements(number);
 
     public:
-
         //! \fn     MultiDiscreteSpace()
         //! \brief  instantiate a default discrete space (MultiDiscreteSpace class)
         //! \return instance of MultiDiscreteSpace
@@ -87,6 +86,8 @@ namespace sdm
         //! \param  spaces a list of value names for each agent.
         //! \return instance of MultiDiscreteSpace
         MultiDiscreteSpace(const std::vector<DiscreteSpace> &);
+
+        std::vector<number> getDim() const;
 
         //! \fn     std::vector<number> sample()
         //! \brief  Sample an element from the space
@@ -178,6 +179,8 @@ namespace sdm
        * \return the joint item given his index
        */
         const JointItem &getJointElement(number) const;
+
+        std::string str() const;
 
         MultiDiscreteSpace &operator=(const MultiDiscreteSpace &);
         bool operator==(const MultiDiscreteSpace &) const;

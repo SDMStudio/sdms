@@ -62,6 +62,8 @@ namespace sdm
         //! \brief    Getter for num_elements_ parameter
         number getNumElements() const;
 
+        std::vector<number> getDim() const;
+
         //! \fn       number getElementIndex(const std::string&)
         //! \param    e_name the element name
         //! \brief    Returns the index of the element (from name)
@@ -80,6 +82,8 @@ namespace sdm
         //! \param    e_names a list of element names
         //! \brief    Sets the names of elements.
         void setElementsNames(const std::vector<std::string> &);
+
+        std::string str() const;
 
         DiscreteSpace &operator=(const DiscreteSpace &);
         bool operator==(const DiscreteSpace &) const;

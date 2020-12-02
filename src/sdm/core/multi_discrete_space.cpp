@@ -63,6 +63,15 @@ namespace sdm
         return this->spaces_.size();
     }
 
+    std::vector<number> MultiDiscreteSpace::getDim() const
+    {
+        std::vector<number> v_dim;
+        for (const DiscreteSpace& sp : this->spaces_){
+            v_dim.push_back(1);
+        }
+        return v_dim;
+    }
+
     std::vector<DiscreteSpace> MultiDiscreteSpace::getSpaces() const
     {
         return this->spaces_;
@@ -267,15 +276,21 @@ namespace sdm
         return !(operator==(sp));
     }
 
+    std::string MultiDiscreteSpace::str() const{
+        std::ostringstream res; 
+        res << "MultiDiscreteSpace(" << this->getNumSpaces() << ")";
+        res << "[";
+        for (number i = 0; i < this->getNumSpaces(); i++)
+        {
+            res << "\n\t" << this->getElementName(i) << " : " << this->getSpace(i);
+        }
+        res << "\n]";
+        return res.str();
+    }
+
     std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpace &sp)
     {
-        os << "MultiDiscreteSpace(" << sp.getNumSpaces() << ")";
-        os << "[";
-        for (number i = 0; i < sp.getNumSpaces(); i++)
-        {
-            os << "\n\t" << sp.getElementName(i) << " : " << sp.getSpace(i);
-        }
-        os << "\n]";
+        os << sp.str();
         return os;
     }
 } // namespace sdm

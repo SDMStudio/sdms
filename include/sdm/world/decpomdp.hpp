@@ -36,6 +36,8 @@ namespace sdm
 	public:
 		DecPOMDP();
 
+		DecPOMDP(const POSG&);
+
 		//! \param filename name of the file describing the DecPOMDP
 		DecPOMDP(const std::string &filename);
 

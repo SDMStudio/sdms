@@ -25,9 +25,11 @@ namespace sdm
     BOOST_SPIRIT_DECLARE(dpomdp_type)
     // BOOST_SPIRIT_DECLARE(ndpomdp_type)
 
-    sdm::DecPOMDP parse_file(char const *);
-
     sdm::DecPOMDP parse_string(std::string);
+
+    sdm::DecPOMDP parse_file(char const *);
+    
+    sdm::DecPOMDP parse_file(std::string);
 
   } // namespace parser
 

@@ -1,5 +1,6 @@
 #include <sdm/world/stochastic_process.hpp>
 #include <sdm/core/discrete_space.hpp>
+#include <sdm/common.hpp>
 
 namespace sdm
 {
@@ -27,6 +28,20 @@ namespace sdm
     {
     }
 
+    number StochasticProcess::init()
+    {
+        this->internal_state_ = this->start_generator(sdm::common::global_urng());
+        return this->internal_state_;
+    }
+
+    void StochasticProcess::setupStartGenerator()
+    {
+        std::vector<double> v;
+        for (number x = 0; x < this->getNumStates(); ++x)
+            v.push_back(this->getStartDistrib()[x]);
+        this->start_generator = std::discrete_distribution<number>(v.begin(), v.end());
+    }
+
     void StochasticProcess::setStartDistrib(const std::vector<double> &start_distrib)
     {
         this->start_distrib_ = Vector(start_distrib.size());
@@ -45,7 +60,7 @@ namespace sdm
         return this->start_distrib_;
     }
 
-    number StochasticProcess::getState() const
+    number StochasticProcess::getInternalState() const
     {
         return this->internal_state_;
     }
@@ -75,7 +90,7 @@ namespace sdm
         this->state_space_.setElementsNames(names);
     }
 
-    void StochasticProcess::setState(number state)
+    void StochasticProcess::setInternalState(number state)
     {
         this->internal_state_ = state;
     }

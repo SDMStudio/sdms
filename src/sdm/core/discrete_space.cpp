@@ -20,6 +20,11 @@ namespace sdm
         return this->getNumElements();
     }
 
+    std::vector<number> DiscreteSpace::getDim() const
+    {
+        return {1};
+    }
+
     number DiscreteSpace::getNumElements() const
     {
         return this->num_elements_;
@@ -98,15 +103,21 @@ namespace sdm
         return !(operator==(sp));
     }
 
+    std::string DiscreteSpace::str() const
+    {
+        std::ostringstream res;
+        res << "DiscreteSpace(" << this->getNumElements() << ")";
+        res << "[";
+        for (number i = 0; i < this->getNumElements(); i++)
+        {
+            res << "" << this->getElementName(i) << " ";
+        }
+        return res.str();
+    }
+
     std::ostream &operator<<(std::ostream &os, const DiscreteSpace &sp)
     {
-        os << "DiscreteSpace(" << sp.getNumElements() << ")";
-        os << "[";
-        for (number i = 0; i < sp.getNumElements(); i++)
-        {
-            os << "" << sp.getElementName(i) << " ";
-        }
-        os << "]";
+        os << sp.str();
         return os;
     }
 } // namespace sdm

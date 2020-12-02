@@ -106,6 +106,16 @@ namespace sdm
         this->discount = discount;
     }
 
+    void DecisionProcess::setPlanningHorizon(number planning_horizon)
+    {
+        this->planning_horizon = planning_horizon;
+    }
+
+    number DecisionProcess::getPlanningHorizon() const
+    {
+        return this->planning_horizon;
+    }
+
     const StateDynamics &DecisionProcess::getStateDynamics() const
     {
         return this->s_dynamics_;
@@ -185,9 +195,9 @@ namespace sdm
         std::vector<number> v_proba;
         for (number s = 0; s < this->getNumStates(); s++)
         {
-            v_proba.push_back(this->s_dynamics_.getTransitions(jaction)(this->getState(), s));
+            v_proba.push_back(this->s_dynamics_.getTransitions(jaction)(this->getInternalState(), s));
         }
-        this->setState(std::discrete_distribution<number>(v_proba.begin(), v_proba.end())(common::global_urng()));
+        this->setInternalState(std::discrete_distribution<number>(v_proba.begin(), v_proba.end())(common::global_urng()));
     }
 
     void DecisionProcess::nextState(std::vector<number> jaction)
@@ -196,6 +206,12 @@ namespace sdm
     }
 
     // REWARD
+
+    const std::vector<Reward> &DecisionProcess::getRewards() const
+    {
+        return this->rew_;
+    }
+
     double DecisionProcess::getReward(number state, number jaction, number ag_id) const
     {
         return this->rew_[ag_id].getReward(state, jaction);

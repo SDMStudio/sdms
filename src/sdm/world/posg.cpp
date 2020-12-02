@@ -1,10 +1,16 @@
 #include <sdm/world/posg.hpp>
+#include <sdm/types.hpp>
+#include <sdm/common.hpp>
 #include <regex>
 
 namespace sdm
 {
 
     POSG::POSG() {}
+
+    POSG::POSG(const POSG &posg) : POSG(posg.getStateSpace(), posg.getAgentSpace(), posg.getActionSpace(), posg.getObsSpace(), posg.getStateDynamics(), posg.getObsDynamics(), posg.getRewards(), posg.getStartDistrib())
+    {
+    }
 
     POSG::POSG(const DecisionProcess &stochastic_game) : DecisionProcess(stochastic_game.getStateSpace(), stochastic_game.getAgentSpace(), stochastic_game.getActionSpace(), stochastic_game.getStartDistrib())
     {
@@ -31,6 +37,7 @@ namespace sdm
         this->s_dynamics_ = s_dyn;
         this->rew_ = rews;
         this->obs_spaces_ = obs_sp;
+        this->setupDynamicsGenerator();
     }
 
     const ObservationDynamics &POSG::getObsDynamics() const
@@ -68,6 +75,51 @@ namespace sdm
         return this->o_dynamics_.getDynamics(jaction, jobservation);
     }
 
+    void POSG::setupDynamicsGenerator()
+    {
+        number i;
+        number a;
+        number x, y;
+        number z;
+
+        for (i = 0, y = 0; y < this->getNumStates(); ++y)
+            for (z = 0; z < this->getNumJObservations(); ++z, ++i)
+                this->encoding.emplace(i, std::make_pair(y, z));
+
+        for (x = 0; x < this->getNumStates(); ++x)
+        {
+            this->dynamics_generator.emplace(x, std::unordered_map<action, std::discrete_distribution<size_t>>());
+            for (a = 0; a < this->getNumJActions(); ++a)
+            {
+                std::vector<double> v;
+                for (y = 0; y < this->getNumStates(); ++y)
+                    for (z = 0; z < this->getNumJObservations(); ++z)
+                        v.push_back(this->getDynamics(x, a, z, y));
+                this->dynamics_generator[x].emplace(a, std::discrete_distribution<size_t>(v.begin(), v.end()));
+            }
+        }
+
+        this->setupStartGenerator();
+    }
+
+    std::tuple<std::vector<double>, number, number> POSG::getDynamicsGenerator(number x, number a) const
+    {
+        number y;
+        number z;
+        std::vector<double> v_rew;
+        std::discrete_distribution distrib = this->dynamics_generator.at(x).at(a);
+        std::tie(y, z) = this->encoding.at(distrib(common::global_urng()));
+
+        for (int ag = 0; a < this->getNumAgents(); ++ag)
+        {
+            v_rew.push_back(this->getReward(x, a, ag));
+        }
+        return std::make_tuple(v_rew, z, y);
+    }
+
+    // ------------------------------
+    // Display POSG
+    // ------------------------------
     std::string POSG::toStdFormat() const
     {
         std::ostringstream res;
@@ -183,7 +235,7 @@ namespace sdm
             if (rew_.size() == 1)
             {
                 res << "\t\t\t<reward-entry joint-action=\"";
-                for (number ag=0; ag < this->getNumAgents(); ++ag)
+                for (number ag = 0; ag < this->getNumAgents(); ++ag)
                 {
                     res << this->getActionSpace().getElementName(ag, v_ja[ag]) << " ";
                 }
@@ -196,7 +248,7 @@ namespace sdm
                 for (number ag_id = 0; ag_id < this->getNumAgents(); ++ag_id)
                 {
                     res << "\t\t\t<reward-entry joint-action=\"";
-                    for (number ag=0; ag < this->getNumAgents(); ++ag)
+                    for (number ag = 0; ag < this->getNumAgents(); ++ag)
                     {
                         res << this->getActionSpace().getElementName(ag, v_ja[ag]) << " ";
                     }
@@ -231,7 +283,6 @@ namespace sdm
         std::cout << "toJSON : Not implemented method" << std::endl;
         return "Not implemented method";
     }
-
 
     void POSG::generateFile(std::string filename) const
     {

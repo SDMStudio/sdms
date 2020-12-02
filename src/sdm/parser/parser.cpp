@@ -77,6 +77,12 @@ namespace sdm
       parsed_model.setFileName(filename);
       return parsed_model;
     }
+    
+    sdm::DecPOMDP parse_file(std::string filename)
+    {
+      return parse_file(filename.c_str());
+    }
+    
   } // namespace parser
 
   // parser::dpomdp_type const& dpomdp(){

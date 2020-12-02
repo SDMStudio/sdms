@@ -40,8 +40,21 @@ namespace sdm
     protected:
         ObservationDynamics o_dynamics_;
 
+        //! \brief Map (state, jaction) to probability of (next_state, next_observation) --> i.e. s_{t+1}, o_{t+1} ~ P(S_{t+1}, O_{t+1}  | S_t = s, A_t = a )
+        std::unordered_map<number, std::unordered_map<number, std::discrete_distribution<std::size_t>>> dynamics_generator;
+
+        //! \brief map integer representing joint state/observation to this couple (state, observation)
+        std::unordered_map<number, std::pair<number, number>> encoding;
+
+        //! \fn void setupDynamicsGenerator()
+        //! \brief Setup de dynamics generator
+        void setupDynamicsGenerator();
+
+
     public:
         POSG();
+
+        POSG(const POSG &posg);
 
         //! \param stochastic_game stochastic game
         //! \brief Construct a POSG from a SG (i.e. build observation function as identity)
@@ -74,6 +87,13 @@ namespace sdm
         //! \param    start_distrib start distribution (optional)
         POSG(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &, const MultiDiscreteSpace &,
              const StateDynamics &, const ObservationDynamics &, const std::vector<Reward> &, const Vector &);
+
+
+        //! \fn std::tuple<double, observation, state> getDynamicsGenerator(state x, action a)
+        //! \param state the current state
+        //! \param jaction the joint action
+        //! \return a tuple containing reward, next_osbservation and next_state
+        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number x, number a) const;
 
         const ObservationDynamics &getObsDynamics() const;
 
@@ -131,8 +151,7 @@ namespace sdm
         //! \fn void generateFile(std::string)
         //! \brief Save problem in file with given format (.xml, .json or .{dpomdp, posg, zsposg}).
         //! \param filename the file name
-		void generateFile(std::string) const;
-
+        void generateFile(std::string) const;
 
         /*!
     	 * \fn std::ostream& operator<<(std::ostream&, const dpomdp&)
