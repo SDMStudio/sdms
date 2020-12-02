@@ -32,32 +32,38 @@ SDM'Studio: The Reconstruction ToolKit
 
 ## 2. Installation of SDM'S
 
-### 2.1. Install SDMS from sources
-```bash
-git clone https://github.com/blavad/sdms.git
-cd sdms
-mkdir build
-cd build
-cmake ..
-make install
-```
-
-### 2.2. Install eigen3 library, the version in the repository should be enough (default installation prefix is /usr)
+### 2.1. Install eigen3 library, the version in the repository should be enough (default installation prefix is /usr)
 ```bash
   sudo apt-get install libeigen3-dev
 ```
 
-### 2.3. Install boost library, version 1.66.
+### 2.2. Install boost library, version 1.66.
 
   The current version in the repository is 1.66 => need to install from sources
 	http://www.boost.org/doc/libs/1_60_0/more/getting_started/unix-variants.html
 	Go to section 5.1 "Easy Build and Install" and follow the instructions on how to install boost.
   The installation prefix should be /usr/local
 
-### 2.4. Install clang, the version in the repository should be enough
+### 2.3. Install clang, the version in the repository should be enough
    - NOTE: the project compiles using clang++ and not gcc
 ```bash
   sudo apt-get install clang
+```
+
+### 2.4. Install pytorch CXX11 and SDMS
+```bash
+git clone https://github.com/blavad/sdms.git
+cd sdms
+git checkout develop
+mkdir build
+mkdir libs
+mkdir libs/libsdm
+cd libs
+wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.0%2Bcpu.zip
+unzip libtorchxxxxxxxxxxxxx.zip
+cd ../build
+cmake .. -DCMAKE_INSTALL_PREFIX=../libs/libsdm/ -DCMAKE_PREFIX_PATH=../libs/libtorch
+make install
 ```
 
 ### 2.5. Install ILOG CPLEX (third party software)
