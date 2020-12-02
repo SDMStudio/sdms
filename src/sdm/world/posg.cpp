@@ -107,7 +107,7 @@ namespace sdm
         number y;
         number z;
         std::vector<double> v_rew;
-        std::discrete_distribution distrib = this->dynamics_generator.at(x).at(a);
+        std::discrete_distribution<size_t> distrib = this->dynamics_generator.at(x).at(a);
         std::tie(y, z) = this->encoding.at(distrib(common::global_urng()));
 
         for (const Reward& rew : this->rew_)
