@@ -50,13 +50,7 @@ SDM'Studio: The Reconstruction ToolKit
   sudo apt-get install clang
 ```
 
-### 2.4. Install pytorch CXX11 
-```bash
-
-wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.0%2Bcpu.zip
-```
-
-### 2.4. Get SDMS from sources
+### 2.4. Install pytorch CXX11 and SDMS
 ```bash
 git clone https://github.com/blavad/sdms.git
 cd sdms
