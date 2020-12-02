@@ -79,7 +79,6 @@ int main(int argv, char **args)
             planning_horizon = 1000;
         }
         tiger_pb->setPlanningHorizon(planning_horizon);
-        std::cout << *tiger_pb;
 
         // ------------------------
         // Instantiate DQN algo and solve problem using it
@@ -94,11 +93,6 @@ int main(int argv, char **args)
         // // Instantiate DQN algo for MDP problems
         DQNMDP dqn_algo(policy_net, target_net, memory, eps_greedy, batch_size, target_update, device);
         dqn_algo.to(device);
-
-        std::cout <<tiger_pb->getNumJActions();
-
-        std::cout << policy_net<<"\n";
-        std::cout << target_net<<"\n";
 
         dqn_algo.solve(tiger_pb, episodes);
     }

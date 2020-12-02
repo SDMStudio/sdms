@@ -36,7 +36,7 @@ namespace sdm
 
         std::vector<number> jobs = this->internal_formalism_->getObsSpace().single2joint(std::get<1>(tuple_));
         std::vector<double> rews = std::get<0>(tuple_);
-        bool isFinished = this->ctimestep_==this->internal_formalism_->getPlanningHorizon();
+        bool isFinished = (this->ctimestep_==this->internal_formalism_->getPlanningHorizon());
 
         return std::tie(jobs, rews, isFinished);
     }
