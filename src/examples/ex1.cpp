@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	sdm::ZSPOSG zsposg_1(dpomdp_2);
 
 	// Construct ZSPOSG from filename (use parser)
-	sdm::ZSPOSG zsposg_3("../data/world/dpomdp/mabc.zsposg");
+	// sdm::ZSPOSG zsposg_3("../data/world/dpomdp/mabc.zsposg");
 
 	// Construct ZSPOSG using parser
 	sdm::ZSPOSG zsposg_2 = sdm::parser::parse_file("../data/world/zsposg/fake_prisoners.zsposg");

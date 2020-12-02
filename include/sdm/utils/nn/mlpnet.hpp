@@ -1,8 +1,11 @@
+#pragma once
+
 #include <torch/torch.h>
+#include <sdm/types.hpp>
 
 struct DQNImpl : torch::nn::Module
 {
-    DQNImpl(number num_states, number num_actions)
+    DQNImpl(sdm::number num_states, sdm::number num_actions)
         : fc1(torch::nn::Linear(num_states, 10)),
           fc2(torch::nn::Linear(10, num_actions))
     {

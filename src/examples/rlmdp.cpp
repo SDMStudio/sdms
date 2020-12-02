@@ -13,6 +13,7 @@ namespace po = boost::program_options;
 // Create the device we pass around based on whether CUDA is available.
 torch::Device device(torch::kCPU);
 
+
 namespace
 {
     const size_t SUCCESS = 0;
@@ -77,6 +78,8 @@ int main(int argv, char **args)
         {
             planning_horizon = 1000;
         }
+        tiger_pb->setPlanningHorizon(planning_horizon);
+        std::cout << *tiger_pb;
 
         // ------------------------
         // Instantiate DQN algo and solve problem using it
@@ -84,13 +87,19 @@ int main(int argv, char **args)
         // Instantiate neural networks models
         DQN policy_net(tiger_pb->getNumStates(), tiger_pb->getNumJActions()), target_net(tiger_pb->getNumStates(), tiger_pb->getNumJActions());
 
-        // Instantiate replay memory and eps greedy
+        // // Instantiate replay memory and eps greedy
         ReplayMemory memory(replay_memory);
         EpsGreedy eps_greedy(eps_start, eps_end, eps_decay);
 
-        // Instantiate DQN algo for MDP problems
+        // // Instantiate DQN algo for MDP problems
         DQNMDP dqn_algo(policy_net, target_net, memory, eps_greedy, batch_size, target_update, device);
         dqn_algo.to(device);
+
+        std::cout <<tiger_pb->getNumJActions();
+
+		std::stringstream stream;
+		torch::save(policy_net, stream);
+		torch::load(target_net, stream);
 
         dqn_algo.solve(tiger_pb, episodes);
     }

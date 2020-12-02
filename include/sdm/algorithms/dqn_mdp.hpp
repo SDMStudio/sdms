@@ -44,11 +44,11 @@ namespace sdm
         //! \brief The current number of steps done
         torch::Device device_;
 
-        action DQNMDP::select_action(const std::shared_ptr<POSG> &, state, std::uniform_int_distribution<int> &);
+        action select_action(const std::shared_ptr<POSG> &, state, std::uniform_int_distribution<int> &);
         void optimize_dqn(const std::shared_ptr<POSG> &, bool = false);
 
     public:
-        DQNMDP(DQN, DQN, ReplayMemory, EpsGreedy, int, int, torch::Device = "cpu");
+        DQNMDP(DQN, DQN, ReplayMemory, EpsGreedy, int, int, torch::Device = torch::kCPU);
         void to(torch::Device);
         void solve(const std::shared_ptr<POSG> &, horizon, double = 0.001, double = 1.0);
     };
