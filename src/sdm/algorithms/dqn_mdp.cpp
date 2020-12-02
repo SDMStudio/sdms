@@ -85,7 +85,7 @@ namespace sdm
         return a;
     }
 
-    void DQNMDP::optimize_dqn(const std::shared_ptr<POSG> &world, bool print = false)
+    void DQNMDP::optimize_dqn(const std::shared_ptr<POSG> &world, bool print)
     {
         if (this->replay_memory_.size() < this->batch_size_)
         {
