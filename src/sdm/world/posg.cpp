@@ -110,10 +110,11 @@ namespace sdm
         std::discrete_distribution distrib = this->dynamics_generator.at(x).at(a);
         std::tie(y, z) = this->encoding.at(distrib(common::global_urng()));
 
-        for (int ag = 0; a < this->getNumAgents(); ++ag)
+        for (const Reward& rew : this->rew_)
         {
-            v_rew.push_back(this->getReward(x, a, ag));
+            v_rew.push_back(rew.getReward(x, a));
         }
+    
         return std::make_tuple(v_rew, z, y);
     }
 

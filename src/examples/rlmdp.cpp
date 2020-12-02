@@ -97,9 +97,8 @@ int main(int argv, char **args)
 
         std::cout <<tiger_pb->getNumJActions();
 
-		std::stringstream stream;
-		torch::save(policy_net, stream);
-		torch::load(target_net, stream);
+        std::cout << policy_net<<"\n";
+        std::cout << target_net<<"\n";
 
         dqn_algo.solve(tiger_pb, episodes);
     }

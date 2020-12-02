@@ -18,9 +18,9 @@ namespace sdm
     void DQNMDP::solve(const std::shared_ptr<POSG> &world, number episodes, double, double)
     {
 
-        std::stringstream stream;
-        torch::save(this->policy_net_, stream);
-        torch::load(this->target_net_, stream);
+        // std::stringstream stream;
+        // torch::save(this->policy_net_, stream);
+        // torch::load(this->target_net_, stream);
 
         std::uniform_int_distribution<int> DISTRIBUTION_ACTIONS(0, world->getNumJActions() - 1);
 
@@ -34,17 +34,18 @@ namespace sdm
                 this->step_done_++;
                 action a = select_action(world, x, DISTRIBUTION_ACTIONS);
                 std::tuple<std::vector<double>, observation, state> r_w_y = world->getDynamicsGenerator(x, a);
-                float r = std::get<0>(r_w_y)[0];
                 state y = std::get<2>(r_w_y);
+                std::vector<double> rews = std::get<0>(r_w_y);
+                double r = rews[0];
                 sars_transition t = std::make_tuple(x, a, r, y);
                 this->replay_memory_.push(t);
                 dis_cum_r += pow(world->getDiscount(), step) * r;
                 optimize_dqn(world);
                 if ((episode * world->getPlanningHorizon() + step) % this->target_update_ == 0)
                 {
-                    std::stringstream stream;
-                    torch::save(this->policy_net_, stream);
-                    torch::load(this->target_net_, stream);
+                    // std::stringstream stream;
+                    // torch::save(this->policy_net_, stream);
+                    // torch::load(this->target_net_, stream);
                 }
                 x = y;
             }
