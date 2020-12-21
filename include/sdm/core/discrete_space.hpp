@@ -81,7 +81,8 @@ namespace sdm
         //! \fn       void setElementsNames(std::vector<std::string>&)
         //! \param    e_names a list of element names
         //! \brief    Sets the names of elements.
-        void setElementsNames(const std::vector<std::string> &);
+        
+        void setElementsNames(const std::vector<std::string> &s);
 
         std::string str() const;
 

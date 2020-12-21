@@ -32,9 +32,6 @@ namespace sdm
   class Joint : public std::vector<item>
   {
   protected:
-    //! \brief the joint item
-    // std::vector<item> joint_items_;
-
     //! \brief the number of agents
     number num_agents_;
 

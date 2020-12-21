@@ -21,7 +21,8 @@
 //! \namespace  sdm
 //!
 //! Namespace grouping all tools required for sequential decision making.
-namespace sdm{
+namespace sdm
+{
 
   typedef std::size_t size_t; // = uint32_t
 
@@ -43,10 +44,12 @@ namespace sdm{
 
   typedef typename bimap::value_type name2index;
 
+
   /**
   * Enumerator for the types of statistics that can be plotted.
   */
-  enum Metric {
+  enum Metric
+  {
     CUMULATIVE_REWARD_PER_STEP,
     CUMULATIVE_REWARD_PER_EPISODE,
     AVERAGE_EPISODE_REWARD,
@@ -59,7 +62,8 @@ namespace sdm{
   /**
   * Enumerator for the types of statistics that can be recorded.
   */
-  enum Statistic {
+  enum Statistic
+  {
     MIN,
     MAX,
     MEAN,
@@ -70,15 +74,15 @@ namespace sdm{
 
   enum TypeSoftmax
   {
-      BELIEF,
-      BEHAVIOR,
-      OCCUPANCY
+    BELIEF,
+    BEHAVIOR,
+    OCCUPANCY
   };
 
   enum Criterion
   {
-      COST_MIN,
-      REW_MAX
+    COST_MIN,
+    REW_MAX
   };
 
   class World;
@@ -86,9 +90,9 @@ namespace sdm{
   class Action;
   class feedback;
 
-  template<typename S, typename A>
+  template <typename S, typename A>
   class UnaryFunction;
 
-  template<typename S, typename A>
+  template <typename S, typename A>
   class BinaryFunction;
-}
+} // namespace sdm

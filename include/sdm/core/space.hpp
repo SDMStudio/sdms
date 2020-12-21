@@ -1,26 +1,31 @@
-/*=============================================================================
-  Copyright (c) 2020 David Albert
-==============================================================================*/
+/**
+ * @file space.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief abstract space class
+ * @version 0.1
+ * @date 17/12/2020
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ * This is an abstract interface for Spaces.
+ * 
+ */
 #pragma once
 
 #include <vector>
 #include <boost/bimap.hpp>
 #include <sdm/types.hpp>
 
-//!
-//! \file     space.hpp
-//! \author   David Albert
-//! \brief    abstract space class
-//! \version  1.0
-//! \date     24 novembre 2020
-//!
-//! This is an abstract interface for Spaces.
-
-//! \namespace  sdm
-//! \brief Namespace grouping all tools required for sequential decision making.
+/**
+ * @brief Namespace grouping all tools required for sequential decision making.
+ * @namespace  sdm
+ */
 namespace sdm
 {
-  //! \class  Space  space.hpp
+  /**
+   * @class Space
+   * @brief Abstract space class 
+   */
   class Space
   {
   public:
