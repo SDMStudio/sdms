@@ -1,31 +1,75 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
 
-# Set compiler and options
-set(CMAKE_C_COMPILER "clang")
+# Set compiler
 set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_C_COMPILER "clang")
 
+# Set compilation options
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-O3 -W -Wall -pedantic")
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall")
+
 set(CMAKE_BUILD_TYPE Debug)
+
+# Set path to find additional dependencies
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # Version of the std library
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(SDMStudio)
+# Project infos
+project(sdms
+        VERSION 0.1
+        LANGUAGES C CXX)
 
-set(LIB_NAME "sdm")
+# options for compilation
+option(BUILD_SDMS "Build SDM'Studio" ON)
+option(BUILD_DOCS "Build SDMS documentation" OFF)
+option(BUILD_TESTS "Build tests for SDMS" OFF)
 
-add_subdirectory(src)
-# add_subdirectory(doc)
+
+# Set useful variables
+set(SDMS_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
+set(SDMS_SOURCE_DIRS ${CMAKE_SOURCE_DIR}/src)
+
+set(INCLUDE_DIR ${SDMS_INCLUDE_DIRS}/sdm)
+set(SOURCE_DIR ${SDMS_SOURCE_DIRS}/sdm)
+set(EXAMPLES_DIR ${SDMS_SOURCE_DIRS}/examples)
+set(ALGOS_DIR ${SDMS_SOURCE_DIRS}/algos)
+
+# Set names of libraries
+set(LIB_SDMS ${CMAKE_PROJECT_NAME})
+
+if (BUILD_SDMS)
+    message(STATUS "Building SDMS sources.")
+    add_subdirectory(src)
+endif()
 
 
-# add_subdirectory(tests)
-# enable_testing ()
-# add_test (NAME TestWorld 
-#           COMMAND test_world
-#       )
-# add_test (NAME TestSpace 
-#         COMMAND test_space
-# )
+# Build documentation
+if(BUILD_DOCS)
+    message(STATUS "Building SDMS documentation.")
+    add_subdirectory(docs)
+endif()
+
+# Build tests
+if(BUILD_TESTS)
+    message(STATUS "Building SDMS tests.")
+    add_subdirectory(tests)
+    enable_testing ()
+    add_test(  NAME TestWorld 
+                COMMAND test_world
+            )
+    add_test(   NAME TestSpace 
+                COMMAND test_space
+            )
+endif()
+
+# Configure sdms.pc file and install it
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/sdms.pc.in ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc @ONLY)	
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc    
+        DESTINATION lib/pkgconfig/)
