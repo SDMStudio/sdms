@@ -17,13 +17,10 @@ namespace sdm
   namespace parser
   {
     struct dpomdp_class;
-    // struct ndpomdp_class;
 
     typedef x3::rule<dpomdp_class, ast::dpomdp_t> dpomdp_type;
-    // typedef x3::rule<ndpomdp_class, ast::ndpomdp_t> ndpomdp_type;
 
     BOOST_SPIRIT_DECLARE(dpomdp_type)
-    // BOOST_SPIRIT_DECLARE(ndpomdp_type)
 
     sdm::DecPOMDP parse_string(std::string);
 
@@ -32,7 +29,4 @@ namespace sdm
     sdm::DecPOMDP parse_file(std::string);
 
   } // namespace parser
-
-  // parser::dpomdp_type const& dpomdp();
-  // parser::ndpomdp_type const& ndpomdp();
 } // namespace sdm
