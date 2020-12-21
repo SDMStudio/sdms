@@ -44,6 +44,10 @@ SDM'Studio: The Reconstruction ToolKit
 	Go to section 5.1 "Easy Build and Install" and follow the instructions on how to install boost.
   The installation prefix should be /usr/local
 
+  ```bash
+  sudo apt-get install libboost-all-dev 
+  ```
+
 ### 2.3. Install clang, the version in the repository should be enough
    - NOTE: the project compiles using clang++ and not gcc
 ```bash
