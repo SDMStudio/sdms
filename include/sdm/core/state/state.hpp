@@ -10,17 +10,17 @@
  */
 #pragma once
 
-#include <sdm/core/item.hpp>
+#include <sdm/types.hpp>
+#include <sdm/utils/linear_algebra/sdms_vector.hpp>
+#include <sdm/utils/struct/tree.hpp>
 
-
-//! \namespace  sdm
-//!
-//! Namespace grouping all tools required for sequential decision making.
+/**
+ * @brief Namespace grouping all tools required for sequential decision making.
+ * @namespace  sdm
+ */
 namespace sdm
 {
-  template <class item_t>
-  struct State : public Item<item_t>
-  {
-        virtual std::string str() const = 0;
-  };
+  using BeliefState = DenseVector<number, double>;
+  // using OccupancyState = MappedVector<std::pair<BeliefState, JointHistoryTree<number>*>, double>;
+
 } // namespace sdm
