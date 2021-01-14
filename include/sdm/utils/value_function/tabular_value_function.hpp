@@ -86,7 +86,7 @@ namespace sdm
             }
             else
             {
-                assert(t < this->horizon_);
+                assert(t < this->getHorizon());
                 this->representation[t] = Container(default_value);
             }
         }
@@ -105,14 +105,7 @@ namespace sdm
             }
             else
             {
-                if (t >= this->horizon_)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return this->representation[t].at(state);
-                }
+                return (t >= this->getHorizon()) ? 0 : this->representation[t].at(state);
             }
         }
 
@@ -149,7 +142,6 @@ namespace sdm
 
         void updateValueAt(const TState &state, int t = 0)
         {
-
             if (this->isInfiniteHorizon())
             {
                 this->representation[0][state] = this->getQValueAt(state, t)->max();
