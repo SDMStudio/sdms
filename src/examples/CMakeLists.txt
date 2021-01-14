@@ -20,11 +20,23 @@ endforeach(f)
 # 	${SOURCE_DIR}/utils/struct/*.cpp
 # )
 # add_library(lib_struct SHARED ${lib_struct})
-add_executable(quicktest tmp/quicktest.cpp) 
+include_directories(${SDMS_INCLUDE_DIRS})
+
+file(
+	GLOB_RECURSE
+	SRC_FILES
+	${SOURCE_DIR}/*.cpp
+)
+message(${SRC_FILES})
+add_library(algebraLib SHARED ${SRC_FILES})
+
+add_executable(quicktest tmp/quicktest.cpp)
 target_link_libraries(quicktest
+  algebraLib
   ${Boost_LIBRARIES}
   ${TORCH_LIBRARIES}
 )
+
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest
     DESTINATION bin/
     )
