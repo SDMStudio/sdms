@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/state/history_tree.hpp>
 #include <sdm/core/state/jhistory_tree.hpp>
 // #include <torch/torch.h>
 
@@ -24,43 +25,27 @@ namespace sdm
     /**
      * @brief History seq alias
      * 
-     * @tparam item_t 
+     * @tparam T 
      */
-    template <typename item_t>
-    using History = State<std::vector<item_t>>;
+    template <typename T>
+    using History = std::vector<T>;
 
     using int_history = History<int>;
     using char_history = History<char>;
     // using tensor_history = History<Tensor>;
 
-    using int_jhistory = JointHistory<int>;
-    using char_jhistory = JointHistory<char>;
-    // using tensor_jhistory = JointHistory<Tensor>;
+    template <typename T>
+    using HistoryTree_p = std::shared_ptr<HistoryTree<T>>;
 
-    /**
-     * @brief History tree alias
-     * 
-     * @tparam item_t 
-     */
-    template <typename item_t>
-    using HistoryTree = State<Tree<item_t>>;
-
-    template <typename item_t>
-    using history_tree_p = std::make_shared<HistoryTree<item_t>>;
+    template <typename T>
+    using JointHistoryTree_p = std::shared_ptr<JointHistoryTree<T>>;
 
     template <typename obs_t>
-    using obs_history_tree_p = history_tree_p<obs_t>;
+    using ObsHistoryTree_p = HistoryTree_p<obs_t>;
 
     template <typename action_t, typename obs_t>
-    using act_obs_history_tree_p = history_tree_p<std::pair<action_t, obs_t>>;
+    using ActObsHistoryTree_p = HistoryTree_p<std::pair<action_t, obs_t>>;
 
-    using int_history_tree = HistoryTree<int>;
-
-    using char_history_tree = HistoryTree<char>;
-    // using tensor_history_tree = HistoryTree<Tensor>;
-
-    using int_jhistory_tree = JointHistoryTree<int>;
-    using char_jhistory_tree = JointHistoryTree<char>;
     // using tensor_jhistory_tree = JointHistoryTree<Tensor>;
     
 

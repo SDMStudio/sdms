@@ -28,12 +28,14 @@ namespace sdm
     {
     protected:
         /*!
-         *  @fn     std::shared_ptr<Tree> const truncated_expand(const T &data);
+         *  @fn     HistoryTree<T> *truncatedExpand(const T &data, bool backup);
          *  @brief  Expands the tree using truncated expand method
          *  @param  data the data of the expanded node
+         *  @param  backup wheter the node is marked or not
          *  @return the truncated expanded tree
          */
-        // HistoryTree * truncated_expand(const T &data);
+        template <typename output = HistoryTree<T>>
+        std::shared_ptr<output> truncatedExpand(const T &data, bool backup);
 
     public:
         /*!
@@ -43,6 +45,13 @@ namespace sdm
          */
         HistoryTree();
 
+        /**
+         * @brief Construct a new Tree object (the origin)
+         * 
+         * @param data the value of the origin 
+         */
+        HistoryTree(number max_depth);
+
         /*!
          *  @fn     HistoryTree(std::shared_ptr<HistoryTree>, const T&, bool = true)
          *  @brief  constructor
@@ -51,18 +60,10 @@ namespace sdm
          *  @param  backup wheter the node is marked or not
          *  This constructor builds a tree with a given parent and item.
          */
-        HistoryTree(HistoryTree<T> *parent, const T &item, bool backup = true);
+        HistoryTree(std::shared_ptr<HistoryTree<T>> parent, const T &item);
 
         /*!
-         *  @fn     ~HistoryTree()
-         *  @brief  destructor
-         *
-         *  This destructor recursively destroy the entire tree (i.e. node item and its children). Bottom up.
-         */
-        ~HistoryTree();
-
-        /*!
-         *  @fn     std::shared_ptr<Tree> const expand(const T &data);
+         *  @fn     HistoryTree<T> *expand(const T &data);
          *  @brief  Expands the tree
          *  @param  data the data of the expanded node
          *  @return the expanded tree
@@ -72,15 +73,11 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        HistoryTree<T> *expand(const T &data);
+        template <typename output = HistoryTree<T>>
+        std::shared_ptr<output> expand(const T &data, bool backup = true);
 
-        /*!
-         *  @fn     void initTree(const std::vector<std::shared_ptr<HistoryTree>>&, const number&);
-         *  @param  subtrees
-         *  @param  horizon the planning horizon
-         *  @brief  Initializes the parameters of a history tree
-         */
-        void initTree(HistoryTree<T> *subtrees, const number &horizon);
+        number getHorizon() const;
     };
 
 } // namespace sdm
+#include <sdm/core/state/history_tree.tpp>

@@ -12,6 +12,7 @@
 #pragma once
 
 #include <sdm/core/state/history_tree.hpp>
+#include <sdm/utils/decision_rules/joint.hpp>
 
 namespace sdm
 {
@@ -24,11 +25,12 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class JointHistoryTree : public HistoryTree<Joint<T>>, public Joint<HistoryTree<T>*>
+    class JointHistoryTree : public HistoryTree<Joint<T>>
     {
     protected:
-       
+        Joint<std::shared_ptr<HistoryTree<T>>> indiv_hist;
 
+        void addIndivHist(std::shared_ptr<HistoryTree<T>> ihist);
     public:
         /*!
          *  @fn     JointHistoryTree()
@@ -37,34 +39,46 @@ namespace sdm
          */
         JointHistoryTree();
 
+        /**
+         * @brief Construct a new joint history tree object (the origin)
+         * 
+         * @param max_depth the maximum depth allowed 
+         */
+        JointHistoryTree(number max_depth);
+
+        JointHistoryTree(number n_agents, number max_depth);
+
         /*!
          *  @fn     JointHistoryTree(std::shared_ptr<JointHistoryTree>, const T&, bool = true)
          *  @brief  constructor
          *  @param  parent   the parent tree
          *  @param  item     the item
-         *  @param  is_marked wheter the node is marked or not
+         *  @param  backup wheter the node is marked or not
          *  This constructor builds a tree with a given parent and item.
          */
-        JointHistoryTree(std::shared_ptr<JointHistoryTree> parent, const T &item, bool is_marked = true);
+        JointHistoryTree(std::shared_ptr<JointHistoryTree<T>> parent, const Joint<T> &item);
 
         /*!
-         *  @fn     JointHistoryTree(const std::vector<T>&, const std::vector<action>&)
-         *  @brief  constructor
-         *  @param  const std::vector<T>&  parameters of a function
-         *  @param  const std::vector<action>& values of that same function
-         *  This constructor builds a parametric JointHistoryTree using parameters and corresponding values.
-         */
-        JointHistoryTree(const std::vector<T> &, const std::vector<action> &);
-
-        /*!
-         *  @fn     ~JointHistoryTree()
-         *  @brief  destructor
+         *  @fn     HistoryTree<T> *expand(const T &data);
+         *  @brief  Expands the tree
+         *  @param  data the data of the expanded node
+         *  @return the expanded tree
          *
-         *  This destructor recursively destroy the entire tree (i.e. node item and its children). Bottom up.
+         *  If child leading from the item previously exists, the method return
+         *  that child. Otherwise, it expands the tree by adding an item at the
+         *  current leaf of the tree and creating if necessary a corresponding
+         *  child. The constructed child is returned.
          */
-        ~JointHistoryTree();
+        std::shared_ptr<JointHistoryTree<T>> expand(const Joint<T> &data, bool backup = true);
 
-        HistoryTree<T> getHistory(number ag_id);
+        std::shared_ptr<HistoryTree<T>> getIndividualHistory(number ag_id);
+
+        friend std::ostream &operator<<(std::ostream &os, const JointHistoryTree &j_hist)
+        {
+            os << static_cast<HistoryTree<Joint<T>>>(j_hist);
+            return os;
+        }
     };
 
 } // namespace sdm
+#include <sdm/core/state/jhistory_tree.tpp>

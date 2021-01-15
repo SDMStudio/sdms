@@ -14,8 +14,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <memory>
+#include <iostream>
 
-#include <sdm/utils/struct/node.hpp>
+// #include <sdm/utils/struct/node.hpp>
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
 
@@ -38,11 +39,11 @@ namespace sdm
      * 
      */
     template <typename T>
-    class Tree
+    class Tree : public std::enable_shared_from_this<Tree<T>>
     {
     protected:
         //! @brief maximum length of the tree
-        number length_limit_;
+        number max_depth_ = std::numeric_limits<number>::max();
 
         //! @brief depth of the tree
         number depth_ = 0;
@@ -50,34 +51,39 @@ namespace sdm
         //! @brief data of the current node
         T data_;
 
-        //! @brief root of the tree and parent node
-        Tree<T> *origin_ = nullptr;
-        Tree<T> *parent_ = nullptr;
+        //! @brief the root of the tree
+        std::shared_ptr<Tree<T>> origin_;
+
+        //! @brief the parent node
+        std::weak_ptr<Tree<T>> parent_;
 
         //! @brief mapping of items to successor trees
-        std::unordered_map<T, Tree<T> *> children_;
+        std::map<T, std::shared_ptr<Tree<T>>> children_;
+
+        bool is_origin = false;
 
     public:
         /**
-         * @brief Construct a new Base Tree object
+         * @brief Default constructor object
          * 
          */
         Tree();
 
         /**
-         * @brief Construct a new Base Tree object
+         * @brief Construct a new Tree object (the origin)
          * 
+         * @param data the value of the origin 
          */
-        Tree(const T &data);
+        Tree(number max_depth);
 
         /**
-         * @brief Construct a new Base Tree object
+         * @brief Construct a new Tree object
          * 
-         * @param parent 
-         * @param data 
-         * @param is_marked 
+         * @param parent the parent
+         * @param data the value of the node
+         * @param backup if true, save the new tree as a child for its parent
          */
-        Tree(Tree *parent, const T &data, bool backup = true);
+        Tree(std::shared_ptr<Tree<T>> parent, const T &data);
 
         /*!
          *  @fn     ~Tree()
@@ -85,31 +91,33 @@ namespace sdm
          *
          *  This destructor recursively all, children and the item from the tree, bottom up.
          */
-        ~Tree();
+        virtual ~Tree();
 
+        bool isOrigin() const;
+        
         const T &getData() const;
 
         number getNumChildren() const;
 
-        Tree<T> *getChild(const T &child_item) const;
+        std::shared_ptr<Tree<T>> getChild(const T &child_item) const;
 
-        std::vector<Tree<T> *> getChildren() const;
+        std::vector<std::shared_ptr<Tree<T>>> getChildren() const;
 
         void addChild(const T &child_item);
 
         void addChildren(const std::vector<T> &child_items);
 
-        Tree<T> *getParent() const;
+        std::shared_ptr<Tree<T>> getParent() const;
 
-        Tree<T> *getOrigin() const;
+        std::shared_ptr<Tree<T>> getOrigin();
 
         number getDepth() const;
 
-        number getLengthLimit() const;
+        number getMaxDepth() const;
 
-        void setLengthLimit(number) const;
+        void setMaxDepth(number) const;
 
-        friend std::ostream &operator<<(std::ostream &os, Tree<T> tree)
+        friend std::ostream &operator<<(std::ostream &os, const Tree<T> &tree)
         {
             os << sdm::tools::addIndent("", tree.getDepth());
             os << "<tree address=\"" << &tree << "\" size=\"" << tree.getNumChildren() << "\"  horizon=\"" << tree.getDepth() << "\">" << std::endl;

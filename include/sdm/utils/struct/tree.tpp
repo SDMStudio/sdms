@@ -3,37 +3,39 @@
 namespace sdm
 {
     template <typename T>
-    Tree<T>::Tree() : depth_(0), parent_(nullptr)
+    Tree<T>::Tree() : depth_(0)
     {
-        origin_ = this;
+        this->is_origin = true;
     }
 
     template <typename T>
-    Tree<T>::Tree(const T &data) : depth_(0), parent_(nullptr), data_(data)
+    Tree<T>::Tree(number max_depth) : depth_(0), max_depth_(max_depth)
     {
-        origin_ = this;
+        this->is_origin = true;
     }
 
     template <typename T>
-    Tree<T>::Tree(Tree *parent, const T &data, bool backup) : parent_(parent), data_(data), origin_(parent->getOrigin()), depth_(parent->getDepth() + 1)
+    Tree<T>::Tree(std::shared_ptr<Tree<T>> parent, const T &data) : data_(data), max_depth_(parent->getMaxDepth()), depth_(parent->getDepth() + 1)
     {
-        if (backup)
+        this->parent_ = parent;
+        if (parent->isOrigin())
         {
-            parent->children_.emplace(this->data_, this);
+            this->origin_ = parent;
+        }
+        else {
+            this->origin_ = parent->getOrigin();
         }
     }
 
     template <typename T>
     Tree<T>::~Tree()
     {
-        // std::pair<T, Tree<T> *> me; // what a map<int, int> is made of
-        // for (auto me : this->children_)
-        // {
-        //     if (me.second != NULL)
-        //     {
-        //         delete me.second;
-        //     }
-        // }
+    }
+
+    template <typename T>
+    bool Tree<T>::isOrigin() const
+    {
+        return this->is_origin;
     }
 
     template <typename T>
@@ -49,16 +51,15 @@ namespace sdm
     }
 
     template <typename T>
-    Tree<T> *Tree<T>::getChild(const T &child) const
+    std::shared_ptr<Tree<T>> Tree<T>::getChild(const T &child) const
     {
         return this->children_.at(child);
     }
 
     template <typename T>
-    std::vector<Tree<T> *> Tree<T>::getChildren() const
+    std::vector<std::shared_ptr<Tree<T>>> Tree<T>::getChildren() const
     {
-        std::pair<T, Tree<T> *> me; // what a map<int, int> is made of
-        std::vector<Tree<T> *> value;
+        std::vector<std::shared_ptr<Tree<T>>> value;
         for (auto me : this->children_)
         {
             value.push_back(me.second);
@@ -69,7 +70,11 @@ namespace sdm
     template <typename T>
     void Tree<T>::addChild(const T &child_item)
     {
-        this->children_.emplace(child_item, new Tree<T>(this, child_item, false));
+        assert(this->getDepth() < this->getMaxDepth());
+        if (this->children_.find(child_item) == this->children_.end())
+        {
+            this->children_.emplace(child_item, std::make_shared<Tree<T>>(this->shared_from_this(), child_item));
+        }
     }
 
     template <typename T>
@@ -77,20 +82,27 @@ namespace sdm
     {
         for (int i = 0; i < child_items.size(); i++)
         {
-            this->children_.emplace(child_items[i], new Tree<T>(this, child_items[i], false));
+            this->addChild(child_items[i]);
         }
     }
 
     template <typename T>
-    Tree<T> *Tree<T>::getOrigin() const
+    std::shared_ptr<Tree<T>> Tree<T>::getOrigin()
     {
-        return this->origin_;
+        if (this->isOrigin())
+        {
+            return this->shared_from_this();
+        }
+        else
+        {
+            return this->origin_;
+        }
     }
 
     template <typename T>
-    Tree<T> *Tree<T>::getParent() const
+    std::shared_ptr<Tree<T>> Tree<T>::getParent() const
     {
-        return this->parent_;
+        return this->parent_.lock();
     }
 
     template <typename T>
@@ -100,13 +112,8 @@ namespace sdm
     }
 
     template <typename T>
-    number Tree<T>::getLengthLimit() const
+    number Tree<T>::getMaxDepth() const
     {
-        return this->length_limit_;
-    }
-    template <typename T>
-    void Tree<T>::setLengthLimit(number length_limit) const
-    {
-        this->length_limit_ = length_limit;
+        return this->max_depth_;
     }
 } // namespace sdm
