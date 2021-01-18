@@ -8,16 +8,13 @@
  * @copyright Copyright (c) 2020
  * 
  */
-
 #pragma once
 
 #include <string>
 
 #include <sdm/types.hpp>
 #include <sdm/world/posg.hpp>
-#include <sdm/world/transformed_mdp.hpp>
-#include <sdm/utils/value_function/incremental_value_function.hpp>
-#include <sdm/utils/heuristic_search/heuristic_search.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/core/state/state.hpp>
 
 namespace sdm
