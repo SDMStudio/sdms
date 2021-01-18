@@ -112,6 +112,7 @@ namespace sdm
         {
             res << "" << this->getElementName(i) << " ";
         }
+        res << "]";
         return res.str();
     }
 

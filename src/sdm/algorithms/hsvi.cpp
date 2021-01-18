@@ -89,7 +89,7 @@ namespace sdm
     template <typename TState, typename TAction>
     TAction HSVI<TState, TAction>::selectNextAction(TState s, number h)
     {
-        return this->upper_bound_->getBestAction(s, h);
+        return this->upper_bound_->getBestAction(s, h); // argmax_{a} q_value(s, a)
     }
 
     template <typename TState, typename TAction>

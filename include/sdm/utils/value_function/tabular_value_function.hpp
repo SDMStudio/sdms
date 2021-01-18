@@ -15,7 +15,6 @@
 #include <map>
 
 #include <sdm/utils/value_function/initializer.hpp>
-#include <sdm/utils/value_function/incremental_value_function.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 #include <sdm/core/state/state.hpp>
@@ -29,7 +28,7 @@ namespace sdm
     /**
      * @brief Tabular value function are functions of state and action that use a vector representation to store the values. 
      * 
-     * @tparam TState Type of the states
+     * @tparam TState Type of the states 
      * @tparam TAction Type of the states
      * @tparam TValue Type of the values (must be primitive type)
      * @tparam TStruct Type of vector container (MappedVector, DenseVector and SparseVector are common type) 

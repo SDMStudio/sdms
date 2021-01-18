@@ -26,7 +26,7 @@ namespace sdm
 
     /**
      * @class RecursiveMap
-     * @brief The recursive map class.
+     * @brief The recursive map class (i.e. map<T0, map<T1, ..... , map<TN-1, TN>)
      * 
      * @tparam T0 the type of the first map item
      * @tparam T1 the type of the second map item

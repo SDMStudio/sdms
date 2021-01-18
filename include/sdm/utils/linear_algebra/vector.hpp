@@ -189,22 +189,13 @@ namespace sdm{
 
 
   #ifdef EIGEN
-    #ifdef DENSE
       using Vector = class vector<Eigen::VectorXd, double>;
-    #endif
-    #ifdef SPARSE
-      using Vector = class vector<Eigen::SparseVector<double>, double>;
-    #endif
+      using SparseVector = class vector<Eigen::SparseVector<double>, double>;
   #endif
 
 
   #ifdef BOOST
-    #ifdef DENSE
       using Vector = class vector<boost::numeric::ublas::vector<double>, double>;
-    #endif
-    #ifdef SPARSE
-      using Vector = class vector<boost::numeric::ublas::vector<double>, double>;
-    #endif
   #endif
 
 }
