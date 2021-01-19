@@ -1,6 +1,6 @@
 
 find_package(Doxygen)
-find_package(Sphinx REQUIRED)
+find_package(Sphinx)
 
 if(NOT DOXYGEN_FOUND)
     message("Doxygen not found, documentation will not be generated")

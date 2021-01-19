@@ -60,7 +60,7 @@ if(BUILD_TESTS)
     message(STATUS "Building SDMS tests.")
     add_subdirectory(tests)
     enable_testing ()
-    add_test(  NAME TestWorld 
+    add_test(   NAME TestWorld 
                 COMMAND test_world
             )
     add_test(   NAME TestSpace 

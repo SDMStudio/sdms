@@ -1,6 +1,7 @@
 SDM'Studio: The Reconstruction ToolKit
 ======================================
 
+@import url("../../../../../.env/lib/python3.6/site-packages/sphinx_typo3_theme/static/css/theme.css"); 
 
 <!-- [![Build Status](https://travis-ci.com/hill-a/stable-baselines.svg?branch=master)](https://travis-ci.com/hill-a/stable-baselines) 
 [![Documentation Status](https://readthedocs.org/projects/stable-baselines/badge/?version=master)](https://stable-baselines.readthedocs.io/en/master/?badge=master) 
@@ -11,13 +12,16 @@ SDM'Studio: The Reconstruction ToolKit
 <!-- [![PyPI](https://img.shields.io/pypi/v/itk-rtk.svg)](https://pypi.python.org/pypi/itk-rtk) -->
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://gitlab.inria.fr/jdibango/sdms/-/blob/master/LICENSE)
 
-- [1. Requirements](#1-requirements)
-- [2. Installation](#2-installation-of-sdms)
-- [3. Formaisms](#3-formalisms)
-  - [3.1. Multi-agent](#31-multi-agent)
-  - [3.2. Single-agent](#32-single-agent)
-- [4. Algorithms](#4-algorithms)
-- [5. Usage](#5-usage)
+- [SDM'Studio: The Reconstruction ToolKit](#sdmstudio-the-reconstruction-toolkit)
+  - [1. Requirements](#1-requirements)
+  - [2. Installation of SDM'Studio](#2-installation-of-sdmstudio)
+    - [2.1. Quick install](#21-quick-install)
+    - [2.2. Step by step installation](#22-step-by-step-installation)
+  - [3. Formalisms](#3-formalisms)
+    - [3.1. Multi-agent](#31-multi-agent)
+    - [3.2. Single-agent](#32-single-agent)
+  - [4. Algorithms](#4-algorithms)
+  - [5. Usage](#5-usage)
 
 
 ## 1. Requirements
@@ -25,60 +29,41 @@ SDM'Studio: The Reconstruction ToolKit
   - clang++ 	version >= 3.8.0
   - boost 	  version >= 1.66
   - eigen 	  version >= 3.0.0
-  - cplex 	  version >= 12.63
-  - python    version >= 3.7
-  - ncurses (for macOSx, we need to create a symlink: ln -s /usr/lib/libncurses.dylib /usr/local/lib/libncursesw.dylib) 
 
+## 2. Installation of SDM'Studio
 
-## 2. Installation of SDM'S
-
-### 2.1. Install eigen3 library, the version in the repository should be enough (default installation prefix is /usr)
+### 2.1. Quick install
+In order to execute *install.sh* file, you may need to change permissions using `chmod +x install.sh`.
 ```bash
-  sudo apt-get install libeigen3-dev
+  git clone https://gitlab.inria.fr/chroma1/plasma/sdms.git
+  cd sdms
+  ./install.sh
 ```
 
-### 2.2. Install boost library, version 1.66.
-
-  The current version in the repository is 1.66 => need to install from sources
-	http://www.boost.org/doc/libs/1_60_0/more/getting_started/unix-variants.html
-	Go to section 5.1 "Easy Build and Install" and follow the instructions on how to install boost.
-  The installation prefix should be /usr/local
-
-  ```bash
-  sudo apt-get install libboost-all-dev 
-  ```
-
-### 2.3. Install clang, the version in the repository should be enough
-   - NOTE: the project compiles using clang++ and not gcc
+### 2.2. Step by step installation
+**Install SDMS dependencies**
 ```bash
-  sudo apt-get install clang
+  sudo apt-get install clang libeigen3-dev libboost-all-dev
 ```
-
-### 2.4. Install pytorch CXX11 and SDMS
+**Install pytorch** 
+Download the last version of PyTorch C++ for cxx11 ABI according your machine specifications (https://pytorch.org/get-started/locally/) and unzip the downloaded file into */opt/* directory.
 ```bash
-git clone https://github.com/blavad/sdms.git
-cd sdms
-git checkout develop
-mkdir build
-mkdir libs
-mkdir libs/libsdm
-cd libs
-wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.0%2Bcpu.zip
-unzip libtorchxxxxxxxxxxxxx.zip
-cd ../build
-cmake .. -DCMAKE_INSTALL_PREFIX=../libs/libsdm/ -DCMAKE_PREFIX_PATH=../libs/libtorch
+wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-xxxxxxx.zip -O libtorch.zip
+unzip libtorch.zip -d /opt
+```
+**Build and install SDM'Studio**
+```bash
+mkdir -p build && cd build
+cmake .. -DCMAKE_PREFIX_PATH=/opt/libtorch
 make install
 ```
-
-### 2.5. Install ILOG CPLEX (third party software)
-   - The installation should be in /opt/ibm/ILOG/CPLEX_Studio1263 on Linux machines and /Applications/CPLEX_Studio1263 on MAC machines
 
 ## 3. Formalisms
 
 ### 3.1. Multi-agent
-|        POSG        |     Dec-POMDP      |       ZSPOSG       |         SG         | Dec-MDP |
-| :----------------: | :----------------: | :----------------: | :----------------: | :-----: |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |   :x:   |
+|        POSG        |     Dec-POMDP      |       ZSPOSG       |      NDPODMP       |         SG         | Dec-MDP |
+| :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :-----: |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |   :x:   |
 
 
 ### 3.2. Single-agent
@@ -88,9 +73,9 @@ make install
 
 ## 4. Algorithms
 
-| HSVI  | Q-Learning | Value Iteration | Policy Iteration | JESP  |
-| :---: | :--------: | :-------------: | :--------------: | :---: |
-|  :x:  |    :x:     |       :x:       |       :x:        |  :x:  |
+|        HSVI        | Q-Learning | Value Iteration | Policy Iteration | JESP  |
+| :----------------: | :--------: | :-------------: | :--------------: | :---: |
+| :heavy_check_mark: |    :x:     |       :x:       |       :x:        |  :x:  |
 
 
 ## 5. Usage
