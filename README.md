@@ -1,5 +1,5 @@
-![SDMStudio](https://gitlab.inria.fr/chroma1/plasma/sdms/-/blob/develop/docs/theme/sdms_theme/static/img/sdms-icon.png)
-
+![SDMS Logo](https://gitlab.inria.fr/chroma1/plasma/sdms/-/blob/develop/docs/theme/sdms_theme/static/img/sdms-icon-sm.png)
+---------------------------------------------------------------------------------------------------------------------------------
 
 <!-- [![Build Status](https://travis-ci.com/hill-a/stable-baselines.svg?branch=master)](https://travis-ci.com/hill-a/stable-baselines) 
 [![Documentation Status](https://readthedocs.org/projects/stable-baselines/badge/?version=master)](https://stable-baselines.readthedocs.io/en/master/?badge=master) 
