@@ -97,7 +97,7 @@ The `Dockerfile` is supplied to build images with PyTorch for CPU. You can pass 
 
 ```bash
 docker build --rm -t sdms:v1.0 .
-docker run --rm -ti blavad/sdms:latest
+docker run --rm -ti sdms:v1.0
 ```
 
 # 3. Basic Usage
