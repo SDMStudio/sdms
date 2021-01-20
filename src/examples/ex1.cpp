@@ -7,41 +7,62 @@
 #include <sdm/core/space.hpp>
 #include <sdm/utils/decision_rules/joint.hpp>
 #include <sdm/utils/decision_rules/variations.hpp>
+#include <sdm/parser/exception.hpp>
 
 int main(int argc, char **argv)
 {
 
-	// Construct DecPOMDP from filename (use parser)
-	sdm::DecPOMDP dpomdp_1("../data/world/dpomdp/tiger.dpomdp");
+	char const *filename;
+	char const *filename2;
 
-	// sdm::InteractiveWorld env(dpomdp_1);
-	// std::cout << env.getObsSpace()->str();
+	if (argc > 2)
+	{
+		filename = argv[1];
+		filename2 = argv[2];
+	}
 
-	// std::cout << static_cast<sdm::DecPOMDP>(*env.internal_formalism_).getReward(0,0)<<"\n";
-	// std::cout << dynamic_cast<sdm::MultiDiscreteSpace&>(env.getActionSpace()) << "\n";
+	else
+	{
+		std::cerr << "Error: Require 2 input file." << std::endl;
+		return 1;
+	}
 
-	// Construct DecPOMDP using parser
-	sdm::DecPOMDP dpomdp_2 = sdm::parser::parse_file("../data/world/dpomdp/mabc.dpomdp");
+	try
+	{
+		// Construct DecPOMDP from filename (use parser)
+		std::cout << "#> Build DecPOMDP from file \"" << filename << "\"\n";
+		sdm::DecPOMDP dpomdp_1(filename);
 
-	// Copie DecPOMDP into another DecPOMDP
-	sdm::DecPOMDP dpomdp_3;
-	dpomdp_3 = dpomdp_2;
+		// Construct DecPOMDP using parser
+		std::cout << "#> Parsing file \"" << filename << "\"\n";
+		sdm::DecPOMDP dpomdp_2 = sdm::parser::parse_file(filename);
 
-	// Construct ZSPOSG from DecPOMDP problem
-	sdm::ZSPOSG zsposg_1(dpomdp_2);
+		// Copie DecPOMDP into another DecPOMDP
+		sdm::DecPOMDP dpomdp_3;
+		dpomdp_3 = dpomdp_2;
 
-	// Construct ZSPOSG from filename (use parser)
-	// sdm::ZSPOSG zsposg_3("../data/world/dpomdp/mabc.zsposg");
+		// Construct ZSPOSG from DecPOMDP problem
+		sdm::ZSPOSG zsposg_1(dpomdp_2);
 
-	// Construct ZSPOSG using parser
-	sdm::ZSPOSG zsposg_2 = sdm::parser::parse_file("../data/world/zsposg/fake_prisoners.zsposg");
+		// Construct ZSPOSG from filename (use parser)
+		// sdm::ZSPOSG zsposg_3("../data/world/dpomdp/mabc.zsposg");
 
-	std::cout << "#> DPOMDP_1" << dpomdp_1 << "\n\n";
-	std::cout << "#> DPOMDP_2" << dpomdp_2 << "\n\n";
-	std::cout << "#> DPOMDP_3" << dpomdp_3 << "\n\n";
+		// Construct ZSPOSG using parser
+		std::cout << "#> Parsing file \"" << filename2 << "\"\n";
+		sdm::ZSPOSG zsposg_2 = sdm::parser::parse_file(filename2);
 
-	std::cout << "#> ZSPOSG_1" << zsposg_1 << "\n\n";
-	std::cout << "#> ZSPOSG_2" << zsposg_2 << "\n\n";
+		std::cout << "#> DPOMDP_1" << dpomdp_1 << "\n\n";
+		std::cout << "#> DPOMDP_2" << dpomdp_2 << "\n\n";
+		std::cout << "#> DPOMDP_3" << dpomdp_3 << "\n\n";
 
+		std::cout << "#> ZSPOSG_1" << zsposg_1 << "\n\n";
+		std::cout << "#> ZSPOSG_2" << zsposg_2 << "\n\n";
+
+		return 0;
+	}
+	catch (sdm::exception::Except &e)
+	{
+		std::cout << "!!! Exception: " << e.what() << std::endl;
+	}
 	return 0;
 }

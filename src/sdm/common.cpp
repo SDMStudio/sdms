@@ -21,14 +21,14 @@ namespace sdm
             return u;
         }
 
-        std::string common::getState(state x)
+        std::string getState(state x)
         {
             std::ostringstream oss;
             oss << "state" << x;
             return oss.str();
         }
 
-        std::string common::getAgentActionState(agent i, action ui, state x)
+        std::string getAgentActionState(agent i, action ui, state x)
         {
             std::ostringstream oss;
             oss << "agent" << i << "." << ui << "." << x;

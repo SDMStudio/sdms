@@ -11,19 +11,33 @@
 // #include <sdm/utils/decision_rules/joint.hpp>
 #include <sdm/world/ndpomdp.hpp>
 #include <sdm/common.hpp>
+#include <sdm/parser/exception.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
+    char const *filename;
 
-    NDPOMDP ndpomdp("../data/world/ndpomdp/example4_3-1.ndpomdp");
+    if (argc > 1)
+    {
+        filename = argv[1];
+        std::cout << "#> Parsing NDPOMDP file \"" << filename << "\"\n";
+    }
+
+    else
+    {
+        std::cerr << "Error: No input file provided." << std::endl;
+        return 1;
+    }
+
+    NDPOMDP ndpomdp(filename);
 
     state x = ndpomdp.init();
 
     std::cout << "Initial State : " << x << std::endl;
     std::uniform_int_distribution<number> random_action_gen(0, ndpomdp.getNumJActions() - 1);
-    
+
     for (int i = 0; i < 100; i++)
     {
         number random_jaction = random_action_gen(sdm::common::global_urng()); // policy.getAction()
@@ -41,7 +55,8 @@ int main(int argc, char **argv)
         number x = std::get<2>(r_w_y);
         number jobservation = std::get<1>(r_w_y);
 
-        std::cout << "Next State : " << x << std::endl << std::endl;
+        std::cout << "Next State : " << x << std::endl
+                  << std::endl;
     }
 
     // std::cout << ndpomdp.getNumStates() << std::endl;

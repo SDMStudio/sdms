@@ -9,10 +9,12 @@ foreach(f ${usage_examples})
   add_executable (${exampleName} ${f}) 
   target_link_libraries(${exampleName} ${LIB_SDMS} ${Boost_LIBRARIES} ${TORCH_LIBRARIES})
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${exampleName}
-    DESTINATION bin/examples/
+    DESTINATION bin/
     RENAME "sdms-${exampleName}")
 endforeach(f)
 
+
+#### This section can be uncommented and rewrite in order to only partially compile sdms
 
 # file(
 # 	GLOB_RECURSE
@@ -20,23 +22,15 @@ endforeach(f)
 # 	${SOURCE_DIR}/utils/struct/*.cpp
 # )
 # add_library(lib_struct SHARED ${lib_struct})
-include_directories(${SDMS_INCLUDE_DIRS})
+# include_directories(${SDMS_INCLUDE_DIRS})
 
-file(
-	GLOB_RECURSE
-	SRC_FILES
-	${SOURCE_DIR}/*.cpp
-)
-message(${SRC_FILES})
-add_library(algebraLib SHARED ${SRC_FILES})
+# add_executable(quicktest tmp/quicktest.cpp)
+# target_link_libraries(quicktest
+#   algebraLib
+#   ${Boost_LIBRARIES}
+#   ${TORCH_LIBRARIES}
+# )
 
-add_executable(quicktest tmp/quicktest.cpp)
-target_link_libraries(quicktest
-  algebraLib
-  ${Boost_LIBRARIES}
-  ${TORCH_LIBRARIES}
-)
-
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest
-    DESTINATION bin/
-    )
+# install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest
+#     DESTINATION bin/
+#     )

@@ -1,28 +1,108 @@
-#include <time.h>
-#include <vector>
-#include <math.h>
-#include <stdlib.h>
+#define __main_program__
 #include <iostream>
-#include <sstream>
-#include <eigen3/Eigen/Dense>
 #include <boost/program_options.hpp>
 
 #include <sdm/common.hpp>
+#include <sdm/types.hpp>
+#include <sdm/algorithms.hpp>
+#include "examples/solve.cpp"
 
-///////////////////////////////////////////////////////////////////////////////
-//  Main program
-///////////////////////////////////////////////////////////////////////////////
-namespace
+using namespace sdm;
+using namespace std;
+namespace po = boost::program_options;
+
+void print_version()
 {
-  const size_t SUCCESS = 0;
-  const size_t ERROR_IN_COMMAND_LINE = 1;
-  const size_t ERROR_UNHANDLED_EXCEPTION = 2;
-} // namespace
+  std::cout << std::endl
+            << "SDMS Version :\t" << 0.1 << std::endl;
+  std::cout << "CXX Version  :\t" << 17 << std::endl;
+  std::cout << "CXX Compiler :\t"
+            << "clang" << std::endl;
+  std::cout << "Authors      :\t"
+            << "David Albert" << std::endl
+            << std::endl;
+}
 
-int main(int argv, char** args){
+void print_help()
+{
+  std::cout << std::endl
+            << "Usage : SDMStudio COMMAND" << std::endl
+            << std::endl;
+  std::cout << "The best solver for sequential decision making problems." << std::endl
+            << std::endl;
+  std::cout << "Commands:" << std::endl;
+  std::cout << "  algorithms\t\tDisplay all available algorithms." << std::endl;
+  std::cout << "  help\t\t\tShow this help message." << std::endl;
+  std::cout << "  solve\t\t\tSolve a sequential decision making problem using specified algorithm." << std::endl;
+  std::cout << "  test\t\t\tTest a policy." << std::endl;
+  std::cout << "  version\t\tShow the version." << std::endl;
+  std::cout << "  worlds\t\tDisplay all available worlds." << std::endl
+            << std::endl;
+  std::cout << "Run 'SDMStudio COMMAND --help' for more information on a command." << std::endl
+            << std::endl;
+}
 
-  std::cout << "#> Launching SDM'Studio !!!" << std::endl;
-  sdm::common::logo();
+int main_sdms(int argv, char **args)
+{
+  if (argv > 1)
+  {
+    string func(args[1]);
+    // DO HELP
+    if (func.compare("help") == 0 || func.compare("--help") == 0 || func.compare("-h") == 0)
+    {
+      print_help();
+    }
+    // DO VERSION
+    else if (func.compare("version") == 0 || func.compare("--version") == 0 || func.compare("-v") == 0)
+    {
+      print_version();
+    }
+    // DO SOLVE
+    else if (func.compare("solve") == 0)
+    {
+      solve(argv, args);
+    }
+    // DO TEST
+    else if (func.compare("test") == 0)
+    {
+      std::cout << "Testing is not yet defined" << std::endl;
+    }
+    // LIST ALGORTIHMS
+    else if (func.compare("algorithms") == 0)
+    {
+      std::cout << "ALGORITHM\t"<< std::endl;
+      for (auto algo : sdm::algo::available())
+      {
+        std::cout << algo << std::endl;
+      }
+    }
+    // LIST WORLDS
+    else if (func.compare("worlds") == 0)
+    {
+      std::cout << "WORLDS\t"<< std::endl;
+      for (auto algo : sdm::algo::available())
+      {
+        std::cout << algo << std::endl;
+      }
+    }
+    // DO OTHER
+    else
+    {
+      cout << "Error: unrecognised command '" << func << "'" << endl;
+      print_help();
+      return sdm::ERROR_IN_COMMAND_LINE;
+    }
+  }
+  else
+  {
+    cout << "Error: must specify a command" << endl;
+    print_help();
+    return sdm::ERROR_IN_COMMAND_LINE;
+  }
+  return sdm::SUCCESS;
+}
 
-  return SUCCESS;
+int main(int argv, char **args)
+{
+  return main_sdms(argv, args);
 }
