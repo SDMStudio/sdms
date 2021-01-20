@@ -36,11 +36,14 @@ namespace sdm
     number num_agents_;
 
   public:
-    Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size())
-    {
-    }
-
+    Joint() : std::vector<item>() {}
+    Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
     Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(num_agents.size()) {}
+
+    number getNumAgents() const
+    {
+      return this->size();
+    }
 
     /*!
       * \fn std::ostream& operator<<(std::ostream&, const joint<item, instance>&)
@@ -49,14 +52,19 @@ namespace sdm
       * \param const joint<item, instance>& joint item to be printed
       * \return std::ostream&
       */
-    friend std::ostream &operator<<(std::ostream &os, const Joint &j)
+    friend std::ostream &operator<<(std::ostream &os, const Joint<item> &j)
     {
-      number ag;
-      for (ag = 0; ag < j.size() - 1; ++ag)
+      os << "(";
+      if (j.size() > 0)
       {
-        os << j[ag] << " ";
+        number ag;
+        for (ag = 0; ag < j.size() - 1; ++ag)
+        {
+          os << j[ag] << " ";
+        }
+        os << j[ag];
       }
-      os << j[ag];
+      os << ")";
       return os;
     }
   };

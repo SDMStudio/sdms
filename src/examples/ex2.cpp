@@ -6,7 +6,6 @@
 
 int main(int argc, char **argv)
 {
-
 	char const *filename;
 
 	if (argc > 1)

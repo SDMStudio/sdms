@@ -24,6 +24,11 @@
 namespace sdm
 {
 
+
+  const size_t SUCCESS = 0;
+  const size_t ERROR_IN_COMMAND_LINE = 1;
+  const size_t ERROR_UNHANDLED_EXCEPTION = 2;
+
   typedef std::size_t size_t; // = uint32_t
 
   typedef unsigned short number; // = uint16_t
@@ -43,7 +48,6 @@ namespace sdm
   typedef boost::bimaps::bimap<std::string, sdm::size_t> bimap;
 
   typedef typename bimap::value_type name2index;
-
 
   /**
   * Enumerator for the types of statistics that can be plotted.

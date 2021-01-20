@@ -9,12 +9,14 @@
  * 
  */
 #pragma once
+
 #include <map>
+#include <cmath>
 #include <string>
 #include <iostream>
 #include <assert.h>
+
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
-#include <cmath>
 
 namespace sdm
 {

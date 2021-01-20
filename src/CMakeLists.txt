@@ -43,16 +43,18 @@ file(
 	${SOURCE_DIR}/*.cpp
 )
 add_library(${LIB_SDMS} SHARED ${libsdm_srcs})
+install(TARGETS ${LIB_SDMS} DESTINATION lib)
 
 ########### BUILD PROGRAMS ###########
 
 # Build main program
 set(SDMS_PROGRAM_NAME "SDMStudio")
+# set(SDMS_PROGRAM_NAME ${CMAKE_PROJECT_NAME})
+
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
 target_link_libraries(${SDMS_PROGRAM_NAME} ${LIB_SDMS} ${Boost_LIBRARIES} ${TORCH_LIBRARIES})
 
 ########### INSTALL #################
-install(TARGETS ${LIB_SDMS} DESTINATION lib)
 install(DIRECTORY ${INCLUDE_DIR} DESTINATION include)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${SDMS_PROGRAM_NAME} DESTINATION bin)
 
