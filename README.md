@@ -98,6 +98,24 @@ docker build --rm -ti sdms:v1.0 .
 
 # 3. Basic Usage
 
+Several scripts are available after installing SDMS. The main program `SDMStudio` should cover most of the basic usage. If, this is not enough, you may want to have a look at other SDMS programs `sdms-xxxx`.
+
+### List available algorithms
+```bash
+SDMStudio algorithms
+```
+
+### Solve a problem
+```bash
+SDMStudio solve [ARG...]
+SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS]
+```
+
+### Test a saved policy [TO DO]
+```bash
+SDMStudio test [OPTIONS]
+```
+
 # 4. Get started
 
 ```cpp
