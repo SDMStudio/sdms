@@ -5,8 +5,8 @@
 
 #include <vector>
 
-#include <sdm/core/space.hpp>
 #include <sdm/types.hpp>
+#include <sdm/core/space/space.hpp>
 
 //!
 //! \file     discrete_space.hpp
@@ -81,10 +81,15 @@ namespace sdm
         //! \fn       void setElementsNames(std::vector<std::string>&)
         //! \param    e_names a list of element names
         //! \brief    Sets the names of elements.
-        
+
         void setElementsNames(const std::vector<std::string> &s);
 
         std::string str() const;
+        
+        bool isDiscrete() const
+        {
+            return true;
+        }
 
         DiscreteSpace &operator=(const DiscreteSpace &);
         bool operator==(const DiscreteSpace &) const;

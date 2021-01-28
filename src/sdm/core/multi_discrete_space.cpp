@@ -1,5 +1,4 @@
 #include <sdm/core/multi_discrete_space.hpp>
-#include <sdm/core/space.hpp>
 #include <sdm/utils/decision_rules/variations.hpp>
 
 namespace sdm
@@ -66,7 +65,8 @@ namespace sdm
     std::vector<number> MultiDiscreteSpace::getDim() const
     {
         std::vector<number> v_dim;
-        for (const DiscreteSpace& sp : this->spaces_){
+        for (const DiscreteSpace &sp : this->spaces_)
+        {
             v_dim.push_back(1);
         }
         return v_dim;
@@ -191,36 +191,41 @@ namespace sdm
     {
         if (this->joint_items_bimap.size() == 0)
         {
-
-            number ag;
             number counter = 0;
             std::vector<number> v_agents;
             std::vector<number> v_dspace;
-            for (ag = 0; ag < this->getNumSpaces(); ++ag)
+            for (number ag = 0; ag < this->getNumSpaces(); ++ag)
             {
                 v_agents.push_back(ag);
                 v_dspace.push_back(this->getNumElements(ag));
             }
-            //! generator of variations for joint items
             variations<std::vector<number>, JointItem> jaction_generator(v_agents, v_dspace);
-            std::vector<std::unique_ptr<JointItem>> ja;
+            std::shared_ptr<JointItem> it;
 
-            ja.push_back(std::unique_ptr<JointItem>(jaction_generator.begin()));
-            this->joint_items_bimap.insert(jitems2index(*ja[counter], counter));
-
-            do
+            for (it = jaction_generator.begin(); it != jaction_generator.end(); it = jaction_generator.next())
             {
+                this->joint_items_bimap.insert(jitems2index(*it, counter));
                 counter++;
-                ja.push_back(std::unique_ptr<JointItem>(jaction_generator.next()));
-                if (ja[counter] != nullptr)
-                    this->joint_items_bimap.insert(jitems2index(*ja[counter], counter));
-
-            } while (ja[counter] != nullptr);
+            }
         }
         else
         {
             std::cerr << "#> Joint items cannot be generated twice.";
         }
+    }
+
+    number MultiDiscreteSpace::getJointElementIndex(JointItem &jitem) const
+    {
+        typename jitems_bimap::const_iterator iter;
+
+        for (iter = this->joint_items_bimap.begin(); iter != this->joint_items_bimap.end(); ++iter)
+        {
+            if (iter->left == jitem)
+            {
+                return iter->right;
+            }
+        }
+        assert(false && "No such joint item !");
     }
 
     number MultiDiscreteSpace::getJointElementIndex(const std::vector<number> &v) const
@@ -235,7 +240,7 @@ namespace sdm
             }
         }
 
-        return iter->right;
+        assert(false && "No such joint item !");
     }
 
     const JointItem &MultiDiscreteSpace::getJointElement(number idx) const
@@ -276,8 +281,9 @@ namespace sdm
         return !(operator==(sp));
     }
 
-    std::string MultiDiscreteSpace::str() const{
-        std::ostringstream res; 
+    std::string MultiDiscreteSpace::str() const
+    {
+        std::ostringstream res;
         res << "MultiDiscreteSpace(" << this->getNumSpaces() << ")";
         res << "[";
         for (number i = 0; i < this->getNumSpaces(); i++)

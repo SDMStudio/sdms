@@ -29,7 +29,29 @@ namespace sdm
   class Space
   {
   public:
+    virtual bool isDiscrete() const = 0;
+    bool isContinuous() const
+    {
+      return !(this->isDiscrete());
+    }
+
     virtual std::vector<number> getDim() const = 0;
     virtual std::string str() const = 0;
+
+    bool operator==(const Space &sp) const
+    {
+      if (this->str() == sp.str())
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+    bool operator!=(const Space &sp) const
+    {
+      return !(this->operator==(sp));
+    }
   };
 } // namespace sdm

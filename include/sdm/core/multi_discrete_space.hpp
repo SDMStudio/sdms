@@ -4,9 +4,10 @@
 #pragma once
 
 #include <vector>
+#include <assert.h>
 #include <boost/bimap.hpp>
 
-#include <sdm/core/space.hpp>
+#include <sdm/core/space/space.hpp>
 #include <sdm/core/discrete_space.hpp>
 #include <sdm/utils/decision_rules/joint.hpp>
 #include <sdm/types.hpp>
@@ -163,7 +164,7 @@ namespace sdm
        * \param jitem pointer of JointItem
        * \return the corresponding index
        */
-        number getJointElementIndex(JointItem *) const;
+        number getJointElementIndex(JointItem &) const;
 
         /*!
          * \fn  number getJointElementIndex(JointItem*)
@@ -181,6 +182,11 @@ namespace sdm
         const JointItem &getJointElement(number) const;
 
         std::string str() const;
+
+        bool isDiscrete() const
+        {
+            return true;
+        }
 
         MultiDiscreteSpace &operator=(const MultiDiscreteSpace &);
         bool operator==(const MultiDiscreteSpace &) const;
