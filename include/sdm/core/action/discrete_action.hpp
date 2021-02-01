@@ -4,6 +4,7 @@
 #pragma once
 
 #include <random>
+#include <sdm/types.hpp>
 #include <sdm/core/item.hpp>
 
 //!
@@ -22,9 +23,15 @@
 namespace sdm
 {
 
-  template <class item_t>
-  class Action : public Item<item_t>
+  class DiscreteAction : public Item<number>
   {
-        virtual std::string str() const = 0;
+  public:
+    DiscreteAction()
+    {
+    }
+
+    DiscreteAction(number item) : Item(item)
+    {
+    }
   };
 } // namespace sdm

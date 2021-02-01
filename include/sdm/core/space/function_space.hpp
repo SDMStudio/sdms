@@ -24,7 +24,7 @@ namespace sdm
      * @tparam TFunction The type of function to generate.
      */
     template <typename TFunction>
-    class FunctionSpace : DiscreteSpace<TFunction>
+    class FunctionSpace : public DiscreteSpace<TFunction>
     {
     protected:
 

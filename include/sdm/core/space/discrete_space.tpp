@@ -6,7 +6,6 @@ namespace sdm
     template <typename TItem>
     DiscreteSpace<TItem>::DiscreteSpace() : num_items_(0) {}
 
-    
     template <typename TItem>
     DiscreteSpace<TItem>::DiscreteSpace(const std::vector<TItem> &items) : num_items_(items.size())
     {
@@ -37,11 +36,8 @@ namespace sdm
     TItem DiscreteSpace<TItem>::sample() const
     {
         assert(!this->all_items_.empty());
-        if (this->all_items_.size() > 0)
-        {
-            std::uniform_int_distribution<int> distr(0, this->all_items_.size() - 1);
-            return this->all_items_.right.at(distr(common::global_urng()));
-        }
+        std::uniform_int_distribution<int> distr(0, this->all_items_.size() - 1);
+        return this->all_items_.left.at(distr(common::global_urng()));
     }
 
     template <typename TItem>

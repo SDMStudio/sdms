@@ -12,7 +12,7 @@
 #pragma once
 
 #include <sdm/core/state/history_tree.hpp>
-#include <sdm/utils/decision_rules/joint.hpp>
+#include <sdm/core/joint.hpp>
 
 namespace sdm
 {

@@ -5,7 +5,7 @@ namespace sdm
 
     namespace tools
     {
-        std::string sdm::tools::addIndent(std::string s, int num_indents, std::string indent)
+        std::string addIndent(std::string s, int num_indents, std::string indent)
         {
             std::ostringstream res;
             for (int i = 0; i < num_indents; i++)
@@ -16,7 +16,7 @@ namespace sdm
             return res.str();
         }
 
-        void sdm::tools::indentedOutput(std::ostream &outStream, const char *message)
+        void indentedOutput(std::ostream &outStream, const char *message)
         {
             bool newline;
             while (char cur = *message)

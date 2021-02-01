@@ -2,7 +2,7 @@
 #include <cassert>
 #include <sdm/world/decpomdp.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/parser/exception.hpp>
+#include <sdm/exception.hpp>
 
 int main(int argc, char **argv)
 {
