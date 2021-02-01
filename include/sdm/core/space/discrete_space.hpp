@@ -1,7 +1,7 @@
 /**
  * @file discrete_space.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief DiscreteSpace class.
+ * @brief File for DiscreteSpace class.
  * @version 1.0
  * @date 28/01/2021
  * 
@@ -24,9 +24,9 @@
 namespace sdm
 {
     /**
-     * @brief This class is 
+     * @brief The discrete space class give a way to keep all possible values of a finite space. In order to instantiate an object of this class, you must provide the constructor method, a the list of all available values.
      * 
-     * @tparam TItem The type of each element in the space.
+     * @tparam TItem The type of each element in the space. 
      *  
      */
     template <typename TItem>
@@ -36,7 +36,7 @@ namespace sdm
         typedef boost::bimaps::bimap<number, TItem> items_bimap;
         typedef typename items_bimap::value_type items_bimap_value;
 
-        /** @brief number of possible items in the space (ex: [0, 12] --> 13 items) **/
+        /** @brief number of possible items in the space (ex: [5, 12] --> 8 items) **/
         number num_items_;
 
         /** @brief the list of possible items in the space with their index **/

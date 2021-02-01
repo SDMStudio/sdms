@@ -1,7 +1,7 @@
 /**
  * @file space.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief abstract space class
+ * @brief File for Space class
  * @version 0.1
  * @date 17/12/2020
  * 
@@ -24,18 +24,33 @@ namespace sdm
 {
   /**
    * @class Space
-   * @brief Abstract space class 
+   * @brief This class is an abstract interface that all spaces should inherite. It gives some useful general methods to use generic spaces in your algorithms. 
    */
   class Space
   {
   public:
+
+    /**
+     * @brief Check if the space is discrete.
+     */
     virtual bool isDiscrete() const = 0;
+
+    /**
+     * @brief Check if the space is continous.
+     */
     bool isContinuous() const
     {
       return !(this->isDiscrete());
     }
 
+    /**
+     * @brief Get the dimension of the space.
+     */
     virtual std::vector<number> getDim() const = 0;
+
+    /**
+     * @brief Space as a string
+     */
     virtual std::string str() const = 0;
 
     bool operator==(const Space &sp) const

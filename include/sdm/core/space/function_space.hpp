@@ -1,6 +1,13 @@
-/*=============================================================================
-  Copyright (c) 2020 David Albert
-==============================================================================*/
+/**
+ * @file function_space.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief File for discrete function space
+ * @version 1.0
+ * @date 01/02/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <vector>
@@ -11,11 +18,19 @@
 
 namespace sdm
 {
-    //! \class  Space  space.hpp
+    /**
+     * @brief The class for function spaces. This is helpfull in case we need to enumerate all possible functions (only usable when input space and output space are DiscreteSpace).
+     * 
+     * @tparam TFunction The type of function to generate.
+     */
     template <typename TFunction>
     class FunctionSpace : DiscreteSpace<TFunction>
     {
     protected:
+
+        typedef boost::bimaps::bimap<number, TFunction> funct_bimap;
+        typedef typename funct_bimap::value_type funct_bimap_value;
+
         using value_type = TFunction;
         using input_type = typename TFunction::input_type;
         using output_type = typename TFunction::output_type;
@@ -23,7 +38,14 @@ namespace sdm
         using input_space = DiscreteSpace<input_type>;
         using output_space = DiscreteSpace<output_type>;
 
+        /**
+         * @brief The input space 
+         */
         input_space input_space_;
+
+        /**
+         * @brief The vector of output spaces (possibly one output space for each input space). In case output space are similar for all input, use the adequate constructor.
+         */
         std::vector<output_space> output_space_;
 
     public:
@@ -50,6 +72,11 @@ namespace sdm
             }
         }
 
+        /**
+         * @brief Get all the possible function in this space.
+         * 
+         * @return the list of all possible functions
+         */
         std::vector<TFunction> getAll()
         {
             assert(this->output_space_.size() > 0);
@@ -68,13 +95,16 @@ namespace sdm
                     }
                 }
                 Variations<TFunction> funct_generator(input_space_.getAll(), tmp);
+                number idx = 0;
                 for (auto it = funct_generator.begin(); it != funct_generator.end(); it = funct_generator.next())
                 {
-                    this->all_items_.push_back(*it);
+                    this->all_items_.insert(funct_bimap_value(idx, *it));
+                    idx++;
+                    // this->all_items_.push_back(*it);
                 }
-                this->num_elements_ = this->all_items_.size();
+                this->num_items_ = this->all_items_.size();
             }
-            return this->all_items_;
+            return DiscreteSpace<TFunction>::getAll();
         }
     };
 } // namespace sdm

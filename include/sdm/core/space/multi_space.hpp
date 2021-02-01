@@ -1,13 +1,11 @@
 /**
- * @file space.hpp
+ * @file multi_space.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief abstract space class
- * @version 0.1
- * @date 17/12/2020
+ * @brief File implementing MultiSpace class.
+ * @version 1.0
+ * @date 01/02/2021
  * 
- * @copyright Copyright (c) 2020
- * 
- * This is an abstract interface for Spaces.
+ * @copyright Copyright (c) 2021
  * 
  */
 #pragma once
@@ -24,13 +22,17 @@
 namespace sdm
 {
     /**
-   * @class Space
-   * @brief Abstract space class 
-   */
+     * @brief A multi-space is a set a spaces. Each space can be of any derived class of TSpace class. By default TSpace is set to Space, which means that any space can be used (can be composed of both discrete and continuous spaces). MultiSpace herites from Space so you can even build hierarchical spaces like MultiSpace of MultiSpace (MultiSpace<MultiSpace<Space>>>).  
+     * 
+     * @tparam TSpace 
+     */
     template <typename TSpace = Space>
     class MultiSpace : public Space
     {
     protected:
+        /**
+         * @brief The list of spaces.
+         */
         std::vector<std::shared_ptr<TSpace>> spaces_;
 
     public:
@@ -43,11 +45,30 @@ namespace sdm
 
         std::vector<number> getDim() const;
 
+        /**
+         * @brief Get the number of sub-space.
+         */
         number getNumSpaces() const;
 
+        /**
+         * @brief Get all spaces 
+         * 
+         * @return the list of space pointers 
+         */
         std::vector<std::shared_ptr<TSpace>> getSpaces() const;
+
+        /**
+         * @brief Get a specific subspace
+         * 
+         * @param index the index of the space
+         * @return a shared pointer on a specific space 
+         */
         std::shared_ptr<TSpace> getSpace(number index) const;
 
+        /**
+         * @brief Change the list of spaces. You may prefer build a new MultiSpace instead of changing values of existing one.
+         * 
+         */
         void setSpaces(const std::vector<std::shared_ptr<TSpace>> &);
 
         std::string str() const;
