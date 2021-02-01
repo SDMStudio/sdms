@@ -55,7 +55,7 @@ namespace sdm
         {
         }
 
-        virtual void updateValueAt(const TState &s, int t = 0) = 0;
+        virtual void updateValueAt(TState &s, int t = 0) = 0;
 
         /**
          * @brief Initialize the value function 
@@ -75,7 +75,7 @@ namespace sdm
          * @param state The point where we want the value
          * @return The value of the bound on that point 
          */
-        virtual TValue getValueAt(const TState &state, int t = 0) = 0;
+        virtual TValue getValueAt(TState &state, int t = 0) = 0;
 
         /**
          * @brief Get the q value on a state 
@@ -83,7 +83,7 @@ namespace sdm
          * @param state The state where we want to evaluate q-value
          * @return The Q Value at this state
          */
-        virtual std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, int t = 0) = 0;
+        virtual std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(TState &state, int t = 0) = 0;
 
         /**
          * @brief Get the q value on one couple (state, action) 
@@ -92,7 +92,7 @@ namespace sdm
          * @param action The action where we want the value
          * @return The Q Value 
          */
-        virtual TValue getQValueAt(const TState &state, const TAction &action, int t = 0) = 0;
+        virtual TValue getQValueAt(TState &state, TAction &action, int t = 0) = 0;
 
         /**
          * @brief Get the next action to do
@@ -100,7 +100,7 @@ namespace sdm
          * @param state The point where we want the best action
          * @return The next action
          */
-        virtual TAction getBestAction(const TState &state, int t = 0) = 0;
+        virtual TAction getBestAction(TState &state, int t = 0) = 0;
 
         virtual std::string str() = 0;
 
@@ -122,6 +122,12 @@ namespace sdm
         int isInfiniteHorizon() const
         {
             return !(this->isFiniteHorizon());
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, ValueFunction<TState, TAction> &vf)
+        {
+            os << vf.str();
+            return os;
         }
     };
 } // namespace sdm

@@ -14,11 +14,11 @@ namespace sdm
         *this = sdm::parser::parse_file(filename.c_str());
     }
 
-    DecPOMDP::DecPOMDP(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp) : POSG(state_sp, agent_sp)
+    DecPOMDP::DecPOMDP(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp) : POSG(state_sp, agent_sp)
     {
     }
 
-    DecPOMDP::DecPOMDP(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp, const MultiDiscreteSpace &action_sp, const MultiDiscreteSpace &obs_sp,
+    DecPOMDP::DecPOMDP(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp, const MultiDiscreteSpace<number> &action_sp, const MultiDiscreteSpace<number> &obs_sp,
                        const StateDynamics &s_dyn, const ObservationDynamics &o_dyn, const Reward &rew, const Vector &start_distrib)
         : POSG(state_sp, agent_sp, action_sp, obs_sp, s_dyn, o_dyn, {rew}, start_distrib)
     {

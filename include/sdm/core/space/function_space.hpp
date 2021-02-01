@@ -6,21 +6,22 @@
 #include <vector>
 
 #include <sdm/core/space/discrete_space.hpp>
-#include <sdm/utils/decision_rules/variations2.hpp>
+#include <sdm/utils/decision_rules/variations.hpp>
 #include <sdm/types.hpp>
 
 namespace sdm
 {
     //! \class  Space  space.hpp
     template <typename TFunction>
-    class FunctionSpace : DSpace<TFunction>
+    class FunctionSpace : DiscreteSpace<TFunction>
     {
     protected:
+        using value_type = TFunction;
         using input_type = typename TFunction::input_type;
         using output_type = typename TFunction::output_type;
 
-        using input_space = DSpace<input_type>;
-        using output_space = DSpace<output_type>;
+        using input_space = DiscreteSpace<input_type>;
+        using output_space = DiscreteSpace<output_type>;
 
         input_space input_space_;
         std::vector<output_space> output_space_;
@@ -52,7 +53,7 @@ namespace sdm
         std::vector<TFunction> getAll()
         {
             assert(this->output_space_.size() > 0);
-            if (this->all_items_.size() == 0)
+            if (this->all_items_.empty())
             {
                 std::vector<std::vector<output_type>> tmp;
                 for (int i = 0; i < input_space_.getAll().size(); i++)

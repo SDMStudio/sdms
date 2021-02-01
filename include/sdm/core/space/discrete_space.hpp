@@ -1,116 +1,127 @@
-
+/**
+ * @file discrete_space.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief DiscreteSpace class.
+ * @version 1.0
+ * @date 28/01/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <vector>
+#include <boost/bimap.hpp>
 
-#include <sdm/core/space/space.hpp>
-#include <sdm/utils/decision_rules/variations.hpp>
 #include <sdm/types.hpp>
+#include <sdm/core/joint.hpp>
+#include <sdm/core/space/space.hpp>
 
-//!
-//! \file     D_space.hpp
-//! \author   David Albert
-//! \brief    D space class
-//! \version  1.0
-//! \date     24 novembre 2020
-//!
-//! This class provide a way to instantiate D space.
-
-//! \namespace  sdm
-//! \brief Namespace grouping all tools required for sequential decision making.
+/**
+ * @namespace sdm
+ * @brief Namespace grouping all tools required for sequential decision making.
+ */
 namespace sdm
 {
     /**
-     * @brief 
+     * @brief This class is 
      * 
-     * @tparam TItem Base item (string, int, short, double, etc)
+     * @tparam TItem The type of each element in the space.
+     *  
      */
     template <typename TItem>
-    class DSpace : public Space
+    class DiscreteSpace : public Space
     {
     protected:
-        //! \brief number of possible elements in the space (ex: [0, 12] --> 13 elements)
-        number num_elements_;
+        typedef boost::bimaps::bimap<number, TItem> items_bimap;
+        typedef typename items_bimap::value_type items_bimap_value;
 
-        //! \brief number of possible elements in the space (ex: [0, 12] --> 13 elements)
-        std::vector<TItem> all_items_;
+        /** @brief number of possible items in the space (ex: [0, 12] --> 13 items) **/
+        number num_items_;
 
-        //! \brief map of names.
-        // boost::bimaps::bimap<sdm::size_t, TItem> names_bimap_;
+        /** @brief the list of possible items in the space with their index **/
+        items_bimap all_items_;
 
     public:
+        using value_type = TItem;
 
-        //! \fn     DSpace()
-        //! \brief  instantiate a default D space (DSpace class)
-        //! \return instance of DSpace
-        DSpace();
+        /**
+         * @brief Construct a new Discrete Space object (default)
+         * 
+         */
+        DiscreteSpace();
 
-        //! \fn     DSpace(number num_elements)
-        //! \brief  instantiate a D space (DSpace class)
-        //! \param  num_elements the number of possible elements.
-        //! \return instance of DSpace
-        DSpace(number num_elements);
+        /**
+         * @brief Construct a new Discrete Space object
+         * 
+         * @param num_items the number of possible items
+         */
+        // DiscreteSpace(number num_items);
 
-        //! \fn     DSpace(const std::vector<std::string> & items)
-        //! \brief  instantiate a D space (DSpace class)
-        //! \param  items a list of element names.
-        //! \return instance of DSpace
-        DSpace(const std::vector<TItem> &items);
+        /**
+         * @brief Construct a new Discrete Space object
+         * 
+         * @param items a list of possible items in the space
+         */
+        DiscreteSpace(const std::vector<TItem> &items);
 
-        DSpace(const DSpace<TItem> &copy);
+        /**
+         * @brief Copy constructor
+         */
+        DiscreteSpace(const DiscreteSpace<TItem> &copy);
+        
+        /**
+         * @brief Construct a new Discrete Space object from a list initializer
+         */
+        DiscreteSpace(std::initializer_list<TItem> vals);
 
-        DSpace(std::initializer_list<TItem> vals) : all_items_(vals)
-        {
-            this->num_elements_ = all_items_.size();
-        }
-
+        /**
+         * @brief Return true because this is a discrete space
+         */
         bool isDiscrete() const;
 
-        //! \fn     number sample()
-        //! \brief  Sample an element from the space
-        //! \return uniformly sampled an element in the space
+        /**
+         * @brief Sample a random item from the space
+         */
         TItem sample() const;
 
-        //! \fn       number getLength()
-        //! \brief    Returns the space length
-        number getLength() const;
+        /**
+         * @brief Get the dimension
+         */
+        std::vector<number> getDim() const;
 
-        //! \fn       number getNumElements()
-        //! \brief    Getter for num_elements_ parameter
-        number getNumElements() const;
+        /**
+         * @brief Get the Nummber of Items in the space
+         */
+        number getNumItems() const;
 
+        /**
+         * @brief Get all items in the space
+         */
         std::vector<TItem> getAll();
 
-        std::vector<number> getDim() const;
+        /**
+         * @brief Get the index of an item
+         */
+        number getItemIndex(const TItem &item) const;
+
+        /**
+         * @brief Get the item at a specific index
+         */
+        TItem getItem(number index) const;
 
         std::string str() const;
 
-        //! \fn       number getElementIndex(const std::string&)
-        //! \param    e_name the element name
-        //! \brief    Returns the index of the element (from name)
-        number getElementIndex(const TItem &item) const;
+        DiscreteSpace &operator=(const DiscreteSpace &sp);
 
-        //! \fn       std::string getElementName(number)
-        //! \param    index index of the element
-        //! \brief    Returns the name associated with the index
-        TItem getElement(number index) const;
+        bool operator==(const DiscreteSpace &sp) const;
+        bool operator!=(const DiscreteSpace &sp) const;
 
-        void setNumElements(number num_elements);
-
-        DSpace &operator=(const DSpace &sp);
-
-        bool operator==(const DSpace &sp) const;
-
-        bool operator!=(const DSpace &sp) const;
-
-        friend std::ostream &operator<<(std::ostream &os, const DSpace &sp)
+        friend std::ostream &operator<<(std::ostream &os, const DiscreteSpace &sp)
         {
             os << sp.str();
             return os;
         }
-
-        iterator begin() { return this->all_items_.begin(); }
-        iterator end() { return this->all_items_.end(); }
     };
 } // namespace sdm
 

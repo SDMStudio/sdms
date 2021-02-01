@@ -1,5 +1,5 @@
 #include <sdm/world/stochastic_process.hpp>
-#include <sdm/core/discrete_space.hpp>
+#include <sdm/core/space/discrete_space.hpp>
 #include <sdm/common.hpp>
 
 namespace sdm
@@ -8,23 +8,23 @@ namespace sdm
     {
     }
 
-    StochasticProcess::StochasticProcess(number nb_states) : state_space_(nb_states)
-    {
-    }
+    // StochasticProcess::StochasticProcess(number nb_states) : state_space_(nb_states)
+    // {
+    // }
 
-    StochasticProcess::StochasticProcess(const std::vector<double> &start_distrib) : state_space_(start_distrib.size())
-    {
-        this->setStartDistrib(start_distrib);
-    }
+    // StochasticProcess::StochasticProcess(const std::vector<double> &start_distrib) : state_space_(start_distrib.size())
+    // {
+    //     this->setStartDistrib(start_distrib);
+    // }
 
-    StochasticProcess::StochasticProcess(const Vector &start_distrib) : state_space_(start_distrib.size()), start_distrib_(start_distrib)
-    {
-    }
+    // StochasticProcess::StochasticProcess(const Vector &start_distrib) : state_space_(start_distrib.size()), start_distrib_(start_distrib)
+    // {
+    // }
 
-    StochasticProcess::StochasticProcess(const DiscreteSpace &state_space) : state_space_(state_space)
+    StochasticProcess::StochasticProcess(const DiscreteSpace<number> &state_space) : state_space_(state_space)
     {
     }
-    StochasticProcess::StochasticProcess(const DiscreteSpace &state_space, const Vector &start_distrib) : state_space_(state_space), start_distrib_(start_distrib)
+    StochasticProcess::StochasticProcess(const DiscreteSpace<number> &state_space, const Vector &start_distrib) : state_space_(state_space), start_distrib_(start_distrib)
     {
     }
 
@@ -65,29 +65,14 @@ namespace sdm
         return this->internal_state_;
     }
 
-    const DiscreteSpace &StochasticProcess::getStateSpace() const
+    const DiscreteSpace<number> &StochasticProcess::getStateSpace() const
     {
         return this->state_space_;
     }
 
     number StochasticProcess::getNumStates() const
     {
-        return this->getStateSpace().getNumElements();
-    }
-
-    number StochasticProcess::getStateIndex(const std::string &name) const
-    {
-        return this->getStateSpace().getElementIndex(name);
-    }
-
-    std::string StochasticProcess::getStateName(number idx) const
-    {
-        return this->getStateSpace().getElementName(idx);
-    }
-
-    void StochasticProcess::setStatesNames(const std::vector<std::string> &names)
-    {
-        this->state_space_.setElementsNames(names);
+        return this->getStateSpace().getNumItems();
     }
 
     void StochasticProcess::setInternalState(number state)

@@ -6,6 +6,8 @@ Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
 #include <vector>
 
 #include <sdm/types.hpp>
+#include <sdm/tools.hpp>
+#include <sdm/core/function.hpp>
 
 //!
 //! \file     joint.hpp
@@ -29,7 +31,7 @@ namespace sdm
    * 
    */
   template <typename item>
-  class Joint : public std::vector<item>
+  class Joint : public std::vector<item>, public Function<number, item>
   {
   protected:
     //! \brief the number of agents
@@ -38,7 +40,7 @@ namespace sdm
   public:
     Joint() : std::vector<item>() {}
     Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
-    Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(num_agents.size()) {}
+    Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
 
     number getNumAgents() const
     {
@@ -60,12 +62,20 @@ namespace sdm
         number ag;
         for (ag = 0; ag < j.size() - 1; ++ag)
         {
-          os << j[ag] << " ";
+          std::ostringstream res;
+          res << j[ag] << ", ";
+          sdm::tools::indentedOutput(os, res.str().c_str());
+          // os << j[ag] << ", ";
         }
         os << j[ag];
       }
       os << ")";
       return os;
+    }
+
+    item operator()(const number &i)
+    {
+      return (*this)[i];
     }
   };
 

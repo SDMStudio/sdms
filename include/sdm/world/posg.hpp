@@ -21,8 +21,8 @@
 #include <sdm/world/po_process.hpp>
 #include <sdm/world/decision_process.hpp>
 
-#include <sdm/core/discrete_space.hpp>
-#include <sdm/core/multi_discrete_space.hpp>
+#include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/reward.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/observation_dynamics.hpp>
@@ -134,7 +134,7 @@ namespace sdm
         //! \brief    Construct a POSG.
         //! \param    state_sp the state space
         //! \param    agent_sp the agent space
-        POSG(const DiscreteSpace &, const DiscreteSpace &);
+        POSG(const DiscreteSpace<number> &, const DiscreteSpace<number> &);
 
         //! \brief    Construct a POSG.
         //! \param    state_sp the state space
@@ -145,7 +145,7 @@ namespace sdm
         //! \param    o_dyn observation dynamics
         //! \param    rews reward functions for each agent
         //! \param    start_distrib start distribution (optional)
-        POSG(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &, const MultiDiscreteSpace &,
+        POSG(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const MultiDiscreteSpace<number> &,
              const StateDynamics &, const ObservationDynamics &, const std::vector<Reward> &, const Vector &);
 
         //! \fn std::tuple<double, observation, state> getDynamicsGenerator(state x, action a)

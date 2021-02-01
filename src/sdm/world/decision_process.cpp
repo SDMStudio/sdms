@@ -7,42 +7,42 @@ namespace sdm
 {
     DecisionProcess::DecisionProcess() {}
 
-    DecisionProcess::DecisionProcess(number n_state, number n_agent, const std::vector<number> &act_space)
-        : StochasticProcess(n_state),
-          agent_space_(n_agent), action_space_(act_space)
-    {
-        this->s_dynamics_ = StateDynamics(this->getNumJActions(), this->getNumStates());
-        for (number i = 0; i < this->getNumAgents(); i++)
-        {
-            this->rew_.push_back(Reward(this->getNumJActions(), this->getNumStates()));
-        }
-    }
+    // DecisionProcess::DecisionProcess(number n_state, number n_agent, const std::vector<number> &act_space)
+    //     : StochasticProcess(n_state),
+    //       agent_space_(n_agent), action_space_(act_space)
+    // {
+    //     this->s_dynamics_ = StateDynamics(this->getNumJActions(), this->getNumStates());
+    //     for (number i = 0; i < this->getNumAgents(); i++)
+    //     {
+    //         this->rew_.push_back(Reward(this->getNumJActions(), this->getNumStates()));
+    //     }
+    // }
 
-    DecisionProcess::DecisionProcess(number n_state, number n_agent, const std::vector<number> &act_space, const Vector &start_distrib)
-        : DecisionProcess(n_state, n_agent, act_space)
+    // DecisionProcess::DecisionProcess(number n_state, number n_agent, const std::vector<number> &act_space, const Vector &start_distrib)
+    //     : DecisionProcess(n_state, n_agent, act_space)
 
-    {
-        this->setStartDistrib(start_distrib);
-    }
+    // {
+    //     this->setStartDistrib(start_distrib);
+    // }
 
-    DecisionProcess::DecisionProcess(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp, const MultiDiscreteSpace &action_sp)
+    DecisionProcess::DecisionProcess(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp, const MultiDiscreteSpace<number> &action_sp)
         : StochasticProcess(state_sp),
-          agent_space_(agent_sp), action_space_(action_sp), s_dynamics_(action_sp.getNumJElements(), state_sp.getNumElements())
+          agent_space_(agent_sp), action_space_(action_sp), s_dynamics_(action_sp.getNumJointItems(), state_sp.getNumItems())
     {
 
         for (number i = 0; i < this->getNumAgents(); i++)
         {
-            this->rew_.push_back(Reward(action_sp.getNumJElements(), state_sp.getNumElements()));
+            this->rew_.push_back(Reward(action_sp.getNumJointItems(), state_sp.getNumItems()));
         }
     }
 
-    DecisionProcess::DecisionProcess(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp, const MultiDiscreteSpace &action_sp, const Vector &start_distrib)
+    DecisionProcess::DecisionProcess(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp, const MultiDiscreteSpace<number> &action_sp, const Vector &start_distrib)
         : DecisionProcess(state_sp, agent_sp, action_sp)
     {
         this->setStartDistrib(start_distrib);
     }
 
-    DecisionProcess::DecisionProcess(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp, const MultiDiscreteSpace &action_sp,
+    DecisionProcess::DecisionProcess(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp, const MultiDiscreteSpace<number> &action_sp,
                                      const StateDynamics &s_dyn, const std::vector<Reward> &rews, const Vector &start_distrib)
         : StochasticProcess(state_sp, start_distrib), agent_space_(agent_sp), action_space_(action_sp)
     {
@@ -121,30 +121,25 @@ namespace sdm
         return this->s_dynamics_;
     }
 
-    const DiscreteSpace &DecisionProcess::getAgentSpace() const
+    const DiscreteSpace<number> &DecisionProcess::getAgentSpace() const
     {
         return this->agent_space_;
     }
 
     // ACTION SPACE
-    const MultiDiscreteSpace &DecisionProcess::getActionSpace() const
+    const MultiDiscreteSpace<number> &DecisionProcess::getActionSpace() const
     {
         return this->action_space_;
     }
 
-    const DiscreteSpace &DecisionProcess::getActionSpace(number ag_id) const
-    {
-        return this->action_space_.getSpace(ag_id);
-    }
-
     number DecisionProcess::getNumJActions() const
     {
-        return this->getActionSpace().getNumJElements();
+        return this->getActionSpace().getNumJointItems();
     }
 
     number DecisionProcess::getNumActions(number ag_id) const
     {
-        return this->getActionSpace().getNumElements(ag_id);
+        return this->getActionSpace().getSpace(ag_id)->getNumItems();
     }
 
     std::vector<number> DecisionProcess::getNumActions() const
@@ -160,22 +155,7 @@ namespace sdm
     // AGENT SPACE
     number DecisionProcess::getNumAgents() const
     {
-        return this->agent_space_.getNumElements();
-    }
-
-    number DecisionProcess::getAgentIndex(const std::string &name) const
-    {
-        return this->agent_space_.getElementIndex(name);
-    }
-
-    std::string DecisionProcess::getAgentName(number idx) const
-    {
-        return this->agent_space_.getElementName(idx);
-    }
-
-    void DecisionProcess::setAgentsNames(const std::vector<std::string> &names)
-    {
-        this->agent_space_.setElementsNames(names);
+        return this->agent_space_.getNumItems();
     }
 
     // TRANSITIONS

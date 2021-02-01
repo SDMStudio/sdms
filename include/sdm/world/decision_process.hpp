@@ -7,7 +7,7 @@
 
 #include <sdm/types.hpp>
 
-#include <sdm/core/multi_discrete_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
 
@@ -33,10 +33,10 @@ namespace sdm
     {
     protected:
         //! \brief Space of agents (contain number of agents and their names).
-        DiscreteSpace agent_space_;
+        DiscreteSpace<number> agent_space_;
 
         //! \brief Action space for each agent.
-        MultiDiscreteSpace action_space_;
+        MultiDiscreteSpace<number> action_space_;
 
         //! \brief State dynamics.
         StateDynamics s_dynamics_;
@@ -58,11 +58,11 @@ namespace sdm
 
     public:
         DecisionProcess();
-        DecisionProcess(number, number, const std::vector<number> &);
-        DecisionProcess(number, number, const std::vector<number> &, const Vector &);
-        DecisionProcess(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &);
-        DecisionProcess(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &, const Vector &);
-        DecisionProcess(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &, const StateDynamics &, const std::vector<Reward> &, const Vector &);
+        // DecisionProcess(number, number, const std::vector<number> &);
+        // DecisionProcess(number, number, const std::vector<number> &, const Vector &);
+        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &);
+        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const Vector &);
+        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const StateDynamics &, const std::vector<Reward> &, const Vector &);
 
         //! \fn       void setFileName(std::string)
         //! \param   filename
@@ -173,17 +173,12 @@ namespace sdm
         /**
          * \brief Getter for the action spaces
          */
-        const DiscreteSpace &getAgentSpace() const;
+        const DiscreteSpace<number> &getAgentSpace() const;
 
         /**
          * \brief Getter for the action spaces
          */
-        const MultiDiscreteSpace &getActionSpace() const;
-
-        /**
-         * \brief Getter for a specific action space
-         */
-        const DiscreteSpace &getActionSpace(number) const;
+        const MultiDiscreteSpace<number> &getActionSpace() const;
 
         /**
          * \brief Get the number of joint actions
@@ -205,20 +200,6 @@ namespace sdm
          */
         number getNumAgents() const;
 
-        /**
-         * \brief Get index of an agent from his name
-         */
-        number getAgentIndex(const std::string &) const;
-
-        /**
-         * \brief Get the name of a specific agent
-         */
-        std::string getAgentName(number) const;
-
-        /**
-         * \brief Set agent's names
-         */
-        void setAgentsNames(const std::vector<std::string> &);
     };
 
     typedef DecisionProcess SG;

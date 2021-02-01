@@ -32,8 +32,8 @@ namespace sdm
     class MappedVector : public std::map<TIndex, T>, public VectorImpl<TIndex, T>
     {
     protected:
-        T default_value_ = 0;
-        std::size_t size_ = 0;
+        T default_value_;
+        std::size_t size_;
 
         std::pair<TIndex, T> getMin() const;
         std::pair<TIndex, T> getMax() const;
@@ -60,6 +60,8 @@ namespace sdm
         T dot(const MappedVector &v2) const;
 
         std::size_t size() const;
+
+        T getDefault() const;
 
         std::string str() const;
 

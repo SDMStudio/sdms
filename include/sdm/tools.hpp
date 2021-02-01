@@ -30,5 +30,7 @@ namespace sdm
          */
         std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
 
+        void indentedOutput(std::ostream &outStream, const char *message);
+
     } // namespace tools
 } // namespace sdm

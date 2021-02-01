@@ -4,7 +4,7 @@
 namespace sdm
 {
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector() : std::map<TIndex, T>()
+    MappedVector<TIndex, T>::MappedVector() : std::map<TIndex, T>(), size_(0), default_value_(0)
     {
     }
 
@@ -19,7 +19,7 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : std::map<TIndex, T>(v)
+    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : std::map<TIndex, T>(v), default_value_(v.getDefault()), size_(v.size())
     {
     }
 
@@ -168,6 +168,13 @@ namespace sdm
     std::size_t MappedVector<TIndex, T>::size() const
     {
         return this->size_;
+    }
+
+
+    template <typename TIndex, typename T>
+    T MappedVector<TIndex, T>::getDefault() const
+    {
+        return this->default_value_;
     }
 
     template <typename TIndex, typename T>

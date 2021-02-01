@@ -1,216 +1,191 @@
 #include <sdm/core/space/multi_discrete_space.hpp>
-#include <sdm/utils/decision_rules/variations2.hpp>
+#include <sdm/utils/decision_rules/variations.hpp>
 
 namespace sdm
 {
     template <typename TItem>
-    MDSpace<TItem>::MDSpace()
+    MultiDiscreteSpace<TItem>::MultiDiscreteSpace()
     {
     }
 
-    template <typename TItem>
-    MDSpace<TItem>::MDSpace(const std::vector<number> &num_elements)
-    {
-        this->setSpaces(num_elements);
-    }
+    // template <typename TItem>
+    // MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<number> &num_items)
+    // {
+    //     this->setSpaces(num_items);
+    // }
+
 
     template <typename TItem>
-    MDSpace<TItem>::MDSpace(const std::vector<std::vector<TItem>> &e_names)
+    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::vector<TItem>> &e_names)
     {
         this->setSpaces(e_names);
     }
 
     template <typename TItem>
-    MDSpace<TItem>::MDSpace(const std::vector<std::shared_ptr<DSpace<TItem>>> &spaces)
+    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<DiscreteSpace<TItem>> &spaces)
     {
         this->setSpaces(spaces);
     }
 
     template <typename TItem>
-    number MDSpace<TItem>::joint2single(const std::vector<TItem> &jel) const
+    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces)
     {
-        return this->getJointElementIndex(jel);
+        this->setSpaces(spaces);
     }
 
     template <typename TItem>
-    const std::vector<TItem> &MDSpace<TItem>::single2joint(number jel) const
+    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const MultiDiscreteSpace<TItem> &copy) : MultiDiscreteSpace<TItem>(copy.getSpaces()) {}
+
+    template <typename TItem>
+    number MultiDiscreteSpace<TItem>::joint2single(const std::vector<TItem> &jel) const
     {
-        return this->getJointElement(jel);
+        return this->getJointItemIndex(jel);
     }
 
     template <typename TItem>
-    number MDSpace<TItem>::getNumJElements() const
+    std::vector<TItem> MultiDiscreteSpace<TItem>::single2joint(number jel) const
     {
-        return this->num_jelement;
+        return this->getJointItem(jel);
     }
 
     template <typename TItem>
-    number MDSpace<TItem>::getNumElements() const
+    number MultiDiscreteSpace<TItem>::getNumJointItems() const
     {
-        return this->getNumSpaces();
+        return this->getNumItems();
     }
 
     template <typename TItem>
-    number MDSpace<TItem>::getNumElements(number idx) const
+    number MultiDiscreteSpace<TItem>::getItemIndex(number ag_id, const TItem &item) const
     {
-        return this->getSpace(idx)->getNumElements();
+        return this->getSpace(ag_id)->getItemIndex(item);
     }
 
     template <typename TItem>
-    number MDSpace<TItem>::getElementIndex(number ag_id, const TItem &item) const
+    Joint<TItem> MultiDiscreteSpace<TItem>::getJointItem(number idx) const
     {
-        return this->getSpace(ag_id)->getElementIndex(item);
+        return DiscreteSpace<Joint<TItem>>::getItem(idx);
     }
 
     template <typename TItem>
-    TItem MDSpace<TItem>::getElement(number ag_id, number el_id) const
+    TItem MultiDiscreteSpace<TItem>::getItem(number ag_id, number el_id) const
     {
-        return this->getSpace(ag_id)->getElement(el_id);
+        return this->getSpace(ag_id)->getItem(el_id);
     }
 
-    template <typename TItem>
-    void MDSpace<TItem>::setSpaces(const std::vector<number> &num_elements)
-    {
-        this->spaces_.clear();
-        this->num_jelement = 1;
+    // template <typename TItem>
+    // void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<number> &num_items)
+    // {
+    //     this->num_items_ = 1;
+    //     this->spaces_.clear();
 
-        for (number ag = 0; ag < num_elements.size(); ++ag)
-        {
-            this->spaces_.push_back(std::shared_ptr<DSpace<TItem>>(new DSpace<TItem>(num_elements[ag])));
-            this->num_jelement *= num_elements[ag];
-        }
-        this->generateJointElements();
-    }
-
-    template <typename TItem>
-    void MDSpace<TItem>::setSpaces(const std::vector<int> &num_elements)
-    {
-        this->spaces_.clear();
-        this->num_jelement = 1;
-
-        for (number ag = 0; ag < num_elements.size(); ++ag)
-        {
-            this->spaces_.push_back(std::shared_ptr<DSpace<TItem>>(new DSpace<TItem>(num_elements[ag])));
-            this->num_jelement *= num_elements[ag];
-        }
-        this->generateJointElements();
-    }
+    //     for (number ag = 0; ag < num_items.size(); ++ag)
+    //     {
+    //         this->spaces_.push_back(std::shared_ptr<DiscreteSpace<TItem>>(new DiscreteSpace<TItem>(num_items[ag])));
+    //         this->num_items_ *= num_items[ag];
+    //     }
+    //     this->generateJointItems();
+    // }
 
     template <typename TItem>
-    void MDSpace<TItem>::setSpaces(const std::vector<std::vector<TItem>> &e_names)
+    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<std::vector<TItem>> &e_names)
     {
 
-        this->num_jelement = 1;
+        this->num_items_ = 1;
         this->spaces_.clear();
 
         for (number ag = 0; ag < e_names.size(); ++ag)
         {
-            this->spaces_.push_back(std::shared_ptr<DSpace<TItem>>(new DSpace<TItem>(e_names[ag])));
-            this->num_jelement *= e_names[ag].size();
+            this->spaces_.push_back(std::shared_ptr<DiscreteSpace<TItem>>(new DiscreteSpace<TItem>(e_names[ag])));
+            this->num_items_ *= e_names[ag].size();
         }
-        this->generateJointElements();
+        this->generateJointItems();
     }
 
     template <typename TItem>
-    void MDSpace<TItem>::setSpaces(const std::vector<std::shared_ptr<DSpace<TItem>>> &spaces)
+    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<DiscreteSpace<TItem>> &spaces)
     {
+        this->num_items_ = 1;
+        this->spaces_.clear();
 
-        this->num_jelement = 1;
+        for (number ag = 0; ag < spaces.size(); ++ag)
+        {
+            this->spaces_.push_back(std::shared_ptr<DiscreteSpace<TItem>>(new DiscreteSpace<TItem>(spaces[ag])));
+            this->num_items_ *= spaces[ag].getNumItems();
+        }
+        this->generateJointItems();
+    }
+
+    template <typename TItem>
+    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces)
+    {
+        this->num_items_ = 1;
         this->spaces_.clear();
 
         for (number ag = 0; ag < spaces.size(); ++ag)
         {
             this->spaces_.push_back(spaces[ag]);
-            this->num_jelement *= spaces[ag]->getNumElements();
+            this->num_items_ *= spaces[ag]->getNumItems();
         }
-        this->generateJointElements();
+        this->generateJointItems();
     }
 
     template <typename TItem>
-    void MDSpace<TItem>::generateJointElements()
+    void MultiDiscreteSpace<TItem>::generateJointItems()
     {
-        if (this->joint_items_bimap.size() == 0)
+        this->all_items_.clear();
+        std::vector<std::vector<TItem>> v_possible_items;
+        for (auto sp : this->getSpaces())
         {
-            std::vector<std::vector<TItem>> v_possible_items;
-            for (auto sp : this->getSpaces())
-            {
-                v_possible_items.push_back(sp->getAll());
-            }
-
-            number counter = 0;
-            Variations<Joint<TItem>> vars(v_possible_items);
-            for (auto v = vars.begin(); v != vars.end(); v = vars.next())
-            {
-                this->joint_items_bimap.insert(jitems2index(*v, counter));
-                this->all_items_.push_back(*v);
-                counter++;
-            }
+            v_possible_items.push_back(sp->getAll());
         }
-        else
+
+        number counter = 0;
+        Variations<Joint<TItem>> vars(v_possible_items);
+        for (auto v = vars.begin(); v != vars.end(); v = vars.next())
         {
-            std::cerr << "#> Joint items cannot be generated twice.";
+            this->all_items_.insert(jitems_bimap_value(counter, *v));
+            counter++;
         }
     }
 
     template <typename TItem>
-    number MDSpace<TItem>::getJointElementIndex(Joint<TItem> &jitem) const
+    std::vector<Joint<TItem>> MultiDiscreteSpace<TItem>::getAll()
     {
-        typename jitems_bimap::const_iterator iter;
-
-        for (iter = this->joint_items_bimap.begin(); iter != this->joint_items_bimap.end(); ++iter)
+        if (this->all_items_.empty())
         {
-            if (iter->left == jitem)
-            {
-                return iter->right;
-            }
+            this->generateJointItems();
         }
-        assert(false && "No such joint item !");
-    }
 
-    template <typename TItem>
-    number MDSpace<TItem>::getJointElementIndex(const std::vector<number> &v) const
-    {
-        typename jitems_bimap::const_iterator iter;
-
-        for (iter = this->joint_items_bimap.begin(); iter != this->joint_items_bimap.end(); ++iter)
+        std::vector<Joint<TItem>> v;
+        for (auto &it : this->all_items_.left)
         {
-            if (iter->left == v)
-            {
-                return iter->right;
-            }
+            v.push_back(it.second);
         }
-
-        assert(false && "No such joint item !");
+        return v;
     }
 
     template <typename TItem>
-    const Joint<TItem> &MDSpace<TItem>::getJointElement(number idx) const
+    number MultiDiscreteSpace<TItem>::getJointItemIndex(Joint<TItem> &jitem) const
     {
-        assert(joint_items_bimap.right.find(idx) != joint_items_bimap.right.end());
-        return joint_items_bimap.right.at(idx);
+        return DiscreteSpace<Joint<TItem>>::getItemIndex(jitem);
     }
 
     template <typename TItem>
-    std::vector<Joint<TItem>> MDSpace<TItem>::getAll()
+    number MultiDiscreteSpace<TItem>::getJointItemIndex(const std::vector<TItem> &jitem) const
     {
-        if (this->joint_items_bimap.size() == 0)
-        {
-            this->generateJointElements();
-        }
-        return this->all_items_;
+        return DiscreteSpace<Joint<TItem>>::getItemIndex(jitem);
     }
 
     template <typename TItem>
-    MDSpace<TItem> &MDSpace<TItem>::operator=(const MDSpace<TItem> &sp)
+    MultiDiscreteSpace<TItem> &MultiDiscreteSpace<TItem>::operator=(const MultiDiscreteSpace<TItem> &sp)
     {
-        this->names_.clear();
-        this->joint_items_bimap.clear();
+        this->all_items_.clear();
         this->setSpaces(sp.getSpaces());
         return *this;
     }
 
     template <typename TItem>
-    std::string MDSpace<TItem>::str() const
+    std::string MultiDiscreteSpace<TItem>::str() const
     {
         std::ostringstream res;
         res << "MultiDiscreteSpace(" << this->getNumSpaces() << ")";

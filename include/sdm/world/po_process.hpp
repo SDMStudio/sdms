@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <sdm/types.hpp>
-#include <sdm/core/multi_discrete_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/world/stochastic_process.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 
@@ -29,25 +29,18 @@ namespace sdm
 
     protected:
         //! \brief The state space
-        MultiDiscreteSpace obs_spaces_;
+        MultiDiscreteSpace<number> obs_spaces_;
 
     public:
         PartiallyObservableProcess();
-        PartiallyObservableProcess(number, std::vector<number>);
-        PartiallyObservableProcess(number, std::vector<number>, const Vector &);
 
-        PartiallyObservableProcess(const DiscreteSpace &, const MultiDiscreteSpace &);
-        PartiallyObservableProcess(const DiscreteSpace &, const MultiDiscreteSpace &, const Vector &);
+        PartiallyObservableProcess(const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &);
+        PartiallyObservableProcess(const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const Vector &);
 
         /**
          * \brief Getter for the observation spaces
          */
-        const MultiDiscreteSpace &getObsSpace() const;
-
-        /**
-         * \brief Getter for a specific observation space
-         */
-        const DiscreteSpace &getObsSpace(number) const;
+        const MultiDiscreteSpace<number> &getObsSpace() const;
 
         /**
          * \brief Get the number of joint observations

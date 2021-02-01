@@ -7,27 +7,38 @@
 
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
+#include <boost/config/warning_disable.hpp>
+#include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
+#include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
+#include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/fusion/include/io.hpp>
 
 #include <map>
 
-namespace sdm{
-  namespace parser{
+namespace sdm
+{
+  namespace parser
+  {
     namespace x3 = boost::spirit::x3;
 
     ////////////////////////////////////////////////////////////////////////////
     //  Our error handler
     ////////////////////////////////////////////////////////////////////////////
     // X3 error handler utility
-    template<typename Iterator> using error_handler = x3::error_handler<Iterator>;
+    template <typename Iterator>
+    using error_handler = x3::error_handler<Iterator>;
 
     // tag used to get our error handler from the context
     using error_handler_tag = x3::error_handler_tag;
 
-    struct error_handler_base{
+    struct error_handler_base
+    {
       error_handler_base();
 
-      template<typename Iterator, typename Exception, typename Context>
-      x3::error_handler_result on_error(Iterator&, Iterator const&, Exception const&, Context const&);
+      template <typename Iterator, typename Exception, typename Context>
+      x3::error_handler_result on_error(Iterator &, Iterator const &, Exception const &, Context const &);
 
       std::map<std::string, std::string> id_map;
     };
@@ -35,8 +46,9 @@ namespace sdm{
     ////////////////////////////////////////////////////////////////////////////
     // Implementation
     ////////////////////////////////////////////////////////////////////////////
-    inline error_handler_base::error_handler_base(){
-      id_map["dpomdp"] = "sdm model";
+    inline error_handler_base::error_handler_base()
+    {
+      id_map["dpomdp_t"] = "sdm model";
       id_map["matrix_t"] = "matrix type";
       id_map["identifier_t"] = "identifier name";
       id_map["identifiers_t"] = "identifier names";
@@ -56,17 +68,21 @@ namespace sdm{
       id_map["observation_entry_3_t"] = "observation entry of type 2";
     }
 
-    template<typename Iterator, typename Exception, typename Context>
-    inline x3::error_handler_result error_handler_base::on_error(Iterator&, Iterator const&, Exception const& x, Context const& context){
+    template <typename Iterator, typename Exception, typename Context>
+    inline x3::error_handler_result error_handler_base::on_error(Iterator &first, Iterator const &last, Exception const &x, Context const &context)
+    {
+      std::cout << "HELO" << std::endl;
       std::string which = x.which();
+      std::cout << "HELO" << which<< std::endl;
       auto iter = id_map.find(which);
-      if( iter != id_map.end() ) which = iter->second;
+      if (iter != id_map.end())
+        which = iter->second;
 
-      std::string message = "Error! Expecting: " + which  + " here:";
-      auto& error_handler = x3::get<error_handler_tag>(context).get();
-      error_handler(x.where(), message);
+      std::string message = "Error! Expecting: " + which + " here:";
+      // auto& error_handler = x3::get<error_handler_tag>(context)->get();
+      // error_handler(x.where(), message);
       return x3::error_handler_result::fail;
     }
 
-  }
-}
+  } // namespace parser
+} // namespace sdm

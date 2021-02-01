@@ -43,14 +43,14 @@ namespace sdm
         do
         {
             std::cout << "Trial : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
-            std::cout << "LB : " << this->lower_bound_->str() << "UB : " << this->upper_bound_->str() << std::endl;
+            // std::cout << "LB : " << this->lower_bound_->str() << "UB : " << this->upper_bound_->str() << std::endl;
             this->do_explore(start_state, 0);
             this->trial++;
         } while (!this->do_stop(start_state, 0));
 
         std::cout << "-------------------------------------------------" << std::endl;
         std::cout << "Number trials : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
-        std::cout << "Final LB : " << this->lower_bound_->str() << "Final UB : " << this->upper_bound_->str() << std::endl;
+        std::cout << "Final LB : \n" << *this->lower_bound_ << "Final UB : \n" << *this->upper_bound_ << std::endl;
     }
 
     template <typename TState, typename TAction>
@@ -73,7 +73,6 @@ namespace sdm
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
-
             TAction a = this->selectNextAction(s, h);
             TState s_ = this->selectNextState(s, a, h);
 
@@ -139,23 +138,48 @@ namespace sdm
     template <>
     BeliefState HSVI<BeliefState, number>::selectNextState(BeliefState state, number action, number d)
     {
-        BeliefState nextBelief(state.size());
+        auto nextState = [](decltype(this->world_) w, BeliefState st, number action, number o, number d) {
+            BeliefState nextBelief;
+            double tmp;
+            for (number s_ = 0; s_ < w->getNumStates(); s_++)
+            {
+                tmp = 0;
+                for (number s = 0; s < w->getNumStates(); s++)
+                {
+                    tmp += w->getTransitionProba(s, action, s_) * st.at(s);
+                }
+                nextBelief[s_] = w->getObservationProbability(action, o, s_) * tmp;
+            }
+            // Normalize the belief
+            double sum = nextBelief.norm_1();
+            for (number s_ = 0; s_ < w->getNumStates(); s_++)
+            {
+                nextBelief[s_] = nextBelief[s_] / sum;
+            }
+            return nextBelief;
+        };
 
         // compute o*
-        number o = 0;
+        number selected_o = 0;
+        double max_o = 0, tmp;
 
-        double obs_proba;
-        for (number i = 0; i < this->world_->getNumStates(); i++)
+        for (number o = 0; o < this->world_->getNumObservations()[0]; o++)
         {
-            obs_proba += this->world_->getObservationProbability(action, o, i) * state[i];
-            double p_b_next = 0;
-            for (number s_ = 0; s_ < this->world_->getNumStates(); s_++)
+            tmp = 0;
+            for (number s = 0; s < this->world_->getNumStates(); s++)
             {
-                p_b_next += this->world_->getTransitionProba(s_, action, i);
+                tmp += this->world_->getObservationProbability(action, o, s) * state.at(s);
             }
-            nextBelief[i] = this->world_->getObservationProbability(action, o, i) * p_b_next;
+            auto tau = nextState(this->world_, state, action, o, d);
+            tmp *= this->do_excess(tau, d + 1);
+            if (tmp > max_o)
+            {
+                max_o = tmp;
+                selected_o = o;
+            }
         }
-        return nextBelief;
+        auto b = nextState(this->world_, state, action, selected_o, d);
+        return b;
     }
 
     template <>
@@ -171,5 +195,6 @@ namespace sdm
     }
 
     template class HSVI<number, number>;
+    template class HSVI<BeliefState, number>;
 
 } // namespace sdm

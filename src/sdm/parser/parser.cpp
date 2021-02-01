@@ -2,6 +2,7 @@
 Copyright (C) 2016 Jilles Steeve Dibangoye
 ==============================================================================*/
 
+#include <sdm/exception.hpp>
 #include <sdm/parser/ast.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/parser/config.hpp>
@@ -9,7 +10,6 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 #include <sdm/parser/encoder.hpp>
 #include <sdm/parser/parser_def.hpp>
 #include <sdm/parser/ast_adapted.hpp>
-#include <sdm/parser/exception.hpp>
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/include/io.hpp>
@@ -38,20 +38,19 @@ namespace sdm
       auto const space_comment = space | lexeme['#' >> *(char_ - eol) >> eol];
 
       // Parse phrase (result in ast struct)
-      std::string::const_iterator end = storage.end();
-      std::string::const_iterator iter = storage.begin();
+      std::string::iterator iter = storage.begin();
+      std::string::iterator end = storage.end();
       bool r = phrase_parse(iter, end, dpomdp_t, space_comment, ast);
-
+      std::string context(iter, end);
       if (r && iter == end)
       {
-
         // Convert ast to DPOMDP class
         sdm::ast::dpomdp_encoder encoder;
         return encoder(ast);
       }
       else
       {
-        std::string::const_iterator some = iter + 30;
+        std::string::iterator some = iter + 30;
         std::string context(iter, (some > end) ? end : some);
         throw sdm::exception::ParsingException(context);
       }
@@ -77,12 +76,12 @@ namespace sdm
       parsed_model.setFileName(filename);
       return parsed_model;
     }
-    
+
     sdm::DecPOMDP parse_file(std::string filename)
     {
       return parse_file(filename.c_str());
     }
-    
+
   } // namespace parser
 
   // parser::dpomdp_type const& dpomdp(){

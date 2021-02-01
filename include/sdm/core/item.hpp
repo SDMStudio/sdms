@@ -21,8 +21,11 @@ namespace sdm
     template <class item_t>
     struct Item : public item_t
     {
-
     public:
+        Item()
+        {
+        }
+
         Item(item_t item) : item_t(item)
         {
         }
@@ -41,10 +44,20 @@ namespace sdm
         int item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(int item) : item_(item) {}
         operator int()
         {
             return this->item_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<int> &it)
+        {
+            os << it.item_;
+            return os;
         }
     };
 
@@ -55,11 +68,21 @@ namespace sdm
         unsigned int item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(unsigned int item) : item_(item) {}
-        
+
         operator unsigned int()
         {
             return this->item_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<unsigned int> &it)
+        {
+            os << it.item_;
+            return os;
         }
     };
 
@@ -70,11 +93,26 @@ namespace sdm
         unsigned short item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(unsigned short item) : item_(item) {}
-        
+
         operator unsigned short()
         {
             return this->item_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<unsigned short> &it)
+        {
+            os << it.item_;
+            return os;
+        }
+
+        bool operator<(const Item &v2) const
+        {
+            return this->item_ < v2.item_;
         }
     };
 
@@ -85,11 +123,21 @@ namespace sdm
         short item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(short item) : item_(item) {}
-        
+
         operator short()
         {
             return this->item_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<short> &it)
+        {
+            os << it.item_;
+            return os;
         }
     };
 
@@ -100,14 +148,24 @@ namespace sdm
         long item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(long item) : item_(item) {}
-        
+
         operator long()
         {
             return this->item_;
         }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<long> &it)
+        {
+            os << it.item_;
+            return os;
+        }
     };
-    
+
     template <>
     struct Item<float>
     {
@@ -115,25 +173,45 @@ namespace sdm
         float item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(float item) : item_(item) {}
-        
+
         operator float()
         {
             return this->item_;
         }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<float> &it)
+        {
+            os << it.item_;
+            return os;
+        }
     };
 
-    template <> 
+    template <>
     struct Item<double>
     {
     protected:
         double item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(double item) : item_(item) {}
         operator double()
         {
             return this->item_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<double> &it)
+        {
+            os << it.item_;
+            return os;
         }
     };
 
@@ -144,11 +222,21 @@ namespace sdm
         bool item_;
 
     public:
+        Item(): item_(0)
+        {
+        }
+
         Item(bool item) : item_(item) {}
-        
+
         operator bool()
         {
             return this->item_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<bool> &it)
+        {
+            os << it.item_;
+            return os;
         }
     };
 
@@ -159,11 +247,21 @@ namespace sdm
         char item_;
 
     public:
+        Item(): item_('0')
+        {
+        }
+
         Item(char item) : item_(item) {}
-        
+
         operator char()
         {
             return this->item_;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Item<char> &it)
+        {
+            os << it.item_;
+            return os;
         }
     };
 

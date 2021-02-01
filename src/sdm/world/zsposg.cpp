@@ -9,11 +9,11 @@ namespace sdm
     {
     }
 
-    ZSPOSG::ZSPOSG(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp, const MultiDiscreteSpace &action_sp, const MultiDiscreteSpace &obs_sp,
+    ZSPOSG::ZSPOSG(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp, const MultiDiscreteSpace<number> &action_sp, const MultiDiscreteSpace<number> &obs_sp,
                    const StateDynamics &s_dyn, const ObservationDynamics &o_dyn, const Reward &rew, const Vector &start_distrib)
         : POSG(state_sp, agent_sp, action_sp, obs_sp, s_dyn, o_dyn, {rew}, start_distrib)
     {
-        assert(agent_sp.getNumElements() == 2);
+        assert(agent_sp.getNumItems() == 2);
 
         if (this->getNumAgents() != 2)
         {

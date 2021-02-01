@@ -10,8 +10,8 @@
 
 #include <sdm/world/posg.hpp>
 
-#include <sdm/core/discrete_space.hpp>
-#include <sdm/core/multi_discrete_space.hpp>
+#include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/reward.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/observation_dynamics.hpp>
@@ -53,7 +53,7 @@ namespace sdm
 
 		//! \param    state_sp the state space
 		//! \param    agent_sp the agent space
-		DecPOMDP(const DiscreteSpace &, const DiscreteSpace &);
+		DecPOMDP(const DiscreteSpace<number> &, const DiscreteSpace<number> &);
 
 		//! \param    state_sp the state space
 		//! \param    agent_sp the agent space
@@ -63,7 +63,7 @@ namespace sdm
 		//! \param    o_dyn observation dynamics
 		//! \param    rew reward function common to all agents
 		//! \param    start_distrib start distribution (optional)
-		DecPOMDP(const DiscreteSpace &, const DiscreteSpace &, const MultiDiscreteSpace &, const MultiDiscreteSpace &,
+		DecPOMDP(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const MultiDiscreteSpace<number> &,
 				 const StateDynamics &, const ObservationDynamics &, const Reward &, const Vector &);
 
 		/**

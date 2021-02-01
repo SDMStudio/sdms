@@ -60,8 +60,9 @@ namespace sdm
         }
 
         double tot_rew = 0;
-        for (auto nodes_pair : this->getUniqueValidNeighbors()){
-            number first_ag  = nodes_pair.first;
+        for (auto nodes_pair : this->getUniqueValidNeighbors())
+        {
+            number first_ag = nodes_pair.first;
             number second_ag = nodes_pair.second;
             tot_rew += this->getReward(state, first_ag, second_ag, vect_jaction[first_ag], vect_jaction[second_ag]);
         }
@@ -106,37 +107,32 @@ namespace sdm
 
     number NDPOMDP::getNumStates() const
     {
-        return this->state_space_.getNumElements();
+        return this->state_space_.getNumItems();
     }
 
     number NDPOMDP::getNumObservations(number agent) const
     {
-        return this->obs_space_.getSpace(agent).getNumElements();
+        return this->obs_space_.getSpace(agent)->getNumItems();
     }
 
     number NDPOMDP::getNumAgents() const
     {
-        return this->agent_space_.getNumElements();
+        return this->agent_space_.getNumItems();
     }
 
-    const MultiDiscreteSpace &NDPOMDP::getActionSpace() const
+    const MultiDiscreteSpace<number> &NDPOMDP::getActionSpace() const
     {
         return this->act_space_;
     }
 
-    const DiscreteSpace &NDPOMDP::getActionSpace(number agent) const
-    {
-        return this->act_space_.getSpace(agent);
-    }
-
     number NDPOMDP::getNumJActions() const
     {
-        return this->act_space_.getNumJElements();
+        return this->act_space_.getNumJointItems();
     }
 
     number NDPOMDP::getNumActions(number agent) const
     {
-        return this->act_space_.getSpace(agent).getNumElements();
+        return this->getActionSpace().getSpace(agent)->getNumItems();
     }
 
     std::vector<number> NDPOMDP::getNumActions() const
@@ -172,14 +168,17 @@ namespace sdm
             else if (line.find("NumOfAgents") != std::string::npos)
             {
                 index = line.find("=");
-                this->agent_space_ = DiscreteSpace(std::stoi(line.substr(index + 1)));
+
+                std::vector<number> vv_tmp(std::stoi(line.substr(index + 1)));
+                std::iota(vv_tmp.begin(), vv_tmp.end(), 0);
+                this->agent_space_ = DiscreteSpace<number>(vv_tmp);
                 std::cout << "Agent Space parsed : \n"
                           << this->agent_space_ << std::endl;
             }
             else if (line.find("NumOfActions") != std::string::npos)
             {
                 intermediate.clear();
-                std::vector<number> v_act_space;
+                std::vector<DiscreteSpace<number>> v_act_space;
                 index = line.find("=");
                 contenu = line.substr(index + 1);
                 std::stringstream check(contenu);
@@ -190,14 +189,17 @@ namespace sdm
                 action max = 0;
                 for (agent k = 0; k < this->getNumAgents(); k++)
                 {
-                    v_act_space.push_back(std::stoi(intermediate[k]));
-                    if (v_act_space[k] > max)
+                    number n_a = std::stoi(intermediate[k]);
+                    std::vector<number> vv_tmp(n_a);
+                    std::iota(vv_tmp.begin(), vv_tmp.end(), 0);
+                    v_act_space.push_back(DiscreteSpace<number>(vv_tmp));
+                    if (n_a > max)
                     {
-                        max = v_act_space[k];
+                        max = n_a;
                     }
                 }
                 this->maxActions = max;
-                this->act_space_ = MultiDiscreteSpace(v_act_space);
+                this->act_space_ = MultiDiscreteSpace<number>(v_act_space);
                 std::cout << "Action Space parsed : \n"
                           << this->act_space_ << std::endl;
             }
@@ -220,7 +222,9 @@ namespace sdm
             else if (line.find("NumOfStates") != std::string::npos)
             {
                 index = line.find("=");
-                this->state_space_ = DiscreteSpace(std::stoi(line.substr(index + 1)));
+                std::vector<number> vv_tmp(std::stoi(line.substr(index + 1)));
+                std::iota(vv_tmp.begin(), vv_tmp.end(), 0);
+                this->state_space_ = DiscreteSpace<number>(vv_tmp);
                 std::cout << "State Space parsed : \n"
                           << this->state_space_ << std::endl;
             }
@@ -228,8 +232,10 @@ namespace sdm
             {
                 index = line.find("=");
                 number observations = std::stoi(line.substr(index + 1));
-                std::vector<number> obs_v(this->getNumAgents(), observations);
-                this->obs_space_ = MultiDiscreteSpace(obs_v);
+                std::vector<number> vv_tmp(observations);
+                std::iota(vv_tmp.begin(), vv_tmp.end(), 0);
+                std::vector<std::vector<number>> obs_v(this->getNumAgents(), vv_tmp);
+                this->obs_space_ = MultiDiscreteSpace<number>(obs_v);
                 std::cout << "Observation Space parsed : \n"
                           << this->obs_space_ << std::endl;
             }
@@ -366,7 +372,7 @@ namespace sdm
 
     NDPOMDP::Node::Node() {}
 
-    std::vector<std::pair<number, number>>  NDPOMDP::getUniqueValidNeighbors()
+    std::vector<std::pair<number, number>> NDPOMDP::getUniqueValidNeighbors()
     {
         std::vector<std::pair<number, number>> valid_neighbors;
         for (number ag = 0; ag < this->getNumAgents(); ag++)

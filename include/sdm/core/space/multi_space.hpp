@@ -34,6 +34,8 @@ namespace sdm
         std::vector<std::shared_ptr<TSpace>> spaces_;
 
     public:
+        using value_type = void;
+
         MultiSpace();
         MultiSpace(const std::vector<std::shared_ptr<TSpace>> &);
 
