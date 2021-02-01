@@ -24,6 +24,10 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
     - [Using pre-built images](#using-pre-built-images)
     - [Building the image yourself](#building-the-image-yourself)
 - [3. Basic Usage](#3-basic-usage)
+    - [List available algorithms](#list-available-algorithms)
+    - [List available worlds](#list-available-worlds)
+    - [Solve a problem](#solve-a-problem)
+    - [Test a saved policy [TO DO]](#test-a-saved-policy-to-do)
 - [4. Get started](#4-get-started)
 
 
@@ -93,7 +97,13 @@ docker run --rm -ti blavad/sdms:latest
 The `Dockerfile` is supplied to build images with PyTorch for CPU. You can pass `LIBTORCH_URL=<path/to/libtorch-xxxxx.zip` argument to specify which  configuration of PyTorch is to be used.
 
 ```bash
-docker build --rm -ti sdms:v1.0 .
+docker build --rm -t sdms:v1.0 .
+```
+
+Then you can run a container and get an interactive command on the newly builded image.
+
+```bash
+docker run --rm -ti sdms:v1.0
 ```
 
 # 3. Basic Usage
@@ -103,6 +113,11 @@ Several scripts are available after installing SDMS. The main program `SDMStudio
 ### List available algorithms
 ```bash
 SDMStudio algorithms
+```
+
+### List available worlds
+```bash
+SDMStudio worlds
 ```
 
 ### Solve a problem
