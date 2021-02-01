@@ -6,7 +6,7 @@
 
 #include <core/dpomdp.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/parser/exception.hpp>
+#include <sdm/exception.hpp>
 
 /**
  * \class TestParserDPOMDP
