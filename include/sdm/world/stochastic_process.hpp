@@ -1,80 +1,90 @@
-/*=============================================================================
-  Copyright (c) 2020 David Albert
-==============================================================================*/
+/**
+ * @file stochastic_process2.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief  Generic Stochastic process class
+ * @version 1.0
+ * @date 02/02/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <random>
 #include <vector>
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 
-//!
-//! \file     stochastic_process.hpp
-//! \author   David Albert
-//! \brief    Generic Stochastic process class
-//! \version  1.0
-//! \date     24 novembre 2020
-//!
-//! This abstract class provide useful members for all stochastic processes.
-
-//! \namespace  sdm
-//! \brief Namespace grouping all tools required for sequential decision making.
+/**
+ * @brief this namespace groups all tools for sdms
+ * 
+ */
 namespace sdm
 {
-    //! \class  StochasticProcess
+    /**
+     * @brief 
+     * 
+     * @tparam TStateSpace 
+     * @tparam TDistrib 
+     */
+    template <typename TStateSpace, typename TDistrib>
     class StochasticProcess
     {
     private:
-        //! The internal state
-        number internal_state_ = 0;
+        /**
+         * @brief The internal state
+         */
+        value_type internal_state_ = 0;
 
     protected:
-        //! \brief The state space
-        DiscreteSpace<number> state_space_;
+        /**
+         * @brief The state space
+         */
+        TStateSpace state_space_;
 
-        //! The initial state distribution
-        Vector start_distrib_;
-
-        //! \brief generator of starting state
-        std::discrete_distribution<number> start_generator;
+        /**
+         * @brief The initial state distribution
+         */
+        TDistrib start_distrib_;
 
     public:
+        using value_type = TStateSpace::value_type;
+
         StochasticProcess();
-        // StochasticProcess(number);
-        // StochasticProcess(const std::vector<double> &);
-        // StochasticProcess(const Vector &);
-        StochasticProcess(const DiscreteSpace<number> &);
-        StochasticProcess(const DiscreteSpace<number> &, const Vector &);
+        StochasticProcess(const TStateSpace &);
+        StochasticProcess(const TStateSpace &, const TDistrib &);
 
-        //! \fn       number getInternalState()
-        //! \brief    Get the internal state.
-        //! \return   the internal state
-        number getInternalState() const;
+        value_type getInternalState() const;
+        void setInternalState(value_type new_i_state);
 
-        //! \fn       void setInternalState(number)
-        //! \param    internal_state the new internal state
-        //! \brief    Sets the internal state.
-        void setInternalState(number);
+        /**
+         * @brief Init the process and return the initial internal state. This initial state is sampled from the "start" distribution.
+         * 
+         * @return value_type the sampled initial state
+         */
+        value_type init();
 
-        void setupStartGenerator();
+        const TStartDistrib &getStartDistrib() const;
+        const TStateSpace &getStateSpace() const;
 
-        //! \fn       number init()
-        //! \brief    Init processus and return initial sampled state
-        //! \return   the initial state
-        number init();
+        void setStartDistrib(const TStartDistrib &);
+        void setStateSpace() const;
 
-        const Vector &getStartDistrib() const;
+        virtual TDistrib getProbaNextState(value_type)
+        {
+            throw sdm::exception::NotImplementedException();
+        };
 
-        void setStartDistrib(const std::vector<double> &);
-
-        void setStartDistrib(const Vector &);
-
-        const DiscreteSpace<number> &getStateSpace() const;
-
-        //! \fn       state getNumStates() const
-        //! \brief    Returns the number of states
-        //! \return   state number
-        number getNumStates() const;
+        /**
+         * @brief Execute a step and return the next sampled state
+         * 
+         * @return value_type 
+         */
+        virtual value_type nextState()
+        {
+            throw sdm::exception::NotImplementedException();
+        };
     };
 } // namespace sdm
