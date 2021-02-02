@@ -1,63 +1,42 @@
-/*=============================================================================
-  Copyright (c) 2020 David Albert
-==============================================================================*/
+/**
+ * @file po_process.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief 
+ * @version 1.0
+ * @date 02/02/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
-#include <vector>
 #include <sdm/types.hpp>
-#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/world/stochastic_process.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
 
-//!
-//! \file     po_process.hpp
-//! \author   David Albert
-//! \brief    Partially Observable processes class
-//! \version  1.0
-//! \date     24 novembre 2020
-//!
-//! This class provide a way to instantiate partially observable stochastic processes.
-
-//! \namespace  sdm
-//! \brief Namespace grouping all tools required for sequential decision making.
 namespace sdm
 {
-    //! \class  PartiallyObservableProcess
-    //! \brief Partially observable process
-    class PartiallyObservableProcess : public virtual StochasticProcess
+    template <typename TStateSpace, typename TObsSpace, typename TDistrib>
+    class PartiallyObservableProcess : public virtual StochasticProcess<TStateSpace, TDistrib>
     {
 
     protected:
         //! \brief The state space
-        MultiDiscreteSpace<number> obs_spaces_;
+        TObsSpace obs_spaces_;
 
     public:
         PartiallyObservableProcess();
-
-        PartiallyObservableProcess(const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &);
-        PartiallyObservableProcess(const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const Vector &);
+        PartiallyObservableProcess(const TStateSpace &, const TObsSpace &);
+        PartiallyObservableProcess(const TStateSpace &, const TObsSpace &, const Vector &);
 
         /**
          * \brief Getter for the observation spaces
          */
-        const MultiDiscreteSpace<number> &getObsSpace() const;
-
-        /**
-         * \brief Get the number of joint observations
-         */
-        number getNumJObservations() const;
-
-        /**
-         * \brief Get the number of observations for a specific agent
-         */
-        number getNumObservations(number) const;
-
-        /**
-         * \brief Get the number of observation for every agents
-         */
-        std::vector<number> getNumObservations() const;
+        const TObsSpace &getObsSpace() const;
     };
 
-    typedef PartiallyObservableProcess POProcess;
-    typedef PartiallyObservableProcess PartObsProcess;
+    template <typename TStateSpace, typename TObsSpace, typename TDistrib>
+    using POProcess = PartiallyObservableProcess<TStateSpace, TObsSpace, TDistrib>;
+
+    template <typename TStateSpace, typename TObsSpace, typename TDistrib>
+    using PartObsProcess = PartiallyObservableProcess<TStateSpace, TObsSpace, TDistrib>;
 } // namespace sdm

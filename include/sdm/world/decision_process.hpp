@@ -1,6 +1,13 @@
-/*=============================================================================
-  Copyright (c) 2020 David Albert
-==============================================================================*/
+/**
+ * @file decision_process.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief 
+ * @version 1.0
+ * @date 02/02/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <vector>
@@ -14,55 +21,60 @@
 #include <sdm/public/world.hpp>
 #include <sdm/world/stochastic_process.hpp>
 
-//!
-//! \file     decision_process.hpp
-//! \author   David Albert
-//! \brief    Decision processes class
-//! \version  1.0
-//! \date     24 novembre 2020
-//!
-//! This class provide a way to instantiate decision processes.
-
-//! \namespace  sdm
-//! \brief Namespace grouping all tools required for sequential decision making.
 namespace sdm
 {
-    //! \class  DecisionProcess
-    //! \brief Decision process
-    class DecisionProcess : public virtual StochasticProcess, public World
+
+    template <typename TStateSpace, typename TActionSpace, typename TDistrib>
+    class DecisionProcess : public virtual StochasticProcess<TStateSpace, TDistrib>, public World
     {
     protected:
-        //! \brief Space of agents (contain number of agents and their names).
+        /**
+         *  @brief Space of agents (contain number of agents and their names).
+         */
         DiscreteSpace<number> agent_space_;
 
-        //! \brief Action space for each agent.
-        MultiDiscreteSpace<number> action_space_;
+        /**
+         * @brief Action space for each agent.
+         */
+        TActionSpace action_space_;
 
-        //! \brief State dynamics.
+        /**
+         * @brief State dynamics.
+         */
         StateDynamics s_dynamics_;
 
-        //! \brief Reward functions.
+        /**
+         * @brief Reward functions.
+         */
         std::vector<Reward> rew_;
 
-        //! \brief type of optimization problem, e.g., reward maximazation or cost minimization.
+        /**
+         * @brief type of optimization problem, e.g., reward maximazation or cost minimization.
+         */
         Criterion criterion = Criterion::REW_MAX;
 
-        //! \brief factor used to discount rewards (respectively costs) in the future.
+        /**
+         * @brief factor used to discount rewards (respectively costs) in the future.
+         */
         double discount = 1.0, bound;
 
-        //! \brief planning horizon
+        /**
+         * @brief planning horizon
+         */
         number planning_horizon = 0;
 
-        //! \brief name of the file that generates the environment
+        /**
+         * @brief name of the file that generates the environment
+         */
         std::string filename;
 
     public:
         DecisionProcess();
         // DecisionProcess(number, number, const std::vector<number> &);
         // DecisionProcess(number, number, const std::vector<number> &, const Vector &);
-        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &);
-        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const Vector &);
-        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const StateDynamics &, const std::vector<Reward> &, const Vector &);
+        DecisionProcess(const TStateSpace &state_sp, const DiscreteSpace<number> &agent_sp, const TActionSpace &action_sp);
+        DecisionProcess(const TStateSpace &state_sp, const DiscreteSpace<number> &agent_sp, const TActionSpace &action_sp, const Vector &);
+        DecisionProcess(const TStateSpace &state_sp, const DiscreteSpace<number> &agent_sp, const TActionSpace &action_sp, const StateDynamics &, const std::vector<Reward> &, const Vector &);
 
         //! \fn       void setFileName(std::string)
         //! \param   filename
@@ -178,30 +190,17 @@ namespace sdm
         /**
          * \brief Getter for the action spaces
          */
-        const MultiDiscreteSpace<number> &getActionSpace() const;
-
-        /**
-         * \brief Get the number of joint actions
-         */
-        number getNumJActions() const;
-
-        /**
-         * \brief Get the number of actions for a specific agent
-         */
-        number getNumActions(number) const;
-
-        /**
-         * \brief Get the number of actions for each agents
-         */
-        std::vector<number> getNumActions() const;
+        const TActionSpace &getActionSpace() const;
 
         /**
          * \brief Get the number of agents
          */
         number getNumAgents() const;
-
     };
 
-    typedef DecisionProcess SG;
-    typedef DecisionProcess StochasticGame;
+    template <typename TStateSpace, typename TActionSpace, typename TDistrib>
+    using SG = DecisionProcess<TStateSpace, TActionSpace, TDistrib>;
+
+    template <typename TStateSpace, typename TActionSpace, typename TDistrib>
+    using StochasticGame = DecisionProcess<TStateSpace, TActionSpace, TDistrib>;
 } // namespace sdm

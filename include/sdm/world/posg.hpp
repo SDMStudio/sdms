@@ -2,7 +2,7 @@
  * @file posg.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
  * @brief This class provide a way to instantiate a <h1>POSG</h1>. 
- * @version 0.1
+ * @version 1.0
  * @date 24/11/2020
  * 
  * @copyright Copyright (c) 2020
@@ -91,22 +91,25 @@ namespace sdm
      * 
      * 
      */
-    class POSG : public SG, public POProcess
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TDistrib>
+    class POSG : public DecisionProcess<TStateSpace, TActionSpace, TDistrib>, public POProcess<TStateSpace, TObsSpace, TDistrib>
     {
     protected:
         ObservationDynamics o_dynamics_;
 
         //! \brief Map (state, jaction) to probability of (next_state, next_observation) --> i.e. s_{t+1}, o_{t+1} ~ P(S_{t+1}, O_{t+1}  | S_t = s, A_t = a )
-        std::unordered_map<number, std::unordered_map<number, std::discrete_distribution<std::size_t>>> dynamics_generator;
+        std::unordered_map<TStateSpace::value_type, std::unordered_map<TActionSpace::value_type, std::discrete_distribution<std::size_t>>> dynamics_generator;
 
         //! \brief map integer representing joint state/observation to this couple (state, observation)
-        std::unordered_map<number, std::pair<number, number>> encoding;
+        std::unordered_map<number, std::pair<TStateSpace::value_type, TObsSpace::value_type>> encoding;
 
         //! \fn void setupDynamicsGenerator()
         //! \brief Setup de dynamics generator
         void setupDynamicsGenerator();
 
     public:
+
         POSG();
 
         POSG(const POSG &posg);
@@ -118,24 +121,7 @@ namespace sdm
         //! \brief Construct a POSG from a file describing the problem.
         //! \param filename name of the file describing the POSG
         POSG(const std::string &filename);
-
-        //! \brief    Construct a POSG.
-        //! \param    num_states number of states
-        //! \param    num_agents number of agents
-        POSG(number, number);
-
-        //! \brief    Construct a POSG.
-        //! \param    num_states number of states
-        //! \param    num_agents number of agents
-        //! \param    num_actions number of actions for each agent
-        //! \param    num_observations number of observations for each agent
-        POSG(number, number, const std::vector<number> &, const std::vector<number> &);
-
-        //! \brief    Construct a POSG.
-        //! \param    state_sp the state space
-        //! \param    agent_sp the agent space
-        POSG(const DiscreteSpace<number> &, const DiscreteSpace<number> &);
-
+        
         //! \brief    Construct a POSG.
         //! \param    state_sp the state space
         //! \param    agent_sp the agent space
@@ -145,7 +131,7 @@ namespace sdm
         //! \param    o_dyn observation dynamics
         //! \param    rews reward functions for each agent
         //! \param    start_distrib start distribution (optional)
-        POSG(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const MultiDiscreteSpace<number> &,
+        POSG(const TStateSpace &, const DiscreteSpace<number> &, const TActionSpace &, const TObsSpace &,
              const StateDynamics &, const ObservationDynamics &, const std::vector<Reward> &, const Vector &);
 
         //! \fn std::tuple<double, observation, state> getDynamicsGenerator(state x, action a)
@@ -162,22 +148,22 @@ namespace sdm
         //! \param    jobservation a specific joint observation
         //! \param    state a specific state
         //! \return   the observation probility
-        double getObservationProbability(number jaction, number jobservation, number state) const;
+        double getObservationProbability(TActionSpace::value_type jaction, TObsSpace::value_type jobservation, TStateSpace::value_type state) const;
 
         //! \brief    Getter for observation probability.
-        double getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state) const;
+        // double getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state) const;
 
         //! \fn       const Matrix& getObservations(action)
         //! \brief    Getter for observation probabilities.
         //! \param    jaction a specific joint action (as single one)
         //! \return   the observation probabilities for the pre-defined action.
-        const Matrix &getObservations(number jaction) const;
+        const Matrix &getObservations(TActionSpace::value_type jaction) const;
 
         //! \fn       const Matrix& getObservations(action)
         //! \brief    Getter for observation probabilities.
         //! \param    jaction a specific joint action
         //! \return   a matrix of probability observations for the pre-defined action.
-        const Matrix &getObservations(std::vector<number> jaction) const;
+        // const Matrix &getObservations(std::vector<number> jaction) const;
 
         //! \fn       value getDynamics(state, action, observation, state) const
         //! \brief    Getter for dynamics probability.
@@ -186,14 +172,14 @@ namespace sdm
         //! \param    jobservation a specific joint observation
         //! \param    nstate a specific state (timestep t+1)
         //! \return   the dynamics probability
-        double getDynamics(number cstate, number jaction, number jobservation, number nstate) const;
+        double getDynamics(TStateSpace::value_type cstate, TActionSpace::value_type jaction, TObsSpace::value_type jobservation, TStateSpace::value_type nstate) const;
 
         //! \fn       const matrix& getDynamics(action, observation) const
         //! \brief    Getter for transition matrix.
         //! \param    jaction a specific joint action
         //! \param    jobservation a specific joint observation
         //! \return   a matrix of dynamics probabilities
-        const Matrix &getDynamics(number jaction, number jobservation) const;
+        const Matrix &getDynamics(TActionSpace::value_type jaction, TObsSpace::value_type jobservation) const;
 
         //! \fn std::string toStdFormat()
         //! \brief Encodes POSG class into a string (standard .posg or .dpomdp or .zsposg format).
@@ -225,7 +211,12 @@ namespace sdm
         }
     };
 
-    typedef POSG POStochasticGame;
-    typedef POSG PartObsStochasticGame;
-    typedef POSG PartiallyObservableStochasticGame;
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TDistrib>
+    using POStochasticGame =  POSG<TStateSpace, TActionSpace, TObsSpace, TDistrib>;
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TDistrib>
+    using PartObsStochasticGame =  POSG<TStateSpace, TActionSpace, TObsSpace, TDistrib>;
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TDistrib>
+    using PartiallyObservableStochasticGame =  POSG<TStateSpace, TActionSpace, TObsSpace, TDistrib>;
 } // namespace sdm
