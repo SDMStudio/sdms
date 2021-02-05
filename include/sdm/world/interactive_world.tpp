@@ -1,6 +1,3 @@
-// /*=============================================================================
-//   Copyright (c) 2020 David Albert
-// ==============================================================================*/
 #include <sdm/world/interactive_world.hpp>
 #include <sdm/parser/parser.hpp>
 #include <tuple>

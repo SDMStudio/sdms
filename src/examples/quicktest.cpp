@@ -1,17 +1,25 @@
 #include <iostream>
 #include <cassert>
-#include <sdm/core/item.hpp>
-#include <sdm/core/space/discrete_space.hpp>
-#include <sdm/core/space/multi_discrete_space.hpp>
-#include <sdm/core/space/multi_space.hpp>
-#include <sdm/core/space/function_space.hpp>
-#include <sdm/core/state/state.hpp>
-// #include <sdm/utils/linear_algebra/sdms_vector.hpp>
-// #include <sdm/utils/value_function/tabular_value_function.hpp>
+
+#include <typeinfo>
+// #include <sdm/core/item.hpp>
+// #include <sdm/core/space/discrete_space.hpp>
+// #include <sdm/core/space/multi_discrete_space.hpp>
+// #include <sdm/core/space/multi_space.hpp>
+// #include <sdm/core/space/function_space.hpp>
+// #include <sdm/core/state/state.hpp>
+#include <sdm/algorithms.hpp>
+#include <sdm/spaces.hpp>
+#include <sdm/core/state/history.hpp>
+#include <sdm/utils/struct/pair.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/algorithms.hpp>
 #include <sdm/utils/decision_rules/variations.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/common.hpp>
 #include <sdm/world/decpomdp.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/algorithms.hpp>
 #include <sdm/exception.hpp>
 
@@ -19,7 +27,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    char const *filename;
+    std::string filename;
 
     if (argc > 1)
     {
@@ -33,86 +41,116 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    auto dpomdp = std::make_shared<DecPOMDP>(filename);
-
+    std::shared_ptr<DecPOMDP> dpomdp = std::make_shared<DecPOMDP>(filename);
     std::cout << *dpomdp << std::endl;
+    // Defines the different types
+    using TObservation = number;
+    using TState = number;
+    using TActionDescriptor = number;
 
-    DiscreteSpace<number> ssp({0, 1, 2});
-    DiscreteSpace<number> ssp2({4, 5, 6});
-    MultiDiscreteSpace<number> msp({ssp, ssp2});
-    std::cout << msp << std::endl;
+    using TStateDescriptor = HistoryTree_p<TObservation>;
 
-    // for (auto v : msp.getAll())
+    using TActionPrescriptor = DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
+    using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+
+    using TPrescriptorN2Action = DeterministicDecisionRule<TStatePrescriptor, Joint<TActionPrescriptor>>;
+
+    // auto p_jhist = std::make_shared<JointHistoryTree<TObservation>>(2, 3);
+
+    // std::cout << *p_jhist << std::endl;
+    // std::cout << p_jhist->indiv_hist[0] << std::endl;
+    // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
+    // for (auto &ihist : p_jhist->getIndividualHistories())
     // {
-    //     std::cout << v << std::endl;
+    //     std::cout << ihist << std::endl;
     // }
-    FunctionSpace<DeterministicDecisionRule<number, number>> dfs(ssp, ssp2);
 
-    for (auto f : dfs.getAll())
+    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
+    // // std::cout << p_jhist->indiv_hist[0] << std::endl;
+    // // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
+
+    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
+    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
+
+    // std::cout << p_jhist << std::endl;
+    // std::cout << *p_jhist << std::endl;
+    // std::cout << *p_jhist->getOrigin() << std::endl;
+    // std::cout << "------------\n";
+    // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
+    // std::cout << *p_jhist->getIndividualHistory(0) << std::endl;
+    // std::cout << *p_jhist->getIndividualHistory(0)->getOrigin() << std::endl;
+
+    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
+    // // std::cout << p_jhist->indiv_hist[0] << std::endl;
+    // // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
+
+    // std::cout << p_jhist << std::endl;
+    // std::cout << *p_jhist << std::endl;
+    // std::cout << *p_jhist->getOrigin() << std::endl;
+    // std::cout << "------------\n";
+    // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
+    // std::cout << *p_jhist->getIndividualHistory(0) << std::endl;
+    // std::cout << *p_jhist->getIndividualHistory(0)->getOrigin() << std::endl;
+
+    // sdm::Pair<number, number> variable(2,3);
+    // variable.first = 4;
+    // std::cout << variable.first << std::endl;
+    number h = 3;
+    double discount = 1;
+
+    std::shared_ptr<SolvableByHSVI<TStatePrescriptor, Joint<TActionPrescriptor>>> oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, Joint<TActionPrescriptor>>>(dpomdp, h);
+    dpomdp->setDiscount(discount);
+
+    // auto ostate = oMDP->getInitialState();
+    // auto act = oMDP->getActionSpace(ostate);
+
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     ostate = oMDP->nextState(ostate, oMDP->getActionSpace(ostate).getAll()[0]);
+    //     std::cout << ostate << std::endl;
+    // }
+
+    auto lb_init = std::make_shared<sdm::MinInitializer<TStatePrescriptor, Joint<TActionPrescriptor>>>(dpomdp->getReward().getMinReward(), discount);
+    auto ub_init = std::make_shared<sdm::MaxInitializer<TStatePrescriptor, Joint<TActionPrescriptor>>>(dpomdp->getReward().getMaxReward(), discount);
+
+    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>> upper_bound(new sdm::MappedValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>(oMDP, h, ub_init));
+    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>> lower_bound(new sdm::MappedValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>(oMDP, h, lb_init));
+
+    std::cout << *upper_bound << std::endl;
+    std::cout << *lower_bound << std::endl;
+
+    HSVI<TStatePrescriptor, Joint<TActionPrescriptor>> algo(oMDP, lower_bound, upper_bound, h, 0.01);
+    auto optimal_vf = algo.do_solve();
+
+    TStatePrescriptor ostate = oMDP->getInitialState();
+    Joint<TActionPrescriptor> jdr;
+    for (int i = 0; i < h; i++)
     {
-        std::cout << f << std::endl;
+        std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
+                  << std::endl;
+        jdr = optimal_vf->getBestAction(ostate);
+        std::cout << ostate << "\n"
+                  << std::endl;
+        std::cout << jdr << std::endl;
+        ostate = oMDP->nextState(ostate, jdr);
     }
 
-    // BeliefState b1(3, 0), b2(3, 3);
-    // b1[2] = 1;
-    // b2[0] = 1;
-    // DeterministicDecisionRule<BeliefState, DiscreteAction> dr({b1, b2}, {4, 5});
-    // std::cout << dr;
+    // oMDP->getReward();
 
-    // std::cout << *j_history->getOrigin() << std::endl;
-    // DiscreteSpace<TState> state_space = {b1, b2, b3};
-    // DiscreteSpace<DiscreteAction> action_space = {b1, b2, b3};
+    // using TState = BeliefState;
+    // using TAction = number;
 
-    // FunctionSpace<TAction> f_space(sp, DiscreteSpace<>);
-    // for (auto &f : f_space.getAll())
+    // auto algo = algo::makeMappedHSVI<TState, TAction>(dpomdp, 0.99, 0.001, 6, 1000);
+    // auto v_star = algo->do_solve();
+
+    // std::cout << v_star << std::endl;
+
+    // TState b = dpomdp->getStartDistrib();
+    // for (int i = 0; i < 6; i++)
     // {
-    //     std::cout << "--------------------\nDetDR<BeliefState, number>\n";
-    //     std::cout << f << std::endl;
+    //     TAction action = v_star->getQValueAt(b, i)->argmax();
+    //     b = dpomdp->nextState(b, action);
     // }
-    // std::cout << "Number of generated function : "<< f_space.getAll().size() << std::endl;
-
-    // std::cout << space << std::endl;
-    // std::cout << space.getSpace(0)->str();
-    // std::cout << space << std::endl;
-
-    // MultiSpace space2 = space;
-    // std::cout << space2 << std::endl;
-    // std::cout << (space2==space) << std::endl;
-
-    //
-    // func_space.getAll();
-
-    // for (auto val : func_space.getAll())
-    // {
-    //     std::cout << val << std::endl;
-    // }
-    // std::vector<action> actions;
-    // std::vector<BeliefState> beliefs;
-    // BeliefState b_tmp;
-    // b_tmp[0] = 0.5;
-    // b_tmp[1] = 0.5;
-    // beliefs.push_back(b_tmp);
-    // b_tmp[0] = 0.3;
-    // b_tmp[1] = 0.7;
-    // beliefs.push_back(b_tmp);
-
-    // variations<std::vector<BeliefState>, DeterministicDecisionRule<BeliefState, action>> generator(beliefs, {2, 2});
-
-    // for (auto it = generator.begin(); it != generator.end(); it = generator.next())
-    // {
-    //     std::cout << it->str() << std::endl;
-    // }
-
-    // std::cout << dpomdp->getActionSpace().getJointElementIndex(JointItem({2,})) << std::endl;
-
-    // std::cout << dpomdp->getActionSpace() << std::endl;
-
-    // TabularValueFunction<BeliefState, number> vf(dpomdp, 0, 10);
-
-    // std::cout << vf << std::endl;
-
-    // auto algo = algo::makeMappedHSVI<BeliefState, number>(dpomdp, 0.75, 0.1, 3, 1000);
-    // algo->do_solve();
 
     // NDPOMDP ndpomdp(filename);
 

@@ -13,7 +13,6 @@
 #include <memory>
 
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
-#include <sdm/world/posg.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -21,6 +20,9 @@
  */
 namespace sdm
 {
+    template <typename TState, typename TAction>
+    class SolvableByHSVI;
+
     /**
      * @class ValueFunction
      * @brief This class is the abstract class of value function. All value function must derived this class.
@@ -37,7 +39,7 @@ namespace sdm
          * @brief The problem which incremental value function is evaluated 
          * 
          */
-        std::shared_ptr<POSG> problem_;
+        std::shared_ptr<SolvableByHSVI<TState, TAction>> problem_;
 
         /**
          * @brief The horizon for planning.
@@ -51,7 +53,7 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        ValueFunction(std::shared_ptr<POSG> problem, int horizon) : problem_(problem), horizon_(horizon)
+        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon) : problem_(problem), horizon_(horizon)
         {
         }
 
@@ -104,7 +106,7 @@ namespace sdm
 
         virtual std::string str() = 0;
 
-        std::shared_ptr<POSG> getWorld()
+        std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld()
         {
             return this->problem_;
         }

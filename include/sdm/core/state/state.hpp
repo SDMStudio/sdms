@@ -22,6 +22,5 @@
 namespace sdm
 {
   using BeliefState = MappedVector<number, double>;
-  // using OccupancyState = MappedVector<std::pair<BeliefState, JointHistoryTree<number>*>, double>;
 
 } // namespace sdm

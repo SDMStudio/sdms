@@ -48,7 +48,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMin() const
     {
-        T min = this->default_value_;
+        T min = std::numeric_limits<T>::max();
         TIndex amin;
         for (auto item : *this)
         {
@@ -76,7 +76,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMax() const
     {
-        T max = this->default_value_;
+        T max = - std::numeric_limits<T>::max();
         TIndex amax;
         for (auto item : *this)
         {

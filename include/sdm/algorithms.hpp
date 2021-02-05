@@ -22,7 +22,7 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<POSG> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000)
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000)
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -52,7 +52,7 @@ namespace sdm
          * @return auto pointer on algorithm instance
          */
         template <typename TState, typename TAction>
-        auto make(std::string algo_name, std::shared_ptr<POSG> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000)
+        auto make(std::string algo_name, std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000)
         {
             if (algo_name == "mapped_hsvi" || algo_name == "tabular_hsvi" || algo_name == "hsvi")
             {

@@ -58,11 +58,11 @@ namespace sdm
 
     public:
         DecisionProcess();
-        // DecisionProcess(number, number, const std::vector<number> &);
-        // DecisionProcess(number, number, const std::vector<number> &, const Vector &);
-        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &);
-        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const Vector &);
-        DecisionProcess(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const StateDynamics &, const std::vector<Reward> &, const Vector &);
+        // DecisionProcess(number, number, std::vector<number> &);
+        // DecisionProcess(number, number, std::vector<number> &, Vector &);
+        DecisionProcess(DiscreteSpace<number>, DiscreteSpace<number>, MultiDiscreteSpace<number>);
+        DecisionProcess(DiscreteSpace<number>, DiscreteSpace<number>, MultiDiscreteSpace<number>, Vector);
+        DecisionProcess(DiscreteSpace<number>, DiscreteSpace<number>, MultiDiscreteSpace<number>, StateDynamics, std::vector<Reward>, Vector);
 
         //! \fn       void setFileName(std::string)
         //! \param   filename
@@ -72,38 +72,38 @@ namespace sdm
         //! \return   filename
         std::string getFileName();
 
-        //! \fn       bool getBound() const
+        //! \fn       bool getBound()
         //! \brief    Returns the bound
         //! \return   the bound
-        double getBound() const;
+        double getBound();
 
         //! \fn       vois setBound(double)
         //! \brief    Set the bound
         //! \param   bound the bound
         void setBound(double);
 
-        //! \fn       bool getCriterion() const
+        //! \fn       bool getCriterion()
         //! \brief    Returns the criterion
         //! \return   bool
-        bool getCriterion() const;
+        bool getCriterion();
 
         //! \fn       void setCriterion(bool)
         //! \brief    Sets the criterion
         void setCriterion(bool);
 
-        //! \fn       value getDiscount() const
+        //! \fn       value getDiscount()
         //! \brief    Returns the discount factor
         //! \return   value
-        double getDiscount() const;
+        double getDiscount();
 
         //! \fn       void setDiscount(value)
         //! \brief    Sets the discount factor
         void setDiscount(double);
 
-        //! \fn       number getPlanningHorizon() const
+        //! \fn       number getPlanningHorizon()
         //! \brief    Returns the planning horizon
         //! \return   the horizon
-        number getPlanningHorizon() const;
+        number getPlanningHorizon();
 
         //! \fn       void setPlanningHorizon(number)
         //! \brief    Sets the planning horizon
@@ -112,17 +112,17 @@ namespace sdm
         /**
          * \brief Get the state dynamics
          */
-        const StateDynamics &getStateDynamics() const;
+     StateDynamics &getStateDynamics();
 
         /**
          * \brief Get transition probability from joint action
          */
-        double getTransitionProba(number cstate, std::vector<number> jaction, number state) const;
+        double getTransitionProba(number cstate, std::vector<number> jaction, number state);
 
         /**
          * \brief Get transition probability from joint action (as a single one)
          */
-        double getTransitionProba(number cstate, number jaction, number state) const;
+        double getTransitionProba(number cstate, number jaction, number state);
 
         /**
          * \brief Transit to next state given a joint action (as a single one)
@@ -134,72 +134,71 @@ namespace sdm
          */
         void nextState(std::vector<number> jaction);
 
-        const std::vector<Reward> &getRewards() const;
+        std::vector<Reward> &getRewards();
 
         /**
          * \brief Get transition probability from joint action (as a single one) for all agents
          */
-        std::vector<double> getRewards(number state, number jaction) const;
+        std::vector<double> getRewards(number state, number jaction);
 
         /**
          * \brief Get reward from joint action for all agents 
          */
-        std::vector<double> getRewards(number state, std::vector<number> jaction) const;
+        std::vector<double> getRewards(number state, std::vector<number> jaction);
 
         /**
          * \fn double getReward(number state, number jaction, number ag_id);
          * \brief Get reward from joint action (as single one) for a specific agent 
          */
-        double getReward(number state, number jaction, number ag_id) const;
+        double getReward(number state, number jaction, number ag_id);
 
         /**
          * \fn double getReward(number state, number jaction, number ag_id);
          * \brief Get reward from joint action for a specific agent 
          */
-        double getReward(number state, std::vector<number> jaction, number ag_id) const;
+        double getReward(number state, std::vector<number> jaction, number ag_id);
 
         /**
          * \fn double getReward(number state, number jaction, number ag_id);
          * \brief Get reward from joint action for all agents
          */
-        std::vector<double> getCost(number state, number jaction) const;
+        std::vector<double> getCost(number state, number jaction);
 
         /**
          * \fn std::vector<double> getReward(number state, std::vector<number> jaction);
          * \brief Get cost from joint action for all agents
          */
-        std::vector<double> getCost(number state, std::vector<number> jaction) const;
+        std::vector<double> getCost(number state, std::vector<number> jaction);
 
         /**
          * \brief Getter for the action spaces
          */
-        const DiscreteSpace<number> &getAgentSpace() const;
+        DiscreteSpace<number> &getAgentSpace();
 
         /**
          * \brief Getter for the action spaces
          */
-        const MultiDiscreteSpace<number> &getActionSpace() const;
+        MultiDiscreteSpace<number> &getActionSpace();
 
         /**
          * \brief Get the number of joint actions
          */
-        number getNumJActions() const;
+        number getNumJActions();
 
         /**
          * \brief Get the number of actions for a specific agent
          */
-        number getNumActions(number) const;
+        number getNumActions(number);
 
         /**
          * \brief Get the number of actions for each agents
          */
-        std::vector<number> getNumActions() const;
+        std::vector<number> getNumActions();
 
         /**
          * \brief Get the number of agents
          */
-        number getNumAgents() const;
-
+        number getNumAgents();
     };
 
     typedef DecisionProcess SG;

@@ -13,7 +13,7 @@
 #include <string>
 
 #include <sdm/types.hpp>
-#include <sdm/world/posg.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/core/state/state.hpp>
 
@@ -49,7 +49,7 @@ namespace sdm
      * @brief The problem to be solved.
      * 
      */
-    std::shared_ptr<POSG> world_;
+    std::shared_ptr<SolvableByHSVI<TState, TAction>> world_;
 
     /**
      * @brief Some variables for the algorithm.
@@ -80,7 +80,7 @@ namespace sdm
      * @param trials 
      * @param results 
      */
-    HSVI(std::shared_ptr<POSG> &world,
+    HSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> &world,
          std::shared_ptr<ValueFunction<TState, TAction>> lower_bound,
          std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
          number planning_horizon,
@@ -102,7 +102,7 @@ namespace sdm
      * @param epsilon 
      * @param discount 
      */
-    void do_solve();
+    std::shared_ptr<ValueFunction<TState, TAction>> do_solve();
 
     /**
      * @brief 
@@ -145,11 +145,6 @@ namespace sdm
      * @return TState 
      */
     TState selectNextState(TState s, TAction a, number d);
-
-    TState getInitialState();
   };
-
-  // using mdpHSVI = HSVI<number, number>;
-  // using HSVI = HSVI<BeliefState, number>;
-  // using oHSVI = HSVI<oState, DetDecisionRule>;
 } // namespace sdm
+#include <sdm/algorithms/hsvi.tpp>

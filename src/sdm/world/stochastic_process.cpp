@@ -21,10 +21,10 @@ namespace sdm
     // {
     // }
 
-    StochasticProcess::StochasticProcess(const DiscreteSpace<number> &state_space) : state_space_(state_space)
+    StochasticProcess::StochasticProcess(DiscreteSpace<number> state_space) : state_space_(state_space)
     {
     }
-    StochasticProcess::StochasticProcess(const DiscreteSpace<number> &state_space, const Vector &start_distrib) : state_space_(state_space), start_distrib_(start_distrib)
+    StochasticProcess::StochasticProcess(DiscreteSpace<number> state_space, Vector start_distrib) : state_space_(state_space), start_distrib_(start_distrib)
     {
     }
 
@@ -65,7 +65,7 @@ namespace sdm
         return this->internal_state_;
     }
 
-    const DiscreteSpace<number> &StochasticProcess::getStateSpace() const
+    DiscreteSpace<number> StochasticProcess::getStateSpace() const
     {
         return this->state_space_;
     }

@@ -44,8 +44,8 @@ namespace sdm
         // StochasticProcess(number);
         // StochasticProcess(const std::vector<double> &);
         // StochasticProcess(const Vector &);
-        StochasticProcess(const DiscreteSpace<number> &);
-        StochasticProcess(const DiscreteSpace<number> &, const Vector &);
+        StochasticProcess(DiscreteSpace<number>);
+        StochasticProcess(DiscreteSpace<number>, Vector );
 
         //! \fn       number getInternalState()
         //! \brief    Get the internal state.
@@ -70,7 +70,7 @@ namespace sdm
 
         void setStartDistrib(const Vector &);
 
-        const DiscreteSpace<number> &getStateSpace() const;
+        DiscreteSpace<number> getStateSpace() const;
 
         //! \fn       state getNumStates() const
         //! \brief    Returns the number of states
