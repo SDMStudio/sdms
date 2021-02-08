@@ -22,7 +22,7 @@ int solve(int argv, char **args)
         options.add_options()("help", "produce help message");
 
         po::options_description config("Configuration");
-        config.add_options()("algorithm,a", po::value<string>(&algorithm)->default_value("mapped_hsvi"), "the algorithm to use")("problem,p", po::value<string>(&problem)->default_value("tiger.dpomdp"), "the problem to be solved")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("discount,d", po::value<double>(&discount)->default_value(0.99), "the discount factor")("horizon,h", po::value<int>(&horizon)->default_value(0), "the planning horizon")("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials");
+        config.add_options()("algorithm,a", po::value<string>(&algorithm)->default_value("mapped_hsvi"), "the algorithm to use")("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("discount,d", po::value<double>(&discount)->default_value(0.99), "the discount factor")("horizon,h", po::value<int>(&horizon)->default_value(0), "the planning horizon")("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
         visible.add(options).add(config);
@@ -48,11 +48,10 @@ int solve(int argv, char **args)
             return sdm::ERROR_IN_COMMAND_LINE;
         }
 
-        std::shared_ptr<POSG> posg = std::make_shared<POSG>(sdm::parser::parse_file(problem));
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
         {
-            auto algo = sdm::algo::make<number, number>(algorithm, posg, discount, error, horizon, trials);
+            auto algo = sdm::algo::make(algorithm, problem, discount, error, horizon, trials);
             algo->do_solve();
         }
         else

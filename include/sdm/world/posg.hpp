@@ -117,7 +117,7 @@ namespace sdm
 
         //! \brief ruct a POSG from a file describing the problem.
         //! \param filename name of the file describing the POSG
-        POSG(std::string &filename);
+        POSG(const std::string &filename);
 
         //! \brief    ruct a POSG.
         //! \param    num_states number of states

@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include <sdm/common.hpp>
-#include <sdm/worlds.hpp>
-
 namespace sdm
 {
   class Algorithm
   {
+  public:
+    virtual void do_solve() = 0;
+    virtual void do_test() = 0;
   };
 } // namespace sdm

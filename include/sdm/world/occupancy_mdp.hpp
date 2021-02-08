@@ -38,13 +38,15 @@ namespace sdm
 
         OccupancyMDP(std::shared_ptr<DecPOMDP> underlying_dpomdp);
         OccupancyMDP(std::shared_ptr<DecPOMDP> underlying_dpomdp, number hist_length);
+        OccupancyMDP(std::string underlying_dpomdp);
+        OccupancyMDP(std::string underlying_dpomdp, number hist_length);
 
-        
-        oState &getInitialState();
-        oState nextState(oState state, oAction action) const;
         oState &getState();
 
-        double getDiscount() { return this->dpomdp_->getDiscount();}
+        Reward getReward();
+        double getDiscount() { return this->dpomdp_->getDiscount(); }
+        void setDiscount(double discount) { return this->dpomdp_->setDiscount(discount); }
+
         DiscreteSpace<oAction> getActionSpace(oState);
         /**
          * @fn double getReward(Vector belief, number action);
@@ -52,14 +54,9 @@ namespace sdm
          */
         double getReward(oState belief, oAction action) const;
 
-        /**
-         * @brief Get the Expected Next Value object
-         * 
-         * @param value_function 
-         * @param belief 
-         * @return double 
-         */
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, oState belief, oAction oaction, int t = 0) const;
+        oState &getInitialState();
+        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, oState ostate, oAction oaction, int t = 0) const;
+        oState nextState(oState ostate, oAction oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

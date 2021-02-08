@@ -6,11 +6,16 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     BeliefMDP<TBelief, TAction, TObservation>::BeliefMDP(std::shared_ptr<DecPOMDP> underlying_pomdp) : pomdp_(underlying_pomdp)
     {
-        for (typename TBelief::state_type s : this->pomdp_->getStateSpace().getAll())
+        for (auto &s : this->pomdp_->getStateSpace().getAll())
         {
             this->istate_[s] = this->pomdp_->getStartDistrib()[s];
         }
         this->cstate_ = this->istate_;
+    }
+
+    template <typename TState, typename TAction, typename TObservation>
+    BeliefMDP<TState, TAction, TObservation>::BeliefMDP(std::string underlying_dpomdp) : BeliefMDP(std::make_shared<DecPOMDP>(underlying_dpomdp))
+    {
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -22,6 +27,12 @@ namespace sdm
     TBelief &BeliefMDP<TBelief, TAction, TObservation>::getState()
     {
         return this->cstate_;
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    Reward BeliefMDP<TBelief, TAction, TObservation>::getReward()
+    {
+        return this->pomdp_->getReward();
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -48,17 +59,17 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(TBelief belief, TAction action) const
+    TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(TBelief belief, TAction action, int t, HSVI<TBelief, TAction> *hsvi) const
     {
         // Select o* as in the paper
         number selected_o = 0;
         double max_o = 0, tmp;
 
-        for (number o = 0; o < this->pomdp_->getObsSpace()[0]; o++)
+        for (number o = 0; o < this->pomdp_->getObsSpace().getSpace(0)->getNumItems(); o++)
         {
             tmp = this->getObservationProbability(action, o, belief);
             auto tau = this->nextState(belief, action, o);
-            tmp *= this->do_excess(tau, d + 1);
+            tmp *= hsvi->do_excess(tau, t + 1);
             if (tmp > max_o)
             {
                 max_o = tmp;
@@ -68,12 +79,10 @@ namespace sdm
         return this->nextState(belief, action, selected_o);
     }
 
-
-
     template <typename TBelief, typename TAction, typename TObservation>
-    auto BeliefMDP<TBelief, TAction, TObservation>::getActionSpace(TBelief belief)
+    DiscreteSpace<TAction> BeliefMDP<TBelief, TAction, TObservation>::getActionSpace(TBelief belief)
     {
-        return this->pomdp_->getActionSpace();
+        return *this->pomdp_->getActionSpace().getSpace(0);
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -91,9 +100,10 @@ namespace sdm
     double BeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, TBelief belief, TAction action, int t) const
     {
         double exp_next_v = 0;
-        for (auto &obs : this->pomdp_->getObsSpace().getAll())
+        for (TObservation obs : this->pomdp_->getObsSpace().getSpace(0)->getAll())
         {
-            exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(this->nextState(belief, action, obs), t + 1);
+            auto next_belief = this->nextState(belief, action, obs);
+            exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
         }
         return exp_next_v;
     }

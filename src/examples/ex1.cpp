@@ -18,8 +18,8 @@
 int main(int argc, char **argv)
 {
 
-	char const *filename;
-	char const *filename2;
+	std::string filename;
+	std::string filename2;
 
 	if (argc > 2)
 	{

@@ -27,7 +27,7 @@ namespace sdm
      * @tparam TAction 
      */
     template <typename TBelief, typename TAction, typename TObservation>
-    class BeliefMDP : public SolvableByHSVI<TBelief, TAction, TObservation>
+    class BeliefMDP : public SolvableByHSVI<TBelief, TAction>
     {
     protected:
         std::shared_ptr<DecPOMDP> pomdp_;
@@ -40,13 +40,19 @@ namespace sdm
         using observation_type = TObservation;
 
         BeliefMDP(std::shared_ptr<DecPOMDP> underlying_pomdp);
+        BeliefMDP(std::string underlying_pomdp);
+
+        double getDiscount() { return this->pomdp_->getDiscount(); }
+        void setDiscount(double discount) { return this->pomdp_->setDiscount(discount); }
 
         TBelief &getInitialState();
         TBelief &getState();
+        Reward getReward();
+
         TBelief nextState(TBelief belief, TAction action, TObservation obs) const;
-        TBelief nextState(TBelief belief, TAction action) const;
-        auto getActionSpace(TBelief ostate = TBelief());
-        
+        TBelief nextState(TBelief belief, TAction action, int t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
+        DiscreteSpace<TAction> getActionSpace(TBelief ostate = TBelief());
+
         /**
          * @fn double getReward(Vector belief, number action);
          * @brief Get transformed reward from action and belief  

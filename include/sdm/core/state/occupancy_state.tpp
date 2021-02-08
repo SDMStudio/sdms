@@ -2,6 +2,7 @@
 
 namespace sdm
 {
+
     template <typename TState, typename TJointHistory_p>
     std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type> OccupancyState<TState, TJointHistory_p>::getJointHistories()
     {

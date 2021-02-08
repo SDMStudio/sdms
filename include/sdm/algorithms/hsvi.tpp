@@ -34,7 +34,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::do_solve()
+    void HSVI<TState, TAction>::do_solve()
     {
         this->do_initialize();
 
@@ -50,8 +50,9 @@ namespace sdm
 
         std::cout << "-------------------------------------------------" << std::endl;
         std::cout << "Number trials : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
-        std::cout << "Final LB : \n" << *this->lower_bound_ << "Final UB : \n" << *this->upper_bound_ << std::endl;
-        return this->lower_bound_;
+        std::cout << "Final LB : \n"
+                  << *this->lower_bound_ << "Final UB : \n"
+                  << *this->upper_bound_ << std::endl;
     }
 
     template <typename TState, typename TAction>
@@ -82,8 +83,8 @@ namespace sdm
             TAction a = this->selectNextAction(s, h);
             // std::cout << "4" << s << std::endl;
             // std::cout << "4" << a << std::endl;
-            
-            TState s_ = this->world_->nextState(s, a);
+
+            TState s_ = this->world_->nextState(s, a, h, this);
             // std::cout << "5" << s << std::endl;
             // std::cout << s << "-"<< a << "-"<<h << std::endl;
 
@@ -101,6 +102,25 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
+    void HSVI<TState, TAction>::do_test()
+    {
+        TState ostate = this->world_->getInitialState();
+        TAction jdr;
+        for (int i = 0; i < this->planning_horizon_; i++)
+        {
+            std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
+                      << std::endl;
+            jdr = this->lower_bound_->getBestAction(ostate);
+            std::cout << "#> State\n"
+                      << ostate << "\n"
+                      << std::endl;
+            std::cout << "#> Action\n"
+                      << jdr << std::endl;
+            ostate = this->world_->nextState(ostate, jdr, i, this);
+        }
+    }
+
+    template <typename TState, typename TAction>
     TAction HSVI<TState, TAction>::selectNextAction(TState s, number h)
     {
         return this->upper_bound_->getBestAction(s, h); // argmax_{a} q_value(s, a)
@@ -114,10 +134,10 @@ namespace sdm
 
     // /**
     //  * @brief Select next state when state and action are discrete
-    //  * 
+    //  *
     //  * @param state the current state
-    //  * @param action the greedy action 
-    //  * @return The next state to explore. 
+    //  * @param action the greedy action
+    //  * @return The next state to explore.
     //  */
     // template <>
     // number HSVI<number, number>::selectNextState(number state, number action, number d)
@@ -145,10 +165,10 @@ namespace sdm
 
     // /**
     //  * @brief Select next state when state and action are discrete
-    //  * 
+    //  *
     //  * @param state the current state
-    //  * @param action the greedy action 
-    //  * @return The next state to explore. 
+    //  * @param action the greedy action
+    //  * @return The next state to explore.
     //  */
     // template <>
     // BeliefState HSVI<BeliefState, number>::selectNextState(BeliefState state, number action, number d)

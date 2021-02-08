@@ -1,4 +1,5 @@
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
 {
@@ -34,6 +35,16 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
+    OccupancyMDP<oState, oAction>::OccupancyMDP(std::string underlying_dpomdp, number hist_length) : OccupancyMDP(std::make_shared<DecPOMDP>(underlying_dpomdp), hist_length)
+    {
+    }
+
+    template <typename oState, typename oAction>
+    OccupancyMDP<oState, oAction>::OccupancyMDP(std::string underlying_dpomdp) : OccupancyMDP(std::make_shared<DecPOMDP>(underlying_dpomdp))
+    {
+    }
+
+    template <typename oState, typename oAction>
     oState &OccupancyMDP<oState, oAction>::getInitialState()
     {
         return this->istate_;
@@ -62,7 +73,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::nextState(oState ostate, oAction joint_idr) const
+    oState OccupancyMDP<oState, oAction>::nextState(oState ostate, oAction joint_idr, int t, HSVI<oState, oAction> *hsvi) const
     {
         // std::cout << ostate << std::endl;
         // std::cout << joint_idr << std::endl;
@@ -95,6 +106,13 @@ namespace sdm
             // }
         }
         return new_ostate;
+    }
+
+
+    template <typename oState, typename oAction>
+    Reward OccupancyMDP<oState, oAction>::getReward()
+    {
+        return this->dpomdp_->getReward();
     }
 
     template <typename oState, typename oAction>

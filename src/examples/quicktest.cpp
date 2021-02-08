@@ -14,13 +14,11 @@
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/algorithms.hpp>
+#include <sdm/world/belief_mdp.hpp>
 #include <sdm/utils/decision_rules/variations.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
-#include <sdm/common.hpp>
 #include <sdm/world/decpomdp.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/algorithms.hpp>
 #include <sdm/exception.hpp>
 
 using namespace sdm;
@@ -41,8 +39,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::shared_ptr<DecPOMDP> dpomdp = std::make_shared<DecPOMDP>(filename);
-    std::cout << *dpomdp << std::endl;
+    // std::shared_ptr<DecPOMDP> dpomdp = std::make_shared<DecPOMDP>(filename);
+    // std::cout << *dpomdp << std::endl;
+
     // Defines the different types
     using TObservation = number;
     using TState = number;
@@ -55,51 +54,17 @@ int main(int argc, char **argv)
 
     using TPrescriptorN2Action = DeterministicDecisionRule<TStatePrescriptor, Joint<TActionPrescriptor>>;
 
-    // auto p_jhist = std::make_shared<JointHistoryTree<TObservation>>(2, 3);
-
-    // std::cout << *p_jhist << std::endl;
-    // std::cout << p_jhist->indiv_hist[0] << std::endl;
-    // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
-    // for (auto &ihist : p_jhist->getIndividualHistories())
-    // {
-    //     std::cout << ihist << std::endl;
-    // }
-
-    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
-    // // std::cout << p_jhist->indiv_hist[0] << std::endl;
-    // // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
-
-    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
-    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
-
-    // std::cout << p_jhist << std::endl;
-    // std::cout << *p_jhist << std::endl;
-    // std::cout << *p_jhist->getOrigin() << std::endl;
-    // std::cout << "------------\n";
-    // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
-    // std::cout << *p_jhist->getIndividualHistory(0) << std::endl;
-    // std::cout << *p_jhist->getIndividualHistory(0)->getOrigin() << std::endl;
-
-    // p_jhist = p_jhist->expand(Joint<TObservation>({0,0}));
-    // // std::cout << p_jhist->indiv_hist[0] << std::endl;
-    // // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
-
-    // std::cout << p_jhist << std::endl;
-    // std::cout << *p_jhist << std::endl;
-    // std::cout << *p_jhist->getOrigin() << std::endl;
-    // std::cout << "------------\n";
-    // std::cout << p_jhist->getIndividualHistory(0) << std::endl;
-    // std::cout << *p_jhist->getIndividualHistory(0) << std::endl;
-    // std::cout << *p_jhist->getIndividualHistory(0)->getOrigin() << std::endl;
-
-    // sdm::Pair<number, number> variable(2,3);
-    // variable.first = 4;
-    // std::cout << variable.first << std::endl;
-    number h = 3;
+    number h = 2;
     double discount = 1;
 
-    std::shared_ptr<SolvableByHSVI<TStatePrescriptor, Joint<TActionPrescriptor>>> oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, Joint<TActionPrescriptor>>>(dpomdp, h);
-    dpomdp->setDiscount(discount);
+    auto algo = sdm::algo::make("mapped_hsvi", filename, discount, 0.01, h, 10000);
+
+    algo->do_solve();
+    algo->do_test();
+
+    // std::shared_ptr<SolvableByHSVI<TStatePrescriptor, Joint<TActionPrescriptor>>> oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, Joint<TActionPrescriptor>>>(dpomdp, h);
+    // std::shared_ptr<SolvableByHSVI<BeliefState, number>> oMDP = std::make_shared<BeliefMDP<BeliefState, number, number>>(dpomdp);
+    // dpomdp->setDiscount(discount);
 
     // auto ostate = oMDP->getInitialState();
     // auto act = oMDP->getActionSpace(ostate);
@@ -110,30 +75,19 @@ int main(int argc, char **argv)
     //     std::cout << ostate << std::endl;
     // }
 
-    auto lb_init = std::make_shared<sdm::MinInitializer<TStatePrescriptor, Joint<TActionPrescriptor>>>(dpomdp->getReward().getMinReward(), discount);
-    auto ub_init = std::make_shared<sdm::MaxInitializer<TStatePrescriptor, Joint<TActionPrescriptor>>>(dpomdp->getReward().getMaxReward(), discount);
+    // auto lb_init = std::make_shared<sdm::MinInitializer<BeliefState, number>>(dpomdp->getReward().getMinReward(), discount);
+    // auto ub_init = std::make_shared<sdm::MaxInitializer<BeliefState, number>>(dpomdp->getReward().getMaxReward(), discount);
 
-    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>> upper_bound(new sdm::MappedValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>(oMDP, h, ub_init));
-    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>> lower_bound(new sdm::MappedValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>(oMDP, h, lb_init));
+    // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> upper_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, ub_init));
+    // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> lower_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, lb_init));
+    // std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>> upper_bound(new sdm::MappedValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>(oMDP, h, ub_init));
+    // std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>> lower_bound(new sdm::MappedValueFunction<TStatePrescriptor, Joint<TActionPrescriptor>>(oMDP, h, lb_init));
+    // std::cout << *upper_bound << std::endl;
+    // std::cout << *lower_bound << std::endl;
 
-    std::cout << *upper_bound << std::endl;
-    std::cout << *lower_bound << std::endl;
-
-    HSVI<TStatePrescriptor, Joint<TActionPrescriptor>> algo(oMDP, lower_bound, upper_bound, h, 0.01);
-    auto optimal_vf = algo.do_solve();
-
-    TStatePrescriptor ostate = oMDP->getInitialState();
-    Joint<TActionPrescriptor> jdr;
-    for (int i = 0; i < h; i++)
-    {
-        std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
-                  << std::endl;
-        jdr = optimal_vf->getBestAction(ostate);
-        std::cout << ostate << "\n"
-                  << std::endl;
-        std::cout << jdr << std::endl;
-        ostate = oMDP->nextState(ostate, jdr);
-    }
+    // HSVI<BeliefState, number> algo(oMDP, lower_bound, upper_bound, h, 0.01);
+    // auto optimal_vf = algo.do_solve();
+    // algo.do_test();
 
     // oMDP->getReward();
 

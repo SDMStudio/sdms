@@ -13,12 +13,17 @@
 #include <string>
 
 #include <sdm/types.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/public/algorithm.hpp>
+
 #include <sdm/core/state/state.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 
 namespace sdm
 {
+
+  template <typename TState, typename TAction>
+  class SolvableByHSVI;
+
   /**
    * @brief 
    * 
@@ -26,7 +31,7 @@ namespace sdm
    * @tparam TAction 
    */
   template <typename TState, typename TAction>
-  class HSVI
+  class HSVI : public Algorithm
   {
   protected:
     /**
@@ -38,12 +43,6 @@ namespace sdm
      * @brief Upper Bound representation. 
      */
     std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
-
-    /**
-     * @brief Heuristic search for HSVI.
-     * 
-     */
-    // std::shared_ptr<HeuristicSearch<TState, TAction>> search;
 
     /**
      * @brief The problem to be solved.
@@ -102,7 +101,7 @@ namespace sdm
      * @param epsilon 
      * @param discount 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> do_solve();
+    void do_solve();
 
     /**
      * @brief 
@@ -128,6 +127,9 @@ namespace sdm
      * @param h 
      */
     void do_explore(TState s, number h);
+
+
+    void do_test();
 
     /**
      * @brief Select the greedy action

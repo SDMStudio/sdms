@@ -30,17 +30,6 @@ namespace sdm
     std::set<state_type> getStates();
 
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getIndividualHistories();
-
-    // std::string str()
-    // {
-    //   return "OccupancyMDP";
-    // }
-
-    // friend std::ostream &operator<<(std::ostream &os, const OccupancyState &ostate)
-    // {
-    //   os << ostate.str();
-    //   return os;
-    // }
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>
