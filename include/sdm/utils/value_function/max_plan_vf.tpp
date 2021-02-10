@@ -90,7 +90,7 @@ namespace sdm
     void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(TVector &state, int t)
     {
         // ERROR : To change with true bellman backup ope
-        TVector new_hyperplan = this->getQValueAt(state, t).argmax();
+        TVector new_hyperplan = state;
 
         if (this->isInfiniteHorizon())
         {

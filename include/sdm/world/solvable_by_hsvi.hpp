@@ -17,7 +17,11 @@ namespace sdm
     class SolvableByHSVI
     {
     public:
+        /**
+         * @brief Get the initial state
+         */
         virtual TState &getInitialState() = 0;
+
         virtual TState nextState(TState state, TAction action, int t = 0, HSVI<TState, TAction> *hsvi = nullptr) const = 0;
         virtual double getDiscount() = 0;
         virtual Reward getReward() = 0;
