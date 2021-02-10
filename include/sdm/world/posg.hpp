@@ -109,34 +109,34 @@ namespace sdm
     public:
         POSG();
 
-        POSG(const POSG &posg);
+        POSG(POSG &posg);
 
-        //! \brief Construct a POSG from a SG (i.e. build observation function as identity).
+        //! \brief ruct a POSG from a SG (i.e. build observation function as identity).
         //! \param stochastic_game stochastic game
-        POSG(const SG &stochastic_game);
+        POSG(SG &stochastic_game);
 
-        //! \brief Construct a POSG from a file describing the problem.
+        //! \brief ruct a POSG from a file describing the problem.
         //! \param filename name of the file describing the POSG
         POSG(const std::string &filename);
 
-        //! \brief    Construct a POSG.
+        //! \brief    ruct a POSG.
         //! \param    num_states number of states
         //! \param    num_agents number of agents
         POSG(number, number);
 
-        //! \brief    Construct a POSG.
+        //! \brief    ruct a POSG.
         //! \param    num_states number of states
         //! \param    num_agents number of agents
         //! \param    num_actions number of actions for each agent
         //! \param    num_observations number of observations for each agent
-        POSG(number, number, const std::vector<number> &, const std::vector<number> &);
+        POSG(number, number,  std::vector<number> &,  std::vector<number> &);
 
-        //! \brief    Construct a POSG.
+        //! \brief    ruct a POSG.
         //! \param    state_sp the state space
         //! \param    agent_sp the agent space
-        POSG(const DiscreteSpace<number> &, const DiscreteSpace<number> &);
+        POSG(DiscreteSpace<number>, DiscreteSpace<number>);
 
-        //! \brief    Construct a POSG.
+        //! \brief    ruct a POSG.
         //! \param    state_sp the state space
         //! \param    agent_sp the agent space
         //! \param    action_sp the multi action space
@@ -145,70 +145,70 @@ namespace sdm
         //! \param    o_dyn observation dynamics
         //! \param    rews reward functions for each agent
         //! \param    start_distrib start distribution (optional)
-        POSG(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const MultiDiscreteSpace<number> &,
-             const StateDynamics &, const ObservationDynamics &, const std::vector<Reward> &, const Vector &);
+        POSG(DiscreteSpace<number>, DiscreteSpace<number>, MultiDiscreteSpace<number>, MultiDiscreteSpace<number>,
+             StateDynamics, ObservationDynamics, std::vector<Reward>, Vector);
 
         //! \fn std::tuple<double, observation, state> getDynamicsGenerator(state x, action a)
         //! \param state the current state
         //! \param jaction the joint action
         //! \return a tuple containing reward, next_osbservation and next_state
-        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number x, number a) const;
+        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number x, number a) ;
 
-        const ObservationDynamics &getObsDynamics() const;
+         ObservationDynamics &getObsDynamics() ;
 
-        //! \fn       double getObservationProbability(number, number, number) const
+        //! \fn       double getObservationProbability(number, number, number) 
         //! \brief    Getter for observation probability.
         //! \param    jaction a specific joint action
         //! \param    jobservation a specific joint observation
         //! \param    state a specific state
         //! \return   the observation probility
-        double getObservationProbability(number jaction, number jobservation, number state) const;
+        double getObservationProbability(number jaction, number jobservation, number state) ;
 
         //! \brief    Getter for observation probability.
-        double getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state) const;
+        double getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state) ;
 
-        //! \fn       const Matrix& getObservations(action)
+        //! \fn        Matrix& getObservations(action)
         //! \brief    Getter for observation probabilities.
         //! \param    jaction a specific joint action (as single one)
         //! \return   the observation probabilities for the pre-defined action.
-        const Matrix &getObservations(number jaction) const;
+         Matrix getObservations(number jaction) ;
 
-        //! \fn       const Matrix& getObservations(action)
+        //! \fn        Matrix getObservations(action)
         //! \brief    Getter for observation probabilities.
         //! \param    jaction a specific joint action
         //! \return   a matrix of probability observations for the pre-defined action.
-        const Matrix &getObservations(std::vector<number> jaction) const;
+         Matrix getObservations(std::vector<number> jaction) ;
 
-        //! \fn       value getDynamics(state, action, observation, state) const
+        //! \fn       value getDynamics(state, action, observation, state) 
         //! \brief    Getter for dynamics probability.
         //! \param    cstate a specific state (timestep t)
         //! \param    jaction a specific joint action
         //! \param    jobservation a specific joint observation
         //! \param    nstate a specific state (timestep t+1)
         //! \return   the dynamics probability
-        double getDynamics(number cstate, number jaction, number jobservation, number nstate) const;
+        double getDynamics(number cstate, number jaction, number jobservation, number nstate) ;
 
-        //! \fn       const matrix& getDynamics(action, observation) const
+        //! \fn        matrix getDynamics(action, observation) 
         //! \brief    Getter for transition matrix.
         //! \param    jaction a specific joint action
         //! \param    jobservation a specific joint observation
         //! \return   a matrix of dynamics probabilities
-        const Matrix &getDynamics(number jaction, number jobservation) const;
+         Matrix getDynamics(number jaction, number jobservation) ;
 
         //! \fn std::string toStdFormat()
         //! \brief Encodes POSG class into a string (standard .posg or .dpomdp or .zsposg format).
         //! \return the resulting standard file format like string
-        std::string toStdFormat() const;
+        std::string toStdFormat() ;
 
         //! \fn std::string toXML()
         //! \brief Encodes POSG class into a string (XML format).
         //! \return the resulting XML like string
-        std::string toXML() const;
+        std::string toXML() ;
 
         //! \fn std::string toJSON()
         //! \brief Encodes POSG class into a string (JSON format).
         //! \return the resulting JSON like string
-        std::string toJSON() const;
+        std::string toJSON() ;
 
         /**
          * @fn void generateFile(std::string)
@@ -216,9 +216,9 @@ namespace sdm
          * 
          * @param filename the file name
          */
-        void generateFile(std::string) const;
+        void generateFile(std::string) ;
 
-        friend std::ostream &operator<<(std::ostream &os, const POSG &model)
+        friend std::ostream &operator<<(std::ostream &os,  POSG &model)
         {
             os << model.toXML();
             return os;

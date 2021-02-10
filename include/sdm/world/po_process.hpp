@@ -34,13 +34,13 @@ namespace sdm
     public:
         PartiallyObservableProcess();
 
-        PartiallyObservableProcess(const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &);
-        PartiallyObservableProcess(const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const Vector &);
+        PartiallyObservableProcess(DiscreteSpace<number>, MultiDiscreteSpace<number>);
+        PartiallyObservableProcess(DiscreteSpace<number>, MultiDiscreteSpace<number>, Vector);
 
         /**
          * \brief Getter for the observation spaces
          */
-        const MultiDiscreteSpace<number> &getObsSpace() const;
+        MultiDiscreteSpace<number> getObsSpace() const;
 
         /**
          * \brief Get the number of joint observations

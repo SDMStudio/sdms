@@ -52,3 +52,4 @@ namespace sdm
         std::tuple<observation_type, std::vector<double>, bool> step(action_type ja); // std::tuple<std::vector<number>, std::vector<double>, bool, map>
     };
 } // namespace sdm
+#include <sdm/world/interactive_world.tpp>

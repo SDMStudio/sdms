@@ -60,4 +60,7 @@ namespace sdm
       return os;
     }
   };
+
+  template <typename TState, typename TAction>
+  using DetDecisionRule = DeterministicDecisionRule<TState, TAction>;
 } // namespace sdm
