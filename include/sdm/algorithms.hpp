@@ -42,6 +42,34 @@ namespace sdm
             return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials);
         }
 
+        // /**
+        //  * @brief 
+        //  * 
+        //  * @tparam TState 
+        //  * @tparam TAction 
+        //  * @param problem 
+        //  * @param discount 
+        //  * @param error 
+        //  * @param horizon 
+        //  * @param trials 
+        //  * @return std::shared_ptr<sdm::HSVI<TState, TAction>> 
+        //  */
+        // template <typename TState, typename TAction>
+        // std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000)
+        // {
+        //     assert(((discount < 1) || (horizon > 0)));
+
+        //     problem->setDiscount(discount);
+
+        //     auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>(problem->getReward().getMinReward(), discount);
+        //     auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>(problem->getReward().getMaxReward(), discount);
+
+        //     std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MaxPlanValueFunction<TState, TAction>(problem, horizon, ub_init));
+        //     std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MaxPlanValueFunction<TState, TAction>(problem, horizon, lb_init));
+
+        //     return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials);
+        // }
+
         /**
          * @brief Build an algorithm given his name and the configurations required. 
          * 

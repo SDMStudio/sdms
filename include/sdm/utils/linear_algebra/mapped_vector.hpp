@@ -41,7 +41,7 @@ namespace sdm
     public:
         MappedVector();
         MappedVector(T default_value);
-        MappedVector(TIndex size, T default_value);
+        MappedVector(std::size_t size, T default_value);
         MappedVector(const MappedVector &v);
 
         T norm_1() const;
@@ -53,7 +53,7 @@ namespace sdm
         T max() const;
         TIndex argmax() const;
 
-        T at(TIndex);
+        T at(TIndex) const;
         T operator^(const MappedVector &) const;
         bool operator<(const MappedVector &);
 

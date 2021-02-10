@@ -4,6 +4,26 @@ namespace sdm
 {
 
     template <typename TState, typename TJointHistory_p>
+    OccupancyState<TState, TJointHistory_p>::OccupancyState() : MappedVector<Pair<TState, TJointHistory_p>, double>(0, 0)
+    {
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(default_value)
+    {
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(std::size_t size, double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(size, default_value)
+    {
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &v) : MappedVector<Pair<TState, TJointHistory_p>, double>(v)
+    {
+    }
+
+    template <typename TState, typename TJointHistory_p>
     std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type> OccupancyState<TState, TJointHistory_p>::getJointHistories()
     {
         std::set<jhistory_type> possible_jhistories;

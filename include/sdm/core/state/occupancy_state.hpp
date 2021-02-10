@@ -25,6 +25,11 @@ namespace sdm
     using jhistory_type = TJointHistory_p;
     using state_type = TState;
 
+    OccupancyState();
+    OccupancyState(double default_value);
+    OccupancyState(std::size_t size, double default_value);
+    OccupancyState(const OccupancyState &v);
+
     std::set<jhistory_type> getJointHistories();
 
     std::set<state_type> getStates();
