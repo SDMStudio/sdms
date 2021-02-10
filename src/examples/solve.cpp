@@ -19,7 +19,7 @@ int solve(int argv, char **args)
         double error, discount;
 
         po::options_description options("Options");
-        options.add_options()("help", "produce help message");
+        options.add_options()("help", "produce help message")("test", "test the policy found");
 
         po::options_description config("Configuration");
         config.add_options()("algorithm,a", po::value<string>(&algorithm)->default_value("mapped_hsvi"), "the algorithm to use")("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("discount,d", po::value<double>(&discount)->default_value(0.99), "the discount factor")("horizon,h", po::value<int>(&horizon)->default_value(0), "the planning horizon")("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials");
@@ -30,9 +30,9 @@ int solve(int argv, char **args)
         po::options_description config_file_options;
         config_file_options.add(config);
 
+        po::variables_map vm;
         try
         {
-            po::variables_map vm;
             po::store(po::command_line_parser(argv, args).options(visible).run(), vm);
             po::notify(vm);
             if (vm.count("help"))
@@ -53,10 +53,16 @@ int solve(int argv, char **args)
         {
             auto algo = sdm::algo::make(algorithm, problem, discount, error, horizon, trials);
             algo->do_solve();
+
+            if (vm.count("test"))
+            {
+                algo->do_test();
+            }
         }
         else
         {
-            std::cout << "Error: " << algorithm << " is not a valid algorithm." << std::endl << std::endl;
+            std::cout << "Error: " << algorithm << " is not a valid algorithm." << std::endl
+                      << std::endl;
             std::cout << "#> Available algorithms are : " << std::endl;
             std::cout << "ALGORITHM\t" << std::endl;
             for (auto algo : sdm::algo::available())
