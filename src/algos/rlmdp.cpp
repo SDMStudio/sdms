@@ -60,7 +60,8 @@ int main(int argv, char **args)
 
         // --------------------
         // Instantiate tiger world
-        std::shared_ptr<POSG> tiger_pb = std::make_shared<sdm::DecPOMDP>("../data/world/dpomdp/tiger.dpomdp");
+        std::string path = "../data/world/dpomdp/tiger.dpomdp";
+        std::shared_ptr<POSG> tiger_pb = std::make_shared<sdm::DecPOMDP>(path);
 
         tiger_pb->setDiscount(discount_factor);
         if (planning_horizon == 0 && discount_factor < 1.0)

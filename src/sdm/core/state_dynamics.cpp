@@ -3,8 +3,6 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 ==============================================================================*/
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/vector.hpp>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Sparse>
 
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>

@@ -1,14 +1,11 @@
 
-sdm::core
+Core
 ==========
 
 This namespace contains some basic class used in SDMS.  
 
-
-
 .. toctree::
-   :maxdepth: 7
-   :caption: Spaces:
+   :maxdepth: 3
 
    core/spaces
-
+   

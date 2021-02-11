@@ -9,25 +9,41 @@ SDM'Studio documentation
 SDM'Studio is a solver for Sequential Decision Making problems. This platform provides several algorithms that can resolve problems such as Stochastic Games or Decentralized POMDP.
 
 
+Get started
+============
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-
-.. toctree::
-   :maxdepth: 7
-   :caption: Quick start:
+   :caption: Get started:
 
    quickstart/install
+   quickstart/cli
+   quickstart/deploy
    quickstart/example
    quickstart/environment
 
+Contribute
+============
+
 .. toctree::
-   :maxdepth: 7
+   :maxdepth: 2
+   :caption: Contribute:
+
+   contribute/how-to-contribute
+
+Contents
+=========
+
+.. toctree::
+   :maxdepth: 3
    :caption: Contents:
 
-   content/worlds
+   content/algorithms
    content/core
    content/parser
+   content/worlds
+
+   
 
 Indices and tables
 ==================

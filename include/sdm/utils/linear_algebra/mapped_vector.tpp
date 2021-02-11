@@ -4,7 +4,7 @@
 namespace sdm
 {
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector() : std::map<TIndex, T>()
+    MappedVector<TIndex, T>::MappedVector() : std::map<TIndex, T>(), size_(0), default_value_(0)
     {
     }
 
@@ -14,12 +14,12 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(TIndex size, T default_value) : std::map<TIndex, T>(), default_value_(default_value), size_(size)
+    MappedVector<TIndex, T>::MappedVector(std::size_t size, T default_value) : std::map<TIndex, T>(), default_value_(default_value), size_(size)
     {
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : std::map<TIndex, T>(v)
+    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : std::map<TIndex, T>(v), default_value_(v.getDefault()), size_(v.size())
     {
     }
 
@@ -48,7 +48,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMin() const
     {
-        T min = this->default_value_;
+        T min = std::numeric_limits<T>::max();
         TIndex amin;
         for (auto item : *this)
         {
@@ -76,7 +76,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMax() const
     {
-        T max = this->default_value_;
+        T max = - std::numeric_limits<T>::max();
         TIndex amax;
         for (auto item : *this)
         {
@@ -112,11 +112,11 @@ namespace sdm
     // }
 
     template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::at(TIndex i)
+    T MappedVector<TIndex, T>::at(TIndex i) const
     {
         if (this->find(i) != this->end())
         {
-            return (*this)[i];
+            return std::map<TIndex, T>::at(i);
         }
         else
         {
@@ -168,6 +168,13 @@ namespace sdm
     std::size_t MappedVector<TIndex, T>::size() const
     {
         return this->size_;
+    }
+
+
+    template <typename TIndex, typename T>
+    T MappedVector<TIndex, T>::getDefault() const
+    {
+        return this->default_value_;
     }
 
     template <typename TIndex, typename T>

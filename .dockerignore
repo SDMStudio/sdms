@@ -1,0 +1,8 @@
+.git
+.cache
+.env
+build
+.vscode
+*.old
+.old
+docs

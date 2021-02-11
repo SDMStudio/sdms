@@ -51,5 +51,7 @@ namespace sdm
         DQNMDP(DQN, DQN, ReplayMemory, EpsGreedy, int, int, torch::Device = torch::kCPU);
         void to(torch::Device);
         void solve(const std::shared_ptr<POSG> &, horizon, double = 0.001, double = 1.0);
+        void do_solve() {}
+        void do_test() {}
     };
 } // namespace sdm

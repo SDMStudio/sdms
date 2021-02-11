@@ -6,7 +6,7 @@
 #include <random>
 #include <vector>
 #include <sdm/types.hpp>
-#include <sdm/core/discrete_space.hpp>
+#include <sdm/core/space/discrete_space.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 
 //!
@@ -31,7 +31,7 @@ namespace sdm
 
     protected:
         //! \brief The state space
-        DiscreteSpace state_space_;
+        DiscreteSpace<number> state_space_;
 
         //! The initial state distribution
         Vector start_distrib_;
@@ -41,11 +41,11 @@ namespace sdm
 
     public:
         StochasticProcess();
-        StochasticProcess(number);
-        StochasticProcess(const std::vector<double> &);
-        StochasticProcess(const Vector &);
-        StochasticProcess(const DiscreteSpace &);
-        StochasticProcess(const DiscreteSpace &, const Vector &);
+        // StochasticProcess(number);
+        // StochasticProcess(const std::vector<double> &);
+        // StochasticProcess(const Vector &);
+        StochasticProcess(DiscreteSpace<number>);
+        StochasticProcess(DiscreteSpace<number>, Vector );
 
         //! \fn       number getInternalState()
         //! \brief    Get the internal state.
@@ -70,26 +70,11 @@ namespace sdm
 
         void setStartDistrib(const Vector &);
 
-        const DiscreteSpace &getStateSpace() const;
+        DiscreteSpace<number> getStateSpace() const;
 
         //! \fn       state getNumStates() const
         //! \brief    Returns the number of states
         //! \return   state number
         number getNumStates() const;
-
-        //! \fn       state getStateIndex(const std::string&)
-        //! \param    const std::string& a state name
-        //! \brief    Returns the index of the state
-        number getStateIndex(const std::string &) const;
-
-        //! \fn       std::string getStateName(state)
-        //! \param    state  index
-        //! \brief    Returns the name associated with the state index
-        std::string getStateName(number) const;
-
-        //! \fn       void setStatesNames(std::vector<std::string>&)
-        //! \param    const std::vector<std::string>&
-        //! \brief    Sets the names of states.
-        void setStatesNames(const std::vector<std::string> &);
     };
 } // namespace sdm

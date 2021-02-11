@@ -8,26 +8,26 @@ namespace sdm
 
     POSG::POSG() {}
 
-    POSG::POSG(const POSG &posg) : POSG(posg.getStateSpace(), posg.getAgentSpace(), posg.getActionSpace(), posg.getObsSpace(), posg.getStateDynamics(), posg.getObsDynamics(), posg.getRewards(), posg.getStartDistrib())
+    POSG::POSG(POSG &posg) : POSG(posg.getStateSpace(), posg.getAgentSpace(), posg.getActionSpace(), posg.getObsSpace(), posg.getStateDynamics(), posg.getObsDynamics(), posg.getRewards(), posg.getStartDistrib())
     {
     }
 
-    POSG::POSG(const DecisionProcess &stochastic_game) : DecisionProcess(stochastic_game.getStateSpace(), stochastic_game.getAgentSpace(), stochastic_game.getActionSpace(), stochastic_game.getStartDistrib())
+    POSG::POSG(DecisionProcess &stochastic_game) : DecisionProcess(stochastic_game.getStateSpace(), stochastic_game.getAgentSpace(), stochastic_game.getActionSpace(), stochastic_game.getStartDistrib())
     {
     }
 
-    // POSG::POSG(const std::string &filename) {}
+    // POSG::POSG( std::string &filename) {}
 
-    // POSG::POSG(number state_sp, number action_sp, const std::vector<double> & start_distrib) : SG(state_sp, action_sp, start_distrib) {}
+    // POSG::POSG(number state_sp, number action_sp,  std::vector<double> & start_distrib) : SG(state_sp, action_sp, start_distrib) {}
 
-    POSG::POSG(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp)
+    POSG::POSG(DiscreteSpace<number> state_sp, DiscreteSpace<number> agent_sp)
     {
         this->state_space_ = state_sp;
         this->agent_space_ = agent_sp;
     }
 
-    POSG::POSG(const DiscreteSpace &state_sp, const DiscreteSpace &agent_sp, const MultiDiscreteSpace &action_sp, const MultiDiscreteSpace &obs_sp,
-               const StateDynamics &s_dyn, const ObservationDynamics &o_dyn, const std::vector<Reward> &rews, const Vector &start_distrib)
+    POSG::POSG(DiscreteSpace<number> state_sp, DiscreteSpace<number> agent_sp, MultiDiscreteSpace<number> action_sp, MultiDiscreteSpace<number> obs_sp,
+               StateDynamics s_dyn, ObservationDynamics o_dyn, std::vector<Reward> rews, Vector start_distrib)
         : o_dynamics_(o_dyn)
     {
         this->state_space_ = state_sp;
@@ -40,37 +40,37 @@ namespace sdm
         this->setupDynamicsGenerator();
     }
 
-    const ObservationDynamics &POSG::getObsDynamics() const
+    ObservationDynamics &POSG::getObsDynamics()
     {
         return this->o_dynamics_;
     }
 
-    double POSG::getObservationProbability(number jaction, number jobservation, number state) const
+    double POSG::getObservationProbability(number jaction, number jobservation, number state)
     {
         return this->o_dynamics_.getObservationProbability(jaction, jobservation, state);
     }
 
-    double POSG::getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state) const
+    double POSG::getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state)
     {
         return this->getObservationProbability(this->action_space_.joint2single(jaction), this->obs_spaces_.joint2single(jobservation), state);
     }
 
-    const Matrix &POSG::getObservations(number jaction) const
+    Matrix POSG::getObservations(number jaction)
     {
         return this->o_dynamics_.getObservations(jaction);
     }
 
-    const Matrix &POSG::getObservations(std::vector<number> jaction) const
+    Matrix POSG::getObservations(std::vector<number> jaction)
     {
         return this->getObservations(this->action_space_.joint2single(jaction));
     }
 
-    double POSG::getDynamics(number cstate, number jaction, number jobservation, number nstate) const
+    double POSG::getDynamics(number cstate, number jaction, number jobservation, number nstate)
     {
         return this->o_dynamics_.getDynamics(cstate, jaction, jobservation, nstate);
     }
 
-    const Matrix &POSG::getDynamics(number jaction, number jobservation) const
+    Matrix POSG::getDynamics(number jaction, number jobservation)
     {
         return this->o_dynamics_.getDynamics(jaction, jobservation);
     }
@@ -102,7 +102,7 @@ namespace sdm
         this->setupStartGenerator();
     }
 
-    std::tuple<std::vector<double>, number, number> POSG::getDynamicsGenerator(number x, number a) const
+    std::tuple<std::vector<double>, number, number> POSG::getDynamicsGenerator(number x, number a)
     {
         number y;
         number z;
@@ -110,18 +110,18 @@ namespace sdm
         std::discrete_distribution<size_t> distrib = this->dynamics_generator.at(x).at(a);
         std::tie(y, z) = this->encoding.at(distrib(common::global_urng()));
 
-        for (const Reward& rew : this->rew_)
+        for (Reward &rew : this->rew_)
         {
             v_rew.push_back(rew.getReward(x, a));
         }
-    
+
         return std::make_tuple(v_rew, z, y);
     }
 
     // ------------------------------
     // Display POSG
     // ------------------------------
-    std::string POSG::toStdFormat() const
+    std::string POSG::toStdFormat()
     {
         std::ostringstream res;
 
@@ -133,19 +133,19 @@ namespace sdm
         res << "actions: \n";
         for (number ag = 0; ag < this->getNumAgents(); ag++)
         {
-            res << this->getActionSpace().getNumElements(ag) << "\n";
+            res << this->getActionSpace().getSpace(ag)->getNumItems() << "\n";
         }
         res << "observations: \n";
         for (number ag = 0; ag < this->getNumAgents(); ag++)
         {
-            res << this->getObsSpace().getNumElements(ag) << "\n";
+            res << this->getObsSpace().getSpace(ag)->getNumItems() << "\n";
         }
 
         for (number x = 0; x < this->getNumStates(); ++x)
         {
             for (number u = 0; u < this->getNumJActions(); u++)
             {
-                std::vector<number> ja = this->getActionSpace().getJointElement(u);
+                std::vector<number> ja = this->getActionSpace().single2joint(u);
                 for (number y = 0; y < this->getNumStates(); ++y)
                 {
                     res << "T: ";
@@ -162,7 +162,7 @@ namespace sdm
         {
             for (number u = 0; u < this->getNumJActions(); u++)
             {
-                std::vector<number> ja = this->getActionSpace().getJointElement(u);
+                std::vector<number> ja = this->getActionSpace().single2joint(u);
                 for (number z = 0; z < this->getNumJObservations(); ++z)
                 {
                     res << "O: ";
@@ -171,7 +171,7 @@ namespace sdm
                         res << ja[agent] << " ";
                     }
                     res << " : " << y << " : ";
-                    std::vector<number> jz = this->getObsSpace().getJointElement(z);
+                    std::vector<number> jz = this->getObsSpace().single2joint(z);
                     for (number agent = 0; agent < this->getNumAgents(); ++agent)
                     {
                         res << jz[agent] << " ";
@@ -186,7 +186,7 @@ namespace sdm
             for (number u = 0; u < this->getNumJActions(); u++)
             {
                 res << "R: ";
-                std::vector<number> ja = this->getActionSpace().getJointElement(u);
+                std::vector<number> ja = this->getActionSpace().single2joint(u);
                 for (number agent = 0; agent < this->getNumAgents(); ++agent)
                 {
                     res << ja[agent] << " ";
@@ -202,7 +202,7 @@ namespace sdm
         return res.str();
     }
 
-    std::string POSG::toXML() const
+    std::string POSG::toXML()
     {
         std::ostringstream res;
 
@@ -217,12 +217,12 @@ namespace sdm
 
         res << "\t\t<actions>" << std::endl;
         for (ag = 0; ag < this->getNumAgents(); ++ag)
-            res << "\t\t\t<agent id=\"" << ag << "\">" << this->getActionSpace().getNumElements(ag) << "</agent>" << std::endl;
+            res << "\t\t\t<agent id=\"" << ag << "\">" << this->getActionSpace().getSpace(ag)->getNumItems() << "</agent>" << std::endl;
         res << "\t\t</actions>" << std::endl;
 
         res << "\t\t<observations>" << std::endl;
         for (ag = 0; ag < this->getNumAgents(); ++ag)
-            res << "\t\t\t<agent id=\"" << ag << "\">" << this->getObsSpace().getNumElements(ag) << "</agent>" << std::endl;
+            res << "\t\t\t<agent id=\"" << ag << "\">" << this->getObsSpace().getSpace(ag)->getNumItems() << "</agent>" << std::endl;
         res << "\t\t</observations>" << std::endl;
 
         res << "\t</preamble>" << std::endl;
@@ -232,13 +232,13 @@ namespace sdm
         res << "\t\t<reward>" << std::endl;
         for (ja = 0; ja < this->getNumJActions(); ++ja)
         {
-            std::vector<number> v_ja = this->getActionSpace().getJointElement(ja);
+            std::vector<number> v_ja = this->getActionSpace().single2joint(ja);
             if (rew_.size() == 1)
             {
                 res << "\t\t\t<reward-entry joint-action=\"";
                 for (number ag = 0; ag < this->getNumAgents(); ++ag)
                 {
-                    res << this->getActionSpace().getElementName(ag, v_ja[ag]) << " ";
+                    res << v_ja[ag] << " ";
                 }
                 res << "\" >" << std::endl;
                 res << "\t\t\t\t" << this->rew_[0].getReward(ja) << std::endl;
@@ -251,7 +251,7 @@ namespace sdm
                     res << "\t\t\t<reward-entry joint-action=\"";
                     for (number ag = 0; ag < this->getNumAgents(); ++ag)
                     {
-                        res << this->getActionSpace().getElementName(ag, v_ja[ag]) << " ";
+                        res << v_ja[ag] << " ";
                     }
                     res << "\" agent=\"" << ag_id << "\">" << std::endl;
                     res << "\t\t\t\t" << this->rew_[ag_id].getReward(ja) << std::endl;
@@ -279,13 +279,13 @@ namespace sdm
         return res.str();
     }
 
-    std::string POSG::toJSON() const
+    std::string POSG::toJSON()
     {
         std::cout << "toJSON : Not implemented method" << std::endl;
         return "Not implemented method";
     }
 
-    void POSG::generateFile(std::string filename) const
+    void POSG::generateFile(std::string filename)
     {
         std::ofstream myfile;
         if (regex_match(filename, std::regex(".*\\.json$")) || regex_match(filename, std::regex(".*\\.JSON$")))

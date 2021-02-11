@@ -40,12 +40,12 @@ namespace sdm
             Node(agent id, std::unordered_set<agent>);
         };
 
-        MultiDiscreteSpace obs_space_;
-        MultiDiscreteSpace act_space_;
+        MultiDiscreteSpace<number> obs_space_;
+        MultiDiscreteSpace<number> act_space_;
         action maxActions;
 
-        DiscreteSpace state_space_;
-        DiscreteSpace agent_space_;
+        DiscreteSpace<number> state_space_;
+        DiscreteSpace<number> agent_space_;
 
         // observation observations;
         Vector startingBelief;
@@ -125,12 +125,7 @@ namespace sdm
         /**
          * \brief Getter for the observation spaces
          */
-        const MultiDiscreteSpace &getActionSpace() const;
-
-        /**
-         * \brief Getter for a specific observation space
-         */
-        const DiscreteSpace &getActionSpace(number) const;
+        const MultiDiscreteSpace<number> &getActionSpace() const;
 
         /**
          * \brief Get the number of joint observations

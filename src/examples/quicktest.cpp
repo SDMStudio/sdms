@@ -1,23 +1,31 @@
 #include <iostream>
 #include <cassert>
 
-// #include <sdm/world/decpomdp.hpp>
-// #include <sdm/algorithms.hpp>
-// #include <sdm/core/state/history.hpp>
-// #include <sdm/core/state/history_tree.hpp>
-// #include <sdm/core/state/jhistory_tree.hpp>
-// #include <sdm/utils/struct/tree.hpp>
-// #include <sdm/utils/linear_algebra/sdms_vector.hpp>
-// #include <sdm/utils/decision_rules/joint.hpp>
-#include <sdm/world/ndpomdp.hpp>
-#include <sdm/common.hpp>
-#include <sdm/parser/exception.hpp>
+#include <typeinfo>
+// #include <sdm/core/item.hpp>
+// #include <sdm/core/space/discrete_space.hpp>
+// #include <sdm/core/space/multi_discrete_space.hpp>
+// #include <sdm/core/space/multi_space.hpp>
+// #include <sdm/core/space/function_space.hpp>
+// #include <sdm/core/state/state.hpp>
+#include <sdm/algorithms.hpp>
+#include <sdm/spaces.hpp>
+#include <sdm/core/state/history.hpp>
+#include <sdm/utils/struct/pair.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/belief_mdp.hpp>
+#include <sdm/utils/value_function/max_plan_vf.hpp>
+#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/world/decpomdp.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/exception.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    char const *filename;
+    std::string filename;
 
     if (argc > 1)
     {
@@ -31,33 +39,89 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    NDPOMDP ndpomdp(filename);
+    std::shared_ptr<DecPOMDP> dpomdp = std::make_shared<DecPOMDP>(filename);
+    // std::cout << *dpomdp << std::endl;
 
-    state x = ndpomdp.init();
+    // Defines the different types
+    using TObservation = number;
+    using TState = number;
+    using TActionDescriptor = number;
 
-    std::cout << "Initial State : " << x << std::endl;
-    std::uniform_int_distribution<number> random_action_gen(0, ndpomdp.getNumJActions() - 1);
+    using TStateDescriptor = HistoryTree_p<TObservation>;
 
-    for (int i = 0; i < 100; i++)
-    {
-        number random_jaction = random_action_gen(sdm::common::global_urng()); // policy.getAction()
-        std::cout << "Action : " << random_jaction << std::endl;
+    using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+    using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
-        std::tuple<std::vector<double>, observation, state> r_w_y = ndpomdp.getDynamicsGenerator(x, random_jaction);
-        std::vector<double> rews = std::get<0>(r_w_y);
-        std::cout << "Reward : ";
-        for (auto r : rews)
-        {
-            std::cout << r << "  ";
-        }
-        std::cout << "\n";
+    number h = 2;
+    double discount = 1;
 
-        number x = std::get<2>(r_w_y);
-        number jobservation = std::get<1>(r_w_y);
+    // auto algo = sdm::algo::make("mapped_hsvi", filename, discount, 0.01, h, 10000);
 
-        std::cout << "Next State : " << x << std::endl
-                  << std::endl;
-    }
+    // algo->do_solve();
+    // algo->do_test();
+
+    std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>> oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(dpomdp, h);
+    // std::shared_ptr<SolvableByHSVI<BeliefState, number>> oMDP = std::make_shared<BeliefMDP<BeliefState, number, number>>(dpomdp);
+    dpomdp->setDiscount(discount);
+
+    auto lb_init = std::make_shared<sdm::MinInitializer<TStatePrescriptor, TActionPrescriptor>>(dpomdp->getReward().getMinReward(), discount);
+    auto ub_init = std::make_shared<sdm::MaxInitializer<TStatePrescriptor, TActionPrescriptor>>(dpomdp->getReward().getMaxReward(), discount);
+
+    // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> upper_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, ub_init));
+    // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> lower_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, lb_init));
+    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound(new sdm::MaxPlanValueFunction<TStatePrescriptor, TActionPrescriptor>(oMDP, h, ub_init));
+    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound(new sdm::MaxPlanValueFunction<TStatePrescriptor, TActionPrescriptor>(oMDP, h, lb_init));
+    // std::cout << *upper_bound << std::endl;
+    // std::cout << *lower_bound << std::endl;
+
+    HSVI<TStatePrescriptor, TActionPrescriptor> algo(oMDP, lower_bound, upper_bound, h, 0.01);
+    algo.do_solve();
+    // algo.do_test();
+
+    // oMDP->getReward();
+
+    // using TState = BeliefState;
+    // using TAction = number;
+
+    // auto algo = algo::makeMappedHSVI<TState, TAction>(dpomdp, 0.99, 0.001, 6, 1000);
+    // auto v_star = algo->do_solve();
+
+    // std::cout << v_star << std::endl;
+
+    // TState b = dpomdp->getStartDistrib();
+    // for (int i = 0; i < 6; i++)
+    // {
+    //     TAction action = v_star->getQValueAt(b, i)->argmax();
+    //     b = dpomdp->nextState(b, action);
+    // }
+
+    // NDPOMDP ndpomdp(filename);
+
+    // state x = ndpomdp.init();
+
+    // std::cout << "Initial State : " << x << std::endl;
+    // std::uniform_int_distribution<number> random_action_gen(0, ndpomdp.getNumJActions() - 1);
+
+    // for (int i = 0; i < 100; i++)
+    // {
+    //     number random_jaction = random_action_gen(sdm::common::global_urng()); // policy.getAction()
+    //     std::cout << "Action : " << random_jaction << std::endl;
+
+    //     std::tuple<std::vector<double>, observation, state> r_w_y = ndpomdp.getDynamicsGenerator(x, random_jaction);
+    //     std::vector<double> rews = std::get<0>(r_w_y);
+    //     std::cout << "Reward : ";
+    //     for (auto r : rews)
+    //     {
+    //         std::cout << r << "  ";
+    //     }
+    //     std::cout << "\n";
+
+    //     number x = std::get<2>(r_w_y);
+    //     number jobservation = std::get<1>(r_w_y);
+
+    //     std::cout << "Next State : " << x << std::endl
+    //               << std::endl;
+    // }
 
     // std::cout << ndpomdp.getNumStates() << std::endl;
     // std::cout << ndpomdp.getNumAgents() << std::endl;

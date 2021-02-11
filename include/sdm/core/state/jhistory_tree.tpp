@@ -43,9 +43,12 @@ namespace sdm
     {
         std::shared_ptr<JointHistoryTree<T>> h_joint = HistoryTree<Joint<T>>::template expand<JointHistoryTree<T>>(data, backup);
 
-        for (number i = 0; i < this->indiv_hist.getNumAgents(); i++)
+        if (h_joint->getIndividualHistories().size() == 0)
         {
-            h_joint->addIndivHist(this->getIndividualHistory(i)->expand(data[i], backup));
+            for (number i = 0; i < this->indiv_hist.getNumAgents(); i++)
+            {
+                h_joint->addIndivHist(this->getIndividualHistory(i)->expand(data[i], backup));
+            }
         }
         return h_joint;
     }
@@ -56,4 +59,16 @@ namespace sdm
         assert((ag_id < this->indiv_hist.getNumAgents()) && (ag_id >= 0));
         return this->indiv_hist[ag_id];
     }
+
+    template <typename T>
+    std::vector<std::shared_ptr<HistoryTree<T>>> JointHistoryTree<T>::getIndividualHistories()
+    {
+        // std::vector<std::shared_ptr<HistoryTree<T>>> ihists;
+        // for (number i = 0; i < this->indiv_hist.getNumAgents(); i++)
+        // {
+        //     ihists.push_back(this->getIndividualHistory(i));
+        // }
+        return this->indiv_hist;
+    }
+
 } // namespace sdm

@@ -1,8 +1,18 @@
+/**
+ * @file ex2.cpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief File that give some exemples of operators that can be used on formalisms
+ * @version 1.0
+ * @date 01/02/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #include <iostream>
 #include <cassert>
 #include <sdm/worlds.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/parser/exception.hpp>
+#include <sdm/exception.hpp>
 
 int main(int argc, char **argv)
 {
