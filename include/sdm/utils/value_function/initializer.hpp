@@ -42,6 +42,10 @@ namespace sdm
     template <typename TState, typename TAction>
     class ZeroInitializer : public ValueInitializer<TState, TAction>
     {
+    public:
+        ZeroInitializer() : ValueInitializer<TState, TAction>(0)
+        {
+        }
     };
 
     template <typename TState, typename TAction>

@@ -32,7 +32,7 @@ namespace sdm
      * @tparam TValue Type of the value.
      */
     template <typename TState, typename TAction, typename TValue = double>
-    class ValueFunction
+    class ValueFunction : public Function<TState, TValue>
     {
     protected:
         /**
@@ -53,78 +53,68 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon) : problem_(problem), horizon_(horizon)
-        {
-        }
-
-        virtual void updateValueAt(TState &s, int t = 0) = 0;
+        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon);
 
         /**
          * @brief Initialize the value function 
-         * 
          */
         virtual void initialize() = 0;
 
         /**
-         * @brief Initialize the value function 
-         * 
+         * @brief Initialize the value function with a default value
          */
         virtual void initialize(TValue v, int t = 0) = 0;
 
         /**
-         * @brief Get the value of the function on one point
-         * 
-         * @param state The point where we want the value
-         * @return The value of the bound on that point 
+         * @brief Get the value at a given state
          */
         virtual TValue getValueAt(TState &state, int t = 0) = 0;
 
         /**
-         * @brief Get the q value on a state 
-         * 
-         * @param state The state where we want to evaluate q-value
-         * @return The Q Value at this state
+         * @brief Update the value at a given state
          */
-        virtual std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(TState &state, int t = 0) = 0;
+        virtual void updateValueAt(TState &s, int t = 0) = 0;
 
         /**
-         * @brief Get the q value on one couple (state, action) 
-         * 
-         * @param state The state where we want the value
-         * @param action The action where we want the value
-         * @return The Q Value 
+         * @brief Define this function in order to be able to display the value function
          */
-        virtual TValue getQValueAt(TState &state, TAction &action, int t = 0) = 0;
-
-        /**
-         * @brief Get the next action to do
-         * 
-         * @param state The point where we want the best action
-         * @return The next action
-         */
-        virtual TAction getBestAction(TState &state, int t = 0) = 0;
-
         virtual std::string str() = 0;
 
-        std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld()
-        {
-            return this->problem_;
-        }
+        
+        TValue operator()(const TState &state);
 
-        int getHorizon() const
-        {
-            return this->horizon_;
-        }
+        /**
+         * @brief Get the q-value at a state
+         * 
+         * @param state the state
+         * @return the action value vector 
+         */
+        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(TState &state, int t = 0);
 
-        int isFiniteHorizon() const
-        {
-            return (this->horizon_ > 0);
-        }
+        /**
+         * @brief Get the q-value given state and action
+         * 
+         * @param state the state
+         * @param action the action
+         * @return the q-value
+         */
+        TValue getQValueAt(TState &state, TAction &action, int t = 0);
 
-        int isInfiniteHorizon() const
-        {
-            return !(this->isFiniteHorizon());
-        }
+        /**
+         * @brief Get the best action to do at a state
+         * 
+         * @param state the state
+         * @return the best action
+         */
+        TAction getBestAction(TState &state, int t = 0);
+
+        std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
+
+        int getHorizon() const;
+        
+        bool isFiniteHorizon() const;
+        
+        bool isInfiniteHorizon() const;
 
         friend std::ostream &operator<<(std::ostream &os, ValueFunction<TState, TAction> &vf)
         {
@@ -133,3 +123,4 @@ namespace sdm
         }
     };
 } // namespace sdm
+#include <sdm/utils/value_function/value_function.tpp>
