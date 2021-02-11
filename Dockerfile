@@ -17,7 +17,7 @@ RUN mkdir -p /opt \
     && unzip tmp_libtorch.zip -d /opt\
     && rm tmp_libtorch.zip
 
-
+# Build image (minimal requirements to be able to build yourself SDMS in a container)
 FROM dev-base AS build-base
 
 RUN apt-get -y update \
@@ -49,6 +49,6 @@ RUN cmake . -DCMAKE_PREFIX_PATH=/opt/libtorch -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF
 #     && make install
 
 # Image that contain binary files
-# FROM dev-base AS runtime
+# FROM ${BASE_IMAGE} AS runtime
 # COPY --from=build /usr/local /usr/local
-# CMD [ "sdms" ]
+# CMD [ "SDMStudio" ]

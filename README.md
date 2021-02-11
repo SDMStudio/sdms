@@ -60,7 +60,11 @@ In order to execute `install.sh` file, you may need to change permissions using 
 ```bash
   git clone https://gitlab.inria.fr/chroma1/plasma/sdms.git
   cd sdms
-  ./install.sh
+  sudo ./install.sh
+```
+You can pass an parameter of the form `path/to/libtorch-xxxxx.zip` to specify which  configuration of PyTorch is to be used.
+```bash
+  sudo ./install.sh path/to/libtorch-xxxxx.zip
 ```
 
 ## 2.2. Step by step installation
@@ -87,7 +91,7 @@ make install
 
 ### Using pre-built images
 
-You can also pull a pre-built docker image from Docker Hub and run with docker
+You can also pull a pre-built docker image from Docker Hub and run with docker. See available tags on [DockerHub](https://hub.docker.com/r/blavad/sdms).
 ```bash
 docker run --rm -ti blavad/sdms:latest
 ```
@@ -97,13 +101,13 @@ docker run --rm -ti blavad/sdms:latest
 The `Dockerfile` is supplied to build images with PyTorch for CPU. You can pass `LIBTORCH_URL=<path/to/libtorch-xxxxx.zip` argument to specify which  configuration of PyTorch is to be used.
 
 ```bash
-docker build --rm -t sdms:v1.0 .
+docker build --rm -t sdms:tagname .
 ```
 
 Then you can run a container and get an interactive command on the newly builded image.
 
 ```bash
-docker run --rm -ti sdms:v1.0
+docker run --rm -ti sdms:tagname
 ```
 
 # 3. Basic Usage
