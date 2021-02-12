@@ -23,6 +23,7 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
   - [2.3 Docker Image](#23-docker-image)
     - [Using pre-built images](#using-pre-built-images)
     - [Building the image yourself](#building-the-image-yourself)
+    - [For developers](#for-developers)
 - [3. Basic Usage](#3-basic-usage)
     - [List available algorithms](#list-available-algorithms)
     - [List available worlds](#list-available-worlds)
@@ -104,10 +105,19 @@ The `Dockerfile` is supplied to build images with PyTorch for CPU. You can pass 
 docker build --rm -t sdms:tagname .
 ```
 
-Then you can run a container and get an interactive command on the newly builded image.
+Then you can run a container and get an interactive command on the newly built image.
 
 ```bash
 docker run --rm -ti sdms:tagname
+```
+
+### For developers
+
+Developers can use the multi-stage builds architecture of the `Dockerfile` to have more flexibility during development process. If you don't want to install SDMS dependencies on your machine and you want to avoid building a new docker image each time you make changes in the code, you can build and run the base `dev` image using `bind mount` tools to mount your local repo in a container. The following command lines should do that: 
+
+```bash
+docker build --target dev -t sdms:develop .
+docker run -ti --name sdms-dev --mount type=bind,source="$(pwd)",target=/home/sdms sdms:develop
 ```
 
 # 3. Basic Usage
