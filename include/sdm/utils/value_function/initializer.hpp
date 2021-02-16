@@ -102,4 +102,24 @@ namespace sdm
         {
         }
     };
+
+    // template <typename TState, typename TAction>
+    // class MDPInitializer : public Initializer<TState, TAction>
+    // {
+    // protected:
+    //     POMDP problem_;
+    //     double discount_;
+
+    // public:
+    //     MDPInitializer(POMDP problem, double discount) : problem_(problem), discount_(discount)
+    //     {
+    //     }
+
+    //     void init(ValueFunction<TState, TAction> *vf)
+    //     {
+    //         auto algo = sdm::algo::make("mapped_hsvi", this->problem->toMDP());
+    //         algo->do_solve();
+    //         algo->getLowerBound();
+    //     }
+    // };
 } // namespace sdm

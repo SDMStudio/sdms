@@ -51,8 +51,8 @@ namespace sdm
         std::cout << "-------------------------------------------------" << std::endl;
         std::cout << "Number trials : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
         std::cout << "Final LB : \n"
-                  << *this->lower_bound_ << "Final UB : \n"
-                  << *this->upper_bound_ << std::endl;
+                  << this->lower_bound_->str() << "Final UB : \n"
+                  << this->upper_bound_->str() << std::endl;
     }
 
     template <typename TState, typename TAction>

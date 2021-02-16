@@ -53,7 +53,6 @@ namespace sdm
          */
         std::vector<Container> representation;
 
-
         /**
          * @brief The backup operator used in order to update this value function. 
          * 
@@ -96,6 +95,8 @@ namespace sdm
         void updateValueAt(TState &state, int t, TValue target);
 
         std::string str();
+
+        backup_operator_type getBackupOperator();
 
         friend std::ostream &operator<<(std::ostream &os, TabularValueFunction<TState, TAction> &vf)
         {
