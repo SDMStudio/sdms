@@ -90,6 +90,8 @@ namespace sdm
   };
 
   class World;
+  class POMDP;
+  class DecPOMDP;
   class State;
   class Action;
   class feedback;

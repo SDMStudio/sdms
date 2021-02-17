@@ -8,26 +8,26 @@ namespace sdm
 
     POSG::POSG() {}
 
-    POSG::POSG(const POSG &posg) : POSG(posg.getStateSpace(), posg.getAgentSpace(), posg.getActionSpace(), posg.getObsSpace(), posg.getStateDynamics(), posg.getObsDynamics(), posg.getRewards(), posg.getStartDistrib())
+    POSG::POSG(POSG &posg) : POSG(posg.getStateSpace(), posg.getAgentSpace(), posg.getActionSpace(), posg.getObsSpace(), posg.getStateDynamics(), posg.getObsDynamics(), posg.getRewards(), posg.getStartDistrib())
     {
     }
 
-    POSG::POSG(const DecisionProcess &stochastic_game) : DecisionProcess(stochastic_game.getStateSpace(), stochastic_game.getAgentSpace(), stochastic_game.getActionSpace(), stochastic_game.getStartDistrib())
+    POSG::POSG(DecisionProcess &stochastic_game) : DecisionProcess(stochastic_game.getStateSpace(), stochastic_game.getAgentSpace(), stochastic_game.getActionSpace(), stochastic_game.getStartDistrib())
     {
     }
 
-    // POSG::POSG(const std::string &filename) {}
+    // POSG::POSG( std::string &filename) {}
 
-    // POSG::POSG(number state_sp, number action_sp, const std::vector<double> & start_distrib) : SG(state_sp, action_sp, start_distrib) {}
+    // POSG::POSG(number state_sp, number action_sp,  std::vector<double> & start_distrib) : SG(state_sp, action_sp, start_distrib) {}
 
-    POSG::POSG(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp)
+    POSG::POSG(DiscreteSpace<number> state_sp, DiscreteSpace<number> agent_sp)
     {
         this->state_space_ = state_sp;
         this->agent_space_ = agent_sp;
     }
 
-    POSG::POSG(const DiscreteSpace<number> &state_sp, const DiscreteSpace<number> &agent_sp, const MultiDiscreteSpace<number> &action_sp, const MultiDiscreteSpace<number> &obs_sp,
-               const StateDynamics &s_dyn, const ObservationDynamics &o_dyn, const std::vector<Reward> &rews, const Vector &start_distrib)
+    POSG::POSG(DiscreteSpace<number> state_sp, DiscreteSpace<number> agent_sp, MultiDiscreteSpace<number> action_sp, MultiDiscreteSpace<number> obs_sp,
+               StateDynamics s_dyn, ObservationDynamics o_dyn, std::vector<Reward> rews, Vector start_distrib)
         : o_dynamics_(o_dyn)
     {
         this->state_space_ = state_sp;
@@ -40,37 +40,37 @@ namespace sdm
         this->setupDynamicsGenerator();
     }
 
-    const ObservationDynamics &POSG::getObsDynamics() const
+    ObservationDynamics &POSG::getObsDynamics()
     {
         return this->o_dynamics_;
     }
 
-    double POSG::getObservationProbability(number jaction, number jobservation, number state) const
+    double POSG::getObservationProbability(number jaction, number jobservation, number state)
     {
         return this->o_dynamics_.getObservationProbability(jaction, jobservation, state);
     }
 
-    double POSG::getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state) const
+    double POSG::getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state)
     {
         return this->getObservationProbability(this->action_space_.joint2single(jaction), this->obs_spaces_.joint2single(jobservation), state);
     }
 
-    const Matrix &POSG::getObservations(number jaction) const
+    Matrix POSG::getObservations(number jaction)
     {
         return this->o_dynamics_.getObservations(jaction);
     }
 
-    const Matrix &POSG::getObservations(std::vector<number> jaction) const
+    Matrix POSG::getObservations(std::vector<number> jaction)
     {
         return this->getObservations(this->action_space_.joint2single(jaction));
     }
 
-    double POSG::getDynamics(number cstate, number jaction, number jobservation, number nstate) const
+    double POSG::getDynamics(number cstate, number jaction, number jobservation, number nstate)
     {
         return this->o_dynamics_.getDynamics(cstate, jaction, jobservation, nstate);
     }
 
-    const Matrix &POSG::getDynamics(number jaction, number jobservation) const
+    Matrix POSG::getDynamics(number jaction, number jobservation)
     {
         return this->o_dynamics_.getDynamics(jaction, jobservation);
     }
@@ -102,7 +102,7 @@ namespace sdm
         this->setupStartGenerator();
     }
 
-    std::tuple<std::vector<double>, number, number> POSG::getDynamicsGenerator(number x, number a) const
+    std::tuple<std::vector<double>, number, number> POSG::getDynamicsGenerator(number x, number a)
     {
         number y;
         number z;
@@ -110,18 +110,18 @@ namespace sdm
         std::discrete_distribution<size_t> distrib = this->dynamics_generator.at(x).at(a);
         std::tie(y, z) = this->encoding.at(distrib(common::global_urng()));
 
-        for (const Reward& rew : this->rew_)
+        for (Reward &rew : this->rew_)
         {
             v_rew.push_back(rew.getReward(x, a));
         }
-    
+
         return std::make_tuple(v_rew, z, y);
     }
 
     // ------------------------------
     // Display POSG
     // ------------------------------
-    std::string POSG::toStdFormat() const
+    std::string POSG::toStdFormat()
     {
         std::ostringstream res;
 
@@ -202,7 +202,7 @@ namespace sdm
         return res.str();
     }
 
-    std::string POSG::toXML() const
+    std::string POSG::toXML()
     {
         std::ostringstream res;
 
@@ -279,13 +279,13 @@ namespace sdm
         return res.str();
     }
 
-    std::string POSG::toJSON() const
+    std::string POSG::toJSON()
     {
         std::cout << "toJSON : Not implemented method" << std::endl;
         return "Not implemented method";
     }
 
-    void POSG::generateFile(std::string filename) const
+    void POSG::generateFile(std::string filename)
     {
         std::ofstream myfile;
         if (regex_match(filename, std::regex(".*\\.json$")) || regex_match(filename, std::regex(".*\\.JSON$")))

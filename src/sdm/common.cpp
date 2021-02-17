@@ -20,7 +20,7 @@ namespace sdm
             static std::default_random_engine u{};
             return u;
         }
-
+        
         std::string getState(state x)
         {
             std::ostringstream oss;

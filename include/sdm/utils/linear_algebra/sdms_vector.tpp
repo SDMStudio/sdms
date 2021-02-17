@@ -26,9 +26,9 @@ namespace sdm
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::at(I i)
+    T sdmsVector<I, T, TBaseVector>::at(I i) const
     {
-        return this->operator[](i);
+        return TBaseVector::at(i);
     }
 
     template <class I, class T, class TBaseVector>

@@ -42,67 +42,84 @@ namespace sdm
     template <typename TState, typename TAction>
     class ZeroInitializer : public ValueInitializer<TState, TAction>
     {
+    public:
+        ZeroInitializer() : ValueInitializer<TState, TAction>(0)
+        {
+        }
     };
 
     template <typename TState, typename TAction>
-    class MaxInitializer : public Initializer<TState, TAction>
+    class BoundInitializer : public Initializer<TState, TAction>
     {
+        double value_, discount_;
+
     public:
+        BoundInitializer(double value, double discount) : value_(value), discount_(discount)
+        {
+        }
+
         void init(ValueFunction<TState, TAction> *vf)
         {
             if (vf->isInfiniteHorizon())
             {
-                assert(vf->getWorld()->getDiscount() < 1);
+                assert(this->discount_ < 1);
                 double value;
                 double factor = 0, comp = 0;
                 int n = 0;
                 do
                 {
                     comp = factor;
-                    factor += std::pow(vf->getWorld()->getDiscount(), n);
+                    factor += std::pow(this->discount_, n);
                     n++;
                 } while ((factor - comp) > 0.0001);
-                value = floor(vf->getWorld()->getRewards()[0].getMaxReward() * factor)+1;
+                value = floor(this->value_ * factor) + 1;
                 vf->initialize(value);
             }
             else
             {
                 for (int t = 0; t < vf->getHorizon(); t++)
                 {
-                    vf->initialize(vf->getWorld()->getRewards()[0].getMaxReward() * (vf->getHorizon() - t), t);
+                    vf->initialize(this->value_ * (vf->getHorizon() - t), t);
                 }
             }
         }
     };
 
     template <typename TState, typename TAction>
-    class MinInitializer : public Initializer<TState, TAction>
+    class MinInitializer : public BoundInitializer<TState, TAction>
     {
     public:
-        void init(ValueFunction<TState, TAction> *vf)
+        MinInitializer(double min_reward, double discount) : BoundInitializer<TState, TAction>(min_reward, discount)
         {
-            if (vf->isInfiniteHorizon())
-            {
-                assert(vf->getWorld()->getDiscount() < 1);
-                double value;
-                double factor = 0, comp = 0;
-                int n = 0;
-                do
-                {
-                    comp = factor;
-                    factor += std::pow(vf->getWorld()->getDiscount(), n);
-                    n++;
-                } while ((factor - comp) > 0.0001);
-                value = floor(vf->getWorld()->getRewards()[0].getMinReward() * factor);
-                vf->initialize(value);
-            }
-            else
-            {
-                for (int t = 0; t < vf->getHorizon(); t++)
-                {
-                    vf->initialize(vf->getWorld()->getRewards()[0].getMinReward() * (vf->getHorizon() - t), t);
-                }
-            }
         }
     };
+
+    template <typename TState, typename TAction>
+    class MaxInitializer : public BoundInitializer<TState, TAction>
+    {
+    public:
+        MaxInitializer(double max_reward, double discount) : BoundInitializer<TState, TAction>(max_reward, discount)
+        {
+        }
+    };
+
+    // template <typename TState, typename TAction>
+    // class MDPInitializer : public Initializer<TState, TAction>
+    // {
+    // protected:
+    //     POMDP problem_;
+    //     double discount_;
+
+    // public:
+    //     MDPInitializer(POMDP problem, double discount) : problem_(problem), discount_(discount)
+    //     {
+    //     }
+
+    //     void init(ValueFunction<TState, TAction> *vf)
+    //     {
+    //         auto algo = sdm::algo::make("mapped_hsvi", this->problem->toMDP());
+    //         algo->do_solve();
+    //         algo->getLowerBound();
+    //     }
+    // };
 } // namespace sdm

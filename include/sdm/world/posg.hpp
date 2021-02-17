@@ -112,13 +112,13 @@ namespace sdm
 
         POSG();
 
-        POSG(const POSG &posg);
+        POSG(POSG &posg);
 
-        //! \brief Construct a POSG from a SG (i.e. build observation function as identity).
+        //! \brief ruct a POSG from a SG (i.e. build observation function as identity).
         //! \param stochastic_game stochastic game
-        POSG(const SG &stochastic_game);
+        POSG(SG &stochastic_game);
 
-        //! \brief Construct a POSG from a file describing the problem.
+        //! \brief ruct a POSG from a file describing the problem.
         //! \param filename name of the file describing the POSG
         POSG(const std::string &filename);
         
@@ -138,11 +138,11 @@ namespace sdm
         //! \param state the current state
         //! \param jaction the joint action
         //! \return a tuple containing reward, next_osbservation and next_state
-        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number x, number a) const;
+        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number x, number a) ;
 
-        const ObservationDynamics &getObsDynamics() const;
+         ObservationDynamics &getObsDynamics() ;
 
-        //! \fn       double getObservationProbability(number, number, number) const
+        //! \fn       double getObservationProbability(number, number, number) 
         //! \brief    Getter for observation probability.
         //! \param    jaction a specific joint action
         //! \param    jobservation a specific joint observation
@@ -153,19 +153,19 @@ namespace sdm
         //! \brief    Getter for observation probability.
         // double getObservationProbability(std::vector<number> jaction, std::vector<number> jobservation, number state) const;
 
-        //! \fn       const Matrix& getObservations(action)
+        //! \fn        Matrix& getObservations(action)
         //! \brief    Getter for observation probabilities.
         //! \param    jaction a specific joint action (as single one)
         //! \return   the observation probabilities for the pre-defined action.
         const Matrix &getObservations(TActionSpace::value_type jaction) const;
 
-        //! \fn       const Matrix& getObservations(action)
+        //! \fn        Matrix getObservations(action)
         //! \brief    Getter for observation probabilities.
         //! \param    jaction a specific joint action
         //! \return   a matrix of probability observations for the pre-defined action.
         // const Matrix &getObservations(std::vector<number> jaction) const;
 
-        //! \fn       value getDynamics(state, action, observation, state) const
+        //! \fn       value getDynamics(state, action, observation, state) 
         //! \brief    Getter for dynamics probability.
         //! \param    cstate a specific state (timestep t)
         //! \param    jaction a specific joint action
@@ -174,7 +174,7 @@ namespace sdm
         //! \return   the dynamics probability
         double getDynamics(TStateSpace::value_type cstate, TActionSpace::value_type jaction, TObsSpace::value_type jobservation, TStateSpace::value_type nstate) const;
 
-        //! \fn       const matrix& getDynamics(action, observation) const
+        //! \fn        matrix getDynamics(action, observation) 
         //! \brief    Getter for transition matrix.
         //! \param    jaction a specific joint action
         //! \param    jobservation a specific joint observation
@@ -184,17 +184,17 @@ namespace sdm
         //! \fn std::string toStdFormat()
         //! \brief Encodes POSG class into a string (standard .posg or .dpomdp or .zsposg format).
         //! \return the resulting standard file format like string
-        std::string toStdFormat() const;
+        std::string toStdFormat() ;
 
         //! \fn std::string toXML()
         //! \brief Encodes POSG class into a string (XML format).
         //! \return the resulting XML like string
-        std::string toXML() const;
+        std::string toXML() ;
 
         //! \fn std::string toJSON()
         //! \brief Encodes POSG class into a string (JSON format).
         //! \return the resulting JSON like string
-        std::string toJSON() const;
+        std::string toJSON() ;
 
         /**
          * @fn void generateFile(std::string)
@@ -202,9 +202,9 @@ namespace sdm
          * 
          * @param filename the file name
          */
-        void generateFile(std::string) const;
+        void generateFile(std::string) ;
 
-        friend std::ostream &operator<<(std::ostream &os, const POSG &model)
+        friend std::ostream &operator<<(std::ostream &os,  POSG &model)
         {
             os << model.toXML();
             return os;

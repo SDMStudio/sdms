@@ -38,6 +38,9 @@ namespace sdm
     number num_agents_;
 
   public:
+
+    using value_type = item;
+
     Joint() : std::vector<item>() {}
     Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
     Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}

@@ -35,7 +35,7 @@ namespace sdm
   public:
     ZSPOSG();
 
-    ZSPOSG(const DecPOMDP &);
+    ZSPOSG(DecPOMDP);
 
     //! \param    state_sp the state space
     //! \param    agent_sp the agent space
@@ -45,30 +45,30 @@ namespace sdm
     //! \param    o_dyn observation dynamics
     //! \param    rew reward function common to all agents
     //! \param    start_distrib start distribution (optional)
-    ZSPOSG(const DiscreteSpace<number> &, const DiscreteSpace<number> &, const MultiDiscreteSpace<number> &, const MultiDiscreteSpace<number> &,
-           const StateDynamics &, const ObservationDynamics &, const Reward &, const Vector &);
+    ZSPOSG(DiscreteSpace<number>, DiscreteSpace<number>, MultiDiscreteSpace<number>, MultiDiscreteSpace<number>,
+           StateDynamics, ObservationDynamics, Reward, Vector);
 
     /**
      * \brief Get transition probability from joint action (as a single one) for all agents
      */
-    std::vector<double> getRewards(number state, number jaction) const;
+    std::vector<double> getRewards(number state, number jaction);
 
     /**
      * \brief Get reward from joint action for all agents 
      */
-    std::vector<double> getRewards(number state, std::vector<number> jaction) const;
+    std::vector<double> getRewards(number state, std::vector<number> jaction);
 
     /**
      * \fn double getReward(number state, number jaction, number ag_id);
      * \brief Get reward from joint action (as single one) for a specific agent 
      */
-    double getReward(number state, number jaction, number ag_id) const;
+    double getReward(number state, number jaction, number ag_id);
 
     /**
      * \fn double getReward(number state, number jaction, number ag_id);
      * \brief Get reward from joint action for a specific agent 
      */
-    double getReward(number state, std::vector<number> jaction, number ag_id) const;
+    double getReward(number state, std::vector<number> jaction, number ag_id);
   };
 
   typedef ZSPOSG ZeroSumPOSG;

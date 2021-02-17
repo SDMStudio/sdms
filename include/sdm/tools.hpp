@@ -21,6 +21,10 @@ namespace sdm
     namespace tools
     {
 
+        std::string getPathTo(std::string base, std::string world_name, std::string formalism_name);
+
+        bool hasExtension(std::string filename, std::string extension);
+
         /**
          * @brief Add indentation to input string
          * 

@@ -13,12 +13,17 @@
 #include <string>
 
 #include <sdm/types.hpp>
-#include <sdm/world/posg.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/public/algorithm.hpp>
+
 #include <sdm/core/state/state.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 
 namespace sdm
 {
+
+  template <typename TState, typename TAction>
+  class SolvableByHSVI;
+
   /**
    * @brief 
    * 
@@ -26,7 +31,7 @@ namespace sdm
    * @tparam TAction 
    */
   template <typename TState, typename TAction>
-  class HSVI
+  class HSVI : public Algorithm
   {
   protected:
     /**
@@ -40,16 +45,10 @@ namespace sdm
     std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
 
     /**
-     * @brief Heuristic search for HSVI.
-     * 
-     */
-    // std::shared_ptr<HeuristicSearch<TState, TAction>> search;
-
-    /**
      * @brief The problem to be solved.
      * 
      */
-    std::shared_ptr<POSG> world_;
+    std::shared_ptr<SolvableByHSVI<TState, TAction>> world_;
 
     /**
      * @brief Some variables for the algorithm.
@@ -80,7 +79,7 @@ namespace sdm
      * @param trials 
      * @param results 
      */
-    HSVI(std::shared_ptr<POSG> &world,
+    HSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> &world,
          std::shared_ptr<ValueFunction<TState, TAction>> lower_bound,
          std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
          number planning_horizon,
@@ -129,6 +128,9 @@ namespace sdm
      */
     void do_explore(TState s, number h);
 
+
+    void do_test();
+
     /**
      * @brief Select the greedy action
      * 
@@ -145,11 +147,6 @@ namespace sdm
      * @return TState 
      */
     TState selectNextState(TState s, TAction a, number d);
-
-    TState getInitialState();
   };
-
-  // using mdpHSVI = HSVI<number, number>;
-  // using HSVI = HSVI<BeliefState, number>;
-  // using oHSVI = HSVI<oState, DetDecisionRule>;
 } // namespace sdm
+#include <sdm/algorithms/hsvi.tpp>
