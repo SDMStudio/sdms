@@ -108,6 +108,8 @@ namespace sdm
          */
 		double getCost(number state, std::vector<number> jaction);
 
+		std::shared_ptr<POMDP> toPOMDP();
+
 		// virtual state init();
 
 		// virtual void execute(action, feedback *);

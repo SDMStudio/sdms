@@ -1,6 +1,7 @@
 
 #include <sdm/world/decpomdp.hpp>
 #include <sdm/parser/parser.hpp>
+#include <sdm/world/pomdp.hpp>
 
 namespace sdm
 {
@@ -59,6 +60,19 @@ namespace sdm
     double DecPOMDP::getCost(number state, std::vector<number> jaction)
     {
         return this->getCost(state, this->getActionSpace().joint2single(jaction));
+    }
+
+    std::shared_ptr<POMDP> DecPOMDP::toPOMDP()
+    {
+        std::vector<number> p_act(this->getActionSpace().getNumJointItems());
+        std::iota(p_act.begin(), p_act.end(), 0);
+
+        std::vector<number> p_obs(this->getObsSpace().getNumJointItems());
+        std::iota(p_obs.begin(), p_obs.end(), 0);
+
+        MultiDiscreteSpace<number> new_act_sp = MultiDiscreteSpace<number>(std::vector<std::vector<number>>{p_act});
+        MultiDiscreteSpace<number> new_obs_sp = MultiDiscreteSpace<number>(std::vector<std::vector<number>>{p_obs});
+        return std::shared_ptr<POMDP>(new POMDP(this->getStateSpace(), new_act_sp, new_obs_sp, this->getStateDynamics(), this->getObsDynamics(), this->getReward(), this->getStartDistrib()));
     }
 
 } // namespace sdm

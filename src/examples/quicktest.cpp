@@ -18,6 +18,7 @@
 #include <sdm/utils/value_function/max_plan_vf.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/world/decpomdp.hpp>
+#include <sdm/world/pomdp.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/exception.hpp>
 
@@ -40,42 +41,50 @@ int main(int argc, char **argv)
     }
 
     std::shared_ptr<DecPOMDP> dpomdp = std::make_shared<DecPOMDP>(filename);
-    // std::cout << *dpomdp << std::endl;
+    std::cout << *dpomdp << std::endl;
+
+    std::shared_ptr<DecPOMDP> pomdp = dpomdp->toPOMDP();
+    std::cout << pomdp << std::endl;
+
+    std::shared_ptr<SolvableByHSVI<BeliefState, number>> bmdp = std::make_shared<BeliefMDP<BeliefState, number, number>>(pomdp);
+    auto algo = algo::makeMappedHSVI<BeliefState, number>(bmdp, 0.75, 0.01, 3);
+    algo->do_solve();
+    algo->do_test();
 
     // Defines the different types
-    using TObservation = number;
-    using TState = number;
-    using TActionDescriptor = number;
+    // using TObservation = number;
+    // using TState = number;
+    // using TActionDescriptor = number;
 
-    using TStateDescriptor = HistoryTree_p<TObservation>;
+    // using TStateDescriptor = HistoryTree_p<TObservation>;
 
-    using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
-    using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+    // using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+    // using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
-    number h = 2;
-    double discount = 1;
+    // number h = 2;
+    // double discount = 1;
 
     // auto algo = sdm::algo::make("mapped_hsvi", filename, discount, 0.01, h, 10000);
 
     // algo->do_solve();
     // algo->do_test();
 
-    std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>> oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(dpomdp, h);
-    // std::shared_ptr<SolvableByHSVI<BeliefState, number>> oMDP = std::make_shared<BeliefMDP<BeliefState, number, number>>(dpomdp);
-    dpomdp->setDiscount(discount);
+    // std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>> oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(dpomdp, h);
+    // // std::shared_ptr<SolvableByHSVI<BeliefState, number>> oMDP = std::make_shared<BeliefMDP<BeliefState, number, number>>(dpomdp);
+    // dpomdp->setDiscount(discount);
 
-    auto lb_init = std::make_shared<sdm::MinInitializer<TStatePrescriptor, TActionPrescriptor>>(dpomdp->getReward().getMinReward(), discount);
-    auto ub_init = std::make_shared<sdm::MaxInitializer<TStatePrescriptor, TActionPrescriptor>>(dpomdp->getReward().getMaxReward(), discount);
+    // auto lb_init = std::make_shared<sdm::MinInitializer<TStatePrescriptor, TActionPrescriptor>>(dpomdp->getReward().getMinReward(), discount);
+    // auto ub_init = std::make_shared<sdm::MaxInitializer<TStatePrescriptor, TActionPrescriptor>>(dpomdp->getReward().getMaxReward(), discount);
 
-    // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> upper_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, ub_init));
-    // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> lower_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, lb_init));
-    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound(new sdm::MaxPlanValueFunction<TStatePrescriptor, TActionPrescriptor>(oMDP, h, ub_init));
-    std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound(new sdm::MaxPlanValueFunction<TStatePrescriptor, TActionPrescriptor>(oMDP, h, lb_init));
-    // std::cout << *upper_bound << std::endl;
-    // std::cout << *lower_bound << std::endl;
+    // // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> upper_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, ub_init));
+    // // std::shared_ptr<sdm::ValueFunction<BeliefState, number>> lower_bound(new sdm::MappedValueFunction<BeliefState, number>(oMDP, h, lb_init));
+    // std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound(new sdm::MaxPlanValueFunction<TStatePrescriptor, TActionPrescriptor>(oMDP, h, ub_init));
+    // std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound(new sdm::MaxPlanValueFunction<TStatePrescriptor, TActionPrescriptor>(oMDP, h, lb_init));
+    // // std::cout << *upper_bound << std::endl;
+    // // std::cout << *lower_bound << std::endl;
 
-    HSVI<TStatePrescriptor, TActionPrescriptor> algo(oMDP, lower_bound, upper_bound, h, 0.01);
-    algo.do_solve();
+    // HSVI<TStatePrescriptor, TActionPrescriptor> algo(oMDP, lower_bound, upper_bound, h, 0.01);
+    // algo.do_solve();
     // algo.do_test();
 
     // oMDP->getReward();
