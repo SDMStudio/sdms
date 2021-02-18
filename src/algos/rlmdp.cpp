@@ -24,7 +24,19 @@ int main(int argv, char **args)
         number planning_horizon, replay_memory, episodes, batch_size, hidden_state_size, target_update;
         float eps_end, eps_start, eps_decay, discount_factor, epsilon_optimal;
 
-        desc.add_options()("help", "produce help message")("planning_horizon,h", po::value<number>(&planning_horizon)->default_value(0), "set the planning horizon")("episodes,e", po::value<number>(&episodes)->default_value(10), "set the number of episodes per trial")("replay-memory-limit,r", po::value<number>(&replay_memory)->default_value(10000), "set the replay memory  limit")("optimal-epsilon,o", po::value<float>(&epsilon_optimal)->default_value(0.0001), "set the epsilon optimal parameter")("epsilon-end,i", po::value<float>(&eps_end)->default_value(0.0001), "set the epsilon exploration end value")("epsilon-start,j", po::value<float>(&eps_start)->default_value(1), "set the epsilon exploration start value")("epsilon-decay,k", po::value<float>(&eps_decay)->default_value(1000), "set the epsilon exploration decay speed")("batch-size,b", po::value<number>(&batch_size)->default_value(128), "set the batch_size")("hidden-state-size,s", po::value<number>(&hidden_state_size)->default_value(128), "set the hidden_state_size")("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target_update")("discount-factor,d", po::value<float>(&discount_factor)->default_value(0.99), "set the discount factor");
+        desc.add_options()
+				("help", "produce help message")
+				("planning_horizon,h", po::value<number>(&planning_horizon)->default_value(0), "set the planning horizon")
+				("episodes,e", po::value<number>(&episodes)->default_value(10), "set the number of episodes per trial")
+				("replay-memory-limit,r", po::value<number>(&replay_memory)->default_value(10000), "set the replay memory  limit")
+				("optimal-epsilon,o", po::value<float>(&epsilon_optimal)->default_value(0.0001), "set the epsilon optimal parameter")
+				("epsilon-end,i", po::value<float>(&eps_end)->default_value(0.0001), "set the epsilon exploration end value")
+				("epsilon-start,j", po::value<float>(&eps_start)->default_value(1), "set the epsilon exploration start value")
+				("epsilon-decay,k", po::value<float>(&eps_decay)->default_value(1000), "set the epsilon exploration decay speed")
+				("batch-size,b", po::value<number>(&batch_size)->default_value(128), "set the batch_size")
+				("hidden-state-size,s", po::value<number>(&hidden_state_size)->default_value(128), "set the hidden_state_size")
+				("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target_update")
+				("discount-factor,d", po::value<float>(&discount_factor)->default_value(0.99), "set the discount factor");
 
         po::variables_map vm;
         try

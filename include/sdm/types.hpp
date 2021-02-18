@@ -3,6 +3,8 @@
 ==============================================================================*/
 #pragma once
 
+#include <torch/torch.h>
+
 #include <cstddef>
 #include <iostream>
 #include <unordered_map>
@@ -48,6 +50,18 @@ namespace sdm
   typedef boost::bimaps::bimap<std::string, sdm::size_t> bimap;
 
   typedef typename bimap::value_type name2index;
+
+	typedef double reward;
+
+	typedef torch::Tensor history;
+
+	typedef std::tuple<history, history, std::vector<history>, sdm::action, sdm::action, reward, history, history, std::vector<history>> transition;
+
+	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>> batch;
+ 
+	typedef std::tuple<history, history, action, action, action, observation, observation, reward> pomdp_transition;
+
+	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> pomdp_batch;
 
   /**
   * Enumerator for the types of statistics that can be plotted.
