@@ -24,10 +24,12 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // DiscreteStochasticProcess<int> process({0.2, 0.2, 0.45, 0.15});
-    // std::cout << process.init() << std::endl;
-    // std::cout << process.getStartDistrib()(sdm::common::global_urng()) << std::endl;
-    // std::cout << process.nextState() << std::endl;
+    DiscreteStochasticProcess<int> process(3);
+
+    process.setStartDistrib({0.0, 1.0, 0.0});
+    std::cout << process.init() << std::endl;
+    std::cout << process.getStartDistrib()(sdm::common::global_urng()) << std::endl;
+    std::cout << process.nextState() << std::endl;
 
 
     return 0;

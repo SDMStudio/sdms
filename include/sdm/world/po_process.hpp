@@ -24,14 +24,19 @@ namespace sdm
         TObsSpace obs_spaces_;
 
     public:
+        using observation_type = typename TObsSpace::value_type;
+
         PartiallyObservableProcess();
-        PartiallyObservableProcess(const TStateSpace &, const TObsSpace &);
-        PartiallyObservableProcess(const TStateSpace &, const TObsSpace &, const Vector &);
+        PartiallyObservableProcess(TStateSpace, TObsSpace);
+        PartiallyObservableProcess(TStateSpace, TObsSpace, TDistrib);
 
         /**
          * \brief Getter for the observation spaces
          */
-        const TObsSpace &getObsSpace() const;
+        TObsSpace getObsSpace() const;
+        
+        observation_type getObservation() const;
+        
     };
 
     template <typename TStateSpace, typename TObsSpace, typename TDistrib>

@@ -131,8 +131,8 @@ namespace sdm
         //! \param    o_dyn observation dynamics
         //! \param    rews reward functions for each agent
         //! \param    start_distrib start distribution (optional)
-        POSG(const TStateSpace &, const DiscreteSpace<number> &, const TActionSpace &, const TObsSpace &,
-             const StateDynamics &, const ObservationDynamics &, const std::vector<Reward> &, const Vector &);
+        POSG(TStateSpace, DiscreteSpace<number> , TActionSpace , TObsSpace ,
+             StateDynamics, ObservationDynamics , std::vector<Reward> , Vector );
 
         //! \fn std::tuple<double, observation, state> getDynamicsGenerator(state x, action a)
         //! \param state the current state
