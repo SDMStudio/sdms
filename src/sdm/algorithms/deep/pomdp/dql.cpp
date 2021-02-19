@@ -24,7 +24,6 @@ namespace sdm{
 		std::string output_file_name,
 		std::string ib_net_filename
 	){
-		std::cout << "hey" << std::endl;
 		this->episodes = episodes;
 		this->horizon = horizon;
 		this->batch_size = batch_size;
@@ -42,23 +41,17 @@ namespace sdm{
 		this->lr = lr;
 		this->adam_eps = adam_eps;
 		this->game = game;
-		std::cout << "a" << std::endl;
 		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, device, game);
-		std::cout << "b" << std::endl;
 		this->agents =  std::make_shared<POMDP_Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
 			dim_o2 + dim_o1, dim_i, game->getNumActions(0) * game->getNumActions(1),
 			game, device, lr, adam_eps, ib_net_filename
 		);
-		std::cout << "c" << std::endl;
 		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size);
-		std::cout << "d" << std::endl;
 		this->output_file.open(output_file_name);
 		this->GAMMA = game->getDiscount();
-		std::cout << "yo" << std::endl;
 		initialize();
-		std::cout << "man" << std::endl;
 	}
 
 	action DQL::get_a_from_u2_u1(action u2, action u1){

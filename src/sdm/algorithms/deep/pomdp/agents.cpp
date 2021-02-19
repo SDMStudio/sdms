@@ -7,13 +7,11 @@ namespace sdm{
 		number agents_policy_net_input_dim, number agents_policy_net_inner_dim, number agents_policy_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, std::string ib_net_filename
 	){
-		std::cout << "looooooo" << std::endl;
 		this->agents_all_nets = DRQN(
 			agent_2_history_transition_net_input_dim, agent_2_history_transition_net_hidden_dim,
 			agent_1_history_transition_net_input_dim, agent_1_history_transition_net_hidden_dim,
 			agents_policy_net_input_dim, agents_policy_net_inner_dim, agents_policy_net_output_dim
 		);
-		std::cout << "laaaaaaaaa" << std::endl;
 		this->agents_all_nets->to(device);
 
 		
@@ -25,51 +23,25 @@ namespace sdm{
 		this->agents_target_net = DQN(agents_policy_net_input_dim, agents_policy_net_inner_dim, agents_policy_net_output_dim);
 		// this->agent_2_target_history_transition_net = RNN(agent_2_history_transition_net_input_dim, agent_2_history_transition_net_hidden_dim);
 		// this->agent_1_target_history_transition_net = RNN(agent_1_history_transition_net_input_dim, agent_1_history_transition_net_hidden_dim);
-		std::cout << "leeeeeeeee" << std::endl;
 
 		// Put the nets the correct device (CPU/GPU).
 		// this->agent_2_history_transition_net->to(device);
 		// this->agent_1_history_transition_net->to(device);
 		// this->agents_policy_net->to(device);
 		this->agents_target_net->to(device);
-		std::cout << "liiiiiii" << std::endl;
-
 		// this->agent_2_target_history_transition_net->to(device);
 		// this->agent_1_target_history_transition_net->to(device);
 
 		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
-
-		std::cout << "zeeeeeee" << std::endl;
-
-
 		this->uniform_action_distribution = std::uniform_int_distribution<int>(0, game->getNumActions(0) * game->getNumActions(1) - 1);
-
-		std::cout << "zaaaaaaaaaaa" << std::endl;
-
-
 		torch::optim::AdamOptions options;
-		std::cout << "zooooooo" << std::endl;
-
 		options.eps(adam_eps);
 		options.lr(lr);
 		this->optimizer = std::make_shared<torch::optim::Adam>(agents_all_nets->parameters(), options);
-
-		std::cout << "zuuuuuuuu" << std::endl;
-
-
 		this->device = device;
-
-		std::cout << "xxxxxx" << std::endl;
-
-		
 		this->game = game;
-		std::cout << "eeeeeee" << std::endl;
-
 		this->ib_net_filename = ib_net_filename;
-		std::cout << "cccccc" << std::endl;
-
 		update_target_net();
-		std::cout << "looooooo" << std::endl;
 	}
 
 	void POMDP_Agents::save_induced_bias(){
@@ -79,6 +51,7 @@ namespace sdm{
 		ib_transition_net_0_filename.append(ib_net_filename);
 		ib_transition_net_0_filename.append("_transition_net_0.pt");
 		torch::save(agents_all_nets->rnn_2, ib_transition_net_0_filename);
+
 
 		std::string ib_transition_net_1_filename;
 		ib_transition_net_1_filename.append("../models");
@@ -181,47 +154,13 @@ namespace sdm{
 	}
 
 	void POMDP_Agents::update_target_net(){
-		std::cout << "mmmmm" << std::endl;
-
 		// Create std::stringstream stream.
 		std::stringstream stream;
-		std::cout << "q" << std::endl;
-
 		// Save the parameters of agent 1's policy net into the stream.
 		torch::save(agents_all_nets->dqn, stream);
-		std::cout << "p" << std::endl;
-
-		for (auto param: agents_all_nets->dqn->parameters()){
-			std::cout << param << std::endl;
-		}
-
-		std::cout << "AAAAAAAAAAAAAAAAA" << std::endl;
-
-
-		for (auto param: agents_target_net->parameters()){
-			std::cout << param << std::endl;
-		}
-
-		std::cout << agents_all_nets->dqn << std::endl;
-		std::cout << agents_target_net << std::endl;
-
-		// std::cout << stream.str() << std::endl;
-
-		
-
-
 		// Load those weights from the stream into agent 1's target net.
 		torch::load(agents_target_net, stream);
-		std::cout << "nnnnnnnnn" << std::endl;
 
-
-		// std::stringstream stream_2;
-		// torch::save(agents_all_nets->rnn_2, stream_2);
-		// torch::load(agent_2_target_history_transition_net, stream_2);
-		// //
-		// std::stringstream stream_1;
-		// torch::save(agents_all_nets->rnn_1, stream_1);
-		// torch::load(agent_1_target_history_transition_net, stream_1);
 		save_induced_bias();
 	}
 }

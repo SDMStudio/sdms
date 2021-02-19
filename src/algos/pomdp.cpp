@@ -91,27 +91,27 @@ int main(int argv, char** args){
 
 		game->setPlanningHorizon(horizon);
 
-		std::cout << "episodes " << episodes << std::endl;
-		std::cout << "horizon " << horizon << std::endl;
-		std::cout << "batch_size " << batch_size << std::endl;
-		std::cout << "i_batch_size " << i_batch_size << std::endl;
-		std::cout << "dim_o2 " << dim_o2 << std::endl;
-		std::cout << "dim_o1 " << dim_o1 << std::endl;
-		std::cout << "target_update " << target_update << std::endl;
-		std::cout << "dim_i " << dim_i << std::endl;
-		std::cout << "print_every " << print_every << std::endl;
-		std::cout << "eps_end " << eps_end << std::endl;
-		std::cout << "eps_start " << eps_start << std::endl;
-		std::cout << "eps_decay " << eps_decay << std::endl;
-		std::cout << "discount_factor " << discount_factor << std::endl;
-		std::cout << "rolling_factor " << rolling_factor << std::endl;
-		std::cout << "lr " << lr << std::endl;
-		std::cout << "adam_eps " << adam_eps << std::endl;
-		std::cout << "device " << device << std::endl;
-		std::cout << "game " << game << std::endl;
-		std::cout << "replay_memory_size " << replay_memory_size << std::endl;
-		std::cout << "output_file_name " << output_file_name << std::endl;
-		std::cout << "ib_net_filename " << ib_net_filename << std::endl;
+		// std::cout << "episodes " << episodes << std::endl;
+		// std::cout << "horizon " << horizon << std::endl;
+		// std::cout << "batch_size " << batch_size << std::endl;
+		// std::cout << "i_batch_size " << i_batch_size << std::endl;
+		// std::cout << "dim_o2 " << dim_o2 << std::endl;
+		// std::cout << "dim_o1 " << dim_o1 << std::endl;
+		// std::cout << "target_update " << target_update << std::endl;
+		// std::cout << "dim_i " << dim_i << std::endl;
+		// std::cout << "print_every " << print_every << std::endl;
+		// std::cout << "eps_end " << eps_end << std::endl;
+		// std::cout << "eps_start " << eps_start << std::endl;
+		// std::cout << "eps_decay " << eps_decay << std::endl;
+		// std::cout << "discount_factor " << discount_factor << std::endl;
+		// std::cout << "rolling_factor " << rolling_factor << std::endl;
+		// std::cout << "lr " << lr << std::endl;
+		// std::cout << "adam_eps " << adam_eps << std::endl;
+		// std::cout << "device " << device << std::endl;
+		// std::cout << "game " << game << std::endl;
+		// std::cout << "replay_memory_size " << replay_memory_size << std::endl;
+		// std::cout << "output_file_name " << output_file_name << std::endl;
+		// std::cout << "ib_net_filename " << ib_net_filename << std::endl;
 
 		DQL dql(
 			episodes, 
@@ -120,7 +120,7 @@ int main(int argv, char** args){
 			device, game, replay_memory_size, output_file_name, ib_net_filename
 		);
 
-		// dql.solve();
+		dql.solve();
 
 	} catch(std::exception& e){
     std::cerr << "Unhandled Exception reached the top of main: " << e.what() << ", application will now exit" << std::endl;
