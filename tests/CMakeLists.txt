@@ -12,14 +12,14 @@ add_definitions (-DBOOST -DDENSE -DBOOST_TEST_DYN_LINK)
 
 add_executable (test_world test_world.cpp) 
 target_link_libraries(test_world
-  ${LIB_SDMS}
-  ${Boost_LIBRARIES}
   ${TORCH_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${LIB_SDMS}
   )
 
 add_executable (test_space test_space.cpp) 
 target_link_libraries(test_space
-  ${LIB_SDMS}
-  ${Boost_LIBRARIES}
   ${TORCH_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${LIB_SDMS}
   )

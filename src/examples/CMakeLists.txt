@@ -7,7 +7,7 @@ file(
 foreach(f ${usage_examples})
   get_filename_component(exampleName ${f} NAME_WE) 
   add_executable (${exampleName} ${f}) 
-  target_link_libraries(${exampleName} ${LIB_SDMS} ${Boost_LIBRARIES} ${TORCH_LIBRARIES})
+  target_link_libraries(${exampleName} ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${LIB_SDMS})
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${exampleName}
     DESTINATION bin/
     RENAME "sdms-${exampleName}")
