@@ -150,7 +150,7 @@ namespace sdm{
 
 	std::tuple<observation, observation, reward> ExtensiveFormDQL::act(){
 		action u = get_a_from_u2_u1(u2[i], u1s[i][m]);
-		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(xs[i][m], u);
+		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(xs[i][m_star], u);
 		std::vector<reward> rs = std::get<0>(r_z_next_x);
 		observation z = std::get<1>(r_z_next_x);
 		std::vector<observation> z2_z1 = game->getObsSpace().single2joint(z);
@@ -207,13 +207,13 @@ namespace sdm{
 		for(int i = 0; i < i_batch_size; i++){
 			u1s.push_back(initiate_u1s());
 		}
-		z1s = {};
-		for(int i = 0; i < i_batch_size; i++){
-			z1s.push_back(initiate_z1s());
-		}
 		z2s = {};
 		for(int i = 0; i < i_batch_size; i++){
 			z2s.push_back(initiate_z1s());
+		}
+		z1s = {};
+		for(int i = 0; i < i_batch_size; i++){
+			z1s.push_back(initiate_z1s());
 		}
 		rs = {};
 		for(int i = 0; i < i_batch_size; i++){
@@ -223,18 +223,17 @@ namespace sdm{
 	}
 
 	void ExtensiveFormDQL::update_replay_memory(){
-		// Create transition
-		transition t = std::make_tuple(o2s[i][m_star], o1s[i][m_star], o1s[i], u2[i], u1s[i][m], rs[i][m], next_o2s[i][m], next_o1s[i][m], next_o1s[i]);
-		// Push it to the replay memory.
-		replay_memory->push(t);
+		for(m = 0; m < sampling_memory_size; m++){
+			// Create transition
+			transition t = std::make_tuple(o2s[i][m_star], o1s[i][m], o1s[i], u2[i], u1s[i][m], rs[i][m], next_o2s[i][m], next_o1s[i][m], next_o1s[i]);
+			// Push it to the replay memory.
+			replay_memory->push(t);
+		}
 	}
 
 	void ExtensiveFormDQL::determine_branch(){
 		m_star = uniform_m_distribution(random_engine);
 		// m_star = sampling_memory_size - 1;
-		for(m = 0; m < sampling_memory_size; m++){
-			next_xs[i][m] = next_xs[i][m_star];
-		}
 	}
 
 	void ExtensiveFormDQL::end_step(){
@@ -242,7 +241,7 @@ namespace sdm{
 		determine_branch();
 		// Update the state.
 		xs[i] = next_xs[i];
-		// Update the history of agent 2.
+		// Update the histories of agent 2.
 		o2s[i] = next_o2s[i];
 		// Update the histories of agent 1.
 		o1s[i] = next_o1s[i];
@@ -291,10 +290,10 @@ namespace sdm{
 						std::tie(z2s[i][m], z1s[i][m], rs[i][m]) = act();
 						next_o2s[i][m] = agents->get_next_history_2(o2s[i][m_star], u2[i], z2s[i][m]);
 						next_o1s[i][m] = agents->get_next_history_1(o1s[i][m_star], u1s[i][m], z1s[i][m]);
-						R += pow(GAMMA, step) * (rs[i][m] / (i_batch_size * sampling_memory_size));
-						update_replay_memory();
-						update_models();
+						R += pow(GAMMA, step) * (rs[i][m] / (i_batch_size * sampling_memory_size));	
 					}
+					update_replay_memory();
+					update_models();
 					end_step();
 				}
 			}
