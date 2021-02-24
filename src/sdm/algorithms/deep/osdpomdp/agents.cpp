@@ -2,18 +2,18 @@
 
 namespace sdm{
 	Agents::Agents(
-		number agent_2_history_transition_net_input_dim, number agent_2_history_transition_net_hidden_dim, 
-		number agent_1_history_transition_net_input_dim, number agent_1_history_transition_net_hidden_dim, 
+		number agent_2_transition_net_input_dim, number agent_2_transition_net_hidden_dim, 
+		number agent_1_transition_net_input_dim, number agent_1_transition_net_hidden_dim, 
 		number agent_1_policy_net_input_dim, number agent_1_policy_net_inner_dim, number agent_1_policy_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, bool induced_bias, std::string ib_net_filename, number sampling_memory_size
 	){
-		this->agent_2_history_transition_net = RNN(agent_2_history_transition_net_input_dim, agent_2_history_transition_net_hidden_dim);
-		this->agent_1_history_transition_net = RNN(agent_1_history_transition_net_input_dim, agent_1_history_transition_net_hidden_dim);
-		this->agent_1_policy_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
-		this->agent_1_target_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
+		this->agent_2_transition_net = Transition_Network(agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim);
+		this->agent_1_transition_net = Transition_Network(agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim);
+		this->agent_1_policy_net = Q_Network(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
+		this->agent_1_target_net = Q_Network(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
 		// Put the nets the correct device (CPU/GPU).
-		this->agent_2_history_transition_net->to(device);
-		this->agent_1_history_transition_net->to(device);
+		this->agent_2_transition_net->to(device);
+		this->agent_1_transition_net->to(device);
 		this->agent_1_policy_net->to(device);
 		this->agent_1_target_net->to(device);
 
@@ -33,29 +33,29 @@ namespace sdm{
 		this->sampling_memory_size = sampling_memory_size;
 		update_target_net();
 		if (induced_bias){
-			number dim_o2 = agent_2_history_transition_net_hidden_dim;
-			number dim_o1 = agent_1_history_transition_net_hidden_dim;
+			number dim_o2 = agent_2_transition_net_hidden_dim;
+			number dim_o1 = agent_1_transition_net_hidden_dim;
 			// Initialize the induced bias target net with the same dimensions as the policy net of the POMDP.
-			this->induced_bias_target_net = DQN(dim_o2 + dim_o1, dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
+			this->induced_bias_target_net = Q_Network(dim_o2 + dim_o1, dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
 			this->induced_bias_target_net->to(device);
 			initialize_induced_bias(ib_net_filename);
 		}
 	}
 
 	void Agents::initialize_induced_bias(std::string ib_net_filename){
-		std::string ib_transition_net_0_filename;
-		ib_transition_net_0_filename.append("../models");
-		ib_transition_net_0_filename.append("/");
-		ib_transition_net_0_filename.append(ib_net_filename);
-		ib_transition_net_0_filename.append("_transition_net_0.pt");
-		torch::load(agent_2_history_transition_net, ib_transition_net_0_filename);
+		std::string ib_transition_net_2_filename;
+		ib_transition_net_2_filename.append("../models");
+		ib_transition_net_2_filename.append("/");
+		ib_transition_net_2_filename.append(ib_net_filename);
+		ib_transition_net_2_filename.append("_transition_net_2.pt");
+		torch::load(agent_2_transition_net, ib_transition_net_2_filename);
 
 		std::string ib_transition_net_1_filename;
 		ib_transition_net_1_filename.append("../models");
 		ib_transition_net_1_filename.append("/");
 		ib_transition_net_1_filename.append(ib_net_filename);
 		ib_transition_net_1_filename.append("_transition_net_1.pt");
-		torch::load(agent_1_history_transition_net, ib_transition_net_1_filename);
+		torch::load(agent_1_transition_net, ib_transition_net_1_filename);
 
 		std::string ib_target_net_filename;
 		ib_target_net_filename.append("../models");
@@ -139,7 +139,7 @@ namespace sdm{
 		// Put it to GPU if needed.
 		o2 = o2.to(device);
 		// Get next_h0, put it back to CPU (if it was in GPU), and remove the batch dimension.
-		return agent_2_history_transition_net(u2_z2, o2).cpu().squeeze();
+		return agent_2_transition_net(u2_z2, o2).cpu().squeeze();
 	}
 
 	history Agents::get_next_history_1(history o1, action u1, observation z1){
@@ -152,7 +152,7 @@ namespace sdm{
 		// Put it to GPU if needed.
 		o1 = o1.to(device);
 		// Get next_h1, put it back to CPU (if it was in GPU), and remove the batch dimension.
-		return agent_1_history_transition_net(u1_z1, o1).cpu().squeeze();
+		return agent_1_transition_net(u1_z1, o1).cpu().squeeze();
 	}
 
 	torch::Tensor Agents::recast_u2_z2(action u2, observation z2){

@@ -22,17 +22,17 @@ namespace sdm{
 	struct ExtensiveFormDQL {
 		//
 		std::ofstream output_file;
-		//
+		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
-		//
+		// Current episode.
 		int episode;
-		// number of epidoes.
+		// Total number of epidoes.
 		int episodes;
-		//
+		// Indice of parallel world, used to collect more data.
 		number i;
-		//
+		// Indice of which sampling world we're in.
 		number m;
-		//
+		// The world that choose to follow from the previous step.
 		number m_star;
 		number horizon, batch_size, i_batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, step;
 		float eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, epsilon, GAMMA, alpha_decay, alpha;

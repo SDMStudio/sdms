@@ -28,21 +28,18 @@ namespace sdm{
 		int episode;
 		// number of epidoes.
 		int episodes;
-		//
-		number i;
-		number horizon, batch_size, i_batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, step;
+		number horizon, batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, step;
 		float eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, epsilon, GAMMA;
 		double q_value_loss;
 		// Discounted cumulative reward at the end of the episode. 
 		reward R;
 		// E[R]
 		reward E_R;
-		std::vector<reward> r;
-		// std::vector<history> o2, next_o2;
-		std::vector<action> u2, u1, u2_u1;
-		std::vector<state> x, next_x;
-		std::vector<observation> z1, z2;
-		std::vector<history> o2, next_o2, o1, next_o1;
+		reward r;
+		action u2, u1, u2_u1;
+		state x, next_x;
+		observation z1, z2;
+		history o2, next_o2, o1, next_o1;
 		std::shared_ptr<POMDP_ModelsUpdateRules> models_update_rules;
 		std::shared_ptr<POMDP_ReplayMemory> replay_memory;
 		std::shared_ptr<POMDP_Agents> agents;
@@ -51,7 +48,7 @@ namespace sdm{
 		// Initialize the method for solving the problem.
 		DQL(
 			int, 
-			number, number, number, number, number, number, number, number, 
+			number, number, number, number, number, number, number, 
 			float, float, float, float, float, float, float, 
 			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string, std::string
 		);

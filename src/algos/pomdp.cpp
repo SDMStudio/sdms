@@ -10,7 +10,7 @@ int main(int argv, char** args){
 
 		std::string filename, output_file_name, ib_net_filename;
 		int episodes;
-    number horizon, replay_memory_size, batch_size, i_batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, seed;
+    number horizon, replay_memory_size, batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, seed;
     float eps_end, eps_start, eps_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
 		bool gpu;
 
@@ -27,7 +27,6 @@ int main(int argv, char** args){
     ("eps-start", po::value<float>(&eps_start)->default_value(1), "set the epsilon exploration start value")
     ("eps-decay,j", po::value<float>(&eps_decay)->default_value(1000), "set the epsilon exploration decay speed")
     ("batch-size,b", po::value<number>(&batch_size)->default_value(128), "set the batch size")
-		("i-batch-size,l", po::value<number>(&i_batch_size)->default_value(1), "set the i batch size")
     ("o2", po::value<number>(&dim_o2)->default_value(128), "set the history size of agent 0")
     ("o1", po::value<number>(&dim_o1)->default_value(128), "set the history size of agent 1")
     ("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target update")
@@ -115,7 +114,7 @@ int main(int argv, char** args){
 
 		DQL dql(
 			episodes, 
-			horizon, batch_size, i_batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, 
+			horizon, batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, 
 			eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, 
 			device, game, replay_memory_size, output_file_name, ib_net_filename
 		);

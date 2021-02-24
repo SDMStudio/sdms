@@ -23,7 +23,7 @@ namespace sdm{
 		//
 		std::string ib_net_filename;
 		// Initialize the Agents.
-		POMDP_Agents(number, number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);
+		POMDP_Agents(number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);
 		// C++ random number engine.
 		std::default_random_engine random_engine;
 		// Uniform epsilon distribution, returns random double between 0 and 1.
@@ -33,7 +33,8 @@ namespace sdm{
 		// Optimizer.
 		std::shared_ptr<torch::optim::Adam> optimizer;
 		//
-		DRQN agents_all_nets{nullptr};
+		DRQN policy_drqn{nullptr};
+		DRQN target_drqn{nullptr};
 		// // Policy net of agents.
 		// DQN agents_policy_net{nullptr};
 
@@ -41,7 +42,7 @@ namespace sdm{
 
 		// RNN agent_1_history_transition_net{nullptr};
 		// The Target Network is a delayed copy of the Policy Network of Agents. Its purpose is to not have moving targets during update of networks.
-		DQN agents_target_net{nullptr};
+
 		// RNN agent_2_target_history_transition_net{nullptr};
 		// RNN agent_1_target_history_transition_net{nullptr};
 		// CPU or GPU.

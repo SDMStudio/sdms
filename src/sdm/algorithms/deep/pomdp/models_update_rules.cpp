@@ -27,13 +27,13 @@ namespace sdm{
 		
 		std::tie(o2_batch, o1_batch, u2_batch, u1_batch, index_u2_u1_batch, z2_batch, z1_batch, r_batch) = b;
 
-		torch::Tensor next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->agents_all_nets->rnn_2);
+		torch::Tensor next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->policy_drqn->trans_net_2);
 
-		torch::Tensor next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->agents_all_nets->rnn_1);
+		torch::Tensor next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_drqn->trans_net_1);
 
-		torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->agents_all_nets->dqn);
+		torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_drqn->q_net);
 
-		torch::Tensor target_q_values = get_target_q_values(next_o2_batch, next_o1_batch, r_batch, agents->agents_target_net);
+		torch::Tensor target_q_values = get_target_q_values(next_o2_batch, next_o1_batch, r_batch, agents->target_drqn->q_net);
 		
 		torch::Tensor loss = at::smooth_l1_loss(q_values, target_q_values);
 
@@ -42,17 +42,17 @@ namespace sdm{
 		return loss.item<double>();
 	}
 
-	torch::Tensor POMDP_ModelsUpdateRules::get_next_history_batch(torch::Tensor u_batch, torch::Tensor z_batch, torch::Tensor o_batch, RNN& transition_net){
+	torch::Tensor POMDP_ModelsUpdateRules::get_next_history_batch(torch::Tensor u_batch, torch::Tensor z_batch, torch::Tensor o_batch, Transition_Network& transition_net){
 		torch::Tensor u_z_batch = torch::cat({u_batch, z_batch}, 1);
 		return transition_net(u_z_batch, o_batch);
 	}
 
-	torch::Tensor POMDP_ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor index_u2_u1_batch, DQN& policy_net){
+	torch::Tensor POMDP_ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor index_u2_u1_batch, Q_Network& policy_net){
 		torch::Tensor o2_o1_batch = torch::cat({o2_batch, o1_batch}, 1);
 		return policy_net(o2_o1_batch).gather(-1, index_u2_u1_batch);
 	}
 
-	torch::Tensor POMDP_ModelsUpdateRules::get_target_q_values(torch::Tensor next_o2_batch, torch::Tensor next_o1_batch, torch::Tensor r_batch, DQN& target_net){
+	torch::Tensor POMDP_ModelsUpdateRules::get_target_q_values(torch::Tensor next_o2_batch, torch::Tensor next_o1_batch, torch::Tensor r_batch, Q_Network& target_net){
 		torch::Tensor no2_no1_batch = torch::cat({next_o2_batch, next_o1_batch}, 1);
 		torch::NoGradGuard no_grad;
 		torch::Tensor next_state_values = std::get<0>(target_net(no2_no1_batch).max(1));
@@ -67,7 +67,7 @@ namespace sdm{
 		// Backpropagate the gradients of the loss.
 		loss.backward();
 		// For every parameter in 
-		for (auto param: agents->agents_all_nets->dqn->parameters()){
+		for (auto param: agents->policy_drqn->q_net->parameters()){
 			// Clamp its gradient between [-1, 1] to avoid ...
 			param.grad().data().clamp_(-1, 1);
 		}
