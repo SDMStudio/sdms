@@ -36,7 +36,7 @@ namespace sdm{
 			number dim_o2 = agent_2_transition_net_hidden_dim;
 			number dim_o1 = agent_1_transition_net_hidden_dim;
 			// Initialize the induced bias target net with the same dimensions as the policy net of the POMDP.
-			this->induced_bias_target_net = Q_Network(dim_o2 + dim_o1, dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
+			this->induced_bias_target_net = Q_Network(dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
 			this->induced_bias_target_net->to(device);
 			initialize_induced_bias(ib_net_filename);
 		}
