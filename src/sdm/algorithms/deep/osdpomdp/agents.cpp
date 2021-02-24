@@ -4,7 +4,7 @@ namespace sdm{
 	Agents::Agents(
 		number agent_2_transition_net_input_dim, number agent_2_transition_net_hidden_dim, 
 		number agent_1_transition_net_input_dim, number agent_1_transition_net_hidden_dim, 
-		number agent_1_policy_net_input_dim, number agent_1_policy_net_inner_dim, number agent_1_policy_net_output_dim, 
+		number agent_1_policy_net_input_dim, number agent_1_policy_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, bool induced_bias, std::string ib_net_filename, number sampling_memory_size
 	){
 		this->agent_2_transition_net = Transition_Network(agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim);
