@@ -50,7 +50,7 @@ namespace sdm{
 		return loss.item<double>();
 	}
 
-	torch::Tensor ModelsUpdateRules::get_next_u2_batch(torch::Tensor next_o2_batch, torch::Tensor next_all_o1s_batch, std::vector<torch::Tensor> next_all_o1_batches, DQN& agent_1_policy_net){
+	torch::Tensor ModelsUpdateRules::get_next_u2_batch(torch::Tensor next_o2_batch, torch::Tensor next_all_o1s_batch, std::vector<torch::Tensor> next_all_o1_batches, Q_Network& agent_1_policy_net){
 		// Initalize Tensor for a_{t+1}^{0}.
 		torch::Tensor next_u2_batch;
 		{
@@ -110,7 +110,7 @@ namespace sdm{
 		return next_u2_batch;
 	}
 
-	torch::Tensor ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor u2_batch, torch::Tensor all_o1s_batch, torch::Tensor index_u1_batch, DQN& agent_1_policy_net){
+	torch::Tensor ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor u2_batch, torch::Tensor all_o1s_batch, torch::Tensor index_u1_batch, Q_Network& agent_1_policy_net){
 		// Construct the input to agent 1's policy net by concatonating o_{t}^{0}, \{o_{t}^{1, (m)}\}, a_{t}^{0}, and \{o_{t}^{1}\}.
 		torch::Tensor o2_o1_u2_u21s_batch = torch::cat({o2_batch, o1_batch, u2_batch, all_o1s_batch}, 1);
 		// Put it to agent_1's policy net and get q values for each possible private action. Then using \{a_{t}^{1, (m)}\} select which ones are the relevant ones. Return it.
