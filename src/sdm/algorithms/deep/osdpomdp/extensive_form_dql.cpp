@@ -34,7 +34,6 @@ namespace sdm{
 		this->dim_o2 = dim_o2;
 		this->dim_o1 = dim_o1;
 		this->target_update = target_update;
-		this->dim_i1 = dim_i1;
 		this->sampling_memory_size = sampling_memory_size;
 		this->print_every = print_every;
 		this->eps_end = eps_end;
@@ -50,7 +49,7 @@ namespace sdm{
 		this->agents =  std::make_shared<Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
-			dim_o2 + dim_o1 + game->getNumActions(0) + dim_o1 * sampling_memory_size, dim_i1, game->getNumActions(1),
+			dim_o2 + dim_o1 + game->getNumActions(0) + dim_o1 * sampling_memory_size, game->getNumActions(1),
 			game, device, lr, adam_eps, induced_bias, ib_net_filename, sampling_memory_size
 		);
 		this->replay_memory = std::make_shared<ReplayMemory>(replay_memory_size);

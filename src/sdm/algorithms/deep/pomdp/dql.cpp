@@ -29,7 +29,6 @@ namespace sdm{
 		this->dim_o2 = dim_o2;
 		this->dim_o1 = dim_o1;
 		this->target_update = target_update;
-		this->dim_i = dim_i;
 		this->print_every = print_every;
 		this->eps_end = eps_end;
 		this->eps_start = eps_start;
@@ -43,7 +42,7 @@ namespace sdm{
 		this->agents =  std::make_shared<POMDP_Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
-			dim_o2 + dim_o1, dim_i, game->getNumActions(0) * game->getNumActions(1),
+			dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1),
 			game, device, lr, adam_eps, ib_net_filename
 		);
 		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size);
