@@ -40,9 +40,9 @@ namespace sdm{
 		// Construct the batch which is made up of Tensors of correct dimensions and in the correct device (CPU/GPU).
 		batch construct_batch(std::vector<transition>);
 		// a_{t+1}^{0} = \arg \max_{a''}\frac{\sum_{n=0}^{M-1}\max_{a'}{Q}^{1}(o_{t+1}^{0}, o_{t+1}^{1, (n)}, a'', a', \{o_{t+1}^{1}\}_{m=0}^{M-1})}{\left | M \right |}
-		torch::Tensor get_next_u2_batch(torch::Tensor, torch::Tensor, std::vector<torch::Tensor>, DQN&);
+		torch::Tensor get_next_u2_batch(torch::Tensor, torch::Tensor, std::vector<torch::Tensor>, Q_Network&);
 		// {Q}_{t}^{1} = {Q}^{1}(o_{t}^{0}, o_{t}^{1, (n)}, a_{t}^{0}, a_{t}^{1, (n)}, \{o_{t}^{1, (m))}\}_{m=0}^{M-1})
-		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
+		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, Q_Network&);
 		// {TargetQ}_{t}^{1} = r_{t} + \gamma \cdot \left [(1-\alpha) \cdot \max_{a'}  \mathbf{Q}^{1}(o_{t+1}^{0}, o_{t+1}^{1,(n)}, a_{t+1}^{0}, a', \{o_{t+1}^{1, (m)}\}_{m=0}^{M-1}) + \alpha \cdot (\max_{a'}  {Q}^{InducedBias}(o_{t+1}^{0}, o_{t+1}^{1,(n)}, a')) \right]
 		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::shared_ptr<Agents>&, float);
 		// Update the parameters of agent 1's policy net.
