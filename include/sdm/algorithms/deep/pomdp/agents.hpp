@@ -23,7 +23,7 @@ namespace sdm{
 		//
 		std::string ib_net_filename;
 		// Initialize the Agents.
-		POMDP_Agents(number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);
+		POMDP_Agents(number, number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);
 		// C++ random number engine.
 		std::default_random_engine random_engine;
 		// Uniform epsilon distribution, returns random double between 0 and 1.

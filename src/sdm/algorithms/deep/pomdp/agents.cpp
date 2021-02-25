@@ -4,20 +4,20 @@ namespace sdm{
 	POMDP_Agents::POMDP_Agents(
 		number agent_2_transition_net_input_dim, number agent_2_transition_net_hidden_dim, 
 		number agent_1_transition_net_input_dim, number agent_1_transition_net_hidden_dim, 
-		number agents_q_net_input_dim, number agents_q_net_output_dim, 
+		number agents_q_net_input_dim, number agents_q_net_inner_dim, number agents_q_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, std::string ib_net_filename
 	){
 		this->policy_drqn = DRQN(
 			agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim,
 			agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim,
-			agents_q_net_input_dim, agents_q_net_output_dim
+			agents_q_net_input_dim, agents_q_net_inner_dim, agents_q_net_output_dim
 		);
 		this->policy_drqn->to(device);
 
 		this->target_drqn = DRQN(
 			agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim,
 			agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim,
-			agents_q_net_input_dim, agents_q_net_output_dim
+			agents_q_net_input_dim, agents_q_net_inner_dim, agents_q_net_output_dim
 		);
 		this->target_drqn->to(device);
 

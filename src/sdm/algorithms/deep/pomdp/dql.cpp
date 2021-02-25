@@ -6,7 +6,8 @@ namespace sdm{
 		number horizon, 
 		number batch_size,
 		number dim_o2, 
-		number dim_o1, 
+		number dim_o1,
+		number dim_i, 
 		number target_update, 
 		number print_every,
 		number tao,
@@ -41,7 +42,7 @@ namespace sdm{
 		this->agents =  std::make_shared<POMDP_Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
-			dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1),
+			dim_o2 + dim_o1, dim_i, game->getNumActions(0) * game->getNumActions(1),
 			game, device, lr, adam_eps, ib_net_filename
 		);
 		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size, tao, horizon);

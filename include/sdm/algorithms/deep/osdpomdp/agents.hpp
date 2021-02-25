@@ -35,15 +35,15 @@ namespace sdm{
 		// Optimizer.
 		std::shared_ptr<torch::optim::Adam> optimizer;
 		// Policy net of agent 1.
-		Q_Network agent_1_policy_net{nullptr};
+		DQN agent_1_policy_net{nullptr};
 
 		Transition_Network agent_2_transition_net{nullptr};
 
 		Transition_Network agent_1_transition_net{nullptr};
 		// The Target Network is a delayed copy of the Policy Network of Agent 1. Its purpose is to not have moving targets during update of networks.
-		Q_Network agent_1_target_net{nullptr};
+		DQN agent_1_target_net{nullptr};
 		// The policy_net of the POMDP. 
-		Q_Network induced_bias_target_net{nullptr};
+		DQN induced_bias_target_net{nullptr};
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
 		// Given history o2 and histories o1s get epsilon-greedy action u2.

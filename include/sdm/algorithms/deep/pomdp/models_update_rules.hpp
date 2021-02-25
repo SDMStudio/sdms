@@ -39,9 +39,9 @@ namespace sdm{
 
 		torch::Tensor get_next_history_batch(torch::Tensor, torch::Tensor, torch::Tensor, Transition_Network&);
 
-		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, Q_Network&);
+		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
 		
-		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, torch::Tensor, Q_Network&);
+		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
 		// Update the parameters of 
 		void update_nets(std::shared_ptr<POMDP_Agents>&, torch::Tensor);
 	};

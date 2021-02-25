@@ -46,8 +46,8 @@ namespace sdm{
 		for (int i = 0; i < batch_size; i++){
 			//
 			int starting_indice = uniform_transitions_distribution(random_engine);
-			for (int j = 0; j < tao; j++){
-				recurrent_transitions_vector[j].push_back(episodes_selected[i][starting_indice + j]);
+			for (int t = 0; t < tao; t++){
+				recurrent_transitions_vector[t].push_back(episodes_selected[i][starting_indice + t]);
 			}
 		}
 		// Return recurrent_transitions_vector.

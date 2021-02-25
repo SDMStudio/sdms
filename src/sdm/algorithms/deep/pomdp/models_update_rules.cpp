@@ -61,7 +61,7 @@ namespace sdm{
 		}
 
 		update_nets(agents, loss);
-		//
+		// Return the lossfor tracking purposes
 		return loss.item<double>();
 	}
 
@@ -70,12 +70,12 @@ namespace sdm{
 		return transition_net(u_z_batch, o_batch);
 	}
 
-	torch::Tensor POMDP_ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor index_u2_u1_batch, Q_Network& policy_net){
+	torch::Tensor POMDP_ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor index_u2_u1_batch, DQN& policy_net){
 		torch::Tensor o2_o1_batch = torch::cat({o2_batch, o1_batch}, 1);
 		return policy_net(o2_o1_batch).gather(-1, index_u2_u1_batch);
 	}
 
-	torch::Tensor POMDP_ModelsUpdateRules::get_target_q_values(torch::Tensor next_o2_batch, torch::Tensor next_o1_batch, torch::Tensor r_batch, Q_Network& target_net){
+	torch::Tensor POMDP_ModelsUpdateRules::get_target_q_values(torch::Tensor next_o2_batch, torch::Tensor next_o1_batch, torch::Tensor r_batch, DQN& target_net){
 		torch::Tensor no2_no1_batch = torch::cat({next_o2_batch, next_o1_batch}, 1);
 		torch::NoGradGuard no_grad;
 		torch::Tensor next_state_values = std::get<0>(target_net(no2_no1_batch).max(1));

@@ -10,7 +10,7 @@ int main(int argv, char** args){
 
 		std::string filename, ib_net_filename;
 		int episodes;
-    number horizon, tao, replay_memory_size, batch_size, dim_o2, dim_o1, target_update, print_every, seed;
+    number horizon, tao, replay_memory_size, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, seed;
     float eps_end, eps_start, eps_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
 		bool gpu;
 
@@ -28,6 +28,7 @@ int main(int argv, char** args){
     ("batch-size,b", po::value<number>(&batch_size)->default_value(128), "set the batch size")
     ("o2", po::value<number>(&dim_o2)->default_value(128), "set the history size of agent 0")
     ("o1", po::value<number>(&dim_o1)->default_value(128), "set the history size of agent 1")
+    ("i,i", po::value<number>(&dim_i)->default_value(256), "set the inner dimension")
     ("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target update")
     ("discount-factor,d", po::value<float>(&discount_factor)->default_value(0.99), "set the discount factor")
 		("rf", po::value<float>(&rolling_factor)->default_value(0.99), "set the rolling factor")
@@ -91,7 +92,7 @@ int main(int argv, char** args){
 
 		DQL dql(
 			episodes, 
-			horizon, batch_size, dim_o2, dim_o1, target_update, print_every, tao,
+			horizon, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, tao,
 			eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, 
 			device, game, replay_memory_size, ib_net_filename
 		);

@@ -17,13 +17,14 @@
 
 namespace sdm{
 	// Deep Q Network with 3 layers.
-	struct Q_NetworkImpl : torch::nn::Module {
-		torch::nn::Linear fc;
-		Q_NetworkImpl(number, number);
+	struct DQNImpl : torch::nn::Module {
+		torch::nn::Linear fc1, fc2, fc3;
+		DQNImpl(number, number, number);
 		// Receives the history hi of agent i and produces q values for that agent.
 		torch::Tensor forward(torch::Tensor);
 	};
-	TORCH_MODULE(Q_Network);
+	TORCH_MODULE(DQN);
+
 
 	// Recurrent Neural Network.
 	struct Transition_NetworkImpl : torch::nn::Module {
@@ -37,9 +38,9 @@ namespace sdm{
 	// Q_Network with 2 RNNs packaged together.
 	struct DRQNImpl : torch::nn::Module {
 		Transition_Network trans_net_2, trans_net_1;
-		Q_Network q_net;
+		DQN q_net;
 		//
-		DRQNImpl(number, number, number, number, number, number);
+		DRQNImpl(number, number, number, number, number, number, number);
 	};
 	TORCH_MODULE(DRQN);
 

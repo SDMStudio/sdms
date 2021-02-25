@@ -9,8 +9,8 @@ namespace sdm{
 	){
 		this->agent_2_transition_net = Transition_Network(agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim);
 		this->agent_1_transition_net = Transition_Network(agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim);
-		this->agent_1_policy_net = Q_Network(agent_1_policy_net_input_dim, agent_1_policy_net_output_dim);
-		this->agent_1_target_net = Q_Network(agent_1_policy_net_input_dim, agent_1_policy_net_output_dim);
+		this->agent_1_policy_net = DQN(agent_1_policy_net_input_dim, 55, agent_1_policy_net_output_dim);
+		this->agent_1_target_net = DQN(agent_1_policy_net_input_dim, 1111, agent_1_policy_net_output_dim);
 		// Put the nets the correct device (CPU/GPU).
 		this->agent_2_transition_net->to(device);
 		this->agent_1_transition_net->to(device);
@@ -36,7 +36,7 @@ namespace sdm{
 			number dim_o2 = agent_2_transition_net_hidden_dim;
 			number dim_o1 = agent_1_transition_net_hidden_dim;
 			// Initialize the induced bias target net with the same dimensions as the policy net of the POMDP.
-			this->induced_bias_target_net = Q_Network(dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
+			this->induced_bias_target_net = DQN(dim_o2 + dim_o1, dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
 			this->induced_bias_target_net->to(device);
 			initialize_induced_bias(ib_net_filename);
 		}
