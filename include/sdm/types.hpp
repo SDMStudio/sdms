@@ -63,6 +63,8 @@ namespace sdm
 
 	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> pomdp_batch;
 
+	typedef std::vector<pomdp_transition> pomdp_recurrent_transitions;
+
   /**
   * Enumerator for the types of statistics that can be plotted.
   */

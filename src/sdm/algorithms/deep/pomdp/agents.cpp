@@ -21,13 +21,14 @@ namespace sdm{
 		);
 		this->target_drqn->to(device);
 
-
 		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
 		this->uniform_action_distribution = std::uniform_int_distribution<int>(0, game->getNumActions(0) * game->getNumActions(1) - 1);
+
 		torch::optim::AdamOptions options;
 		options.eps(adam_eps);
 		options.lr(lr);
 		this->optimizer = std::make_shared<torch::optim::Adam>(policy_drqn->parameters(), options);
+		
 		this->device = device;
 		this->game = game;
 		this->ib_net_filename = ib_net_filename;
@@ -41,7 +42,6 @@ namespace sdm{
 		ib_transition_net_2_filename.append(ib_net_filename);
 		ib_transition_net_2_filename.append("_transition_net_2.pt");
 		torch::save(policy_drqn->trans_net_2, ib_transition_net_2_filename);
-
 
 		std::string ib_transition_net_1_filename;
 		ib_transition_net_1_filename.append("../models");
@@ -150,7 +150,7 @@ namespace sdm{
 		torch::save(policy_drqn, stream);
 		// Load those weights from the stream into target drqn.
 		torch::load(target_drqn, stream);
-
+		//
 		save_induced_bias();
 	}
 }

@@ -20,15 +20,16 @@
 
 namespace sdm{
 	struct DQL {
-		//
-		std::ofstream output_file;
-		//
+		// Game to be solved.
 		std::shared_ptr<sdm::POSG> game;
-		//
+		// Current episode.
 		int episode;
-		// number of epidoes.
+		// Total number of epidoes.
 		int episodes;
-		number horizon, batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, step;
+
+		//
+		number tao;
+		number horizon, batch_size, dim_o2, dim_o1, target_update, print_every, step;
 		float eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, epsilon, GAMMA;
 		double q_value_loss;
 		// Discounted cumulative reward at the end of the episode. 
@@ -48,9 +49,9 @@ namespace sdm{
 		// Initialize the method for solving the problem.
 		DQL(
 			int, 
-			number, number, number, number, number, number, number, 
+			number, number, number, number, number, number, number,
 			float, float, float, float, float, float, float, 
-			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string, std::string
+			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string
 		);
 		// (Should be in POSG class.) Used to get the joint action a from private actions u2 and u1.
 		action get_a_from_u2_u1(action, action);

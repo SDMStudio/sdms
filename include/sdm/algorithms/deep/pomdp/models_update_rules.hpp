@@ -21,12 +21,14 @@ namespace sdm{
 	struct POMDP_ModelsUpdateRules {
 		// Batch size of updates i.e. how many transitions at a time we use to update the parameters of the nets.
 		number batch_size;
+		//
+		number tao;
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
 		// Initialize the ModelsUpdateRules object.
-		POMDP_ModelsUpdateRules(number, torch::Device, std::shared_ptr<sdm::POSG>&);
+		POMDP_ModelsUpdateRules(number, number, torch::Device, std::shared_ptr<sdm::POSG>&);
 		// Do one step of update to the networks.
 		double update(std::shared_ptr<POMDP_ReplayMemory>&, std::shared_ptr<POMDP_Agents>&);
 		

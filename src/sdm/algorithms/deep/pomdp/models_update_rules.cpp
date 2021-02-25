@@ -4,10 +4,12 @@
 namespace sdm{
 	POMDP_ModelsUpdateRules::POMDP_ModelsUpdateRules(
 		number batch_size, 
+		number tao, 
 		torch::Device device, 
 		std::shared_ptr<sdm::POSG>& game
 	){
 		this->batch_size = batch_size;
+		this->tao = tao;
 		this->device = device;
 		this->game = game;
 	}
@@ -19,23 +21,44 @@ namespace sdm{
 		if (replay_memory->size() < batch_size){
 			return 0;
 		}
-		std::vector<pomdp_transition> transitions = replay_memory->sample(batch_size);
 
-		pomdp_batch b = construct_batch(transitions);
+		std::vector<pomdp_recurrent_transitions> transitions = replay_memory->sample(batch_size);
 
-		torch::Tensor o2_batch, o1_batch, u2_batch, u1_batch, index_u2_u1_batch, z2_batch, z1_batch, r_batch;
+		torch::Tensor loss = torch::zeros(1);
 		
-		std::tie(o2_batch, o1_batch, u2_batch, u1_batch, index_u2_u1_batch, z2_batch, z1_batch, r_batch) = b;
+		// C++ being annoying, i have to declare these here
+		torch::Tensor next_o2_batch, next_o1_batch;
 
-		torch::Tensor next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->policy_drqn->trans_net_2);
+		for (int t = 0; t < tao; t++){
 
-		torch::Tensor next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_drqn->trans_net_1);
+			pomdp_batch b = construct_batch(transitions[t]);
 
-		torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_drqn->q_net);
+			torch::Tensor o2_batch, o1_batch, u2_batch, u1_batch, index_u2_u1_batch, z2_batch, z1_batch, r_batch;
+			
+			std::tie(o2_batch, o1_batch, u2_batch, u1_batch, index_u2_u1_batch, z2_batch, z1_batch, r_batch) = b;
 
-		torch::Tensor target_q_values = get_target_q_values(next_o2_batch, next_o1_batch, r_batch, agents->target_drqn->q_net);
-		
-		torch::Tensor loss = at::smooth_l1_loss(q_values, target_q_values);
+			if (t != 0){
+				o2_batch = next_o2_batch;
+				o1_batch = next_o1_batch;
+			}			
+
+			torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_drqn->q_net);
+
+			torch::Tensor target_next_o2_batch, target_next_o1_batch;
+			{
+				torch::NoGradGuard no_grad;
+				target_next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->target_drqn->trans_net_2);
+				target_next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->target_drqn->trans_net_1);
+			}
+			
+			torch::Tensor target_q_values = get_target_q_values(target_next_o2_batch, target_next_o1_batch, r_batch, agents->target_drqn->q_net);
+			
+			loss += at::smooth_l1_loss(q_values, target_q_values);
+
+			next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->policy_drqn->trans_net_2);
+
+			next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_drqn->trans_net_1);
+		}
 
 		update_nets(agents, loss);
 		//
@@ -119,8 +142,9 @@ namespace sdm{
 			z1_batch_vector.push_back(one_hot_z1);
 
 			r_batch_vector.push_back(r);
-		}
 
+		}
+		
 		torch::Tensor o2_batch = torch::cat(o2_batch_vector);
 		o2_batch = o2_batch.reshape({batch_size, -1});
 		o2_batch = o2_batch.to(device);

@@ -19,16 +19,24 @@ namespace sdm{
 	struct POMDP_ReplayMemory{
 		// Capacity of the replay memory, i.e. how many transitions it can store.
 		int capacity;
-		// Vector of transitions that are stored in the replay memory.
-		std::vector<pomdp_transition> memory;
-		// Position of the next transition to be added. The implementation is such that when it overflows the capacity, the transition to be added is inserted in a cyclic fashion to override a previous one.
-		int position;
+		//
+		number tao;
+		// Vector of vector of transitions that are stored in the replay memory.
+		std::vector<pomdp_recurrent_transitions> memory;
+		//
+		pomdp_recurrent_transitions current_episode_transitions;
+		// 
+		number horizon;
+		// C++ random number engine.
+		std::default_random_engine random_engine;
+		//
+		std::uniform_int_distribution<int> uniform_transitions_distribution;
 		// Construct the replay memory with given capacity.
-		POMDP_ReplayMemory(int);
+		POMDP_ReplayMemory(int, number, number);
 		// Push the transition into the replay memory.
-		void push(pomdp_transition);
+		void push(pomdp_transition, int, number);
 		// Sample the given number of transitions at random from the replay memory.
-		std::vector<pomdp_transition> sample(int);
+		std::vector<pomdp_recurrent_transitions> sample(int);
 		// Return the current size of the replay memory, i.e. how many transition it has at the moment.
 		int size();
 	};

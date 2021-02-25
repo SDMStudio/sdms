@@ -8,8 +8,8 @@ namespace sdm{
 		number dim_o2, 
 		number dim_o1, 
 		number target_update, 
-		number dim_i,
 		number print_every,
+		number tao,
 		float eps_end, 
 		float eps_start, 
 		float eps_decay,  
@@ -20,7 +20,6 @@ namespace sdm{
 		torch::Device device,
 		std::shared_ptr<sdm::POSG>& game,
 		int replay_memory_size,
-		std::string output_file_name,
 		std::string ib_net_filename
 	){
 		this->episodes = episodes;
@@ -38,15 +37,14 @@ namespace sdm{
 		this->lr = lr;
 		this->adam_eps = adam_eps;
 		this->game = game;
-		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, device, game);
+		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, tao, device, game);
 		this->agents =  std::make_shared<POMDP_Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
 			dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1),
 			game, device, lr, adam_eps, ib_net_filename
 		);
-		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size);
-		this->output_file.open(output_file_name);
+		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size, tao, horizon);
 		this->GAMMA = game->getDiscount();
 		initialize();
 	}
@@ -57,15 +55,11 @@ namespace sdm{
 		return a;
 	}
 
-	void DQL::estimate_initial_E_R(){
-		E_R = 0;
-	}
-
 	void DQL::update_epsilon(){
-		if (steps_done < batch_size){
+		if (episode < batch_size){
 			epsilon = 1;
 		} else {
-			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * steps_done / eps_decay);
+			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done - batch_size * horizon) / eps_decay);
 		}
 	}
 
@@ -80,25 +74,25 @@ namespace sdm{
 	}
 
 	void DQL::initialize(){
-
-		output_file << "Episode,Epsilon,Q Value Loss,E[R]" << std::endl;
 		std::cout << "Episode,Epsilon,Q Value Loss,E[R]" << std::endl;
-
-		estimate_initial_E_R();
 		update_epsilon();
 		steps_done = 0;
 	}
 
 	void DQL::initialize_episode(){
 		R = 0;
+		E_R = 0;
 		q_value_loss = 0;
+		x = game->init();
+		o2 = torch::zeros(dim_o2);
+		o1 = torch::zeros(dim_o1);
 	}
 
 	void DQL::update_replay_memory(){
 		// Create transition
 		pomdp_transition t = std::make_tuple(o2, o1, u2, u1, u2_u1, z2, z1, r);
 		// Push it to the replay memory.
-		replay_memory->push(t);
+		replay_memory->push(t, episode, step);
 	}
 
 
@@ -112,10 +106,7 @@ namespace sdm{
 		// Update epsilon, the exploration coefficient.
 		update_epsilon();
 		// If number of steps is a multiple of target_update hyperparameter:
-		if((episode * horizon + step) % target_update == 0){
-			// Update the target net using policy net of agent 1.
-			agents->update_target_net();
-		}
+		
 		// Increment steps done.
 		steps_done++;
 	}
@@ -125,8 +116,12 @@ namespace sdm{
 		E_R = E_R * rolling_factor + R * (1 - rolling_factor);
 		//
 		if(episode % print_every == 0){
-			output_file << episode << "," << epsilon << "," << q_value_loss << "," << E_R << std::endl;
 			std::cout << episode << "," << epsilon << "," << q_value_loss << "," << E_R << std::endl;
+		}
+		//
+		if(episode % target_update == 0){
+			// Update the target net using policy net of agent 1.
+			agents->update_target_net();
 		}
 	}
 

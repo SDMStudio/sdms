@@ -8,16 +8,15 @@ int main(int argv, char** args){
 	try {
     po::options_description desc("Allowed options");
 
-		std::string filename, output_file_name, ib_net_filename;
+		std::string filename, ib_net_filename;
 		int episodes;
-    number horizon, replay_memory_size, batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, seed;
+    number horizon, tao, replay_memory_size, batch_size, dim_o2, dim_o1, target_update, print_every, seed;
     float eps_end, eps_start, eps_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
 		bool gpu;
 
 		desc.add_options()
     ("help", "produce help message")
     ("filename,f", po::value<std::string>(&filename)->default_value("tiger"), "set the benchmark filename -- e.g. tiger, mabc, recycling, etc")
-    ("output_file_name,o", po::value<std::string>(&output_file_name)->default_value("../runs/log.csv"), "the output .csv file")
 		("ib-net-filename,g", po::value<std::string>(&ib_net_filename)->default_value("tiger"), "set the name")
 		("horizon,h", po::value<number>(&horizon)->default_value(0), "set the horizon")
     ("episodes,e", po::value<int>(&episodes)->default_value(10), "set the number of episodes")
@@ -30,13 +29,13 @@ int main(int argv, char** args){
     ("o2", po::value<number>(&dim_o2)->default_value(128), "set the history size of agent 0")
     ("o1", po::value<number>(&dim_o1)->default_value(128), "set the history size of agent 1")
     ("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target update")
-		("inner-dim,i", po::value<number>(&dim_i)->default_value(8), "set the inner layer dimensions")
     ("discount-factor,d", po::value<float>(&discount_factor)->default_value(0.99), "set the discount factor")
 		("rf", po::value<float>(&rolling_factor)->default_value(0.99), "set the rolling factor")
 		("seed", po::value<number>(&seed)->default_value(1), "seed")
     ("lr", po::value<float>(&lr)->default_value(1e-3), "set the learning rate")
     ("adam-eps,a", po::value<float>(&adam_eps)->default_value(1e-8), "set the adam eps")
 		("print", po::value<number>(&print_every)->default_value(1), "every how many episodes do we print?")
+		("tao", po::value<number>(&tao)->default_value(5), "how many steps will BPTT use?")
 		("gpu", "if gpu is to be used")
     ;
 
@@ -90,33 +89,11 @@ int main(int argv, char** args){
 
 		game->setPlanningHorizon(horizon);
 
-		// std::cout << "episodes " << episodes << std::endl;
-		// std::cout << "horizon " << horizon << std::endl;
-		// std::cout << "batch_size " << batch_size << std::endl;
-		// std::cout << "i_batch_size " << i_batch_size << std::endl;
-		// std::cout << "dim_o2 " << dim_o2 << std::endl;
-		// std::cout << "dim_o1 " << dim_o1 << std::endl;
-		// std::cout << "target_update " << target_update << std::endl;
-		// std::cout << "dim_i " << dim_i << std::endl;
-		// std::cout << "print_every " << print_every << std::endl;
-		// std::cout << "eps_end " << eps_end << std::endl;
-		// std::cout << "eps_start " << eps_start << std::endl;
-		// std::cout << "eps_decay " << eps_decay << std::endl;
-		// std::cout << "discount_factor " << discount_factor << std::endl;
-		// std::cout << "rolling_factor " << rolling_factor << std::endl;
-		// std::cout << "lr " << lr << std::endl;
-		// std::cout << "adam_eps " << adam_eps << std::endl;
-		// std::cout << "device " << device << std::endl;
-		// std::cout << "game " << game << std::endl;
-		// std::cout << "replay_memory_size " << replay_memory_size << std::endl;
-		// std::cout << "output_file_name " << output_file_name << std::endl;
-		// std::cout << "ib_net_filename " << ib_net_filename << std::endl;
-
 		DQL dql(
 			episodes, 
-			horizon, batch_size, dim_o2, dim_o1, target_update, dim_i, print_every, 
+			horizon, batch_size, dim_o2, dim_o1, target_update, print_every, tao,
 			eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, 
-			device, game, replay_memory_size, output_file_name, ib_net_filename
+			device, game, replay_memory_size, ib_net_filename
 		);
 
 		dql.solve();

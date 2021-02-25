@@ -34,17 +34,9 @@ namespace sdm{
 		std::shared_ptr<torch::optim::Adam> optimizer;
 		//
 		DRQN policy_drqn{nullptr};
+		//
 		DRQN target_drqn{nullptr};
-		// // Policy net of agents.
-		// DQN agents_policy_net{nullptr};
 
-		// RNN agent_2_history_transition_net{nullptr};
-
-		// RNN agent_1_history_transition_net{nullptr};
-		// The Target Network is a delayed copy of the Policy Network of Agents. Its purpose is to not have moving targets during update of networks.
-
-		// RNN agent_2_target_history_transition_net{nullptr};
-		// RNN agent_1_target_history_transition_net{nullptr};
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
 		// Given histories o2 and o1s, get epsilon-greedy action u2_u1.
