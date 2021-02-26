@@ -30,7 +30,7 @@ namespace sdm
      *  
      */
     template <typename TItem>
-    class DiscreteSpace : public Space
+    class DiscreteSpaceBase : public Space
     {
     protected:
         typedef boost::bimaps::bimap<number, TItem> items_bimap;
@@ -49,31 +49,24 @@ namespace sdm
          * @brief Construct a new Discrete Space object (default)
          * 
          */
-        DiscreteSpace();
-
-        /**
-         * @brief Construct a new Discrete Space object
-         * 
-         * @param num_items the number of possible items
-         */
-        // DiscreteSpace(number num_items);
+        DiscreteSpaceBase();
 
         /**
          * @brief Construct a new Discrete Space object
          * 
          * @param items a list of possible items in the space
          */
-        DiscreteSpace(const std::vector<TItem> &items);
+        DiscreteSpaceBase(const std::vector<TItem> &items);
 
         /**
          * @brief Copy constructor
          */
-        DiscreteSpace(const DiscreteSpace<TItem> &copy);
-        
+        DiscreteSpaceBase(const DiscreteSpaceBase<TItem> &copy);
+
         /**
          * @brief Construct a new Discrete Space object from a list initializer
          */
-        DiscreteSpace(std::initializer_list<TItem> vals);
+        DiscreteSpaceBase(std::initializer_list<TItem> vals);
 
         /**
          * @brief Return true because this is a discrete space
@@ -112,17 +105,51 @@ namespace sdm
 
         std::string str() const;
 
-        DiscreteSpace &operator=(const DiscreteSpace &sp);
+        DiscreteSpaceBase &operator=(const DiscreteSpaceBase &sp);
 
-        bool operator==(const DiscreteSpace &sp) const;
-        bool operator!=(const DiscreteSpace &sp) const;
+        bool operator==(const DiscreteSpaceBase &sp) const;
+        bool operator!=(const DiscreteSpaceBase &sp) const;
 
-        friend std::ostream &operator<<(std::ostream &os, const DiscreteSpace &sp)
+        friend std::ostream &operator<<(std::ostream &os, const DiscreteSpaceBase &sp)
         {
             os << sp.str();
             return os;
         }
     };
+
+    class DiscreteSpace : public DiscreteSpaceBase<number>
+    {
+    public:
+        DiscreteSpace();
+
+        /**
+         * @brief Construct a new Discrete Space object
+         * 
+         * @param number_item the number of items in the space. If k then {0, 1, ..., k-1} are possible items.
+         */
+        DiscreteSpace(int number_item);
+
+        /**
+         * @brief Construct a new Discrete Space object
+         * 
+         * @param items a list of possible items in the space
+         */
+        DiscreteSpace(const std::vector<number> &items);
+
+        /**
+         * @brief Copy constructors
+         */
+        DiscreteSpace(const DiscreteSpace &copy);
+
+        /**
+         * @brief Construct a new Discrete Space object from a list initializer
+         */
+        DiscreteSpace(std::initializer_list<number> vals);
+
+    };
+
+    using StringDiscreteSpace = DiscreteSpaceBase<std::string>;
+
 } // namespace sdm
 
 #include <sdm/core/space/discrete_space.tpp>

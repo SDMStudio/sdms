@@ -33,22 +33,23 @@ namespace sdm
     class StochasticProcess
     {
     public:
-        using value_type = typename TStateSpace::value_type;
+        using state_space_type = TStateSpace;
+        using state_type = typename state_space_type::value_type;
 
         StochasticProcess();
         StochasticProcess(TStateSpace);
         StochasticProcess(TStateSpace, TDistrib);
 
-        value_type getInternalState() const;
+        state_type getInternalState() const;
 
-        void setInternalState(value_type new_i_state);
+        void setInternalState(state_type new_i_state);
 
         /**
          * @brief Init the process and return the initial internal state. This initial state is sampled from the "start" distribution.
          * 
-         * @return value_type the sampled initial state
+         * @return state_type the sampled initial state
          */
-        value_type init();
+        state_type init();
 
         TDistrib getStartDistrib() const;
 
@@ -56,28 +57,33 @@ namespace sdm
 
         void setStartDistrib(TDistrib);
 
-        void setStateSpace() const;
+        void setStateSpace(TStateSpace) const;
 
-        virtual TDistrib getProbaNextState(value_type)
+        virtual TDistrib getProbaNextState(state_type)
         {
             throw sdm::exception::NotImplementedException();
-        };
+        }
 
         /**
          * @brief Execute a step and return the next sampled state
          * 
-         * @return value_type 
+         * @return state_type 
          */
-        virtual value_type nextState()
+        virtual state_type nextState()
         {
-            throw sdm::exception::NotImplementedException();
-        };
+            return this->getProbaNextState(this->getInternalState())(sdm::common::global_urng());
+        }
+
+        state_type step() {
+            this->internal_state_ = this->nextState();
+            return this->getInternalState();
+        }
 
     private:
         /**
          * @brief The internal state
          */
-        value_type internal_state_ = 0;
+        state_type internal_state_ = 0;
 
     protected:
         /**
@@ -96,14 +102,13 @@ namespace sdm
      * 
      * @tparam TInteger 
      */
-    template <typename TInteger>
-    class DiscreteStochasticProcess : public StochasticProcess<DiscreteSpace<TInteger>, std::discrete_distribution<TInteger>>
+    class DiscreteStochasticProcess : public StochasticProcess<DiscreteSpace, std::discrete_distribution<number>>
     {
     public:
         DiscreteStochasticProcess();
-        DiscreteStochasticProcess(TInteger num_states);
+        DiscreteStochasticProcess(number num_states);
         DiscreteStochasticProcess(std::initializer_list<double> start_distrib);
-        DiscreteStochasticProcess(DiscreteSpace<TInteger> state_sp, std::discrete_distribution<TInteger> start_distrib);
+        DiscreteStochasticProcess(DiscreteSpace state_sp, std::discrete_distribution<number> start_distrib);
         int getNumStates() const;
     };
 } // namespace sdm

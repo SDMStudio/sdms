@@ -1,6 +1,13 @@
-/*=============================================================================
-  Copyright (c) 2016 Jilles Steeve Dibangoye
-==============================================================================*/
+/**
+ * @file state_dynamics.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief 
+ * @version 1.0
+ * @date 26/02/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <unordered_set>
@@ -8,79 +15,77 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
 
-//!
-//! \file     dynamics.hpp
-//! \author   Jilles S. Dibangoye
-//! \brief    dynamics class
-//! \version  1.0
-//! \date     12 Avril 2016
-//!
-//! This class provides getter and setter methods for the dynamics model.
-//!
-
-//! \namespace  sdm
-//!
-//! Namespace grouping all tools required for sequential decision making.
 namespace sdm
 {
-
-  //!
-  //! \class  dynamics  dynamics.hpp
-  //!
+  /**
+   * @brief This class provide quick accessors to transition probability distributions.
+   * 
+   */
   class StateDynamics
   {
-  protected:
-    //! \brief transition and observation matrices
-    std::vector<Matrix> t_model;
-
-    //! \brief map from state, action pairs to set of next states
-    std::unordered_map<state, std::unordered_map<action, std::unordered_set<state>>> successor_states;
-
   public:
     StateDynamics();
 
-    //! \param    num_jactions Number of joint actions
-    //! \param    num_states Number of states
-    //! \brief    Instantiate a transition model
-    StateDynamics(number, number);
+    /**
+     * @brief   Construct a new State Dynamics object
+     * @param   num_actions Number of (joint) action
+     * @param   num_states Number of states
+     * 
+     */
+    StateDynamics(number num_actions, number num_states);
 
-    //! \fn       void initDynamics(number, number)
-    //! \param    num_jactions Number of joint actions
-    //! \param    num_states Number of states
-    //! \brief    Inits the dynamics model
-    void initDynamics(number, number);
+    /**
+     * @brief   Initialize the dynamics model
+     * @param   num_actions Number of (joint) actions
+     * @param   num_states Number of states
+     */
+    void initDynamics(number num_actions, number num_states);
 
-    //! \fn       void setTransitionProbability(number, number, number, double, bool=false);
-    //! \param    x A specific state (the state at timestep t)
-    //! \param    jaction A specific joint action
-    //! \param    y A specific state (the state at timestep t+1)
-    //! \param    double probability of the transition
-    //! \param    bool whether or not we cumulate probabilities.
-    void setTransitionProbability(number, number, number, double, bool = false);
+    /**
+     * @brief    Set the transition probability on one point.
+     * @param    x A specific state (the state at timestep t)
+     * @param    u A specific (joint) action
+     * @param    y A specific state (the state at timestep t+1)
+     * @param    double probability of the transition
+     * @param    bool whether or not we cumulate probabilities.
+     */
+    void setTransitionProbability(number x, number u, number y, double p, bool cumul = false);
 
-    //! \fn       double getTransitionProbability(number, number, number) const
-    //! \param    x A specific state (the state at timestep t)
-    //! \param    jaction A specific joint actioon
-    //! \param    y A specific state (the state at timestep t+1)
-    //! \brief    Get transition probability
-    //! \return   the transition probability
-    double getTransitionProbability(number, number, number) const;
+    /**
+     * @brief    Get the transition probability on one point.
+     * @param    x A specific state (the state at timestep t)
+     * @param    u A specific (joint) action
+     * @param    y A specific state (the state at timestep t+1)
+     * @return   the transition probability
+     */
+    double getTransitionProbability(number x, number u, number y) const;
 
-    //! \fn       const std::unordered_set<number>& getStateSuccessors(number, number);
-    //! \param    x A specific state
-    //! \param    jaction A specific joint actioon
-    //! \brief    Returns set of possible next states
-    //! \return   const std::unordered_set<state>&
-    const std::unordered_set<state> &getStateSuccessors(number, number);
+    /**
+     * @brief    Sets probability transitions
+     * @param    t_model matrices of transitions, one for each (joint) action.
+     */
+    void setTransitions(const std::vector<Matrix> &t_model);
 
-    //! \fn       void setTransitions(const std::vector<Matrix>&)
-    //! \param    t_model matrices of transitions, one for each action.
-    //! \brief    Sets probability transitions
-    void setTransitions(const std::vector<Matrix> &);
+    /**
+     * @brief    Returns matrix of probability transitions for the pre-defined action.
+     * @param    u A specific (joint) action
+     */
+    const Matrix &getTransitions(number u);
 
-    //! \fn       const Matrix& getTransitions(number)
-    //! \param    jaction A specific joint action
-    //! \brief    Returns matrix of probability transitions for the pre-defined action.
-    const Matrix &getTransitions(number);
+    /**
+     * @brief 
+     * 
+     * @param x 
+     * @param u 
+     * @return const std::unordered_set<state>& 
+     */
+    const std::unordered_set<state> &getStateSuccessors(number x, number u);
+
+  protected:
+    /** @brief transition and observation matrices */
+    std::vector<Matrix> t_model;
+
+    /** @brief map from state, action pairs to set of next states */
+    std::unordered_map<state, std::unordered_map<action, std::unordered_set<state>>> successor_states;
   };
 } // namespace sdm

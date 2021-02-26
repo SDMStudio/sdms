@@ -4,76 +4,75 @@
 namespace sdm
 {
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::MultiDiscreteSpace()
+    MultiDiscreteSpaceBase<TItem>::MultiDiscreteSpaceBase()
     {
     }
 
     // template <typename TItem>
-    // MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<number> &num_items)
+    // MultiDiscreteSpaceBase<TItem>::MultiDiscreteSpaceBase(const std::vector<number> &num_items)
     // {
     //     this->setSpaces(num_items);
     // }
 
-
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::vector<TItem>> &e_names)
+    MultiDiscreteSpaceBase<TItem>::MultiDiscreteSpaceBase(const std::vector<std::vector<TItem>> &e_names)
     {
         this->setSpaces(e_names);
     }
 
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<DiscreteSpace<TItem>> &spaces)
+    MultiDiscreteSpaceBase<TItem>::MultiDiscreteSpaceBase(const std::vector<DiscreteSpaceBase<TItem>> &spaces)
     {
         this->setSpaces(spaces);
     }
 
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces)
+    MultiDiscreteSpaceBase<TItem>::MultiDiscreteSpaceBase(const std::vector<std::shared_ptr<DiscreteSpaceBase<TItem>>> &spaces)
     {
         this->setSpaces(spaces);
     }
 
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const MultiDiscreteSpace<TItem> &copy) : MultiDiscreteSpace<TItem>(copy.getSpaces()) {}
+    MultiDiscreteSpaceBase<TItem>::MultiDiscreteSpaceBase(const MultiDiscreteSpaceBase<TItem> &copy) : MultiDiscreteSpaceBase<TItem>(copy.getSpaces()) {}
 
     template <typename TItem>
-    number MultiDiscreteSpace<TItem>::joint2single(const std::vector<TItem> &jel) const
+    number MultiDiscreteSpaceBase<TItem>::joint2single(const std::vector<TItem> &jel) const
     {
         return this->getJointItemIndex(jel);
     }
 
     template <typename TItem>
-    std::vector<TItem> MultiDiscreteSpace<TItem>::single2joint(number jel) const
+    std::vector<TItem> MultiDiscreteSpaceBase<TItem>::single2joint(number jel) const
     {
         return this->getJointItem(jel);
     }
 
     template <typename TItem>
-    number MultiDiscreteSpace<TItem>::getNumJointItems() const
+    number MultiDiscreteSpaceBase<TItem>::getNumJointItems() const
     {
         return this->getNumItems();
     }
 
     template <typename TItem>
-    number MultiDiscreteSpace<TItem>::getItemIndex(number ag_id, const TItem &item) const
+    number MultiDiscreteSpaceBase<TItem>::getItemIndex(number ag_id, const TItem &item) const
     {
         return this->getSpace(ag_id)->getItemIndex(item);
     }
 
     template <typename TItem>
-    Joint<TItem> MultiDiscreteSpace<TItem>::getJointItem(number idx) const
+    Joint<TItem> MultiDiscreteSpaceBase<TItem>::getJointItem(number idx) const
     {
-        return DiscreteSpace<Joint<TItem>>::getItem(idx);
+        return DiscreteSpaceBase<Joint<TItem>>::getItem(idx);
     }
 
     template <typename TItem>
-    TItem MultiDiscreteSpace<TItem>::getItem(number ag_id, number el_id) const
+    TItem MultiDiscreteSpaceBase<TItem>::getItem(number ag_id, number el_id) const
     {
         return this->getSpace(ag_id)->getItem(el_id);
     }
 
     // template <typename TItem>
-    // void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<number> &num_items)
+    // void MultiDiscreteSpaceBase<TItem>::setSpaces(const std::vector<number> &num_items)
     // {
     //     this->num_items_ = 1;
     //     this->spaces_.clear();
@@ -87,7 +86,7 @@ namespace sdm
     // }
 
     template <typename TItem>
-    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<std::vector<TItem>> &e_names)
+    void MultiDiscreteSpaceBase<TItem>::setSpaces(const std::vector<std::vector<TItem>> &e_names)
     {
 
         this->num_items_ = 1;
@@ -95,28 +94,28 @@ namespace sdm
 
         for (number ag = 0; ag < e_names.size(); ++ag)
         {
-            this->spaces_.push_back(std::shared_ptr<DiscreteSpace<TItem>>(new DiscreteSpace<TItem>(e_names[ag])));
+            this->spaces_.push_back(std::shared_ptr<DiscreteSpaceBase<TItem>>(new DiscreteSpaceBase<TItem>(e_names[ag])));
             this->num_items_ *= e_names[ag].size();
         }
         this->generateJointItems();
     }
 
     template <typename TItem>
-    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<DiscreteSpace<TItem>> &spaces)
+    void MultiDiscreteSpaceBase<TItem>::setSpaces(const std::vector<DiscreteSpaceBase<TItem>> &spaces)
     {
         this->num_items_ = 1;
         this->spaces_.clear();
 
         for (number ag = 0; ag < spaces.size(); ++ag)
         {
-            this->spaces_.push_back(std::shared_ptr<DiscreteSpace<TItem>>(new DiscreteSpace<TItem>(spaces[ag])));
+            this->spaces_.push_back(std::shared_ptr<DiscreteSpaceBase<TItem>>(new DiscreteSpaceBase<TItem>(spaces[ag])));
             this->num_items_ *= spaces[ag].getNumItems();
         }
         this->generateJointItems();
     }
 
     template <typename TItem>
-    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces)
+    void MultiDiscreteSpaceBase<TItem>::setSpaces(const std::vector<std::shared_ptr<DiscreteSpaceBase<TItem>>> &spaces)
     {
         this->num_items_ = 1;
         this->spaces_.clear();
@@ -130,7 +129,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    void MultiDiscreteSpace<TItem>::generateJointItems()
+    void MultiDiscreteSpaceBase<TItem>::generateJointItems()
     {
         this->all_items_.clear();
         std::vector<std::vector<TItem>> v_possible_items;
@@ -149,7 +148,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    std::vector<Joint<TItem>> MultiDiscreteSpace<TItem>::getAll()
+    std::vector<Joint<TItem>> MultiDiscreteSpaceBase<TItem>::getAll()
     {
         if (this->all_items_.empty())
         {
@@ -165,19 +164,19 @@ namespace sdm
     }
 
     template <typename TItem>
-    number MultiDiscreteSpace<TItem>::getJointItemIndex(Joint<TItem> &jitem) const
+    number MultiDiscreteSpaceBase<TItem>::getJointItemIndex(Joint<TItem> &jitem) const
     {
-        return DiscreteSpace<Joint<TItem>>::getItemIndex(jitem);
+        return DiscreteSpaceBase<Joint<TItem>>::getItemIndex(jitem);
     }
 
     template <typename TItem>
-    number MultiDiscreteSpace<TItem>::getJointItemIndex(const std::vector<TItem> &jitem) const
+    number MultiDiscreteSpaceBase<TItem>::getJointItemIndex(const std::vector<TItem> &jitem) const
     {
-        return DiscreteSpace<Joint<TItem>>::getItemIndex(jitem);
+        return DiscreteSpaceBase<Joint<TItem>>::getItemIndex(jitem);
     }
 
     template <typename TItem>
-    MultiDiscreteSpace<TItem> &MultiDiscreteSpace<TItem>::operator=(const MultiDiscreteSpace<TItem> &sp)
+    MultiDiscreteSpaceBase<TItem> &MultiDiscreteSpaceBase<TItem>::operator=(const MultiDiscreteSpaceBase<TItem> &sp)
     {
         this->all_items_.clear();
         this->setSpaces(sp.getSpaces());
@@ -185,7 +184,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    std::string MultiDiscreteSpace<TItem>::str() const
+    std::string MultiDiscreteSpaceBase<TItem>::str() const
     {
         std::ostringstream res;
         res << "MultiDiscreteSpace(" << this->getNumSpaces() << ")";
@@ -196,6 +195,39 @@ namespace sdm
         }
         res << "\n]";
         return res.str();
+    }
+
+    MultiDiscreteSpace::MultiDiscreteSpace() : MultiDiscreteSpaceBase<number>()
+    {
+    }
+
+    MultiDiscreteSpace::MultiDiscreteSpace(const std::vector<number> &number_item)
+    {
+        std::vector<std::vector<number>> l;
+        for (number i = 0; i < number_item.size(); ++i)
+        {
+            std::vector<number> tmp(number_item[i]);
+            std::iota(tmp.begin(), tmp.end(), 0);
+            l.push_back(tmp);
+        }
+        *this = MultiDiscreteSpace(l);
+    }
+
+    MultiDiscreteSpace::MultiDiscreteSpace(const std::vector<std::vector<number>> &items) : MultiDiscreteSpaceBase<number>(items)
+    {
+    }
+
+    MultiDiscreteSpace::MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpaceBase<number>>> &subspaces) : MultiDiscreteSpaceBase<number>(subspaces)
+    {
+    }
+
+    MultiDiscreteSpace::MultiDiscreteSpace(const MultiDiscreteSpace &copy)
+    {
+        *this = copy;
+    }
+
+    MultiDiscreteSpace::MultiDiscreteSpace(const std::vector<DiscreteSpaceBase<number>> &subspaces) : MultiDiscreteSpaceBase<number>(subspaces)
+    {
     }
 
 } // namespace sdm

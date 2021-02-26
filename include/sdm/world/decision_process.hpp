@@ -13,217 +13,174 @@
 #include <vector>
 
 #include <sdm/types.hpp>
+#include <sdm/public/world.hpp>
+#include <sdm/world/base/decision_process_base.hpp>
 
+#include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
 
-#include <sdm/public/world.hpp>
-#include <sdm/world/stochastic_process.hpp>
-
 namespace sdm
 {
 
-    template <typename TStateSpace, typename TActionSpace, typename TDistrib>
-    class DecisionProcess : public virtual StochasticProcess<TStateSpace, TDistrib>, public World
-    {
-    protected:
-        /**
-         *  @brief Space of agents (contain number of agents and their names).
-         */
-        DiscreteSpace<number> agent_space_;
+        template <typename TStateSpace, typename TActionSpace, typename TStateDynamics, typename TReward, typename TDistrib>
+        class DecisionProcess : public DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>, public World
+        {
+        public:
+                DecisionProcess();
+                DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp);
+                DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, TDistrib);
+                DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
 
-        /**
-         * @brief Action space for each agent.
-         */
-        TActionSpace action_space_;
+                /**
+                 * \brief Get the state dynamics
+                 */
+                std::shared_ptr<TStateDynamics> getStateDynamics() const;
 
-        /**
-         * @brief State dynamics.
-         */
-        StateDynamics s_dynamics_;
+                /**
+                 * \brief Set the state dynamics
+                 */
+                void setStateDynamics(std::shared_ptr<TStateDynamics> state_dyn);
 
-        /**
-         * @brief Reward functions.
-         */
-        std::vector<Reward> rew_;
+                /**
+                 * \brief Get the reward function
+                 */
+                std::shared_ptr<TReward> getReward() const;
 
-        /**
-         * @brief type of optimization problem, e.g., reward maximazation or cost minimization.
-         */
-        Criterion criterion = Criterion::REW_MAX;
+                /**
+                 * \brief Set the reward function
+                 */
+                void setReward(std::shared_ptr<TReward> reward_function);
 
-        /**
-         * @brief factor used to discount rewards (respectively costs) in the future.
-         */
-        double discount = 1.0, bound;
+                // /**
+                //  * \brief Get transition probability from joint action
+                //  */
+                // // double getTransitionProba(state_type cstate, action_type jaction, state_type state);
 
-        /**
-         * @brief planning horizon
-         */
-        number planning_horizon = 0;
+                // TDistrib getProbaNextState(state_type cstate)
+                // {
+                //         // std::vector<number> vect;
+                //         // for (double a : this->getActionSpace().getAll())
+                //         // {
+                //         //         auto probas = this->getProbaNextState(cstate, a).probabilities();
+                //         //         vect.insert(vect.end(), probas.begin(), probas.end());
+                //         // }
+                //         // return std::discrete_distribution<number>(vect.begin(), vect.end());
+                // }
 
-        /**
-         * @brief name of the file that generates the environment
-         */
-        std::string filename;
+                // /**
+                //  * \brief Transit to next state given a joint action
+                //  */
+                // void nextState();
 
-    public:
-        DecisionProcess();
-        // DecisionProcess(number, number, const std::vector<number> &);
-        // DecisionProcess(number, number, const std::vector<number> &, const Vector &);
-        DecisionProcess(const TStateSpace &state_sp, const DiscreteSpace<number> &agent_sp, const TActionSpace &action_sp);
-        DecisionProcess(const TStateSpace &state_sp, const DiscreteSpace<number> &agent_sp, const TActionSpace &action_sp, const Vector &);
-        DecisionProcess(const TStateSpace &state_sp, const DiscreteSpace<number> &agent_sp, const TActionSpace &action_sp, const StateDynamics &, const std::vector<Reward> &, const Vector &);
+                // TDistrib getProbaNextState(state_type cstate, action_type caction)
+                // {
+                //         return this->getStateDynamics().getProbaNextState(cstate, caction);
+                // }
 
-        //! \fn       void setFileName(std::string)
-        //! \param   filename
-        void setFileName(std::string);
+                // /**
+                //  * \brief Transit to next state given a joint action
+                //  */
+                // void nextState(action_type jaction);
 
-        //! \fn       std::string getFileName()
-        //! \return   filename
-        std::string getFileName();
+                // TReward &getReward();
 
-        //! \fn       bool getBound()
-        //! \brief    Returns the bound
-        //! \return   the bound
-        double getBound();
+                // /**
+                //  * \brief Get transition probability from joint action (as a single one) for all agents
+                //  */
+                // double getReward(state_type state, action_type jaction);
 
-        //! \fn       vois setBound(double)
-        //! \brief    Set the bound
-        //! \param   bound the bound
-        void setBound(double);
+                // /**
+                //  * \fn std::vector<double> getReward(number state, std::vector<number> jaction);
+                //  * \brief Get cost from joint action for all agents
+                //  */
+                // std::vector<double> getCost(state_type state, action_type jaction);
 
-        //! \fn       bool getCriterion()
-        //! \brief    Returns the criterion
-        //! \return   bool
-        bool getCriterion();
+        protected:
+                /**
+                *  @brief Space of agents (contain number of agents and their names).
+                */
+                number num_agents_;
 
-        //! \fn       void setCriterion(bool)
-        //! \brief    Sets the criterion
-        void setCriterion(bool);
+                /**
+                 * @brief State dynamics.
+                 */
+                std::shared_ptr<TStateDynamics> state_dynamics_;
 
-        //! \fn       value getDiscount()
-        //! \brief    Returns the discount factor
-        //! \return   value
-        double getDiscount();
+                /**
+                 * @brief Reward functions.
+                 */
+                std::shared_ptr<TReward> reward_function_;
+        };
 
-        //! \fn       void setDiscount(value)
-        //! \brief    Sets the discount factor
-        void setDiscount(double);
+        using DiscreteMDP = DecisionProcess<DiscreteSpace, DiscreteSpace, StateDynamics, Reward, std::discrete_distribution<number>>;
+        using DiscreteDecMDP = DecisionProcess<DiscreteSpace, MultiDiscreteSpace, StateDynamics, Reward, std::discrete_distribution<number>>;
+        using DiscreteSG = DecisionProcess<DiscreteSpace, MultiDiscreteSpace, StateDynamics, std::vector<Reward>, std::discrete_distribution<number>>;
 
-        //! \fn       number getPlanningHorizon()
-        //! \brief    Returns the planning horizon
-        //! \return   the horizon
-        number getPlanningHorizon();
+        // template <>
+        // class DecisionProcess<MultiDiscreteSpace, MultiDiscreteSpace, StateDynamics, std::discrete_distribution<number>>
+        // {
+        //         double getTransitionProba(number cstate, number jaction, number nstate)
+        //         {
+        //                 return this->s_dynamics_.getTransitionProbability(cstate, jaction, nstate);
+        //         }
 
-        //! \fn       void setPlanningHorizon(number)
-        //! \brief    Sets the planning horizon
-        void setPlanningHorizon(number);
+        //         double getTransitionProba(number cstate, Joint<number> jaction, number nstate)
+        //         {
+        //                 return this->getTransitionProba(cstate, this->getActionSpace().joint2single(jaction), nstate);
+        //         }
 
-        /**
-         * \brief Get the state dynamics
-         */
-     StateDynamics &getStateDynamics();
+        //         double getReward(number cstate, number jaction)
+        //         {
+        //                 return this->reward.getTransitionProbability(cstate, jaction, nstate);
+        //         }
 
-        /**
-         * \brief Get transition probability from joint action
-         */
-        double getTransitionProba(number cstate, std::vector<number> jaction, number state);
+        //         double getReward(number cstate, Joint<number> jaction)
+        //         {
+        //                 return this->getTransitionProba(cstate, this->getActionSpace().joint2single(jaction), nstate);
+        //         }
+        // };
 
-        /**
-         * \brief Get transition probability from joint action (as a single one)
-         */
-        double getTransitionProba(number cstate, number jaction, number state);
+        // template <>
+        // class DecisionProcess<DiscreteSpace, DiscreteSpace, StateDynamics, std::discrete_distribution<number>>
+        // {
+        //         TDistrib getProbaNextState(state_type cstate)
+        //         {
+        //                 // std::vector<number> vect;
+        //                 // for (double a : this->getActionSpace().getAll())
+        //                 // {
+        //                 //         auto probas = this->getProbaNextState(cstate, a).probabilities();
+        //                 //         vect.insert(vect.end(), probas.begin(), probas.end());
+        //                 // }
+        //                 // return std::discrete_distribution<number>(vect.begin(), vect.end());
+        //         }
 
-        /**
-         * \brief Transit to next state given a joint action (as a single one)
-         */
-        void nextState(number jaction);
+        //         /**
+        //          * \brief Transit to next state given a joint action
+        //          */
+        //         void nextState();
 
-        /**
-         * \brief Transit to next state given a joint action
-         */
-        void nextState(std::vector<number> jaction);
+        //         TDistrib getProbaNextState(state_type cstate, action_type caction)
+        //         {
+        //                 return this->getStateDynamics().getProbaNextState(cstate, caction);
+        //         }
 
-        std::vector<Reward> &getRewards();
+        //         /**
+        //          * \brief Transit to next state given a joint action
+        //          */
+        //         void nextState(action_type jaction);
 
-        /**
-         * \brief Get transition probability from joint action (as a single one) for all agents
-         */
-        std::vector<double> getRewards(number state, number jaction);
+        //         double getTransitionProba(number cstate, number action, number nstate)
+        //         {
+        //                 return this->s_dynamics_.getTransitionProbability(cstate, action, nstate);
+        //         }
+        // };
 
-        /**
-         * \brief Get reward from joint action for all agents 
-         */
-        std::vector<double> getRewards(number state, std::vector<number> jaction);
+        // template <typename TStateSpace, typename TActionSpace, typename TDistrib>
+        // using SG = DecisionProcess<TStateSpace, TActionSpace, TDistrib>;
 
-        /**
-         * \fn double getReward(number state, number jaction, number ag_id);
-         * \brief Get reward from joint action (as single one) for a specific agent 
-         */
-        double getReward(number state, number jaction, number ag_id);
-
-        /**
-         * \fn double getReward(number state, number jaction, number ag_id);
-         * \brief Get reward from joint action for a specific agent 
-         */
-        double getReward(number state, std::vector<number> jaction, number ag_id);
-
-        /**
-         * \fn double getReward(number state, number jaction, number ag_id);
-         * \brief Get reward from joint action for all agents
-         */
-        std::vector<double> getCost(number state, number jaction);
-
-        /**
-         * \fn std::vector<double> getReward(number state, std::vector<number> jaction);
-         * \brief Get cost from joint action for all agents
-         */
-        std::vector<double> getCost(number state, std::vector<number> jaction);
-
-        /**
-         * \brief Getter for the action spaces
-         */
-        DiscreteSpace<number> &getAgentSpace();
-
-        /**
-         * \brief Getter for the action spaces
-         */
-<<<<<<< HEAD
-        const TActionSpace &getActionSpace() const;
-=======
-        MultiDiscreteSpace<number> &getActionSpace();
-
-        /**
-         * \brief Get the number of joint actions
-         */
-        number getNumJActions();
-
-        /**
-         * \brief Get the number of actions for a specific agent
-         */
-        number getNumActions(number);
-
-        /**
-         * \brief Get the number of actions for each agents
-         */
-        std::vector<number> getNumActions();
->>>>>>> feature/occupancy_hsvi
-
-        /**
-         * \brief Get the number of agents
-         */
-<<<<<<< HEAD
-        number getNumAgents() const;
-=======
-        number getNumAgents();
->>>>>>> feature/occupancy_hsvi
-    };
-
-    template <typename TStateSpace, typename TActionSpace, typename TDistrib>
-    using SG = DecisionProcess<TStateSpace, TActionSpace, TDistrib>;
-
-    template <typename TStateSpace, typename TActionSpace, typename TDistrib>
-    using StochasticGame = DecisionProcess<TStateSpace, TActionSpace, TDistrib>;
+        // using DiscreteMDP = DecisionProcess<DiscreteSpace, DiscreteSpace, std::discrete_distribution<number>>;
+        // using DiscreteSG = DecisionProcess<MultiDiscreteSpace, MultiDiscreteSpace, std::discrete_distribution<number>>;
 } // namespace sdm
+#include <sdm/world/decision_process.tpp>

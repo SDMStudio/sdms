@@ -13,37 +13,35 @@ namespace sdm
     {
     }
 
-    StateDynamics::StateDynamics(number num_jactions, number num_states)
+    StateDynamics::StateDynamics(number num_actions, number num_states)
     {
-        this->initDynamics(num_jactions, num_states);
+        this->initDynamics(num_actions, num_states);
     }
 
-    void StateDynamics::initDynamics(number num_jactions, number num_states)
+    void StateDynamics::initDynamics(number num_actions, number num_states)
     {
-        number a;
-
-        for (a = 0; a < num_jactions; ++a)
+        for (number a = 0; a < num_actions; ++a)
         {
             this->t_model.push_back(Matrix(num_states, num_states));
         }
     }
 
-    void StateDynamics::setTransitionProbability(number x, number jaction, number y, double prob, bool cumul)
+    void StateDynamics::setTransitionProbability(number x, number u, number y, double prob, bool cumul)
     {
         if (cumul)
-            this->t_model[jaction](x, y) += prob;
+            this->t_model[u](x, y) += prob;
         else
-            this->t_model[jaction](x, y) = prob;
+            this->t_model[u](x, y) = prob;
     }
 
-    double StateDynamics::getTransitionProbability(number x, number jaction, number y) const
+    double StateDynamics::getTransitionProbability(number x, number u, number y) const
     {
-        return this->t_model[jaction](x, y);
+        return this->t_model[u](x, y);
     }
 
-    const std::unordered_set<state> &StateDynamics::getStateSuccessors(number x, number jaction)
+    const std::unordered_set<state> &StateDynamics::getStateSuccessors(number x, number u)
     {
-        return this->successor_states.at(x).at(jaction);
+        return this->successor_states.at(x).at(u);
     }
 
     void StateDynamics::setTransitions(const std::vector<Matrix> &t_model)
