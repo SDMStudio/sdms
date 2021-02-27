@@ -5,11 +5,13 @@ namespace sdm{
 	POMDP_ModelsUpdateRules::POMDP_ModelsUpdateRules(
 		number batch_size, 
 		number tao, 
+		number eta, 
 		torch::Device device, 
 		std::shared_ptr<sdm::POSG>& game
 	){
 		this->batch_size = batch_size;
 		this->tao = tao;
+		this->eta = eta;
 		this->device = device;
 		this->game = game;
 	}
@@ -18,20 +20,28 @@ namespace sdm{
 		std::shared_ptr<POMDP_ReplayMemory>& replay_memory, 
 		std::shared_ptr<POMDP_Agents>& agents
 	){
-		if (replay_memory->size() < batch_size){
+
+		// std::cout << "replay_memory->size() " << replay_memory->size() << std::endl;
+		// std::cout << "eta " << eta << std::endl;
+		// std::cout << "batch_size " << batch_size << std::endl;
+
+		if (replay_memory->size() * eta < batch_size){
 			return 0;
 		}
 
-		std::vector<pomdp_recurrent_transitions> transitions = replay_memory->sample(batch_size);
+		std::vector<pomdp_transitions_sequence> transition_sequences = replay_memory->sample();
 
-		torch::Tensor loss = torch::zeros(1);
-		
 		// C++ being annoying, i have to declare these here
 		torch::Tensor next_o2_batch, next_o1_batch;
 
+		torch::Tensor loss = torch::zeros({1});
+
 		for (int t = 0; t < tao; t++){
 
-			pomdp_batch b = construct_batch(transitions[t]);
+			// std::cout << loss << std::endl;
+
+
+			pomdp_batch b = construct_batch(transition_sequences[t]);
 
 			torch::Tensor o2_batch, o1_batch, u2_batch, u1_batch, index_u2_u1_batch, z2_batch, z1_batch, r_batch;
 			
@@ -42,30 +52,36 @@ namespace sdm{
 				o1_batch = next_o1_batch;
 			}			
 
-			torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_drqn->q_net);
+			// std::cout << o2_batch << std::endl;
+
+			next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->policy_nets->trans_net_2);
+
+			next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_nets->trans_net_1);
+
+
+			torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_nets->q_net);
 
 			torch::Tensor target_next_o2_batch, target_next_o1_batch;
 			{
 				torch::NoGradGuard no_grad;
-				target_next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->target_drqn->trans_net_2);
-				target_next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->target_drqn->trans_net_1);
+				target_next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->target_nets->trans_net_2);
+				target_next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->target_nets->trans_net_1);
 			}
 			
-			torch::Tensor target_q_values = get_target_q_values(target_next_o2_batch, target_next_o1_batch, r_batch, agents->target_drqn->q_net);
+			torch::Tensor target_q_values = get_target_q_values(target_next_o2_batch, target_next_o1_batch, r_batch, agents->target_nets->q_net);
 			
 			loss += at::smooth_l1_loss(q_values, target_q_values);
 
-			next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->policy_drqn->trans_net_2);
-
-			next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_drqn->trans_net_1);
 		}
 
+		// std::cout << loss << std::endl;
+
 		update_nets(agents, loss);
-		// Return the lossfor tracking purposes
+		// Return the loss.
 		return loss.item<double>();
 	}
 
-	torch::Tensor POMDP_ModelsUpdateRules::get_next_history_batch(torch::Tensor u_batch, torch::Tensor z_batch, torch::Tensor o_batch, Transition_Network& transition_net){
+	torch::Tensor POMDP_ModelsUpdateRules::get_next_history_batch(torch::Tensor u_batch, torch::Tensor z_batch, torch::Tensor o_batch, RNN& transition_net){
 		torch::Tensor u_z_batch = torch::cat({u_batch, z_batch}, 1);
 		return transition_net(u_z_batch, o_batch);
 	}
@@ -90,7 +106,7 @@ namespace sdm{
 		// Backpropagate the gradients of the loss.
 		loss.backward();
 		// For every parameter in 
-		for (auto param: agents->policy_drqn->q_net->parameters()){
+		for (auto param: agents->policy_nets->q_net->parameters()){
 			// Clamp its gradient between [-1, 1] to avoid ...
 			param.grad().data().clamp_(-1, 1);
 		}
@@ -143,6 +159,8 @@ namespace sdm{
 
 			r_batch_vector.push_back(r);
 
+			// std::cout << "episode " << std::get<8>(t) << std::endl;
+			// std::cout << "step " << std::get<9>(t) << std::endl << std::endl;
 		}
 		
 		torch::Tensor o2_batch = torch::cat(o2_batch_vector);

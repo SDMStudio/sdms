@@ -59,11 +59,11 @@ namespace sdm
 
 	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>> batch;
  
-	typedef std::tuple<history, history, action, action, action, observation, observation, reward> pomdp_transition;
+	typedef std::tuple<history, history, action, action, action, observation, observation, reward, int, int> pomdp_transition;
 
 	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> pomdp_batch;
 
-	typedef std::vector<pomdp_transition> pomdp_recurrent_transitions;
+	typedef std::vector<pomdp_transition> pomdp_transitions_sequence;
 
   /**
   * Enumerator for the types of statistics that can be plotted.

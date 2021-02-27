@@ -10,7 +10,7 @@ int main(int argv, char** args){
 
 		std::string filename, ib_net_filename;
 		int episodes;
-    number horizon, tao, replay_memory_size, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, seed;
+    number horizon, tao, eta, replay_memory_size, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, seed;
     float eps_end, eps_start, eps_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
 		bool gpu;
 
@@ -25,7 +25,7 @@ int main(int argv, char** args){
     ("eps-end", po::value<float>(&eps_end)->default_value(0), "set the epsilon exploration end value")
     ("eps-start", po::value<float>(&eps_start)->default_value(1), "set the epsilon exploration start value")
     ("eps-decay,j", po::value<float>(&eps_decay)->default_value(1000), "set the epsilon exploration decay speed")
-    ("batch-size,b", po::value<number>(&batch_size)->default_value(128), "set the batch size")
+    ("batch-size,b", po::value<number>(&batch_size)->default_value(1024), "set the batch size")
     ("o2", po::value<number>(&dim_o2)->default_value(128), "set the history size of agent 0")
     ("o1", po::value<number>(&dim_o1)->default_value(128), "set the history size of agent 1")
     ("i,i", po::value<number>(&dim_i)->default_value(256), "set the inner dimension")
@@ -37,6 +37,7 @@ int main(int argv, char** args){
     ("adam-eps,a", po::value<float>(&adam_eps)->default_value(1e-8), "set the adam eps")
 		("print", po::value<number>(&print_every)->default_value(1), "every how many episodes do we print?")
 		("tao", po::value<number>(&tao)->default_value(5), "how many steps will BPTT use?")
+		("eta", po::value<number>(&eta)->default_value(32), "how many transition sequences will be sampled from each episode for training?")
 		("gpu", "if gpu is to be used")
     ;
 
@@ -91,8 +92,8 @@ int main(int argv, char** args){
 		game->setPlanningHorizon(horizon);
 
 		DQL dql(
-			episodes, 
-			horizon, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, tao,
+			episodes,
+			horizon, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, tao, eta,
 			eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, 
 			device, game, replay_memory_size, ib_net_filename
 		);

@@ -26,30 +26,84 @@ namespace sdm{
 		int episode;
 		// Total number of epidoes.
 		int episodes;
-
-		//
+		// The number time steps that the gradient will propagate during Back Propagation Through Time (BPTT).
 		number tao;
-		number horizon, batch_size, dim_o2, dim_o1, target_update, print_every, step;
-		float eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, epsilon, GAMMA;
+		// Number of transition sequences that will be sampled from each episode for training
+		number eta;
+		// Horizon of the game to solve.
+		number horizon;
+		// Batch size for updating the models.
+		number batch_size;
+		// Dimension of history of agent 2.
+		number dim_o2;
+		// Dimension of history of agent 2.
+		number dim_o1;
+		// How many episodes go before we update the target net.
+		number target_update;
+		// Interval for printing the relevant statistics.
+		number print_every;
+		// Current step.
+		number step;
+		// Final value of epsilon.
+		float eps_end;
+		// Initial value of epsilon.
+		float eps_start;
+		// Decay rate of epsilon.
+		float eps_decay;
+		// Discount factor of the game i.e. the degree to which the next reward is less imporant than the current one.
+		float discount_factor;
+		// This lets the E[R] be more smooth. A value between [0, 1). 0: Ignore previous Rs. .9: It's as if it's the average of the last 10 Rs etc.
+		float rolling_factor;
+		// Learning rate.
+		float lr;
+		// Epsilon for adam optimizer.
+		float adam_eps;
+		// The epsilon.
+		float epsilon;
+		// Discount factor (it looks nicer this way)
+		float GAMMA;
+		// Q value loss that is returned from the update function.
 		double q_value_loss;
 		// Discounted cumulative reward at the end of the episode. 
 		reward R;
 		// E[R]
 		reward E_R;
+		// Reward for the current step.
 		reward r;
-		action u2, u1, u2_u1;
-		state x, next_x;
-		observation z1, z2;
-		history o2, next_o2, o1, next_o1;
+		// Action of agent 2.
+		action u2;
+		// Action of agent 1.
+		action u1;
+		// The joint action of agents 2 and 1. Needed later.
+		action u2_u1;
+		// Current state of the game.
+		state x;
+		// Next state of the game.
+		state next_x;
+		// Observation of agent 2.
+		observation z2;
+		// Observation of agent 1.
+		observation z1;
+		// History of agent 2.
+		history o2;
+		// Next history of agent 2.
+		history next_o2;
+		// History of agent 1.
+		history o1;
+		// Next history of agent 1.
+		history next_o1;
+		// For updating the models.
 		std::shared_ptr<POMDP_ModelsUpdateRules> models_update_rules;
+		// Experience replay memory.
 		std::shared_ptr<POMDP_ReplayMemory> replay_memory;
+		// Agents object for agents 2 and 1.
 		std::shared_ptr<POMDP_Agents> agents;
 		// Number of steps done in total.
 		int steps_done;
 		// Initialize the method for solving the problem.
 		DQL(
 			int, 
-			number, number, number, number, number, number, number, number,
+			number, number, number, number, number, number, number, number, number,
 			float, float, float, float, float, float, float, 
 			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string
 		);

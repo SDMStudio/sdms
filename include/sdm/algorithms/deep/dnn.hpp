@@ -25,6 +25,14 @@ namespace sdm{
 	};
 	TORCH_MODULE(DQN);
 
+	struct Q_NetworkImpl : torch::nn::Module {
+		torch::nn::Linear fc;
+		Q_NetworkImpl(number, number);
+		// Receives the history hi of agent i and produces q values for that agent.
+		torch::Tensor forward(torch::Tensor);
+	};
+	TORCH_MODULE(Q_Network);
+
 
 	// Recurrent Neural Network.
 	struct Transition_NetworkImpl : torch::nn::Module {
@@ -35,9 +43,18 @@ namespace sdm{
 	};
 	TORCH_MODULE(Transition_Network);
 
-	// Q_Network with 2 RNNs packaged together.
+		// Recurrent Neural Network.
+	struct RNNImpl : torch::nn::Module {
+		torch::nn::RNNCell rnn;
+		RNNImpl(number, number);
+		// Receives history hi, action zi, and observation oi for agent i and return history next_hi.
+		torch::Tensor forward(torch::Tensor, torch::Tensor);
+	};
+	TORCH_MODULE(RNN);
+
+	// DQN with 2 RNNs packaged together.
 	struct DRQNImpl : torch::nn::Module {
-		Transition_Network trans_net_2, trans_net_1;
+		RNN trans_net_2, trans_net_1;
 		DQN q_net;
 		//
 		DRQNImpl(number, number, number, number, number, number, number);

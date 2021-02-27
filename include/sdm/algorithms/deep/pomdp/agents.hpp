@@ -20,7 +20,7 @@ namespace sdm{
 	struct POMDP_Agents {
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
-		//
+		// The name of the file that the networks will be ssaved as. These can later be used for the solution of the OSDPOMDP as induced bias.
 		std::string ib_net_filename;
 		// Initialize the Agents.
 		POMDP_Agents(number, number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);
@@ -32,11 +32,10 @@ namespace sdm{
 		std::uniform_int_distribution<int> uniform_action_distribution;
 		// Optimizer.
 		std::shared_ptr<torch::optim::Adam> optimizer;
-		//
-		DRQN policy_drqn{nullptr};
-		//
-		DRQN target_drqn{nullptr};
-
+		// DRQN that is used to act.
+		DRQN policy_nets{nullptr};
+		// DRQN that is used to get the target Q Values during updates.
+		DRQN target_nets{nullptr};
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
 		// Given histories o2 and o1s, get epsilon-greedy action u2_u1.
@@ -50,8 +49,8 @@ namespace sdm{
 		// Helper function to create tensor u1_z1 from action u1 and observation u1.
 		torch::Tensor recast_u1_z1(action, observation);
 		// Update the target network by copying the parameters of agent 1's policy network into the target networks parameters.
-		void update_target_net();
-		//
+		void update_target_nets();
+		// Save the nets' parameters so that they can later be used to solve the OSDPOMDP as induced bias.
 		void save_induced_bias();
 	};
 }

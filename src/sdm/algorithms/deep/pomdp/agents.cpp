@@ -7,19 +7,19 @@ namespace sdm{
 		number agents_q_net_input_dim, number agents_q_net_inner_dim, number agents_q_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, std::string ib_net_filename
 	){
-		this->policy_drqn = DRQN(
+		this->policy_nets = DRQN(
 			agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim,
 			agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim,
 			agents_q_net_input_dim, agents_q_net_inner_dim, agents_q_net_output_dim
 		);
-		this->policy_drqn->to(device);
+		this->policy_nets->to(device);
 
-		this->target_drqn = DRQN(
+		this->target_nets = DRQN(
 			agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim,
 			agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim,
 			agents_q_net_input_dim, agents_q_net_inner_dim, agents_q_net_output_dim
 		);
-		this->target_drqn->to(device);
+		this->target_nets->to(device);
 
 		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
 		this->uniform_action_distribution = std::uniform_int_distribution<int>(0, game->getNumActions(0) * game->getNumActions(1) - 1);
@@ -27,12 +27,12 @@ namespace sdm{
 		torch::optim::AdamOptions options;
 		options.eps(adam_eps);
 		options.lr(lr);
-		this->optimizer = std::make_shared<torch::optim::Adam>(policy_drqn->parameters(), options);
+		this->optimizer = std::make_shared<torch::optim::Adam>(policy_nets->parameters(), options);
 		
 		this->device = device;
 		this->game = game;
 		this->ib_net_filename = ib_net_filename;
-		update_target_net();
+		update_target_nets();
 	}
 
 	void POMDP_Agents::save_induced_bias(){
@@ -41,21 +41,21 @@ namespace sdm{
 		ib_transition_net_2_filename.append("/");
 		ib_transition_net_2_filename.append(ib_net_filename);
 		ib_transition_net_2_filename.append("_transition_net_2.pt");
-		torch::save(policy_drqn->trans_net_2, ib_transition_net_2_filename);
+		torch::save(policy_nets->trans_net_2, ib_transition_net_2_filename);
 
 		std::string ib_transition_net_1_filename;
 		ib_transition_net_1_filename.append("../models");
 		ib_transition_net_1_filename.append("/");
 		ib_transition_net_1_filename.append(ib_net_filename);
 		ib_transition_net_1_filename.append("_transition_net_1.pt");
-		torch::save(policy_drqn->trans_net_1, ib_transition_net_1_filename);
+		torch::save(policy_nets->trans_net_1, ib_transition_net_1_filename);
 
 		std::string ib_q_net_filename;
 		ib_q_net_filename.append("../models");
 		ib_q_net_filename.append("/");
 		ib_q_net_filename.append(ib_net_filename);
 		ib_q_net_filename.append("_q_net.pt");
-		torch::save(policy_drqn->q_net, ib_q_net_filename);
+		torch::save(policy_nets->q_net, ib_q_net_filename);
 	}
 
 	action POMDP_Agents::get_epsilon_greedy_actions(history o2, history o1, float epsilon){
@@ -65,7 +65,7 @@ namespace sdm{
 			torch::NoGradGuard no_grad;
 			torch::Tensor o2_o1 = torch::cat({o2, o1});
 			o2_o1 = o2_o1.to(device);
-			return torch::argmax(policy_drqn->q_net(o2_o1)).item<int>();
+			return torch::argmax(policy_nets->q_net(o2_o1)).item<int>();
 		// With probabiliy epsilon we do this.
 		} else {
 			// Choose random action for agent 0, return it.
@@ -83,7 +83,7 @@ namespace sdm{
 		// Put it to GPU if needed.
 		o2 = o2.to(device);
 		// Get next_h0, put it back to CPU (if it was in GPU), and remove the batch dimension.
-		return policy_drqn->trans_net_2(u2_z2, o2).cpu().squeeze();
+		return policy_nets->trans_net_2(u2_z2, o2).cpu().squeeze();
 	}
 
 	history POMDP_Agents::get_next_history_1(history o1, action u1, observation z1){
@@ -96,7 +96,7 @@ namespace sdm{
 		// Put it to GPU if needed.
 		o1 = o1.to(device);
 		// Get next_h1, put it back to CPU (if it was in GPU), and remove the batch dimension.
-		return policy_drqn->trans_net_1(u1_z1, o1).cpu().squeeze();
+		return policy_nets->trans_net_1(u1_z1, o1).cpu().squeeze();
 	}
 
 	torch::Tensor POMDP_Agents::recast_u2_z2(action u2, observation z2){
@@ -143,13 +143,13 @@ namespace sdm{
 		return u1_z1;
 	}
 
-	void POMDP_Agents::update_target_net(){
+	void POMDP_Agents::update_target_nets(){
 		// Create std::stringstream stream.
 		std::stringstream stream;
 		// Save the parameters of policy drqn into the stream.
-		torch::save(policy_drqn, stream);
+		torch::save(policy_nets, stream);
 		// Load those weights from the stream into target drqn.
-		torch::load(target_drqn, stream);
+		torch::load(target_nets, stream);
 		//
 		save_induced_bias();
 	}

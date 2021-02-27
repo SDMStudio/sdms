@@ -11,6 +11,7 @@ namespace sdm{
 		number target_update, 
 		number print_every,
 		number tao,
+		number eta,
 		float eps_end, 
 		float eps_start, 
 		float eps_decay,  
@@ -30,22 +31,23 @@ namespace sdm{
 		this->dim_o1 = dim_o1;
 		this->target_update = target_update;
 		this->print_every = print_every;
+		this->eta = eta;
 		this->eps_end = eps_end;
 		this->eps_start = eps_start;
 		this->eps_decay = eps_decay;
-		this->discount_factor = discount_factor;
+		this->discount_factor = discount_factor; //not used. GAMMA is used.
 		this->rolling_factor = rolling_factor;
 		this->lr = lr;
 		this->adam_eps = adam_eps;
 		this->game = game;
-		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, tao, device, game);
+		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, tao, eta, device, game);
 		this->agents =  std::make_shared<POMDP_Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
 			dim_o2 + dim_o1, dim_i, game->getNumActions(0) * game->getNumActions(1),
 			game, device, lr, adam_eps, ib_net_filename
 		);
-		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size, tao, horizon);
+		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size, tao, eta, horizon, batch_size);
 		this->GAMMA = game->getDiscount();
 		initialize();
 	}
@@ -57,10 +59,10 @@ namespace sdm{
 	}
 
 	void DQL::update_epsilon(){
-		if (episode < batch_size){
+		if (episode * eta < batch_size){
 			epsilon = 1;
 		} else {
-			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done - batch_size * horizon) / eps_decay);
+			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done - (batch_size / eta) * horizon) / eps_decay);
 		}
 	}
 
@@ -91,7 +93,7 @@ namespace sdm{
 
 	void DQL::update_replay_memory(){
 		// Create transition
-		pomdp_transition t = std::make_tuple(o2, o1, u2, u1, u2_u1, z2, z1, r);
+		pomdp_transition t = std::make_tuple(o2, o1, u2, u1, u2_u1, z2, z1, r, episode, step);
 		// Push it to the replay memory.
 		replay_memory->push(t, episode, step);
 	}
@@ -105,29 +107,26 @@ namespace sdm{
 		// Update the history of agent 1.
 		o1 = next_o1;
 		// Update epsilon, the exploration coefficient.
-		update_epsilon();
-		// If number of steps is a multiple of target_update hyperparameter:
-		
+		update_epsilon();		
 		// Increment steps done.
 		steps_done++;
 	}
 
 	void DQL::end_episode(){
-		// Apply rolling to it to get smoother values.
+		// Apply rolling to get smoother values.
 		E_R = E_R * rolling_factor + R * (1 - rolling_factor);
 		//
 		if(episode % print_every == 0){
 			std::cout << episode << "," << epsilon << "," << q_value_loss << "," << E_R << std::endl;
 		}
-		//
 		if(episode % target_update == 0){
-			// Update the target net using policy net of agent 1.
-			agents->update_target_net();
+			// Update the target nets.
+			agents->update_target_nets();
 		}
 	}
 
 	void DQL::update_models(){
-		// Update weights and get q loss.
+		// Update weights and get q value loss.
 		q_value_loss = models_update_rules->update(replay_memory, agents);
 	}
 
