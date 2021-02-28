@@ -51,18 +51,21 @@ namespace sdm{
 
 			next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_nets->trans_net_1);
 
-			torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_nets->q_net);
+			// here.
+			if (t != tao - 1){
+				torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_nets->q_net);
 
-			torch::Tensor target_next_o2_batch, target_next_o1_batch;
-			{
-				torch::NoGradGuard no_grad;
-				target_next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->target_nets->trans_net_2);
-				target_next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->target_nets->trans_net_1);
+				torch::Tensor target_next_o2_batch, target_next_o1_batch;
+				{
+					torch::NoGradGuard no_grad;
+					target_next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->target_nets->trans_net_2);
+					target_next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->target_nets->trans_net_1);
+				}
+				
+				torch::Tensor target_q_values = get_target_q_values(target_next_o2_batch, target_next_o1_batch, r_batch, agents->target_nets->q_net);
+				
+				loss += at::smooth_l1_loss(q_values, target_q_values);
 			}
-			
-			torch::Tensor target_q_values = get_target_q_values(target_next_o2_batch, target_next_o1_batch, r_batch, agents->target_nets->q_net);
-			
-			loss += at::smooth_l1_loss(q_values, target_q_values);
 		}
 
 		update_nets(agents, loss);
