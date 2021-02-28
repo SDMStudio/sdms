@@ -32,6 +32,7 @@ namespace sdm{
 
 		// Q Value Loss
 		torch::Tensor loss = torch::zeros({1});
+		loss = loss.to(device);
 
 		for (int t = 0; t < tao; t++){
 
