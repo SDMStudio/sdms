@@ -64,4 +64,5 @@ namespace sdm{
 		// Return the of the memory of the replay memory i.e. number of transition stored.
 		return memory.size();
 	}
+
 }

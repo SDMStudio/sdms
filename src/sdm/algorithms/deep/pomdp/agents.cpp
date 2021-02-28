@@ -2,33 +2,31 @@
 
 namespace sdm{
 	POMDP_Agents::POMDP_Agents(
-		number agent_2_transition_net_input_dim, number agent_2_transition_net_hidden_dim, 
-		number agent_1_transition_net_input_dim, number agent_1_transition_net_hidden_dim, 
-		number agents_q_net_input_dim, number agents_q_net_inner_dim, number agents_q_net_output_dim, 
+		number trans_net_2_input_dim, number trans_net_2_hidden_dim, 
+		number trans_net_1_input_dim, number trans_net_1_hidden_dim, 
+		number q_net_input_dim, number q_net_inner_dim, number q_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, std::string ib_net_filename
 	){
 		this->policy_nets = DRQN(
-			agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim,
-			agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim,
-			agents_q_net_input_dim, agents_q_net_inner_dim, agents_q_net_output_dim
+			trans_net_2_input_dim, trans_net_2_hidden_dim, 
+			trans_net_1_input_dim, trans_net_1_hidden_dim, 
+			q_net_input_dim, q_net_inner_dim, q_net_output_dim
 		);
 		this->policy_nets->to(device);
 
 		this->target_nets = DRQN(
-			agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim,
-			agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim,
-			agents_q_net_input_dim, agents_q_net_inner_dim, agents_q_net_output_dim
+			trans_net_2_input_dim, trans_net_2_hidden_dim, 
+			trans_net_1_input_dim, trans_net_1_hidden_dim, 
+			q_net_input_dim, q_net_inner_dim, q_net_output_dim
 		);
 		this->target_nets->to(device);
 
 		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
 		this->uniform_action_distribution = std::uniform_int_distribution<int>(0, game->getNumActions(0) * game->getNumActions(1) - 1);
-
 		torch::optim::AdamOptions options;
 		options.eps(adam_eps);
 		options.lr(lr);
 		this->optimizer = std::make_shared<torch::optim::Adam>(policy_nets->parameters(), options);
-		
 		this->device = device;
 		this->game = game;
 		this->ib_net_filename = ib_net_filename;
@@ -43,6 +41,7 @@ namespace sdm{
 		ib_transition_net_2_filename.append("_transition_net_2.pt");
 		torch::save(policy_nets->trans_net_2, ib_transition_net_2_filename);
 
+
 		std::string ib_transition_net_1_filename;
 		ib_transition_net_1_filename.append("../models");
 		ib_transition_net_1_filename.append("/");
@@ -50,12 +49,12 @@ namespace sdm{
 		ib_transition_net_1_filename.append("_transition_net_1.pt");
 		torch::save(policy_nets->trans_net_1, ib_transition_net_1_filename);
 
-		std::string ib_q_net_filename;
-		ib_q_net_filename.append("../models");
-		ib_q_net_filename.append("/");
-		ib_q_net_filename.append(ib_net_filename);
-		ib_q_net_filename.append("_q_net.pt");
-		torch::save(policy_nets->q_net, ib_q_net_filename);
+		std::string ib_target_net_filename;
+		ib_target_net_filename.append("../models");
+		ib_target_net_filename.append("/");
+		ib_target_net_filename.append(ib_net_filename);
+		ib_target_net_filename.append("_target_net.pt");
+		torch::save(policy_nets->q_net, ib_target_net_filename);
 	}
 
 	action POMDP_Agents::get_epsilon_greedy_actions(history o2, history o1, float epsilon){
@@ -146,11 +145,12 @@ namespace sdm{
 	void POMDP_Agents::update_target_nets(){
 		// Create std::stringstream stream.
 		std::stringstream stream;
-		// Save the parameters of policy drqn into the stream.
+		// Save the parameters of agent 1's policy net into the stream.
 		torch::save(policy_nets, stream);
-		// Load those weights from the stream into target drqn.
+		// Load those weights from the stream into agent 1's target net.
 		torch::load(target_nets, stream);
 		//
 		save_induced_bias();
 	}
+
 }

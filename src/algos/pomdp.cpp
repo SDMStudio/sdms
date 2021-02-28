@@ -100,6 +100,7 @@ int main(int argv, char** args){
 
 		dql.solve();
 
+
 	} catch(std::exception& e){
     std::cerr << "Unhandled Exception reached the top of main: " << e.what() << ", application will now exit" << std::endl;
     return ERROR_UNHANDLED_EXCEPTION;

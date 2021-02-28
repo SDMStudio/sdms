@@ -48,7 +48,7 @@ namespace sdm{
 		torch::Tensor recast_u2_z2(action, observation);
 		// Helper function to create tensor u1_z1 from action u1 and observation u1.
 		torch::Tensor recast_u1_z1(action, observation);
-		// Update the target network by copying the parameters of agent 1's policy network into the target networks parameters.
+		// Update the target nets by copying the parameters of policy nets into the target networks' parameters.
 		void update_target_nets();
 		// Save the nets' parameters so that they can later be used to solve the OSDPOMDP as induced bias.
 		void save_induced_bias();

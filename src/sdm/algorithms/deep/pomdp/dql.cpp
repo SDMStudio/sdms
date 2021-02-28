@@ -6,8 +6,8 @@ namespace sdm{
 		number horizon, 
 		number batch_size,
 		number dim_o2, 
-		number dim_o1,
-		number dim_i, 
+		number dim_o1, 
+		number dim_i,
 		number target_update, 
 		number print_every,
 		number tao,
@@ -35,7 +35,7 @@ namespace sdm{
 		this->eps_end = eps_end;
 		this->eps_start = eps_start;
 		this->eps_decay = eps_decay;
-		this->discount_factor = discount_factor; //not used. GAMMA is used.
+		this->discount_factor = discount_factor;
 		this->rolling_factor = rolling_factor;
 		this->lr = lr;
 		this->adam_eps = adam_eps;
@@ -52,10 +52,10 @@ namespace sdm{
 		initialize();
 	}
 
-	action DQL::get_a_from_u2_u1(action u2, action u1){
+	action DQL::get_u_from_u2_u1(action u2, action u1){
 		std::vector<action> ja = {u2, u1};
-		action a = game->getActionSpace().joint2single(ja);
-		return a;
+		action u = game->getActionSpace().joint2single(ja);
+		return u;
 	}
 
 	void DQL::update_epsilon(){
@@ -67,7 +67,7 @@ namespace sdm{
 	}
 
 	std::tuple<observation, observation, reward> DQL::act(){
-		action u = get_a_from_u2_u1(u2, u1);
+		action u = get_u_from_u2_u1(u2, u1);
 		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(x, u);
 		std::vector<reward> rs = std::get<0>(r_z_next_x);
 		observation z = std::get<1>(r_z_next_x);
@@ -80,11 +80,11 @@ namespace sdm{
 		std::cout << "Episode,Epsilon,Q Value Loss,E[R]" << std::endl;
 		update_epsilon();
 		steps_done = 0;
+		E_R = 0;
 	}
 
 	void DQL::initialize_episode(){
 		R = 0;
-		E_R = 0;
 		q_value_loss = 0;
 		x = game->init();
 		o2 = torch::zeros(dim_o2);
@@ -107,13 +107,13 @@ namespace sdm{
 		// Update the history of agent 1.
 		o1 = next_o1;
 		// Update epsilon, the exploration coefficient.
-		update_epsilon();		
+		update_epsilon();
 		// Increment steps done.
 		steps_done++;
 	}
 
 	void DQL::end_episode(){
-		// Apply rolling to get smoother values.
+		// Apply rolling to it to get smoother values.
 		E_R = E_R * rolling_factor + R * (1 - rolling_factor);
 		//
 		if(episode % print_every == 0){
@@ -126,7 +126,7 @@ namespace sdm{
 	}
 
 	void DQL::update_models(){
-		// Update weights and get q value loss.
+		// Update weights and get q loss.
 		q_value_loss = models_update_rules->update(replay_memory, agents);
 	}
 

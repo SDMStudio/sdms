@@ -21,10 +21,6 @@ namespace sdm{
 		std::shared_ptr<POMDP_Agents>& agents
 	){
 
-		// std::cout << "replay_memory->size() " << replay_memory->size() << std::endl;
-		// std::cout << "eta " << eta << std::endl;
-		// std::cout << "batch_size " << batch_size << std::endl;
-
 		if (replay_memory->size() * eta < batch_size){
 			return 0;
 		}
@@ -34,12 +30,10 @@ namespace sdm{
 		// C++ being annoying, i have to declare these here
 		torch::Tensor next_o2_batch, next_o1_batch;
 
+		// Q Value Loss
 		torch::Tensor loss = torch::zeros({1});
 
 		for (int t = 0; t < tao; t++){
-
-			// std::cout << loss << std::endl;
-
 
 			pomdp_batch b = construct_batch(transition_sequences[t]);
 
@@ -52,12 +46,9 @@ namespace sdm{
 				o1_batch = next_o1_batch;
 			}			
 
-			// std::cout << o2_batch << std::endl;
-
 			next_o2_batch = get_next_history_batch(u2_batch, z2_batch, o2_batch, agents->policy_nets->trans_net_2);
 
 			next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_nets->trans_net_1);
-
 
 			torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_nets->q_net);
 
@@ -71,10 +62,7 @@ namespace sdm{
 			torch::Tensor target_q_values = get_target_q_values(target_next_o2_batch, target_next_o1_batch, r_batch, agents->target_nets->q_net);
 			
 			loss += at::smooth_l1_loss(q_values, target_q_values);
-
 		}
-
-		// std::cout << loss << std::endl;
 
 		update_nets(agents, loss);
 		// Return the loss.
@@ -100,12 +88,14 @@ namespace sdm{
 		return target_q_values.unsqueeze(1);
 	}
 
+	// void POMDP_ModelsUpdateRules::update_nets(std::shared_ptr<POMDP_Agents>& agents, torch::Tensor loss){
 	void POMDP_ModelsUpdateRules::update_nets(std::shared_ptr<POMDP_Agents>& agents, torch::Tensor loss){
 		// Empy out the gradients.
 		agents->optimizer->zero_grad();
 		// Backpropagate the gradients of the loss.
 		loss.backward();
 		// For every parameter in 
+		// for (auto param: agents->policy_nets->q_net->parameters()){
 		for (auto param: agents->policy_nets->q_net->parameters()){
 			// Clamp its gradient between [-1, 1] to avoid ...
 			param.grad().data().clamp_(-1, 1);
@@ -196,5 +186,4 @@ namespace sdm{
 
 		return std::make_tuple(o2_batch, o1_batch, u2_batch, u1_batch, index_u2_u1_batch, z2_batch, z1_batch, r_batch);
 	}
-
 }

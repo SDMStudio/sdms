@@ -32,6 +32,7 @@ namespace sdm{
 		// Initialize the ModelsUpdateRules object.
 		POMDP_ModelsUpdateRules(number, number, number, torch::Device, std::shared_ptr<sdm::POSG>&);
 		// Do one step of update to the networks.
+		// double update(std::shared_ptr<POMDP_ReplayMemory>&, std::shared_ptr<POMDP_Agents>&);
 		double update(std::shared_ptr<POMDP_ReplayMemory>&, std::shared_ptr<POMDP_Agents>&);
 		// Construct the batch which is made up of Tensors of correct dimensions and in the correct device (CPU/GPU).
 		pomdp_batch construct_batch(std::vector<pomdp_transition>);
@@ -42,6 +43,7 @@ namespace sdm{
 		//
 		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
 		// Update the parameters of 
+		// void update_nets(std::shared_ptr<POMDP_Agents>&, torch::Tensor);
 		void update_nets(std::shared_ptr<POMDP_Agents>&, torch::Tensor);
 	};
 }
