@@ -117,7 +117,7 @@ namespace sdm{
 		E_R = E_R * rolling_factor + R * (1 - rolling_factor);
 		//
 		if(episode % print_every == 0){
-			std::cout << episode << "," << epsilon << "," << q_value_loss << "," << E_R << std::endl;
+			std::cout << episode << "," << epsilon << "," << q_value_loss / horizon << "," << E_R << std::endl;
 		}
 		if(episode % target_update == 0){
 			// Update the target nets.
@@ -127,7 +127,7 @@ namespace sdm{
 
 	void DQL::update_models(){
 		// Update weights and get q loss.
-		q_value_loss = models_update_rules->update(replay_memory, agents);
+		q_value_loss += models_update_rules->update(replay_memory, agents);
 	}
 
 	void DQL::solve(){
