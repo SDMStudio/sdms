@@ -14,6 +14,7 @@ namespace sdm{
 		this->eta = eta;
 		this->device = device;
 		this->game = game;
+		this->uniform_tao_distribution = std::uniform_int_distribution<int>(1, tao);
 	}
 
 	double POMDP_ModelsUpdateRules::update(
@@ -34,7 +35,9 @@ namespace sdm{
 		torch::Tensor loss = torch::zeros({1});
 		loss = loss.to(device);
 
-		for (int t = 0; t < tao; t++){
+		int tao_star = uniform_tao_distribution(random_engine);
+
+		for (int t = 0; t < tao_star; t++){
 
 			pomdp_batch b = construct_batch(transition_sequences[t]);
 
@@ -52,7 +55,7 @@ namespace sdm{
 			next_o1_batch = get_next_history_batch(u1_batch, z1_batch, o1_batch, agents->policy_nets->trans_net_1);
 
 			// here.
-			if (t != tao - 1){
+			if (t != tao_star - 1){
 				torch::Tensor q_values = get_q_values(o2_batch, o1_batch, index_u2_u1_batch, agents->policy_nets->q_net);
 
 				torch::Tensor target_next_o2_batch, target_next_o1_batch;
@@ -69,7 +72,7 @@ namespace sdm{
 		}
 
 		update_nets(agents, loss);
-		// Return the loss.
+		// Return the loss
 		return loss.item<double>();
 	}
 
@@ -152,9 +155,6 @@ namespace sdm{
 			z1_batch_vector.push_back(one_hot_z1);
 
 			r_batch_vector.push_back(r);
-
-			// std::cout << "episode " << std::get<8>(t) << std::endl;
-			// std::cout << "step " << std::get<9>(t) << std::endl << std::endl;
 		}
 		
 		torch::Tensor o2_batch = torch::cat(o2_batch_vector);
