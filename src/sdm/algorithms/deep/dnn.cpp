@@ -55,9 +55,9 @@ namespace sdm{
 		number trans_net_1_input_size, number trans_net_1_hidden_state_size, 
 		number q_net_input_size, number q_net_inner_dim, number q_net_output_size
 	)
-		: trans_net_2(RNN(trans_net_2_input_size, trans_net_2_hidden_state_size)),
-			trans_net_1(RNN(trans_net_1_input_size, trans_net_1_hidden_state_size)),
-			q_net(DQN(q_net_input_size, q_net_inner_dim, q_net_output_size))
+		: trans_net_2(Transition_Network(trans_net_2_input_size, trans_net_2_hidden_state_size)),
+			trans_net_1(Transition_Network(trans_net_1_input_size, trans_net_1_hidden_state_size)),
+			q_net(Q_Network(q_net_input_size, q_net_output_size))
 	{	
 		register_module("trans_net_2", trans_net_2);
 		register_module("trans_net_1", trans_net_1);

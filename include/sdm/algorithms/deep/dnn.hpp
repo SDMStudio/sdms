@@ -54,8 +54,8 @@ namespace sdm{
 
 	// DQN with 2 RNNs packaged together.
 	struct DRQNImpl : torch::nn::Module {
-		RNN trans_net_2, trans_net_1;
-		DQN q_net;
+		Transition_Network trans_net_2, trans_net_1;
+		Q_Network q_net;
 		//
 		DRQNImpl(number, number, number, number, number, number, number);
 	};
