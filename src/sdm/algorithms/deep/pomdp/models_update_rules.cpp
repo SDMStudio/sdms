@@ -156,12 +156,12 @@ namespace sdm{
 		}
 		
 		torch::Tensor o2_batch = torch::cat(o2_batch_vector);
-		o2_batch = torch::zeros_like(o2_batch); // ZERO
+		// o2_batch = torch::zeros_like(o2_batch); // ZERO
 		o2_batch = o2_batch.reshape({batch_size, -1});
 		o2_batch = o2_batch.to(device);
 
 		torch::Tensor o1_batch = torch::cat(o1_batch_vector);
-		o1_batch = torch::zeros_like(o1_batch); // ZERO
+		// o1_batch = torch::zeros_like(o1_batch); // ZERO
 		o1_batch = o1_batch.reshape({batch_size, -1});
 		o1_batch = o1_batch.to(device);
 
