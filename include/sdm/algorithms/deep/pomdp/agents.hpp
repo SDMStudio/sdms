@@ -32,10 +32,10 @@ namespace sdm{
 		std::uniform_int_distribution<int> uniform_action_distribution;
 		// Optimizer.
 		std::shared_ptr<torch::optim::Adam> optimizer;
-		// DRQN that is used to act.
-		DRQN policy_nets{nullptr};
-		// DRQN that is used to get the target Q Values during updates.
-		DRQN target_nets{nullptr};
+		// Deep_Recurrent_Q_Network that is used to act.
+		Deep_Recurrent_Q_Network policy_nets{nullptr};
+		// Deep_Recurrent_Q_Network that is used to get the target Q Values during updates.
+		Deep_Recurrent_Q_Network target_nets{nullptr};
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
 		// Given histories o2 and o1s, get epsilon-greedy action u2_u1.

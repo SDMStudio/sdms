@@ -37,9 +37,9 @@ namespace sdm{
 		// Policy net of agent 1.
 		DQN agent_1_policy_net{nullptr};
 
-		Transition_Network agent_2_transition_net{nullptr};
+		RNN agent_2_transition_net{nullptr};
 
-		Transition_Network agent_1_transition_net{nullptr};
+		RNN agent_1_transition_net{nullptr};
 		// The Target Network is a delayed copy of the Policy Network of Agent 1. Its purpose is to not have moving targets during update of networks.
 		DQN agent_1_target_net{nullptr};
 		// The policy_net of the POMDP. 

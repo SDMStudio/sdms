@@ -7,14 +7,14 @@ namespace sdm{
 		number q_net_input_dim, number q_net_inner_dim, number q_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, std::string ib_net_filename
 	){
-		this->policy_nets = DRQN(
+		this->policy_nets = Deep_Recurrent_Q_Network(
 			trans_net_2_input_dim, trans_net_2_hidden_dim, 
 			trans_net_1_input_dim, trans_net_1_hidden_dim, 
 			q_net_input_dim, q_net_inner_dim, q_net_output_dim
 		);
 		this->policy_nets->to(device);
 
-		this->target_nets = DRQN(
+		this->target_nets = Deep_Recurrent_Q_Network(
 			trans_net_2_input_dim, trans_net_2_hidden_dim, 
 			trans_net_1_input_dim, trans_net_1_hidden_dim, 
 			q_net_input_dim, q_net_inner_dim, q_net_output_dim
