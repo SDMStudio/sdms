@@ -22,7 +22,8 @@ namespace sdm{
 		torch::Device device,
 		std::shared_ptr<sdm::POSG>& game,
 		int replay_memory_size,
-		std::string ib_net_filename
+		std::string ib_net_filename,
+		bool zerod
 	){
 		this->episodes = episodes;
 		this->horizon = horizon;
@@ -40,7 +41,7 @@ namespace sdm{
 		this->lr = lr;
 		this->adam_eps = adam_eps;
 		this->game = game;
-		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, tao, eta, device, game);
+		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, tao, eta, device, game, zerod);
 		this->agents =  std::make_shared<POMDP_Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,

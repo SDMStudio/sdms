@@ -7,13 +7,15 @@ namespace sdm{
 		number tao, 
 		number eta, 
 		torch::Device device, 
-		std::shared_ptr<sdm::POSG>& game
+		std::shared_ptr<sdm::POSG>& game,
+		bool zerod
 	){
 		this->batch_size = batch_size;
 		this->tao = tao;
 		this->eta = eta;
 		this->device = device;
 		this->game = game;
+		this->zerod = zerod;
 		this->uniform_tao_distribution = std::uniform_int_distribution<int>(1, tao);
 	}
 
@@ -156,12 +158,16 @@ namespace sdm{
 		}
 		
 		torch::Tensor o2_batch = torch::cat(o2_batch_vector);
-		// o2_batch = torch::zeros_like(o2_batch); // ZERO
+		if (zerod){
+			o2_batch = torch::zeros_like(o2_batch);
+		}
 		o2_batch = o2_batch.reshape({batch_size, -1});
 		o2_batch = o2_batch.to(device);
 
 		torch::Tensor o1_batch = torch::cat(o1_batch_vector);
-		// o1_batch = torch::zeros_like(o1_batch); // ZERO
+		if (zerod){
+			o1_batch = torch::zeros_like(o1_batch);
+		}
 		o1_batch = o1_batch.reshape({batch_size, -1});
 		o1_batch = o1_batch.to(device);
 

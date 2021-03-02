@@ -105,7 +105,7 @@ namespace sdm{
 			int, 
 			number, number, number, number, number, number, number, number, number, 
 			float, float, float, float, float, float, float, 
-			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string
+			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string, bool
 		);
 		// (Should be in POSG class.) Used to get the joint action a from private actions u2 and u1.
 		action get_u_from_u2_u1(action, action);

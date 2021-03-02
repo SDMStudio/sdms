@@ -55,7 +55,8 @@ namespace sdm{
 	}
 
 	RNNImpl::RNNImpl(number input_dim, number hidden_dim)
-		: r1(torch::nn::RNNCell(input_dim, hidden_dim))
+		// : r1(torch::nn::RNNCell(input_dim, hidden_dim))
+		: r1(torch::nn::GRUCell(input_dim, hidden_dim))
 	{	
 		register_module("r1", r1);
 	}

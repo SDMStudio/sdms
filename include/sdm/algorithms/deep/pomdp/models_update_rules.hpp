@@ -34,7 +34,7 @@ namespace sdm{
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
 		// Initialize the ModelsUpdateRules object.
-		POMDP_ModelsUpdateRules(number, number, number, torch::Device, std::shared_ptr<sdm::POSG>&);
+		POMDP_ModelsUpdateRules(number, number, number, torch::Device, std::shared_ptr<sdm::POSG>&, bool);
 		// Do one step of update to the networks.
 		// double update(std::shared_ptr<POMDP_ReplayMemory>&, std::shared_ptr<POMDP_Agents>&);
 		double update(std::shared_ptr<POMDP_ReplayMemory>&, std::shared_ptr<POMDP_Agents>&);
@@ -46,8 +46,9 @@ namespace sdm{
 		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
 		//
 		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
-		// Update the parameters of 
-		// void update_nets(std::shared_ptr<POMDP_Agents>&, torch::Tensor);
+		// Update the parameters of models
 		void update_nets(std::shared_ptr<POMDP_Agents>&, torch::Tensor);
+		//
+		bool zerod;
 	};
 }

@@ -12,7 +12,7 @@ int main(int argv, char** args){
 		int episodes;
     number horizon, tao, eta, replay_memory_size, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, seed;
     float eps_end, eps_start, eps_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
-		bool gpu;
+		bool gpu, zerod;
 
 		desc.add_options()
     ("help", "produce help message")
@@ -39,6 +39,7 @@ int main(int argv, char** args){
 		("tao", po::value<number>(&tao)->default_value(5), "how many steps will BPTT use?")
 		("eta", po::value<number>(&eta)->default_value(32), "how many transition sequences will be sampled from each episode for training?")
 		("gpu", "if gpu is to be used")
+		("zerod", "if first histories are zerod during model updates")
     ;
 
     po::variables_map vm;
@@ -62,6 +63,12 @@ int main(int argv, char** args){
       gpu = true;
     } else {
 			gpu = false;
+		}
+
+		if(vm.count("zerod")){
+      zerod = true;
+    } else {
+			zerod = false;
 		}
 
 		torch::Device device(torch::kCPU);
@@ -95,7 +102,7 @@ int main(int argv, char** args){
 			episodes,
 			horizon, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, tao, eta,
 			eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, 
-			device, game, replay_memory_size, ib_net_filename
+			device, game, replay_memory_size, ib_net_filename, zerod
 		);
 
 		dql.solve();

@@ -61,7 +61,8 @@ namespace sdm{
 
 	// Recurrent Neural Network.
 	struct RNNImpl : torch::nn::Module {
-		torch::nn::RNNCell r1;
+		// torch::nn::RNNCell r1;
+		torch::nn::GRUCell r1;
 		RNNImpl(number, number);
 		// Receives history hi, action zi, and observation oi for agent i and return history next_hi.
 		torch::Tensor forward(torch::Tensor, torch::Tensor);
