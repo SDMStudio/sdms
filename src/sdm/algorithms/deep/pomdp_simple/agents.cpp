@@ -48,38 +48,23 @@ namespace sdm{
 	}
 
 	history POMDP_Agents_Simple::get_next_history_2(history o2, action u2, observation z2){
-		// torch::Tensor a = torch::tensor({100, 100});
-		// torch::Tensor x = torch::tensor({1, 2, 3, 4, 5, 6, 7, 8});
-		// std::cout << "x" << std::endl << x << std::endl;
-		// x = torch::roll(x, -2);
-		// std::cout << "x" << std::endl << x << std::endl;
-		// std::cout << "x.slice(0, 0, -2)" << std::endl << x.slice(0, 0, -2) << std::endl;
-		// std::cout << "a" << std::endl << a << std::endl;
-		// torch::Tensor next_x = torch::cat({x.slice(0, 0, -2), a});
-		// std::cout << "next_x" << std::endl << next_x << std::endl;
-
 		// Recast the u2 and z2 as a Tensor and get u2_z2, the entry to the network.
 		torch::Tensor u2_z2 = recast_u2_z2(u2, z2);
 		u2_z2 = u2_z2.squeeze();
 		number u2_z2_size = u2_z2.sizes()[0];
-		// std::cout << "o2" << std::endl << o2 << std::endl;
 		o2 = torch::roll(o2, -u2_z2_size);
-		// std::cout << "o2" << std::endl << o2 << std::endl;
-		// std::cout << "o2.slice(0, 0, -u2_z2_size)" << std::endl << o2.slice(0, 0, -u2_z2_size) << std::endl;
-		// std::cout << "u2_z2" << std::endl << u2_z2 << std::endl;
 		torch::Tensor next_o2 = torch::cat({o2.slice(0, 0, -u2_z2_size), u2_z2});
-		// std::cout << "next_o2" << std::endl << next_o2 << std::endl;
-		// std::cout << std::endl;
 		return next_o2;
 	}
 
 	history POMDP_Agents_Simple::get_next_history_1(history o1, action u1, observation z1){
 		// Recast the u1 and z1 as a Tensor and get u1_z1, the entry to the network.
 		torch::Tensor u1_z1 = recast_u1_z1(u1, z1);
-		// torch::roll();
-		// // Get next_h0, put it back to CPU (if it was in GPU), and remove the batch dimension.
-		// return policy_nets->trans_net_1(u1_z1, o1).cpu().squeeze();
-		return o1;///////////
+		u1_z1 = u1_z1.squeeze();
+		number u1_z1_size = u1_z1.sizes()[0];
+		o1 = torch::roll(o1, -u1_z1_size);
+		torch::Tensor next_o1 = torch::cat({o1.slice(0, 0, -u1_z1_size), u1_z1});
+		return next_o1;
 	}
 
 	torch::Tensor POMDP_Agents_Simple::recast_u2_z2(action u2, observation z2){
