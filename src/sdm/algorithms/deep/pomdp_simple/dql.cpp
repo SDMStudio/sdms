@@ -1,17 +1,14 @@
-#include <sdm/algorithms/deep/pomdp/dql.hpp>
+#include <sdm/algorithms/deep/pomdp_simple/dql.hpp>
 
 namespace sdm{
-	DQL::DQL(
+	DQL_Simple::DQL_Simple(
 		int episodes, 
 		number horizon, 
 		number batch_size,
-		number dim_o2, 
-		number dim_o1, 
+		number n,  
 		number dim_i,
 		number target_update, 
 		number print_every,
-		number tao,
-		number eta,
 		float eps_end, 
 		float eps_start, 
 		float eps_decay,  
@@ -22,17 +19,14 @@ namespace sdm{
 		torch::Device device,
 		std::shared_ptr<sdm::POSG>& game,
 		int replay_memory_size,
-		std::string ib_net_filename,
-		bool zerod
+		std::string ib_net_filename
 	){
 		this->episodes = episodes;
 		this->horizon = horizon;
 		this->batch_size = batch_size;
-		this->dim_o2 = dim_o2;
-		this->dim_o1 = dim_o1;
+		this->n = n;
 		this->target_update = target_update;
 		this->print_every = print_every;
-		this->eta = eta;
 		this->eps_end = eps_end;
 		this->eps_start = eps_start;
 		this->eps_decay = eps_decay;
@@ -41,33 +35,35 @@ namespace sdm{
 		this->lr = lr;
 		this->adam_eps = adam_eps;
 		this->game = game;
-		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules>(batch_size, tao, eta, device, game, zerod);
-		this->agents =  std::make_shared<POMDP_Agents>(
-			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
-			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
-			dim_o2 + dim_o1, dim_i, game->getNumActions(0) * game->getNumActions(1),
+		this->models_update_rules = std::make_shared<POMDP_ModelsUpdateRules_Simple>(batch_size, device, game);
+		this->agents =  std::make_shared<POMDP_Agents_Simple>(
+			(game->getNumActions(0) + game->getNumObservations(0)) * n + (game->getNumActions(1) + game->getNumObservations(1)) * n, 
+			dim_i, game->getNumActions(0) * game->getNumActions(1),
 			game, device, lr, adam_eps, ib_net_filename
 		);
-		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size, tao, eta, horizon, batch_size);
+		this->replay_memory = std::make_shared<POMDP_ReplayMemory_Simple>(replay_memory_size, batch_size);
 		this->GAMMA = game->getDiscount();
 		initialize();
 	}
 
-	action DQL::get_u_from_u2_u1(action u2, action u1){
+	action DQL_Simple::get_u_from_u2_u1(action u2, action u1){
 		std::vector<action> ja = {u2, u1};
 		action u = game->getActionSpace().joint2single(ja);
 		return u;
 	}
 
-	void DQL::update_epsilon(){
-		if (episode * eta < batch_size){
+	void DQL_Simple::update_epsilon(){
+		if (steps_done < batch_size){
 			epsilon = 1;
 		} else {
-			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done - (batch_size / eta) * horizon) / eps_decay);
+			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done - batch_size) / eps_decay);
+			if (epsilon < .001){
+				epsilon = 0;
+			}
 		}
 	}
 
-	std::tuple<observation, observation, reward> DQL::act(){
+	std::tuple<observation, observation, reward> DQL_Simple::act(){
 		action u = get_u_from_u2_u1(u2, u1);
 		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(x, u);
 		std::vector<reward> rs = std::get<0>(r_z_next_x);
@@ -77,30 +73,35 @@ namespace sdm{
 		return std::make_tuple(z2_z1[0], z2_z1[1], rs[0]);
 	}
 
-	void DQL::initialize(){
+	void DQL_Simple::initialize(){
 		std::cout << "Episode,Epsilon,Q Value Loss,E[R]" << std::endl;
 		update_epsilon();
 		steps_done = 0;
 		E_R = 0;
 	}
 
-	void DQL::initialize_episode(){
+	void DQL_Simple::initialize_episode(){
 		R = 0;
 		q_value_loss = 0;
 		x = game->init();
-		o2 = torch::zeros(dim_o2);
-		o1 = torch::zeros(dim_o1);
+		o2 = torch::zeros((game->getNumActions(0) + game->getNumObservations(0)) * n);
+		o1 = torch::zeros((game->getNumActions(1) + game->getNumObservations(1)) * n);
+		// std::cout << "game->getNumActions(0) " << game->getNumActions(0) << std::endl;
+		// std::cout << "game->getNumActions(1) " << game->getNumActions(1) << std::endl;
+		// std::cout << "game->getNumObservations(0) " << game->getNumObservations(0) << std::endl;
+		// std::cout << "game->getNumObservations(1) " << game->getNumObservations(1) << std::endl;
+
 	}
 
-	void DQL::update_replay_memory(){
+	void DQL_Simple::update_replay_memory(){
 		// Create transition
-		pomdp_transition t = std::make_tuple(o2, o1, u2, u1, u2_u1, z2, z1, r);
+		pomdp_transition_simple t = std::make_tuple(o2, o1, u2_u1, r, next_o2, next_o1); // ad next histories
 		// Push it to the replay memory.
-		replay_memory->push(t, episode, step);
+		replay_memory->push(t);
 	}
 
 
-	void DQL::end_step(){
+	void DQL_Simple::end_step(){
 		// Update the state.
 		x = next_x;
 		// Update the history of agent 2.
@@ -113,7 +114,7 @@ namespace sdm{
 		steps_done++;
 	}
 
-	void DQL::end_episode(){
+	void DQL_Simple::end_episode(){
 		// Apply rolling to it to get smoother values.
 		E_R = E_R * rolling_factor + R * (1 - rolling_factor);
 		//
@@ -126,12 +127,12 @@ namespace sdm{
 		}
 	}
 
-	void DQL::update_models(){
+	void DQL_Simple::update_models(){
 		// Update weights and get q loss.
 		q_value_loss += models_update_rules->update(replay_memory, agents);
 	}
 
-	void DQL::solve(){
+	void DQL_Simple::solve(){
 		for(episode = 0; episode < episodes; episode++){
 			initialize_episode();
 			for(step = 0; step < horizon; step++){

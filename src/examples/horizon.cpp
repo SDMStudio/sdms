@@ -66,7 +66,13 @@ int main(int argv, char** args){
 
 		game->setPlanningHorizon(horizon);
 
-		std::cout << game->getPlanningHorizon() << std::endl;
+		std::cout << "game->getPlanningHorizon() " << game->getPlanningHorizon() << std::endl;
+		std::cout << "game->getNumActions(0) " << game->getNumActions(0) << std::endl;
+		std::cout << "game->getNumActions(1) " << game->getNumActions(1) << std::endl;
+		std::cout << "game->getNumObservations(0) " << game->getNumObservations(0) << std::endl;
+		std::cout << "game->getNumObservations(1) " << game->getNumObservations(1) << std::endl;
+		std::cout << "game->getNumAgents() " << game->getNumAgents() << std::endl;
+		
 
 	} catch(std::exception& e){
     std::cerr << "Unhandled Exception reached the top of main: " << e.what() << ", application will now exit" << std::endl;

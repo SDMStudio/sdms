@@ -59,9 +59,13 @@ namespace sdm
 
 	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>> batch;
  
-	typedef std::tuple<history, history, action, action, action, observation, observation, reward, int, int> pomdp_transition;
+	typedef std::tuple<history, history, action, action, action, observation, observation, reward> pomdp_transition;
+
+	typedef std::tuple<history, history, action, reward, history, history> pomdp_transition_simple;
 
 	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> pomdp_batch;
+
+	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> pomdp_batch_simple;
 
 	typedef std::vector<pomdp_transition> pomdp_transitions_sequence;
 
