@@ -74,16 +74,12 @@ namespace sdm{
 		one_hot_u2[u2] = 1;
 		// Add batch dimension since RNNs need it.
 		one_hot_u2 = one_hot_u2.unsqueeze(0);
-		// Put it to GPU if needed.
-		one_hot_u2 = one_hot_u2.to(device);
 		// Create one hot vector for z2 with correct number of dimensions.
 		torch::Tensor one_hot_z2 = torch::zeros(game->getNumObservations(0));
 		// Set the correct index to 1, the others stay 0.
 		one_hot_z2[z2] = 1;
 		// Add batch dimension since RNNs need it.
 		one_hot_z2 = one_hot_z2.unsqueeze(0);
-		// Put it to GPU if needed.
-		one_hot_z2 = one_hot_z2.to(device);
 		// Concatonate the two.
 		torch::Tensor u2_z2 = torch::cat({one_hot_u2, one_hot_z2}, 1);
 		// Return it.
@@ -105,8 +101,6 @@ namespace sdm{
 		one_hot_z1 = one_hot_z1.unsqueeze(0);
 		// Concatonate the two.
 		torch::Tensor u1_z1 = torch::cat({one_hot_u1, one_hot_z1}, 1);
-		// Put it to GPU if needed.
-		u1_z1 = u1_z1.to(device);
 		// Return it.
 		return u1_z1;
 	}
