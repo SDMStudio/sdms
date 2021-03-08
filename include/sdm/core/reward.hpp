@@ -21,70 +21,75 @@
 //! \namespace  sdm
 //!
 //! Namespace grouping all tools required for sequential decision making.
-namespace sdm{
+namespace sdm
+{
 
   //!
   //! \class  reward  reward.hpp
   //!
-  class Reward {
-    protected:
-      //! \brief model of the outcomes of the entire team of collaborative agents involved in the system.
-      std::vector<Vector> rewards;
+  class Reward
+  {
+  protected:
+    //! \brief model of the outcomes of the entire team of collaborative agents involved in the system.
+    std::vector<Vector> rewards;
 
-      double max = -999999, min = +999999;
+    double max = -999999, min = +999999;
 
-    public:
+  public:
+    using value_type = double;
 
-      Reward();
+    Reward();
 
-      //! \fn       Reward(number num_jactions, number num_states)
-      //! \param    num_jactions Number of joint actions
-      //! \param    num_states Number of states
-      //! \brief    Reward constructor
-      Reward(number, number);
+    //! \fn       Reward(number num_jactions, number num_states)
+    //! \param    num_jactions Number of joint actions
+    //! \param    num_states Number of states
+    //! \brief    Reward constructor
+    Reward(number, number);
 
-      //! \fn       void initReward(number num_jactions, number num_states)
-      //! \param    num_jactions Number of joint actions
-      //! \param    num_states Number of states
-      //! \brief    Inits the reward model
-      void initReward(number, number);
+    Reward(Reward &copy);
 
-      //! \fn       value getReward(number s, number a) const
-      //! \param    s A specific state
-      //! \param    a A specific joint action
-      //! \brief    Returns reward
-      //! \return   reward at state s and jaction a
-      double getReward(number, number) const;
+    //! \fn       void initReward(number num_jactions, number num_states)
+    //! \param    num_jactions Number of joint actions
+    //! \param    num_states Number of states
+    //! \brief    Inits the reward model
+    void initReward(number, number);
 
-      //! \fn       value setReward(number s, number a) const
-      //! \param    s A specific state
-      //! \param    a A specific joint action
-      //! \param    value The corresponding reward
-      //! \brief    Reward setter
-      void setReward(number, number, double);
+    //! \fn       value getReward(number s, number a) const
+    //! \param    s A specific state
+    //! \param    a A specific joint action
+    //! \brief    Returns reward
+    //! \return   reward at state s and jaction a
+    double getReward(number, number) const;
 
-      //! \fn       const vector& getReward(action) const
-      //! \param    a A specific joint action
-      //! \brief    Get reward vector for given action
-      //! \return   the vector of rewards for given action
-      const Vector& getReward(number) const;
+    //! \fn       value setReward(number s, number a) const
+    //! \param    s A specific state
+    //! \param    a A specific joint action
+    //! \param    value The corresponding reward
+    //! \brief    Reward setter
+    void setReward(number, number, double);
 
-      //! \fn       const std::vector<Vector>& getReward() const
-      //! \brief    Returns list of reward vectors
-      //! \return   the entire reward function
-      const std::vector<Vector>& getReward() const;
+    //! \fn       const vector& getReward(action) const
+    //! \param    a A specific joint action
+    //! \brief    Get reward vector for given action
+    //! \return   the vector of rewards for given action
+    const Vector &getReward(number) const;
 
-      //! \fn       void setReward(action, const vector&)
-      //! \param    a A specific joint action
-      //! \param    v the vector of rewards for corresponding action 
-      //! \brief    Sets the reward vector for action
-      void setReward(number, const Vector&);
+    //! \fn       const std::vector<Vector>& getReward() const
+    //! \brief    Returns list of reward vectors
+    //! \return   the entire reward function
+    const std::vector<Vector> &getReward() const;
 
-      double getMaxReward() const;
+    //! \fn       void setReward(action, const vector&)
+    //! \param    a A specific joint action
+    //! \param    v the vector of rewards for corresponding action
+    //! \brief    Sets the reward vector for action
+    void setReward(number, const Vector &);
 
-      double getMinReward() const;
+    double getMaxReward() const;
 
-      /*!
+    double getMinReward() const;
+
+    /*!
     * \fn std::ostream& operator<<(std::ostream&, const dpomdp&)
     * \brief print the dpomdp
     * \param std::ostream&
@@ -95,7 +100,7 @@ namespace sdm{
     */
     friend std::ostream &operator<<(std::ostream &os, const Reward &reward_fct)
     {
-      
+
       number ja;
       os << "<reward> " << std::endl;
       for (ja = 0; ja < reward_fct.rewards.size(); ++ja)

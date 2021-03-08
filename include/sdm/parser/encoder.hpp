@@ -6,7 +6,7 @@ Copyright (c) 2016 Jilles Steeve Dibangoye
 #include <sdm/parser/ast.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
-#include <sdm/world/decpomdp.hpp>
+#include <sdm/world/discrete_decpomdp.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
 
@@ -620,23 +620,19 @@ namespace sdm
       }
     };
 
-    DiscreteSpace<number> toNumberedSpace(DiscreteSpace<std::string> &old_sp)
+    std::shared_ptr<DiscreteSpace<number>> toNumberedSpace(DiscreteSpace<std::string> &old_sp)
     {
-      std::vector<number> vtmp(old_sp.getNumItems());
-      std::iota(vtmp.begin(), vtmp.end(), 0);
-      return DiscreteSpace<number>(vtmp);
+      return std::make_shared<DiscreteSpace<number>>(old_sp.getNumItems());
     }
 
-    MultiDiscreteSpace<number> toNumberedSpace(MultiDiscreteSpace<std::string> &old_sp)
+    std::shared_ptr<MultiDiscreteSpace<number>> toNumberedSpace(MultiDiscreteSpace<std::string> &old_sp)
     {
-      std::vector<std::vector<number>> vvtmp;
+      std::vector<number> vvtmp;
       for (auto &dsp : old_sp.getSpaces())
       {
-        std::vector<number> vtmp(dsp->getNumItems());
-        std::iota(vtmp.begin(), vtmp.end(), 0);
-        vvtmp.push_back(vtmp);
+        vvtmp.push_back(dsp->getNumItems());
       }
-      return MultiDiscreteSpace<number>(vvtmp);
+      return std::make_shared<MultiDiscreteSpace<number>>(vvtmp);
     }
 
     struct dpomdp_encoder : boost::static_visitor<sdm::DecPOMDP>
@@ -645,7 +641,7 @@ namespace sdm
       // DecPOMDP encoder
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      sdm::DecPOMDP operator()(dpomdp_t const &ast)
+      std::shared_ptr<sdm::DiscreteDecPOMDP> operator()(dpomdp_t const &ast)
       {
         discrete_space_encoder ds_encoder;
         multi_discrete_space_encoder mds_encoder;
@@ -664,25 +660,32 @@ namespace sdm
 
         // Encodes the reward function
         rewards_encoder rews_encoder(state_space, agent_space, action_space);
-        Reward rew = rews_encoder.encode(ast.reward_spec);
+        auto rew = std::make_shared<Reward>(rews_encoder.encode(ast.reward_spec));
 
         // Set start probabilities
         vector_encoder bl_encoder(state_space.getNumItems());
         // auto start_distrib = std::make_shared<Vector>(state_space.getNumItems());
         Vector start_distrib = boost::apply_visitor(bl_encoder, ast.start_param);
+        std::vector<double> start_vector;
+        for (int i=0; i<start_distrib.size(); i++){
+          start_vector.push_back(start_distrib[i]);
+        }
 
         // Encodes the state dynamics
         state_dynamics_encoder state_dyn_enc(state_space, agent_space, action_space);
-        StateDynamics state_dyn = state_dyn_enc.encode(ast.transition_spec);
+        auto state_dyn = std::make_shared<StateDynamics>(state_dyn_enc.encode(ast.transition_spec));
 
         // Encodes the observation dynamics
         obs_dynamics_encoder d_encoder(state_space, agent_space, action_space, obs_space);
-        ObservationDynamics obs_dyn = d_encoder.encode(ast.observation_spec, state_dyn);
+        auto obs_dyn = std::make_shared<ObservationDynamics>(d_encoder.encode(ast.observation_spec, *state_dyn));
 
-        sdm::DecPOMDP parsed_model(toNumberedSpace(state_space), toNumberedSpace(agent_space), toNumberedSpace(action_space), toNumberedSpace(obs_space), state_dyn, obs_dyn, rew, start_distrib);
+        // sdm::DecPOMDP parsed_model(toNumberedSpace(state_space), toNumberedSpace(agent_space), toNumberedSpace(action_space), toNumberedSpace(obs_space), state_dyn, obs_dyn, rew, start_distrib);
+
+        auto parsed_model = std::make_shared<sdm::DiscreteDecPOMDP>(toNumberedSpace(state_space), toNumberedSpace(action_space), toNumberedSpace(obs_space), state_dyn, obs_dyn, rew, start_vector);
+
         // sdm::DecPOMDP parsed_model;
-        parsed_model.setDiscount(ast.discount_param);
-        parsed_model.setCriterion(ast.value_param == "reward");
+        parsed_model->setDiscount(ast.discount_param);
+        parsed_model->setCriterion((Criterion)(ast.value_param == "reward"));
 
 #ifdef DEBUG
         std::cout << "Model Soundness=" << (parsed_model->isSound() ? "yes" : "no") << std::endl;

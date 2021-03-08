@@ -82,7 +82,7 @@ namespace sdm
         number x, y;
         number z;
 
-        for (i = 0, y = 0; y < this->getNumStates(); ++y)
+        for (i = 0, y = 0; y < this->getStateSpace()->getNumItems(); ++y)
             for (z = 0; z < this->getNumJObservations(); ++z, ++i)
                 this->encoding.emplace(i, std::make_pair(y, z));
 
@@ -108,6 +108,9 @@ namespace sdm
         number z;
         std::vector<double> v_rew;
         std::discrete_distribution<size_t> distrib = this->dynamics_generator.at(x).at(a);
+
+        
+
         std::tie(y, z) = this->encoding.at(distrib(common::global_urng()));
 
         for (Reward &rew : this->rew_)
@@ -116,6 +119,13 @@ namespace sdm
         }
 
         return std::make_tuple(v_rew, z, y);
+
+        // observation_type z;
+        // state_type y;
+        // auto rew = this->getReward()->getReward(x, a);
+        // std::tie(y, z) = this->encoding.at(this->dynamics_generator.at(x).at(a)(common::global_urng());
+        // this->setInternalState(y);
+        // return std::make_tuple(z, rew, this->getPlanningHorizon());
     }
 
     // ------------------------------

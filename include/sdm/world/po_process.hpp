@@ -24,7 +24,9 @@ namespace sdm
         TObsSpace obs_spaces_;
 
     public:
+        using observation_space_type = TObsSpace;
         using observation_type = typename TObsSpace::value_type;
+        using state_type = typename StochasticProcess<TStateSpace, TDistrib>::state_type;
 
         PartiallyObservableProcess();
         PartiallyObservableProcess(TStateSpace, TObsSpace);
@@ -34,9 +36,27 @@ namespace sdm
          * \brief Getter for the observation spaces
          */
         TObsSpace getObsSpace() const;
-        
-        observation_type getObservation() const;
-        
+
+        /**
+         * @brief Set the observation space
+         */
+        void setObsSpace(TObsSpace) const;        
+
+        virtual TDistrib getProbaObservation(state_type)
+        {
+            throw sdm::exception::NotImplementedException();
+        }
+
+        /**
+         * @brief Execute a step and return the next sampled state
+         * 
+         * @return state_type 
+         */
+        virtual observation_type getObservation()
+        {
+            return this->getProbaObservation(this->getInternalState())(sdm::common::global_urng());
+        }
+
     };
 
     template <typename TStateSpace, typename TObsSpace, typename TDistrib>
@@ -45,3 +65,4 @@ namespace sdm
     template <typename TStateSpace, typename TObsSpace, typename TDistrib>
     using PartObsProcess = PartiallyObservableProcess<TStateSpace, TObsSpace, TDistrib>;
 } // namespace sdm
+#include <sdm/world/po_process.tpp>

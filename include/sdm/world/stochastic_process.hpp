@@ -96,20 +96,5 @@ namespace sdm
          */
         TDistrib start_distrib_;
     };
-
-    /**
-     * @brief 
-     * 
-     * @tparam TInteger 
-     */
-    class DiscreteStochasticProcess : public StochasticProcess<DiscreteSpace, std::discrete_distribution<number>>
-    {
-    public:
-        DiscreteStochasticProcess();
-        DiscreteStochasticProcess(number num_states);
-        DiscreteStochasticProcess(std::initializer_list<double> start_distrib);
-        DiscreteStochasticProcess(DiscreteSpace state_sp, std::discrete_distribution<number> start_distrib);
-        int getNumStates() const;
-    };
 } // namespace sdm
 #include <sdm/world/stochastic_process.tpp>

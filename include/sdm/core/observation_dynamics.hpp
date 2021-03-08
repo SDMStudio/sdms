@@ -42,6 +42,8 @@ namespace sdm
     public:
         ObservationDynamics();
 
+        ObservationDynamics(ObservationDynamics &copy);
+
         //! \param    num_jactions Number of joint actions
         //! \param    num_jobservations Number of joint observations
         //! \param    num_states Number of states
@@ -118,5 +120,8 @@ namespace sdm
         //! \param    o a specific joint observation
         //! \brief    Sets transition matrix
         void setDynamics(number, number, const Matrix &);
+
+        const std::vector<std::vector<Matrix>> &getDynamics() const;
+        const std::vector<Matrix> &getObservationProbabilities() const;
     };
 } // namespace sdm

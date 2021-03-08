@@ -38,7 +38,6 @@ namespace sdm
     number num_agents_;
 
   public:
-
     using value_type = item;
 
     Joint() : std::vector<item>() {}
@@ -85,4 +84,30 @@ namespace sdm
   template class Joint<number>;
 
   typedef Joint<number> JointItem;
+
+  //using boost::hash_combine
+  template <class T>
+  inline void hash_combine(std::size_t &seed, T const &v)
+  {
+    seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
 } // namespace sdm
+
+namespace std
+{
+  template <typename T>
+  struct hash<sdm::Joint<T>>
+  {
+    typedef sdm::Joint<T> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const &in) const
+    {
+      size_t size = in.size();
+      size_t seed = 0;
+      for (size_t i = 0; i < size; i++)
+        //Combine the hash of the current vector with the hashes of the previous ones
+        sdm::hash_combine(seed, in[i]);
+      return seed;
+    }
+  };
+}

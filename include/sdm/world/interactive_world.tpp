@@ -30,16 +30,16 @@ namespace sdm
     template <typename TDecProcess>
     std::tuple<typename InteractiveWorld<TDecProcess>::observation_type, std::vector<double>, bool> InteractiveWorld<TDecProcess>::step(InteractiveWorld<TDecProcess>::action_type ja)
     {
-        // this->ctimestep_++;
-        // number jaction = this->internal_formalism_->getActionSpace().joint2single(ja);
-        // std::tuple<std::vector<double>, number, number> tuple_ = this->internal_formalism_->getDynamicsGenerator(this->internal_formalism_->getInternalState(), jaction);
+        this->ctimestep_++;
+        number jaction = this->internal_formalism_->getActionSpace().joint2single(ja);
+        std::tuple<std::vector<double>, number, number> tuple_ = this->internal_formalism_->getDynamicsGenerator(this->internal_formalism_->getInternalState(), jaction);
 
-        // this->internal_formalism_->setInternalState(std::get<2>(tuple_));
+        this->internal_formalism_->setInternalState(std::get<2>(tuple_));
 
-        // std::vector<number> jobs = this->internal_formalism_->getObsSpace().single2joint(std::get<1>(tuple_));
-        // std::vector<double> rews = std::get<0>(tuple_);
-        // bool isFinished = (this->ctimestep_ == this->internal_formalism_->getPlanningHorizon());
+        std::vector<number> jobs = this->internal_formalism_->getObsSpace().single2joint(std::get<1>(tuple_));
+        std::vector<double> rews = std::get<0>(tuple_);
+        bool isFinished = (this->ctimestep_ == this->internal_formalism_->getPlanningHorizon());
 
-        // return std::tie(jobs, rews, isFinished);
+        return std::tie(jobs, rews, isFinished);
     }
 } // namespace sdm

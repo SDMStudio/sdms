@@ -13,10 +13,12 @@
 #include <vector>
 
 #include <sdm/types.hpp>
-#include <sdm/public/world.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/world/gym_interface.hpp>
 #include <sdm/world/base/decision_process_base.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/space/multi_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
@@ -24,163 +26,123 @@
 namespace sdm
 {
 
-        template <typename TStateSpace, typename TActionSpace, typename TStateDynamics, typename TReward, typename TDistrib>
-        class DecisionProcess : public DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>, public World
-        {
-        public:
-                DecisionProcess();
-                DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp);
-                DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, TDistrib);
-                DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
+    class DecisionProcess : public DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>,
+                            public GymInterface<TObsSpace, TActionSpace, std::is_same<typename TReward::value_type, std::vector<double>>::value>
+    {
+    public:
+        using state_type = typename DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::state_type;
+        using observation_type = typename GymInterface<TObsSpace, TActionSpace, std::is_same<typename TReward::value_type, std::vector<double>>::value>::observation_type;
+        using action_type = typename DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::action_type;
 
-                /**
-                 * \brief Get the state dynamics
-                 */
-                std::shared_ptr<TStateDynamics> getStateDynamics() const;
+        DecisionProcess();
+        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp);
+        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, TDistrib);
+        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TObsSpace> obs_sp, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
 
-                /**
-                 * \brief Set the state dynamics
-                 */
-                void setStateDynamics(std::shared_ptr<TStateDynamics> state_dyn);
+        /**
+         * \brief Get the state dynamics
+         */
+        std::shared_ptr<TStateDynamics> getStateDynamics() const;
 
-                /**
-                 * \brief Get the reward function
-                 */
-                std::shared_ptr<TReward> getReward() const;
+        /**
+         * \brief Set the state dynamics
+         */
+        void setStateDynamics(std::shared_ptr<TStateDynamics> state_dyn);
 
-                /**
-                 * \brief Set the reward function
-                 */
-                void setReward(std::shared_ptr<TReward> reward_function);
+        /**
+         * \brief Get the reward function
+         */
+        std::shared_ptr<TReward> getReward() const;
 
-                // /**
-                //  * \brief Get transition probability from joint action
-                //  */
-                // // double getTransitionProba(state_type cstate, action_type jaction, state_type state);
+        /**
+         * \brief Set the reward function
+         */
+        void setReward(std::shared_ptr<TReward> reward_function);
 
-                // TDistrib getProbaNextState(state_type cstate)
-                // {
-                //         // std::vector<number> vect;
-                //         // for (double a : this->getActionSpace().getAll())
-                //         // {
-                //         //         auto probas = this->getProbaNextState(cstate, a).probabilities();
-                //         //         vect.insert(vect.end(), probas.begin(), probas.end());
-                //         // }
-                //         // return std::discrete_distribution<number>(vect.begin(), vect.end());
-                // }
+        /**
+         * @brief Get the distribution over next states
+         * 
+         * @param cstate the current state
+         * @param caction the current action
+         * @return the distribution over next states
+         */
+        TDistrib getNextStateDistrib(state_type cstate, action_type caction);
 
-                // /**
-                //  * \brief Transit to next state given a joint action
-                //  */
-                // void nextState();
+        /**
+         * @brief Get the distribution over next states
+         * 
+         * @param cstate the current state
+         * @param caction the current action
+         * @return the distribution over next states
+         */
+        TDistrib getNextStateDistrib(action_type caction);
 
-                // TDistrib getProbaNextState(state_type cstate, action_type caction)
-                // {
-                //         return this->getStateDynamics().getProbaNextState(cstate, caction);
-                // }
+        /**
+         * @brief Reset the process to initial settings.
+         * 
+         * @return the initial state (which is the internal state)
+         */
+        observation_type reset();
 
-                // /**
-                //  * \brief Transit to next state given a joint action
-                //  */
-                // void nextState(action_type jaction);
+        template <bool TBool = std::is_same<typename TReward::value_type, std::vector<double>>::value>
+        std::enable_if_t<TBool, std::tuple<observation_type, std::vector<double>, bool>> step(action_type a);
 
-                // TReward &getReward();
+        template <bool TBool = std::is_same<typename TReward::value_type, std::vector<double>>::value>
+        std::enable_if_t<!TBool, std::tuple<observation_type, double, bool>> step(action_type a);
 
-                // /**
-                //  * \brief Get transition probability from joint action (as a single one) for all agents
-                //  */
-                // double getReward(state_type state, action_type jaction);
+        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
+        std::enable_if_t<TBool> setupDynamicsGenerator();
 
-                // /**
-                //  * \fn std::vector<double> getReward(number state, std::vector<number> jaction);
-                //  * \brief Get cost from joint action for all agents
-                //  */
-                // std::vector<double> getCost(state_type state, action_type jaction);
+        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
+        std::enable_if_t<!TBool> setupDynamicsGenerator();
 
-        protected:
-                /**
-                *  @brief Space of agents (contain number of agents and their names).
-                */
-                number num_agents_;
+        std::shared_ptr<TActionSpace> getActionSpace() const;
 
-                /**
-                 * @brief State dynamics.
-                 */
-                std::shared_ptr<TStateDynamics> state_dynamics_;
+    protected:
+        /**
+         *  @brief Space of agents (contain number of agents and their names).
+         */
+        number num_agents_;
 
-                /**
-                 * @brief Reward functions.
-                 */
-                std::shared_ptr<TReward> reward_function_;
-        };
+        long ctimestep_ = 0;
 
-        using DiscreteMDP = DecisionProcess<DiscreteSpace, DiscreteSpace, StateDynamics, Reward, std::discrete_distribution<number>>;
-        using DiscreteDecMDP = DecisionProcess<DiscreteSpace, MultiDiscreteSpace, StateDynamics, Reward, std::discrete_distribution<number>>;
-        using DiscreteSG = DecisionProcess<DiscreteSpace, MultiDiscreteSpace, StateDynamics, std::vector<Reward>, std::discrete_distribution<number>>;
+        /**
+         * @brief State dynamics.
+         */
+        std::shared_ptr<TStateDynamics> state_dynamics_;
 
-        // template <>
-        // class DecisionProcess<MultiDiscreteSpace, MultiDiscreteSpace, StateDynamics, std::discrete_distribution<number>>
-        // {
-        //         double getTransitionProba(number cstate, number jaction, number nstate)
-        //         {
-        //                 return this->s_dynamics_.getTransitionProbability(cstate, jaction, nstate);
-        //         }
+        /**
+         * @brief Reward functions.
+         */
+        std::shared_ptr<TReward> reward_function_;
 
-        //         double getTransitionProba(number cstate, Joint<number> jaction, number nstate)
-        //         {
-        //                 return this->getTransitionProba(cstate, this->getActionSpace().joint2single(jaction), nstate);
-        //         }
+        /**
+         * @brief Map (state, jaction) to probability of (next_state, next_observation) --> i.e. s_{t+1}, o_{t+1} ~ P(S_{t+1}, O_{t+1}  | S_t = s, A_t = a )
+         */
+        std::unordered_map<state_type, std::unordered_map<action_type, TDistrib>> dynamics_generator;
 
-        //         double getReward(number cstate, number jaction)
-        //         {
-        //                 return this->reward.getTransitionProbability(cstate, jaction, nstate);
-        //         }
+        template <bool TBool = std::is_same<TActionSpace, MultiDiscreteSpace<number>>::value>
+        std::enable_if_t<TBool, number>
+        getAction(action_type a);
 
-        //         double getReward(number cstate, Joint<number> jaction)
-        //         {
-        //                 return this->getTransitionProba(cstate, this->getActionSpace().joint2single(jaction), nstate);
-        //         }
-        // };
+        template <bool TBool = std::is_same<TActionSpace, MultiDiscreteSpace<number>>::value>
+        std::enable_if_t<!TBool, action_type>
+        getAction(action_type a);
 
-        // template <>
-        // class DecisionProcess<DiscreteSpace, DiscreteSpace, StateDynamics, std::discrete_distribution<number>>
-        // {
-        //         TDistrib getProbaNextState(state_type cstate)
-        //         {
-        //                 // std::vector<number> vect;
-        //                 // for (double a : this->getActionSpace().getAll())
-        //                 // {
-        //                 //         auto probas = this->getProbaNextState(cstate, a).probabilities();
-        //                 //         vect.insert(vect.end(), probas.begin(), probas.end());
-        //                 // }
-        //                 // return std::discrete_distribution<number>(vect.begin(), vect.end());
-        //         }
+        template <bool TBool = std::is_same<TStateSpace, TObsSpace>::value>
+        std::enable_if_t<TBool, observation_type>
+        resetProcess();
 
-        //         /**
-        //          * \brief Transit to next state given a joint action
-        //          */
-        //         void nextState();
+        template <bool TBool = std::is_same<TStateSpace, TObsSpace>::value>
+        std::enable_if_t<!TBool, observation_type>
+        resetProcess();
+    };
 
-        //         TDistrib getProbaNextState(state_type cstate, action_type caction)
-        //         {
-        //                 return this->getStateDynamics().getProbaNextState(cstate, caction);
-        //         }
+    template <typename TStateSpace, typename TActionSpace, typename TStateDynamics, typename TReward, typename TDistrib>
+    using FullyObservableDecisionProcess = DecisionProcess<TStateSpace, TActionSpace, TStateSpace, TStateDynamics, TReward, TDistrib>;
 
-        //         /**
-        //          * \brief Transit to next state given a joint action
-        //          */
-        //         void nextState(action_type jaction);
-
-        //         double getTransitionProba(number cstate, number action, number nstate)
-        //         {
-        //                 return this->s_dynamics_.getTransitionProbability(cstate, action, nstate);
-        //         }
-        // };
-
-        // template <typename TStateSpace, typename TActionSpace, typename TDistrib>
-        // using SG = DecisionProcess<TStateSpace, TActionSpace, TDistrib>;
-
-        // using DiscreteMDP = DecisionProcess<DiscreteSpace, DiscreteSpace, std::discrete_distribution<number>>;
-        // using DiscreteSG = DecisionProcess<MultiDiscreteSpace, MultiDiscreteSpace, std::discrete_distribution<number>>;
+   using DiscreteSG = FullyObservableDecisionProcess<DiscreteSpace<number>, MultiDiscreteSpace<number>, StateDynamics, std::vector<Reward>, std::discrete_distribution<number>>;
 } // namespace sdm
 #include <sdm/world/decision_process.tpp>

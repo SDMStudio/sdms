@@ -25,6 +25,7 @@ namespace sdm
   {
   public:
     StateDynamics();
+    StateDynamics(StateDynamics &copy);
 
     /**
      * @brief   Construct a new State Dynamics object
@@ -65,6 +66,12 @@ namespace sdm
      * @param    t_model matrices of transitions, one for each (joint) action.
      */
     void setTransitions(const std::vector<Matrix> &t_model);
+
+    /**
+     * @brief    Sets probability transitions
+     * @param    t_model matrices of transitions, one for each (joint) action.
+     */
+    std::vector<Matrix> getTransitions();
 
     /**
      * @brief    Returns matrix of probability transitions for the pre-defined action.

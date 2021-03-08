@@ -11,27 +11,6 @@ namespace sdm
     PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::PartiallyObservableDecisionProcess(
         std::shared_ptr<TStateSpace> state_sp,
         std::shared_ptr<TActionSpace> action_sp,
-        std::shared_ptr<TObsSpace> obs_sp)
-        : DecisionProcess<TStateSpace, TActionSpace, TStateDynamics, TReward, TDistrib>(state_sp, action_sp),
-          PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>(state_sp, obs_sp)
-    {
-    }
-
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
-    PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::PartiallyObservableDecisionProcess(
-        std::shared_ptr<TStateSpace> state_sp,
-        std::shared_ptr<TActionSpace> action_sp,
-        std::shared_ptr<TObsSpace> obs_sp,
-        TDistrib start_distrib)
-        : DecisionProcess<TStateSpace, TActionSpace, TStateDynamics, TReward, TDistrib>(state_sp, action_sp, start_distrib),
-          PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>(state_sp, obs_sp, start_distrib)
-    {
-    }
-
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
-    PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::PartiallyObservableDecisionProcess(
-        std::shared_ptr<TStateSpace> state_sp,
-        std::shared_ptr<TActionSpace> action_sp,
         std::shared_ptr<TObsSpace> obs_sp,
         std::shared_ptr<TStateDynamics> state_dyn,
         std::shared_ptr<TObsDynamics> obs_dyn,
@@ -41,8 +20,8 @@ namespace sdm
         double discount,
         Criterion criterion)
         : StochasticProcessBase<TStateSpace, TDistrib>(state_sp, start_distrib),
-          DecisionProcess<TStateSpace, TActionSpace, TStateDynamics, TReward, TDistrib>(state_sp, action_sp, state_dyn, reward_f, start_distrib, planning_horizon, discount, criterion),
           PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>(state_sp, obs_sp, start_distrib),
+          DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>(state_sp, action_sp, obs_sp, state_dyn, reward_f, start_distrib, planning_horizon, discount, criterion),
           obs_dynamics_(obs_dyn)
     {
     }

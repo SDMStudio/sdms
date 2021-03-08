@@ -27,7 +27,8 @@ namespace sdm
      * @tparam TAction 
      */
     template <typename TBelief, typename TAction, typename TObservation>
-    class BeliefMDP : public SolvableByHSVI<TBelief, TAction>
+    class BeliefMDP : public SolvableByHSVI<TBelief, TAction>,
+                      public GymInterface<DiscreteSpace<TBelief>, DiscreteSpace<TAction>>
     {
     protected:
         std::shared_ptr<DecPOMDP> pomdp_;

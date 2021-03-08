@@ -7,9 +7,11 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 
 namespace sdm
 {
-  Reward::Reward(){}
+  Reward::Reward() {}
 
-  // Reward::Reward(const){}
+  Reward::Reward(Reward &copy) : rewards(copy.getReward()), max(copy.getMaxReward()), min(copy.getMinReward())
+  {
+  }
 
   Reward::Reward(number num_jactions, number num_states)
   {

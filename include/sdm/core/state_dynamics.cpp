@@ -13,6 +13,10 @@ namespace sdm
     {
     }
 
+    StateDynamics::StateDynamics(StateDynamics &copy) : t_model(copy.getTransitions())
+    {
+    }
+
     StateDynamics::StateDynamics(number num_actions, number num_states)
     {
         this->initDynamics(num_actions, num_states);
@@ -47,6 +51,11 @@ namespace sdm
     void StateDynamics::setTransitions(const std::vector<Matrix> &t_model)
     {
         this->t_model = t_model;
+    }
+
+    std::vector<Matrix> StateDynamics::getTransitions()
+    {
+        return this->t_model;
     }
 
     const Matrix &StateDynamics::getTransitions(number u)

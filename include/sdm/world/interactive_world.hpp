@@ -1,6 +1,13 @@
-/*=============================================================================
-  Copyright (c) 2020 David Albert
-==============================================================================*/
+/**
+ * @file interactive_world.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief 
+ * @version 1.0
+ * @date 04/03/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <vector>
@@ -10,23 +17,12 @@
 #include <sdm/world/gym_interface.hpp>
 #include <sdm/public/world.hpp>
 
-//!
-//! \file     gym_interface.hpp
-//! \author   David Albert
-//! \brief    GymInterface class
-//! \version  1.0
-//! \date     24 novembre 2020
-//!
-//! This abstract class provide an interface based on gym environment.
-
-//! \namespace  sdm
-//! \brief Namespace grouping all tools required for sequential decision making.
 namespace sdm
 {
     //! \class  GymInterface
     //! \brief Provides a Gym like interface
     template <typename TDecProcess = POSG>
-    class InteractiveWorld : public GymInterface<typename TDecProcess::observation_space_type, typename TDecProcess::action_space_type>
+    class InteractiveWorld : public GymInterface<typename TDecProcess::observation_space_type, typename TDecProcess::action_space_type, typename TDecProcess::reward_function_type>
     {
     protected:
         //! \brief The current timestep
@@ -36,12 +32,15 @@ namespace sdm
     public:
         using observation_space_type = typename TDecProcess::observation_space_type;
         using observation_type = typename observation_space_type::value_type;
-        
+
         using action_space_type = typename TDecProcess::action_space_type;
         using action_type = typename action_space_type::value_type;
 
+        using reward_function_type = typename TDecProcess::reward_type;
+        using reward_type = typename reward_type::value_type;
+
         //! \param intern_formalism problem to interact with
-        InteractiveWorld(std::shared_ptr<TDecProcess>);
+        InteractiveWorld(TDecProcess *real_world);
 
         InteractiveWorld(const TDecProcess &);
 
@@ -49,7 +48,7 @@ namespace sdm
 
         observation_type reset();
 
-        std::tuple<observation_type, std::vector<double>, bool> step(action_type ja); // std::tuple<std::vector<number>, std::vector<double>, bool, map>
+        std::tuple<observation_type, reward_type, bool> step(action_type ja); 
     };
 } // namespace sdm
 #include <sdm/world/interactive_world.tpp>

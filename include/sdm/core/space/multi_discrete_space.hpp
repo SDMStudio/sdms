@@ -33,7 +33,7 @@ namespace sdm
      * @tparam TItem The type of items in each sub-discrete space.
      */
     template <typename TItem>
-    class MultiDiscreteSpaceBase : public virtual MultiSpace<DiscreteSpaceBase<TItem>>, public DiscreteSpaceBase<Joint<TItem>>
+    class MultiDiscreteSpace : public virtual MultiSpace<DiscreteSpace<TItem>>, public DiscreteSpace<Joint<TItem>>
     {
     protected:
         typedef boost::bimaps::bimap<number, Joint<TItem>> jitems_bimap;
@@ -54,33 +54,34 @@ namespace sdm
         using value_type = Joint<TItem>;
 
         /**
-         * @brief Instantiate a default discrete space (MultiDiscreteSpaceBase class)
+         * @brief Instantiate a default discrete space (MultiDiscreteSpace class)
          */
-        MultiDiscreteSpaceBase();
-        // MultiDiscreteSpaceBase(const std::vector<number> &);
-
-        /**
-         * @brief Instantiate a multi discrete space from a list of list of possible items.
-         * 
-         */
-        MultiDiscreteSpaceBase(const std::vector<std::vector<TItem>> &);
-
+        MultiDiscreteSpace();
+        
         /**
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
          * 
          */
-        MultiDiscreteSpaceBase(const std::vector<std::shared_ptr<DiscreteSpaceBase<TItem>>> &);
+        MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &);
 
         /**
          * @brief Cpoy constructor
          */
-        MultiDiscreteSpaceBase(const MultiDiscreteSpaceBase<TItem> &copy);
+        MultiDiscreteSpace(const MultiDiscreteSpace<TItem> &copy);
 
         /**
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as objects).
          * 
          */
-        MultiDiscreteSpaceBase(const std::vector<DiscreteSpaceBase<TItem>> &);
+        MultiDiscreteSpace(const std::vector<DiscreteSpace<TItem>> &);
+
+        /**
+         * @brief Instantiate a multi discrete space using a list of dimensions (one by single space). This constructor is only available for classes where TItem is an integer (long, int, short, etc).
+         * 
+         * @param num_items the number of items in each spaces. If {k_1, k_2} then {0, 1, ..., k_1 - 1} are possible items in first subspace and {0, 1, ..., k_2 - 1} in the second subspace.
+         */
+        template <bool TBool = std::is_integral<TItem>::value>
+        MultiDiscreteSpace(const std::enable_if_t<TBool, std::vector<TItem>> &num_items);
 
         /**
          * @brief Transform joint item to single one
@@ -117,10 +118,11 @@ namespace sdm
          */
         TItem getItem(number ag_id, number item_index) const;
 
-        // void setSpaces(const std::vector<number> &);
+        template <bool TBool = std::is_integral<TItem>::value>
+        void setSpaces(const std::enable_if_t<TBool, std::vector<TItem>> &num_items);
         void setSpaces(const std::vector<std::vector<TItem>> &);
-        void setSpaces(const std::vector<std::shared_ptr<DiscreteSpaceBase<TItem>>> &spaces);
-        void setSpaces(const std::vector<DiscreteSpaceBase<TItem>> &spaces);
+        void setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces);
+        void setSpaces(const std::vector<DiscreteSpace<TItem>> &spaces);
 
         /*!
          * @brief Transform joint item to its index in the list of all joint items.
@@ -144,58 +146,15 @@ namespace sdm
 
         std::string str() const;
 
-        MultiDiscreteSpaceBase<TItem> &operator=(const MultiDiscreteSpaceBase<TItem> &);
+        MultiDiscreteSpace<TItem> &operator=(const MultiDiscreteSpace<TItem> &);
 
-        friend std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpaceBase<TItem> &sp)
+        friend std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpace<TItem> &sp)
         {
             os << sp.str();
             return os;
         }
     };
 
-    class MultiDiscreteSpace : public MultiDiscreteSpaceBase<number>
-    {
-    public:
-        /**
-         * @brief Instantiate a default discrete space (MultiDiscreteSpaceBase class)
-         */
-        MultiDiscreteSpace();
-
-        /**
-         * @brief Construct a new Discrete Space object
-         * 
-         * @param number_item the number of items in each spaces. If {k_1, k_2} then {0, 1, ..., k_1 - 1} are possible items in first subspace and {0, 1, ..., k_2 - 1} in the second subspace.
-         */
-        MultiDiscreteSpace(const std::vector<number> &number_item);
-
-        /**
-         * @brief Construct a new Discrete Space object from a list initializer
-         */
-        MultiDiscreteSpace(std::initializer_list<number> items);
-
-        /**
-         * @brief Instantiate a multi discrete space from a list of list of possible items.
-         * 
-         */
-        MultiDiscreteSpace(const std::vector<std::vector<number>> &);
-
-        /**
-         * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
-         * 
-         */
-        MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpaceBase<number>>> &);
-
-        /**
-         * @brief Cpoy constructor
-         */
-        MultiDiscreteSpace(const MultiDiscreteSpace &copy);
-
-        /**
-         * @brief Instantiate a multi discrete space from the list its sub-spaces (as objects).
-         * 
-         */
-        MultiDiscreteSpace(const std::vector<DiscreteSpaceBase<number>> &);
-    };
 } // namespace sdm
 
 #include <sdm/core/space/multi_discrete_space.tpp>

@@ -35,14 +35,25 @@ namespace sdm
      * @tparam TDistrib the distribution type
      */
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
-    class PartiallyObservableDecisionProcess : public DecisionProcess<TStateSpace, TActionSpace, TStateDynamics, TReward, TDistrib>,
+    class PartiallyObservableDecisionProcess : public DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>,
                                                public PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>
     {
     public:
+        using state_type = typename DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::state_type;
+        using observation_type = typename PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>::observation_type;
+        using action_type = typename DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::action_type;
+        using PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>::getObsSpace;
+
         PartiallyObservableDecisionProcess();
-        PartiallyObservableDecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TObsSpace> obs_sp);
-        PartiallyObservableDecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TObsSpace> obs_sp, TDistrib start_distrib);
-        PartiallyObservableDecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TObsSpace> obs_sp, std::shared_ptr<TStateDynamics> state_dyn, std::shared_ptr<TObsDynamics> obs_dyn, std::shared_ptr<TReward>, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+        PartiallyObservableDecisionProcess(std::shared_ptr<TStateSpace> state_sp,
+                                           std::shared_ptr<TActionSpace> action_sp,
+                                           std::shared_ptr<TObsSpace> obs_sp,
+                                           std::shared_ptr<TStateDynamics> state_dyn,
+                                           std::shared_ptr<TObsDynamics> obs_dyn, std::shared_ptr<TReward>,
+                                           TDistrib start_distrib,
+                                           number planning_horizon = 0,
+                                           double discount = 0.9,
+                                           Criterion criterion = Criterion::REW_MAX);
 
         /**
          * \brief Get the observation dynamics
@@ -59,13 +70,54 @@ namespace sdm
          * @brief State dynamics.
          */
         std::shared_ptr<TObsDynamics> obs_dynamics_;
+
+        /**
+         * @brief map integer representing joint state/observation to this couple (state, observation)
+         */
+        std::unordered_map<number, std::pair<state_type, observation_type>> encoding;
+
+    private:
+        void setupDynamicsGenerator(std::true_type is_discrete, bool is_multi_agent)
+        {
+            int i = 0;
+            for (auto &y : this->getStateSpace()->getAll())
+            {
+                for (auto &z : this->getObsSpace()->getAll())
+                {
+                    this->encoding.emplace(i, std::make_pair(y, z));
+                    i++;
+                }
+            }
+
+            for (auto &x : this->getStateSpace()->getAll())
+            {
+                this->dynamics_generator.emplace(x, std::unordered_map<action_type, TDistrib>());
+                for (auto &a : this->getActionSpace()->getAll())
+                {
+                    std::vector<double> v;
+                    for (auto &y : this->getStateSpace()->getAll())
+                    {
+                        for (auto &z : this->getObsSpace()->getAll())
+                        {
+                            if (is_multi_agent)
+                            {
+                                v.push_back(this->getObsDynamics()->getDynamics(x, this->getActionSpace()->joint2single(a), this->getObsSpace()->joint2single(z), y));
+                            }
+                            else
+                            {
+                                v.push_back(this->getObsDynamics()->getDynamics(x, a, z, y));
+                            }
+                        }
+                    }
+                    this->dynamics_generator[x].emplace(a, TDistrib(v.begin(), v.end()));
+                }
+            }
+        }
     };
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     using PODecisionProcess = PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>;
 
-    using DiscretePOMDP = PODecisionProcess<DiscreteSpace, DiscreteSpace, DiscreteSpace, StateDynamics, ObservationDynamics, Reward, std::discrete_distribution<number>>;
-    using DiscreteDecPOMDP = PODecisionProcess<DiscreteSpace, MultiDiscreteSpace, MultiDiscreteSpace, StateDynamics, ObservationDynamics, Reward, std::discrete_distribution<number>>;
-    using DiscretePOSG = PODecisionProcess<DiscreteSpace, MultiDiscreteSpace, MultiDiscreteSpace, StateDynamics, ObservationDynamics, std::vector<Reward>, std::discrete_distribution<number>>;
+    using DiscretePOSG = PODecisionProcess<DiscreteSpace<number>, MultiDiscreteSpace<number>, MultiDiscreteSpace<number>, StateDynamics, ObservationDynamics, std::vector<Reward>, std::discrete_distribution<number>>;
 } // namespace sdm
 #include <sdm/world/po_decision_process.tpp>
