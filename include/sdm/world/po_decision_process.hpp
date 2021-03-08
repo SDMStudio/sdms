@@ -55,6 +55,8 @@ namespace sdm
                                            double discount = 0.9,
                                            Criterion criterion = Criterion::REW_MAX);
 
+        PartiallyObservableDecisionProcess(PartiallyObservableDecisionProcess &copy);
+
         /**
          * \brief Get the observation dynamics
          */

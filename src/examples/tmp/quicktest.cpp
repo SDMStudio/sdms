@@ -38,7 +38,26 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    auto problem = sdm::parser::parse_file(filename);
+    auto problem = std::make_shared<DiscreteDecPOMDP>(filename);
+
+    std::cout << problem->toStdFormat() << std::endl;
+    std::cout << problem->toXML() << std::endl;
+    // auto problem = sdm::parser::parse_file(filename);
+    std::cout << "State space : " << *problem->getStateSpace() << std::endl;
+    std::cout << "Action space : " << *problem->getActionSpace() << std::endl;
+    std::cout << "Observation space : " << *problem->getObsSpace() << std::endl;
+    std::cout << "Internal State : " << problem->getInternalState() << std::endl;
+    std::cout << "Planning Horizon : " << problem->getPlanningHorizon() << std::endl;
+    std::cout << "Discount factor : " << problem->getDiscount() << std::endl;
+    std::cout << "Criterion : " << problem->getCriterion() << std::endl;
+    std::cout << "Filename : " << problem->getFileName() << std::endl;
+    std::cout << "Bound : " << problem->getBound() << std::endl;
+    std::cout << "Transition : " << problem->getStateDynamics()->getTransitionProbability(0, 0, 0) << std::endl;
+
+    std::cout << "Start Distrib : ";
+    for (auto proba : problem->getStartDistrib().probabilities())
+        std::cout << proba << "\t";
+    std::cout << "\n\n";
 
     auto state_sp = std::make_shared<DiscreteSpace<number>>(2);
     auto action_sp = std::make_shared<MultiDiscreteSpace<number>>(std::vector<number>{2, 2, 2});
@@ -74,7 +93,6 @@ int main(int argc, char **argv)
         std::cout << proba << "\t";
     std::cout << "\n\n";
 
-
     auto new_decision = decision.toMMDP();
     // DiscreteMDP decision(state_sp, action_sp, state_dyn, reward_f, {0.3, 0.7}, 2);
     std::cout << "State space : " << *new_decision->getStateSpace() << std::endl;
@@ -93,8 +111,6 @@ int main(int argc, char **argv)
         std::cout << proba << "\t";
     std::cout << "\n\n";
 
-
-
     auto new_decision2 = new_decision->toMDP();
     // DiscreteMDP decision(state_sp, action_sp, state_dyn, reward_f, {0.3, 0.7}, 2);
     std::cout << "State space : " << *new_decision2->getStateSpace() << std::endl;
@@ -112,7 +128,6 @@ int main(int argc, char **argv)
     for (auto proba : new_decision2->getStartDistrib().probabilities())
         std::cout << proba << "\t";
     std::cout << "\n\n";
-
 
     // std::unordered_map<int, int> test;
     // test.emplace(3, 4);

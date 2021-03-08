@@ -635,7 +635,7 @@ namespace sdm
       return std::make_shared<MultiDiscreteSpace<number>>(vvtmp);
     }
 
-    struct dpomdp_encoder : boost::static_visitor<sdm::DecPOMDP>
+    struct dpomdp_encoder : boost::static_visitor<sdm::DiscreteDecPOMDP>
     {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // DecPOMDP encoder
@@ -660,28 +660,32 @@ namespace sdm
 
         // Encodes the reward function
         rewards_encoder rews_encoder(state_space, agent_space, action_space);
-        auto rew = std::make_shared<Reward>(rews_encoder.encode(ast.reward_spec));
+        Reward rew__ = rews_encoder.encode(ast.reward_spec);
+        auto rew = std::make_shared<Reward>(rew__);
 
         // Set start probabilities
         vector_encoder bl_encoder(state_space.getNumItems());
         // auto start_distrib = std::make_shared<Vector>(state_space.getNumItems());
-        Vector start_distrib = boost::apply_visitor(bl_encoder, ast.start_param);
+        Vector start_distrib__ = boost::apply_visitor(bl_encoder, ast.start_param);
         std::vector<double> start_vector;
-        for (int i=0; i<start_distrib.size(); i++){
-          start_vector.push_back(start_distrib[i]);
+        for (int i=0; i<start_distrib__.size(); i++){
+          start_vector.push_back(start_distrib__[i]);
         }
+        std::discrete_distribution<number> start_distrib(start_vector.begin(), start_vector.end());
 
         // Encodes the state dynamics
         state_dynamics_encoder state_dyn_enc(state_space, agent_space, action_space);
-        auto state_dyn = std::make_shared<StateDynamics>(state_dyn_enc.encode(ast.transition_spec));
+        StateDynamics state_dyn__ = state_dyn_enc.encode(ast.transition_spec);
+        auto state_dyn = std::make_shared<StateDynamics>(state_dyn__);
 
         // Encodes the observation dynamics
         obs_dynamics_encoder d_encoder(state_space, agent_space, action_space, obs_space);
-        auto obs_dyn = std::make_shared<ObservationDynamics>(d_encoder.encode(ast.observation_spec, *state_dyn));
+        ObservationDynamics obs_dyn__ = d_encoder.encode(ast.observation_spec, *state_dyn);
+        auto obs_dyn = std::make_shared<ObservationDynamics>(obs_dyn__);
 
         // sdm::DecPOMDP parsed_model(toNumberedSpace(state_space), toNumberedSpace(agent_space), toNumberedSpace(action_space), toNumberedSpace(obs_space), state_dyn, obs_dyn, rew, start_distrib);
 
-        auto parsed_model = std::make_shared<sdm::DiscreteDecPOMDP>(toNumberedSpace(state_space), toNumberedSpace(action_space), toNumberedSpace(obs_space), state_dyn, obs_dyn, rew, start_vector);
+        auto parsed_model = std::make_shared<sdm::DiscreteDecPOMDP>(toNumberedSpace(state_space), toNumberedSpace(action_space), toNumberedSpace(obs_space), state_dyn, obs_dyn, rew, start_distrib);
 
         // sdm::DecPOMDP parsed_model;
         parsed_model->setDiscount(ast.discount_param);

@@ -27,6 +27,21 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
+    PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::PartiallyObservableDecisionProcess(PartiallyObservableDecisionProcess &copy)
+        : PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>(copy.getStateSpace(),
+                                                                                                                                    copy.getActionSpace(),
+                                                                                                                                    copy.getObsSpace(),
+                                                                                                                                    copy.getStateDynamics(),
+                                                                                                                                    copy.getObsDynamics(),
+                                                                                                                                    copy.getReward(),
+                                                                                                                                    copy.getStartDistrib(),
+                                                                                                                                    copy.getPlanningHorizon(),
+                                                                                                                                    copy.getDiscount(),
+                                                                                                                                    copy.getCriterion())
+    {
+    }
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     std::shared_ptr<TObsDynamics> PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::getObsDynamics() const
     {
         return this->obs_dynamics_;

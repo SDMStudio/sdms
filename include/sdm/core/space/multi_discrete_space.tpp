@@ -21,6 +21,12 @@ namespace sdm
     }
 
     template <typename TItem>
+    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::vector<TItem>> &values)
+    {
+        this->setSpaces(values);
+    }
+
+    template <typename TItem>
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const MultiDiscreteSpace<TItem> &copy) : MultiDiscreteSpace<TItem>(copy.getSpaces()) {}
 
     template <typename TItem>

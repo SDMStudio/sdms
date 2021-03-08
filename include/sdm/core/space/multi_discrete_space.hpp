@@ -65,6 +65,12 @@ namespace sdm
         MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &);
 
         /**
+         * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
+         * 
+         */
+        MultiDiscreteSpace(const std::vector<std::vector<TItem>> &values);
+
+        /**
          * @brief Cpoy constructor
          */
         MultiDiscreteSpace(const MultiDiscreteSpace<TItem> &copy);
@@ -123,6 +129,7 @@ namespace sdm
         void setSpaces(const std::vector<std::vector<TItem>> &);
         void setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces);
         void setSpaces(const std::vector<DiscreteSpace<TItem>> &spaces);
+
 
         /*!
          * @brief Transform joint item to its index in the list of all joint items.
