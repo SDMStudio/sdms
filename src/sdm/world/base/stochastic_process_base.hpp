@@ -1,7 +1,7 @@
 /**
  * @file stochastic_process_base.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief  Generic Stochastic process class
+ * @brief File that contains the implementation of the Generic Stochastic process class. 
  * @version 1.0
  * @date 02/02/2021
  * 

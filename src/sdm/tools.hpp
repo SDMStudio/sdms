@@ -18,11 +18,21 @@
 
 namespace sdm
 {
+    /**
+     * @brief Namespace grouping other tools.
+     */
     namespace tools
     {
-
         std::string getPathTo(std::string base, std::string world_name, std::string formalism_name);
 
+        /**
+         * @brief Compare the extension of a file. 
+         * 
+         * @param filename the filename
+         * @param extension the extension
+         * @return true if the filaname has the extension 'extension'
+         * @return false if the filaname does not have the extension 'extension'
+         */
         bool hasExtension(std::string filename, std::string extension);
 
         /**
@@ -34,6 +44,9 @@ namespace sdm
          */
         std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
 
+        /**
+         * @brief Add indentation to an output stream
+         */
         void indentedOutput(std::ostream &outStream, const char *message);
 
     } // namespace tools

@@ -1,7 +1,7 @@
 /**
  * @file discrete_pomdp.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief The file that contains the DiscretePOMDP class.
  * @version 1.0
  * @date 02/02/2021
  * 
@@ -22,7 +22,10 @@
 
 namespace sdm
 {
-
+    /**
+     * @brief The class for Discrete Partially Observable Markov Decision Processes. 
+     * 
+     */
     class DiscretePOMDP : public PartiallyObservableDecisionProcess<DiscreteSpace<number>,
                                                                     DiscreteSpace<number>,
                                                                     DiscreteSpace<number>,
@@ -39,8 +42,18 @@ namespace sdm
         
         std::shared_ptr<DiscretePOMDP> getptr();
 
-        // // Other methods
+        /**
+         * @brief Get the corresponding Markov Decision Process. It corresponds to the relaxation of the original POMP assuming that the agent can observation the state of the environment. 
+         * 
+         * @return a MDP 
+         */
         std::shared_ptr<DiscreteMDP> toMDP();
+
+        /**
+         * @brief Get the corresponding Belief Markov Decision Process. It corresponds to the reformulation of the original POMP in a MDP where the state space is the space of beliefs. 
+         * 
+         * @return a belief MDP
+         */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
     };
 } // namespace sdm

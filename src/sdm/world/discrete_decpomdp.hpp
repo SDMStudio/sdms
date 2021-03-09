@@ -11,29 +11,40 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/world/gym_interface.hpp>
 #include <sdm/world/po_decision_process.hpp>
 #include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/discrete_mmdp.hpp>
-// #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/history.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
 
+#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+
 namespace sdm
 {
     /**
-     * @brief The class for Discrete Decentralized Partially Observable Markov Decision Processes. T 
+     * @brief The class for Discrete Decentralized Partially Observable Markov Decision Processes. 
+     * This class is central in SDMS since the actual parser can only parse files that are conform to the .dpomdp format (see [masplan page](http://masplan.org/problem_domains) ).
+     *   
      * 
      */
-    class DiscreteDecPOMDP : public PartiallyObservableDecisionProcess<DiscreteSpace<number>, MultiDiscreteSpace<number>, MultiDiscreteSpace<number>, StateDynamics, ObservationDynamics, Reward, std::discrete_distribution<number>>
+    class DiscreteDecPOMDP : public PartiallyObservableDecisionProcess<DiscreteSpace<number>, MultiDiscreteSpace<number>, MultiDiscreteSpace<number>, StateDynamics, ObservationDynamics, Reward, std::discrete_distribution<number>>,
+                             public std::enable_shared_from_this<DiscreteDecPOMDP>
+
     {
     public:
+        using occupancy_mdp = OccupancyMDP<OccupancyState<number, JointHistoryTree_p<number>>, Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>;
+
         DiscreteDecPOMDP();
         DiscreteDecPOMDP(std::string &filename);
         DiscreteDecPOMDP(DiscreteDecPOMDP &copy);
         DiscreteDecPOMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<MultiDiscreteSpace<number>> action_sp, std::shared_ptr<MultiDiscreteSpace<number>> obs_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<ObservationDynamics> obs_dyn, std::shared_ptr<Reward>, std::discrete_distribution<number> start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+
+        std::shared_ptr<DiscreteDecPOMDP> getptr();
 
         /**
          * @brief Get the corresponding Partially Observable Markov Decision Process. The induced POMDP is the DecPOMP problem transformed as it was a single agent problem. The joint actions and observations are represented as single actions.
@@ -45,11 +56,16 @@ namespace sdm
         /**
          * @brief Get the corresponding Multi-agent Markov Decision Process. It corresponds to the relaxation of the original DecPOMP assuming that all agents can observation the entire state of the environment. 
          * 
-         * @return The corresponding MMDP.
+         * @return a MMDP.
          */
         std::shared_ptr<DiscreteMMDP> toMMDP();
 
-        // std::shared_ptr<OccupancyMDP> toOccupancyMDP();
+        /**
+         * @brief Get the corresponding Occupancy Markov Decision Process. It corresponds to the reformulation of the original DecPOMP in MDP where the state space is the space of occupancy simplex and the action space is a set of separable joint deterministic decision rules. 
+         * 
+         * @return an occupancy state MDP
+         */
+        std::shared_ptr<occupancy_mdp> toOccupancyMDP();
         // std::shared_ptr<SerializedOccupancyMDP> toSerializedOccupancyMDP();
 
         /**
