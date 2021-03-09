@@ -37,32 +37,18 @@ int main(int argc, char **argv)
 	{
 		// Construct DecPOMDP from filename (use parser)
 		std::cout << "#> Build DecPOMDP from file \"" << filename << "\"\n";
-		sdm::DecPOMDP dpomdp_1(filename);
+		sdm::DiscreteDecPOMDP dpomdp_1(filename);
 
 		// Construct DecPOMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
-		sdm::DecPOMDP dpomdp_2 = sdm::parser::parse_file(filename);
+		auto dpomdp_2 = sdm::parser::parse_file(filename2);
 
 		// Copie DecPOMDP into another DecPOMDP
-		sdm::DecPOMDP dpomdp_3;
-		dpomdp_3 = dpomdp_2;
-
-		// Construct ZSPOSG from DecPOMDP problem
-		sdm::ZSPOSG zsposg_1(dpomdp_2);
-
-		// Construct ZSPOSG from filename (use parser)
-		// sdm::ZSPOSG zsposg_3("../data/world/dpomdp/mabc.zsposg");
-
-		// Construct ZSPOSG using parser
-		std::cout << "#> Parsing file \"" << filename2 << "\"\n";
-		sdm::ZSPOSG zsposg_2 = sdm::parser::parse_file(filename2);
+		auto dpomdp_3 = dpomdp_2;
 
 		std::cout << "#> DPOMDP_1\n" << dpomdp_1 << "\n\n";
-		std::cout << "#> DPOMDP_2\n" << dpomdp_2 << "\n\n";
-		std::cout << "#> DPOMDP_3\n" << dpomdp_3 << "\n\n";
-
-		std::cout << "#> ZSPOSG_1\n" << zsposg_1 << "\n\n";
-		std::cout << "#> ZSPOSG_2\n" << zsposg_2 << "\n\n";
+		std::cout << "#> DPOMDP_2\n" << *dpomdp_2 << "\n\n";
+		std::cout << "#> DPOMDP_3\n" << *dpomdp_3 << "\n\n";
 
 		return 0;
 	}

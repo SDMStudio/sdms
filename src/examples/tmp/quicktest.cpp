@@ -7,6 +7,8 @@
 
 #include <sdm/parser/parser.hpp>
 
+#include <sdm/algorithms.hpp>
+
 #include <sdm/world/decision_process.hpp>
 #include <sdm/world/po_decision_process.hpp>
 #include <sdm/world/discrete_mdp.hpp>
@@ -14,6 +16,7 @@
 #include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/discrete_decpomdp.hpp>
 
+#include <sdm/core/state/state.hpp>
 #include <sdm/core/reward.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/observation_dynamics.hpp>
@@ -38,10 +41,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    auto problem = std::make_shared<DiscreteDecPOMDP>(filename);
+    double discount = 0.99, error = 0.001;
+    int horizon = 5, trials = 1000;
 
-    std::cout << problem->toStdFormat() << std::endl;
-    std::cout << problem->toXML() << std::endl;
+    auto problem = std::make_shared<DiscreteMDP>(filename);
+
+    // std::cout << problem->toStdFormat() << std::endl;
+    // std::cout << problem->toXML() << std::endl;
+
     // auto problem = sdm::parser::parse_file(filename);
     std::cout << "State space : " << *problem->getStateSpace() << std::endl;
     std::cout << "Action space : " << *problem->getActionSpace() << std::endl;
@@ -59,75 +66,20 @@ int main(int argc, char **argv)
         std::cout << proba << "\t";
     std::cout << "\n\n";
 
-    auto state_sp = std::make_shared<DiscreteSpace<number>>(2);
-    auto action_sp = std::make_shared<MultiDiscreteSpace<number>>(std::vector<number>{2, 2, 2});
-    // auto action_sp = std::make_shared<DiscreteSpace<number>>(3);
-    auto obs_sp = std::make_shared<MultiDiscreteSpace<number>>(std::vector<number>{8, 2, 3});
-    auto state_dyn = std::make_shared<StateDynamics>(action_sp->getNumItems(), state_sp->getNumItems());
-    auto obs_dyn = std::make_shared<ObservationDynamics>(action_sp->getNumItems(), obs_sp->getNumItems(), state_sp->getNumItems());
+    // auto mdp = problem->toPOMDP()->toMDP();
+    // auto occupancy_mdp = problem->toPOMDP()->toBeliefMDP();
+    // auto belief_mdp = problem->toOccupancyMDP();
 
-    // std::shared_ptr<std::vector<Reward>> rews_fct = std::make_shared<std::vector<Reward>>();
-    // for (int i = 0; i < action_sp->getNumSpaces(); i++)
+    auto hsvi = sdm::algo::makeMappedHSVI<number, number>(problem, discount, error, horizon, trials);
+
+    // for (auto &state : problem->getStateSpace()->getAll())
     // {
-    //     rews_fct->push_back(Reward(state_sp->getNumItems(), action_sp->getNumItems()));
+    //     problem->setInternalState(state);
+    //     hsvi->do_solve();
     // }
-    auto reward_f = std::make_shared<Reward>(state_sp->getNumItems(), action_sp->getNumItems());
-
-    DiscreteDecPOMDP decision(state_sp, action_sp, obs_sp, state_dyn, obs_dyn, reward_f, {0.3, 0.7}, 2);
-    // decision.setDiscount(0.8);
-    // decision.setCriterion((Criterion)0);
-    // DiscreteMDP decision(state_sp, action_sp, state_dyn, reward_f, {0.3, 0.7}, 2);
-    std::cout << "State space : " << *decision.getStateSpace() << std::endl;
-    std::cout << "Action space : " << *decision.getActionSpace() << std::endl;
-    std::cout << "Observation space : " << *decision.getObsSpace() << std::endl;
-    std::cout << "Internal State : " << decision.getInternalState() << std::endl;
-    std::cout << "Planning Horizon : " << decision.getPlanningHorizon() << std::endl;
-    std::cout << "Discount factor : " << decision.getDiscount() << std::endl;
-    std::cout << "Criterion : " << decision.getCriterion() << std::endl;
-    std::cout << "Filename : " << decision.getFileName() << std::endl;
-    std::cout << "Bound : " << decision.getBound() << std::endl;
-    std::cout << "Transition : " << decision.getStateDynamics()->getTransitionProbability(0, 0, 0) << std::endl;
-
-    std::cout << "Start Distrib : ";
-    for (auto proba : decision.getStartDistrib().probabilities())
-        std::cout << proba << "\t";
-    std::cout << "\n\n";
-
-    auto new_decision = decision.toMMDP();
-    // DiscreteMDP decision(state_sp, action_sp, state_dyn, reward_f, {0.3, 0.7}, 2);
-    std::cout << "State space : " << *new_decision->getStateSpace() << std::endl;
-    std::cout << "Action space : " << *new_decision->getActionSpace() << std::endl;
-    std::cout << "Observation space : " << *new_decision->getObsSpace() << std::endl;
-    std::cout << "Internal State : " << new_decision->getInternalState() << std::endl;
-    std::cout << "Planning Horizon : " << new_decision->getPlanningHorizon() << std::endl;
-    std::cout << "Discount factor : " << new_decision->getDiscount() << std::endl;
-    std::cout << "Criterion : " << new_decision->getCriterion() << std::endl;
-    std::cout << "Filename : " << new_decision->getFileName() << std::endl;
-    std::cout << "Bound : " << new_decision->getBound() << std::endl;
-    std::cout << "Transition : " << new_decision->getStateDynamics()->getTransitionProbability(0, 0, 0) << std::endl;
-
-    std::cout << "Start Distrib : ";
-    for (auto proba : new_decision->getStartDistrib().probabilities())
-        std::cout << proba << "\t";
-    std::cout << "\n\n";
-
-    auto new_decision2 = new_decision->toMDP();
-    // DiscreteMDP decision(state_sp, action_sp, state_dyn, reward_f, {0.3, 0.7}, 2);
-    std::cout << "State space : " << *new_decision2->getStateSpace() << std::endl;
-    std::cout << "Action space : " << *new_decision2->getActionSpace() << std::endl;
-    std::cout << "Observation space : " << *new_decision2->getObsSpace() << std::endl;
-    std::cout << "Internal State : " << new_decision2->getInternalState() << std::endl;
-    std::cout << "Planning Horizon : " << new_decision2->getPlanningHorizon() << std::endl;
-    std::cout << "Discount factor : " << new_decision2->getDiscount() << std::endl;
-    std::cout << "Criterion : " << new_decision2->getCriterion() << std::endl;
-    std::cout << "Filename : " << new_decision2->getFileName() << std::endl;
-    std::cout << "Bound : " << new_decision2->getBound() << std::endl;
-    std::cout << "Transition : " << new_decision2->getStateDynamics()->getTransitionProbability(0, 0, 0) << std::endl;
-
-    std::cout << "Start Distrib : ";
-    for (auto proba : new_decision2->getStartDistrib().probabilities())
-        std::cout << proba << "\t";
-    std::cout << "\n\n";
+    
+    hsvi->do_solve();
+    hsvi->do_test();
 
     // std::unordered_map<int, int> test;
     // test.emplace(3, 4);

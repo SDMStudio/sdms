@@ -32,7 +32,7 @@ option(BUILD_TESTS "Build tests for SDMS" OFF)
 
 
 # Set useful variables
-set(SDMS_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
+set(SDMS_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src)
 set(SDMS_SOURCE_DIRS ${CMAKE_SOURCE_DIR}/src)
 
 set(INCLUDE_DIR ${SDMS_INCLUDE_DIRS}/sdm)

@@ -5,6 +5,7 @@
 #include <sdm/common.hpp>
 #include <sdm/types.hpp>
 #include <sdm/algorithms.hpp>
+#include <sdm/worlds.hpp>
 #include "examples/solve.cpp"
 
 using namespace sdm;
@@ -80,9 +81,9 @@ int main_sdms(int argv, char **args)
     else if (func.compare("worlds") == 0)
     {
       std::cout << "WORLDS\t"<< std::endl;
-      for (auto algo : sdm::algo::available())
+      for (auto world : sdm::world::available())
       {
-        std::cout << algo << std::endl;
+        std::cout << world << std::endl;
       }
     }
     // DO OTHER

@@ -51,10 +51,10 @@ int main(int argc, char **argv)
         using TPrescriptorN2Action = DeterministicDecisionRule<TStatePrescriptor, Joint<TActionPrescriptor>>;
 
         
-		sdm::DecPOMDP dpomdp_world = sdm::parser::parse_file(filename);
+		auto dpomdp_world = sdm::parser::parse_file(filename);
 
 
-        number num_agents = dpomdp_world.getNumAgents();
+        number num_agents = dpomdp_world->getNumAgents();
 
         // Instanciate joint history of max depth 3
         TStatePrescriptor j_history = std::make_shared<JointHistoryTree<TObservation>>(num_agents, 3);
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
         for (int trial = 0; trial < 100; trial++)
         {
             // Sample a new joint observation and expand the history given this new observation
-            Joint<TObservation> new_obs = dpomdp_world.getObsSpace().sample();
+            Joint<TObservation> new_obs = dpomdp_world->getObsSpace()->sample();
             j_history = j_history->expand(new_obs);
 
             // Instanciate the list (one by agent) of list of decision rule
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
             for (int ag_id = 0; ag_id < num_agents; ag_id++)
             {
                 // Generate all individual decision rules for agent 'ag_id' 
-                FunctionSpace<TActionPrescriptor> f_indiv_dr_space({j_history->getIndividualHistory(ag_id)}, dpomdp_world.getActionSpace().getSpace(ag_id)->getAll());
+                FunctionSpace<TActionPrescriptor> f_indiv_dr_space({j_history->getIndividualHistory(ag_id)}, dpomdp_world->getActionSpace()->getSpace(ag_id)->getAll());
                 vect_i_dr.push_back(f_indiv_dr_space.getAll());
             }
 
