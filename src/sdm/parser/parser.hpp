@@ -11,9 +11,9 @@ namespace sdm
 {
   namespace x3 = boost::spirit::x3;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  // dpomdp public interface
-  ///////////////////////////////////////////////////////////////////////////////
+  /**
+   * @brief Namespace grouping all functions for parsing files.
+   */
   namespace parser
   {
     struct dpomdp_class;

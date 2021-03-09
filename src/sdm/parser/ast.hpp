@@ -10,6 +10,10 @@
 #include <string>
 
 namespace sdm{
+  /**
+   * @brief Namespace that is used by the parser. 
+   * 
+   */
   namespace ast{
     namespace x3 = boost::spirit::x3;
     ///////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 /**
  * @file discrete_mmdp.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief The file that contains the DiscreteMMDP class.
  * @version 1.0
  * @date 05/03/2021
  * 
@@ -21,6 +21,10 @@
 
 namespace sdm
 {
+    /**
+     * @brief The class for Discrete Multi-agent Markov Decision Processes. 
+     * 
+     */
     class DiscreteMMDP : public FullyObservableDecisionProcess<DiscreteSpace<number>, MultiDiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>
     {
     public:

@@ -13,6 +13,13 @@
  */
 namespace sdm
 {
+
+  /**
+   * @brief The deterministic decision rule class. This class is a function that maps generic states to generic actions. 
+   * 
+   * @tparam TState the state type
+   * @tparam TAction the action type
+   */
   template <typename TState, typename TAction>
   class DeterministicDecisionRule : public Function<TState, TAction>
   {

@@ -20,7 +20,10 @@
 
 namespace sdm
 {
-
+    /**
+     * @brief The class for Discrete Markov Decision Processes. 
+     * 
+     */
     class DiscreteMDP : public FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>,
                         public SolvableByHSVI<number, number>
     {

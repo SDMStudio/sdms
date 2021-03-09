@@ -1,7 +1,7 @@
 /**
  * @file po_process_base.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief File that contains the implementation of the partially observable process base class.
  * @version 1.0
  * @date 02/02/2021
  * 
@@ -15,11 +15,11 @@
 namespace sdm
 {
     /**
-     * @brief 
+     * @brief This class is the base class for partially observable processes. It contains base spaces required in all partially observable processes.
      * 
-     * @tparam TStateSpace 
-     * @tparam TObsSpace 
-     * @tparam TDistrib 
+     * @tparam TStateSpace the state space
+     * @tparam TObsSpace  the observation space
+     * @tparam TDistrib the initial distribution
      */
     template <typename TStateSpace, typename TObsSpace, typename TDistrib>
     class PartiallyObservableProcessBase : public virtual StochasticProcessBase<TStateSpace, TDistrib>

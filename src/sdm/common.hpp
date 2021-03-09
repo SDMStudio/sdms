@@ -6,6 +6,9 @@
 
 namespace sdm
 {
+    /**
+     * @brief Namespace grouping all common functions to the whole project.
+     */
     namespace common
     {
         void logo();

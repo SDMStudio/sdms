@@ -1,7 +1,7 @@
 /**
  * @file decision_process.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief File that contains the implementation of the decision process class.
  * @version 1.0
  * @date 02/02/2021
  * 
@@ -26,6 +26,16 @@
 namespace sdm
 {
 
+    /**
+     * @brief This class provides a way to instanciate multiple subclasses of decision processes.
+     * 
+     * @tparam TStateSpace the state space type
+     * @tparam TActionSpace the action space type
+     * @tparam TObsSpace the observation space type
+     * @tparam TStateDynamics the state dynamics type
+     * @tparam TReward the reward function type
+     * @tparam TDistrib the type of the start distribution
+     */
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
     class DecisionProcess : public DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>,
                             public GymInterface<TObsSpace, TActionSpace, std::is_same<typename TReward::value_type, std::vector<double>>::value>

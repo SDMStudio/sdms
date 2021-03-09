@@ -1,7 +1,7 @@
 /**
  * @file belief_mdp.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief File that contains the implementation of the belief mdp process class.
  * @version 1.0
  * @date 03/02/2021
  * 
@@ -13,19 +13,15 @@
 #include <sdm/types.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 
-/**
- * @namespace  sdm
- * @brief Namespace grouping all tools required for sequential decision making.
- */
 namespace sdm
 {
     class DiscretePOMDP;
 
     /**
-     * @brief 
+     * @brief The BeliefMDP class is the interface that enables solving Discret POMDP using HSVI algorithm.
      * 
-     * @tparam TBelief 
-     * @tparam TAction 
+     * @tparam TBelief the belief type
+     * @tparam TAction the action type
      */
     template <typename TBelief, typename TAction, typename TObservation>
     class BeliefMDP : public SolvableByHSVI<TBelief, TAction>,
@@ -48,37 +44,23 @@ namespace sdm
         void setDiscount(double discount) { return this->pomdp_->setDiscount(discount); }
 
         TBelief getInitialState();
+
         TBelief &getState();
+
         std::shared_ptr<Reward> getReward() const;
 
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
+
         TBelief nextState(const TBelief &belief, const TAction &action, int t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
+
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
 
-        /**
-         * @fn double getReward(Vector belief, number action);
-         * @brief Get transformed reward from action and belief  
-         */
         double getReward(const TBelief &belief, const TAction &action) const;
 
-        /**
-         * @brief Get the Expected Next Value object
-         * 
-         * @param value_function 
-         * @param belief 
-         * @param action 
-         * @param t 
-         * @return double 
-         */
         double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const;
 
         /**
          * @brief Get the Observation Probability p(o | b, a)
-         * 
-         * @param action 
-         * @param obs 
-         * @param belief 
-         * @return double 
          */
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
 

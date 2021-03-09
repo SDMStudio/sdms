@@ -1,6 +1,13 @@
-/*=============================================================================
-  Copyright (c) 2016 Jilles Steeve Dibangoye
-==============================================================================*/
+/**
+ * @file reward.hpp
+ * @author Jilles S. Dibangoye
+ * @brief This file contains the implementation of the Reward model.
+ * @version 1.0
+ * @date 09/03/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <vector>
@@ -8,25 +15,13 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 
-//!
-//! \file     reward.hpp
-//! \author   Jilles S. Dibangoye
-//! \brief    reward class
-//! \version  1.0
-//! \date     12 Avril 2016
-//!
-//! This class provides getter and setter methods for the reward model.
-//!
-
-//! \namespace  sdm
-//!
-//! Namespace grouping all tools required for sequential decision making.
 namespace sdm
 {
 
-  //!
-  //! \class  reward  reward.hpp
-  //!
+  /**
+   * @brief This class provides getter and setter methods for the reward model.
+   * 
+   */
   class Reward
   {
   protected:

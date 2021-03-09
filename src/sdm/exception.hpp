@@ -16,7 +16,7 @@
 namespace sdm
 {
     /**
-     * @brief Namespace for exceptions
+     * @brief Namespace grouping all exceptions.
      */
     namespace exception
     {
