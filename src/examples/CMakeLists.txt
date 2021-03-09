@@ -16,21 +16,26 @@ endforeach(f)
 
 #### This section can be uncommented and rewrite in order to only partially compile sdms
 
-# file(
-# 	GLOB_RECURSE
-# 	lib_struct
-# 	${SOURCE_DIR}/utils/struct/*.cpp
-# )
-# add_library(lib_struct SHARED ${lib_struct})
-# include_directories(${SDMS_INCLUDE_DIRS})
+file(
+	GLOB_RECURSE
+	lib_world
+	${INCLUDE_DIR}/core/*
+	${INCLUDE_DIR}/parser/*
+	${INCLUDE_DIR}/world/*.cpp
+	${INCLUDE_DIR}/utils/linear_algebra/*
+	${INCLUDE_DIR}/common.cpp
+	${INCLUDE_DIR}/tools.cpp
+)
+add_library(lib_world SHARED ${lib_world})
+include_directories(${SDMS_INCLUDE_DIRS})
 
-# add_executable(quicktest tmp/quicktest.cpp)
-# target_link_libraries(quicktest
-#   algebraLib
-#   ${Boost_LIBRARIES}
-#   ${TORCH_LIBRARIES}
-# )
+add_executable(quicktest tmp/quicktest.cpp)
+target_link_libraries(quicktest
+  lib_world
+  ${Boost_LIBRARIES}
+  ${TORCH_LIBRARIES}
+)
 
-# install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest
-#     DESTINATION bin/
-#     )
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest
+    DESTINATION bin/
+    )

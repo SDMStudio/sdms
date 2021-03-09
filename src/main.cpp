@@ -5,6 +5,7 @@
 #include <sdm/common.hpp>
 #include <sdm/types.hpp>
 #include <sdm/algorithms.hpp>
+#include <sdm/worlds.hpp>
 #include "examples/solve.cpp"
 
 using namespace sdm;
@@ -14,7 +15,7 @@ namespace po = boost::program_options;
 void print_version()
 {
   std::cout << std::endl
-            << "SDMS Version :\t" << 0.1 << std::endl;
+            << "SDMS Version :\t" << 1.0 << std::endl;
   std::cout << "CXX Version  :\t" << 17 << std::endl;
   std::cout << "CXX Compiler :\t"
             << "clang" << std::endl;
@@ -80,9 +81,9 @@ int main_sdms(int argv, char **args)
     else if (func.compare("worlds") == 0)
     {
       std::cout << "WORLDS\t"<< std::endl;
-      for (auto algo : sdm::algo::available())
+      for (auto world : sdm::world::available())
       {
-        std::cout << algo << std::endl;
+        std::cout << world << std::endl;
       }
     }
     // DO OTHER

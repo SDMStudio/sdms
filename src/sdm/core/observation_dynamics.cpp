@@ -14,6 +14,10 @@ namespace sdm
   {
   }
 
+  ObservationDynamics::ObservationDynamics(ObservationDynamics &copy) : o_model(copy.getObservationProbabilities()), dynamics(copy.getDynamics())
+  {
+  }
+
   ObservationDynamics::ObservationDynamics(number num_jactions, number num_jobservations, number num_states)
   {
     this->initDynamics(num_jactions, num_jobservations, num_states);
@@ -78,5 +82,15 @@ namespace sdm
   void ObservationDynamics::setDynamics(number s, number a, number o, number s_, double prob)
   {
     this->dynamics[a][o](s, s_) = prob;
+  }
+
+  const std::vector<std::vector<Matrix>> &ObservationDynamics::getDynamics() const
+  {
+    return this->dynamics;
+  }
+  
+  const std::vector<Matrix> &ObservationDynamics::getObservationProbabilities() const
+  {
+    return this->o_model;
   }
 } // namespace sdm

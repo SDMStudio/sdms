@@ -145,7 +145,7 @@ SDMStudio worlds
 ### Solve a problem
 ```bash
 SDMStudio solve [ARG...]
-SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS]
+SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS]
 ```
 
 ### Test a saved policy [TO DO]
@@ -162,12 +162,12 @@ SDMStudio test [OPTIONS]
 
 int main(int argc, char **argv)
 {
-	sdm::DecPOMDP dpomdp_world= sdm::parser::parse_file("my_problem.dpomdp");
+	auto dpomdp_world= sdm::parser::parse_file("my_problem.dpomdp");
   
-  std::cout << "Nb States : " << dpomdp_world.getNumStates() << std::endl;
-	std::cout << "Nb Agents : " << dpomdp_world.getNumAgents() << std::endl;
-	std::cout << "Nb Joint Actions : " << dpomdp_world.getNumJActions() << std::endl;
-	std::cout << "Nb Joint Observations : " << dpomdp_world.getNumJObservations() << std::endl;
+	std::cout << "Nb Agents : " << dpomdp_world->getNumAgents() << std::endl;
+  std::cout << "State Space : " << *dpomdp_world->getStateSpace() << std::endl;
+	std::cout << "Action Space : " << *dpomdp_world->getActionSpace() << std::endl;
+	std::cout << "Observation space : " << *dpomdp_world->getObsSpace() << std::endl;
 
   return 0;
 }
