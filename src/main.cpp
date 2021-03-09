@@ -15,7 +15,7 @@ namespace po = boost::program_options;
 void print_version()
 {
   std::cout << std::endl
-            << "SDMS Version :\t" << 0.1 << std::endl;
+            << "SDMS Version :\t" << 1.0 << std::endl;
   std::cout << "CXX Version  :\t" << 17 << std::endl;
   std::cout << "CXX Compiler :\t"
             << "clang" << std::endl;

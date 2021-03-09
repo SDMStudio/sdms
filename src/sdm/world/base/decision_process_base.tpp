@@ -21,8 +21,8 @@ namespace sdm
                                                                                   Criterion criterion)
         : StochasticProcessBase<TStateSpace, TDistrib>(state_sp, start_distrib),
           action_space_(action_sp),
-          discount_(discount),
           planning_horizon_(planning_horizon),
+          discount_(discount),
           criterion_(criterion)
     {
     }

@@ -34,6 +34,13 @@ namespace sdm
   class HSVI : public Algorithm
   {
   protected:
+
+    /**
+     * @brief The problem to be solved.
+     * 
+     */
+    std::shared_ptr<SolvableByHSVI<TState, TAction>> world_;
+
     /**
      * @brief Lower Bound representation. 
      */
@@ -43,12 +50,6 @@ namespace sdm
      * @brief Upper Bound representation. 
      */
     std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
-
-    /**
-     * @brief The problem to be solved.
-     * 
-     */
-    std::shared_ptr<SolvableByHSVI<TState, TAction>> world_;
 
     /**
      * @brief Some variables for the algorithm.

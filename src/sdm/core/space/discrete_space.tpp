@@ -36,6 +36,11 @@ namespace sdm
     }
 
     template <typename TItem>
+    DiscreteSpace<TItem>::~DiscreteSpace()
+    {
+    }
+
+    template <typename TItem>
     bool DiscreteSpace<TItem>::isDiscrete() const
     {
         return true;

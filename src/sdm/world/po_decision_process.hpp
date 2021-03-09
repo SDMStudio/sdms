@@ -56,6 +56,7 @@ namespace sdm
                                            Criterion criterion = Criterion::REW_MAX);
 
         PartiallyObservableDecisionProcess(PartiallyObservableDecisionProcess &copy);
+        ~PartiallyObservableDecisionProcess();
 
         /**
          * \brief Get the observation dynamics

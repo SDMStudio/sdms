@@ -18,7 +18,7 @@ namespace sdm
     }
 
     template <typename TFunction>
-    Variations<TFunction>::Variations(const std::vector<TKey> &possible_keys, const std::vector<std::vector<TItem>> &possible_values) : p_values_(possible_values), p_keys_(possible_keys)
+    Variations<TFunction>::Variations(const std::vector<TKey> &possible_keys, const std::vector<std::vector<TItem>> &possible_values) : p_keys_(possible_keys), p_values_(possible_values)
     {
         this->setVariation(possible_keys, possible_values);
     }
@@ -30,7 +30,7 @@ namespace sdm
         this->p_values_ = possible_values;
         this->dimension = this->p_values_.size();
 
-        for (int i = 0; i < this->p_values_.size(); i++)
+        for (std::size_t i = 0; i < this->p_values_.size(); i++)
         {
             this->current.push_back(this->p_values_[i].begin());
         }

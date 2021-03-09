@@ -74,9 +74,7 @@ namespace sdm
         template <bool TBool = std::is_integral<TItem>::value>
         DiscreteSpace(std::enable_if_t<TBool, int> num_items);
 
-        // template <typename T = TItem,
-        //           std::enable_if_t<std::is_integral<TItem>::value, int> = 0>
-        // Base() : x_{5.55} {}
+        ~DiscreteSpace();
 
         /**
          * @brief Return true because this is a discrete space

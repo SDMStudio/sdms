@@ -4,7 +4,7 @@
 namespace sdm
 {
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector() : std::map<TIndex, T>(), size_(0), default_value_(0)
+    MappedVector<TIndex, T>::MappedVector() : std::map<TIndex, T>(), default_value_(0), size_(0)
     {
     }
 

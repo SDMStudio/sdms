@@ -668,7 +668,8 @@ namespace sdm
         // auto start_distrib = std::make_shared<Vector>(state_space.getNumItems());
         Vector start_distrib__ = boost::apply_visitor(bl_encoder, ast.start_param);
         std::vector<double> start_vector;
-        for (int i=0; i<start_distrib__.size(); i++){
+        for (sdm::size_t i = 0; i < start_distrib__.size(); i++)
+        {
           start_vector.push_back(start_distrib__[i]);
         }
         std::discrete_distribution<number> start_distrib(start_vector.begin(), start_vector.end());

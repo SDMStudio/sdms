@@ -118,9 +118,9 @@ namespace sdm
         std::shared_ptr<TActionSpace> action_space_;
 
         /**
-         * @brief type of optimization problem, e.g., reward maximazation or cost minimization.
+         * @brief planning horizon
          */
-        Criterion criterion_ = Criterion::REW_MAX;
+        number planning_horizon_ = 0;
 
         /**
          * @brief factor used to discount rewards (respectively costs) in the future.
@@ -128,9 +128,9 @@ namespace sdm
         double discount_ = 1.0, bound_;
 
         /**
-         * @brief planning horizon
+         * @brief type of optimization problem, e.g., reward maximazation or cost minimization.
          */
-        number planning_horizon_ = 0;
+        Criterion criterion_ = Criterion::REW_MAX;
 
         /**
          * @brief name of the file that generates the environment

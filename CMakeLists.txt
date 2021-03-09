@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Project infos
 project(sdms
-        VERSION 0.1
+        VERSION 1.0
         LANGUAGES C CXX)
 
 # options for compilation
