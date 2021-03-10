@@ -116,14 +116,25 @@ namespace sdm
         void setDiscount(double);
         double getDiscount();
 
-        virtual number getNumObservations(number agent) const;
-
-        virtual number getNumStates() const;
-
         virtual number getNumAgents() const;
 
+        const DiscreteSpace<number> &getStateSpace() const;
+        virtual number getNumStates() const;
+
         /**
-         * \brief Getter for the observation spaces
+         * @brief Getter for the observation spaces 
+         */
+        const MultiDiscreteSpace<number> &getObsSpace() const;
+
+        /**
+         * \brief Get the number of joint observations
+         */
+        number getNumJObservations() const;
+
+        virtual number getNumObservations(number agent) const;
+
+        /**
+         * \brief Getter for the action spaces
          */
         const MultiDiscreteSpace<number> &getActionSpace() const;
 

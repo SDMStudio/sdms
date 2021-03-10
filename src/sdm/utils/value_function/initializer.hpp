@@ -107,19 +107,20 @@ namespace sdm
     // class MDPInitializer : public Initializer<TState, TAction>
     // {
     // protected:
-    //     POMDP problem_;
+    //     std::string algo_name_;
+    //     std::shared_ptr<DiscretePOMDP> problem_;
     //     double discount_;
 
     // public:
-    //     MDPInitializer(POMDP problem, double discount) : problem_(problem), discount_(discount)
+    //     MDPInitializer(std::string algo_name, std::shared_ptr<DiscretePOMDP> problem, double discount) : algo_name_(algo_name), problem_(problem), discount_(discount)
     //     {
     //     }
 
     //     void init(ValueFunction<TState, TAction> *vf)
     //     {
-    //         auto algo = sdm::algo::make("mapped_hsvi", this->problem->toMDP());
+    //         auto algo = sdm::algo::make(algo_name, this->problem->toMDP());
     //         algo->do_solve();
-    //         algo->getLowerBound();
+    //         auto ubound = algo->getUpperBound();
     //     }
     // };
 } // namespace sdm

@@ -9,7 +9,7 @@
 namespace sdm
 {
   template <typename TState, typename TJointHistory_p>
-  class SerializedOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
+  class SerializedOccupancyState : public MappedVector<Pair<TState, TJointHistory_p, std::vector<number>>, double>
   {
   public:
     using jhistory_type = TJointHistory_p;

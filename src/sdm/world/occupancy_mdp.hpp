@@ -53,7 +53,7 @@ namespace sdm
         std::shared_ptr<Reward> getReward() const;
         double getDiscount() { return this->dpomdp_->getDiscount(); }
         void setDiscount(double discount) { return this->dpomdp_->setDiscount(discount); }
-
+        
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
         
         /**

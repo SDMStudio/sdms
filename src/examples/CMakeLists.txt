@@ -19,9 +19,7 @@ endforeach(f)
 file(
 	GLOB_RECURSE
 	lib_world
-	${INCLUDE_DIR}/core/*
-	${INCLUDE_DIR}/parser/*
-	${INCLUDE_DIR}/world/*.cpp
+	${INCLUDE_DIR}/world/ndpomdp.cpp
 	${INCLUDE_DIR}/utils/linear_algebra/*
 	${INCLUDE_DIR}/common.cpp
 	${INCLUDE_DIR}/tools.cpp
