@@ -43,14 +43,15 @@ namespace sdm
         std::shared_ptr<TActSpace> getActionSpace() const;
 
         virtual observation_type reset() = 0;
+        virtual std::tuple<observation_type, std::vector<double>, bool> step(action_type) = 0;
 
-        template <bool TBool = is_multi_agent>
-        std::enable_if_t<TBool, std::tuple<observation_type, std::vector<double>, bool>>
-        step(action_type a);
+        // template <bool TBool = is_multi_agent>
+        // std::enable_if_t<TBool, std::tuple<observation_type, std::vector<double>, bool>>
+        // step(action_type a);
 
-        template <bool TBool = is_multi_agent>
-        std::enable_if_t<!TBool, std::tuple<observation_type, double, bool>>
-        step(action_type a);
+        // template <bool TBool = is_multi_agent>
+        // std::enable_if_t<!TBool, std::tuple<observation_type, double, bool>>
+        // step(action_type a);
     };
 } // namespace sdm
 

@@ -36,7 +36,6 @@ namespace sdm
         DiscreteMDP(std::string &filename);
 
         // SolvableByHSVI interface implementation
-
         number getInitialState();
         number nextState(const number &state, const number &action, int t = 0, HSVI<number, number> *hsvi = nullptr) const;
         double getDiscount();

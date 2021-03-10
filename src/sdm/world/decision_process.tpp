@@ -81,6 +81,33 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
+    typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::reset()
+    {
+        return this->resetProcess();
+    }
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
+    template <bool TBool>
+    std::enable_if_t<TBool, typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type>
+    DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::resetProcess()
+    {
+        std::cout << "IN INIT FO_PROCESS" << std::endl;
+        this->ctimestep_ = 0;
+        this->setInternalState(this->getStartDistrib()(sdm::common::global_urng()));
+        return this->getInternalState();
+    }
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
+    template <bool TBool>
+    std::enable_if_t<!TBool, typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type>
+    DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::resetProcess()
+    {
+        std::cout << "IN INIT PO_PROCESS" << std::endl;
+        this->ctimestep_ = 0;
+        this->setInternalState(this->getStartDistrib()(sdm::common::global_urng()));
+    }
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
     TDistrib DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::getNextStateDistrib(DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::state_type cstate, DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::action_type caction)
     {
         return this->dynamics_generator.at(cstate).at(caction);
@@ -93,50 +120,22 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
-    typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::reset()
+    typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::updateState_getObs(DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::action_type a)
     {
-        return this->resetProcess();
-    }
-
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
-    template <bool TBool>
-    std::enable_if_t<TBool, typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type>
-    DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::resetProcess()
-    {
-        this->ctimestep_ = 0;
-        this->setInternalState(this->getStartDistrib()(sdm::common::global_urng()));
+        std::cout << "IN FO_PROCESS" << std::endl;
+        this->setInternalState(this->getNextStateDistrib(a)(sdm::common::global_urng()));
         return this->getInternalState();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
-    template <bool TBool>
-    std::enable_if_t<!TBool, typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type>
-    DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::resetProcess()
-    {
-        this->ctimestep_ = 0;
-        this->setInternalState(this->getStartDistrib()(sdm::common::global_urng()));
-    }
-
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
-    template <bool TBool>
-    std::enable_if_t<TBool, std::tuple<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type, std::vector<double>, bool>>
+    std::tuple<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type, std::vector<double>, bool>
     DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::step(typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::action_type a)
     {
         this->ctimestep_++;
         auto rew = this->getReward()->getReward(this->getInternalState(), this->getAction(a));
-        auto z = this->getNextStateDistrib(a)(sdm::common::global_urng());
-        return std::make_tuple(z, rew, (this->getPlanningHorizon() <= this->ctimestep_));
-    }
-
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
-    template <bool TBool>
-    std::enable_if_t<!TBool, std::tuple<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type, double, bool>>
-    DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::step(typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::action_type a)
-    {
-        this->ctimestep_++;
-        auto rew = this->getReward()->getReward(this->getInternalState(), this->getAction(a));
-        auto z = this->getNextStateDistrib(a)(sdm::common::global_urng());
-        return std::make_tuple(z, rew, (this->getPlanningHorizon() <= this->ctimestep_));
+        auto z = this->updateState_getObs(a);
+        bool is_done = (this->getPlanningHorizon() > 0) ? (this->getPlanningHorizon() <= this->ctimestep_) : (1000 <= this->ctimestep_);
+        return std::make_tuple(z, {rew}, is_done);
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
