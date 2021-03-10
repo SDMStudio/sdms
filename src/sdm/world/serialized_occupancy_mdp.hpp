@@ -1,22 +1,21 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/core/space/discrete_space.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+
+#include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/state/serialized_occupancy_state.hpp>
+
+#include <sdm/utils/linear_algebra/vector.hpp>
+#include <sdm/utils/decision_rules/det_decision_rule.hpp>
 
 namespace sdm
 {
 
     class DiscreteDecPOMDP;
 
-    /**
-     * @brief 
-     * 
-     * @tparam oState 
-     * @tparam oAction 
-     */
-    template <typename oState, typename oAction>
+    template <typename oState = SerializedOccupancyState<number, JointHistoryTree_p<number>>,
+              typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
     class SerializedOccupancyMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:
@@ -47,4 +46,4 @@ namespace sdm
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
     };
 } // namespace sdm
-#include <sdm/world/occupancy_mdp.tpp>
+#include <sdm/world/serialized_occupancy_mdp.tpp>

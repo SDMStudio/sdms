@@ -13,6 +13,6 @@ namespace sdm
         using input_type = TInput;
         using output_type = TOutput; 
 
-        TOutput operator()(const TInput &);
+        TOutput operator()(const TInput &) const;
     };
 } // namespace sdm

@@ -4,12 +4,13 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
+#include <sdm/utils/struct/tuple.hpp>
 #include <sdm/core/state/state.hpp>
 
 namespace sdm
 {
   template <typename TState, typename TJointHistory_p>
-  class SerializedOccupancyState : public MappedVector<Pair<TState, TJointHistory_p, std::vector<number>>, double>
+  class SerializedOccupancyState : public MappedVector<Tuple<TState, TJointHistory_p, std::vector<number>>, double>
   {
   public:
     using jhistory_type = TJointHistory_p;
@@ -21,10 +22,11 @@ namespace sdm
     SerializedOccupancyState(const SerializedOccupancyState &v);
 
     std::set<jhistory_type> getJointHistories() const;
-
     std::set<state_type> getStates() const;
 
-    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getIndividualHistories() const;
+    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
+
+    number getCurrentAgentId() const;
   };
 } // namespace sdm
-#include <sdm/core/state/occupancy_state.tpp>
+#include <sdm/core/state/serialized_occupancy_state.tpp>

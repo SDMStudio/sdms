@@ -27,6 +27,8 @@ namespace sdm
     std::map<TState, TAction> container_;
 
   public:
+    DeterministicDecisionRule() {}
+    
     DeterministicDecisionRule(std::vector<TState> acc_states, std::vector<TAction> n_actions)
     {
       assert(acc_states.size() == n_actions.size());
@@ -34,17 +36,17 @@ namespace sdm
       {
         this->container_[acc_states[i]] = n_actions[i];
       }
-    };
+    }
 
-    TAction act(const TState &s)
+    TAction act(const TState &s) const
     {
       return this->container_.at(s);
-    };
+    }
 
-    TAction operator()(const TState &s)
+    TAction operator()(const TState &s) const
     {
       return this->container_.at(s);
-    };
+    }
 
     bool operator<(const DeterministicDecisionRule &v2) const
     {
