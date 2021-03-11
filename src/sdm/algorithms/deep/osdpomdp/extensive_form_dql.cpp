@@ -247,7 +247,7 @@ namespace sdm{
 				}
 				next_o2 = agents->get_next_history_2(o2, u2, z2);
 				update_replay_memory();
-				// update_models();
+				update_models();
 				end_step();
 			}
 			end_episode();
