@@ -8,16 +8,15 @@ int main(int argv, char** args){
 	try {
     po::options_description desc("Allowed options");
 
-		std::string filename, output_file_name, ib_net_filename;
+		std::string filename, ib_net_filename;
 		int episodes;
-    number horizon, replay_memory_size, batch_size, i_batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, seed;
+    number horizon, replay_memory_size, batch_size, n, target_update, dim_i1, sampling_memory_size, print_every, seed;
     float eps_end, eps_start, eps_decay, alpha_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
 		bool gpu, induced_bias;
 
 		desc.add_options()
     ("help", "produce help message")
     ("filename,f", po::value<std::string>(&filename)->default_value("tiger"), "set the benchmark filename -- e.g. tiger, mabc, recycling, etc")
-    ("output_file_name,o", po::value<std::string>(&output_file_name)->default_value("../runs/log.csv"), "the output .csv file")
 		("ib-net-filename,g", po::value<std::string>(&ib_net_filename)->default_value("tiger"), "set the name")
     ("episodes,e", po::value<int>(&episodes)->default_value(10), "set the number of episodes")
 		("horizon,h", po::value<number>(&horizon)->default_value(0), "set the horizon")
@@ -28,9 +27,7 @@ int main(int argv, char** args){
     ("alpha-decay,k", po::value<float>(&alpha_decay)->default_value(1000), "set the alpha decay speed")
     ("eps-decay,j", po::value<float>(&eps_decay)->default_value(1000), "set the epsilon exploration decay speed")
     ("batch-size,b", po::value<number>(&batch_size)->default_value(128), "set the batch size")
-    ("i-batch-size,l", po::value<number>(&i_batch_size)->default_value(1), "set the i batch size")
-    ("o2", po::value<number>(&dim_o2)->default_value(128), "set the hidden state size 0 of agent 0")
-    ("o1", po::value<number>(&dim_o1)->default_value(128), "set the hidden state size of agent 1")
+    ("n,n", po::value<number>(&n)->default_value(128), "number of previous turns of history to keep")
     ("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target update")
 		("i1", po::value<number>(&dim_i1)->default_value(8), "set the inner layer dimensions of agent 1")
     ("discount-factor,d", po::value<float>(&discount_factor)->default_value(0.99), "set the discount factor")
@@ -100,8 +97,8 @@ int main(int argv, char** args){
 		game->setPlanningHorizon(horizon);
 
 		ExtensiveFormDQL extensive_form_dql(
-			episodes, horizon, batch_size, i_batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, 
-			eps_end, eps_start, eps_decay, alpha_decay, discount_factor, rolling_factor, lr, adam_eps, device, game, replay_memory_size, output_file_name, 
+			episodes, horizon, batch_size, n, target_update, dim_i1, sampling_memory_size, print_every, 
+			eps_end, eps_start, eps_decay, alpha_decay, discount_factor, rolling_factor, lr, adam_eps, device, game, replay_memory_size, 
 			induced_bias, ib_net_filename
 		);
 

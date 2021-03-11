@@ -30,7 +30,7 @@ namespace sdm{
 		number horizon;
 		// Batch size for updating the models.
 		number batch_size;
-		// 
+		// Number of turns of history to keep and feed to the DQN.
 		number n;
 		// How many episodes go before we update the target net.
 		number target_update;

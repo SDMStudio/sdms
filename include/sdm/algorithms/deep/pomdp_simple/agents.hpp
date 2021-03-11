@@ -20,7 +20,7 @@ namespace sdm{
 	struct POMDP_Agents_Simple {
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
-		// The name of the file that the networks will be ssaved as. These can later be used for the solution of the OSDPOMDP as induced bias.
+		// The name of the file that the networks will be saved as. These can later be used for the solution of the OSDPOMDP as induced bias.
 		std::string ib_net_filename;
 		// Initialize the Agents.
 		POMDP_Agents_Simple(number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);

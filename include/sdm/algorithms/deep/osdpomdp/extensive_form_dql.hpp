@@ -20,22 +20,55 @@
 
 namespace sdm{
 	struct ExtensiveFormDQL {
-		//
-		std::ofstream output_file;
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
 		// Current episode.
 		int episode;
 		// Total number of epidoes.
 		int episodes;
-		// Indice of parallel world, used to collect more data.
-		number i;
 		// Indice of which sampling world we're in.
 		number m;
-		// The world that choose to follow from the previous step.
+		// The world that agent 2 will take as the world.
 		number m_star;
-		number horizon, batch_size, i_batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, step;
-		float eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, epsilon, GAMMA, alpha_decay, alpha;
+		// Number of turns of history to keep and feed to the DQN.
+		number n;
+		// Horizon of the game to solve.
+		number horizon;
+		// Batch size for updating the models.
+		number batch_size;
+		// How many episodes go before we update the target net.
+		number target_update;
+		// Interval for printing the relevant statistics.
+		number print_every;
+		// Current step.
+		number step;
+		// Final value of epsilon.
+		float eps_end;
+		// Initial value of epsilon.
+		float eps_start;
+		// Decay rate of epsilon.
+		float eps_decay;
+		// Discount factor of the game i.e. the degree to which the next reward is less imporant than the current one.
+		float discount_factor;
+		// This lets the E[R] be more smooth. A value between [0, 1). 0: Ignore previous Rs. .9: It's as if it's the average of the last 10 Rs etc.
+		float rolling_factor;
+		// Learning rate.
+		float lr;
+		// Epsilon for adam optimizer.
+		float adam_eps;
+		// The epsilon.
+		float epsilon;
+		// Discount factor (it looks nicer this way)
+		float GAMMA;
+		// Inner dimension of DQN of agent 1.
+		number dim_i1;
+		// How many sampling/parallel worlds there will be for agent 1 to interact with the environment?
+		number sampling_memory_size;
+		// How much of IB solution will be used as the target(...)
+		float alpha;
+		// Decay rate of alpha.
+		float alpha_decay;
+		// Q value loss that is returned from the update function.
 		double q_value_loss;
 		// Do we use induced bias i.e. the solution of the POMDP or not?
 		bool induced_bias;
@@ -47,24 +80,42 @@ namespace sdm{
 		reward R;
 		// E[R]
 		reward E_R;
-		std::vector<std::vector<reward>> rs;
-		// std::vector<history> o2, next_o2;
-		std::vector<action> u2;
-		std::vector<std::vector<state>> xs, next_xs;
-		std::vector<std::vector<action>> u1s;
-		std::vector<std::vector<observation>> z1s, z2s;
-		std::vector<std::vector<history>> o2s, next_o2s, o1s, next_o1s;
+		// Reward for the current steps.
+		std::vector<reward> rs;
+		// Action of agent 2.
+		action u2;
+		//
+		std::vector<state> xs;
+		//
+		std::vector<state> next_xs;
+		//
+		std::vector<action> u1s;
+		//
+		std::vector<observation> z2s;
+		//
+		std::vector<observation> z1s;
+		//
+		history o2;
+		//
+		history next_o2;
+		//
+		std::vector<history> o1s;
+		//
+		std::vector<history> next_o1s;
+		// For updating the models.
 		std::shared_ptr<ModelsUpdateRules> models_update_rules;
+		// Experience replay memory.
 		std::shared_ptr<ReplayMemory> replay_memory;
+		// Agents object for agents 2 and 1.
 		std::shared_ptr<Agents> agents;
 		// Number of steps done in total.
 		int steps_done;
 		// Initialize the method for solving the problem.
 		ExtensiveFormDQL(
 			int, 
-			number, number, number, number, number, number, number, number, number, 
+			number, number, number, number, number, number, number, 
 			float, float, float, float, float, float, float, float, 
-			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string, bool, std::string
+			torch::Device, std::shared_ptr<sdm::POSG>&, int, bool, std::string
 		);
 		// (Should be in POSG class.) Used to get the joint action a from private actions u2 and u1.
 		action get_a_from_u2_u1(action, action);

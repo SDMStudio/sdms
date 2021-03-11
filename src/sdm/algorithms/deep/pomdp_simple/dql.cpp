@@ -86,11 +86,6 @@ namespace sdm{
 		x = game->init();
 		o2 = torch::zeros((game->getNumActions(0) + game->getNumObservations(0)) * n);
 		o1 = torch::zeros((game->getNumActions(1) + game->getNumObservations(1)) * n);
-		// std::cout << "game->getNumActions(0) " << game->getNumActions(0) << std::endl;
-		// std::cout << "game->getNumActions(1) " << game->getNumActions(1) << std::endl;
-		// std::cout << "game->getNumObservations(0) " << game->getNumObservations(0) << std::endl;
-		// std::cout << "game->getNumObservations(1) " << game->getNumObservations(1) << std::endl;
-
 	}
 
 	void DQL_Simple::update_replay_memory(){

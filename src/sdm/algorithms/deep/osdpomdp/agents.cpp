@@ -2,18 +2,12 @@
 
 namespace sdm{
 	Agents::Agents(
-		number agent_2_transition_net_input_dim, number agent_2_transition_net_hidden_dim, 
-		number agent_1_transition_net_input_dim, number agent_1_transition_net_hidden_dim, 
-		number agent_1_policy_net_input_dim, number agent_1_policy_net_output_dim, 
+		number agent_1_policy_net_input_dim, number agent_1_policy_net_inner_dim, number agent_1_policy_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, bool induced_bias, std::string ib_net_filename, number sampling_memory_size
 	){
-		this->agent_2_transition_net = RNN(agent_2_transition_net_input_dim, agent_2_transition_net_hidden_dim);
-		this->agent_1_transition_net = RNN(agent_1_transition_net_input_dim, agent_1_transition_net_hidden_dim);
-		this->agent_1_policy_net = DQN(agent_1_policy_net_input_dim, 55, agent_1_policy_net_output_dim);
-		this->agent_1_target_net = DQN(agent_1_policy_net_input_dim, 1111, agent_1_policy_net_output_dim);
+		this->agent_1_policy_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
+		this->agent_1_target_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
 		// Put the nets the correct device (CPU/GPU).
-		this->agent_2_transition_net->to(device);
-		this->agent_1_transition_net->to(device);
 		this->agent_1_policy_net->to(device);
 		this->agent_1_target_net->to(device);
 
@@ -32,31 +26,17 @@ namespace sdm{
 		this->game = game;
 		this->sampling_memory_size = sampling_memory_size;
 		update_target_net();
-		if (induced_bias){
-			number dim_o2 = agent_2_transition_net_hidden_dim;
-			number dim_o1 = agent_1_transition_net_hidden_dim;
-			// Initialize the induced bias target net with the same dimensions as the policy net of the POMDP.
-			this->induced_bias_target_net = DQN(dim_o2 + dim_o1, dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
-			this->induced_bias_target_net->to(device);
-			initialize_induced_bias(ib_net_filename);
-		}
+		// if (induced_bias){
+		// 	number dim_o2 = agent_2_transition_net_hidden_dim;
+		// 	number dim_o1 = agent_1_transition_net_hidden_dim;
+		// 	// Initialize the induced bias target net with the same dimensions as the policy net of the POMDP.
+		// 	this->induced_bias_target_net = DQN(dim_o2 + dim_o1, dim_o2 + dim_o1, game->getNumActions(0) * game->getNumActions(1)); // the 2nd argument is not guranteed to be correct, but normally should be, as of 11.01.2021
+		// 	this->induced_bias_target_net->to(device);
+		// 	initialize_induced_bias(ib_net_filename);
+		// }
 	}
 
 	void Agents::initialize_induced_bias(std::string ib_net_filename){
-		std::string ib_transition_net_2_filename;
-		ib_transition_net_2_filename.append("../models");
-		ib_transition_net_2_filename.append("/");
-		ib_transition_net_2_filename.append(ib_net_filename);
-		ib_transition_net_2_filename.append("_transition_net_2.pt");
-		torch::load(agent_2_transition_net, ib_transition_net_2_filename);
-
-		std::string ib_transition_net_1_filename;
-		ib_transition_net_1_filename.append("../models");
-		ib_transition_net_1_filename.append("/");
-		ib_transition_net_1_filename.append(ib_net_filename);
-		ib_transition_net_1_filename.append("_transition_net_1.pt");
-		torch::load(agent_1_transition_net, ib_transition_net_1_filename);
-
 		std::string ib_target_net_filename;
 		ib_target_net_filename.append("../models");
 		ib_target_net_filename.append("/");
@@ -130,29 +110,23 @@ namespace sdm{
 	}
 
 	history Agents::get_next_history_2(history o2, action u2, observation z2){
-		// Let PyTorch know that we don't need to keep track of the gradient in this context.
-		torch::NoGradGuard no_grad;
 		// Recast the u2 and z2 as a Tensor and get u2_z2, the entry to the network.
 		torch::Tensor u2_z2 = recast_u2_z2(u2, z2);
-		// Add batch dimension since RNNs need it.
-		o2 = o2.unsqueeze(0);
-		// Put it to GPU if needed.
-		o2 = o2.to(device);
-		// Get next_h0, put it back to CPU (if it was in GPU), and remove the batch dimension.
-		return agent_2_transition_net(u2_z2, o2).cpu().squeeze();
+		u2_z2 = u2_z2.squeeze();
+		number u2_z2_size = u2_z2.sizes()[0];
+		o2 = torch::roll(o2, -u2_z2_size);
+		torch::Tensor next_o2 = torch::cat({o2.slice(0, 0, -u2_z2_size), u2_z2});
+		return next_o2;
 	}
 
 	history Agents::get_next_history_1(history o1, action u1, observation z1){
-		// Let PyTorch know that we don't need to keep track of the gradient in this context.
-		torch::NoGradGuard no_grad;
 		// Recast the u1 and z1 as a Tensor and get u1_z1, the entry to the network.
 		torch::Tensor u1_z1 = recast_u1_z1(u1, z1);
-		// Add batch dimension since RNNs need it.
-		o1 = o1.unsqueeze(0);
-		// Put it to GPU if needed.
-		o1 = o1.to(device);
-		// Get next_h1, put it back to CPU (if it was in GPU), and remove the batch dimension.
-		return agent_1_transition_net(u1_z1, o1).cpu().squeeze();
+		u1_z1 = u1_z1.squeeze();
+		number u1_z1_size = u1_z1.sizes()[0];
+		o1 = torch::roll(o1, -u1_z1_size);
+		torch::Tensor next_o1 = torch::cat({o1.slice(0, 0, -u1_z1_size), u1_z1});
+		return next_o1;
 	}
 
 	torch::Tensor Agents::recast_u2_z2(action u2, observation z2){
