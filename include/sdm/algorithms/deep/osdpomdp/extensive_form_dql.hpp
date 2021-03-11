@@ -76,6 +76,8 @@ namespace sdm{
 		std::default_random_engine random_engine;
 		// Uniform m distribution, returns random int between 0 and M-1.
 		std::uniform_int_distribution<int> uniform_m_distribution;
+		// Uniform m distribution, returns random int between 0 and nZ(0)-1.
+		std::uniform_int_distribution<int> uniform_z2_distribution;
 		// Discounted cumulative reward at the end of the episode. 
 		reward R;
 		// E[R]
@@ -91,7 +93,9 @@ namespace sdm{
 		//
 		std::vector<action> u1s;
 		//
-		std::vector<observation> z2s;
+		observation z2;
+		//
+		observation candidate_z2;
 		//
 		std::vector<observation> z1s;
 		//

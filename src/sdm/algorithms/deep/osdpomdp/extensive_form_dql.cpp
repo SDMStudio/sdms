@@ -49,6 +49,7 @@ namespace sdm{
 		this->replay_memory = std::make_shared<ReplayMemory>(replay_memory_size);
 		this->GAMMA = game->getDiscount();
 		this->uniform_m_distribution = std::uniform_int_distribution<int>(0, sampling_memory_size - 1);
+		this->uniform_z2_distribution = std::uniform_int_distribution<int>(0, game->getNumObservations(0) - 1);
 		this->induced_bias = induced_bias;
 		initialize();
 	}
@@ -80,18 +81,18 @@ namespace sdm{
 	}
 
 	void ExtensiveFormDQL::update_epsilon(){
-		if (steps_done < batch_size){
+		if (steps_done * sampling_memory_size < batch_size){
 			epsilon = 1;
 		} else {
-			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * steps_done / eps_decay);
+			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done * sampling_memory_size - batch_size) / eps_decay);
 		}
 	}
 
 	void ExtensiveFormDQL::update_alpha(){
-		if (steps_done < batch_size){
+		if (steps_done * sampling_memory_size < batch_size){
 			alpha = 1;
 		} else {
-			alpha = exp(-1. * steps_done / alpha_decay);
+			alpha = exp(-1. * (steps_done * sampling_memory_size - batch_size) / alpha_decay);
 		}
 	}
 
@@ -172,7 +173,6 @@ namespace sdm{
 		o1s = initiate_o1s();
 		next_o1s = initiate_o1s();
 		u1s = initiate_u1s();
-		z2s = initiate_z1s();
 		z1s = initiate_z1s();
 		rs = initiate_rs();
 		m_star = 0;
@@ -236,13 +236,16 @@ namespace sdm{
 			initialize_episode();
 			for(step = 0; step < horizon; step++){
 				u2 = agents->get_epsilon_greedy_action_2(o2, o1s, epsilon);
+				z2 = uniform_z2_distribution(random_engine);
 				for(m = 0; m < sampling_memory_size; m++){
 					u1s[m] = agents->get_epsilon_greedy_action_1(o2, o1s[m], u2, o1s, epsilon);
-					std::tie(z2s[m], z1s[m], rs[m]) = act();
+					do {
+						std::tie(candidate_z2, z1s[m], rs[m]) = act();
+					} while (candidate_z2 != z2);
 					next_o1s[m] = agents->get_next_history_1(o1s[m], u1s[m], z1s[m]);
 					R += pow(GAMMA, step) * (rs[m] / sampling_memory_size);	
 				}
-				next_o2 = agents->get_next_history_2(o2, u2, z2s[m_star]);
+				next_o2 = agents->get_next_history_2(o2, u2, z2);
 				update_replay_memory();
 				update_models();
 				end_step();
