@@ -12,6 +12,8 @@ namespace sdm{
 		this->agent_1_policy_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
 		this->agent_1_target_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
 		// Put the nets the correct device (CPU/GPU).
+		this->agent_2_transition_net->to(device);
+		this->agent_1_transition_net->to(device);
 		this->agent_1_policy_net->to(device);
 		this->agent_1_target_net->to(device);
 
