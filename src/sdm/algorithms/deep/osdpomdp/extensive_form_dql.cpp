@@ -211,9 +211,9 @@ namespace sdm{
 		//
 		if(episode % print_every == 0){
 			if(!induced_bias){
-				std::cout << episode << "," << epsilon << "," << q_value_loss << "," << E_R << std::endl;
+				std::cout << episode << "," << epsilon << "," << q_value_loss / horizon << "," << E_R << std::endl;
 			} else {
-				std::cout << episode << "," << epsilon << "," << alpha << ","  << q_value_loss << "," << E_R << std::endl;
+				std::cout << episode << "," << epsilon << "," << alpha << ","  << q_value_loss / horizon << "," << E_R << std::endl;
 			}
 		}
 		if(episode % target_update == 0){
@@ -224,7 +224,7 @@ namespace sdm{
 
 	void ExtensiveFormDQL::update_models(){
 		// Update weights and get q loss.
-		q_value_loss = models_update_rules->update(replay_memory, agents, alpha);
+		q_value_loss += models_update_rules->update(replay_memory, agents, alpha);
 	}
 
 	void ExtensiveFormDQL::solve(){
