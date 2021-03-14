@@ -78,4 +78,13 @@ namespace sdm{
 	};
 	TORCH_MODULE(Deep_Recurrent_Q_Network);
 
+	// DQN with 2 Gated_RNNs packaged together.
+	struct Gated_Deep_Recurrent_Q_NetworkImpl : torch::nn::Module {
+		Gated_RNN trans_net_2, trans_net_1;
+		DQN q_net;
+		//
+		Gated_Deep_Recurrent_Q_NetworkImpl(number, number, number, number, number, number, number);
+	};
+	TORCH_MODULE(Gated_Deep_Recurrent_Q_Network);
+
 }

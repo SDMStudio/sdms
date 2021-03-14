@@ -41,7 +41,7 @@ namespace sdm{
 		// Construct the batch which is made up of Tensors of correct dimensions and in the correct device (CPU/GPU).
 		pomdp_batch construct_batch(std::vector<pomdp_transition>);
 		//
-		torch::Tensor get_next_history_batch(torch::Tensor, torch::Tensor, torch::Tensor, RNN&);
+		torch::Tensor get_next_history_batch(torch::Tensor, torch::Tensor, torch::Tensor, Gated_RNN&);
 		//
 		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
 		//

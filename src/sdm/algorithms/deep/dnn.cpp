@@ -79,4 +79,18 @@ namespace sdm{
 		register_module("q_net", q_net);
 	}
 
+	Gated_Deep_Recurrent_Q_NetworkImpl::Gated_Deep_Recurrent_Q_NetworkImpl(
+		number trans_net_2_input_size, number trans_net_2_hidden_state_size, 
+		number trans_net_1_input_size, number trans_net_1_hidden_state_size, 
+		number q_net_input_size, number q_net_inner_dim, number q_net_output_size
+	)
+		: trans_net_2(Gated_RNN(trans_net_2_input_size, trans_net_2_hidden_state_size)),
+			trans_net_1(Gated_RNN(trans_net_1_input_size, trans_net_1_hidden_state_size)),
+			q_net(DQN(q_net_input_size, q_net_inner_dim, q_net_output_size))
+	{	
+		register_module("trans_net_2", trans_net_2);
+		register_module("trans_net_1", trans_net_1);
+		register_module("q_net", q_net);
+	}
+
 }

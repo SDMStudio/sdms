@@ -10,7 +10,7 @@ int main(int argv, char** args){
 
 		std::string filename, ib_net_filename;
 		int episodes;
-    number horizon, replay_memory_size, batch_size, n, target_update, dim_i1, sampling_memory_size, print_every, seed;
+    number horizon, replay_memory_size, batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, seed;
     float eps_end, eps_start, eps_decay, alpha_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
 		bool gpu, induced_bias;
 
@@ -27,7 +27,8 @@ int main(int argv, char** args){
     ("alpha-decay,k", po::value<float>(&alpha_decay)->default_value(1000), "set the alpha decay speed")
     ("eps-decay,j", po::value<float>(&eps_decay)->default_value(1000), "set the epsilon exploration decay speed")
     ("batch-size,b", po::value<number>(&batch_size)->default_value(128), "set the batch size")
-    ("n,n", po::value<number>(&n)->default_value(128), "number of previous turns of history to keep")
+    ("o2", po::value<number>(&dim_o2)->default_value(128), "set the history size of agent 0")
+    ("o1", po::value<number>(&dim_o1)->default_value(128), "set the history size of agent 1")
     ("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target update")
 		("i1", po::value<number>(&dim_i1)->default_value(8), "set the inner layer dimensions of agent 1")
     ("discount-factor,d", po::value<float>(&discount_factor)->default_value(0.99), "set the discount factor")
@@ -97,7 +98,7 @@ int main(int argv, char** args){
 		game->setPlanningHorizon(horizon);
 
 		ExtensiveFormDQL extensive_form_dql(
-			episodes, horizon, batch_size, n, target_update, dim_i1, sampling_memory_size, print_every, 
+			episodes, horizon, batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, 
 			eps_end, eps_start, eps_decay, alpha_decay, discount_factor, rolling_factor, lr, adam_eps, device, game, replay_memory_size, 
 			induced_bias, ib_net_filename
 		);

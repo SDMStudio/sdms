@@ -76,7 +76,7 @@ namespace sdm{
 		return loss.item<double>() / tao;
 	}
 
-	torch::Tensor POMDP_ModelsUpdateRules::get_next_history_batch(torch::Tensor u_batch, torch::Tensor z_batch, torch::Tensor o_batch, RNN& transition_net){
+	torch::Tensor POMDP_ModelsUpdateRules::get_next_history_batch(torch::Tensor u_batch, torch::Tensor z_batch, torch::Tensor o_batch, Gated_RNN& transition_net){
 		torch::Tensor u_z_batch = torch::cat({u_batch, z_batch}, 1);
 		return transition_net(u_z_batch, o_batch);
 	}

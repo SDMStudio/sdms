@@ -5,7 +5,8 @@ namespace sdm{
 		int episodes, 
 		number horizon, 
 		number batch_size,
-		number n,
+		number dim_o2,
+		number dim_o1,
 		number target_update, 
 		number dim_i1,
 		number sampling_memory_size, 
@@ -27,7 +28,8 @@ namespace sdm{
 		this->episodes = episodes;
 		this->horizon = horizon;
 		this->batch_size = batch_size;
-		this->n = n;
+		this->dim_o2 = dim_o2;
+		this->dim_o1 = dim_o1;
 		this->target_update = target_update;
 		this->sampling_memory_size = sampling_memory_size;
 		this->print_every = print_every;
@@ -42,7 +44,9 @@ namespace sdm{
 		this->game = game;
 		this->models_update_rules = std::make_shared<ModelsUpdateRules>(batch_size, sampling_memory_size, device, game, induced_bias);
 		this->agents =  std::make_shared<Agents>(
-			(game->getNumActions(0) + game->getNumObservations(0)) * n + (game->getNumActions(1) + game->getNumObservations(1)) * n + game->getNumActions(0) + (game->getNumActions(1) + game->getNumObservations(1)) * n * sampling_memory_size, 
+			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
+			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
+			dim_o2 + dim_o1 + game->getNumActions(0) + dim_o1 * sampling_memory_size, 
 			dim_i1, game->getNumActions(1),
 			game, device, lr, adam_eps, induced_bias, ib_net_filename, sampling_memory_size
 		);
@@ -125,7 +129,7 @@ namespace sdm{
 
 	std::vector<history> ExtensiveFormDQL::initiate_o1s(){
 		std::vector<history> o1s = {};
-		history o1 = torch::zeros((game->getNumActions(1) + game->getNumObservations(1)) * n);
+		history o1 = torch::zeros(dim_o1);
 		for(int j = 0; j < sampling_memory_size; j++){
 			o1s.push_back(o1);
 		}
@@ -168,14 +172,13 @@ namespace sdm{
 		q_value_loss = 0;
 		xs = initiate_xs();
 		next_xs = initiate_xs();
-		o2 = torch::zeros((game->getNumActions(0) + game->getNumObservations(0)) * n);
-		next_o2 = torch::zeros((game->getNumActions(0) + game->getNumObservations(0)) * n);
+		o2 = torch::zeros(dim_o2);
+		next_o2 = torch::zeros(dim_o2);
 		o1s = initiate_o1s();
 		next_o1s = initiate_o1s();
 		u1s = initiate_u1s();
 		z1s = initiate_z1s();
 		rs = initiate_rs();
-		m_star = 0;
 	}
 
 	void ExtensiveFormDQL::update_replay_memory(){
@@ -187,14 +190,7 @@ namespace sdm{
 		}
 	}
 
-	void ExtensiveFormDQL::determine_branch(){
-		m_star = uniform_m_distribution(random_engine);
-		// m_star = sampling_memory_size - 1;
-	}
-
 	void ExtensiveFormDQL::end_step(){
-		//
-		determine_branch();
 		// Update the state.
 		xs = next_xs;
 		// Update the history of agent 2.

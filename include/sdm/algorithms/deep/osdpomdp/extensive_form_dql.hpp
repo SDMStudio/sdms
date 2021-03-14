@@ -28,10 +28,10 @@ namespace sdm{
 		int episodes;
 		// Indice of which sampling world we're in.
 		number m;
-		// The world that agent 2 will take as the world.
-		number m_star;
-		// Number of turns of history to keep and feed to the DQN.
-		number n;
+		//
+		number dim_o2;
+		//
+		number dim_o1;
 		// Horizon of the game to solve.
 		number horizon;
 		// Batch size for updating the models.
@@ -82,29 +82,29 @@ namespace sdm{
 		reward R;
 		// E[R]
 		reward E_R;
-		// Reward for the current steps.
+		// Rewards for the current steps.
 		std::vector<reward> rs;
 		// Action of agent 2.
 		action u2;
-		//
-		std::vector<state> xs;
-		//
-		std::vector<state> next_xs;
-		//
+		// Actions of agent 1.
 		std::vector<action> u1s;
-		//
+		// Current states of the game.
+		std::vector<state> xs;
+		// Next states of the game.
+		std::vector<state> next_xs;
+		// Observation of agent 2.
 		observation z2;
-		//
+		// A possible observation of agent 2, it should be equal to z2.
 		observation candidate_z2;
-		//
+		// Observations of agent 1.
 		std::vector<observation> z1s;
-		//
+		// History of agent 2.
 		history o2;
-		//
+		// Next history of agent 2.
 		history next_o2;
-		//
+		// Histories of agent 1.
 		std::vector<history> o1s;
-		//
+		// Next histories of agent 1.
 		std::vector<history> next_o1s;
 		// For updating the models.
 		std::shared_ptr<ModelsUpdateRules> models_update_rules;
@@ -117,7 +117,7 @@ namespace sdm{
 		// Initialize the method for solving the problem.
 		ExtensiveFormDQL(
 			int, 
-			number, number, number, number, number, number, number, 
+			number, number, number, number, number, number, number, number, 
 			float, float, float, float, float, float, float, float, 
 			torch::Device, std::shared_ptr<sdm::POSG>&, int, bool, std::string
 		);
@@ -155,7 +155,5 @@ namespace sdm{
 		void update_models();
 		// Add current transition to the replay memory.
 		void update_replay_memory();
-		//
-		void determine_branch();
 	};
 }
