@@ -191,6 +191,7 @@ namespace sdm{
 			// Push it to the replay memory.
 			replay_memory->push(t);
 		}
+		// std::cout << p_x << std::endl;
 	}
 
 	void ExtensiveFormDQL::end_step(){
@@ -235,7 +236,7 @@ namespace sdm{
 	state_probability_distribution ExtensiveFormDQL::create_state_probability_distribution(std::vector<state> xs){
 		state_probability_distribution p_x = torch::zeros(game->getNumStates());
 		for(m = 0; m < sampling_memory_size; m++){
-			p_x.index({xs[m]}) += 1 / sampling_memory_size;
+			p_x.index({xs[m]}) += 1.0 / sampling_memory_size;
 		}
 		return p_x;
 	}
