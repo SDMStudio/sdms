@@ -46,8 +46,7 @@ namespace sdm{
 		this->agents =  std::make_shared<Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
-			dim_o2 + dim_o1 + game->getNumActions(0) + dim_o1 * sampling_memory_size, 
-			dim_i1, game->getNumActions(1),
+			dim_o2 + dim_o1 + game->getNumActions(0) + dim_o1 * sampling_memory_size + game->getNumStates(), dim_i1, game->getNumActions(1),
 			game, device, lr, adam_eps, induced_bias, ib_net_filename, sampling_memory_size
 		);
 		this->replay_memory = std::make_shared<ReplayMemory>(replay_memory_size);
@@ -179,12 +178,16 @@ namespace sdm{
 		u1s = initiate_u1s();
 		z1s = initiate_z1s();
 		rs = initiate_rs();
+		p_x = create_state_probability_distribution(xs);
 	}
 
 	void ExtensiveFormDQL::update_replay_memory(){
+		//
+		p_next_x = create_state_probability_distribution(next_xs);
+		//
 		for(m = 0; m < sampling_memory_size; m++){
 			// Create transition
-			transition t = std::make_tuple(o2, o1s[m], o1s, u2, u1s[m], rs[m], next_o2, next_o1s[m], next_o1s);
+			transition t = std::make_tuple(o2, o1s[m], o1s, p_x, u2, u1s[m], rs[m], next_o2, next_o1s[m], next_o1s, p_next_x);
 			// Push it to the replay memory.
 			replay_memory->push(t);
 		}
@@ -197,6 +200,8 @@ namespace sdm{
 		o2 = next_o2;
 		// Update the histories of agent 1.
 		o1s = next_o1s;
+		//
+		p_x = p_next_x;
 		// Update epsilon, the exploration coefficient.
 		update_epsilon();
 		// Update alpha, the coefficient for how much of the IB target we use during the updates.
@@ -227,14 +232,22 @@ namespace sdm{
 		q_value_loss += models_update_rules->update(replay_memory, agents, alpha);
 	}
 
+	state_probability_distribution ExtensiveFormDQL::create_state_probability_distribution(std::vector<state> xs){
+		state_probability_distribution p_x = torch::zeros(game->getNumStates());
+		for(m = 0; m < sampling_memory_size; m++){
+			p_x.index({xs[m]}) += 1/m;
+		}
+		return p_x;
+	}
+
 	void ExtensiveFormDQL::solve(){
 		for(episode = 0; episode < episodes; episode++){
 			initialize_episode();
 			for(step = 0; step < horizon; step++){
-				u2 = agents->get_epsilon_greedy_action_2(o2, o1s, epsilon);
+				u2 = agents->get_epsilon_greedy_action_2(o2, o1s, p_x, epsilon);
 				z2 = uniform_z2_distribution(random_engine);
 				for(m = 0; m < sampling_memory_size; m++){
-					u1s[m] = agents->get_epsilon_greedy_action_1(o2, o1s[m], u2, o1s, epsilon);
+					u1s[m] = agents->get_epsilon_greedy_action_1(o2, o1s[m], u2, o1s, p_x, epsilon);
 					do {
 						std::tie(candidate_z2, z1s[m], rs[m]) = act();
 					} while (candidate_z2 != z2);

@@ -106,6 +106,10 @@ namespace sdm{
 		std::vector<history> o1s;
 		// Next histories of agent 1.
 		std::vector<history> next_o1s;
+		//
+		state_probability_distribution p_x;
+		//
+		state_probability_distribution p_next_x;
 		// For updating the models.
 		std::shared_ptr<ModelsUpdateRules> models_update_rules;
 		// Experience replay memory.
@@ -155,5 +159,7 @@ namespace sdm{
 		void update_models();
 		// Add current transition to the replay memory.
 		void update_replay_memory();
+		//
+		state_probability_distribution create_state_probability_distribution(std::vector<state>);
 	};
 }

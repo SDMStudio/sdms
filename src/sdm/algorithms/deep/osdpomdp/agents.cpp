@@ -43,6 +43,8 @@ namespace sdm{
 	}
 
 	void Agents::initialize_induced_bias(std::string ib_net_filename){
+		////////////
+		////////////
 		std::string ib_target_net_filename;
 		ib_target_net_filename.append("../models");
 		ib_target_net_filename.append("/");
@@ -51,7 +53,7 @@ namespace sdm{
 		torch::load(induced_bias_target_net, ib_target_net_filename);
 	}
 
-	action Agents::get_epsilon_greedy_action_2(history o2, std::vector<history> all_o1s, float epsilon){
+	action Agents::get_epsilon_greedy_action_2(history o2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
 			// Let PyTorch know that we don't need to keep track of the gradient in this context.
@@ -72,11 +74,11 @@ namespace sdm{
 					// Extract one of the all o1s.
 					history one_o1 = all_o1s[i];
 					// Create the Tensor to put in the network.
-					torch::Tensor o2_oo1_u2_ao1s = torch::cat({o2, one_o1, one_hot_u2, ao1s}, 0);
+					torch::Tensor o2_oo1_u2_ao1s_px = torch::cat({o2, one_o1, one_hot_u2, ao1s, p_x}, 0);
 					// Put Tensor to GPU if needed.
-					o2_oo1_u2_ao1s = o2_oo1_u2_ao1s.to(device);
+					o2_oo1_u2_ao1s_px = o2_oo1_u2_ao1s_px.to(device);
 					// Get the maximum Q value and add it to the relevant u2 index.
-					q_values[u2] += torch::max(agent_1_policy_net(o2_oo1_u2_ao1s)).item<double>();
+					q_values[u2] += torch::max(agent_1_policy_net(o2_oo1_u2_ao1s_px)).item<double>();
 				}
 				// Not really needed but just to be correct.
 				q_values[u2] = q_values[u2] / sampling_memory_size;
@@ -90,7 +92,7 @@ namespace sdm{
 		}
 	}
 
-	action Agents::get_epsilon_greedy_action_1(history o2, history o1, action u2, std::vector<history> all_o1s, float epsilon){
+	action Agents::get_epsilon_greedy_action_1(history o2, history o1, action u2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
 			// Let PyTorch know that we don't need to keep track of the gradient in this context.
@@ -102,12 +104,12 @@ namespace sdm{
 			// Convert sampled o1s to Tensor.
 			torch::Tensor ao1s = torch::cat(all_o1s);
 			// Create the Tensor to put in the network.
-			torch::Tensor o2_o1_u2_ao1s = torch::cat({o2, o1, one_hot_u2, ao1s}, 0);
+			torch::Tensor o2_o1_u2_ao1s_px = torch::cat({o2, o1, one_hot_u2, ao1s, p_x}, 0);
 			// Put Tensor to GPU if needed.
-			o2_o1_u2_ao1s = o2_o1_u2_ao1s.to(device);
+			o2_o1_u2_ao1s_px = o2_o1_u2_ao1s_px.to(device);
 			// Put input Tensor to agent 1's policty net, get q values for each possible private action, get the argument which gives the maximum q value, convert it to int.
 			// This is agent 1's action. Return it.
-			return torch::argmax(agent_1_policy_net(o2_o1_u2_ao1s)).item<int>();
+			return torch::argmax(agent_1_policy_net(o2_o1_u2_ao1s_px)).item<int>();
 		// With probabiliy epsilon we do this.
 		} else {
 			// Choose random action for agent 1, return it.

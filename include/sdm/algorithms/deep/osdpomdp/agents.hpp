@@ -47,9 +47,9 @@ namespace sdm{
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
 		// Given history o2 and histories o1s get epsilon-greedy action u2.
-		action get_epsilon_greedy_action_2(history, std::vector<history>, float);
+		action get_epsilon_greedy_action_2(history, std::vector<history>, state_probability_distribution, float);
 		// Given history o2, history o1, action u2, histories o1s; get epsilon-greedy action u1.
-		action get_epsilon_greedy_action_1(history, history, action, std::vector<history>, float);
+		action get_epsilon_greedy_action_1(history, history, action, std::vector<history>, state_probability_distribution, float);
 		// Given history o2, action u2, observation z2; get next history next_o2.
 		history get_next_history_2(history, action, observation);
 		// Given history o1, action u1, observation z1; get next history next_o1.
