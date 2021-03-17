@@ -11,6 +11,7 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
 
 #include <sdm/types.hpp>
 #include <sdm/exception.hpp>
@@ -22,6 +23,7 @@
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
+
 
 namespace sdm
 {
@@ -36,7 +38,8 @@ namespace sdm
      * @tparam TReward the reward function type
      * @tparam TDistrib the type of the start distribution
      */
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib>
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib,
+    bool is_fully_obs = true>
     class DecisionProcess : public DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>,
                             public GymInterface<TObsSpace, TActionSpace>
     {
@@ -97,9 +100,11 @@ namespace sdm
          */
         TDistrib getNextStateDistrib(action_type caction);
 
-        observation_type updateState_getObs(action_type a);
+        template <bool TBool = is_fully_obs>
+        std::enable_if_t<TBool, observation_type> updateState_getObs(action_type a);
 
-        std::tuple<observation_type, std::vector<double>, bool>> step(action_type a);
+        template <bool TBool = is_fully_obs>
+        std::enable_if_t<TBool, std::tuple<observation_type, std::vector<double>, bool>> step(action_type a);
 
         template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
         std::enable_if_t<TBool> setupDynamicsGenerator();
@@ -141,17 +146,17 @@ namespace sdm
         std::enable_if_t<!TBool, action_type>
         getAction(action_type a);
 
-        template <bool TBool = std::is_same<TStateSpace, TObsSpace>::value>
+        template <bool TBool = is_fully_obs> //std::is_same<TStateSpace, TObsSpace>::value>
         std::enable_if_t<TBool, observation_type>
         resetProcess();
 
-        template <bool TBool = std::is_same<TStateSpace, TObsSpace>::value>
+        template <bool TBool = is_fully_obs> //std::is_same<TStateSpace, TObsSpace>::value>
         std::enable_if_t<!TBool, observation_type>
         resetProcess();
     };
 
     template <typename TStateSpace, typename TActionSpace, typename TStateDynamics, typename TReward, typename TDistrib>
-    using FullyObservableDecisionProcess = DecisionProcess<TStateSpace, TActionSpace, TStateSpace, TStateDynamics, TReward, TDistrib>;
+    using FullyObservableDecisionProcess = DecisionProcess<TStateSpace, TActionSpace, TStateSpace, TStateDynamics, TReward, TDistrib, true>;
 
     using DiscreteSG = FullyObservableDecisionProcess<DiscreteSpace<number>, MultiDiscreteSpace<number>, StateDynamics, std::vector<Reward>, std::discrete_distribution<number>>;
 } // namespace sdm

@@ -1,16 +1,6 @@
 #include <iostream>
-#include <cassert>
-#include <stdio.h>  /* printf, scanf, puts, NULL */
-#include <stdlib.h> /* srand, rand */
-#include <time.h>   /* time */
-
-#include <tuple>
-#include <typeinfo>
 #include <sdm/common.hpp>
-
-#include <sdm/parser/parser.hpp>
-
-#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/worlds.hpp>
 
 using namespace sdm;
 
@@ -30,31 +20,29 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    srand(time(NULL));
-
-    // DiscreteMDP mdp(filename);
     auto mdp = std::make_shared<DiscretePOMDP>(filename);
 
     mdp->setPlanningHorizon(5);
-
     mdp->setupDynamicsGenerator();
 
     for (number ep = 0; ep < 10; ep++)
     {
 
-        double reward;
+        std::vector<double> rewards;
         bool is_done = false;
-        number obs;
         mdp->reset();
         // number obs = mdp->reset();
         // std::cout << "Observation initial : " << obs << std::endl;
 
         while (!is_done)
         {
-            number random_action = rand() % mdp->getActionSpace()->getNumItems();
+            auto random_action = mdp->getActionSpace()->sample();
             std::cout << "Execute Action : " << random_action << std::endl;
-            std::tie(obs, reward, is_done) = mdp->step(random_action);
-            std::cout << "( " << obs << ", " << reward << ", " << is_done << " )" << std::endl;
+            auto feedback = mdp->step(random_action);
+            auto obs2 = std::get<0>(feedback);
+            rewards = std::get<1>(feedback);
+            is_done = std::get<2>(feedback);
+            std::cout << "( " << obs2 << ", " << rewards[0] << ", " << is_done << " )" << std::endl;
         }
     }
 

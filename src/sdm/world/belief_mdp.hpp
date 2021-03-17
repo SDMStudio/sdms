@@ -11,6 +11,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/core/state/state.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 
 namespace sdm
@@ -23,7 +24,7 @@ namespace sdm
      * @tparam TBelief the belief type
      * @tparam TAction the action type
      */
-    template <typename TBelief, typename TAction, typename TObservation>
+    template <typename TBelief = BeliefState, typename TAction = number, typename TObservation = number>
     class BeliefMDP : public SolvableByHSVI<TBelief, TAction>,
                       public GymInterface<DiscreteSpace<TBelief>, DiscreteSpace<TAction>>
     {

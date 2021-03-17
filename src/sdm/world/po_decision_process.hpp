@@ -35,7 +35,7 @@ namespace sdm
      * @tparam TDistrib the distribution type
      */
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
-    class PartiallyObservableDecisionProcess : public DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>,
+    class PartiallyObservableDecisionProcess : public DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, false>,
                                                public PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>
     {
     public:
@@ -69,6 +69,8 @@ namespace sdm
         void setObsDynamics(std::shared_ptr<TObsDynamics> obs_dyn);
 
         observation_type updateState_getObs(action_type a);
+        
+        std::tuple<observation_type, std::vector<double>, bool> step(action_type a);
 
         /**
          * @brief Setup the dynamics generator for discrete problems. 
