@@ -1,50 +1,48 @@
 #include <iostream>
 #include <sdm/common.hpp>
-#include <sdm/worlds.hpp>
+#include <sdm/algorithms.hpp>
+#include <sdm/parser/parser.hpp>
+
+#include <sdm/world/ndpomdp.hpp>
+
+#include <sdm/world/serialized_occupancy_mdp.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
     std::string filename;
+    number horizon, length_history;
 
-    if (argc > 1)
+    if (argc > 2)
     {
         filename = argv[1];
-        std::cout << "#> Parsing NDPOMDP file \"" << filename << "\"\n";
-    }
+        horizon = std::atoi(argv[2]);
+        length_history = horizon;
 
+        if (argc > 3)
+        {
+            length_history = std::atoi(argv[3]);
+        }
+    }
     else
     {
-        std::cerr << "Error: No input file provided." << std::endl;
+        std::cerr << "Error:  arg[1] must be an input file, arg[2] must be the horizon, arg[3] is optional (the length of history)." << std::endl;
         return 1;
     }
 
-    auto mdp = std::make_shared<DiscretePOMDP>(filename);
+    std::cout << "#> Parsing DecPOMDP file \"" << filename << "\"\n";
+    number n_agents = 2;
 
-    mdp->setPlanningHorizon(5);
-    mdp->setupDynamicsGenerator();
+    using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+    using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-    for (number ep = 0; ep < 10; ep++)
-    {
+    auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, length_history);
 
-        std::vector<double> rewards;
-        bool is_done = false;
-        mdp->reset();
-        // number obs = mdp->reset();
-        // std::cout << "Observation initial : " << obs << std::endl;
+    auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 0.9, 0.1, horizon * n_agents);
 
-        while (!is_done)
-        {
-            auto random_action = mdp->getActionSpace()->sample();
-            std::cout << "Execute Action : " << random_action << std::endl;
-            auto feedback = mdp->step(random_action);
-            auto obs2 = std::get<0>(feedback);
-            rewards = std::get<1>(feedback);
-            is_done = std::get<2>(feedback);
-            std::cout << "( " << obs2 << ", " << rewards[0] << ", " << is_done << " )" << std::endl;
-        }
-    }
+    hsvi->do_solve();
+    hsvi->do_test();
 
     // NDPOMDP ndpomdp(filename);
 

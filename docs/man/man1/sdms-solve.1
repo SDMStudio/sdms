@@ -1,0 +1,43 @@
+.\" Manpage for sdms-solve.
+.\" Contact david.albert@insa-lyon.fr to correct errors or typos.
+.TH sdms-solve 1 "16 Mars 2021" "1.0" "sdms-solve Manual"
+.SH NAME
+sdms-solve \- solve a sequential decision making problem by planning algorithm.
+.SH SYNOPSIS
+sdms-solve [--help] [<args>] [--test]
+.SH DESCRIPTION
+sdms-solve program aims at finding the exact solution of a decision making problem. This program only focus on planning and does not take care of learning (See sdms-learn(1) to this end).
+.SH OPTIONS
+.TP
+.BR \-\-help
+Produce help message.
+.TP
+.BR \-\-test
+Test the policy when optimal solution was found.
+.TP
+.BR \-a ", " \-\-algorithm =\fIALGO_NAME\fR
+Set the algorithm to be used.
+.TP
+.BR \-p ", " \-\-problem =\fIPROBLEM\fR
+Set the path to the problem to be solved.
+.TP
+.BR \-f ", " \-\-formalism =\FORMALISM\fR
+Set the formalism to to be used.
+.TP
+.BR \-e ", " \-\-error =\ERROR\fR
+Set the maximal error accepted.
+.TP
+.BR \-d ", " \-\-discount =\fIDISCOUNT\fR
+Set the discount factor.
+.TP
+.BR \-h ", " \-\-horizon =\fIHORIZON\fR
+Set the planning horizon.
+.TP
+.BR \-t ", " \-\-trials =\fIMAX_TRIALS\fR
+Set the maximum number of trials before stop.
+.SH SEE ALSO
+SDMStudio(1), sdms-learn(1), sdms-test(1) 
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+David Albert (david.albert@insa-lyon.fr)

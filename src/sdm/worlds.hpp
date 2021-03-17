@@ -8,6 +8,7 @@
 
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/serialized_occupancy_mdp.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 
 namespace sdm
@@ -22,7 +23,7 @@ namespace sdm
          */
         std::vector<std::string> available()
         {
-            return {"MDP", "POMDP", "MMDP", "DecPOMDP"};
+            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-DecPOMDP"};
         }
     } // namespace world
     

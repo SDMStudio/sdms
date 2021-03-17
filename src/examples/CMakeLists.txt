@@ -19,12 +19,11 @@ endforeach(f)
 file(
 	GLOB_RECURSE
 	lib_world
-	${INCLUDE_DIR}/world/*
-	${INCLUDE_DIR}/utils/linear_algebra/*
-	${INCLUDE_DIR}/parser/*
-	${INCLUDE_DIR}/core/*
-	${INCLUDE_DIR}/common.cpp
-	${INCLUDE_DIR}/tools.cpp
+	${INCLUDE_DIR}/*
+	# ${INCLUDE_DIR}/utils/linear_algebra/*
+	# ${INCLUDE_DIR}/core/*
+	# ${INCLUDE_DIR}/common.cpp
+	# ${INCLUDE_DIR}/tools.cpp
 )
 add_library(lib_world SHARED ${lib_world})
 include_directories(${SDMS_INCLUDE_DIRS})

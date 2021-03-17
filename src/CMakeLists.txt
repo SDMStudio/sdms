@@ -58,5 +58,7 @@ target_link_libraries(${SDMS_PROGRAM_NAME} ${TORCH_LIBRARIES} ${Boost_LIBRARIES}
 install(DIRECTORY ${INCLUDE_DIR} DESTINATION include)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${SDMS_PROGRAM_NAME} DESTINATION bin)
 
+install(DIRECTORY ${SDMS_MAN_DIR} DESTINATION share)
+
 add_subdirectory(examples)
 add_subdirectory(algos)

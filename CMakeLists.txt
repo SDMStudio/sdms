@@ -20,25 +20,30 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+
 # Project infos
 project(sdms
-        VERSION 1.0
+VERSION 1.0
         LANGUAGES C CXX)
+        
+set(PROJECT_DESCRIPTION "Sequential Decision Making Problem Solver.")
 
 # options for compilation
 option(BUILD_SDMS "Build SDM'Studio" ON)
 option(BUILD_DOCS "Build SDMS documentation" OFF)
 option(BUILD_TESTS "Build tests for SDMS" OFF)
 
-
 # Set useful variables
 set(SDMS_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src)
 set(SDMS_SOURCE_DIRS ${CMAKE_SOURCE_DIR}/src)
+set(SDMS_DOC_DIR ${CMAKE_SOURCE_DIR}/docs)
+set(SDMS_MAN_DIR ${SDMS_DOC_DIR}/man)
 
 set(INCLUDE_DIR ${SDMS_INCLUDE_DIRS}/sdm)
 set(SOURCE_DIR ${SDMS_SOURCE_DIRS}/sdm)
 set(EXAMPLES_DIR ${SDMS_SOURCE_DIRS}/examples)
 set(ALGOS_DIR ${SDMS_SOURCE_DIRS}/algos)
+
 
 # Set names of libraries
 set(LIB_SDMS ${CMAKE_PROJECT_NAME})
