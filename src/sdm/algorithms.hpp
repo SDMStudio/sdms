@@ -117,6 +117,15 @@ namespace sdm
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
                     return makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, discount, error, horizon, trials);
                 }
+                else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
+                {
+                    using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+                    using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+
+                    auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
+                    number n_agents = 2 ;//serialized_oMDP->getUnderlyingProblem()->getNumAgents();
+                    return makeMappedHSVI<TState, TAction>(serialized_oMDP, discount, error, horizon * n_agents, trials);
+                }
             }
         }
 
