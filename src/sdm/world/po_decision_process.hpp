@@ -35,12 +35,12 @@ namespace sdm
      * @tparam TDistrib the distribution type
      */
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
-    class PartiallyObservableDecisionProcess : public DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>,
+    class PartiallyObservableDecisionProcess : public DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, false>,
                                                public PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>
     {
     public:
         using state_type = typename DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::state_type;
-        using observation_type = typename PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>::observation_type;
+        using observation_type = typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib>::observation_type;
         using action_type = typename DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::action_type;
         using PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>::getObsSpace;
 
@@ -68,6 +68,24 @@ namespace sdm
          */
         void setObsDynamics(std::shared_ptr<TObsDynamics> obs_dyn);
 
+        observation_type updateState_getObs(action_type a);
+        
+        std::tuple<observation_type, std::vector<double>, bool> step(action_type a);
+
+        /**
+         * @brief Setup the dynamics generator for discrete problems. 
+         * The dynamics generator allows to efficiently interact with the environment without recomputing transition probabilities at each timestep.
+         */
+        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
+        std::enable_if_t<TBool> setupDynamicsGenerator();
+
+        /**
+         * @brief Setup the dynamics generator for constinuous problems. 
+         * The dynamics generator allows to efficiently interact with the environment without recomputing transition probabilities at each timestep.
+         */
+        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
+        std::enable_if_t<!TBool> setupDynamicsGenerator();
+
     protected:
         /**
          * @brief State dynamics.
@@ -79,43 +97,14 @@ namespace sdm
          */
         std::unordered_map<number, std::pair<state_type, observation_type>> encoding;
 
-    private:
-        void setupDynamicsGenerator(std::true_type, bool is_multi_agent)
-        {
-            int i = 0;
-            for (auto &y : this->getStateSpace()->getAll())
-            {
-                for (auto &z : this->getObsSpace()->getAll())
-                {
-                    this->encoding.emplace(i, std::make_pair(y, z));
-                    i++;
-                }
-            }
+        template <bool TBool = std::is_same<TObsSpace, MultiDiscreteSpace<number>>::value>
+        std::enable_if_t<TBool, number>
+        getObservation(observation_type o);
 
-            for (auto &x : this->getStateSpace()->getAll())
-            {
-                this->dynamics_generator.emplace(x, std::unordered_map<action_type, TDistrib>());
-                for (auto &a : this->getActionSpace()->getAll())
-                {
-                    std::vector<double> v;
-                    for (auto &y : this->getStateSpace()->getAll())
-                    {
-                        for (auto &z : this->getObsSpace()->getAll())
-                        {
-                            if (is_multi_agent)
-                            {
-                                v.push_back(this->getObsDynamics()->getDynamics(x, this->getActionSpace()->joint2single(a), this->getObsSpace()->joint2single(z), y));
-                            }
-                            else
-                            {
-                                v.push_back(this->getObsDynamics()->getDynamics(x, a, z, y));
-                            }
-                        }
-                    }
-                    this->dynamics_generator[x].emplace(a, TDistrib(v.begin(), v.end()));
-                }
-            }
-        }
+        template <bool TBool = std::is_same<TObsSpace, MultiDiscreteSpace<number>>::value>
+        std::enable_if_t<!TBool, observation_type>
+        getObservation(observation_type o);
+
     };
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>

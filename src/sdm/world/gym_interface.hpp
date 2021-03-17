@@ -11,6 +11,7 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
 #include <sdm/types.hpp>
 #include <sdm/public/world.hpp>
 #include <sdm/core/space/space.hpp>
@@ -43,14 +44,15 @@ namespace sdm
         std::shared_ptr<TActSpace> getActionSpace() const;
 
         virtual observation_type reset() = 0;
+        std::tuple<observation_type, std::vector<double>, bool> step(action_type) {}
 
-        template <bool TBool = is_multi_agent>
-        std::enable_if_t<TBool, std::tuple<observation_type, std::vector<double>, bool>>
-        step(action_type a);
+        // template <bool TBool = is_multi_agent>
+        // std::enable_if_t<TBool, std::tuple<observation_type, std::vector<double>, bool>>
+        // step(action_type a);
 
-        template <bool TBool = is_multi_agent>
-        std::enable_if_t<!TBool, std::tuple<observation_type, double, bool>>
-        step(action_type a);
+        // template <bool TBool = is_multi_agent>
+        // std::enable_if_t<!TBool, std::tuple<observation_type, double, bool>>
+        // step(action_type a);
     };
 } // namespace sdm
 
