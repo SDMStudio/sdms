@@ -105,14 +105,29 @@ namespace sdm
         return this->discount;
     }
 
+    const DiscreteSpace<number> &NDPOMDP::getStateSpace() const
+    {
+        return this->state_space_;
+    }
+
     number NDPOMDP::getNumStates() const
     {
         return this->state_space_.getNumItems();
     }
 
+    const MultiDiscreteSpace<number> &NDPOMDP::getObsSpace() const
+    {
+        return this->obs_space_;
+    }
+
     number NDPOMDP::getNumObservations(number agent) const
     {
-        return this->obs_space_.getSpace(agent)->getNumItems();
+        return this->getObsSpace().getSpace(agent)->getNumItems();
+    }
+
+    number NDPOMDP::getNumJObservations() const
+    {
+        return this->getObsSpace().getNumJointItems();
     }
 
     number NDPOMDP::getNumAgents() const

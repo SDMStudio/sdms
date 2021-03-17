@@ -1,7 +1,8 @@
 ARG BASE_IMAGE=ubuntu:18.04
 
-# Base image of SDMS (contains all dependencies)
-FROM ${BASE_IMAGE} AS dev-base
+# Base image of SDMS for developers (contains all dependencies of sdms)
+# --> developers can use this base combined with "bind mount" tool of docker to develop on their machine and test their implementation in container 
+FROM ${BASE_IMAGE} AS dev
 ARG LIBTORCH_URL=https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip
 
 RUN apt-get -y update \
@@ -10,6 +11,8 @@ RUN apt-get -y update \
     libboost-all-dev \
     unzip \
     wget \
+    clang \
+    cmake \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /opt \
@@ -17,24 +20,17 @@ RUN mkdir -p /opt \
     && unzip tmp_libtorch.zip -d /opt\
     && rm tmp_libtorch.zip
 
-# Build image (minimal requirements to be able to build yourself SDMS in a container)
-FROM dev-base AS build-base
-
-RUN apt-get -y update \
-    && apt-get install -y  \
-    clang \
-    cmake
+# Make a snapshot of the source code and build an image based on this source code at this moment.
+# The image contains the sources (/opt/sdms) and installed sdms base on these sources 
+FROM dev AS build
 
 COPY . /opt/sdms
 WORKDIR /opt/sdms
-  
-# Image that contain SDMS source built
-FROM build-base AS build
 
 RUN cmake . -DCMAKE_PREFIX_PATH=/opt/libtorch -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF \
     && make install
 
-# Image that contain SDMS source, documentation and tests built
+# Image that contain SDMS source, documentation and tests. Everything is built and install in /usr/local.
 # FROM dev-base AS build-all
 
 # RUN apt-get -y update \
@@ -48,7 +44,10 @@ RUN cmake . -DCMAKE_PREFIX_PATH=/opt/libtorch -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF
 # RUN cmake . -DCMAKE_PREFIX_PATH=/opt/libtorch -DBUILD_DOCS=ON -DBUILD_TESTS=ON \
 #     && make install
 
-# Image that contain binary files
-# FROM ${BASE_IMAGE} AS runtime
-# COPY --from=build /usr/local /usr/local
-# CMD [ "SDMStudio" ]
+# Same as build but does not contains sources of SDMS so that the size of the image is smaller
+FROM dev AS runtime
+
+COPY --from=build /usr/local /usr/local
+ENV SDMS_PATH="/usr/local"
+ENV PATH="${SDMS_PATH}/bin:${PATH}"
+ENV LD_LIBRARY_PATH="${SDMS_PATH}/lib:${LD_LIBRARY_PATH}"
