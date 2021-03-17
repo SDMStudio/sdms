@@ -89,10 +89,10 @@ namespace sdm
          * @param state the state where we want to evaluate the function
          * @return the value
          */
-        TValue getValueAt(TState &state, int t = 0);
+        TValue getValueAt(const TState &state, int t = 0);
 
-        void updateValueAt(TState &state, int t = 0);
-        void updateValueAt(TState &state, int t, TValue target);
+        void updateValueAt(const TState &state, int t = 0);
+        void updateValueAt(const TState &state, int t, TValue target);
 
         std::string str();
 
@@ -116,6 +116,7 @@ namespace sdm
 
 } // namespace sdm
 #include <sdm/utils/value_function/tabular_value_function.tpp>
+
 
 /**
      * @brief Specialisation of getQValueAt for belief state

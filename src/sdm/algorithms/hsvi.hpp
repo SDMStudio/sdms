@@ -34,7 +34,6 @@ namespace sdm
   class HSVI : public Algorithm
   {
   protected:
-
     /**
      * @brief The problem to be solved.
      * 
@@ -60,7 +59,6 @@ namespace sdm
     number planning_horizon_;
 
     void initLogger();
-    void updateValueFunction(TState s, number h);
 
   public:
     /**
@@ -110,7 +108,7 @@ namespace sdm
      * @param s 
      * @return double 
      */
-    double do_excess(TState s, number h);
+    double do_excess(const TState &s, number h);
 
     /**
      * @brief Check the end of HSVI algo
@@ -119,7 +117,7 @@ namespace sdm
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
      * @return false 
      */
-    bool do_stop(TState s, number h);
+    bool do_stop(const TState &s, number h);
 
     /**
      * @brief Explore state
@@ -127,8 +125,7 @@ namespace sdm
      * @param s 
      * @param h 
      */
-    void do_explore(TState s, number h);
-
+    void do_explore(const TState &s, number h);
 
     void do_test();
 
@@ -138,7 +135,7 @@ namespace sdm
      * @param s 
      * @return TAction 
      */
-    TAction selectNextAction(TState s, number h);
+    TAction selectNextAction(const TState &s, number h);
 
     /**
      * @brief Select the next state to explore 
@@ -147,7 +144,8 @@ namespace sdm
      * @param a 
      * @return TState 
      */
-    TState selectNextState(TState s, TAction a, number d);
+    TState selectNextState(const TState &s, const TAction &
+    a, number d);
   };
 } // namespace sdm
 #include <sdm/algorithms/hsvi.tpp>

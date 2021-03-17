@@ -76,7 +76,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMax() const
     {
-        T max = - std::numeric_limits<T>::max();
+        T max = -std::numeric_limits<T>::max();
         TIndex amax;
         for (auto item : *this)
         {
@@ -112,7 +112,7 @@ namespace sdm
     // }
 
     template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::at(TIndex i) const
+    T MappedVector<TIndex, T>::at(const TIndex &i) const
     {
         if (this->find(i) != this->end())
         {
@@ -125,20 +125,20 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    bool MappedVector<TIndex, T>::operator<(const MappedVector &v2)
+    bool MappedVector<TIndex, T>::operator<(const MappedVector &v2) const
     {
-        for (auto item : *this)
+        for (auto &item : *this)
         {
             if (v2.find(item.first) != v2.end())
             {
                 return item.second < v2.at(item.first);
             }
         }
-        for (auto item : v2)
+        for (auto &item : v2)
         {
             if (this->find(item.first) != this->end())
             {
-                return  this->at(item.first) < item.second;
+                return this->at(item.first) < item.second;
             }
         }
         return false;
@@ -169,7 +169,6 @@ namespace sdm
     {
         return this->size_;
     }
-
 
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::getDefault() const

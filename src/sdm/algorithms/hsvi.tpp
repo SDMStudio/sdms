@@ -55,19 +55,19 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double HSVI<TState, TAction>::do_excess(TState s, number h)
+    double HSVI<TState, TAction>::do_excess(const TState& s, number h)
     {
         return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getDiscount(), h);
     }
 
     template <typename TState, typename TAction>
-    bool HSVI<TState, TAction>::do_stop(TState s, number h)
+    bool HSVI<TState, TAction>::do_stop(const TState& s, number h)
     {
         return ((this->do_excess(s, h) <= 0) || (this->trial > this->MAX_TRIALS));
     }
 
     template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_explore(TState s, number h)
+    void HSVI<TState, TAction>::do_explore(const TState& s, number h)
     {
         if (!this->do_stop(s, h))
         {
@@ -121,7 +121,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    TAction HSVI<TState, TAction>::selectNextAction(TState s, number h)
+    TAction HSVI<TState, TAction>::selectNextAction(const TState& s, number h)
     {
         return this->upper_bound_->getBestAction(s, h); // argmax_{a} q_value(s, a)
     }

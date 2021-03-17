@@ -1,10 +1,12 @@
 #include <iostream>
+#include <time.h>
+
 #include <sdm/common.hpp>
 #include <sdm/algorithms.hpp>
 #include <sdm/parser/parser.hpp>
 
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/world/ndpomdp.hpp>
-
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 
 using namespace sdm;
@@ -31,6 +33,26 @@ int main(int argc, char **argv)
         return 1;
     }
 
+
+    // MappedVector<Joint<number>, number> umv(4);
+
+    // umv[Joint<number>({2,3,7})] = 6;
+    // umv[Joint<number>({1,3,7})] = 6;
+    // umv[Joint<number>({2,5,9})] = 12;
+
+    // std::cout << umv << std::endl;
+
+
+    // MappedVector<Joint<number>, number> umv2(3);
+
+    // umv2[Joint<number>({2,3,7})] = 6;
+    // umv2[Joint<number>({1,3,7})] = 61;
+    // umv2[Joint<number>({2,5,9})] = 2;
+
+    // std::cout << umv2 << std::endl;
+
+    clock_t t_begin, t_end;
+
     std::cout << "#> Parsing DecPOMDP file \"" << filename << "\"\n";
     number n_agents = 2;
 
@@ -41,7 +63,14 @@ int main(int argc, char **argv)
 
     auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 0.9, 0.1, horizon * n_agents);
 
+    t_begin = clock();
+
     hsvi->do_solve();
+
+    t_end = clock();
+    float temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+    printf("temps = %f\n", temps);
+
     hsvi->do_test();
 
     // NDPOMDP ndpomdp(filename);
