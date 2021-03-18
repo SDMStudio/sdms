@@ -44,7 +44,7 @@ namespace sdm
         t_begin = clock();
         do
         {
-            std::cout << "Trial : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
+            std::cout << "Trial : " << this->trial << "\tError : " << this->do_excess(start_state, 0) + this->error_ << std::endl;
             // std::cout << "LB : " << this->lower_bound_->str() << "UB : " << this->upper_bound_->str() << std::endl;
             this->do_explore(start_state, 0);
             this->trial++;
@@ -54,7 +54,7 @@ namespace sdm
         float temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
 
         std::cout << "-------------------------------------------------" << std::endl;
-        std::cout << "Number trials : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
+        std::cout << "Number trials : " << this->trial << "\tError : " << this->do_excess(start_state, 0) + this->error_ << std::endl;
         std::cout << "Final LB : \n"
                   << this->lower_bound_->str() << "Final UB : \n"
                   << this->upper_bound_->str() << std::endl;

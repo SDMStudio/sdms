@@ -118,9 +118,13 @@ namespace sdm
 
     //     void init(ValueFunction<TState, TAction> *vf)
     //     {
-    //         auto algo = sdm::algo::make(algo_name, this->problem->toMDP());
+    //         auto algo = sdm::algo::make(algo_name, this->problem->toPOMDP());
     //         algo->do_solve();
     //         auto ubound = algo->getUpperBound();
+    //         for (int t = 0; t < vf->getHorizon(); t++)
+    //         {
+    //             vf->initialize(ubound->getValueAt(), t);
+    //         }
     //     }
     // };
 } // namespace sdm
