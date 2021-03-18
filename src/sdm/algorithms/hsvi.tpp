@@ -39,6 +39,9 @@ namespace sdm
     {
         TState start_state = this->world_->getInitialState();
         this->trial = 0;
+
+        clock_t t_begin, t_end;
+        t_begin = clock();
         do
         {
             std::cout << "Trial : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
@@ -47,27 +50,31 @@ namespace sdm
             this->trial++;
         } while (!this->do_stop(start_state, 0));
 
+        t_end = clock();
+        float temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+
         std::cout << "-------------------------------------------------" << std::endl;
         std::cout << "Number trials : " << this->trial << "\tError : " << this->do_excess(start_state, 0) << std::endl;
         std::cout << "Final LB : \n"
                   << this->lower_bound_->str() << "Final UB : \n"
                   << this->upper_bound_->str() << std::endl;
+        printf("\n\nTemps = %f s\n", temps);
     }
 
     template <typename TState, typename TAction>
-    double HSVI<TState, TAction>::do_excess(const TState& s, number h)
+    double HSVI<TState, TAction>::do_excess(const TState &s, number h)
     {
         return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getDiscount(), h);
     }
 
     template <typename TState, typename TAction>
-    bool HSVI<TState, TAction>::do_stop(const TState& s, number h)
+    bool HSVI<TState, TAction>::do_stop(const TState &s, number h)
     {
         return ((this->do_excess(s, h) <= 0) || (this->trial > this->MAX_TRIALS));
     }
 
     template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_explore(const TState& s, number h)
+    void HSVI<TState, TAction>::do_explore(const TState &s, number h)
     {
         if (!this->do_stop(s, h))
         {
@@ -121,7 +128,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    TAction HSVI<TState, TAction>::selectNextAction(const TState& s, number h)
+    TAction HSVI<TState, TAction>::selectNextAction(const TState &s, number h)
     {
         return this->upper_bound_->getBestAction(s, h); // argmax_{a} q_value(s, a)
     }

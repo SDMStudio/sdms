@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
     auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, length_history);
 
-    auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 0.9, 0.1, horizon * n_agents);
+    auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 1.0, 0.1, horizon * n_agents);
 
     t_begin = clock();
 

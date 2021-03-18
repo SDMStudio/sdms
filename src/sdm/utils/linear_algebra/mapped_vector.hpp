@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <cmath>
 #include <string>
 #include <iostream>
@@ -29,7 +29,7 @@ namespace sdm
      * @tparam T Type of value
      */
     template <typename TIndex, typename T = double>
-    class MappedVector : public std::map<TIndex, T>, public VectorImpl<TIndex, T>
+    class MappedVector : public std::unordered_map<TIndex, T>, public VectorImpl<TIndex, T>
     {
     protected:
         T default_value_;

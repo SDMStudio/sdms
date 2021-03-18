@@ -4,22 +4,22 @@
 namespace sdm
 {
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector() : std::map<TIndex, T>(), default_value_(0), size_(0)
+    MappedVector<TIndex, T>::MappedVector() : std::unordered_map<TIndex, T>(), default_value_(0), size_(0)
     {
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(T default_value) : std::map<TIndex, T>(), default_value_(default_value)
+    MappedVector<TIndex, T>::MappedVector(T default_value) : std::unordered_map<TIndex, T>(), default_value_(default_value)
     {
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(std::size_t size, T default_value) : std::map<TIndex, T>(), default_value_(default_value), size_(size)
+    MappedVector<TIndex, T>::MappedVector(std::size_t size, T default_value) : std::unordered_map<TIndex, T>(), default_value_(default_value), size_(size)
     {
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : std::map<TIndex, T>(v), default_value_(v.getDefault()), size_(v.size())
+    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : std::unordered_map<TIndex, T>(v), default_value_(v.getDefault()), size_(v.size())
     {
     }
 
@@ -116,7 +116,7 @@ namespace sdm
     {
         if (this->find(i) != this->end())
         {
-            return std::map<TIndex, T>::at(i);
+            return std::unordered_map<TIndex, T>::at(i);
         }
         else
         {
