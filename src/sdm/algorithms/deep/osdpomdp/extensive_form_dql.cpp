@@ -46,12 +46,12 @@ namespace sdm{
 		this->agents =  std::make_shared<Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
-			dim_o2 + dim_o1 + game->getNumActions(0) + dim_o1 * sampling_memory_size + game->getNumStates(), dim_i1, game->getNumActions(1),
+			dim_o2 + dim_o1 + dim_o1 * sampling_memory_size + game->getNumStates(), dim_i1, game->getNumActions(0) * game->getNumActions(1),
 			game, device, lr, adam_eps, induced_bias, ib_net_filename, sampling_memory_size
 		);
 		this->replay_memory = std::make_shared<ReplayMemory>(replay_memory_size);
 		this->GAMMA = game->getDiscount();
-		this->uniform_m_distribution = std::uniform_int_distribution<int>(0, sampling_memory_size - 1);
+		this->uniform_m_distribution = std::uniform_int_distribution<int>(0, sampling_memory_size - 1); // not used, but will be later
 		this->uniform_z2_distribution = std::uniform_int_distribution<int>(0, game->getNumObservations(0) - 1);
 		this->induced_bias = induced_bias;
 		initialize();
@@ -187,7 +187,7 @@ namespace sdm{
 		//
 		for(m = 0; m < sampling_memory_size; m++){
 			// Create transition
-			transition t = std::make_tuple(o2, o1s[m], o1s, p_x, u2, u1s[m], rs[m], next_o2, next_o1s[m], next_o1s, p_next_x);
+			transition t = std::make_tuple(o2, o1s[m], o1s, p_x, u2 + u1s[m] * game->getNumActions(0), rs[m], next_o2, next_o1s[m], next_o1s, p_next_x);
 			// Push it to the replay memory.
 			replay_memory->push(t);
 		}
@@ -259,6 +259,7 @@ namespace sdm{
 				update_replay_memory();
 				update_models();
 				end_step();
+
 			}
 			end_episode();
 		}

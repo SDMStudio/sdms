@@ -32,101 +32,33 @@ namespace sdm{
 		// Using these transitions, construct the batch of Tensors.
 		batch b = construct_batch(transitions);
 		// Initalize the tensors to be able to std::tie them.
-		torch::Tensor o2_batch, o1_batch, all_o1s_batch, p_x_batch, index_u2_batch, u2_batch, index_u1_batch, u1_batch, r_batch, next_o2_batch, next_o1_batch, next_all_o1s_batch, p_next_x_batch;
+		torch::Tensor o2_batch, o1_batch, all_o1s_batch, p_x_batch, u_batch, r_batch, next_o2_batch, next_o1_batch, next_all_o1s_batch, p_next_x_batch;
 		std::vector<torch::Tensor> next_all_o1_batches;
 		// Std::tie the Tensors appropriately. 
-		std::tie(o2_batch, o1_batch, all_o1s_batch, p_x_batch, index_u2_batch, u2_batch, index_u1_batch, u1_batch, r_batch, next_o2_batch, next_o1_batch, next_all_o1s_batch, next_all_o1_batches, p_next_x_batch) = b; 
+		std::tie(o2_batch, o1_batch, all_o1s_batch, p_x_batch, u_batch, r_batch, next_o2_batch, next_o1_batch, next_all_o1s_batch, next_all_o1_batches, p_next_x_batch) = b; 
 		//
-		torch::Tensor q_values = get_q_values(o2_batch, o1_batch, u2_batch, all_o1s_batch, p_x_batch, index_u1_batch, agents->agent_1_policy_net);
+
+		torch::Tensor q_values = get_q_values(o2_batch, o1_batch, all_o1s_batch, p_x_batch, u_batch, agents->policy_net);
 		//
-		torch::Tensor next_u2_batch = get_next_u2_batch(next_o2_batch, next_all_o1s_batch, next_all_o1_batches, p_next_x_batch, agents->agent_1_policy_net);
-		//
-		torch::Tensor target_q_values = get_target_q_values(next_o2_batch, next_o1_batch, next_u2_batch, next_all_o1s_batch, p_next_x_batch, r_batch, agents, alpha);
+		torch::Tensor target_q_values = get_target_q_values(next_o2_batch, next_o1_batch, next_all_o1s_batch, p_next_x_batch, r_batch, agents, alpha);
 		//
 		torch::Tensor loss = at::smooth_l1_loss(q_values, target_q_values);
 		//
-		update_agent_1_policy_net(agents, loss);
+		update_policy_net(agents, loss);
 		//
 		return loss.item<double>();
 	}
 
-	torch::Tensor ModelsUpdateRules::get_next_u2_batch(
-		torch::Tensor next_o2_batch, 
-		torch::Tensor next_all_o1s_batch, 
-		std::vector<torch::Tensor> next_all_o1_batches, 
-		torch::Tensor p_next_x_batch,
-		DQN& agent_1_policy_net
-	){
-		// Initalize Tensor for a_{t+1}^{0}.
-		torch::Tensor next_u2_batch;
-		{
-			// Let PyTorch know that we don't need to keep track of the gradient in this context.
-			torch::NoGradGuard no_grad;
-			// Initialize {Q}_{t+1}^{0}.
-			torch::Tensor q_values = torch::zeros(batch_size * game->getNumActions(0));
-			// Reshape it to the correct shape.
-			q_values = q_values.reshape({batch_size, -1});
-			// Put it to the correct device.
-			q_values = q_values.to(device);
-			// For each possible a_{t+1}^{0}:
-			for(action next_u2 = 0; next_u2 < game->getNumActions(0); next_u2++){
-				// The actions must be one-hot-encoded when they are input to networks.
-				torch::Tensor one_hot_next_u2 = torch::zeros(game->getNumActions(0) * batch_size);
-				// Put it to the correct device.
-				one_hot_next_u2 = one_hot_next_u2.to(device);
-				// Reshape it to the correct shape.
-				one_hot_next_u2 = one_hot_next_u2.reshape({batch_size, -1});
-				// This one is for choosing which q values are chosen according to a given a_{t+1}^{0}.
-				std::vector<long> index_next_u2_batch_vector;
-				// For each value up to batch size:
-				for (int i = 0; i < batch_size; i++){
-					// Index of at a_{t+1}^{0} is 1, others 0.
-					one_hot_next_u2[i][next_u2] = 1;
-					// Add a_{t+1}^{0}.
-					index_next_u2_batch_vector.push_back(next_u2);
-				}
-				// Conver it to a Tensor.
-				torch::Tensor index_next_u2_batch = torch::tensor(index_next_u2_batch_vector);
-				// Reshape it to the correct shape.
-				index_next_u2_batch = index_next_u2_batch.reshape({batch_size, -1});
-				// Put it to the correct device.
-				index_next_u2_batch = index_next_u2_batch.to(device);
-				// For each m between 0 to |M|-1:
-				for (int m = 0; m < sampling_memory_size; m++){
-					// Extract \{o_{t+1}^{1, (m)}\} from \{o_{t+1}^{1}\}.
-					torch::Tensor next_one_o1_batch = next_all_o1_batches[m];
-					// Construct the input to agent 1's policy net by concatonating o_{t+1}^{0}, \{o_{t+1}^{1, (m)}\}, a_{t+1}^{0}, and \{o_{t+1}^{1}\}.
-					torch::Tensor no2_noo1_nu2_nao1s_pnx_batch = torch::cat({next_o2_batch, next_one_o1_batch, one_hot_next_u2, next_all_o1s_batch, p_next_x_batch}, 1);
-					// 
-					q_values.scatter_add_(-1, index_next_u2_batch, std::get<0>(agent_1_policy_net(no2_noo1_nu2_nao1s_pnx_batch).max(1)).unsqueeze(1));
-				}
-			}
-			// Divide all the q values by |M|, technically not neccessary but more proper.
-			q_values = q_values / sampling_memory_size;
-			// Get the maximum q value along each batch.
-			torch::Tensor max_q_values = std::get<0>(q_values.max(1)).unsqueeze(1);
-			// Contrcut zeros Tensor the same shape as {Q}_{t+1}^{0}.
-			torch::Tensor zeros = torch::zeros({batch_size, game->getNumActions(0)});
-			// Contrcut ones Tensor the same shape as {Q}_{t+1}^{0}.
-			torch::Tensor ones = torch::ones({batch_size, game->getNumActions(0)});
-			// Get a_{t+1}^{0} by using torch::where to put 1s where q values where maximal and 0s elsewhere.
-			next_u2_batch = torch::where(q_values == max_q_values, ones.to(device), zeros.to(device));
-		}
-		// Return it.
-		return next_u2_batch;
-	}
-
-	torch::Tensor ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor u2_batch, torch::Tensor all_o1s_batch, torch::Tensor p_x_batch, torch::Tensor index_u1_batch, DQN& agent_1_policy_net){
+	torch::Tensor ModelsUpdateRules::get_q_values(torch::Tensor o2_batch, torch::Tensor o1_batch, torch::Tensor all_o1s_batch, torch::Tensor p_x_batch, torch::Tensor u_batch, DQN& policy_net){
 		// Construct the input to agent 1's policy net by concatonating o_{t}^{0}, \{o_{t}^{1, (m)}\}, a_{t}^{0}, and \{o_{t}^{1}\}.
-		torch::Tensor o2_o1_u2_ao1s_px_batch = torch::cat({o2_batch, o1_batch, u2_batch, all_o1s_batch, p_x_batch}, 1);
+		torch::Tensor o2_o1_ao1s_px_batch = torch::cat({o2_batch, o1_batch, all_o1s_batch, p_x_batch}, 1);
 		// Put it to agent_1's policy net and get q values for each possible private action. Then using \{a_{t}^{1, (m)}\} select which ones are the relevant ones. Return it.
-		return agent_1_policy_net(o2_o1_u2_ao1s_px_batch).gather(-1, index_u1_batch);
+		return policy_net(o2_o1_ao1s_px_batch).gather(-1, u_batch);
 	}
 
 	torch::Tensor ModelsUpdateRules::get_target_q_values(
 		torch::Tensor next_o2_batch, 
 		torch::Tensor next_o1_batch, 
-		torch::Tensor next_u2_batch, 
 		torch::Tensor next_all_o1s_batch, 
 		torch::Tensor p_next_x_batch, 
 		torch::Tensor r_batch, 
@@ -141,9 +73,9 @@ namespace sdm{
 			// If we don't use the solution of the POMDP as the induced bias.
 			if (!induced_bias){
 				// Construct the input to agent 1's policy net by concatonating o_{t+1}^{0}, \{o_{t+1}^{1,(m)}\}, a_{t+1}^{0}, \{o_{t+1}^{1}\}.
-				torch::Tensor no2_no1_nu2_nao1s_pnx_batch = torch::cat({next_o2_batch, next_o1_batch, next_u2_batch, next_all_o1s_batch, p_next_x_batch}, 1);
+				torch::Tensor no2_no1_nao1s_pnx_batch = torch::cat({next_o2_batch, next_o1_batch, next_all_o1s_batch, p_next_x_batch}, 1);
 				// {V}_{t+1}^{1} = \max_{a'}{PolicyNet}^{Agent1}(o_{t+1}^{0}, \{o_{t+1}^{1, (m)}\}, a_{t+1}^{0}, a', \{o_{t+1}^{1}\})
-				next_state_values = std::get<0>(agents->agent_1_target_net(no2_no1_nu2_nao1s_pnx_batch).max(1));
+				next_state_values = std::get<0>(agents->target_net(no2_no1_nao1s_pnx_batch).max(1));
 			// If we use the solution of the POMDP as the induced bias.
 			} else {
 				// We do this with probability alpha.
@@ -155,9 +87,9 @@ namespace sdm{
 				// We do this with probability 1-alpha.
 				} else {
 					// Construct the input to agent 1's policy net by concatonating o_{t+1}^{0}, \{o_{t+1}^{1,(m)}\}, a_{t+1}^{0}, \{o_{t+1}^{1}\}.
-					torch::Tensor no2_no1_nu2_nao1s_pnx_batch = torch::cat({next_o2_batch, next_o1_batch, next_u2_batch, next_all_o1s_batch, p_next_x_batch}, 1);
+					torch::Tensor no2_no1_nao1s_pnx_batch = torch::cat({next_o2_batch, next_o1_batch, next_all_o1s_batch, p_next_x_batch}, 1);
 					// {V}_{t+1}^{1} = \max_{a'}{PolicyNet}^{Agent1}(o_{t+1}^{0}, \{o_{t+1}^{1, (m)}\}, a_{t+1}^{0}, a', \{o_{t+1}^{1}\})
-					next_state_values = std::get<0>(agents->agent_1_target_net(no2_no1_nu2_nao1s_pnx_batch).max(1));
+					next_state_values = std::get<0>(agents->target_net(no2_no1_nao1s_pnx_batch).max(1));
 				}
 			}
 		}
@@ -167,13 +99,13 @@ namespace sdm{
 		return target_q_values.unsqueeze(1);
 	}
 
-	void ModelsUpdateRules::update_agent_1_policy_net(std::shared_ptr<Agents>& agents, torch::Tensor loss){
+	void ModelsUpdateRules::update_policy_net(std::shared_ptr<Agents>& agents, torch::Tensor loss){
 		// Empy out the gradients.
 		agents->optimizer->zero_grad();
 		// Backpropagate the gradients of the loss.
 		loss.backward();
 		// For every parameter in agent 1's policy net:
-		for (auto param: agents->agent_1_policy_net->parameters()){
+		for (auto param: agents->policy_net->parameters()){
 			// Clamp its gradient between [-1, 1] to avoid ...
 			param.grad().data().clamp_(-1, 1);
 		}
@@ -187,10 +119,7 @@ namespace sdm{
 		std::vector<torch::Tensor> o1_batch_vector;
 		std::vector<torch::Tensor> all_o1s_batch_vector;
 		std::vector<torch::Tensor> p_x_batch_vector;
-		std::vector<long> index_u2_batch_vector;
-		std::vector<torch::Tensor> u2_batch_vector;
-		std::vector<long> index_u1_batch_vector;
-		std::vector<torch::Tensor> u1_batch_vector;
+		std::vector<long> u_batch_vector;
 		std::vector<long> r_batch_vector;
 		std::vector<torch::Tensor> next_o2_batch_vector;
 		std::vector<torch::Tensor> next_o1_batch_vector;
@@ -212,28 +141,19 @@ namespace sdm{
 			state_probability_distribution p_x = std::get<3>(t);
 			p_x_batch_vector.push_back(p_x);
 
-			action u2 = std::get<4>(t);
-			index_u2_batch_vector.push_back(u2);
-			torch::Tensor one_hot_u2 = torch::zeros(game->getNumActions(0));
-			one_hot_u2[u2] = 1;
-			u2_batch_vector.push_back(one_hot_u2);
+			action u = std::get<4>(t);
+			u_batch_vector.push_back(u);
 
-			action u1 = std::get<5>(t);
-			index_u1_batch_vector.push_back(u1);
-			torch::Tensor one_hot_u1 = torch::zeros(game->getNumActions(1));
-			one_hot_u1[u1] = 1;
-			u1_batch_vector.push_back(one_hot_u1);
-
-			reward r = std::get<6>(t);
+			reward r = std::get<5>(t);
 			r_batch_vector.push_back(r);
 
-			history next_o2 = std::get<7>(t);
+			history next_o2 = std::get<6>(t);
 			next_o2_batch_vector.push_back(next_o2);
 
-			history next_o1 = std::get<8>(t);
+			history next_o1 = std::get<7>(t);
 			next_o1_batch_vector.push_back(next_o1);
 
-			std::vector<history> next_all_o1s = std::get<9>(t);
+			std::vector<history> next_all_o1s = std::get<8>(t);
 			torch::Tensor nso1s = torch::cat(next_all_o1s);
 			next_all_o1s_batch_vector.push_back(nso1s);
 			for (int i = 0; i < sampling_memory_size; i++){
@@ -241,7 +161,7 @@ namespace sdm{
 				next_all_o1_batches_vector[i].push_back(next_all_o1);
 			}
 
-			state_probability_distribution p_next_x = std::get<10>(t);
+			state_probability_distribution p_next_x = std::get<9>(t);
 			p_next_x_batch_vector.push_back(p_next_x);
 		}
 
@@ -261,19 +181,9 @@ namespace sdm{
 		p_x_batch = p_x_batch.reshape({batch_size, -1});
 		p_x_batch = p_x_batch.to(device);
 
-		torch::Tensor index_u2_batch = torch::tensor(index_u2_batch_vector);
-		index_u2_batch = index_u2_batch.reshape({batch_size, -1});
-		index_u2_batch = index_u2_batch.to(device);
-		torch::Tensor u2_batch = torch::cat(u2_batch_vector);
-		u2_batch = u2_batch.reshape({batch_size, -1});
-		u2_batch = u2_batch.to(device);
-
-		torch::Tensor index_u1_batch = torch::tensor(index_u1_batch_vector);
-		index_u1_batch = index_u1_batch.reshape({batch_size, -1});
-		index_u1_batch = index_u1_batch.to(device);
-		torch::Tensor u1_batch = torch::cat(u1_batch_vector);
-		u1_batch = u1_batch.reshape({batch_size, -1});
-		u1_batch = u1_batch.to(device);
+		torch::Tensor u_batch = torch::tensor(u_batch_vector);
+		u_batch = u_batch.reshape({batch_size, -1});
+		u_batch = u_batch.to(device);
 
 		torch::Tensor r_batch = torch::tensor(r_batch_vector);
 		r_batch = r_batch.to(device);
@@ -302,6 +212,6 @@ namespace sdm{
 		p_next_x_batch = p_next_x_batch.reshape({batch_size, -1});
 		p_next_x_batch = p_next_x_batch.to(device);
 
-		return std::make_tuple(o2_batch, o1_batch, all_o1s_batch, p_x_batch, index_u2_batch, u2_batch, index_u1_batch, u1_batch, r_batch, next_o2_batch, next_o1_batch, next_all_o1s_batch, next_all_o1_batches, p_next_x_batch);
+		return std::make_tuple(o2_batch, o1_batch, all_o1s_batch, p_x_batch, u_batch, r_batch, next_o2_batch, next_o1_batch, next_all_o1s_batch, next_all_o1_batches, p_next_x_batch);
 	}
 }

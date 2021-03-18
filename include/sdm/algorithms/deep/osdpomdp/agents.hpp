@@ -35,9 +35,9 @@ namespace sdm{
 		// Optimizer.
 		std::shared_ptr<torch::optim::Adam> optimizer;
 		// Policy net of agent 1.
-		DQN agent_1_policy_net{nullptr};
+		DQN policy_net{nullptr};
 		// The Target Network is a delayed copy of the Policy Network of Agent 1. Its purpose is to not have moving targets during update of networks.
-		DQN agent_1_target_net{nullptr};
+		DQN target_net{nullptr};
 		// 
 		Gated_RNN agent_2_transition_net{nullptr};
 		// 

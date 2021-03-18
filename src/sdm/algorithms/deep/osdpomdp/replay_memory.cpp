@@ -15,7 +15,7 @@ namespace sdm{
 			// Create an empty agent 1 histories vector.
 			std::vector<history> o1s = {torch::zeros(1)};
 			// Push back an empty transition to the replay memory.
-			this->memory.push_back(std::make_tuple(torch::zeros(1), torch::zeros(1), o1s, torch::zeros(1), 0, 0, 0, torch::zeros(1), torch::zeros(1), o1s, torch::zeros(1)));
+			this->memory.push_back(std::make_tuple(torch::zeros(1), torch::zeros(1), o1s, torch::zeros(1), 0, 0, torch::zeros(1), torch::zeros(1), o1s, torch::zeros(1)));
 		}
 		// Replace the transition at position with the given transition.
 		this->memory[this->position] = t;

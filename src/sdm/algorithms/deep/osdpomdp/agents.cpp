@@ -4,18 +4,18 @@ namespace sdm{
 	Agents::Agents(
 		number agent_2_trans_net_input_dim, number agent_2_trans_net_hidden_dim, 
 		number agent_1_trans_net_input_dim, number agent_1_trans_net_hidden_dim, 
-		number agent_1_policy_net_input_dim, number agent_1_policy_net_inner_dim, number agent_1_policy_net_output_dim, 
+		number policy_net_input_dim, number policy_net_inner_dim, number policy_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, bool induced_bias, std::string ib_net_filename, number sampling_memory_size
 	){
 		this->agent_2_transition_net = Gated_RNN(agent_2_trans_net_input_dim, agent_2_trans_net_hidden_dim);
 		this->agent_1_transition_net = Gated_RNN(agent_1_trans_net_input_dim, agent_1_trans_net_hidden_dim);
-		this->agent_1_policy_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
-		this->agent_1_target_net = DQN(agent_1_policy_net_input_dim, agent_1_policy_net_inner_dim, agent_1_policy_net_output_dim);
+		this->policy_net = DQN(policy_net_input_dim, policy_net_inner_dim, policy_net_output_dim);
+		this->target_net = DQN(policy_net_input_dim, policy_net_inner_dim, policy_net_output_dim);
 		// Put the nets the correct device (CPU/GPU).
 		this->agent_2_transition_net->to(device);
 		this->agent_1_transition_net->to(device);
-		this->agent_1_policy_net->to(device);
-		this->agent_1_target_net->to(device);
+		this->policy_net->to(device);
+		this->target_net->to(device);
 
 		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0); //
 
@@ -25,7 +25,7 @@ namespace sdm{
 		torch::optim::AdamOptions options;
 		options.eps(adam_eps);
 		options.lr(lr);
-		this->optimizer = std::make_shared<torch::optim::Adam>(agent_1_policy_net->parameters(), options);
+		this->optimizer = std::make_shared<torch::optim::Adam>(policy_net->parameters(), options);
 
 		this->device = device;
 		
@@ -62,29 +62,27 @@ namespace sdm{
 			torch::Tensor ao1s = torch::cat(all_o1s);
 			// Q values for agent 0 (given o2 and u2).
 			std::vector<double> q_values;
-			// For each u2 possible:
-			for(action u2 = 0; u2 < game->getNumActions(0); u2++){
+			// For each u possible:
+			for(action u = 0; u < game->getNumActions(0) * game->getNumActions(1); u++){
 				// Initialize the Q value to 0.
 				q_values.push_back(0.0);
-				// Create one hot vector for u2 with correct number of dimensions.
-				torch::Tensor one_hot_u2 = torch::zeros(game->getNumActions(0));
-				// Set the correct index to 1, the others stay 0.
-				one_hot_u2[u2] = 1;
-				for (int i = 0; i < sampling_memory_size; i++){
+				for (int m = 0; m < sampling_memory_size; m++){
 					// Extract one of the all o1s.
-					history one_o1 = all_o1s[i];
+					history o1 = all_o1s[m];
 					// Create the Tensor to put in the network.
-					torch::Tensor o2_oo1_u2_ao1s_px = torch::cat({o2, one_o1, one_hot_u2, ao1s, p_x}, 0);
+					torch::Tensor o2_o1_ao1s_px = torch::cat({o2, o1, ao1s, p_x}, 0);
 					// Put Tensor to GPU if needed.
-					o2_oo1_u2_ao1s_px = o2_oo1_u2_ao1s_px.to(device);
-					// Get the maximum Q value and add it to the relevant u2 index.
-					q_values[u2] += torch::max(agent_1_policy_net(o2_oo1_u2_ao1s_px)).item<double>();
+					o2_o1_ao1s_px = o2_o1_ao1s_px.to(device);
+					// Get the maximum Q value and add it to the relevant u index.
+					q_values[u] += torch::max(policy_net(o2_o1_ao1s_px)).item<double>();
 				}
 				// Not really needed but just to be correct.
-				q_values[u2] = q_values[u2] / sampling_memory_size;
+				q_values[u] = q_values[u] / sampling_memory_size;
 			}
-			// Return the argmax.
-			return std::distance(q_values.begin(), std::max_element(q_values.begin(), q_values.end()));
+			// The argmax is the joint action u.
+			action u = std::distance(q_values.begin(), std::max_element(q_values.begin(), q_values.end()));
+			// We get u2 from u
+			return u % game->getNumActions(0);
 		// With probabiliy epsilon we do this.
 		} else {
 			// Choose random action for agent 0, return it.
@@ -97,19 +95,23 @@ namespace sdm{
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
 			// Let PyTorch know that we don't need to keep track of the gradient in this context.
 			torch::NoGradGuard no_grad;
-			// Create one hot vector for u2 with correct number of dimensions.
-			torch::Tensor one_hot_u2 = torch::zeros(game->getNumActions(0));
-			// Set the correct index to 1, the others stay 0.
-			one_hot_u2[u2] = 1;
 			// Convert sampled o1s to Tensor.
 			torch::Tensor ao1s = torch::cat(all_o1s);
 			// Create the Tensor to put in the network.
-			torch::Tensor o2_o1_u2_ao1s_px = torch::cat({o2, o1, one_hot_u2, ao1s, p_x}, 0);
+			torch::Tensor o2_o1_ao1s_px = torch::cat({o2, o1, ao1s, p_x}, 0);
 			// Put Tensor to GPU if needed.
-			o2_o1_u2_ao1s_px = o2_o1_u2_ao1s_px.to(device);
-			// Put input Tensor to agent 1's policty net, get q values for each possible private action, get the argument which gives the maximum q value, convert it to int.
-			// This is agent 1's action. Return it.
-			return torch::argmax(agent_1_policy_net(o2_o1_u2_ao1s_px)).item<int>();
+			o2_o1_ao1s_px = o2_o1_ao1s_px.to(device);
+			// Put input Tensor to policy net, get q values for each possible joint action.
+			torch::Tensor q_values = policy_net(o2_o1_ao1s_px);
+			// Cretae vector for valid q values, meaning q values that are possible given u2.
+			std::vector<double> valid_q_values = {};
+			// For each possible u1
+			for(action u1 = 0; u1 < game->getNumActions(1); u1++){
+				// Add the corresponding q value given u2.
+				valid_q_values.push_back(q_values.index({u2 + u1 * game->getNumActions(0)}).item<double>());
+			}
+			// Return the argmax of valid q values.
+			return std::distance(valid_q_values.begin(), std::max_element(valid_q_values.begin(), valid_q_values.end()));
 		// With probabiliy epsilon we do this.
 		} else {
 			// Choose random action for agent 1, return it.
@@ -191,8 +193,8 @@ namespace sdm{
 		// Create std::stringstream stream.
 		std::stringstream stream;
 		// Save the parameters of agent 1's policy net into the stream.
-		torch::save(agent_1_policy_net, stream);
+		torch::save(policy_net, stream);
 		// Load those weights from the stream into agent 1's target net.
-		torch::load(agent_1_target_net, stream);
+		torch::load(target_net, stream);
 	}
 }
