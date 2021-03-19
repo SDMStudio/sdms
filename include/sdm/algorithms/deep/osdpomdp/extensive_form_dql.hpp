@@ -28,9 +28,9 @@ namespace sdm{
 		int episodes;
 		// Indice of which sampling world we're in.
 		number m;
-		//
+		// Size of the history of agent 2.
 		number dim_o2;
-		//
+		// Size of the history of agent 1.
 		number dim_o1;
 		// Horizon of the game to solve.
 		number horizon;
@@ -48,8 +48,6 @@ namespace sdm{
 		float eps_start;
 		// Decay rate of epsilon.
 		float eps_decay;
-		// Discount factor of the game i.e. the degree to which the next reward is less imporant than the current one.
-		float discount_factor;
 		// This lets the E[R] be more smooth. A value between [0, 1). 0: Ignore previous Rs. .9: It's as if it's the average of the last 10 Rs etc.
 		float rolling_factor;
 		// Learning rate.
@@ -58,13 +56,13 @@ namespace sdm{
 		float adam_eps;
 		// The epsilon.
 		float epsilon;
-		// Discount factor (it looks nicer this way)
+		//  Discount factor of the game i.e. the degree to which the next reward is less imporant than the current one.
 		float GAMMA;
-		// Inner dimension of DQN of agent 1.
-		number dim_i1;
+		// Inner dimension of DQNs (policy net and target net).
+		number dim_i;
 		// How many sampling/parallel worlds there will be for agent 1 to interact with the environment?
 		number sampling_memory_size;
-		// How much of IB solution will be used as the target(...)
+		// How much of IB solution will be used as the target during updates.
 		float alpha;
 		// Decay rate of alpha.
 		float alpha_decay;
@@ -78,37 +76,37 @@ namespace sdm{
 		std::uniform_int_distribution<int> uniform_m_distribution;
 		// Uniform m distribution, returns random int between 0 and nZ(0)-1.
 		std::uniform_int_distribution<int> uniform_z2_distribution;
-		// Discounted cumulative reward at the end of the episode. 
+		// Discounted cumulative reward. 
 		reward R;
 		// E[R]
 		reward E_R;
-		// Rewards for the current steps.
+		// Rewards for the current steps, one for each sampling/parallel world.
 		std::vector<reward> rs;
 		// Action of agent 2.
 		action u2;
-		// Actions of agent 1.
+		// Actions of agent 1, one for each sampling/parallel world.
 		std::vector<action> u1s;
-		// Current states of the game.
+		// Current states of the game, one for each sampling/parallel world.
 		std::vector<state> xs;
-		// Next states of the game.
+		// Next states of the game, one for each sampling/parallel world.
 		std::vector<state> next_xs;
 		// Observation of agent 2.
 		observation z2;
 		// A possible observation of agent 2, it should be equal to z2.
 		observation candidate_z2;
-		// Observations of agent 1.
+		// Observations of agent 1, one for each sampling/parallel world.
 		std::vector<observation> z1s;
 		// History of agent 2.
 		history o2;
 		// Next history of agent 2.
 		history next_o2;
-		// Histories of agent 1.
+		// Histories of agent 1, one for each sampling/parallel world.
 		std::vector<history> o1s;
-		// Next histories of agent 1.
+		// Next histories of agent 1, one for each sampling/parallel world.
 		std::vector<history> next_o1s;
-		//
+		// P(x|o2) ∀ x ∈ X.
 		state_probability_distribution p_x;
-		//
+		// P(next_x|next_o2) for ∀ next_x ∈ X.
 		state_probability_distribution p_next_x;
 		// For updating the models.
 		std::shared_ptr<ModelsUpdateRules> models_update_rules;
@@ -122,7 +120,7 @@ namespace sdm{
 		ExtensiveFormDQL(
 			int, 
 			number, number, number, number, number, number, number, number, 
-			float, float, float, float, float, float, float, float, 
+			float, float, float, float, float, float, float, 
 			torch::Device, std::shared_ptr<sdm::POSG>&, int, bool, std::string
 		);
 		// (Should be in POSG class.) Used to get the joint action a from private actions u2 and u1.
@@ -143,23 +141,23 @@ namespace sdm{
 		std::vector<history> initiate_o1s();
 		// Helper function to initiate rs.
 		std::vector<reward> initiate_rs();
-		// (Should be in POSG class.) Using action u2 and action u1; get observation z2, observation z1, and reward r.
+		// (Should be in POSG class.) Using action u2 and action u1; get observation z2, observation z1, and reward r. The states xs are used and states next_xs are updated.
 		std::tuple<observation, observation, reward> act();
 		// Solve the problem.
 		void solve();
-		// Update history o2, histories o1s, epsilon, and target network.
+		// Update history o2, histories o1s, p_x, epsilon, alpha.
 		void end_step();
-		// Log episode, epsilon, q value loss, and E[R].
+		// Log episode, epsilon, q value loss, and E[R]. Also update target net.
 		void end_episode();
 		// Initialize the problem.
 		void initialize();
-		// Initialize everything that will be used: R, q value loses, x, next_x, o2, next_o2, o1, next_o1, u2, u1, z2, z1, r, sampled_xs, next_sampled_xs, sampled_s1s, nsampled_s1s
+		// Initialize everything that will be used during the episode: R, q value loses, x, next_x, o2, next_o2, o1, next_o1, u2, u1, z2, z1, r, sampled_xs, next_sampled_xs, sampled_s1s, nsampled_s1s
 		void initialize_episode();
 		// Use the models update rules to update the models.
 		void update_models();
 		// Add current transition to the replay memory.
 		void update_replay_memory();
-		//
+		// Create the state probability distribution from the given states.
 		state_probability_distribution create_state_probability_distribution(std::vector<state>);
 	};
 }

@@ -20,7 +20,7 @@ namespace sdm{
 	struct Agents {
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
-		//
+		// How many sampling/parallel worlds there will be for agent 1 to interact with the environment?
 		number sampling_memory_size;
 		// Initialize the Agents.
 		Agents(number, number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, bool, std::string, number);
@@ -34,21 +34,21 @@ namespace sdm{
 		std::uniform_int_distribution<int> uniform_action_distribution_1;
 		// Optimizer.
 		std::shared_ptr<torch::optim::Adam> optimizer;
-		// Policy net of agent 1.
+		// DQN for choosing actions.
 		DQN policy_net{nullptr};
-		// The Target Network is a delayed copy of the Policy Network of Agent 1. Its purpose is to not have moving targets during update of networks.
+		// The Target Network is a delayed copy of the Policy Network. Its purpose is to not have moving targets during update of networks.
 		DQN target_net{nullptr};
-		// 
+		// Transition net for calculating history of agent 2.
 		Gated_RNN agent_2_transition_net{nullptr};
-		// 
+		// Transition net for calculating history of agent 2.
 		Gated_RNN agent_1_transition_net{nullptr};
 		// The policy_net of the POMDP. 
 		DQN induced_bias_target_net{nullptr};
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
-		// Given history o2 and histories o1s get epsilon-greedy action u2.
+		// Given history o2, histories o1s, and state probability distribution p_x, get epsilon-greedy action u2.
 		action get_epsilon_greedy_action_2(history, std::vector<history>, state_probability_distribution, float);
-		// Given history o2, history o1, action u2, histories o1s; get epsilon-greedy action u1.
+		// Given history o2, history o1, action u2, histories o1s, and state probability distribution p_x; get epsilon-greedy action u1.
 		action get_epsilon_greedy_action_1(history, history, action, std::vector<history>, state_probability_distribution, float);
 		// Given history o2, action u2, observation z2; get next history next_o2.
 		history get_next_history_2(history, action, observation);
@@ -58,7 +58,7 @@ namespace sdm{
 		torch::Tensor recast_u2_z2(action, observation);
 		// Helper function to create tensor u1_z1 from action u1 and observation o1.
 		torch::Tensor recast_u1_z1(action, observation);
-		// Update the target network by copying the parameters of agent 1's policy network into the target networks parameters.
+		// Update the target network by copying the parameters of policy network into the target networks parameters.
 		void update_target_net();
 		// Load the history transition nets that were saved after the POMDP was solved. Also load the induced_bias_target_net which was the policy_net for the POMDP.
 		void initialize_induced_bias(std::string);

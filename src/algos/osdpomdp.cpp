@@ -99,7 +99,7 @@ int main(int argv, char** args){
 
 		ExtensiveFormDQL extensive_form_dql(
 			episodes, horizon, batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, 
-			eps_end, eps_start, eps_decay, alpha_decay, discount_factor, rolling_factor, lr, adam_eps, device, game, replay_memory_size, 
+			eps_end, eps_start, eps_decay, alpha_decay, rolling_factor, lr, adam_eps, device, game, replay_memory_size, 
 			induced_bias, ib_net_filename
 		);
 
