@@ -53,7 +53,7 @@ namespace sdm{
 		torch::load(induced_bias_target_net, ib_target_net_filename);
 	}
 
-	// u_{\tau}^{2} \overset{extract}{\leftarrow}  \arg \max_{{{u}'}_{\tau}} \sum_{{m}'=0}^{|M|-1}PolicyNet(o_{\tau}^{2}, o_{\tau}^{1, ({m}')}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}), {{u}'}_{\tau})
+	// u_{\tau}^{2} \overset{extract}{\leftarrow}  \arg \max_{{{u}'}_{\tau}} \sum_{{m}'=0}^{|M|-1}PolicyNet(o_{\tau}^{2}, o_{\tau}^{1, ({m}')} | o_{\tau}^{2}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {{u}'}_{\tau})
 	action Agents::get_epsilon_greedy_action_2(history o2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
@@ -90,7 +90,7 @@ namespace sdm{
 			return uniform_action_distribution_2(random_engine);
 		}
 	}
-	// u_{\tau}^{1} = \arg \max_{{{u}'}_{\tau}^{1}} PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}), {{u}'}_{\tau}^{1})
+	// u_{\tau}^{1} = \arg \max_{{{u}'}_{\tau}^{1}} PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}, {{u}'}_{\tau}^{1})
 	action Agents::get_epsilon_greedy_action_1(history o2, history o1, action u2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
