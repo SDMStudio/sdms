@@ -23,7 +23,7 @@ namespace sdm{
 		this->position = (this->position + 1) % this->capacity;
 	}
 
-	// ReplayMemory \overset{Sample}{\rightarrow}o_{t}^{0}, o_{t}^{1}, \{o_{t}^{1}\}, a_{t}^{0}, a_{t}^{1}, z_{t}^{0}, z_{t}^{1}, r_{t}
+	// ReplayMemory \overset{Sample}{\rightarrow} (o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, u_{\tau}, r_{\tau}, o_{\tau+1}^{2}, o_{\tau+1}^{1}, \{o_{\tau+1}^{1,(m)} | o_{\tau+1}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau+1}| o_{\tau+1}^{2}\})
 	std::vector<transition> ReplayMemory::sample(int batch_size){
 		// Initialize the transitions std::vector to be returned.
 		std::vector<transition> transitions;

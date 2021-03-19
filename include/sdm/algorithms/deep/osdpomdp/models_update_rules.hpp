@@ -27,7 +27,7 @@ namespace sdm{
 		bool induced_bias;
 		// Batch size of updates i.e. how many transitions at a time we use to update the parameters of the nets.
 		number batch_size;
-		// Sampling memory size (|S|) i.e. how many sampled histories of agent 1 do we store per transition.
+		// Sampling memory size (|M|) i.e. how many sampled histories of agent 1 do we store per transition.
 		number sampling_memory_size;
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
@@ -39,11 +39,11 @@ namespace sdm{
 		double update(std::shared_ptr<ReplayMemory>&, std::shared_ptr<Agents>&, float);
 		// Construct the batch which is made up of Tensors of correct dimensions and in the correct device (CPU/GPU).
 		batch construct_batch(std::vector<transition>);
-		// {Q}_{t}^{1} = {Q}^{1}(o_{t}^{0}, o_{t}^{1, (n)}, a_{t}^{0}, a_{t}^{1, (n)}, \{o_{t}^{1, (m))}\}_{m=0}^{M-1})
+		// {q}_{\tilde{s}_{\tau}^{2}}({o}_{\tau}, {u}_{\tau}) = PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau})
 		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
-		// {TargetQ}_{t}^{1} = r_{t} + \gamma \cdot \left [(1-\alpha) \cdot \max_{a'}  \mathbf{Q}^{1}(o_{t+1}^{0}, o_{t+1}^{1,(n)}, a_{t+1}^{0}, a', \{o_{t+1}^{1, (m)}\}_{m=0}^{M-1}) + \alpha \cdot (\max_{a'}  {Q}^{InducedBias}(o_{t+1}^{0}, o_{t+1}^{1,(n)}, a')) \right]
+		// {q}_{\tilde{s}_{\tau}^{2}}^{Target}({o}_{\tau}, {u}_{\tau}) =  r_{\tau} + \gamma \cdot \max_{{{u}'}_{\tau}} TargetNet(o_{\tau+1}^{2}, o_{\tau+1}^{1}, \{o_{\tau+1}^{1,(m)} | o_{\tau+1}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau+1}| o_{\tau+1}^{2}\}, {{u}'}_{\tau})
 		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::shared_ptr<Agents>&, float);
-		// Update the parameters of agent 1's policy net.
+		// Update the parameters of policy net.
 		void update_policy_net(std::shared_ptr<Agents>&, torch::Tensor);
 	};
 }

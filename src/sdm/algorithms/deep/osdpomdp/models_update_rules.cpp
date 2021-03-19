@@ -37,7 +37,6 @@ namespace sdm{
 		// Std::tie the Tensors appropriately. 
 		std::tie(o2_batch, o1_batch, all_o1s_batch, p_x_batch, u_batch, r_batch, next_o2_batch, next_o1_batch, next_all_o1s_batch, next_all_o1_batches, p_next_x_batch) = b; 
 		//
-
 		torch::Tensor q_values = get_q_values(o2_batch, o1_batch, all_o1s_batch, p_x_batch, u_batch, agents->policy_net);
 		//
 		torch::Tensor target_q_values = get_target_q_values(next_o2_batch, next_o1_batch, next_all_o1s_batch, p_next_x_batch, r_batch, agents, alpha);
@@ -134,9 +133,9 @@ namespace sdm{
 			history o1 = std::get<1>(t);
 			o1_batch_vector.push_back(o1);
 
-			std::vector<history> all_o1s = std::get<2>(t);
-			torch::Tensor so1s = torch::cat(all_o1s);
-			all_o1s_batch_vector.push_back(so1s);
+			std::vector<history> o1s = std::get<2>(t);
+			torch::Tensor all_o1s = torch::cat(o1s);
+			all_o1s_batch_vector.push_back(all_o1s);
 
 			state_probability_distribution p_x = std::get<3>(t);
 			p_x_batch_vector.push_back(p_x);

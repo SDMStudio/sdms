@@ -7,6 +7,7 @@ namespace sdm{
 		number policy_net_input_dim, number policy_net_inner_dim, number policy_net_output_dim, 
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, bool induced_bias, std::string ib_net_filename, number sampling_memory_size
 	){
+		// Initialize the nets.
 		this->agent_2_transition_net = Gated_RNN(agent_2_trans_net_input_dim, agent_2_trans_net_hidden_dim);
 		this->agent_1_transition_net = Gated_RNN(agent_1_trans_net_input_dim, agent_1_trans_net_hidden_dim);
 		this->policy_net = DQN(policy_net_input_dim, policy_net_inner_dim, policy_net_output_dim);
@@ -16,21 +17,20 @@ namespace sdm{
 		this->agent_1_transition_net->to(device);
 		this->policy_net->to(device);
 		this->target_net->to(device);
-
-		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0); //
-
+		// Initialize random random ditributions.
+		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
 		this->uniform_action_distribution_2 = std::uniform_int_distribution<int>(0, game->getNumActions(0) - 1);
 		this->uniform_action_distribution_1 = std::uniform_int_distribution<int>(0, game->getNumActions(1) - 1);
-
+		//Initialize Adam and its options.
 		torch::optim::AdamOptions options;
 		options.eps(adam_eps);
 		options.lr(lr);
 		this->optimizer = std::make_shared<torch::optim::Adam>(policy_net->parameters(), options);
 
-		this->device = device;
-		
+		this->device = device;		
 		this->game = game;
 		this->sampling_memory_size = sampling_memory_size;
+		
 		update_target_net();
 		// if (induced_bias){
 		// 	number dim_o2 = agent_2_trans_net_hidden_dim;
@@ -53,6 +53,7 @@ namespace sdm{
 		torch::load(induced_bias_target_net, ib_target_net_filename);
 	}
 
+	// u_{\tau}^{2} \overset{extract}{\leftarrow}  \arg \max_{{{u}'}_{\tau}} \sum_{{m}'=0}^{|M|-1}PolicyNet(o_{\tau}^{2}, o_{\tau}^{1, ({m}')}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}), {{u}'}_{\tau})
 	action Agents::get_epsilon_greedy_action_2(history o2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
@@ -89,7 +90,7 @@ namespace sdm{
 			return uniform_action_distribution_2(random_engine);
 		}
 	}
-
+	// u_{\tau}^{1} = \arg \max_{{{u}'}_{\tau}^{1}} PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}), {{u}'}_{\tau}^{1})
 	action Agents::get_epsilon_greedy_action_1(history o2, history o1, action u2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
