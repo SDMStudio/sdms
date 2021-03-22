@@ -84,14 +84,14 @@ namespace sdm
         {
 
             auto tuple_x_o_u = p_x_o.first;
-            auto x = sdm::get<0>(tuple_x_o_u);
-            auto o = sdm::get<1>(tuple_x_o_u);
-            auto u = sdm::get<2>(tuple_x_o_u);
+            auto x = std::get<0>(tuple_x_o_u);
+            auto o = std::get<1>(tuple_x_o_u);
+            auto u = std::get<2>(tuple_x_o_u);
 
             if (ag_id != this->dpomdp_->getNumAgents() - 1)
             {
                 u.push_back(indiv_dr(o->getIndividualHistory(ag_id)));
-                new_ostate[sdm::make_tuple(x, o, u)] = p_x_o.second;
+                new_ostate[std::make_tuple(x, o, u)] = p_x_o.second;
             }
             else
             {
@@ -135,9 +135,9 @@ namespace sdm
         for (auto &p_x_o : ostate)
         {
             auto tuple_s_h_a = p_x_o.first;
-            auto state = sdm::get<0>(tuple_s_h_a);
-            auto jhistory = sdm::get<1>(tuple_s_h_a);
-            auto actions = sdm::get<2>(tuple_s_h_a);
+            auto state = std::get<0>(tuple_s_h_a);
+            auto jhistory = std::get<1>(tuple_s_h_a);
+            auto actions = std::get<2>(tuple_s_h_a);
 
             std::vector<typename oAction::output_type> jaction(actions.begin(), actions.end());
 

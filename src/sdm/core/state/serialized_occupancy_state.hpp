@@ -4,6 +4,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
+#include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/struct/tuple.hpp>
 #include <sdm/core/state/state.hpp>
 
