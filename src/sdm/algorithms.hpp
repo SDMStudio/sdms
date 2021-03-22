@@ -28,19 +28,26 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000, std::string name = "tab_hsvi")
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000, std::string name = "tab_hsvi",int extensive_agent = 1.0)
         {
             assert(((discount < 1) || (horizon > 0)));
 
             problem->setDiscount(discount);
 
-            auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>(problem->getReward()->getMinReward(), discount);
-            auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>(problem->getReward()->getMaxReward(), discount);
+            
+            if(extensive_agent>1)
+            {
+                horizon = horizon*extensive_agent;
+            }
+            
 
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
+            auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>(problem->getReward()->getMinReward(), discount,extensive_agent);
+            auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>(problem->getReward()->getMaxReward(), discount,extensive_agent);
 
-            return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
+            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init,extensive_agent));
+            std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init,extensive_agent));
+
+            return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, extensive_agent,name);
         }
 
         // /**

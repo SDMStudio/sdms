@@ -52,9 +52,10 @@ namespace sdm
     class BoundInitializer : public Initializer<TState, TAction>
     {
         double value_, discount_;
+        int extensive_agent_;
 
     public:
-        BoundInitializer(double value, double discount) : value_(value), discount_(discount)
+        BoundInitializer(double value, double discount,int extensive_agent = 1)  : value_(value), discount_(discount),extensive_agent_(extensive_agent)
         {
         }
 
@@ -79,7 +80,13 @@ namespace sdm
             {
                 for (int t = 0; t < vf->getHorizon(); t++)
                 {
-                    vf->initialize(this->value_ * (vf->getHorizon() - t), t);
+                    if(extensive_agent_>1)
+                    {
+                        vf->initialize(this->value_ * ((vf->getHorizon() - t+1)/extensive_agent_), t);
+                    }else
+                    {
+                        vf->initialize(this->value_ * (vf->getHorizon() - t), t);
+                    }
                 }
             }
         }
@@ -89,7 +96,7 @@ namespace sdm
     class MinInitializer : public BoundInitializer<TState, TAction>
     {
     public:
-        MinInitializer(double min_reward, double discount) : BoundInitializer<TState, TAction>(min_reward, discount)
+        MinInitializer(double min_reward, double discount,int extensive_agent = 1) : BoundInitializer<TState, TAction>(min_reward, discount,extensive_agent)
         {
         }
     };
@@ -98,7 +105,7 @@ namespace sdm
     class MaxInitializer : public BoundInitializer<TState, TAction>
     {
     public:
-        MaxInitializer(double max_reward, double discount) : BoundInitializer<TState, TAction>(max_reward, discount)
+        MaxInitializer(double max_reward, double discount,int extensive_agent = 1) : BoundInitializer<TState, TAction>(max_reward, discount,extensive_agent)
         {
         }
     };
@@ -118,13 +125,9 @@ namespace sdm
 
     //     void init(ValueFunction<TState, TAction> *vf)
     //     {
-    //         auto algo = sdm::algo::make(algo_name, this->problem->toPOMDP());
+    //         auto algo = sdm::algo::make(algo_name, this->problem->toMDP());
     //         algo->do_solve();
     //         auto ubound = algo->getUpperBound();
-    //         for (int t = 0; t < vf->getHorizon(); t++)
-    //         {
-    //             vf->initialize(ubound->getValueAt(), t);
-    //         }
     //     }
     // };
 } // namespace sdm

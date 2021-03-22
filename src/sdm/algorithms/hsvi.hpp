@@ -17,7 +17,6 @@
 
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
-#include <sdm/utils/logging/logger.hpp>
 
 namespace sdm
 {
@@ -52,18 +51,13 @@ namespace sdm
     std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
 
     /**
-     * @brief Logger.
-     * 
-     */
-    std::shared_ptr<MultiLogger> logger_;
-
-    /**
      * @brief Some variables for the algorithm.
      * 
      */
     int trial, MAX_TRIALS;
     double error_;
     number planning_horizon_;
+    int extensive_agent_;
 
     std::string name_ = "hsvi";
 
@@ -93,6 +87,7 @@ namespace sdm
          number planning_horizon,
          double epsilon,
          number num_max_trials = 10000,
+         int extensive_agent = 1,
          std::string name = "hsvi");
 
     /**
@@ -158,7 +153,15 @@ namespace sdm
      * @param a 
      * @return TState 
      */
-    TState selectNextState(const TState &s, const TAction &a, number d);
+    TState selectNextState(const TState &s, const TAction &
+    a, number d);
+
+    std::shared_ptr<ValueFunction<TState, TAction>> getLowerBound() const;
+    std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
+
+
+    int getTrial() const;
+
   };
 } // namespace sdm
 #include <sdm/algorithms/hsvi.tpp>

@@ -44,7 +44,7 @@ namespace sdm
         /**
          * @brief The horizon for planning.
          */
-        int horizon_;
+        int horizon_,extensive_agent_;
 
     public:
         /**
@@ -53,7 +53,7 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon);
+        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, int extensive_agent = 1);
 
         /**
          * @brief Initialize the value function 
@@ -121,6 +121,8 @@ namespace sdm
             os << vf.str();
             return os;
         }
+
+        double getDiscount(int t);
     };
 } // namespace sdm
 #include <sdm/utils/value_function/value_function.tpp>
