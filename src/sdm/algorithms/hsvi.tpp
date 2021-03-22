@@ -15,11 +15,13 @@ namespace sdm
                                 std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
                                 number planning_horizon,
                                 double error,
-                                number num_max_trials) : world_(world),
-                                                         lower_bound_(lower_bound),
-                                                         upper_bound_(upper_bound),
-                                                         error_(error),
-                                                         planning_horizon_(planning_horizon)
+                                number num_max_trials,
+                                std::string name) : world_(world),
+                                                    lower_bound_(lower_bound),
+                                                    upper_bound_(upper_bound),
+                                                    error_(error),
+                                                    planning_horizon_(planning_horizon),
+                                                    name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
         this->do_initialize();
@@ -31,8 +33,8 @@ namespace sdm
         std::string format = "#> Trial : {}\tError : {}\t\tV_lb({}) / V_ub({})\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
-        auto file_logger = std::make_shared<sdm::FileLogger>("hsvi.txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>("hsvi", std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
+        auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
 
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }

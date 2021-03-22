@@ -65,6 +65,8 @@ namespace sdm
     double error_;
     number planning_horizon_;
 
+    std::string name_ = "hsvi";
+
     void initLogger();
 
   public:
@@ -90,7 +92,8 @@ namespace sdm
          std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
          number planning_horizon,
          double epsilon,
-         number num_max_trials = 10000);
+         number num_max_trials = 10000,
+         std::string name = "hsvi");
 
     /**
      * @brief Initialize the algorithm

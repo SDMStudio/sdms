@@ -1,15 +1,22 @@
 #include <iostream>
 #include <time.h>
 
-#include <sdm/common.hpp>
-#include <sdm/algorithms.hpp>
-#include <sdm/parser/parser.hpp>
+#include <sdm/types.hpp>
+#include <sdm/tools.hpp>
+#include <sdm/utils/logging/logger.hpp>
+#include <sdm/utils/struct/vector.hpp>
+#include <sdm/utils/struct/pair.hpp>
+#include <sdm/utils/struct/tuple.hpp>
+// #include <sdm/algorithms.hpp>
+// #include <sdm/parser/parser.hpp>
 
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/world/ndpomdp.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+// #include <sdm/utils/linear_algebra/mapped_vector.hpp>
+// #include <sdm/world/ndpomdp.hpp>
+// #include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <fmt/format.h>
 
 using namespace sdm;
+
 
 int main(int argc, char **argv)
 {
@@ -33,45 +40,54 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // sdm::vector<int> v{1,2,3};
+    // std::cout << v << std::endl;
 
-    // MappedVector<Joint<number>, number> umv(4);
+    sdm::Pair<int, double> p{1, 2.3};
+    std::cout << p << std::endl;
 
-    // umv[Joint<number>({2,3,7})] = 6;
-    // umv[Joint<number>({1,3,7})] = 6;
-    // umv[Joint<number>({2,5,9})] = 12;
+    sdm::Tuple<int, char, double> t{42, 'a', 4.2}; // Another C++17 feature: class template argument deduction
+    std::cout << t << std::endl;
 
-    // std::cout << umv << std::endl;
+    auto  logger1 = std::make_shared<sdm::StdLogger>("#> Trial {} - Error {}\n");
+
+    auto logger = std::make_shared<sdm::FileLogger>("test.txt", "#> Trial {} - Error {} ({})\n");
+
+    auto csv_logger = std::make_shared<sdm::CSVLogger>("test", std::vector<std::string>{"Trial", "Error", "Best_Agent"});
 
 
-    // MappedVector<Joint<number>, number> umv2(3);
+    sdm::MultiLogger multi_logger({logger, logger1, csv_logger});
+    multi_logger.log(1, 10.1, "Bidule");
+    multi_logger.log(2, 8.7, "Bidule");
+    multi_logger.log(3, 4.0, "Ernest");
+    multi_logger.log(4, 1.4, "Bidule");
+    multi_logger.log(5, 0.1, "Ernest");
 
-    // umv2[Joint<number>({2,3,7})] = 6;
-    // umv2[Joint<number>({1,3,7})] = 61;
-    // umv2[Joint<number>({2,5,9})] = 2;
+    // print(3, 4.5, "hello");
 
-    // std::cout << umv2 << std::endl;
+    // std::apply([](auto&&... args) {((std::cout << args << '\n'), ...);}, t);
 
-    clock_t t_begin, t_end;
+    // clock_t t_begin, t_end;
 
-    std::cout << "#> Parsing DecPOMDP file \"" << filename << "\"\n";
-    number n_agents = 2;
+    // std::cout << "#> Parsing DecPOMDP file \"" << filename << "\"\n";
+    // number n_agents = 2;
 
-    using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
-    using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+    // using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-    auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, length_history);
+    // auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, length_history);
 
-    auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 1.0, 0.1, horizon * n_agents);
+    // auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 1.0, 0.1, horizon * n_agents);
 
-    t_begin = clock();
+    // t_begin = clock();
 
-    hsvi->do_solve();
+    // hsvi->do_solve();
 
-    t_end = clock();
-    float temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
-    printf("temps = %f\n", temps);
+    // t_end = clock();
+    // float temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+    // printf("temps = %f\n", temps);
 
-    hsvi->do_test();
+    // hsvi->do_test();
 
     // NDPOMDP ndpomdp(filename);
 
