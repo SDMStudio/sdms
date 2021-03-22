@@ -17,6 +17,7 @@
 
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/logging/logger.hpp>
 
 namespace sdm
 {
@@ -49,6 +50,12 @@ namespace sdm
      * @brief Upper Bound representation. 
      */
     std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
+
+    /**
+     * @brief Logger.
+     * 
+     */
+    std::shared_ptr<MultiLogger> logger_;
 
     /**
      * @brief Some variables for the algorithm.
@@ -144,8 +151,7 @@ namespace sdm
      * @param a 
      * @return TState 
      */
-    TState selectNextState(const TState &s, const TAction &
-    a, number d);
+    TState selectNextState(const TState &s, const TAction &a, number d);
   };
 } // namespace sdm
 #include <sdm/algorithms/hsvi.tpp>
