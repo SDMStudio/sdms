@@ -137,6 +137,10 @@ namespace sdm
      */
     void do_explore(const TState &s, number h);
 
+    /**
+     * @brief Test the learnt value function on one episode
+     * 
+     */
     void do_test();
 
     /**

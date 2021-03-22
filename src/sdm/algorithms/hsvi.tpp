@@ -54,26 +54,20 @@ namespace sdm
         TState start_state = this->world_->getInitialState();
         this->trial = 0;
 
-        clock_t t_begin, t_end;
-        t_begin = clock();
+        clock_t t_begin = clock();
         do
         {
+            // Logging (save data and print algorithms variables)
             this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-            // std::cout << "Trial : " << this->trial << "\tError : " << this->do_excess(start_state, 0) + this->error_ << std::endl;
-            // std::cout << "LB : " << this->lower_bound_->str() << "UB : " << this->upper_bound_->str() << std::endl;
             this->do_explore(start_state, 0);
             this->trial++;
         } while (!this->do_stop(start_state, 0));
 
-        t_end = clock();
-        float temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
-
-        std::cout << "-------------------------------------------------" << std::endl;
-        std::cout << "Number trials : " << this->trial << "\tError : " << this->do_excess(start_state, 0) + this->error_ << std::endl;
+        std::cout << "----------------------------------------------------" << std::endl;
+        this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         std::cout << "Final LB : \n"
                   << this->lower_bound_->str() << "Final UB : \n"
                   << this->upper_bound_->str() << std::endl;
-        printf("\n\nTemps = %f s\n", temps);
     }
 
     template <typename TState, typename TAction>
