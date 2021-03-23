@@ -24,10 +24,11 @@ namespace sdm
   class DeterministicDecisionRule : public Function<TState, TAction>
   {
   protected:
-  public:
     std::map<TState, TAction> container_;
-    DeterministicDecisionRule() {}
 
+  public:
+    DeterministicDecisionRule() {}
+    
     DeterministicDecisionRule(std::vector<TState> acc_states, std::vector<TAction> n_actions)
     {
       assert(acc_states.size() == n_actions.size());
@@ -52,12 +53,6 @@ namespace sdm
       return this->container_ < v2.container_;
     }
 
-
-    bool operator==(const DeterministicDecisionRule &v2) const
-    {
-      return this->container_ == v2.container_;
-    }
-
     friend std::ostream &operator<<(std::ostream &os, const DeterministicDecisionRule<TState, TAction> &dr)
     {
       os << "<decision-rule type=\"deterministic\">" << std::endl;
@@ -77,25 +72,4 @@ namespace sdm
 
   template <typename TState, typename TAction>
   using DetDecisionRule = DeterministicDecisionRule<TState, TAction>;
-
 } // namespace sdm
-
-namespace std
-{
-  template <typename S, typename A>
-  struct hash<sdm::DeterministicDecisionRule<S, A>>
-  {
-    typedef sdm::DeterministicDecisionRule<S, A> argument_type;
-    typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in) const
-    {
-      size_t seed = 0;
-      for (auto &input : in.container_)
-      {
-        //Combine the hash of the current vector with the hashes of the previous ones
-        sdm::hash_combine(seed, input);
-      }
-      return seed;
-    }
-  };
-}

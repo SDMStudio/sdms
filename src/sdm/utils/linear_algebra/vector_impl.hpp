@@ -37,7 +37,7 @@ namespace sdm
 
     virtual T max() const = 0;
     virtual I argmax() const = 0;
-    virtual T at(const I &) const = 0;
+    virtual T at(I) const = 0;
 
     virtual std::string str() const = 0;
 

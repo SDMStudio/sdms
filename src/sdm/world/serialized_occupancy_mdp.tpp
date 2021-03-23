@@ -156,24 +156,4 @@ namespace sdm
         return value_function->getValueAt(ost, t + 1);
     }
 
-    template <typename oState, typename oAction>
-    int SerializedOccupancyMDP<oState, oAction>::getNumberAgent() const
-    {
-        return this->dpomdp_->getNumAgents();
-    }
-
-    template <typename oState,typename oAction>
-    double SerializedOccupancyMDP<oState,oAction>::getDiscount(int t) const
-    {
-                
-        if(this->getNumberAgent() >1)
-        {
-            if(t%this->getNumberAgent() != this->getNumberAgent() -1)
-            {
-                return 1.0;
-            }
-        }
-        return this->dpomdp_->getDiscount();
-    }
-
 } // namespace sdm

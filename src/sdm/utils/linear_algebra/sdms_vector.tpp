@@ -26,7 +26,7 @@ namespace sdm
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::at(const I &i) const
+    T sdmsVector<I, T, TBaseVector>::at(I i) const
     {
         return TBaseVector::at(i);
     }

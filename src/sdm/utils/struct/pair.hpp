@@ -189,38 +189,3 @@ namespace sdm
     }
 
 } // namespace sdm
-
-namespace std
-{
-    template <typename T, typename U>
-    struct hash<sdm::Pair<T, U>>
-    {
-        typedef sdm::Pair<T, U> argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type  &in) const
-        {
-            size_t seed = 0;
-            sdm::hash_combine(seed, in.first);
-            sdm::hash_combine(seed, in.second);
-            return seed;
-        }
-    };
-}
-
-
-namespace std
-{
-    template <typename T, typename U>
-    struct hash<std::pair<T, U>>
-    {
-        typedef std::pair<T, U> argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type  &in) const
-        {
-            size_t seed = 0;
-            sdm::hash_combine(seed, in.first);
-            sdm::hash_combine(seed, in.second);
-            return seed;
-        }
-    };
-}

@@ -52,10 +52,9 @@ namespace sdm
     class BoundInitializer : public Initializer<TState, TAction>
     {
         double value_, discount_;
-        int extensive_agent_;
 
     public:
-        BoundInitializer(double value, double discount,int extensive_agent = 1)  : value_(value), discount_(discount),extensive_agent_(extensive_agent)
+        BoundInitializer(double value, double discount) : value_(value), discount_(discount)
         {
         }
 
@@ -80,13 +79,7 @@ namespace sdm
             {
                 for (int t = 0; t < vf->getHorizon(); t++)
                 {
-                    if(extensive_agent_>1)
-                    {
-                        vf->initialize(this->value_ * ((vf->getHorizon() - t+1)/extensive_agent_), t);
-                    }else
-                    {
-                        vf->initialize(this->value_ * (vf->getHorizon() - t), t);
-                    }
+                    vf->initialize(this->value_ * (vf->getHorizon() - t), t);
                 }
             }
         }
@@ -96,7 +89,7 @@ namespace sdm
     class MinInitializer : public BoundInitializer<TState, TAction>
     {
     public:
-        MinInitializer(double min_reward, double discount,int extensive_agent = 1) : BoundInitializer<TState, TAction>(min_reward, discount,extensive_agent)
+        MinInitializer(double min_reward, double discount) : BoundInitializer<TState, TAction>(min_reward, discount)
         {
         }
     };
@@ -105,7 +98,7 @@ namespace sdm
     class MaxInitializer : public BoundInitializer<TState, TAction>
     {
     public:
-        MaxInitializer(double max_reward, double discount,int extensive_agent = 1) : BoundInitializer<TState, TAction>(max_reward, discount,extensive_agent)
+        MaxInitializer(double max_reward, double discount) : BoundInitializer<TState, TAction>(max_reward, discount)
         {
         }
     };

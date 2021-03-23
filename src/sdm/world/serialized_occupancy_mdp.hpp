@@ -36,10 +36,7 @@ namespace sdm
         oState &getState();
 
         std::shared_ptr<Reward> getReward() const;
-        
         double getDiscount() { return this->dpomdp_->getDiscount(); }
-        double getDiscount(int t) const;
-
         void setDiscount(double discount) { return this->dpomdp_->setDiscount(discount); }
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
@@ -47,8 +44,6 @@ namespace sdm
         oState getInitialState();
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
-
-        int getNumberAgent() const;
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

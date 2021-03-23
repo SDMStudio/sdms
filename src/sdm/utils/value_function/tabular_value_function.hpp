@@ -66,7 +66,7 @@ namespace sdm
         std::shared_ptr<Initializer<TState, TAction>> initializer_;
 
     public:
-        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, int extensive_agent = 1);
+        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
 
         TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon = 0, TValue default_value = 0.);
 
@@ -89,10 +89,10 @@ namespace sdm
          * @param state the state where we want to evaluate the function
          * @return the value
          */
-        TValue getValueAt(const TState &state, int t = 0);
+        TValue getValueAt(TState &state, int t = 0);
 
-        void updateValueAt(const TState &state, int t = 0);
-        void updateValueAt(const TState &state, int t, TValue target);
+        void updateValueAt(TState &state, int t = 0);
+        void updateValueAt(TState &state, int t, TValue target);
 
         std::string str();
 
@@ -116,7 +116,6 @@ namespace sdm
 
 } // namespace sdm
 #include <sdm/utils/value_function/tabular_value_function.tpp>
-
 
 /**
      * @brief Specialisation of getQValueAt for belief state

@@ -38,7 +38,8 @@ namespace sdm
      * @tparam TReward the reward function type
      * @tparam TDistrib the type of the start distribution
      */
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs = true>
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib,
+    bool is_fully_obs = true>
     class DecisionProcess : public DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>,
                             public GymInterface<TObsSpace, TActionSpace>
     {

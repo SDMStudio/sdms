@@ -34,6 +34,7 @@ namespace sdm
   class HSVI : public Algorithm
   {
   protected:
+
     /**
      * @brief The problem to be solved.
      * 
@@ -57,11 +58,9 @@ namespace sdm
     int trial, MAX_TRIALS;
     double error_;
     number planning_horizon_;
-    int extensive_agent_;
-
-    std::string name_ = "hsvi";
 
     void initLogger();
+    void updateValueFunction(TState s, number h);
 
   public:
     /**
@@ -86,9 +85,7 @@ namespace sdm
          std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
          number planning_horizon,
          double epsilon,
-         number num_max_trials = 10000,
-         int extensive_agent = 1);
-         std::string name = "hsvi");
+         number num_max_trials = 10000);
 
     /**
      * @brief Initialize the algorithm
@@ -113,7 +110,7 @@ namespace sdm
      * @param s 
      * @return double 
      */
-    double do_excess(const TState &s, number h);
+    double do_excess(TState s, number h);
 
     /**
      * @brief Check the end of HSVI algo
@@ -122,7 +119,7 @@ namespace sdm
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
      * @return false 
      */
-    bool do_stop(const TState &s, number h);
+    bool do_stop(TState s, number h);
 
     /**
      * @brief Explore state
@@ -130,12 +127,9 @@ namespace sdm
      * @param s 
      * @param h 
      */
-    void do_explore(const TState &s, number h);
+    void do_explore(TState s, number h);
 
-    /**
-     * @brief Test the learnt value function on one episode
-     * 
-     */
+
     void do_test();
 
     /**
@@ -144,7 +138,7 @@ namespace sdm
      * @param s 
      * @return TAction 
      */
-    TAction selectNextAction(const TState &s, number h);
+    TAction selectNextAction(TState s, number h);
 
     /**
      * @brief Select the next state to explore 
@@ -153,15 +147,7 @@ namespace sdm
      * @param a 
      * @return TState 
      */
-    TState selectNextState(const TState &s, const TAction &
-    a, number d);
-
-    std::shared_ptr<ValueFunction<TState, TAction>> getLowerBound() const;
-    std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
-
-
-    int getTrial() const;
-
+    TState selectNextState(TState s, TAction a, number d);
   };
 } // namespace sdm
 #include <sdm/algorithms/hsvi.tpp>

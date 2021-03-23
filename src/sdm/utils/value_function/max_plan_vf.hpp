@@ -60,7 +60,7 @@ namespace sdm
          * 
          * @param state the state
          */
-        void updateValueAt(const TVector &state);
+        void updateValueAt(TVector &state);
 
         /**
          * @brief Get the Value at state x 
@@ -68,7 +68,7 @@ namespace sdm
          * @param state the state 
          * @return TValue 
          */
-        TValue getValueAt(const TVector &state, int t = 0);
+        TValue getValueAt(TVector &state, int t = 0);
 
         /**
          * @brief Get the maximum value and hyperplan at a specific state
@@ -76,7 +76,7 @@ namespace sdm
          * @param state a specific state
          * @return the maximum value and hyperplan at a specific state (std::pair<TValue, TVector>) 
          */
-        std::pair<TValue, TVector> getMaxAt(const TVector &state, int t);
+        std::pair<TValue, TVector> getMaxAt(TVector &state, int t);
 
         /**
          * @brief Get the number of hyperplans 
@@ -110,12 +110,12 @@ namespace sdm
 
         TVector backup_bellman_operator(std::shared_ptr<POSG> world, TVector belief);
 
-        TAction getBestAction(const TVector &state, int t = 0);
-        TValue getQValueAt(const TVector &state, const TAction &action, int t = 0);
-        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TVector &state, int t = 0);
+        TAction getBestAction(TVector &state, int t = 0);
+        TValue getQValueAt(TVector &state, TAction &action, int t = 0);
+        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(TVector &state, int t = 0);
         TValue operator()(const TVector &state);
 
-        void updateValueAt(const TVector &state, int t = 0);
+        void updateValueAt(TVector &state, int t = 0);
 
         std::string str() {
             return "MaxPlanVF";

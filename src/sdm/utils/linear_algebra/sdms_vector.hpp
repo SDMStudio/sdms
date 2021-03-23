@@ -39,7 +39,7 @@ namespace sdm
     sdmsVector(const sdmsVector &);
 
     void init(T);
-    T at(const I &) const;
+    T at(I) const;
 
     T sum();
     T norm_1() const;
