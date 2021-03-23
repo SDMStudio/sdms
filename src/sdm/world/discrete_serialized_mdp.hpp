@@ -15,7 +15,7 @@ namespace sdm
     class DiscreteMMDP;
 
     template <typename oState = SerializedState<number>,
-              typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>> // Probablement que les actions ne seront pas bonnes
+              typename oAction = DeterministicDecisionRule<HistoryTree<number>, number>>
     class DiscreteSerializedMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:

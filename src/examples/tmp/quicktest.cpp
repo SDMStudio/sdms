@@ -127,7 +127,7 @@ int main(int argc, char **argv)
                 //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
 
                 using TState = SerializedState<number>;
-                using TAction = DeterministicDecisionRule<SerializedState<number>, number>;
+                using TAction = DeterministicDecisionRule<HistoryTree<number>, number>;
 
                 auto somdp = std::make_shared<DiscreteSerializedMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
 
