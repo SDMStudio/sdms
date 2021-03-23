@@ -14,7 +14,7 @@ int solve(int argv, char **args)
 {
     try
     {
-        std::string problem, algorithm, formalism;
+        std::string problem, algorithm, formalism, name;
         int trials, horizon;
         double error, discount;
 
@@ -22,7 +22,7 @@ int solve(int argv, char **args)
         options.add_options()("help", "produce help message")("test", "test the policy found");
 
         po::options_description config("Configuration");
-        config.add_options()("algorithm,a", po::value<string>(&algorithm)->default_value("tabular_hsvi"), "the algorithm to use")("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")("formalism,f", po::value<string>(&formalism)->default_value("decpomdp"), "the formalism to use")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")("horizon,h", po::value<int>(&horizon)->default_value(0), "the planning horizon")("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials");
+        config.add_options()("algorithm,a", po::value<string>(&algorithm)->default_value("tabular_hsvi"), "the algorithm to use")("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")("formalism,f", po::value<string>(&formalism)->default_value("decpomdp"), "the formalism to use")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")("horizon,h", po::value<int>(&horizon)->default_value(0), "the planning horizon")("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials")("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
         visible.add(options).add(config);
@@ -51,7 +51,7 @@ int solve(int argv, char **args)
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
         {
-            auto algo = sdm::algo::make(algorithm, problem, formalism, discount, error, horizon, trials);
+            auto algo = sdm::algo::make(algorithm, problem, formalism, discount, error, horizon, trials, name);
             algo->do_solve();
 
             if (vm.count("test"))

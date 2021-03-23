@@ -4,7 +4,7 @@
 #include <sdm/world/solvable_by_hsvi.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
-#include <sdm/core/state/serialized_occupancy_state.hpp>
+#include <sdm/core/state/serialized_state.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
@@ -12,14 +12,14 @@
 namespace sdm
 {
 
-    class DiscreteDecPOMDP;
+    class DiscreteMMDP;
 
-    template <typename oState = SerializedOccupancyState<number, JointHistoryTree_p<number>>,
-              typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
-    class SerializedOccupancyMDP : public SolvableByHSVI<oState, oAction>
+    template <typename oState = SerializedState<number>,
+              typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>> // Probablement que les actions ne seront pas bonnes
+    class DiscreteSerializedMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:
-        std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
+        std::shared_ptr<DiscreteMMDP> mmdp_;
         oState istate_;
         oState cstate_;
 
@@ -28,19 +28,19 @@ namespace sdm
         using action_type = oAction;
         // using observation_type = oObservation;
 
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length);
-        SerializedOccupancyMDP(std::string underlying_dpomdp);
-        SerializedOccupancyMDP(std::string underlying_dpomdp, number hist_length);
+        DiscreteSerializedMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp);
+        //SerializedOccupancyMDP(std::shared_ptr<DiscreteMDP> underlying_mdp, number hist_length);
+        DiscreteSerializedMDP(std::string underlying_mmdp);
+        //SerializedOccupancyMDP(std::string underlying_mdp, number hist_length);
 
         oState &getState();
 
         std::shared_ptr<Reward> getReward() const;
         
-        double getDiscount() { return this->dpomdp_->getDiscount(); }
+        double getDiscount() { return this->mmdp_->getDiscount(); }
         double getDiscount(int t) const;
 
-        void setDiscount(double discount) { return this->dpomdp_->setDiscount(discount); }
+        void setDiscount(double discount) { return this->mmdp_->setDiscount(discount); }
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
         double getReward(const oState &ostate, const oAction &oaction) const;
@@ -51,4 +51,4 @@ namespace sdm
         int getNumberAgent() const;
     };
 } // namespace sdm
-#include <sdm/world/serialized_occupancy_mdp.tpp>
+#include <sdm/world/discrete_serialized_mdp.tpp>

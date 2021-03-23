@@ -3,7 +3,7 @@
 namespace sdm
 {
     template <typename TState, typename TAction, typename TValue>
-    ValueFunction<TState, TAction, TValue>::ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon) : problem_(problem), horizon_(horizon)
+    ValueFunction<TState, TAction, TValue>::ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon,int extensive_agent) : problem_(problem), horizon_(horizon),extensive_agent_(extensive_agent)
     {
     }
 
@@ -14,7 +14,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    std::shared_ptr<VectorImpl<TAction, TValue>> ValueFunction<TState, TAction, TValue>::getQValueAt(TState &state, int t)
+    std::shared_ptr<VectorImpl<TAction, TValue>> ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, int t)
     {
         std::shared_ptr<MappedVector<TAction, TValue>> q_s = std::make_shared<MappedVector<TAction, TValue>>();
         for (auto &a : this->getWorld()->getActionSpaceAt(state)->getAll())
@@ -25,14 +25,14 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TValue ValueFunction<TState, TAction, TValue>::getQValueAt(TState &state, TAction &action, int t)
+    TValue ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, const TAction &action, int t)
     {
         // implement bellman operator
-        return this->getWorld()->getReward(state, action) + this->getWorld()->getDiscount() * this->getWorld()->getExpectedNextValue(this, state, action, t);
+        return this->getWorld()->getReward(state, action) + this->getDiscount(t)* this->getWorld()->getExpectedNextValue(this, state, action, t);
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TAction ValueFunction<TState, TAction, TValue>::getBestAction(TState &state, int t)
+    TAction ValueFunction<TState, TAction, TValue>::getBestAction(const TState &state, int t)
     {
         auto qvalues = this->getQValueAt(state, t);
         return qvalues->argmax();
@@ -61,4 +61,21 @@ namespace sdm
     {
         return !(this->isFiniteHorizon());
     }
+
+    template <typename TState, typename TAction, typename TValue>
+    double ValueFunction<TState, TAction, TValue>::getDiscount(int t)
+    {
+        
+        if(this->extensive_agent_ >1)
+        {
+            if(t%this->extensive_agent_ != this->extensive_agent_ -1)
+            {
+                return 1.0;
+            }
+        }
+
+        return this->getWorld()->getDiscount();
+    }
+
+
 } // namespace sdm

@@ -44,7 +44,7 @@ namespace sdm
         /**
          * @brief The horizon for planning.
          */
-        int horizon_;
+        int horizon_,extensive_agent_;
 
     public:
         /**
@@ -53,7 +53,7 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon);
+        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, int extensive_agent = 1);
 
         /**
          * @brief Initialize the value function 
@@ -68,12 +68,12 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual TValue getValueAt(TState &state, int t = 0) = 0;
+        virtual TValue getValueAt(const TState &state, int t = 0) = 0;
 
         /**
          * @brief Update the value at a given state
          */
-        virtual void updateValueAt(TState &s, int t = 0) = 0;
+        virtual void updateValueAt(const TState &s, int t = 0) = 0;
 
         /**
          * @brief Define this function in order to be able to display the value function
@@ -89,7 +89,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(TState &state, int t = 0);
+        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, int t = 0);
 
         /**
          * @brief Get the q-value given state and action
@@ -98,7 +98,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        TValue getQValueAt(TState &state, TAction &action, int t = 0);
+        TValue getQValueAt(const TState &state, const TAction &action, int t = 0);
 
         /**
          * @brief Get the best action to do at a state
@@ -106,7 +106,7 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        TAction getBestAction(TState &state, int t = 0);
+        TAction getBestAction(const TState &state, int t = 0);
 
         std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
 
@@ -121,6 +121,8 @@ namespace sdm
             os << vf.str();
             return os;
         }
+
+        double getDiscount(int t);
     };
 } // namespace sdm
 #include <sdm/utils/value_function/value_function.tpp>
