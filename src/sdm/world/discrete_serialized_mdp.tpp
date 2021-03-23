@@ -81,15 +81,13 @@ template <typename oState, typename oAction>
 
             if (ag_id != this->mmdp_->getNumAgents() - 1)
             {
-                u.push_back(indiv_dr); // cela n'est pas bon, mais pour le moment je ne sais pas le remplacer
+                u.push_back(indiv_dr(ostate)); // cela n'est pas bon, mais pour le moment je ne sais pas le remplacer
                 //u.push_back(indiv_dr) ? 
                 new_ostate[std::make_pair(x, u)] = p_x_u.second;
             }
             else
             {
-                //auto p_ihist = o->getIndividualHistory(ag_id);
                 u.push_back(indiv_dr(ostate));
-                // cela aussi n'est pas bon, à modifier 
                 
                 for (auto &y : this->mmdp_->getStateSpace()->getAll())
                 {

@@ -105,6 +105,61 @@ int main(int argc, char **argv)
 
     //number n_agents = 2;
 
+    //****************** MMDP
+    
+    for(const std::string & filename : all_file)
+    {
+
+        for(int i(1);i<= max_horizon;++i)
+        {
+            int horizon(i);
+            int length_history(i);
+
+            for(const double & discount : all_discount)
+            {
+                std::cout<<"*************** Extensive \n";
+                std::cout<<"File : "<<filename<<"\n";
+                std::cout<<"Horizon : "<<horizon<<"\n";
+                std::cout<<"Discount : "<<discount<<"\n";
+
+                myfile<<filename<<","<<horizon<<",Extensive"<<","<<discount;
+
+                //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
+
+                using TState = SerializedState<number>;
+                using TAction = DeterministicDecisionRule<SerializedState<number>, number>;
+
+                auto somdp = std::make_shared<DiscreteSerializedMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+
+                //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
+                //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
+
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi",somdp->getNumberAgent());
+
+                t_begin = clock();
+
+                hsvi->do_solve();
+
+                t_end = clock();
+                temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+                //printf("temps = %f\n", temps);
+
+                //hsvi->do_test();
+
+                myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
+
+                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
+                //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+
+                myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
+            }
+
+        }
+
+    }
+
+
+
     //****************** Extensive
     /*
     for(const std::string & filename : all_file)
@@ -126,15 +181,15 @@ int main(int argc, char **argv)
 
                 //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
 
-                using TState = SerializedState<number>;
+                using TState = SerializedOccupancyState<number,JointHistoryTree_p<number>>;
                 using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-                auto somdp = std::make_shared<DiscreteSerializedMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+                auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
 
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                 //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,somdp->getNumberAgent());
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi",somdp->getNumberAgent());
 
                 t_begin = clock();
 
@@ -160,7 +215,7 @@ int main(int argc, char **argv)
 
     // ************************** Simul           
 
-    
+    /*
     for(const std::string & filename : all_file)
     {
         for(int i(1);i<= max_horizon;++i)
@@ -206,7 +261,7 @@ int main(int argc, char **argv)
                 myfile<<","<<temps<<","<<hsvi2->getTrial()<<" \n";
             }
         }
-    }
+    }*/
     
     // clock_t t_begin, t_end;
 
