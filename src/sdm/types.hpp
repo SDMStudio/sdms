@@ -108,3 +108,13 @@ namespace sdm
     seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
 } // namespace sdm
+
+namespace std
+{
+
+  template <class T, class... Ts>
+  struct is_any : std::disjunction<std::is_same<T, Ts>...>
+  {
+  };
+
+} // namespace std

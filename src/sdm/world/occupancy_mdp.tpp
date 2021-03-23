@@ -6,6 +6,11 @@ namespace sdm
 {
 
     template <typename oState, typename oAction>
+    OccupancyMDP<oState, oAction>::OccupancyMDP()
+    {
+    }
+
+    template <typename oState, typename oAction>
     OccupancyMDP<oState, oAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : dpomdp_(underlying_dpomdp)
     {
     }

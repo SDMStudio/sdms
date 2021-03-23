@@ -3,6 +3,12 @@
 namespace sdm
 {
 
+
+    template <typename TState, typename TAction, typename TObservation>
+    BeliefMDP<TState, TAction, TObservation>::BeliefMDP()
+    {
+    }
+
     template <typename TBelief, typename TAction, typename TObservation>
     BeliefMDP<TBelief, TAction, TObservation>::BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp) : pomdp_(underlying_pomdp)
     {

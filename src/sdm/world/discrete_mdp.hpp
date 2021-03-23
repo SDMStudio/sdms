@@ -28,7 +28,6 @@ namespace sdm
                         public SolvableByHSVI<number, number>
     {
     public:
-
         DiscreteMDP();
         DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp);
         DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::discrete_distribution<number>);
@@ -44,5 +43,6 @@ namespace sdm
         std::shared_ptr<Reward> getReward() const;
         double getReward(const number &state, const number &action) const;
         double getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, int t = 0) const;
+        DiscreteMDP *getUnderlyingProblem();
     };
 } // namespace sdm

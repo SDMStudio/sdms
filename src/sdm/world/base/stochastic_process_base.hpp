@@ -35,6 +35,7 @@ namespace sdm
         StochasticProcessBase();
         StochasticProcessBase(std::shared_ptr<TStateSpace>);
         StochasticProcessBase(std::shared_ptr<TStateSpace>, TDistrib);
+        virtual ~StochasticProcessBase() = default;
 
         state_type getInternalState() const;
         void setInternalState(state_type new_i_state);

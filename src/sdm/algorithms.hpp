@@ -34,11 +34,12 @@ namespace sdm
 
             problem->setDiscount(discount);
 
-            auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>(problem->getReward()->getMinReward(), discount);
+            // auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>(problem->getReward()->getMinReward(), discount);
+            auto lb_init = std::make_shared<sdm::BlindInitializer<TState, TAction>>();
             auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>(problem->getReward()->getMaxReward(), discount);
 
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
+            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
 
             return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
         }
@@ -101,7 +102,9 @@ namespace sdm
                     using TAction = number;
                     using TObservation = number;
 
-                    auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(problem_path);
+                    auto pomdp = std::make_shared<DiscretePOMDP>(problem_path);
+                    auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(pomdp);
+
                     return makeMappedHSVI<TState, TAction>(beliefMDP, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))

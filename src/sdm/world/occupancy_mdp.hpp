@@ -11,9 +11,13 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
+#include <sdm/core/joint.hpp>
 #include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/linear_algebra/vector.hpp>
+#include <sdm/utils/decision_rules/det_decision_rule.hpp>
 
 /**
  * @namespace  sdm
@@ -30,7 +34,7 @@ namespace sdm
      * @tparam oState 
      * @tparam oAction 
      */
-    template <typename oState, typename oAction>
+    template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, typename oAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>
     class OccupancyMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:
@@ -43,6 +47,7 @@ namespace sdm
         using action_type = oAction;
         // using observation_type = oObservation;
 
+        OccupancyMDP();
         OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);
         OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length);
         OccupancyMDP(std::string underlying_dpomdp);
@@ -53,9 +58,9 @@ namespace sdm
         std::shared_ptr<Reward> getReward() const;
         double getDiscount() { return this->dpomdp_->getDiscount(); }
         void setDiscount(double discount) { return this->dpomdp_->setDiscount(discount); }
-        
+
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        
+
         /**
          * @brief Get transformed reward from action and belief  
          */
@@ -64,6 +69,7 @@ namespace sdm
         oState getInitialState();
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        virtual DiscreteDecPOMDP *getUnderlyingProblem() { return this->dpomdp_.get(); }
     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

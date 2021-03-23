@@ -5,7 +5,10 @@
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/reward.hpp>
 #include <sdm/algorithms/hsvi.hpp>
+#include <sdm/world/world_type.hpp>
+#include <sdm/world/base/stochastic_process_base.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/exception.hpp>
 
 /**
  * @namespace  sdm
@@ -13,6 +16,7 @@
  */
 namespace sdm
 {
+    
     /**
      * @brief Public interface that must be implemented by all transformed problems that can be solved using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
      * 
@@ -23,6 +27,8 @@ namespace sdm
     class SolvableByHSVI
     {
     public:
+        // using underlying_problem_type = WorldFrom<TState, TAction>::type;
+
         /**
          * @brief Get the initial state
          */
@@ -79,5 +85,7 @@ namespace sdm
          * @return double 
          */
         virtual double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &state, const TAction &action, int t = 0) const = 0;
+
+        virtual typename WorldType<TState, TAction>::type *getUnderlyingProblem() = 0;
     };
 } // namespace sdm

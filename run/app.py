@@ -5,8 +5,6 @@ from os import walk
 import numpy as np
 import pandas as pd
 
-pd.options.display.float_format = '${:.3f}'.format
-
 app = Flask(__name__)
 
 
@@ -16,13 +14,13 @@ def index():
     filenames = [file[:-4] for file in filenames if file.endswith(".csv")]
     html = "<h2>Results files</h2><ul>"
     for f in filenames:
-        html += "<li> <a href='/" + f + "/Trial'>" + f + "</a></li>"
+        html += "<li> <a href='/" + f + "/Time'>" + f + "</a></li>"
     html += "</ul>"
     return "{}".format(html)
 
 
 @app.route('/<path:subpath>/<xaxis>')
-def show_subpath(subpath, xaxis="Time"):
+def log_file(subpath, xaxis="Time"):
     filename = subpath+".csv"
     df = pd.read_csv(filename)
     col_names = list(df.columns)
@@ -52,3 +50,8 @@ def show_subpath(subpath, xaxis="Time"):
             fig, include_plotlyjs=False, output_type='div')
         html += res
     return "{}".format(html)
+
+
+@app.route('/<path:subpath>')
+def log_file_2(subpath):
+    return log_file(subpath, "Time")

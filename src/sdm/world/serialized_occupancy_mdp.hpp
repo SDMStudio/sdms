@@ -28,6 +28,7 @@ namespace sdm
         using action_type = oAction;
         // using observation_type = oObservation;
 
+        SerializedOccupancyMDP();
         SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);
         SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length);
         SerializedOccupancyMDP(std::string underlying_dpomdp);
@@ -44,6 +45,7 @@ namespace sdm
         oState getInitialState();
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        virtual DiscreteDecPOMDP *getUnderlyingProblem() { return this->dpomdp_.get(); }
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

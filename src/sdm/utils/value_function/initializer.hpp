@@ -62,6 +62,9 @@ namespace sdm
         {
             if (vf->isInfiniteHorizon())
             {
+
+                // long l = log(1 - this->discount_) * this->error_ / this->reward_->getMaxReward();
+
                 assert(this->discount_ < 1);
                 double value;
                 double factor = 0, comp = 0;
@@ -103,27 +106,83 @@ namespace sdm
         }
     };
 
+    /**
+     * @brief This initializer calculates the initial lower bound $\bar{V}_0$ using the blind  policy method [Hauskrecht, 1997]. 
+     * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf . 
+     * 
+     */
+    template <typename TState, typename TAction>
+    class BlindInitializer : public Initializer<TState, TAction>
+    {
+    public:
+        BlindInitializer()
+        {
+        }
+
+        void init(ValueFunction<TState, TAction> *vf)
+        {
+            auto under_pb = vf->getWorld()->getUnderlyingProblem();
+
+            if (vf->isInfiniteHorizon())
+            {
+                std::vector<double> ra;
+                for (auto &a : under_pb->getActionSpace()->getAll())
+                {
+                    ra.push_back(std::numeric_limits<double>::max());
+                    for (auto &s : under_pb->getStateSpace()->getAll())
+                    {
+                        ra.back() = std::min(under_pb->getReward(s, a)/ (1. - under_pb->getDiscount()), ra.back());
+                    }
+                }
+                vf->initialize(*std::max_element(ra.begin(), ra.end()) / (1. - under_pb->getDiscount()));
+            }
+            else
+            {
+                std::vector<double> ra;
+                for (auto &a : under_pb->getActionSpace()->getAll())
+                {
+                    ra.push_back(std::numeric_limits<double>::max());
+                    for (auto &s : under_pb->getStateSpace()->getAll())
+                    {
+                        ra.back() = std::min(under_pb->getReward(s, a), ra.back());
+                    }
+                }
+                double min_rsa = *std::max_element(ra.begin(), ra.end());
+                for (int t = 0; t < vf->getHorizon(); t++)
+                {
+                    vf->initialize(min_rsa * (vf->getHorizon() - t), t);
+                }
+            }
+        }
+    };
+
     // template <typename TState, typename TAction>
     // class MDPInitializer : public Initializer<TState, TAction>
     // {
     // protected:
     //     std::string algo_name_;
-    //     std::shared_ptr<DiscretePOMDP> problem_;
+    //     std::shared_ptr<DiscreteMDP> mdp_problem_;
     //     double discount_;
 
     // public:
-    //     MDPInitializer(std::string algo_name, std::shared_ptr<DiscretePOMDP> problem, double discount) : algo_name_(algo_name), problem_(problem), discount_(discount)
+    //     MDPInitializer(std::string algo_name, std::shared_ptr<DiscreteMDP> problem, double discount) : algo_name_(algo_name), problem_(problem), discount_(discount)
     //     {
     //     }
 
     //     void init(ValueFunction<TState, TAction> *vf)
     //     {
-    //         auto algo = sdm::algo::make(algo_name, this->problem->toPOMDP());
+    //         auto algo = sdm::algo::makeMappedHSVI<number, number>(this->algo_name_, this->mdp_problem_);
     //         algo->do_solve();
     //         auto ubound = algo->getUpperBound();
     //         for (int t = 0; t < vf->getHorizon(); t++)
     //         {
-    //             vf->initialize(ubound->getValueAt(), t);
+    //             double max = ubound->getValueAt(this->mdp_problem_->getStateSpace()->getAll()[0], t), newval;
+    //             for (auto &s : this->mdp_problem_->getStateSpace()->getAll())
+    //             {
+    //                 newval = ubound->getValueAt(s, t);
+    //                 max = (newval > max) ? newval : max;
+    //             }
+    //             vf->initialize(max, t);
     //         }
     //     }
     // };

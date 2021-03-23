@@ -38,6 +38,7 @@ namespace sdm
         using action_type = TAction;
         using observation_type = TObservation;
 
+        BeliefMDP();
         BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
         BeliefMDP(std::string underlying_pomdp);
 
@@ -66,6 +67,11 @@ namespace sdm
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
 
         TBelief reset();
+
+        DiscretePOMDP *getUnderlyingProblem()
+        {
+            return this->pomdp_.get();
+        }
     };
 } // namespace sdm
 #include <sdm/world/belief_mdp.tpp>

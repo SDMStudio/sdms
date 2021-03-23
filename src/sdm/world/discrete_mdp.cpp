@@ -88,4 +88,9 @@ namespace sdm
         FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::setDiscount(discount);
     }
 
+    DiscreteMDP *DiscreteMDP::getUnderlyingProblem()
+    {
+        return this;
+    }
+
 }
