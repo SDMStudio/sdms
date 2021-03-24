@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <sdm/utils/struct/vector.hpp>
 #include <tuple>
 
 namespace sdm

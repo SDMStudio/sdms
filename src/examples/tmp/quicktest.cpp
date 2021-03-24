@@ -2,16 +2,26 @@
 #include <fstream>
 #include <time.h>
 
-#include <sdm/common.hpp>
-#include <sdm/utils/struct/pair.hpp>
-// #include <sdm/algorithms.hpp>
-// #include <sdm/parser/parser.hpp>
+// #include <sdm/types.hpp>
+// #include <sdm/tools.hpp>
+// #include <sdm/utils/struct/pair.hpp>
+// #include <sdm/utils/logging/logger.hpp>
+// #include <sdm/utils/struct/vector.hpp>
+// #include <sdm/utils/struct/pair.hpp>
+// #include <sdm/utils/struct/tuple.hpp>
+// #include <sdm/world/world_type.hpp>
+// #include <sdm/world/discrete_mdp.hpp>
+// #include <sdm/world/discrete_pomdp.hpp>
+// #include <sdm/world/discrete_decpomdp.hpp>
+// #include <sdm/world/solvable_by_hsvi.hpp>
+// #include <sdm/world/belief_mdp.hpp>
+// #include <sdm/world/serialized_occupancy_mdp.hpp>
 
 // #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 // #include <sdm/world/ndpomdp.hpp>
 // //#include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/core/state/serialized_state.hpp>
-#include <sdm/world/discrete_serialized_mdp.hpp>
+// #include <sdm/core/state/serialized_state.hpp>
+// #include <sdm/world/serialized_mdp.hpp>
 
 
 // #include <sdm/types.hpp>
@@ -20,7 +30,7 @@
 // //#include <sdm/utils/struct/vector.hpp>
 // #include <sdm/utils/struct/pair.hpp>
 // #include <sdm/utils/struct/tuple.hpp>
- #include <sdm/algorithms.hpp>
+//  #include <sdm/algorithms.hpp>
 // #include <sdm/parser/parser.hpp>
 
 // #include <sdm/utils/linear_algebra/mapped_vector.hpp>
@@ -28,8 +38,7 @@
 // #include <sdm/world/serialized_occupancy_mdp.hpp>
 //#include <fmt/format.h>
 
-using namespace sdm;
-
+// using namespace sdm;
 
 int main(int argc, char **argv)
 {
@@ -53,35 +62,19 @@ int main(int argc, char **argv)
         std::cerr << "Error:  arg[1] must be an input file, arg[2] must be the horizon, arg[3] is optional (the length of history)." << std::endl;
         return 1;
     }
-    */
+    // using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+    // std::shared_ptr<SolvableByHSVI<TState, TAction>> mdp = std::make_shared<SerializedOccupancyMDP<>>(filename);
 
-    // sdm::vector<int> v{1,2,3};
-    // std::cout << v << std::endl;
+    // auto upb = mdp->getUnderlyingProblem();
 
-    /*
+    // std::cout << *upb->getStateSpace() << std::endl;
+    // std::cout << *upb->getActionSpace() << std::endl;
+    // std::cout << *upb << std::endl;
 
-    sdm::Pair<int, double> p{1, 2.3};
-    std::cout << p << std::endl;
+    sdm::Pair<number, number> p = std::make_pair(2,3);
 
-    sdm::Tuple<int, char, double> t{42, 'a', 4.2}; // Another C++17 feature: class template argument deduction
-    std::cout << t << std::endl;
-
-
-    auto  logger1 = std::make_shared<sdm::StdLogger>("#> Trial {} - Error {}\n");
-
-    auto logger = std::make_shared<sdm::FileLogger>("test.txt", "#> Trial {} - Error {} ({})\n");
-
-    auto csv_logger = std::make_shared<sdm::CSVLogger>("test", std::vector<std::string>{"Trial", "Error", "Best_Agent"});
-
-
-    sdm::MultiLogger multi_logger({logger, logger1, csv_logger});
-    multi_logger.log(1, 10.1, "Bidule");
-    multi_logger.log(2, 8.7, "Bidule");
-    multi_logger.log(3, 4.0, "Ernest");
-    multi_logger.log(4, 1.4, "Bidule");
-    multi_logger.log(5, 0.1, "Ernest");
-
-    */
+    std::cout << p ;
     // print(3, 4.5, "hello");
 
     // std::apply([](auto&&... args) {((std::cout << args << '\n'), ...);}, t);
@@ -132,7 +125,7 @@ int main(int argc, char **argv)
                 using TState = SerializedState<number>;
                 using TAction = number;
 
-                auto somdp = std::make_shared<DiscreteSerializedMDP<TState, TAction>>(filePath+filename+".dpomdp");
+                auto somdp = std::make_shared<SerializedMDP<TState, TAction>>(filePath+filename+".dpomdp");
                 
                 //number s = 2;
                 //SerializedState<number> p(s,std::vector<number>{3});

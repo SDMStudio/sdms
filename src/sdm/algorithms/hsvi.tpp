@@ -16,13 +16,11 @@ namespace sdm
                                 number planning_horizon,
                                 double error,
                                 number num_max_trials,
-                                int extensive_agent,
                                 std::string name) : world_(world),
                                                     lower_bound_(lower_bound),
                                                     upper_bound_(upper_bound),
                                                     error_(error),
                                                     planning_horizon_(planning_horizon),
-                                                    extensive_agent_(extensive_agent),
                                                     name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
@@ -34,11 +32,11 @@ namespace sdm
     {
         std::string format = "#> Trial : {}\tError : {}\t\tV_lb({}) / V_ub({})\n";
 
-        //auto std_logger = std::make_shared<sdm::StdLogger>(format);
-        //auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
-        //auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
-
-        //this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
+        auto std_logger = std::make_shared<sdm::StdLogger>(format);
+        auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
+        
+        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
     template <typename TState, typename TAction>
@@ -72,13 +70,13 @@ namespace sdm
         do
         {
             // Logging (save data and print algorithms variables)
-            //this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             this->do_explore(start_state, 0);
             this->trial++;
         } while (!this->do_stop(start_state, 0));
 
         std::cout << "----------------------------------------------------" << std::endl;
-        //this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         std::cout << "Final LB : \n"
                   << this->lower_bound_->str() << "Final UB : \n"
                   << this->upper_bound_->str() << std::endl;
@@ -87,17 +85,16 @@ namespace sdm
     template <typename TState, typename TAction>
     double HSVI<TState, TAction>::do_excess(const TState &s, number h)
     {
-        
+
         number realTime = h;
-        if(this->extensive_agent_>1)
+        if (this->world_->isSerialized())
         {
             //std::cout<<"\n Ancien Time : "<<realTime;
-            realTime = realTime/this->extensive_agent_;
+            realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
             //std::cout<<"\n New Time : "<<realTime<<"\n";
         }
 
-        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getDiscount(), realTime);
-
+        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
     }
 
     template <typename TState, typename TAction>
@@ -112,31 +109,20 @@ namespace sdm
         if (!this->do_stop(s, h))
         {
             // Update bounds
-            // std::cout << "1" << s << std::endl;
             this->lower_bound_->updateValueAt(s, h);
-            // std::cout << "2" << s << std::endl;
             this->upper_bound_->updateValueAt(s, h);
 
-            // std::cout << "3" << s << std::endl;
             // Select next action and state following search process
             TAction a = this->selectNextAction(s, h);
-            // std::cout << "4" << s << std::endl;
-            // std::cout << "4" << a << std::endl;
 
             TState s_ = this->world_->nextState(s, a, h, this);
-            // std::cout << "5" << s << std::endl;
-            // std::cout << s << "-"<< a << "-"<<h << std::endl;
 
             // Recursive explore
             this->do_explore(s_, h + 1);
 
-            // std::cout << "6" << s << std::endl;
-
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
-            // std::cout << "7" << s << std::endl;
             this->upper_bound_->updateValueAt(s, h);
-            // std::cout << "8" << s << std::endl;
         }
     }
 
@@ -165,125 +151,22 @@ namespace sdm
     {
         return this->upper_bound_->getBestAction(s, h); // argmax_{a} q_value(s, a)
     }
-    /*
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::initLogger()
-    {
-        // this->logger.time.start();
-    }*/
 
     template <typename TState, typename TAction>
     std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::getLowerBound() const
     {
-        return this->lower_bound_; 
+        return this->lower_bound_;
     }
 
     template <typename TState, typename TAction>
     std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::getUpperBound() const
     {
-        return this->upper_bound_; 
+        return this->upper_bound_;
     }
-    
+
     template <typename TState, typename TAction>
     int HSVI<TState, TAction>::getTrial() const
     {
         return this->trial;
     }
-
-    // /**
-    //  * @brief Select next state when state and action are discrete
-    //  *
-    //  * @param state the current state
-    //  * @param action the greedy action
-    //  * @return The next state to explore.
-    //  */
-    // template <>
-    // number HSVI<number, number>::selectNextState(number state, number action, number d)
-    // {
-    //     double max = std::numeric_limits<double>::min();
-    //     number amax = 0;
-    //     for (number state_ = 0; state_ < this->world_->getNumStates(); state_++)
-    //     {
-    //         double tmp = this->world_->getTransitionProba(state, action, state_) * this->do_excess(state_, d + 1);
-    //         if (tmp > max)
-    //         {
-    //             max = tmp;
-    //             amax = state_;
-    //         }
-    //     }
-    //     return amax;
-    // }
-
-    // template <>
-    // number HSVI<number, number>::getInitialState()
-    // {
-    //     Vector d_init = this->world_->getStartDistrib();
-    //     return 1;
-    // }
-
-    // /**
-    //  * @brief Select next state when state and action are discrete
-    //  *
-    //  * @param state the current state
-    //  * @param action the greedy action
-    //  * @return The next state to explore.
-    //  */
-    // template <>
-    // BeliefState HSVI<BeliefState, number>::selectNextState(BeliefState state, number action, number d)
-    // {
-    //     auto nextState = [](decltype(this->world_) w, BeliefState st, number action, number o, number d) {
-    //         BeliefState nextBelief;
-    //         double tmp;
-    //         for (number s_ = 0; s_ < w->getNumStates(); s_++)
-    //         {
-    //             tmp = 0;
-    //             for (number s = 0; s < w->getNumStates(); s++)
-    //             {
-    //                 tmp += w->getTransitionProba(s, action, s_) * st.at(s);
-    //             }
-    //             nextBelief[s_] = w->getObservationProbability(action, o, s_) * tmp;
-    //         }
-    //         // Normalize the belief
-    //         double sum = nextBelief.norm_1();
-    //         for (number s_ = 0; s_ < w->getNumStates(); s_++)
-    //         {
-    //             nextBelief[s_] = nextBelief[s_] / sum;
-    //         }
-    //         return nextBelief;
-    //     };
-
-    //     // compute o*
-    //     number selected_o = 0;
-    //     double max_o = 0, tmp;
-
-    //     for (number o = 0; o < this->world_->getNumObservations()[0]; o++)
-    //     {
-    //         tmp = 0;
-    //         for (number s = 0; s < this->world_->getNumStates(); s++)
-    //         {
-    //             tmp += this->world_->getObservationProbability(action, o, s) * state.at(s);
-    //         }
-    //         auto tau = nextState(this->world_, state, action, o, d);
-    //         tmp *= this->do_excess(tau, d + 1);
-    //         if (tmp > max_o)
-    //         {
-    //             max_o = tmp;
-    //             selected_o = o;
-    //         }
-    //     }
-    //     auto b = nextState(this->world_, state, action, selected_o, d);
-    //     return b;
-    // }
-
-    // template <>
-    // BeliefState HSVI<BeliefState, number>::getInitialState()
-    // {
-    //     Vector v_init = this->world_->getStartDistrib();
-    //     BeliefState d_init(v_init.size(), 0.);
-    //     for (int i = 0; i < v_init.size(); i++)
-    //     {
-    //         d_init[i] = v_init[i];
-    //     }
-    //     return d_init;
-    // }
 } // namespace sdm

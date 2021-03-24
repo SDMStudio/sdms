@@ -44,7 +44,7 @@ namespace sdm
         /**
          * @brief The horizon for planning.
          */
-        int horizon_,extensive_agent_;
+        int horizon_;
 
     public:
         /**
@@ -53,7 +53,7 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, int extensive_agent = 1);
+        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon);
 
         /**
          * @brief Initialize the value function 
@@ -80,7 +80,6 @@ namespace sdm
          */
         virtual std::string str() = 0;
 
-        
         TValue operator()(const TState &state);
 
         /**
@@ -111,9 +110,9 @@ namespace sdm
         std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
 
         int getHorizon() const;
-        
+
         bool isFiniteHorizon() const;
-        
+
         bool isInfiniteHorizon() const;
 
         friend std::ostream &operator<<(std::ostream &os, ValueFunction<TState, TAction> &vf)

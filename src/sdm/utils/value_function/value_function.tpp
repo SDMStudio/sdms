@@ -3,7 +3,7 @@
 namespace sdm
 {
     template <typename TState, typename TAction, typename TValue>
-    ValueFunction<TState, TAction, TValue>::ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon,int extensive_agent) : problem_(problem), horizon_(horizon),extensive_agent_(extensive_agent)
+    ValueFunction<TState, TAction, TValue>::ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon) : problem_(problem), horizon_(horizon)
     {
     }
 
@@ -28,7 +28,7 @@ namespace sdm
     TValue ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, const TAction &action, int t)
     {
         // implement bellman operator
-        return this->getWorld()->getReward(state, action) + this->getDiscount(t)* this->getWorld()->getExpectedNextValue(this, state, action, t);
+        return this->getWorld()->getReward(state, action) + this->getDiscount(t) * this->getWorld()->getExpectedNextValue(this, state, action, t);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -65,17 +65,15 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     double ValueFunction<TState, TAction, TValue>::getDiscount(int t)
     {
-        
-        if(this->extensive_agent_ >1)
+
+        if (this->getWorld()->isSerialized())
         {
-            if(t%this->extensive_agent_ != this->extensive_agent_ -1)
+            if ((t+1) % this->getWorld()->getUnderlyingProblem()->getNumAgents() != 0)
             {
                 return 1.0;
             }
         }
-
-        return this->getWorld()->getDiscount();
+        return this->getWorld()->getUnderlyingProblem()->getDiscount();
     }
-
 
 } // namespace sdm

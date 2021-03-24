@@ -9,6 +9,7 @@ RUN apt-get -y update \
     && apt-get install -y  \
     libeigen3-dev \
     libboost-all-dev \
+    libfmt-dev \
     unzip \
     wget \
     clang \

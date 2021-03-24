@@ -49,5 +49,14 @@ namespace sdm
          */
         void indentedOutput(std::ostream &outStream, const char *message);
 
+        /**
+         * @brief Repeat a string n times.
+         * 
+         * @param str the substring to replicate.
+         * @param times the number of replication
+         * @return the built string 
+         */
+        std::string repeatString(const std::string &str, size_t times);
+
     } // namespace tools
 } // namespace sdm

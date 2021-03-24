@@ -14,9 +14,9 @@ namespace sdm
 
     class DiscreteMMDP;
 
-    template <typename oState = SerializedState<number>,
+    template <typename oState = SerializedState<number, number>,
               typename oAction = number>
-    class DiscreteSerializedMDP : public SolvableByHSVI<oState, oAction>
+    class SerializedMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:
         std::shared_ptr<DiscreteMMDP> mmdp_;
@@ -27,27 +27,25 @@ namespace sdm
         using action_type = oAction;
         // using observation_type = oObservation;
 
-        DiscreteSerializedMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp);
+        SerializedMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp);
         //SerializedOccupancyMDP(std::shared_ptr<DiscreteMDP> underlying_mdp, number hist_length);
-        DiscreteSerializedMDP(std::string underlying_mmdp);
+        SerializedMDP(std::string underlying_mmdp);
         //SerializedOccupancyMDP(std::string underlying_mdp, number hist_length);
 
         oState &getState();
-
-        std::shared_ptr<Reward> getReward() const;
-        
-        double getDiscount() { return this->mmdp_->getDiscount(); }
         double getDiscount(int t) const;
+        
+        bool isSerialized() const;
+        DiscreteMMDP *getUnderlyingProblem();
 
-        void setDiscount(double discount) { return this->mmdp_->setDiscount(discount); }
-
-        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        double getReward(const oState &ostate, const oAction &oaction) const;
         oState getInitialState();
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        
+        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
+        
+        double getReward(const oState &ostate, const oAction &oaction) const;
+        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
 
-        int getNumberAgent() const;
     };
 } // namespace sdm
-#include <sdm/world/discrete_serialized_mdp.tpp>
+#include <sdm/world/serialized_mdp.tpp>

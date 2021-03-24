@@ -45,5 +45,15 @@ namespace sdm
                 ++message;
             }
         }
+
+        std::string repeatString(const std::string &str, size_t times)
+        {
+            std::stringstream stream;
+            for (size_t i = 0; i < times; i++)
+            {
+                stream << str;
+            }
+            return stream.str();
+        }
     } // namespace tools
 } // namespace sdm

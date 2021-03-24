@@ -3,36 +3,36 @@
 namespace sdm
 {
 
-    template <typename TState>
-    SerializedState<TState>::SerializedState() : Pair<TState, std::vector<number>>(0, {})
+    template <typename TState, typename TAction>
+    SerializedState<TState, TAction>::SerializedState()
     {
     }
 
     //A faire !!!! 
     
-    template <typename TState>
-    SerializedState<TState>::SerializedState(TState size, std::vector<number> default_value) : Pair<TState, std::vector<number>>(size, default_value)
+    template <typename TState, typename TAction>
+    SerializedState<TState, TAction>::SerializedState(TState state, std::vector<TAction> actions) : Pair<TState, std::vector<TAction>>(state, actions)
     {
     }
-    template <typename TState>
-    SerializedState<TState>::SerializedState(const SerializedState &v) : Pair<TState, std::vector<number>>(v)
+    template <typename TState, typename TAction>
+    SerializedState<TState, TAction>::SerializedState(const SerializedState &v) : Pair<TState, std::vector<TAction>>(v)
     {
     }
 
-    template <typename TState>
-    TState SerializedState<TState>::getState() const 
+    template <typename TState, typename TAction>
+    TState SerializedState<TState, TAction>::getState() const 
     {
         return this->first;
     }
 
-    template <typename TState>
-    std::vector<number> SerializedState<TState>::getAction()const 
+    template <typename TState, typename TAction>
+    std::vector<TAction> SerializedState<TState, TAction>::getAction()const 
     {
         return this->second;
     }
 
-    template <typename TState>
-    number SerializedState<TState>::getCurrentAgentId() const
+    template <typename TState, typename TAction>
+    number SerializedState<TState, TAction>::getCurrentAgentId() const
     {
         return (this->second).size();
     }

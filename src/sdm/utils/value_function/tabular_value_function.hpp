@@ -66,7 +66,7 @@ namespace sdm
         std::shared_ptr<Initializer<TState, TAction>> initializer_;
 
     public:
-        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, int extensive_agent = 1);
+        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
 
         TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon = 0, TValue default_value = 0.);
 
@@ -116,90 +116,3 @@ namespace sdm
 
 } // namespace sdm
 #include <sdm/utils/value_function/tabular_value_function.tpp>
-
-
-/**
-     * @brief Specialisation of getQValueAt for belief state
-     * 
-     * @param belief a specific belief
-     * @return A vector containing the q-values at one belief. 
-     */
-// template <>
-// std::shared_ptr<VectorImpl<number, double>> MappedValueFunction<BeliefState, number, double>::getQValueAt(BeliefState &belief, int t)
-// {
-
-//     auto nextState = [](decltype(this->getWorld()) w, BeliefState st, number action, number o, number d) {
-//         BeliefState nextBelief;
-//         double tmp;
-//         for (number s_ = 0; s_ < w->getNumStates(); s_++)
-//         {
-//             tmp = 0;
-//             for (number s = 0; s < w->getNumStates(); s++)
-//             {
-//                 tmp += w->getTransitionProba(s, action, s_) * st.at(s);
-//             }
-//             nextBelief[s_] = w->getObservationProbability(action, o, s_) * tmp;
-//         }
-//         // Normalize the belief
-//         double sum = nextBelief.norm_1();
-//         for (number s_ = 0; s_ < w->getNumStates(); s_++)
-//         {
-//             nextBelief[s_] = nextBelief[s_] / sum;
-//         }
-
-//         return nextBelief;
-//     };
-
-//     number n_a = this->getWorld()->getNumActions(0);
-//     std::shared_ptr<DenseVector<number, double>> v = std::make_shared<DenseVector<number, double>>(n_a);
-//     BeliefState nextBelief(belief.size(), 0);
-
-//     for (number a = 0; a < n_a; a++)
-//     {
-//         // Compute R(b, a)
-//         double r_b_a = 0, bootstrap = 0;
-//         for (number state_ = 0; state_ < this->getWorld()->getNumStates(); state_++)
-//         {
-//             r_b_a += this->getWorld()->getReward(state_, a, 0) * belief.at(state_);
-//         }
-//         // Compute p(o | b, a)
-//         for (number o = 0; o < this->getWorld()->getNumObservations(0); o++)
-//         {
-//             double obs_proba = 0;
-//             for (number i = 0; i < this->getWorld()->getNumStates(); i++)
-//             {
-//                 obs_proba += this->getWorld()->getObservationProbability(a, o, i) * belief.at(i);
-//             }
-//             nextBelief = nextState(this->getWorld(), belief, a, o, t);
-//             bootstrap += obs_proba * this->getValueAt(nextBelief, t + 1);
-//         }
-
-//         (*v)[a] = r_b_a + this->getWorld()->getDiscount() * bootstrap;
-//     }
-//     return v;
-// }
-
-// /**
-//  * @brief Specialisation of getQValueAt for finite state and action
-//  *
-//  * @param state a specific state
-//  * @return A vector containing the q-values at one state.
-//  */
-// template <>
-// std::shared_ptr<VectorImpl<number, double>> MappedValueFunction<number, number, double>::getQValueAt(number &state, int t)
-// {
-//     double tmp;
-//     number n_a = this->getWorld()->getNumActions(0);
-//     std::shared_ptr<DenseVector<number, double>> v = std::make_shared<DenseVector<number, double>>(n_a);
-
-//     for (number a = 0; a < n_a; a++)
-//     {
-//         tmp = 0;
-//         for (number state_ = 0; state_ < this->getWorld()->getNumStates(); state_++)
-//         {
-//             tmp += this->getWorld()->getTransitionProba(state, a, state_) * this->getValueAt(state_, t + 1);
-//         }
-//         (*v)[a] = this->getWorld()->getReward(state, a, 0) + this->getWorld()->getDiscount() * tmp;
-//     }
-//     return v;
-// }

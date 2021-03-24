@@ -15,10 +15,11 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/state/history.hpp>
 
 namespace sdm
 {
-  template <typename TState, typename TJointHistory_p>
+  template <typename TState = number, typename TJointHistory_p = JointHistoryTree_p<number>>
   class OccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
   {
   public:

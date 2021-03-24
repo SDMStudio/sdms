@@ -3,11 +3,11 @@
 #include <random>
 
 #include <sdm/exception.hpp>
-#include <sdm/worlds.hpp>
 #include <sdm/tools.hpp>
+#include <sdm/worlds.hpp>
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/public/algorithm.hpp>
-#include <sdm/core/state/state.hpp>
+#include <sdm/core/states.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
@@ -28,26 +28,29 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000, std::string name = "tab_hsvi",int extensive_agent = 1.0)
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 10000, std::string name = "tab_hsvi")
         {
             assert(((discount < 1) || (horizon > 0)));
 
-            problem->setDiscount(discount);
+            // Set params in the environment
+            problem->getUnderlyingProblem()->setDiscount(discount);
+            problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
-            
-            if(extensive_agent>1)
+            // Increase the horizon for the value function if the problem is serialized
+            if (problem->isSerialized())
             {
-                horizon = horizon*extensive_agent;
+                horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
             }
-            
 
-            auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>(problem->getReward()->getMinReward(), discount,extensive_agent);
-            auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>(problem->getReward()->getMaxReward(), discount,extensive_agent);
+            // Instanciate initializers
+            auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>();
+            auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>();
 
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init,extensive_agent));
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init,extensive_agent));
+            // Instanciate bounds
+            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
+            std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
 
-            return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, extensive_agent,name);
+            return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
         }
 
         // /**
@@ -98,7 +101,7 @@ namespace sdm
                 if ((formalism == "mdp") || (formalism == "MDP"))
                 {
                     auto mdp = std::make_shared<DiscreteMDP>(problem_path);
-                    mdp->setInternalState(0);
+                    mdp->getUnderlyingProblem()->setInternalState(0);
 
                     return makeMappedHSVI<number, number>(mdp, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name);
                 }
@@ -108,7 +111,9 @@ namespace sdm
                     using TAction = number;
                     using TObservation = number;
 
-                    auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(problem_path);
+                    auto pomdp = std::make_shared<DiscretePOMDP>(problem_path);
+                    auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(pomdp);
+
                     return makeMappedHSVI<TState, TAction>(beliefMDP, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
@@ -121,8 +126,19 @@ namespace sdm
 
                     using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+                    // auto dpomdp = std::make_shared<DiscreteDecPOMDP>(problem_path);
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
                     return makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                }
+                else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
+                {
+                    using TState = SerializedState<number, number>;
+                    using TAction = number;
+
+                    auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(problem_path);
+                    serialized_mdp->getUnderlyingProblem()->setInternalState(0);
+
+                    return makeMappedHSVI<TState, TAction>(serialized_mdp, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
@@ -130,8 +146,8 @@ namespace sdm
                     using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
-                    number n_agents = 2; //serialized_oMDP->getUnderlyingProblem()->getNumAgents();
-                    return makeMappedHSVI<TState, TAction>(serialized_oMDP, discount, error, horizon * n_agents, trials, (name == "") ? "tab_ext_ohsvi" : name);
+
+                    return makeMappedHSVI<TState, TAction>(serialized_oMDP, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
                 }
             }
         }

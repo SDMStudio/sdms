@@ -1,50 +1,44 @@
 #pragma once
 
-#include <string>
-
 #include <sdm/types.hpp>
-#include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/struct/vector.hpp>
-#include <sdm/core/state/state.hpp>
+#include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
 {
-  template <typename TState>
-  class SerializedState : public Pair<TState, std::vector<number>>
+  template <typename TState = number, typename TAction = number>
+  class SerializedState : public Pair<TState, std::vector<TAction>>
   {
   public:
-    //using jhistory_type = TJointHistory_p;
     using state_type = TState;
+    using action_type = TAction;
 
     SerializedState();
-    SerializedState(TState size, std::vector<number> default_value);
+    SerializedState(TState state, std::vector<TAction> actions);
     SerializedState(const SerializedState &v);
 
-    //std::set<jhistory_type> getJointHistories() const;
     TState getState() const;
-    std::vector<number> getAction() const;
-    //std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
-
+    std::vector<TAction> getAction() const;
     number getCurrentAgentId() const;
   };
 } // namespace sdm
-#include <sdm/core/state/serialized_state.tpp>
 
+#include <sdm/core/state/serialized_state.tpp>
 
 namespace std
 {
-    template <typename S>
-    struct hash<sdm::SerializedState<S>>
+  template <typename S, typename A>
+  struct hash<sdm::SerializedState<S, A>>
+  {
+    typedef sdm::SerializedState<S, A> argument_type;
+    typedef std::size_t result_type;
+    inline result_type operator()(const argument_type &in) const
     {
-        typedef sdm::SerializedState<S> argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            size_t seed = 0;
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, in.first);
-                sdm::hash_combine(seed, in.second);
-            return seed;
-        }
-    };
+      size_t seed = 0;
+      //Combine the hash of the current vector with the hashes of the previous ones
+      sdm::hash_combine(seed, in.first);
+      sdm::hash_combine(seed, in.second);
+      return seed;
+    }
+  };
 }
