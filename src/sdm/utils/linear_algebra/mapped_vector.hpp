@@ -16,6 +16,7 @@
 #include <iostream>
 #include <assert.h>
 
+#include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
 namespace sdm

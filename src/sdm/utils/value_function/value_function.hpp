@@ -12,6 +12,7 @@
 
 #include <memory>
 
+#include <sdm/core/function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
 /**
