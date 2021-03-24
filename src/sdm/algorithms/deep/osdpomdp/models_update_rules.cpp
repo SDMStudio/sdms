@@ -5,6 +5,7 @@ namespace sdm{
 	ModelsUpdateRules::ModelsUpdateRules(
 		number batch_size, 
 		number sampling_memory_size, 
+		number seed,
 		torch::Device device, 
 		std::shared_ptr<sdm::POSG>& game, 
 		bool induced_bias
@@ -14,6 +15,7 @@ namespace sdm{
 		this->device = device;
 		this->game = game;
 		this->uniform_alpha_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
+		this->random_engine.seed(seed);
 		this->induced_bias = induced_bias;
 	}
 

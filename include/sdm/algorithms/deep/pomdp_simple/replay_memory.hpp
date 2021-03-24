@@ -25,8 +25,10 @@ namespace sdm{
 		std::vector<pomdp_transition_simple> memory;
 		// Position of the next transition to be added. The implementation is such that when it overflows the capacity, the transition to be added is inserted in a cyclic fashion to override a previous one.
 		int position;
+		// C++ random number engine.
+		std::default_random_engine random_engine;
 		// Construct the replay memory with given capacity.
-		POMDP_ReplayMemory_Simple(int, number);
+		POMDP_ReplayMemory_Simple(int, number, number);
 		// Push the transition into the replay memory.
 		void push(pomdp_transition_simple);
 		// Sample transitions at random from the replay memory.

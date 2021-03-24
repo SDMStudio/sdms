@@ -23,7 +23,7 @@ namespace sdm{
 		// The name of the file that the networks will be saved as. These can later be used for the solution of the OSDPOMDP as induced bias.
 		std::string ib_net_filename;
 		// Initialize the Agents.
-		POMDP_Agents_Simple(number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);
+		POMDP_Agents_Simple(number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, std::string);
 		// C++ random number engine.
 		std::default_random_engine random_engine;
 		// Uniform epsilon distribution, returns random double between 0 and 1.

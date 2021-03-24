@@ -19,7 +19,7 @@
 
 namespace sdm{
 	struct ModelsUpdateRules {
-		// Random engine for the object below.
+		// C++ random number engine.
 		std::default_random_engine random_engine;
 		// Uniform real distribution of numbers between 0 and 1, to compare with alpha.
 		std::uniform_real_distribution<double> uniform_alpha_distribution;
@@ -34,7 +34,7 @@ namespace sdm{
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
 		// Initialize the ModelsUpdateRules object.
-		ModelsUpdateRules(number, number, torch::Device, std::shared_ptr<sdm::POSG>&, bool);
+		ModelsUpdateRules(number, number, number, torch::Device, std::shared_ptr<sdm::POSG>&, bool);
 		// Do one step of update to the networks.
 		double update(std::shared_ptr<ReplayMemory>&, std::shared_ptr<Agents>&, float);
 		// Construct the batch which is made up of Tensors of correct dimensions and in the correct device (CPU/GPU).

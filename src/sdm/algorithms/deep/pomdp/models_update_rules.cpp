@@ -16,7 +16,6 @@ namespace sdm{
 		this->device = device;
 		this->game = game;
 		this->zerod = zerod;
-		this->uniform_tao_distribution = std::uniform_int_distribution<int>(1, tao);
 	}
 
 	double POMDP_ModelsUpdateRules::update(
@@ -36,8 +35,6 @@ namespace sdm{
 		// Q Value Loss
 		torch::Tensor loss = torch::zeros({1});
 		loss = loss.to(device);
-
-		// int tao_star = uniform_tao_distribution(random_engine);
 
 		for (int t = 0; t < tao; t++){
 

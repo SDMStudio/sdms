@@ -12,6 +12,7 @@ namespace sdm{
 		number print_every,
 		number tao,
 		number eta,
+		number seed,
 		float eps_end, 
 		float eps_start, 
 		float eps_decay,  
@@ -46,9 +47,10 @@ namespace sdm{
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
 			dim_o2 + dim_o1, dim_i, game->getNumActions(0) * game->getNumActions(1),
+			seed,
 			game, device, lr, adam_eps, ib_net_filename
 		);
-		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size, tao, eta, horizon, batch_size);
+		this->replay_memory = std::make_shared<POMDP_ReplayMemory>(replay_memory_size, tao, eta, horizon, batch_size, seed);
 		this->GAMMA = game->getDiscount();
 		initialize();
 	}

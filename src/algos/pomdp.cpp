@@ -79,7 +79,6 @@ int main(int argv, char** args){
 
 		torch::manual_seed(seed);
 
-
 		std::string bench_filename;
 		bench_filename.append("../data/world/dpomdp");
 		bench_filename.append("/");
@@ -100,7 +99,7 @@ int main(int argv, char** args){
 
 		DQL dql(
 			episodes,
-			horizon, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, tao, eta,
+			horizon, batch_size, dim_o2, dim_o1, dim_i, target_update, print_every, tao, eta, seed,
 			eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, 
 			device, game, replay_memory_size, ib_net_filename, zerod
 		);

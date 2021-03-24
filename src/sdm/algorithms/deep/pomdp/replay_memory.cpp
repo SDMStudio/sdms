@@ -1,13 +1,14 @@
 #include <sdm/algorithms/deep/pomdp/replay_memory.hpp>
 
 namespace sdm{
-	POMDP_ReplayMemory::POMDP_ReplayMemory(int capacity, number tao, number eta, number horizon, number batch_size){
+	POMDP_ReplayMemory::POMDP_ReplayMemory(int capacity, number tao, number eta, number horizon, number batch_size, number seed){
 		this->capacity = capacity;
 		this->tao = tao;
 		this->eta = eta;
 		this->horizon = horizon;
 		this->batch_size = batch_size;
 		this->uniform_transitions_distribution = std::uniform_int_distribution<int>(0, horizon - tao);
+		this->random_engine.seed(seed);
 	}
 
 	void POMDP_ReplayMemory::push(pomdp_transition t, int episode, number step){
@@ -38,7 +39,7 @@ namespace sdm{
 		// Episodes to be randomly selected from the experience replay memory.
 		std::vector<pomdp_transitions_sequence> full_t_sequence;
 		// Sample from the memory according to Mersenne Twister pseudorandom number generator and fill the full_t_sequence std::vector.
-		std::experimental::sample(memory.begin(), memory.end(), std::back_inserter(full_t_sequence), batch_size / eta, std::mt19937{std::random_device{}()});
+		std::experimental::sample(memory.begin(), memory.end(), std::back_inserter(full_t_sequence), batch_size / eta, random_engine);
 
 		//
 		for (int i = 0; i < batch_size / eta; i++){
@@ -47,12 +48,6 @@ namespace sdm{
 				int starting_indice = uniform_transitions_distribution(random_engine);
 				for (int t = 0; t < tao; t++){
 					t_sequence[t].push_back(full_t_sequence[i][starting_indice + t]);
-					// std::cout << "episode " << std::get<8>(full_t_sequence[i][starting_indice + t]) << std::endl;
-					// std::cout << "step " << std::get<9>(full_t_sequence[i][starting_indice + t]) << std::endl << std::endl;
-					// if (std::get<9>(full_t_sequence[i][starting_indice + t]) == 0){
-					// 	std::cout << "episode " << std::get<8>(full_t_sequence[i][starting_indice + t]) << std::endl;
-					// 	std::cout << "step " << std::get<9>(full_t_sequence[i][starting_indice + t]) << std::endl << std::endl;
-					// }
 				}
 			}
 		}

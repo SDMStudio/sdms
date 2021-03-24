@@ -25,10 +25,6 @@ namespace sdm{
 		number tao;
 		// Number of transition sequences that will be sampled from each episode for training
 		number eta;
-		// C++ random number engine.
-		std::default_random_engine random_engine;
-		// Uniform tao distribution, to get a tao_star that will be used as the depth of the BPTT between 1 and tao.
-		std::uniform_int_distribution<int> uniform_tao_distribution;
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
 		// The game to be solved.

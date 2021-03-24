@@ -90,7 +90,7 @@ int main(int argv, char** args){
 
 		DQL_Simple dql(
 			episodes,
-			horizon, batch_size, n, dim_i, target_update, print_every,
+			horizon, batch_size, n, dim_i, target_update, print_every, seed,
 			eps_end, eps_start, eps_decay, discount_factor, rolling_factor, lr, adam_eps, 
 			device, game, replay_memory_size, ib_net_filename
 		);

@@ -3,6 +3,7 @@
 namespace sdm{
 	POMDP_Agents_Simple::POMDP_Agents_Simple(
 		number q_net_input_dim, number q_net_inner_dim, number q_net_output_dim, 
+		number seed,
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, std::string ib_net_filename
 	){
 		this->policy_net = DQN(q_net_input_dim, q_net_inner_dim, q_net_output_dim);
@@ -13,10 +14,13 @@ namespace sdm{
 
 		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
 		this->uniform_action_distribution = std::uniform_int_distribution<int>(0, game->getNumActions(0) * game->getNumActions(1) - 1);
+		this->random_engine.seed(seed);
+
 		torch::optim::AdamOptions options;
 		options.eps(adam_eps);
 		options.lr(lr);
 		this->optimizer = std::make_shared<torch::optim::Adam>(policy_net->parameters(), options);
+
 		this->device = device;
 		this->game = game;
 		this->ib_net_filename = ib_net_filename;

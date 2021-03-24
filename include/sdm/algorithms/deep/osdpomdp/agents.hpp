@@ -23,7 +23,7 @@ namespace sdm{
 		// How many sampling/parallel worlds there will be for agent 1 to interact with the environment?
 		number sampling_memory_size;
 		// Initialize the Agents.
-		Agents(number, number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, bool, std::string, number);
+		Agents(number, number, number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, bool, std::string, number);
 		// C++ random number engine.
 		std::default_random_engine random_engine;
 		// Uniform epsilon distribution, returns random double between 0 and 1.

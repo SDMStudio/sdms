@@ -36,7 +36,7 @@ namespace sdm{
 		// Gives a random number between 0 and horizon - tao that is used for the starting index.
 		std::uniform_int_distribution<int> uniform_transitions_distribution;
 		// Construct the replay memory with given capacity, tao, horizon, batch_size.
-		POMDP_ReplayMemory(int, number, number, number, number);
+		POMDP_ReplayMemory(int, number, number, number, number, number);
 		// Push the transition into the replay memory given the episode and the step.
 		void push(pomdp_transition, int, number);
 		// Sample the replay memory and get transitions sequences.

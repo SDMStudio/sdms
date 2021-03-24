@@ -119,7 +119,7 @@ namespace sdm{
 		// Initialize the method for solving the problem.
 		ExtensiveFormDQL(
 			int, 
-			number, number, number, number, number, number, number, number, 
+			number, number, number, number, number, number, number, number, number, 
 			float, float, float, float, float, float, float, 
 			torch::Device, std::shared_ptr<sdm::POSG>&, int, bool, std::string
 		);

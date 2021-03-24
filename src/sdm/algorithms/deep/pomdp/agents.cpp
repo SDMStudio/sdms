@@ -5,6 +5,7 @@ namespace sdm{
 		number trans_net_2_input_dim, number trans_net_2_hidden_dim, 
 		number trans_net_1_input_dim, number trans_net_1_hidden_dim, 
 		number q_net_input_dim, number q_net_inner_dim, number q_net_output_dim, 
+		number seed,
 		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, std::string ib_net_filename
 	){
 		this->policy_nets = Gated_Deep_Recurrent_Q_Network(
@@ -23,6 +24,8 @@ namespace sdm{
 
 		this->uniform_epsilon_distribution = std::uniform_real_distribution<double>(0.0, 1.0);
 		this->uniform_action_distribution = std::uniform_int_distribution<int>(0, game->getNumActions(0) * game->getNumActions(1) - 1);
+		this->random_engine.seed(seed);
+
 		torch::optim::AdamOptions options;
 		options.eps(adam_eps);
 		options.lr(lr);

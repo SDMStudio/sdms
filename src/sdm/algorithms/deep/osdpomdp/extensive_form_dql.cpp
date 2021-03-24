@@ -11,6 +11,7 @@ namespace sdm{
 		number dim_i,
 		number sampling_memory_size, 
 		number print_every,
+		number seed,
 		float eps_end, 
 		float eps_start, 
 		float eps_decay, 
@@ -40,14 +41,15 @@ namespace sdm{
 		this->lr = lr;
 		this->adam_eps = adam_eps;
 		this->game = game;
-		this->models_update_rules = std::make_shared<ModelsUpdateRules>(batch_size, sampling_memory_size, device, game, induced_bias);
+		this->models_update_rules = std::make_shared<ModelsUpdateRules>(batch_size, sampling_memory_size, seed, device, game, induced_bias);
 		this->agents =  std::make_shared<Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
 			dim_o2 + dim_o1 + dim_o1 * sampling_memory_size + game->getNumStates(), dim_i, game->getNumActions(0) * game->getNumActions(1),
+			seed,
 			game, device, lr, adam_eps, induced_bias, ib_net_filename, sampling_memory_size
 		);
-		this->replay_memory = std::make_shared<ReplayMemory>(replay_memory_size);
+		this->replay_memory = std::make_shared<ReplayMemory>(replay_memory_size, seed);
 		this->GAMMA = game->getDiscount();
 		this->uniform_m_distribution = std::uniform_int_distribution<int>(0, sampling_memory_size - 1); // not used, but will be later
 		this->uniform_z2_distribution = std::uniform_int_distribution<int>(0, game->getNumObservations(0) - 1);
