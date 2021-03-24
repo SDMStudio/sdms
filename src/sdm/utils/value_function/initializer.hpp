@@ -214,7 +214,17 @@ namespace sdm
                 double min_rsa = *std::max_element(ra.begin(), ra.end()), tot = 0;
                 for (int t = vf->getHorizon() - 1; t >= 0; t--)
                 {
-                    tot = min_rsa + under_pb->getDiscount() * tot;
+                    if (vf->getWorld()->isSerialized())
+                    {
+                        if ((t + 1) % under_pb->getNumAgents() == 0)
+                        {
+                            tot = min_rsa + under_pb->getDiscount() * tot;
+                        }
+                    }
+                    else
+                    {
+                        tot = min_rsa + under_pb->getDiscount() * tot;
+                    }
                     vf->initialize(tot, t);
                 }
             }

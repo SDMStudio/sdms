@@ -28,26 +28,25 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000, std::string name = "tab_hsvi")
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 10000, std::string name = "tab_hsvi")
         {
             assert(((discount < 1) || (horizon > 0)));
 
-            problem->setDiscount(discount);
+            // Set params in the environment
+            problem->getUnderlyingProblem()->setDiscount(discount);
+            problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
+            // Increase the horizon for the value function if the problem is serialized
             if (problem->isSerialized())
             {
                 horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
             }
 
-            std::cout << "Make HSVI algo" << std::endl;
-            std::cout << "IsSerialized : " << problem->isSerialized() << std::endl;
-            std::cout << "Horizon : " << horizon << std::endl;
-            std::cout << "Discount : " << discount << std::endl;
-            std::cout << "Error : " << error << std::endl;
-
+            // Instanciate initializers
             auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>();
             auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>();
 
+            // Instanciate bounds
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
 

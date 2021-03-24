@@ -3,7 +3,6 @@
 namespace sdm
 {
 
-
     template <typename TState, typename TAction, typename TObservation>
     BeliefMDP<TState, TAction, TObservation>::BeliefMDP()
     {
@@ -25,10 +24,13 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief BeliefMDP<TBelief, TAction, TObservation>::getInitialState()
+    TBelief BeliefMDP<TBelief, TAction, TObservation>::reset()
     {
-        return this->istate_;
+        this->cstate_ = this->istate_;
+        this->pomdp_->reset();
+        return this->cstate_;
     }
+
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief &BeliefMDP<TBelief, TAction, TObservation>::getState()
     {
@@ -36,9 +38,21 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    std::shared_ptr<Reward> BeliefMDP<TBelief, TAction, TObservation>::getReward() const
+    bool BeliefMDP<TBelief, TAction, TObservation>::isSerialized() const
     {
-        return this->pomdp_->getReward();
+        return false;
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    DiscretePOMDP *BeliefMDP<TBelief, TAction, TObservation>::getUnderlyingProblem()
+    {
+        return this->pomdp_.get();
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    TBelief BeliefMDP<TBelief, TAction, TObservation>::getInitialState()
+    {
+        return this->istate_;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -125,18 +139,5 @@ namespace sdm
         return proba;
     }
 
-    template <typename TBelief, typename TAction, typename TObservation>
-    TBelief BeliefMDP<TBelief, TAction, TObservation>::reset()
-    {
-        this->cstate_ = this->istate_;
-        this->pomdp_->reset();
-        return this->cstate_;
-    }
-    
-    template <typename TBelief, typename TAction, typename TObservation>
-    bool BeliefMDP<TBelief, TAction, TObservation>::isSerialized() const
-    {
-        return false;
-    }
 
 } // namespace sdm

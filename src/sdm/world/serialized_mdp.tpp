@@ -21,15 +21,6 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    std::shared_ptr<DiscreteSpace<oAction>> SerializedMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
-    {
-        // Get id of the current agent
-        number ag_id = ostate.getCurrentAgentId();
-
-        return std::make_shared<DiscreteSpace<oAction>>(this->mmdp_->getActionSpace()->getSpace(ag_id)->getAll());
-    }
-
-    template <typename oState, typename oAction>
     oState SerializedMDP<oState, oAction>::nextState(const oState &ostate, const oAction &action, int t, HSVI<oState, oAction> *hsvi) const
     {
         number ag_id = ostate.getCurrentAgentId();
@@ -67,11 +58,15 @@ namespace sdm
         }
         return new_ostate;
     }
+    
 
     template <typename oState, typename oAction>
-    std::shared_ptr<Reward> SerializedMDP<oState, oAction>::getReward() const
+    std::shared_ptr<DiscreteSpace<oAction>> SerializedMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
-        return this->mmdp_->getReward();
+        // Get id of the current agent
+        number ag_id = ostate.getCurrentAgentId();
+
+        return std::make_shared<DiscreteSpace<oAction>>(this->mmdp_->getActionSpace()->getSpace(ag_id)->getAll());
     }
 
     template <typename oState, typename oAction>
@@ -90,7 +85,7 @@ namespace sdm
 
         u.push_back(action);
 
-        r = this->getReward()->getReward(x, this->mmdp_->getActionSpace()->joint2single(u));
+        r = this->mmdp_->getReward()->getReward(x, this->mmdp_->getActionSpace()->joint2single(u));
         // A voir si cela foncitonne mais cela ne me paraît pas faux non plus
 
         /*
@@ -122,12 +117,6 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    int SerializedMDP<oState, oAction>::getNumberAgent() const
-    {
-        return this->mmdp_->getNumAgents();
-    }
-
-    template <typename oState, typename oAction>
     double SerializedMDP<oState, oAction>::getDiscount(int t) const
     {
 
@@ -145,6 +134,12 @@ namespace sdm
     bool SerializedMDP<oState, oAction>::isSerialized() const
     {
         return true;
+    }
+
+    template <typename oState, typename oAction>
+    DiscreteMMDP *SerializedMDP<oState, oAction>::getUnderlyingProblem()
+    {
+        return this->mmdp_.get();
     }
 
     // ************

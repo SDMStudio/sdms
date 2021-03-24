@@ -62,10 +62,9 @@ namespace sdm
     {
         return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward();
     }
-
     double DiscreteMDP::getReward(const number &state, const number &action) const
     {
-        return this->getReward()->getReward(state, action);
+        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward()->getReward(state, action);
     }
 
     double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, int t) const
@@ -76,16 +75,6 @@ namespace sdm
             tmp += this->getStateDynamics()->getTransitionProbability(state, action, state_) * value_function->getValueAt(state_, t + 1);
         }
         return tmp;
-    }
-
-    double DiscreteMDP::getDiscount()
-    {
-        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getDiscount();
-    }
-
-    void DiscreteMDP::setDiscount(double discount)
-    {
-        FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::setDiscount(discount);
     }
 
     DiscreteMDP *DiscreteMDP::getUnderlyingProblem()

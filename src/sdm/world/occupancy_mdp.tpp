@@ -51,14 +51,27 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::getInitialState()
-    {
-        return this->istate_;
-    }
-    template <typename oState, typename oAction>
     oState &OccupancyMDP<oState, oAction>::getState()
     {
         return this->cstate_;
+    }
+
+    template <typename oState, typename oAction>
+    bool OccupancyMDP<oState, oAction>::isSerialized() const
+    {
+        return false;
+    }
+
+    template <typename oState, typename oAction>
+    DiscreteDecPOMDP *OccupancyMDP<oState, oAction>::getUnderlyingProblem()
+    {
+        return this->dpomdp_.get();
+    }
+
+    template <typename oState, typename oAction>
+    oState OccupancyMDP<oState, oAction>::getInitialState()
+    {
+        return this->istate_;
     }
 
     template <typename oState, typename oAction>
@@ -116,12 +129,6 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    std::shared_ptr<Reward> OccupancyMDP<oState, oAction>::getReward() const
-    {
-        return this->dpomdp_->getReward();
-    }
-
-    template <typename oState, typename oAction>
     double OccupancyMDP<oState, oAction>::getReward(const oState &ostate, const oAction &joint_idr) const
     {
         double r = 0;
@@ -135,7 +142,7 @@ namespace sdm
                 auto idr = joint_idr.at(i);
                 jaction.push_back(idr(jhistory->getIndividualHistory(i)));
             }
-            r += p_x_o.second * this->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
+            r += p_x_o.second * this->dpomdp_->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
         }
         return r;
     }
@@ -147,10 +154,5 @@ namespace sdm
         return value_function->getValueAt(ost, t + 1);
     }
 
-    template <typename oState, typename oAction>
-    bool OccupancyMDP<oState, oAction>::isSerialized() const
-    {
-        return false;
-    }
 
 } // namespace sdm

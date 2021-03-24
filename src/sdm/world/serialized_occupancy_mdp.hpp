@@ -35,23 +35,18 @@ namespace sdm
         SerializedOccupancyMDP(std::string underlying_dpomdp, number hist_length);
 
         oState &getState();
-
-        std::shared_ptr<Reward> getReward() const;
-        
-        double getDiscount() { return this->dpomdp_->getDiscount(); }
         double getDiscount(int t) const;
 
-        void setDiscount(double discount) { return this->dpomdp_->setDiscount(discount); }
-
-        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        double getReward(const oState &ostate, const oAction &oaction) const;
-        oState getInitialState();
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
-        oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
-
-        DiscreteDecPOMDP *getUnderlyingProblem() { return this->dpomdp_.get(); }
-        int getNumberAgent() const;
         bool isSerialized() const;
+        DiscreteDecPOMDP *getUnderlyingProblem();
+
+        oState getInitialState();
+        oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        
+        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
+        
+        double getReward(const oState &ostate, const oAction &oaction) const;
+        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

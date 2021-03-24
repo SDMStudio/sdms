@@ -51,15 +51,27 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedOccupancyMDP<oState, oAction>::getInitialState()
-    {
-        return this->istate_;
-    }
-
-    template <typename oState, typename oAction>
     oState &SerializedOccupancyMDP<oState, oAction>::getState()
     {
         return this->cstate_;
+    }
+
+    template <typename oState, typename oAction>
+    bool SerializedOccupancyMDP<oState, oAction>::isSerialized() const
+    {
+        return true;
+    }
+
+    template <typename oState, typename oAction>
+    DiscreteDecPOMDP *SerializedOccupancyMDP<oState, oAction>::getUnderlyingProblem()
+    {
+        return this->dpomdp_.get();
+    }
+
+    template <typename oState, typename oAction>
+    oState SerializedOccupancyMDP<oState, oAction>::getInitialState()
+    {
+        return this->istate_;
     }
 
     template <typename oState, typename oAction>
@@ -119,12 +131,6 @@ namespace sdm
         return new_ostate;
     }
 
-    template <typename oState, typename oAction>
-    std::shared_ptr<Reward> SerializedOccupancyMDP<oState, oAction>::getReward() const
-    {
-        return this->dpomdp_->getReward();
-    }
-
     // A VERIFIER !!!!!!!!!!!!!!!!!!!!
     template <typename oState, typename oAction>
     double SerializedOccupancyMDP<oState, oAction>::getReward(const oState &ostate, const oAction &indiv_dr) const
@@ -149,7 +155,7 @@ namespace sdm
             // Add the last selected action (the action of agent 0)
             jaction.push_back(indiv_dr(jhistory->getIndividualHistory(ag_id)));
 
-            r += p_x_o.second * this->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
+            r += p_x_o.second * this->dpomdp_->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
         }
         return r;
     }
@@ -159,12 +165,6 @@ namespace sdm
     {
         oState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);
-    }
-
-    template <typename oState, typename oAction>
-    int SerializedOccupancyMDP<oState, oAction>::getNumberAgent() const
-    {
-        return this->dpomdp_->getNumAgents();
     }
 
     template <typename oState, typename oAction>
@@ -179,12 +179,6 @@ namespace sdm
             }
         }
         return this->dpomdp_->getDiscount();
-    }
-
-    template <typename oState, typename oAction>
-    bool SerializedOccupancyMDP<oState, oAction>::isSerialized() const
-    {
-        return true;
     }
 
 } // namespace sdm

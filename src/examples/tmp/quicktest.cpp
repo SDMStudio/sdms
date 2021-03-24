@@ -2,9 +2,9 @@
 #include <fstream>
 #include <time.h>
 
-#include <sdm/types.hpp>
-#include <sdm/tools.hpp>
-#include <sdm/utils/struct/pair.hpp>
+// #include <sdm/types.hpp>
+// #include <sdm/tools.hpp>
+// #include <sdm/utils/struct/pair.hpp>
 // #include <sdm/utils/logging/logger.hpp>
 // #include <sdm/utils/struct/vector.hpp>
 // #include <sdm/utils/struct/pair.hpp>
@@ -20,8 +20,8 @@
 // #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 // #include <sdm/world/ndpomdp.hpp>
 // //#include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/core/state/serialized_state.hpp>
-#include <sdm/world/serialized_mdp.hpp>
+// #include <sdm/core/state/serialized_state.hpp>
+// #include <sdm/world/serialized_mdp.hpp>
 
 
 // #include <sdm/types.hpp>
@@ -30,7 +30,7 @@
 // //#include <sdm/utils/struct/vector.hpp>
 // #include <sdm/utils/struct/pair.hpp>
 // #include <sdm/utils/struct/tuple.hpp>
- #include <sdm/algorithms.hpp>
+//  #include <sdm/algorithms.hpp>
 // #include <sdm/parser/parser.hpp>
 
 // #include <sdm/utils/linear_algebra/mapped_vector.hpp>
@@ -38,7 +38,7 @@
 // #include <sdm/world/serialized_occupancy_mdp.hpp>
 //#include <fmt/format.h>
 
-using namespace sdm;
+// using namespace sdm;
 
 int main(int argc, char **argv)
 {
