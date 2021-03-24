@@ -36,7 +36,7 @@ namespace sdm
 
             // auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>(problem->getReward()->getMinReward(), discount);
             auto lb_init = std::make_shared<sdm::BlindInitializer<TState, TAction>>();
-            auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>(problem->getReward()->getMaxReward(), discount);
+            auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>();
 
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
