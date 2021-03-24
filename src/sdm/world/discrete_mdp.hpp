@@ -44,5 +44,6 @@ namespace sdm
         double getReward(const number &state, const number &action) const;
         double getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, int t = 0) const;
         DiscreteMDP *getUnderlyingProblem();
+        bool isSerialized() const;
     };
 } // namespace sdm

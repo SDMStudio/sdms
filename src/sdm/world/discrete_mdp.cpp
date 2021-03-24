@@ -93,4 +93,8 @@ namespace sdm
         return this;
     }
     
+    bool DiscreteMDP::isSerialized() const
+    {
+        return false;
+    }
 }

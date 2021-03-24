@@ -132,5 +132,11 @@ namespace sdm
         this->pomdp_->reset();
         return this->cstate_;
     }
+    
+    template <typename TBelief, typename TAction, typename TObservation>
+    bool BeliefMDP<TBelief, TAction, TObservation>::isSerialized() const
+    {
+        return false;
+    }
 
 } // namespace sdm

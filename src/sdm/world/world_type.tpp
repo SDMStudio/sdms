@@ -13,6 +13,13 @@ namespace sdm
             return DiscreteMDP();
         }
 
+        template <bool is_solving_mmdp>
+        static std::enable_if_t<is_solving_mmdp, DiscreteMMDP>
+        getAssociatedProblem()
+        {
+            return DiscreteMMDP();
+        }
+
         template <bool is_solving_pomdp>
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getAssociatedProblem()

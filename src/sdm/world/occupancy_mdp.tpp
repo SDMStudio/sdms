@@ -147,4 +147,10 @@ namespace sdm
         return value_function->getValueAt(ost, t + 1);
     }
 
+    template <typename oState, typename oAction>
+    bool OccupancyMDP<oState, oAction>::isSerialized() const
+    {
+        return false;
+    }
+
 } // namespace sdm

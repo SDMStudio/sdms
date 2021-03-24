@@ -73,7 +73,16 @@ namespace sdm
     template <typename TState, typename TAction>
     double HSVI<TState, TAction>::do_excess(const TState &s, number h)
     {
-        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getDiscount(), h);
+
+        number realTime = h;
+        if (this->world_->isSerialized())
+        {
+            //std::cout<<"\n Ancien Time : "<<realTime;
+            realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
+            //std::cout<<"\n New Time : "<<realTime<<"\n";
+        }
+
+        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getDiscount(), realTime);
     }
 
     template <typename TState, typename TAction>
@@ -129,5 +138,23 @@ namespace sdm
     TAction HSVI<TState, TAction>::selectNextAction(const TState &s, number h)
     {
         return this->upper_bound_->getBestAction(s, h); // argmax_{a} q_value(s, a)
+    }
+
+    template <typename TState, typename TAction>
+    std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::getLowerBound() const
+    {
+        return this->lower_bound_;
+    }
+
+    template <typename TState, typename TAction>
+    std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::getUpperBound() const
+    {
+        return this->upper_bound_;
+    }
+
+    template <typename TState, typename TAction>
+    int HSVI<TState, TAction>::getTrial() const
+    {
+        return this->trial;
     }
 } // namespace sdm

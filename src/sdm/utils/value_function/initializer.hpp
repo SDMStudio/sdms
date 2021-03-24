@@ -109,9 +109,7 @@ namespace sdm
 
     public:
         BoundInitializer() {}
-        BoundInitializer(double value) : value_(value)
-        {
-        }
+        BoundInitializer(double value) : value_(value) {}
 
         void init(ValueFunction<TState, TAction> *vf)
         {
@@ -138,7 +136,17 @@ namespace sdm
                 double tot = 0;
                 for (int t = vf->getHorizon() - 1; t >= 0; t--)
                 {
-                    tot = this->value_ + under_pb->getDiscount() * tot;
+                    if (vf->getWorld()->isSerialized())
+                    {
+                        if ((t + 1) % under_pb->getNumAgents() == 0)
+                        {
+                            tot = this->value_ + under_pb->getDiscount() * tot;
+                        }
+                    }
+                    else
+                    {
+                        tot = this->value_ + under_pb->getDiscount() * tot;
+                    }
                     vf->initialize(tot, t);
                 }
             }
@@ -150,7 +158,6 @@ namespace sdm
     {
     public:
         MinInitializer() {}
-        MinInitializer(double min_reward) : BoundInitializer<TState, TAction>(min_reward) {}
 
         void init(ValueFunction<TState, TAction> *vf)
         {
@@ -164,7 +171,6 @@ namespace sdm
     {
     public:
         MaxInitializer() {}
-        MaxInitializer(double max_reward) : BoundInitializer<TState, TAction>(max_reward) {}
 
         void init(ValueFunction<TState, TAction> *vf)
         {

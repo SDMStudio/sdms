@@ -70,6 +70,7 @@ namespace sdm
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
         virtual DiscreteDecPOMDP *getUnderlyingProblem() { return this->dpomdp_.get(); }
+        bool isSerialized() const;
     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

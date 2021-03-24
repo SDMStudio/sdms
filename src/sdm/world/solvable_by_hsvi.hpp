@@ -16,7 +16,7 @@
  */
 namespace sdm
 {
-    
+
     /**
      * @brief Public interface that must be implemented by all transformed problems that can be solved using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
      * 
@@ -87,5 +87,7 @@ namespace sdm
         virtual double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &state, const TAction &action, int t = 0) const = 0;
 
         virtual typename WorldType<TState, TAction>::type *getUnderlyingProblem() = 0;
+
+        virtual bool isSerialized() const = 0;
     };
 } // namespace sdm

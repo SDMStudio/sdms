@@ -7,6 +7,7 @@ namespace sdm
 {
 
     class DiscreteMDP;
+    class DiscreteMMDP;
     class DiscretePOMDP;
     class DiscreteDecPOMDP;
 
@@ -15,6 +16,10 @@ namespace sdm
     {
         template <bool is_solving_mdp = std::is_same<TState, number>::value>
         static std::enable_if_t<is_solving_mdp, DiscreteMDP>
+        getAssociatedProblem();
+
+        template <bool is_solving_mmdp = std::is_same<TState, SerializedState<>>::value>
+        static std::enable_if_t<is_solving_mmdp, DiscreteMMDP>
         getAssociatedProblem();
 
         template <bool is_solving_pomdp = std::is_same<TState, BeliefState>::value>

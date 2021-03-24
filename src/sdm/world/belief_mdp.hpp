@@ -72,6 +72,8 @@ namespace sdm
         {
             return this->pomdp_.get();
         }
+
+        bool isSerialized() const;
     };
 } // namespace sdm
 #include <sdm/world/belief_mdp.tpp>

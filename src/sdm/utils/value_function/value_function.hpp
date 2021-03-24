@@ -80,7 +80,6 @@ namespace sdm
          */
         virtual std::string str() = 0;
 
-        
         TValue operator()(const TState &state);
 
         /**
@@ -111,9 +110,9 @@ namespace sdm
         std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
 
         int getHorizon() const;
-        
+
         bool isFiniteHorizon() const;
-        
+
         bool isInfiniteHorizon() const;
 
         friend std::ostream &operator<<(std::ostream &os, ValueFunction<TState, TAction> &vf)
@@ -121,6 +120,8 @@ namespace sdm
             os << vf.str();
             return os;
         }
+
+        double getDiscount(int t);
     };
 } // namespace sdm
 #include <sdm/utils/value_function/value_function.tpp>

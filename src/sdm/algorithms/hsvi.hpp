@@ -64,7 +64,6 @@ namespace sdm
     int trial, MAX_TRIALS;
     double error_;
     number planning_horizon_;
-
     std::string name_ = "hsvi";
 
     void initLogger();
@@ -159,6 +158,11 @@ namespace sdm
      * @return TState 
      */
     TState selectNextState(const TState &s, const TAction &a, number d);
+
+    std::shared_ptr<ValueFunction<TState, TAction>> getLowerBound() const;
+    std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
+
+    int getTrial() const;
   };
 } // namespace sdm
 #include <sdm/algorithms/hsvi.tpp>
