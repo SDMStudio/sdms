@@ -15,7 +15,7 @@ namespace sdm
         std::apply(
             [&os](T const &...tupleArgs) {
                 std::size_t n{0};
-                //((os << tupleArgs << (++n != sizeof...(T) ? ", " : "")), ...);
+                ((os << tupleArgs << (++n != sizeof...(T) ? ", " : "")), ...);
             },
             tuple);
         os << "}";

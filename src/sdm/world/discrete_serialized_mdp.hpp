@@ -15,13 +15,12 @@ namespace sdm
     class DiscreteMMDP;
 
     template <typename oState = SerializedState<number>,
-              typename oAction = DeterministicDecisionRule<HistoryTree<number>, number>>
+              typename oAction = number>
     class DiscreteSerializedMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:
         std::shared_ptr<DiscreteMMDP> mmdp_;
         oState istate_;
-        oState cstate_;
 
     public:
         using state_type = oState;

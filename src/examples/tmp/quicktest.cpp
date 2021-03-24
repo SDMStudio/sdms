@@ -3,21 +3,24 @@
 #include <time.h>
 
 #include <sdm/common.hpp>
-#include <sdm/algorithms.hpp>
-#include <sdm/parser/parser.hpp>
+#include <sdm/utils/struct/pair.hpp>
+// #include <sdm/algorithms.hpp>
+// #include <sdm/parser/parser.hpp>
 
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/world/ndpomdp.hpp>
-//#include <sdm/world/serialized_occupancy_mdp.hpp>
+// #include <sdm/utils/linear_algebra/mapped_vector.hpp>
+// #include <sdm/world/ndpomdp.hpp>
+// //#include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/core/state/serialized_state.hpp>
 #include <sdm/world/discrete_serialized_mdp.hpp>
 
-#include <sdm/types.hpp>
-#include <sdm/tools.hpp>
-//#include <sdm/utils/logging/logger.hpp>
-//#include <sdm/utils/struct/vector.hpp>
-#include <sdm/utils/struct/pair.hpp>
-#include <sdm/utils/struct/tuple.hpp>
-// #include <sdm/algorithms.hpp>
+
+// #include <sdm/types.hpp>
+// #include <sdm/tools.hpp>
+// //#include <sdm/utils/logging/logger.hpp>
+// //#include <sdm/utils/struct/vector.hpp>
+// #include <sdm/utils/struct/pair.hpp>
+// #include <sdm/utils/struct/tuple.hpp>
+ #include <sdm/algorithms.hpp>
 // #include <sdm/parser/parser.hpp>
 
 // #include <sdm/utils/linear_algebra/mapped_vector.hpp>
@@ -86,14 +89,14 @@ int main(int argc, char **argv)
     std::string filePath("../data/world/dpomdp/");
 
     const int nbfile(1);
-    std::string all_file[nbfile] = {"tiger"};//,"tiger","recycling"};
+    std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
 
 
     std::ofstream myfile;
     myfile.open("resultat.csv");
     myfile<<"Filename,Horizon,Case,Discount,Resultat,Time,Trial \n";
 
-    int max_horizon(2);
+    int max_horizon(3);
 
     clock_t t_begin, t_end;
     float temps;
@@ -127,29 +130,38 @@ int main(int argc, char **argv)
                 //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
 
                 using TState = SerializedState<number>;
-                using TAction = DeterministicDecisionRule<HistoryTree<number>, number>;
+                using TAction = number;
 
-                auto somdp = std::make_shared<DiscreteSerializedMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+                auto somdp = std::make_shared<DiscreteSerializedMDP<TState, TAction>>(filePath+filename+".dpomdp");
+                
+                //number s = 2;
+                //SerializedState<number> p(s,std::vector<number>{3});
+                //std::cout << p << std::endl;
 
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                 //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi",somdp->getNumberAgent());
+                 auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi",somdp->getNumberAgent());
 
-                t_begin = clock();
+                // t_begin = clock();
 
+
+                std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
+                std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+                
+                
                 hsvi->do_solve();
 
-                t_end = clock();
-                temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
-                //printf("temps = %f\n", temps);
+                // t_end = clock();
+                // temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+                // //printf("temps = %f\n", temps);
 
-                //hsvi->do_test();
+                // //hsvi->do_test();
 
                 myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
 
-                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
-                //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+                // //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
+                // //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
 
                 myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
             }
@@ -157,7 +169,7 @@ int main(int argc, char **argv)
         }
 
     }
-
+    
 
 
     //****************** Extensive

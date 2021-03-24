@@ -20,8 +20,8 @@ file(
 	GLOB_RECURSE
 	lib_world
 	${INCLUDE_DIR}/*
-	# ${INCLUDE_DIR}/utils/linear_algebra/*
-	# ${INCLUDE_DIR}/core/*
+	# ${INCLUDE_DIR}/utils/struct/*
+	# ${INCLUDE_DIR}/core/state/*
 	# ${INCLUDE_DIR}/common.cpp
 	# ${INCLUDE_DIR}/tools.cpp
 )

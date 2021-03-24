@@ -4,25 +4,25 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
+#include <sdm/utils/struct/vector.hpp>
 #include <sdm/core/state/state.hpp>
 
 namespace sdm
 {
   template <typename TState>
-  class SerializedState : public MappedVector<Pair<TState, std::vector<number>>, double>
+  class SerializedState : public Pair<TState, std::vector<number>>
   {
   public:
     //using jhistory_type = TJointHistory_p;
     using state_type = TState;
 
     SerializedState();
-    SerializedState(double default_value);
-    SerializedState(std::size_t size, double default_value);
+    SerializedState(TState size, std::vector<number> default_value);
     SerializedState(const SerializedState &v);
 
     //std::set<jhistory_type> getJointHistories() const;
-    std::set<state_type> getStates() const;
-
+    TState getState() const;
+    std::vector<number> getAction() const;
     //std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
 
     number getCurrentAgentId() const;
@@ -41,12 +41,9 @@ namespace std
         inline result_type operator()(const argument_type &in) const
         {
             size_t seed = 0;
-            for (auto &v : in)
-            {
                 //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, v.first);
-                sdm::hash_combine(seed, v.second);
-            }
+                sdm::hash_combine(seed, in.first);
+                sdm::hash_combine(seed, in.second);
             return seed;
         }
     };

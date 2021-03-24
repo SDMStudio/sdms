@@ -9,39 +9,9 @@ template <typename oState, typename oAction>
     DiscreteSerializedMDP<oState, oAction>::DiscreteSerializedMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : mmdp_(underlying_mmdp)
     {
     }
-/*
-    template <typename oState, typename oAction>
-    DiscreteSerializedMDP<oState, oAction>::DiscreteSerializedMDP(std::shared_ptr<DiscreteMDP> underlying_mdp, number hist_length) : dpomdp_(underlying_dpomdp)
-    {
-
-        typename oState::jhistory_type jhist;
-        if (hist_length > 0)
-        {
-            jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents(), hist_length);
-        }
-        else
-        {
-            jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents());
-        }
-
-        for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
-        {
-            if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
-            {
-                Tuple<typename oState::state_type, typename oState::jhistory_type, std::vector<number>> p_x_h(s, jhist, {});
-                this->istate_[p_x_h] = this->dpomdp_->getStartDistrib().probabilities()[s];
-            }
-        }
-        this->cstate_ = this->istate_;
-    }*/
-    /*
-    template <typename oState, typename oAction>
-    SerializedOccupancyMDP<oState, oAction>::SerializedOccupancyMDP(std::string underlying_dpomdp, number hist_length) : SerializedOccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp), hist_length)
-    {
-    }*/
 
     template <typename oState, typename oAction>
-    DiscreteSerializedMDP<oState, oAction>::DiscreteSerializedMDP(std::string underlying_mmdp) : DiscreteSerializedMDP(std::make_shared<DiscreteMDP>(underlying_mmdp))
+    DiscreteSerializedMDP<oState, oAction>::DiscreteSerializedMDP(std::string underlying_mmdp) : DiscreteSerializedMDP(std::make_shared<DiscreteMMDP>(underlying_mmdp))
     {
     }
 
@@ -49,12 +19,6 @@ template <typename oState, typename oAction>
     oState DiscreteSerializedMDP<oState, oAction>::getInitialState()
     {
         return this->istate_;
-    }
-
-    template <typename oState, typename oAction>
-    oState &DiscreteSerializedMDP<oState, oAction>::getState()
-    {
-        return this->cstate_;
     }
 
     template <typename oState, typename oAction>
@@ -67,41 +31,40 @@ template <typename oState, typename oAction>
     }
 
     template <typename oState, typename oAction>
-    oState DiscreteSerializedMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, int t, HSVI<oState, oAction> *hsvi) const
+    oState DiscreteSerializedMDP<oState, oAction>::nextState(const oState &ostate, const oAction &action, int t, HSVI<oState, oAction> *hsvi) const
     {
         number ag_id = ostate.getCurrentAgentId();
 
         oState new_ostate;
-        for (auto &p_x_u : ostate)
+
+        auto x = ostate.getState();
+        auto u = ostate.getAction();
+
+        if (ag_id != this->mmdp_->getNumAgents() - 1)
+        {
+            u.push_back(action); 
+             
+            new_ostate = oState(x, u);
+        }
+        else
         {
 
-            auto pair_x_u = p_x_u.first;
-            auto x = pair_x_u.first;
-            auto u = pair_x_u.second;
+            double max = std::numeric_limits<double>::min();
+            number amax = 0;
 
-            if (ag_id != this->mmdp_->getNumAgents() - 1)
+            u.push_back(action); 
+
+            for (auto & state_ : this->mmdp_->getStateSpace()->getAll())
             {
-                u.push_back(indiv_dr(ostate)); // cela n'est pas bon, mais pour le moment je ne sais pas le remplacer
-                //u.push_back(indiv_dr) ? 
-                new_ostate[std::make_pair(x, u)] = p_x_u.second;
-            }
-            else
-            {
-                u.push_back(indiv_dr(ostate));
-                
-                for (auto &y : this->mmdp_->getStateSpace()->getAll())
+                double tmp = this->mmdp_->getStateDynamics()->getTransitionProbability(x, this->mmdp_->getActionSpace()->joint2single(u), state_); //* hsvi->do_excess(state_, t + 1);
+                if (tmp > max)
                 {
-                    Pair<typename oState::state_type, std::vector<number>> new_index(y, {});
-                    
-                    double proba = p_x_u.second * this->getStateDynamics()->getTransitionProbability(ostate, this->mmdp_->getActionSpace()->joint2single(u), y) * hsvi->do_excess(y, t + 1);
-                    //cela non plus 
-                    
-                    if (proba > 0)
-                    {
-                        new_ostate[new_index] = new_ostate.at(new_index) + proba;
-                    }
+                    max = tmp;
+                    amax = state_;
                 }
             }
+            //auto a= std::make_pair(amax, {});
+            new_ostate = oState(amax, {});
         }
         return new_ostate;
     }
@@ -113,7 +76,7 @@ template <typename oState, typename oAction>
     }
 
     template <typename oState, typename oAction>
-    double DiscreteSerializedMDP<oState, oAction>::getReward(const oState &ostate, const oAction &indiv_dr) const
+    double DiscreteSerializedMDP<oState, oAction>::getReward(const oState &ostate, const oAction &action) const
     {
         double r = 0;
         number ag_id = ostate.getCurrentAgentId();
@@ -123,6 +86,17 @@ template <typename oState, typename oAction>
             return 0;
         }
 
+        auto x = ostate.getState();
+        auto u = ostate.getAction();
+        
+        
+        u.push_back(action); 
+
+        r = this->getReward()->getReward(x, this->mmdp_->getActionSpace()->joint2single(u));
+        // A voir si cela foncitonne mais cela ne me paraît pas faux non plus
+
+
+        /*
         for (auto &p_x_u : ostate)
         {
             auto pair_x_u = p_x_u.first;
@@ -138,14 +112,15 @@ template <typename oState, typename oAction>
             
 
             r += p_x_u.second * this->getReward()->getReward(state, this->mmdp_->getActionSpace()->joint2single(jaction));
-        }
+        }*/
+
         return r;
     }
 
     template <typename oState, typename oAction>
-    double DiscreteSerializedMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t) const
+    double DiscreteSerializedMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &action, int t) const
     {
-        oState ost = this->nextState(ostate, oaction);
+        oState ost = this->nextState(ostate, action);
         return value_function->getValueAt(ost, t + 1);
     }
 
