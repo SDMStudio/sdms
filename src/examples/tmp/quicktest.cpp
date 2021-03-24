@@ -3,17 +3,18 @@
 
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
-#include <sdm/utils/logging/logger.hpp>
-#include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/struct/pair.hpp>
-#include <sdm/utils/struct/tuple.hpp>
-#include <sdm/world/world_type.hpp>
-#include <sdm/world/discrete_mdp.hpp>
-#include <sdm/world/discrete_pomdp.hpp>
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/world/belief_mdp.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+// #include <sdm/utils/logging/logger.hpp>
+// #include <sdm/utils/struct/vector.hpp>
+// #include <sdm/utils/struct/pair.hpp>
+// #include <sdm/utils/struct/tuple.hpp>
+// #include <sdm/world/world_type.hpp>
+// #include <sdm/world/discrete_mdp.hpp>
+// #include <sdm/world/discrete_pomdp.hpp>
+// #include <sdm/world/discrete_decpomdp.hpp>
+// #include <sdm/world/solvable_by_hsvi.hpp>
+// #include <sdm/world/belief_mdp.hpp>
+// #include <sdm/world/serialized_occupancy_mdp.hpp>
 
 // #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 // #include <sdm/world/ndpomdp.hpp>
@@ -43,16 +44,19 @@ int main(int argc, char **argv)
         std::cerr << "Error:  arg[1] must be an input file, arg[2] must be the horizon, arg[3] is optional (the length of history)." << std::endl;
         return 1;
     }
-    using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
-    using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
-    std::shared_ptr<SolvableByHSVI<TState, TAction>> mdp = std::make_shared<SerializedOccupancyMDP<>>(filename);
+    // using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+    // std::shared_ptr<SolvableByHSVI<TState, TAction>> mdp = std::make_shared<SerializedOccupancyMDP<>>(filename);
 
-    auto upb = mdp->getUnderlyingProblem();
+    // auto upb = mdp->getUnderlyingProblem();
 
-    std::cout << *upb->getStateSpace() << std::endl;
-    std::cout << *upb->getActionSpace() << std::endl;
-    std::cout << *upb << std::endl;
+    // std::cout << *upb->getStateSpace() << std::endl;
+    // std::cout << *upb->getActionSpace() << std::endl;
+    // std::cout << *upb << std::endl;
 
+    sdm::Pair<number, number> p = std::make_pair(2,3);
+
+    std::cout << p ;
     // print(3, 4.5, "hello");
 
     // std::apply([](auto&&... args) {((std::cout << args << '\n'), ...);}, t);
