@@ -73,7 +73,7 @@ You can pass an parameter of the form `path/to/libtorch-xxxxx.zip` to specify wh
 **Install SDMS dependencies**
 
 ```bash
-  sudo apt-get install clang libeigen3-dev libboost-all-dev
+  sudo apt-get install clang libeigen3-dev libboost-all-dev libfmt-dev
 ```
 **Install pytorch**
 
