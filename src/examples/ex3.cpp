@@ -88,7 +88,7 @@ int main(int argc, char **argv)
         std::cout << *j_history->getOrigin() << std::endl;
 
     }
-    catch (sdm::exception::Except &e)
+    catch (sdm::exception::Exception &e)
     {
         std::cout << "!!! Exception: " << e.what() << std::endl;
     }

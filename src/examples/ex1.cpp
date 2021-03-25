@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
 		return 0;
 	}
-	catch (sdm::exception::Except &e)
+	catch (sdm::exception::Exception &e)
 	{
 		std::cout << "!!! Exception: " << e.what() << std::endl;
 	}

@@ -1,7 +1,16 @@
+/**
+ * @file initializer.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief File that contains definition of different initializers.
+ * @version 1.0
+ * @date 24/03/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
-#include <math.h>
-#include <map>
 
+#include <math.h>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/core/state/serialized_state.hpp>
@@ -11,6 +20,12 @@
 
 namespace sdm
 {
+    /**
+     * @brief Abstract class for initializer. 
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
     template <typename TState, typename TAction>
     class Initializer
     {
@@ -18,58 +33,12 @@ namespace sdm
         virtual void init(ValueFunction<TState, TAction> *vf) = 0;
     };
 
-    // template <typename T, typename TState, typename TAction>
-    // std::shared_ptr<Initializer<TState, TAction>> makeInstance() { return std::make_shared<T<TState, TAction>>(new T<TState, TAction>); }
-
-    // template <typename TState, typename TAction>
-    // struct InitializerFactory
-    // {
-    //     typedef std::map<std::string, std::shared_ptr<Initializer<TState, TAction>> (*)()> map_type;
-
-    //     static std::shared_ptr<Initializer<TState, TAction>> make(std::string const &s)
-    //     {
-    //         map_type::iterator it = getFactory()->find(s);
-    //         if (it == getFactory()->end())
-    //             return 0;
-    //         return it->second();
-    //     }
-
-    // protected:
-    //     static map_type *getFactory()
-    //     {
-    //         // never delete'ed. (exist until program termination)
-    //         // because we can't guarantee correct destruction order
-    //         if (!map)
-    //         {
-    //             map = new map_type;
-    //         }
-    //         return map;
-    //     }
-
-    // private:
-    //     static map_type *map;
-    // };
-
-    // template <typename T>
-    // struct InitializerRegister : BaseFactory
-    // {
-    //     InitializerRegister(std::string const &s)
-    //     {
-    //         getFactory()->insert(std::make_pair(s, &makeInstance<T>));
-    //     }
-    // };
-
-    // // in derivedb.hpp
-    // class MaxInitializer
-    // {
-
-    // private:
-    //     static InitializerRegister<MaxInitializer> register;
-    // };
-
-    // // in derivedb.cpp:
-    // InitializerRegister<MaxInitializer> MaxInitializer::register("MaxInitializer");
-
+    /**
+     * @brief  This initializer initializes a value function to a constant value.
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
     template <typename TState, typename TAction>
     class ValueInitializer : public Initializer<TState, TAction>
     {
@@ -97,6 +66,12 @@ namespace sdm
         }
     };
 
+    /**
+     * @brief This initializer initializes a value function to zero.
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
     template <typename TState, typename TAction>
     class ZeroInitializer : public ValueInitializer<TState, TAction>
     {
@@ -106,6 +81,12 @@ namespace sdm
         }
     };
 
+    /**
+     * @brief This initializer initializes a value function to the estimation of the value if if we get a constant reward at every timestep.
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
     template <typename TState, typename TAction>
     class BoundInitializer : public Initializer<TState, TAction>
     {
@@ -158,11 +139,17 @@ namespace sdm
         }
     };
 
+    /**
+     * @brief This initializer initializes a value function to the worst value. This is a pessimistic initialization.
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
     template <typename TState, typename TAction>
     class MinInitializer : public BoundInitializer<TState, TAction>
     {
     public:
-        MinInitializer() {}
+        MinInitializer() { std::cout << "In MinInitalizer" << std::endl; }
 
         void init(ValueFunction<TState, TAction> *vf)
         {
@@ -171,11 +158,17 @@ namespace sdm
         }
     };
 
+    /**
+     * @brief This initializer initializes a value function to the best value. This is an optimistic initialization.
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
     template <typename TState, typename TAction>
     class MaxInitializer : public BoundInitializer<TState, TAction>
     {
     public:
-        MaxInitializer() {}
+        MaxInitializer() { std::cout << "In MaxInitalizer" << std::endl; }
 
         void init(ValueFunction<TState, TAction> *vf)
         {
@@ -195,6 +188,7 @@ namespace sdm
     public:
         BlindInitializer()
         {
+            std::cout << "In BlindInitalizer" << std::endl;
         }
 
         void init(ValueFunction<TState, TAction> *vf)

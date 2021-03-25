@@ -10,7 +10,7 @@
 #include <sdm/core/states.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializers.hpp>
 
 namespace sdm
 {
@@ -47,8 +47,8 @@ namespace sdm
             //lb_bound->initialize();
 
             // Instanciate initializers
-            auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>();
-            auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>();
+            auto lb_init = sdm::makeInitializer<TState, TAction>("BlindInitializer");//std::make_shared<sdm::MinInitializer<TState, TAction>>();
+            auto ub_init = sdm::makeInitializer<TState, TAction>("MaxInitializer");//std::make_shared<sdm::MaxInitializer<TState, TAction>>();
 
             // Instanciate bounds
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));

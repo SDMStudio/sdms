@@ -1,4 +1,5 @@
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 
 namespace sdm
 {

@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 		auto dpomdp_world = sdm::parser::parse_file(filename_in);
 		dpomdp_world->generateFile(filename_out);
 	}
-	catch (sdm::exception::Except &e)
+	catch (sdm::exception::Exception &e)
 	{
 		std::cout << "!!! Exception: " << e.what() << std::endl;
 	}

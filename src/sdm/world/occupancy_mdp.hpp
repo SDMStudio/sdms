@@ -29,10 +29,11 @@ namespace sdm
     class DiscreteDecPOMDP;
 
     /**
-     * @brief 
+     * @brief An occupancy MDP is a subclass of continuous state MDP where states are occupancy states. 
+     * In the general case, an occupancy state refers to the whole knowledge that a central planner can have access to take decisions. But in this implementation we call occupancy state are distribution over state and joint histories .
      * 
-     * @tparam oState 
-     * @tparam oAction 
+     * @tparam oState the occupancy state type 
+     * @tparam oAction the occupancy action type 
      */
     template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, typename oAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>
     class OccupancyMDP : public SolvableByHSVI<oState, oAction>

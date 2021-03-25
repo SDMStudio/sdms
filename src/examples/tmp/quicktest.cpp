@@ -2,9 +2,9 @@
 #include <fstream>
 #include <time.h>
 
-#include <sdm/core/state/serialized_state.hpp>
-#include <sdm/world/serialized_mdp.hpp>
-#include <sdm/algorithms.hpp>
+#include <sdm/types.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/utils/value_function/initializers.hpp>
 
 using namespace sdm;
 
@@ -30,20 +30,15 @@ int main(int argc, char **argv)
         std::cerr << "Error:  arg[1] must be an input file, arg[2] must be the horizon, arg[3] is optional (the length of history)." << std::endl;
         return 1;
     }
-    // using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
-    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
-    // std::shared_ptr<SolvableByHSVI<TState, TAction>> mdp = std::make_shared<SerializedOccupancyMDP<>>(filename);
 
-    // auto upb = mdp->getUnderlyingProblem();
+    std::map<int, double> m = {{1, 3.5},
+                               {4, 10}};
 
-    // std::cout << *upb->getStateSpace() << std::endl;
-    // std::cout << *upb->getActionSpace() << std::endl;
-    // std::cout << *upb << std::endl;
-
-    sdm::Pair<number, number> p = std::make_pair(2,3);
-
-    std::cout << p ;
-    // print(3, 4.5, "hello");
+    std::shared_ptr<SolvableByHSVI<number, number>> mdp = std::make_shared<DiscreteMDP>(filename);
+    // std::map<std::string, std::shared_ptr<sdm::Initializer<number, number>> (*)()> m2 = {
+    //     {"MaxInitializer", &sdm::createInstance<number, number, sdm::MaxInitializer>},
+    //     {"MinInitializer", &sdm::createInstance<number, number, sdm::MinInitializer>},
+    // };
 
     // std::apply([](auto&&... args) {((std::cout << args << '\n'), ...);}, t);
     */
@@ -129,14 +124,13 @@ int main(int argc, char **argv)
 
         }
 
-    }
-    
-
-
-    //****************** Extensive
+    // auto init = sdm::InitializerFactory<number, number>::make("MaxInitializer");
     /*
-    for(const std::string & filename : all_file)
+    std::cout << "Available Init" << std::endl;
+    for (auto &v : sdm::InitializerFactory<number, number>::available())
     {
+        std::cout << v << std::endl;
+    }*/
 
         for(int i(1);i<= max_horizon;++i)
         {
@@ -184,7 +178,7 @@ int main(int argc, char **argv)
 
         }
 
-    }*/
+    }
 
     // ************************** Simul           
 
@@ -196,75 +190,22 @@ int main(int argc, char **argv)
 
             int horizon(i);
             int length_history(i);
+    // sdm::InitializerFactory<number, number>::addToRegistry<sdm::BlindInitializer>("BlindInitializer");
 
-            for(const double & discount : all_discount)
-            {
-                std::cout<<"*************** Simultane \n";
-                std::cout<<"File : "<<filename<<"\n";
-                std::cout<<"Horizon : "<<horizon<<"\n";
-                std::cout<<"Discount : "<<discount<<"\n";
+    std::cout << "Available Init" << std::endl;
 
-                myfile<<filename<<","<<horizon<<",Simultane"<<","<<discount;
+    std::cout << sdm::InitializerFactory<number, number>::available() << std::endl;
 
-
-                using TActionPrescriptor = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>;
-                using TStatePrescriptor = OccupancyState<number, JointHistoryTree_p<number>>;
-
-                auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filePath+filename+".dpomdp", horizon);
-                auto hsvi2 = sdm::algo::makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, discount, 0.0, horizon,trials);
-                
-
-                t_begin = clock();
-
-                //std::cout<<"Min Reward : "<<oMDP->getReward()->getMinReward()<<"\n";
-                //std::cout<<"Max Reward : "<<oMDP->getReward()->getMaxReward()<<"\n";
-
-                //std::cout<<"Lower bound : "<<hsvi2->getLowerBound()->getValueAt(oMDP->getInitialState())<<"\n";
-                //std::cout<<"Upper bound : "<<hsvi2->getUpperBound()->getValueAt(oMDP->getInitialState())<<"\n";
-
-                hsvi2->do_solve();
-
-                t_end = clock();
-                temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
-                //printf("temps = %f\n", temps);
-
-                //hsvi->do_test();
-
-                myfile<<","<<hsvi2->getLowerBound()->getValueAt(oMDP->getInitialState()); 
-                myfile<<","<<temps<<","<<hsvi2->getTrial()<<" \n";
-            }
-        }
-    }*/
-    
-    // clock_t t_begin, t_end;
-
-    // std::cout << "#> Parsing DecPOMDP file \"" << filename << "\"\n";
-    // number n_agents = 2;
+    // auto init2 = sdm::makeInitializer<number, number>("BlindInitializer");
 
     // using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
     // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-    // auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, length_history);
+    // auto upb = mdp->getUnderlyingProblem();
 
-    // auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 1.0, 0.1, horizon * n_agents);
-
-    // t_begin = clock();
-
-    // hsvi->do_solve();
-
-    // t_end = clock();
-    // float temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
-    // printf("temps = %f\n", temps);
-
-    // hsvi->do_test();
-
-    // NDPOMDP ndpomdp(filename);
-
-    // std::cout << "--------------------------------" << std::endl;
-
-    // std::cout << ndpomdp.getStateSpace() << std::endl;
-    // std::cout << ndpomdp.getActionSpace() << std::endl;
-    // std::cout << ndpomdp.getObsSpace() << std::endl;
+    // std::cout << *upb->getStateSpace() << std::endl;
+    // std::cout << *upb->getActionSpace() << std::endl;
+    // std::cout << *upb << std::endl;
 
     return 0;
 }
