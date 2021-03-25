@@ -12,6 +12,7 @@
 
 #include <memory>
 
+#include <sdm/core/function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
 /**
@@ -68,19 +69,18 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual TValue getValueAt(TState &state, int t = 0) = 0;
+        virtual TValue getValueAt(const TState &state, int t = 0) = 0;
 
         /**
          * @brief Update the value at a given state
          */
-        virtual void updateValueAt(TState &s, int t = 0) = 0;
+        virtual void updateValueAt(const TState &s, int t = 0) = 0;
 
         /**
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() = 0;
 
-        
         TValue operator()(const TState &state);
 
         /**
@@ -89,7 +89,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(TState &state, int t = 0);
+        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, int t = 0);
 
         /**
          * @brief Get the q-value given state and action
@@ -98,7 +98,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        TValue getQValueAt(TState &state, TAction &action, int t = 0);
+        TValue getQValueAt(const TState &state, const TAction &action, int t = 0);
 
         /**
          * @brief Get the best action to do at a state
@@ -106,14 +106,19 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        TAction getBestAction(TState &state, int t = 0);
+        TAction getBestAction(const TState &state, int t = 0);
 
+        /**
+         * @brief Get the world (i.e. the problem that is solve by HSVI).
+         * 
+         * @return the world
+         */
         std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
 
         int getHorizon() const;
-        
+
         bool isFiniteHorizon() const;
-        
+
         bool isInfiniteHorizon() const;
 
         friend std::ostream &operator<<(std::ostream &os, ValueFunction<TState, TAction> &vf)
@@ -121,6 +126,14 @@ namespace sdm
             os << vf.str();
             return os;
         }
+        
+        /**
+         * @brief Get the discount factor. If the problem is serialized then the discount factor is equal to one for every timestep except the one where agent $n$ take an action.  
+         * 
+         * @param t the timestep
+         * @return double the discount factor
+         */
+        double getDiscount(int t);
     };
 } // namespace sdm
 #include <sdm/utils/value_function/value_function.tpp>

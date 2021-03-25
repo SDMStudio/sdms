@@ -14,7 +14,6 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/history_tree.hpp>
 #include <sdm/core/state/jhistory_tree.hpp>
-// #include <torch/torch.h>
 
 /**
  * @namespace sdms

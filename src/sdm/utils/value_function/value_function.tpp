@@ -1,4 +1,5 @@
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 
 namespace sdm
 {
@@ -14,7 +15,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    std::shared_ptr<VectorImpl<TAction, TValue>> ValueFunction<TState, TAction, TValue>::getQValueAt(TState &state, int t)
+    std::shared_ptr<VectorImpl<TAction, TValue>> ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, int t)
     {
         std::shared_ptr<MappedVector<TAction, TValue>> q_s = std::make_shared<MappedVector<TAction, TValue>>();
         for (auto &a : this->getWorld()->getActionSpaceAt(state)->getAll())
@@ -25,14 +26,14 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TValue ValueFunction<TState, TAction, TValue>::getQValueAt(TState &state, TAction &action, int t)
+    TValue ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, const TAction &action, int t)
     {
         // implement bellman operator
-        return this->getWorld()->getReward(state, action) + this->getWorld()->getDiscount() * this->getWorld()->getExpectedNextValue(this, state, action, t);
+        return this->getWorld()->getReward(state, action) + this->getDiscount(t) * this->getWorld()->getExpectedNextValue(this, state, action, t);
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TAction ValueFunction<TState, TAction, TValue>::getBestAction(TState &state, int t)
+    TAction ValueFunction<TState, TAction, TValue>::getBestAction(const TState &state, int t)
     {
         auto qvalues = this->getQValueAt(state, t);
         return qvalues->argmax();
@@ -61,4 +62,19 @@ namespace sdm
     {
         return !(this->isFiniteHorizon());
     }
+
+    template <typename TState, typename TAction, typename TValue>
+    double ValueFunction<TState, TAction, TValue>::getDiscount(int t)
+    {
+
+        if (this->getWorld()->isSerialized())
+        {
+            if ((t+1) % this->getWorld()->getUnderlyingProblem()->getNumAgents() != 0)
+            {
+                return 1.0;
+            }
+        }
+        return this->getWorld()->getUnderlyingProblem()->getDiscount();
+    }
+
 } // namespace sdm

@@ -6,6 +6,11 @@ namespace sdm
 {
 
     template <typename oState, typename oAction>
+    SerializedOccupancyMDP<oState, oAction>::SerializedOccupancyMDP()
+    {
+    }
+
+    template <typename oState, typename oAction>
     SerializedOccupancyMDP<oState, oAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : dpomdp_(underlying_dpomdp)
     {
     }
@@ -46,15 +51,27 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedOccupancyMDP<oState, oAction>::getInitialState()
-    {
-        return this->istate_;
-    }
-
-    template <typename oState, typename oAction>
     oState &SerializedOccupancyMDP<oState, oAction>::getState()
     {
         return this->cstate_;
+    }
+
+    template <typename oState, typename oAction>
+    bool SerializedOccupancyMDP<oState, oAction>::isSerialized() const
+    {
+        return true;
+    }
+
+    template <typename oState, typename oAction>
+    DiscreteDecPOMDP *SerializedOccupancyMDP<oState, oAction>::getUnderlyingProblem()
+    {
+        return this->dpomdp_.get();
+    }
+
+    template <typename oState, typename oAction>
+    oState SerializedOccupancyMDP<oState, oAction>::getInitialState()
+    {
+        return this->istate_;
     }
 
     template <typename oState, typename oAction>
@@ -84,14 +101,14 @@ namespace sdm
         {
 
             auto tuple_x_o_u = p_x_o.first;
-            auto x = sdm::get<0>(tuple_x_o_u);
-            auto o = sdm::get<1>(tuple_x_o_u);
-            auto u = sdm::get<2>(tuple_x_o_u);
+            auto x = std::get<0>(tuple_x_o_u);
+            auto o = std::get<1>(tuple_x_o_u);
+            auto u = std::get<2>(tuple_x_o_u);
 
             if (ag_id != this->dpomdp_->getNumAgents() - 1)
             {
                 u.push_back(indiv_dr(o->getIndividualHistory(ag_id)));
-                new_ostate[sdm::make_tuple(x, o, u)] = p_x_o.second;
+                new_ostate[std::make_tuple(x, o, u)] = p_x_o.second;
             }
             else
             {
@@ -114,12 +131,6 @@ namespace sdm
         return new_ostate;
     }
 
-    template <typename oState, typename oAction>
-    std::shared_ptr<Reward> SerializedOccupancyMDP<oState, oAction>::getReward() const
-    {
-        return this->dpomdp_->getReward();
-    }
-
     // A VERIFIER !!!!!!!!!!!!!!!!!!!!
     template <typename oState, typename oAction>
     double SerializedOccupancyMDP<oState, oAction>::getReward(const oState &ostate, const oAction &indiv_dr) const
@@ -135,16 +146,16 @@ namespace sdm
         for (auto &p_x_o : ostate)
         {
             auto tuple_s_h_a = p_x_o.first;
-            auto state = sdm::get<0>(tuple_s_h_a);
-            auto jhistory = sdm::get<1>(tuple_s_h_a);
-            auto actions = sdm::get<2>(tuple_s_h_a);
+            auto state = std::get<0>(tuple_s_h_a);
+            auto jhistory = std::get<1>(tuple_s_h_a);
+            auto actions = std::get<2>(tuple_s_h_a);
 
             std::vector<typename oAction::output_type> jaction(actions.begin(), actions.end());
 
             // Add the last selected action (the action of agent 0)
             jaction.push_back(indiv_dr(jhistory->getIndividualHistory(ag_id)));
 
-            r += p_x_o.second * this->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
+            r += p_x_o.second * this->dpomdp_->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
         }
         return r;
     }
@@ -154,6 +165,20 @@ namespace sdm
     {
         oState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);
+    }
+
+    template <typename oState, typename oAction>
+    double SerializedOccupancyMDP<oState, oAction>::getDiscount(int t) const
+    {
+
+        if (this->getNumberAgent() > 1)
+        {
+            if (t % this->getNumberAgent() != this->getNumberAgent() - 1)
+            {
+                return 1.0;
+            }
+        }
+        return this->dpomdp_->getDiscount();
     }
 
 } // namespace sdm

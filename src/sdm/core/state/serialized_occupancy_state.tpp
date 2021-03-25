@@ -29,7 +29,7 @@ namespace sdm
         std::set<jhistory_type> possible_jhistories;
         for (const auto &key : *this)
         {
-            possible_jhistories.insert(sdm::get<1>(key.first));
+            possible_jhistories.insert(std::get<1>(key.first));
         }
         return possible_jhistories;
     }
@@ -40,7 +40,7 @@ namespace sdm
         std::set<state_type> possible_states;
         for (const auto &key : *this)
         {
-            possible_states.insert(sdm::get<0>(key.first));
+            possible_states.insert(std::get<0>(key.first));
         }
         return possible_states;
     }
@@ -51,7 +51,7 @@ namespace sdm
         std::set<typename SerializedOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> possible_ihistories;
         for (const auto &key : *this)
         {
-            auto jhist = sdm::get<1>(key.first);
+            auto jhist = std::get<1>(key.first);
             auto ihist = jhist->getIndividualHistory(ag_id);
             possible_ihistories.insert(ihist);
         }
@@ -61,7 +61,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     number SerializedOccupancyState<TState, TJointHistory_p>::getCurrentAgentId() const
     {
-        return sdm::get<2>(this->begin()->first).size();
+        return std::get<2>(this->begin()->first).size();
     }
 
 } // namespace sdm

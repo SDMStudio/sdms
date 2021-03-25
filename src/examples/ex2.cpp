@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 		std::cout << "#> Reward function : \n\n"
 				  << *dpomdp_world->getReward() << "\n\n";
 	}
-	catch (sdm::exception::Except &e)
+	catch (sdm::exception::Exception &e)
 	{
 		std::cout << "!!! Exception: " << e.what() << std::endl;
 	}

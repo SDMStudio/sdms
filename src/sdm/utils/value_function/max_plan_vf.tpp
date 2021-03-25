@@ -33,7 +33,7 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    std::pair<TValue, TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getMaxAt(TVector &state, int t)
+    std::pair<TValue, TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getMaxAt(const TVector &state, int t)
     {
         TValue current, max = std::numeric_limits<TValue>::min();
         TVector alpha_vector;
@@ -50,7 +50,7 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    TValue MaxPlanValueFunction<TVector, TAction, TValue>::getValueAt(TVector &state, int t)
+    TValue MaxPlanValueFunction<TVector, TAction, TValue>::getValueAt(const TVector &state, int t)
     {
         return this->getMaxAt(state, t).first;
     }
@@ -62,14 +62,14 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    TValue MaxPlanValueFunction<TVector, TAction, TValue>::getQValueAt(TVector &state, TAction &action, int t)
+    TValue MaxPlanValueFunction<TVector, TAction, TValue>::getQValueAt(const TVector &state, const TAction &action, int t)
     {
         // implement bellman operator
         return this->getWorld()->getReward(state, action) + this->getWorld()->getDiscount() * this->getWorld()->getExpectedNextValue(this, state, action, t);
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    std::shared_ptr<VectorImpl<TAction, TValue>> MaxPlanValueFunction<TVector, TAction, TValue>::getQValueAt(TVector &state, int t)
+    std::shared_ptr<VectorImpl<TAction, TValue>> MaxPlanValueFunction<TVector, TAction, TValue>::getQValueAt(const TVector &state, int t)
     {
         std::shared_ptr<MappedVector<TAction, double>> q_s = std::make_shared<MappedVector<TAction, double>>();
         for (auto &a : this->getWorld()->getActionSpace(state).getAll())
@@ -80,14 +80,14 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    TAction MaxPlanValueFunction<TVector, TAction, TValue>::getBestAction(TVector &state, int t)
+    TAction MaxPlanValueFunction<TVector, TAction, TValue>::getBestAction(const TVector &state, int t)
     {
         auto qvalues = this->getQValueAt(state, t);
         return qvalues->argmax();
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(TVector &state, int t)
+    void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(const TVector &state, int t)
     {
         // ERROR : To change with true bellman backup ope
         TVector new_hyperplan = state;

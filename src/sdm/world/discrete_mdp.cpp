@@ -62,10 +62,9 @@ namespace sdm
     {
         return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward();
     }
-
     double DiscreteMDP::getReward(const number &state, const number &action) const
     {
-        return this->getReward()->getReward(state, action);
+        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward()->getReward(state, action);
     }
 
     double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, int t) const
@@ -78,14 +77,13 @@ namespace sdm
         return tmp;
     }
 
-    double DiscreteMDP::getDiscount()
+    DiscreteMDP *DiscreteMDP::getUnderlyingProblem()
     {
-        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getDiscount();
+        return this;
     }
-
-    void DiscreteMDP::setDiscount(double discount)
+    
+    bool DiscreteMDP::isSerialized() const
     {
-        FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::setDiscount(discount);
+        return false;
     }
-
 }

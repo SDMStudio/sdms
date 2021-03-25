@@ -7,7 +7,7 @@
 url_libtorch='https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip'
 
 # Install dependencies
-apt-get -y update && apt-get install -y libeigen3-dev libboost-all-dev unzip wget
+apt-get -y update && apt-get install -y libeigen3-dev libboost-all-dev libfmt-dev unzip wget
 
 # Download pytorch and install it in /opt/
 if test $# -gt 0

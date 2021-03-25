@@ -8,6 +8,7 @@
 
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/serialized_mdp.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 
@@ -16,6 +17,17 @@ namespace sdm
     namespace world
     {
         
+        // template <typename TState, typename TAction>
+        // std::shared_ptr<SolvableByHSVI<TState, TAction>> makeSolvableByHSVI(std::string name, )
+
+
+        // template <typename TDecisionProcess>
+        // std::shared_ptr<TDecisionProcess> makeDecisionProcess(std::string name, ) {
+        //     auto process = std::make_shared<TDecisionProcess>(filename);
+
+        //     return process;
+        // }
+
         /**
          * @brief Get all available algorithms.
          * 
@@ -23,7 +35,7 @@ namespace sdm
          */
         std::vector<std::string> available()
         {
-            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-DecPOMDP"};
+            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-MDP", "Extensive-DecPOMDP"};
         }
     } // namespace world
     
