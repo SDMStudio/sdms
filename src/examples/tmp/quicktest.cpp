@@ -46,13 +46,11 @@ int main(int argc, char **argv)
         std::cout << v << std::endl;
     }
 
-    sdm::InitializerFactory<number, number>::addToRegistry<sdm::BlindInitializer>("BlindInitializer");
+    // sdm::InitializerFactory<number, number>::addToRegistry<sdm::BlindInitializer>("BlindInitializer");
 
     std::cout << "Available Init" << std::endl;
-    for (auto &v : sdm::InitializerFactory<number, number>::available())
-    {
-        std::cout << v << std::endl;
-    }
+
+    std::cout << sdm::InitializerFactory<number, number>::available() << std::endl;
 
     // auto init2 = sdm::makeInitializer<number, number>("BlindInitializer");
 

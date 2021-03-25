@@ -108,6 +108,11 @@ namespace sdm
          */
         TAction getBestAction(const TState &state, int t = 0);
 
+        /**
+         * @brief Get the world (i.e. the problem that is solve by HSVI).
+         * 
+         * @return the world
+         */
         std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
 
         int getHorizon() const;
@@ -121,7 +126,13 @@ namespace sdm
             os << vf.str();
             return os;
         }
-
+        
+        /**
+         * @brief Get the discount factor. If the problem is serialized then the discount factor is equal to one for every timestep except the one where agent $n$ take an action.  
+         * 
+         * @param t the timestep
+         * @return double the discount factor
+         */
         double getDiscount(int t);
     };
 } // namespace sdm

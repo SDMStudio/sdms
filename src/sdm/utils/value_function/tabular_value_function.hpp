@@ -84,13 +84,19 @@ namespace sdm
         void initialize(TValue default_value, int t = 0);
 
         /**
-         * @brief Evaluate the value at a state
+         * @brief Evaluate the value at a state.
          * 
          * @param state the state where we want to evaluate the function
          * @return the value
          */
         TValue getValueAt(const TState &state, int t = 0);
 
+        /**
+         * @brief Update the value at a specific state and timestep.
+         * 
+         * @param state the state
+         * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
+         */
         void updateValueAt(const TState &state, int t = 0);
         void updateValueAt(const TState &state, int t, TValue target);
 

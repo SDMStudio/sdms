@@ -11,6 +11,7 @@
 #pragma once
 
 #include <map>
+#include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
 
 namespace sdm
@@ -19,7 +20,11 @@ namespace sdm
     std::shared_ptr<Initializer<TState, TAction>> createInstance() { return std::shared_ptr<TInit<TState, TAction>>(new TInit<TState, TAction>); }
 
     /**
-     * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers.   
+     * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 
+     * Some of the available initializers are : MinInitializer, MaxInitializer, BlindInitializer, ZeroInitializer. For a complete list of initializer, you can use :
+     * ```cpp
+     * std::cout << InitializerFactory<TState, TAction>::available() << std::endl;
+     * ``` 
      * 
      * @tparam TState the state type
      * @tparam TAction the action type
@@ -33,6 +38,7 @@ namespace sdm
             {"MinInitializer", &createInstance<TState, TAction, MinInitializer>},
             {"MaxInitializer", &createInstance<TState, TAction, MaxInitializer>},
             {"BlindInitializer", &createInstance<TState, TAction, BlindInitializer>},
+            {"ZeroInitializer", &createInstance<TState, TAction, ZeroInitializer>},
         };
 
     public:
@@ -66,7 +72,7 @@ namespace sdm
             }
             else
             {
-                sdm::exception::Exception("Key '" + name + "' already used in Initializer Registry.");
+                throw sdm::exception::Exception("Key '" + name + "' already used in Initializer Registry.");
             }
         }
     };

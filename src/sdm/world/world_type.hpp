@@ -11,6 +11,13 @@ namespace sdm
     class DiscretePOMDP;
     class DiscreteDecPOMDP;
 
+    /**
+     * @brief Allows developers to get access to the type of underlying problem that is solved when dealing with a kind of state and action in HSVI.
+     * Usage Example : `WorldType<BeliefState, number>::type` will return the type `DiscretePOMDP`. 
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
     template <typename TState, typename TAction>
     struct WorldType
     {
