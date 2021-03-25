@@ -8,7 +8,10 @@ namespace sdm
     {
     }
 
-    //A faire !!!! 
+    template <typename TState, typename TAction>
+    SerializedState<TState, TAction>::SerializedState(TState state) : Pair<TState, std::vector<TAction>>(state, {})
+    {
+    }
     
     template <typename TState, typename TAction>
     SerializedState<TState, TAction>::SerializedState(TState state, std::vector<TAction> actions) : Pair<TState, std::vector<TAction>>(state, actions)

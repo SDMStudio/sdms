@@ -3,6 +3,11 @@
 #include <map>
 
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/world/serialized_mdp.hpp>
+#include <sdm/algorithms.hpp>
+
 
 namespace sdm
 {
@@ -272,34 +277,101 @@ namespace sdm
     //     return InitializerFactory<TState, TAction>::make(init_name);
     // }
 
-    // template <typename TState, typename TAction>
-    // class MDPInitializer : public Initializer<TState, TAction>
-    // {
-    // protected:
-    //     std::string algo_name_;
-    //     std::shared_ptr<DiscreteMDP> mdp_problem_;
-    //     double discount_;
+    /*
+    template <typename TState, typename TAction>
+    class MDPInitializer : public Initializer<TState, TAction>
+    {
+    protected:
+        std::string algo_name_;
+        std::shared_ptr<DiscreteMDP> mdp_problem_;
+        double discount_;
 
-    // public:
-    //     MDPInitializer(std::string algo_name, std::shared_ptr<DiscreteMDP> problem, double discount) : algo_name_(algo_name), problem_(problem), discount_(discount)
-    //     {
-    //     }
+    public:
+        MDPInitializer(std::string algo_name, std::shared_ptr<DiscreteMDP> problem, double discount) : algo_name_(algo_name), problem_(problem), discount_(discount)
+        {
+        }
 
-    //     void init(ValueFunction<TState, TAction> *vf)
-    //     {
-    //         auto algo = sdm::algo::makeMappedHSVI<number, number>(this->algo_name_, this->mdp_problem_);
-    //         algo->do_solve();
-    //         auto ubound = algo->getUpperBound();
-    //         for (int t = 0; t < vf->getHorizon(); t++)
-    //         {
-    //             double max = ubound->getValueAt(this->mdp_problem_->getStateSpace()->getAll()[0], t), newval;
-    //             for (auto &s : this->mdp_problem_->getStateSpace()->getAll())
-    //             {
-    //                 newval = ubound->getValueAt(s, t);
-    //                 max = (newval > max) ? newval : max;
-    //             }
-    //             vf->initialize(max, t);
-    //         }
-    //     }
-    // };
-} // namespace sdm
+        void init(ValueFunction<TState, TAction> *vf)
+        {
+            auto algo = sdm::algo::makeMappedHSVI<number, number>(this->algo_name_, this->mdp_problem_);
+            algo->do_solve();
+            auto ubound = algo->getUpperBound();
+            for (int t = 0; t < vf->getHorizon(); t++)
+            {
+                double max = ubound->getValueAt(this->mdp_problem_->getStateSpace()->getAll()[0], t), newval;
+                for (auto &s : this->mdp_problem_->getStateSpace()->getAll())
+                {
+                    newval = ubound->getValueAt(s, t);
+                    max = (newval > max) ? newval : max;
+                }
+                vf->initialize(max, t);
+            }
+        }
+    };
+    */   
+   
+    template <typename TState, typename TAction>
+    class MMDPInitializer : public Initializer<TState, TAction>
+    {
+    protected :
+        std::string algoname;
+
+    public:
+
+        MMDPInitializer(){}
+
+        void init(ValueFunction<TState, TAction> *vf)
+        {
+            
+            auto under_pb = vf->getWorld()->getUnderlyingProblem();
+            std::cout<<under_pb->getDiscount();
+
+            algoname = "../data/world/dpomdp/mabc.dpomdp";
+            // Créer une variable exprès mais pour le moment je ne sais pas comment obtenir cette valeur
+
+
+            //J'aimerai bien avoir une variable pour avoir le nom de l'algo ou directement le MMDP.
+            // Mais je n'arrive pas à trouver, et quand je fais under_pb->toMMDP(); il ne veut pas car toute les classes mères n'ont pas cette fonction
+            auto serial_mdp = std::make_shared<SerializedMDP<SerializedState<number>,number>>(algoname);
+
+            MappedVector<SerializedState<number>,number> upperbound_result;
+            //auto hsvi = sdm::algo::makeMappedHSVI<SerializedState<number>, number>(serial_mdp,under_pb->getDiscount(),0,under_pb->getPlanningHorizon(),1000);
+
+
+            for (auto &s : serial_mdp->getUnderlyingProblem()->getStateSpace()->getAll())
+            {
+                serial_mdp->getUnderlyingProblem()->setInternalState(s);
+                //auto hsvi = sdm::algo::makeMappedHSVI<SerializedState<number>, number>(serial_mdp,under_pb->getDiscount(),0,under_pb->getPlanningHorizon(),1000);
+                //hsvi->do_solve();
+                //upperbound_result[s] = hsvi->getUpperBound();
+            }
+            std::cout<<upperbound_result;
+            /*
+            auto algo = sdm::algo::makeMappedHSVI<number, number>(this->algo_name_, this->mmdp_problem_);
+            algo->do_solve();
+            auto ubound = algo->getUpperBound();
+            for (int t = 0; t < vf->getHorizon(); t++)
+            {
+                double max = ubound->getValueAt(this->mdp_problem_->getStateSpace()->getAll()[0], t), newval;
+                for (auto &s : this->mdp_problem_->getStateSpace()->getAll())
+                {
+                    newval = ubound->getValueAt(s, t);
+                    max = (newval > max) ? newval : max;
+                }
+                vf->initialize(max, t);
+            }*/
+
+            //auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>();
+            //auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>();
+
+            // Instanciate bounds
+            //std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(serial_mdp, under_pb->getPlanningHorizon(), ub_init));
+            //std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(serial_mdp, under_pb->getPlanningHorizon(), lb_init));
+
+            //std::cout<<lower_bound->str()<<"\n";
+            //std::cout<<upper_bound->str()<<"\n";
+
+            //std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
+        }
+    };
+}// namespace sdm

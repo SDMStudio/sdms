@@ -51,18 +51,18 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_solve()
     {
-        TState start_initial_state = this->world_->getInitialState();
+        //TState start_initial_state = this->world_->getInitialState();
 
-        std::cout<<"start_initial_state"<<start_initial_state;
+        //std::cout<<"start_initial_state"<<start_initial_state;
 
         TState start_state = this->world_->getInitialState();
-        do
+        /*do
         {
             std::cout<<"start_state"<<start_state;
 
 
             start_state = this->world_->getInitialState();
-        }while(start_initial_state != start_state);
+        }while(start_initial_state != start_state);*/
 
         this->trial = 0;
 

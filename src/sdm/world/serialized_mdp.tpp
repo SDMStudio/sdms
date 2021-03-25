@@ -6,20 +6,20 @@ namespace sdm
 
     template <typename oState, typename oAction>
     SerializedMDP<oState, oAction>::SerializedMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : mmdp_(underlying_mmdp)
-    {
-    }
-
-    template <typename oState, typename oAction>
-    SerializedMDP<oState, oAction>::SerializedMDP(std::string underlying_mmdp) : SerializedMDP(std::make_shared<DiscreteMMDP>(underlying_mmdp))
-    {
+    {   
+        /*
         if(this->istate_.first + 1 <  this->mmdp_->getStateSpace()->getNumItems())
         {
             this->istate_ = oState(this->istate_.first +1,{});
         }else
         {
             this->istate_ = oState(0,{});
-        }
-        return this->istate_;
+        }*/
+    }
+
+    template <typename oState, typename oAction>
+    SerializedMDP<oState, oAction>::SerializedMDP(std::string underlying_mmdp) : SerializedMDP(std::make_shared<DiscreteMMDP>(underlying_mmdp))
+    {
     }
 
     template <typename oState, typename oAction>

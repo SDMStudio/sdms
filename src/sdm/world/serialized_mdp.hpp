@@ -35,8 +35,8 @@ namespace sdm
         oState &getState();
         double getDiscount(int t) const;
         
-        bool isSerialized() const;
-        DiscreteMMDP *getUnderlyingProblem();
+        bool isSerialized() const {true;}
+        DiscreteMMDP *getUnderlyingProblem(){return this->mmdp_.get();};
 
         oState getInitialState();
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;

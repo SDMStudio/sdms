@@ -19,10 +19,10 @@ endforeach(f)
 file(
 	GLOB_RECURSE
 	lib_world
-	# ${INCLUDE_DIR}/*
+	${INCLUDE_DIR}/*
 	# ${INCLUDE_DIR}/utils/struct/*
 	# ${INCLUDE_DIR}/core/*
-	${INCLUDE_DIR}/common.cpp
+	#${INCLUDE_DIR}/common.cpp
 	# ${INCLUDE_DIR}/tools.cpp
 )
 add_library(lib_world SHARED ${lib_world})

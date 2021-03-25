@@ -42,6 +42,10 @@ namespace sdm
                 horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
             }
 
+            //auto lb = std::make_shared<sdm::MMDPInitializer<TState, TAction>>();
+            //std::shared_ptr<sdm::ValueFunction<TState, TAction>> lb_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb));
+            //lb_bound->initialize();
+
             // Instanciate initializers
             auto lb_init = std::make_shared<sdm::MinInitializer<TState, TAction>>();
             auto ub_init = std::make_shared<sdm::MaxInitializer<TState, TAction>>();
@@ -49,6 +53,9 @@ namespace sdm
             // Instanciate bounds
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
+
+            std::cout<<lower_bound->str()<<"\n";
+            std::cout<<upper_bound->str()<<"\n";
 
             return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
         }

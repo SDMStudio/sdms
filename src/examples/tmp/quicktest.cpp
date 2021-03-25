@@ -2,43 +2,11 @@
 #include <fstream>
 #include <time.h>
 
-// #include <sdm/types.hpp>
-// #include <sdm/tools.hpp>
-// #include <sdm/utils/struct/pair.hpp>
-// #include <sdm/utils/logging/logger.hpp>
-// #include <sdm/utils/struct/vector.hpp>
-// #include <sdm/utils/struct/pair.hpp>
-// #include <sdm/utils/struct/tuple.hpp>
-// #include <sdm/world/world_type.hpp>
-// #include <sdm/world/discrete_mdp.hpp>
-// #include <sdm/world/discrete_pomdp.hpp>
-// #include <sdm/world/discrete_decpomdp.hpp>
-// #include <sdm/world/solvable_by_hsvi.hpp>
-// #include <sdm/world/belief_mdp.hpp>
-// #include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/world/serialized_mdp.hpp>
+#include <sdm/algorithms.hpp>
 
-// #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-// #include <sdm/world/ndpomdp.hpp>
-// //#include <sdm/world/serialized_occupancy_mdp.hpp>
-// #include <sdm/core/state/serialized_state.hpp>
-// #include <sdm/world/serialized_mdp.hpp>
-
-
-// #include <sdm/types.hpp>
-// #include <sdm/tools.hpp>
-// //#include <sdm/utils/logging/logger.hpp>
-// //#include <sdm/utils/struct/vector.hpp>
-// #include <sdm/utils/struct/pair.hpp>
-// #include <sdm/utils/struct/tuple.hpp>
-//  #include <sdm/algorithms.hpp>
-// #include <sdm/parser/parser.hpp>
-
-// #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-// #include <sdm/world/ndpomdp.hpp>
-// #include <sdm/world/serialized_occupancy_mdp.hpp>
-//#include <fmt/format.h>
-
-// using namespace sdm;
+using namespace sdm;
 
 int main(int argc, char **argv)
 {
@@ -78,9 +46,9 @@ int main(int argc, char **argv)
     // print(3, 4.5, "hello");
 
     // std::apply([](auto&&... args) {((std::cout << args << '\n'), ...);}, t);
-
+    */
     std::string filePath("../data/world/dpomdp/");
-
+    
     const int nbfile(1);
     std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
 
@@ -134,7 +102,7 @@ int main(int argc, char **argv)
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                 //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
-                 auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi",somdp->getNumberAgent());
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi");
 
                 // t_begin = clock();
 
@@ -194,7 +162,7 @@ int main(int argc, char **argv)
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                 //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi",somdp->getNumberAgent());
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi");
 
                 t_begin = clock();
 

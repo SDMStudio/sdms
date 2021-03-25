@@ -14,6 +14,7 @@ namespace sdm
     using action_type = TAction;
 
     SerializedState();
+    SerializedState(TState state);
     SerializedState(TState state, std::vector<TAction> actions);
     SerializedState(const SerializedState &v);
 
