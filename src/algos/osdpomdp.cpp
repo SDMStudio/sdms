@@ -79,6 +79,8 @@ int main(int argv, char** args){
 
 		torch::manual_seed(seed);
 
+		sdm::common::global_urng().seed(seed);
+
 		std::string bench_filename;
 		bench_filename.append("../data/world/dpomdp");
 		bench_filename.append("/");
