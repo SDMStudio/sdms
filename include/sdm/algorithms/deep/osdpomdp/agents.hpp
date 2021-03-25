@@ -21,7 +21,7 @@ namespace sdm{
 		// The game to be solved.
 		std::shared_ptr<sdm::POSG> game;
 		// How many sampling/parallel worlds there will be for agent 1 to interact with the environment?
-		number sampling_memory_size;
+		number K;
 		// Initialize the Agents.
 		Agents(number, number, number, number, number, number, number, number, std::shared_ptr<sdm::POSG>&, torch::Device, float, float, bool, std::string, number);
 		// C++ random number engine.
@@ -46,10 +46,14 @@ namespace sdm{
 		DQN induced_bias_target_net{nullptr};
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
-		// Given history o2, histories o1s, and state probability distribution p_x, get epsilon-greedy action u2.
-		action get_epsilon_greedy_action_2(history, std::vector<history>, state_probability_distribution, float);
-		// Given history o2, history o1, action u2, histories o1s, and state probability distribution p_x; get epsilon-greedy action u1.
-		action get_epsilon_greedy_action_1(history, history, action, std::vector<history>, state_probability_distribution, float);
+		// Given history o2, histories o1s; get epsilon-greedy action u2.
+		action get_greedy_action_2(history, std::vector<history>);
+		// Given history o2, history o1, action u2, histories o1s; get greedy action u1.
+		action get_greedy_action_1(history, history, action, std::vector<history>);
+		// Given history o2, histories o1s, epsilon; get epsilon-greedy action u2.
+		action get_epsilon_greedy_action_2(history, std::vector<history>, float);
+		// Given history o2, history o1, action u2, histories o1s, epsilon; get epsilon-greedy action u1.
+		action get_epsilon_greedy_action_1(history, history, action, std::vector<history>, float);
 		// Given history o2, action u2, observation z2; get next history next_o2.
 		history get_next_history_2(history, action, observation);
 		// Given history o1, action u1, observation z1; get next history next_o1.

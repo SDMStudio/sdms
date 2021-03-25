@@ -27,7 +27,7 @@ namespace sdm{
 		// Total number of epidoes.
 		int episodes;
 		// Indice of which sampling world we're in.
-		number m;
+		number k;
 		// Size of the history of agent 2.
 		number dim_o2;
 		// Size of the history of agent 1.
@@ -61,7 +61,7 @@ namespace sdm{
 		// Inner dimension of DQNs (policy net and target net).
 		number dim_i;
 		// How many sampling/parallel worlds there will be for agent 1 to interact with the environment?
-		number sampling_memory_size;
+		number K;
 		// How much of IB solution will be used as the target during updates.
 		float alpha;
 		// Decay rate of alpha.
@@ -104,10 +104,6 @@ namespace sdm{
 		std::vector<history> o1s;
 		// Next histories of agent 1, one for each sampling/parallel world.
 		std::vector<history> next_o1s;
-		// P(x|o2) ∀ x ∈ X.
-		state_probability_distribution p_x;
-		// P(next_x|next_o2) for ∀ next_x ∈ X.
-		state_probability_distribution p_next_x;
 		// For updating the models.
 		std::shared_ptr<ModelsUpdateRules> models_update_rules;
 		// Experience replay memory.
@@ -145,7 +141,7 @@ namespace sdm{
 		std::tuple<observation, observation, reward> act();
 		// Solve the problem.
 		void solve();
-		// Update history o2, histories o1s, p_x, epsilon, alpha.
+		// Update history o2, histories o1s, epsilon, alpha.
 		void end_step();
 		// Log episode, epsilon, q value loss, and E[R]. Also update target net.
 		void end_episode();
@@ -157,7 +153,5 @@ namespace sdm{
 		void update_models();
 		// Add current transition to the replay memory.
 		void update_replay_memory();
-		// Create the state probability distribution from the given states.
-		state_probability_distribution create_state_probability_distribution(std::vector<state>);
 	};
 }

@@ -55,11 +55,9 @@ namespace sdm
 
 	typedef torch::Tensor history;
 
-	typedef torch::Tensor state_probability_distribution;
+	typedef std::tuple<history, history, std::vector<history>, sdm::action, reward, history, history, std::vector<history>> transition;
 
-	typedef std::tuple<history, history, std::vector<history>, state_probability_distribution, sdm::action, reward, history, history, std::vector<history>, state_probability_distribution> transition;
-
-	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>, torch::Tensor> batch;
+	typedef std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>> batch;
  
 	
 	

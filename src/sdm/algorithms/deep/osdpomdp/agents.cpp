@@ -6,7 +6,7 @@ namespace sdm{
 		number agent_1_trans_net_input_dim, number agent_1_trans_net_hidden_dim, 
 		number policy_net_input_dim, number policy_net_inner_dim, number policy_net_output_dim, 
 		number seed,
-		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, bool induced_bias, std::string ib_net_filename, number sampling_memory_size
+		std::shared_ptr<sdm::POSG>& game, torch::Device device, float lr, float adam_eps, bool induced_bias, std::string ib_net_filename, number K
 	){
 		// Initialize the nets.
 		this->agent_2_transition_net = Gated_RNN(agent_2_trans_net_input_dim, agent_2_trans_net_hidden_dim);
@@ -31,7 +31,7 @@ namespace sdm{
 
 		this->device = device;		
 		this->game = game;
-		this->sampling_memory_size = sampling_memory_size;
+		this->K = K;
 		
 		update_target_net();
 		// if (induced_bias){
@@ -54,67 +54,78 @@ namespace sdm{
 		ib_target_net_filename.append("_target_net.pt");
 		torch::load(induced_bias_target_net, ib_target_net_filename);
 	}
-
-	// u_{\tau}^{2} \overset{extract}{\leftarrow}  \arg \max_{{{u}'}_{\tau}} \sum_{{m}'=0}^{|M|-1}PolicyNet(o_{\tau}^{2}, o_{\tau}^{1, ({m}')} | o_{\tau}^{2}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {{u}'}_{\tau})
-	action Agents::get_epsilon_greedy_action_2(history o2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
+	// u_{\tau}^{2} \overset{extract}{\leftarrow}  \arg \max_{{{u}'}_{\tau}} \sum_{{k}'=0}^{|M|-1}PolicyNet(o_{\tau}^{2}, o_{\tau}^{1, ({k}')} | o_{\tau}^{2}, \{o_{\tau}^{1,(k)} | o_{\tau}^{2} \}_{k=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {{u}'}_{\tau})
+	action Agents::get_greedy_action_2(history o2, std::vector<history> all_o1s){
+		// Let PyTorch know that we don't need to keep track of the gradient in this context.
+		torch::NoGradGuard no_grad;
+		// Convert all o1s to Tensor.
+		torch::Tensor ao1s = torch::cat(all_o1s);
+		// Q values for agent 0 (given o2 and u2).
+		std::vector<double> q_values;
+		// For each u2 possible:
+		for(action u2 = 0; u2 < game->getNumActions(0); u2++){
+			// Initialize the Q value to 0.
+			q_values.push_back(0.0);
+			for (int k = 0; k < K; k++){
+				// Extract one of the all o1s.
+				history o1 = all_o1s[k];
+				// Get u1, given o2, o1, u2, all_o1s.
+				action u1 = get_greedy_action_1(o2, o1, u2, all_o1s);
+				// Create the Tensor to put in the network.
+				torch::Tensor o2_o1_ao1s = torch::cat({o2, o1, ao1s}, 0);
+				// Put Tensor to GPU if needed.
+				o2_o1_ao1s = o2_o1_ao1s.to(device);
+				// Get the Q value given u1 and u2 and add it to the relevant u2 index.
+				q_values[u2] += policy_net(o2_o1_ao1s).index({u2 + u1 * game->getNumActions(0)}).item<double>();
+			}
+			// Not really needed but just to be correct.
+			q_values[u2] = q_values[u2] / K;
+		}
+		// The argmax is the joint action u.
+		action u = std::distance(q_values.begin(), std::max_element(q_values.begin(), q_values.end()));
+		// We get u2 from u
+		return u % game->getNumActions(0);
+	}
+	// u_{\tau}^{1} = \arg \max_{{{u}'}_{\tau}^{1}} PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(k)} | o_{\tau}^{2} \}_{k=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}, {{u}'}_{\tau}^{1})
+	action Agents::get_greedy_action_1(history o2, history o1, action u2, std::vector<history> all_o1s){
+		// Let PyTorch know that we don't need to keep track of the gradient in this context.
+		torch::NoGradGuard no_grad;
+		// Convert sampled o1s to Tensor.
+		torch::Tensor ao1s = torch::cat(all_o1s);
+		// Create the Tensor to put in the network.
+		torch::Tensor o2_o1_ao1s = torch::cat({o2, o1, ao1s}, 0);
+		// Put Tensor to GPU if needed.
+		o2_o1_ao1s = o2_o1_ao1s.to(device);
+		// Put input Tensor to policy net, get q values for each possible joint action.
+		torch::Tensor q_values = policy_net(o2_o1_ao1s);
+		// Cretae vector for valid q values, meaning q values that are possible given u2.
+		std::vector<double> valid_q_values = {};
+		// For each possible u1
+		for(action u1 = 0; u1 < game->getNumActions(1); u1++){
+			// Add the corresponding q value given u2.
+			valid_q_values.push_back(q_values.index({u2 + u1 * game->getNumActions(0)}).item<double>());
+		}
+		// Return the argmax of valid q values.
+		return std::distance(valid_q_values.begin(), std::max_element(valid_q_values.begin(), valid_q_values.end()));
+	}
+	//
+	action Agents::get_epsilon_greedy_action_2(history o2, std::vector<history> all_o1s, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
-			// Let PyTorch know that we don't need to keep track of the gradient in this context.
-			torch::NoGradGuard no_grad;
-			// Convert all o1s to Tensor.
-			torch::Tensor ao1s = torch::cat(all_o1s);
-			// Q values for agent 0 (given o2 and u2).
-			std::vector<double> q_values;
-			// For each u possible:
-			for(action u = 0; u < game->getNumActions(0) * game->getNumActions(1); u++){
-				// Initialize the Q value to 0.
-				q_values.push_back(0.0);
-				for (int m = 0; m < sampling_memory_size; m++){
-					// Extract one of the all o1s.
-					history o1 = all_o1s[m];
-					// Create the Tensor to put in the network.
-					torch::Tensor o2_o1_ao1s_px = torch::cat({o2, o1, ao1s, p_x}, 0);
-					// Put Tensor to GPU if needed.
-					o2_o1_ao1s_px = o2_o1_ao1s_px.to(device);
-					// Get the maximum Q value and add it to the relevant u index.
-					q_values[u] += torch::max(policy_net(o2_o1_ao1s_px)).item<double>();
-				}
-				// Not really needed but just to be correct.
-				q_values[u] = q_values[u] / sampling_memory_size;
-			}
-			// The argmax is the joint action u.
-			action u = std::distance(q_values.begin(), std::max_element(q_values.begin(), q_values.end()));
-			// We get u2 from u
-			return u % game->getNumActions(0);
+			// Get greedy action.
+			return get_greedy_action_2(o2, all_o1s);
 		// With probabiliy epsilon we do this.
 		} else {
-			// Choose random action for agent 0, return it.
+			// Choose random action for agent 2, return it.
 			return uniform_action_distribution_2(random_engine);
 		}
 	}
-	// u_{\tau}^{1} = \arg \max_{{{u}'}_{\tau}^{1}} PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}, {{u}'}_{\tau}^{1})
-	action Agents::get_epsilon_greedy_action_1(history o2, history o1, action u2, std::vector<history> all_o1s, state_probability_distribution p_x, float epsilon){
+	//
+	action Agents::get_epsilon_greedy_action_1(history o2, history o1, action u2, std::vector<history> all_o1s, float epsilon){
 		// With probability 1-epsilon we do this.
 		if (uniform_epsilon_distribution(random_engine) > epsilon){
-			// Let PyTorch know that we don't need to keep track of the gradient in this context.
-			torch::NoGradGuard no_grad;
-			// Convert sampled o1s to Tensor.
-			torch::Tensor ao1s = torch::cat(all_o1s);
-			// Create the Tensor to put in the network.
-			torch::Tensor o2_o1_ao1s_px = torch::cat({o2, o1, ao1s, p_x}, 0);
-			// Put Tensor to GPU if needed.
-			o2_o1_ao1s_px = o2_o1_ao1s_px.to(device);
-			// Put input Tensor to policy net, get q values for each possible joint action.
-			torch::Tensor q_values = policy_net(o2_o1_ao1s_px);
-			// Cretae vector for valid q values, meaning q values that are possible given u2.
-			std::vector<double> valid_q_values = {};
-			// For each possible u1
-			for(action u1 = 0; u1 < game->getNumActions(1); u1++){
-				// Add the corresponding q value given u2.
-				valid_q_values.push_back(q_values.index({u2 + u1 * game->getNumActions(0)}).item<double>());
-			}
-			// Return the argmax of valid q values.
-			return std::distance(valid_q_values.begin(), std::max_element(valid_q_values.begin(), valid_q_values.end()));
+			// Get greedy action.
+			return get_greedy_action_1(o2, o1, u2, all_o1s);
 		// With probabiliy epsilon we do this.
 		} else {
 			// Choose random action for agent 1, return it.

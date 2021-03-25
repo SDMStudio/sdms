@@ -9,7 +9,7 @@ namespace sdm{
 		number dim_o1,
 		number target_update, 
 		number dim_i,
-		number sampling_memory_size, 
+		number K, 
 		number print_every,
 		number seed,
 		float eps_end, 
@@ -31,7 +31,7 @@ namespace sdm{
 		this->dim_o2 = dim_o2;
 		this->dim_o1 = dim_o1;
 		this->target_update = target_update;
-		this->sampling_memory_size = sampling_memory_size;
+		this->K = K;
 		this->print_every = print_every;
 		this->eps_end = eps_end;
 		this->eps_start = eps_start;
@@ -41,17 +41,17 @@ namespace sdm{
 		this->lr = lr;
 		this->adam_eps = adam_eps;
 		this->game = game;
-		this->models_update_rules = std::make_shared<ModelsUpdateRules>(batch_size, sampling_memory_size, seed, device, game, induced_bias);
+		this->models_update_rules = std::make_shared<ModelsUpdateRules>(batch_size, K, seed, device, game, induced_bias);
 		this->agents =  std::make_shared<Agents>(
 			game->getNumActions(0) + game->getNumObservations(0), dim_o2, 
 			game->getNumActions(1) + game->getNumObservations(1), dim_o1,
-			dim_o2 + dim_o1 + dim_o1 * sampling_memory_size + game->getNumStates(), dim_i, game->getNumActions(0) * game->getNumActions(1),
+			dim_o2 + dim_o1 + dim_o1 * K, dim_i, game->getNumActions(0) * game->getNumActions(1),
 			seed,
-			game, device, lr, adam_eps, induced_bias, ib_net_filename, sampling_memory_size
+			game, device, lr, adam_eps, induced_bias, ib_net_filename, K
 		);
 		this->replay_memory = std::make_shared<ReplayMemory>(replay_memory_size, seed);
 		this->GAMMA = game->getDiscount();
-		this->uniform_m_distribution = std::uniform_int_distribution<int>(0, sampling_memory_size - 1); // not used, but will be later
+		this->uniform_m_distribution = std::uniform_int_distribution<int>(0, K - 1); // not used, but will be later
 		this->uniform_z2_distribution = std::uniform_int_distribution<int>(0, game->getNumObservations(0) - 1);
 		this->induced_bias = induced_bias;
 		initialize();
@@ -86,28 +86,28 @@ namespace sdm{
 
 	void ExtensiveFormDQL::update_epsilon(){
 		// If the training has not started yet, it will stay as 1.
-		if (steps_done * sampling_memory_size < batch_size){
+		if (steps_done * K < batch_size){
 			epsilon = 1;
 		// Otherwise it will start to decay.
 		} else {
-			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done * sampling_memory_size - batch_size) / eps_decay);
+			epsilon = eps_end + (eps_start - eps_end) * exp(-1. * (steps_done * K - batch_size) / eps_decay);
 		}
 	}
 
 	void ExtensiveFormDQL::update_alpha(){
 		// If the training has not started yet, it will stay as 1.
-		if (steps_done * sampling_memory_size < batch_size){
+		if (steps_done * K < batch_size){
 			alpha = 1;
 		// Otherwise it will start to decay.
 		} else {
-			alpha = exp(-1. * (steps_done * sampling_memory_size - batch_size) / alpha_decay);
+			alpha = exp(-1. * (steps_done * K - batch_size) / alpha_decay);
 		}
 	}
 
 	std::vector<state> ExtensiveFormDQL::initiate_xs(){
 		std::vector<state> xs = {};
 		state x = game->init();
-		for(int j = 0; j < sampling_memory_size; j++){
+		for(int j = 0; j < K; j++){
 			xs.push_back(x);
 		}
 		return xs;
@@ -116,7 +116,7 @@ namespace sdm{
 	std::vector<action> ExtensiveFormDQL::initiate_u1s(){
 		std::vector<action> u1s = {};
 		action u1 = 0;
-		for(int j = 0; j < sampling_memory_size; j++){
+		for(int j = 0; j < K; j++){
 			u1s.push_back(u1);
 		}
 		return u1s;
@@ -125,7 +125,7 @@ namespace sdm{
 	std::vector<observation> ExtensiveFormDQL::initiate_z1s(){
 		std::vector<observation> z1s = {};
 		observation z1 = 0;
-		for(int j = 0; j < sampling_memory_size; j++){
+		for(int j = 0; j < K; j++){
 			z1s.push_back(z1);
 		}
 		return z1s;
@@ -134,7 +134,7 @@ namespace sdm{
 	std::vector<history> ExtensiveFormDQL::initiate_o1s(){
 		std::vector<history> o1s = {};
 		history o1 = torch::zeros(dim_o1);
-		for(int j = 0; j < sampling_memory_size; j++){
+		for(int j = 0; j < K; j++){
 			o1s.push_back(o1);
 		}
 		return o1s;
@@ -143,19 +143,19 @@ namespace sdm{
 	std::vector<reward> ExtensiveFormDQL::initiate_rs(){
 		std::vector<reward> rs = {};
 		reward r = 0;
-		for(int j = 0; j < sampling_memory_size; j++){
+		for(int j = 0; j < K; j++){
 			rs.push_back(r);
 		}
 		return rs;
 	}
 
 	std::tuple<observation, observation, reward> ExtensiveFormDQL::act(){
-		action u = get_a_from_u2_u1(u2, u1s[m]);
-		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(xs[m], u);
+		action u = get_a_from_u2_u1(u2, u1s[k]);
+		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(xs[k], u);
 		std::vector<reward> rs = std::get<0>(r_z_next_x);
 		observation z = std::get<1>(r_z_next_x);
 		std::vector<observation> z2_z1 = game->getObsSpace().single2joint(z);
-		next_xs[m] = std::get<2>(r_z_next_x);
+		next_xs[k] = std::get<2>(r_z_next_x);
 		return std::make_tuple(z2_z1[0], z2_z1[1], rs[0]);
 	}
 
@@ -183,16 +183,13 @@ namespace sdm{
 		u1s = initiate_u1s();
 		z1s = initiate_z1s();
 		rs = initiate_rs();
-		p_x = create_state_probability_distribution(xs);
 	}
 
 	void ExtensiveFormDQL::update_replay_memory(){
-		// First we have to create the next state probability distribution.
-		p_next_x = create_state_probability_distribution(next_xs);
 		// For each sampling/parallel world:
-		for(m = 0; m < sampling_memory_size; m++){
-			// Create transition (u2 + u1s[m] * game->getNumActions(0) - u. if you disagree let me know)
-			transition t = std::make_tuple(o2, o1s[m], o1s, p_x, u2 + u1s[m] * game->getNumActions(0), rs[m], next_o2, next_o1s[m], next_o1s, p_next_x);
+		for(k = 0; k < K; k++){
+			// Create transition (u2 + u1s[k] * game->getNumActions(0) - u. if you disagree let me know)
+			transition t = std::make_tuple(o2, o1s[k], o1s, u2 + u1s[k] * game->getNumActions(0), rs[k], next_o2, next_o1s[k], next_o1s);
 			// Push it to the replay memory.
 			replay_memory->push(t);
 		}
@@ -205,8 +202,6 @@ namespace sdm{
 		o2 = next_o2;
 		// Update the histories of agent 1.
 		o1s = next_o1s;
-		// Update the state probability distribution.
-		p_x = p_next_x;
 		// Update epsilon, the exploration coefficient.
 		update_epsilon();
 		// Update alpha, the coefficient for how much of the IB target we use during the updates.
@@ -238,14 +233,6 @@ namespace sdm{
 		q_value_loss += models_update_rules->update(replay_memory, agents, alpha);
 	}
 
-	state_probability_distribution ExtensiveFormDQL::create_state_probability_distribution(std::vector<state> xs){
-		state_probability_distribution p_x = torch::zeros(game->getNumStates());
-		for(m = 0; m < sampling_memory_size; m++){
-			p_x.index({xs[m]}) += 1.0 / sampling_memory_size;
-		}
-		return p_x;
-	}
-
 	void ExtensiveFormDQL::solve(){
 		// For each episode, until we reach the total number episodes:
 		for(episode = 0; episode < episodes; episode++){
@@ -254,22 +241,22 @@ namespace sdm{
 			// For each step, until we reach the horizon:
 			for(step = 0; step < horizon; step++){
 				// Agent 2 chooses her action u2.
-				u2 = agents->get_epsilon_greedy_action_2(o2, o1s, p_x, epsilon);
+				u2 = agents->get_epsilon_greedy_action_2(o2, o1s, epsilon);
 				// We randomly choose a Agent 2' observation z2.
 				z2 = uniform_z2_distribution(random_engine);
-				// For each sampling/parallel world until we reach the sampling_memory_size:
-				for(m = 0; m < sampling_memory_size; m++){
-					// Agent 1 chooses her action u1s[m].
-					u1s[m] = agents->get_epsilon_greedy_action_1(o2, o1s[m], u2, o1s, p_x, epsilon);
+				// For each sampling/parallel world until we reach the K:
+				for(k = 0; k < K; k++){
+					// Agent 1 chooses her action u1s[k].
+					u1s[k] = agents->get_epsilon_greedy_action_1(o2, o1s[k], u2, o1s, epsilon);
 					do {
-						// Agents act according to their chosen actions, we receive a candidate observation for agent 2 candidate_z2, observation for agent 1 z1s[m], and reward rs[m].
-						std::tie(candidate_z2, z1s[m], rs[m]) = act();
-					// Candidate z2 must be the same as z2, it's the only eay to make sure that z1s[m] and rs[m] are possible given z2.
+						// Agents act according to their chosen actions, we receive a candidate observation for agent 2 candidate_z2, observation for agent 1 z1s[k], and reward rs[k].
+						std::tie(candidate_z2, z1s[k], rs[k]) = act();
+					// Candidate z2 must be the same as z2, it's the only eay to make sure that z1s[k] and rs[k] are possible given z2.
 					} while (candidate_z2 != z2);
 					// Agent 1's history is updated using to her private history, private action, and private observation.
-					next_o1s[m] = agents->get_next_history_1(o1s[m], u1s[m], z1s[m]);
-					// The discounted cumulative reward is updated according to GAMMA, step, rs[m], and sampling_memory_size.
-					R += pow(GAMMA, step) * (rs[m] / sampling_memory_size);	
+					next_o1s[k] = agents->get_next_history_1(o1s[k], u1s[k], z1s[k]);
+					// The discounted cumulative reward is updated according to GAMMA, step, rs[k], and K.
+					R += pow(GAMMA, step) * (rs[k] / K);	
 				}
 				// Agent 2's history is updated using to her private history, private action, and private observation.
 				next_o2 = agents->get_next_history_2(o2, u2, z2);

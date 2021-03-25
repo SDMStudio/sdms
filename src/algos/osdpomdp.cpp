@@ -10,7 +10,7 @@ int main(int argv, char** args){
 
 		std::string filename, ib_net_filename;
 		int episodes;
-    number horizon, replay_memory_size, batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, seed;
+    number horizon, replay_memory_size, batch_size, dim_o2, dim_o1, target_update, dim_i1, K, print_every, seed;
     float eps_end, eps_start, eps_decay, alpha_decay, discount_factor, epsilon_optimal, rolling_factor, lr, adam_eps;
 		bool gpu, induced_bias;
 
@@ -32,7 +32,7 @@ int main(int argv, char** args){
     ("target-update,t", po::value<number>(&target_update)->default_value(1000), "set the target update")
 		("i1", po::value<number>(&dim_i1)->default_value(8), "set the inner layer dimensions of agent 1")
     ("discount-factor,d", po::value<float>(&discount_factor)->default_value(0.99), "set the discount factor")
-    ("sm", po::value<number>(&sampling_memory_size)->default_value(10), "set the sampling memory")
+    ("K,K", po::value<number>(&K)->default_value(10), "set the sampling memory size")
     ("print", po::value<number>(&print_every)->default_value(1), "every how many episodes do we print?")
     ("rf", po::value<float>(&rolling_factor)->default_value(0.99), "set the rolling factor")
     ("seed", po::value<number>(&seed)->default_value(1), "seed")
@@ -100,7 +100,7 @@ int main(int argv, char** args){
 		game->setPlanningHorizon(horizon);
 
 		ExtensiveFormDQL extensive_form_dql(
-			episodes, horizon, batch_size, dim_o2, dim_o1, target_update, dim_i1, sampling_memory_size, print_every, seed,
+			episodes, horizon, batch_size, dim_o2, dim_o1, target_update, dim_i1, K, print_every, seed,
 			eps_end, eps_start, eps_decay, alpha_decay, rolling_factor, lr, adam_eps, device, game, replay_memory_size, 
 			induced_bias, ib_net_filename
 		);
