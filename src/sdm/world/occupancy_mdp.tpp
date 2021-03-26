@@ -77,7 +77,7 @@ namespace sdm
     template <typename oState, typename oAction>
     std::shared_ptr<DiscreteSpace<oAction>> OccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
-        auto vect_i_hist = ostate.getIndividualHistories();
+        auto vect_i_hist = ostate.getAllIndividualHistories();
         std::vector<std::vector<typename oAction::value_type>> vect_i_dr = {};
         for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
         {

@@ -12,6 +12,9 @@
 #include <sdm/core/state/serialized_occupancy_state.hpp>
 #include <sdm/world/discrete_mdp.hpp>
 
+#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+
 
 using namespace sdm;
 
@@ -51,8 +54,8 @@ int main(int argc, char **argv)
     */
     std::string filePath("../data/world/dpomdp/");
     
-    const int nbfile(3);
-    std::string all_file[nbfile] = {"mabc","tiger","recycling"};
+    const int nbfile(1);
+    std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
 
 
     std::ofstream myfile;
@@ -239,7 +242,7 @@ int main(int argc, char **argv)
                 temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
                 //printf("temps = %f\n", temps);
 
-                //hsvi->do_test();
+                hsvi->do_test();
 
                 myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
 
@@ -251,6 +254,56 @@ int main(int argc, char **argv)
 
         }
     }
+
+    /*
+    for(const std::string & filename : all_file)
+    {
+        for(int i(1);i<= max_horizon;++i)
+        {
+            int horizon(i);
+            int length_history(i);
+
+            for(const double & discount : all_discount)
+            {
+                std::cout<<"*************** Occupancy \n";
+                std::cout<<"File : "<<filename<<"\n";
+                std::cout<<"Horizon : "<<horizon<<"\n";
+                std::cout<<"Discount : "<<discount<<"\n";
+
+                myfile<<filename<<","<<horizon<<",Occupancy"<<","<<discount;
+
+                //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
+
+                using TState = OccupancyState<number, JointHistoryTree_p<number>>;
+                using TAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>;
+
+                auto somdp = std::make_shared<OccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+
+                //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
+                //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
+
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi");
+
+                t_begin = clock();
+
+                hsvi->do_solve();
+
+                t_end = clock();
+                temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+                //printf("temps = %f\n", temps);
+
+                //hsvi->do_test();
+
+                myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
+
+                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
+                //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+
+                myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
+            }
+
+        }
+    }*/
 
     // ************************** Simul           
 

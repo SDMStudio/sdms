@@ -4,14 +4,13 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
-#include <sdm/utils/struct/tuple.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/serialized_state.hpp>
 
 namespace sdm
 {
   template <typename TState = SerializedState<number,number>, typename TJointHistory_p = JointHistoryTree_p<number>>
-  class SerializedOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
+  class SerializedOccupancyState : public OccupancyState<TState,TJointHistory_p>
   {
   public:
     using jhistory_type = TJointHistory_p;
@@ -23,12 +22,17 @@ namespace sdm
     SerializedOccupancyState(const SerializedOccupancyState &v);
     // Faudrait construire d'autre contructeur, et notamment quand on lui donne directement un SerializedState,TjointHistory, et une valeur ? 
 
-    std::set<jhistory_type> getJointHistories() const;
-    std::set<state_type> getStates() const;
+    //std::set<jhistory_type> getJointHistories() const;
+    //std::set<state_type> getStates() const;
 
-    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
+    //std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
 
     number getCurrentAgentId() const;
+    std::set<typename state_type::state_type> getHiddenStates() const;
+    std::set<typename state_type::action_type> getActions() const;
+
+    typename state_type::state_type getHiddenState(const state_type &state) const;
+    typename state_type::action_type getAction(const state_type &state) const;
   };
 } // namespace sdm
 #include <sdm/core/state/serialized_occupancy_state.tpp>

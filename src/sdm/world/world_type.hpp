@@ -33,7 +33,7 @@ namespace sdm
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getAssociatedProblem();
         
-        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<>, SerializedOccupancyState<>>::value>
+        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<number, JointHistoryTree_p<number>>, SerializedOccupancyState<SerializedState<number, number>, JointHistoryTree_p<number>>>::value>
         static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>
         getAssociatedProblem();
 

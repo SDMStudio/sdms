@@ -148,7 +148,7 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
-                    using TState = SerializedOccupancyState<SerializedState<number,number>, JointHistoryTree_p<number>>;
+                    using TState = SerializedOccupancyState<SerializedState<number,number>,JointHistoryTree_p<number>>;
                     using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);

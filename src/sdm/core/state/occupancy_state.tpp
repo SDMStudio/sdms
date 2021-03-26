@@ -27,7 +27,7 @@ namespace sdm
     std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type> OccupancyState<TState, TJointHistory_p>::getJointHistories() const
     {
         std::set<jhistory_type> possible_jhistories;
-        for (auto &key : *this)
+        for (const auto &key : *this)
         {
             possible_jhistories.insert(key.first.second);
         }
@@ -38,19 +38,20 @@ namespace sdm
     std::set<typename OccupancyState<TState, TJointHistory_p>::state_type> OccupancyState<TState, TJointHistory_p>::getStates() const
     {
         std::set<state_type> possible_states;
-        for (auto &key : *this)
+        for (const auto &key : *this)
         {
             possible_states.insert(key.first.first);
         }
         return possible_states;
     }
 
+    
     template <typename TState, typename TJointHistory_p>
-    std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> OccupancyState<TState, TJointHistory_p>::getIndividualHistories() const
+    std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> OccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
     {
         std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> possible_ihistories;
         bool first_passage = true;
-        for (auto &jhist : this->getJointHistories())
+        for (const auto &jhist : this->getJointHistories())
         {
             auto ihists = jhist->getIndividualHistories();
             for (int i = 0; i < ihists.size(); i++)
@@ -66,4 +67,12 @@ namespace sdm
         }
         return possible_ihistories;
     }
+
+    template <typename TState, typename TJointHistory_p>
+    std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> OccupancyState<TState, TJointHistory_p>::getIndividualHistories(number ag_id) const
+    {
+        std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> All_ihistories = getAllIndividualHistories();
+        return All_ihistories[ag_id];
+    }
+    
 } // namespace sdm

@@ -32,10 +32,10 @@ namespace sdm
     OccupancyState(const OccupancyState &v);
 
     std::set<jhistory_type> getJointHistories() const;
-
     std::set<state_type> getStates() const;
 
-    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getIndividualHistories() const;
+    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
+    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>
