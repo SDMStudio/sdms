@@ -89,9 +89,10 @@ namespace sdm
         number realTime = h;
         if (this->world_->isSerialized())
         {
-            //std::cout<<"\n Ancien Time : "<<realTime;
+            ///std::cout<<s;
+            //  std::cout<<"\n Ancien Time : "<<realTime;
             realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
-            //std::cout<<"\n New Time : "<<realTime<<"\n";
+
         }
 
         return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);

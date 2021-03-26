@@ -41,13 +41,12 @@ namespace sdm
             {
                 horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
             }
-
             //auto lb = std::make_shared<sdm::MMDPInitializer<TState, TAction>>();
             //std::shared_ptr<sdm::ValueFunction<TState, TAction>> lb_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb));
             //lb_bound->initialize();
 
             // Instanciate initializers
-            auto lb_init = sdm::makeInitializer<TState, TAction>("BlindInitializer");//std::make_shared<sdm::MinInitializer<TState, TAction>>();
+            auto lb_init = sdm::makeInitializer<TState, TAction>("MinInitializer");//std::make_shared<sdm::MinInitializer<TState, TAction>>();
             auto ub_init = sdm::makeInitializer<TState, TAction>("MaxInitializer");//std::make_shared<sdm::MaxInitializer<TState, TAction>>();
 
             // Instanciate bounds
@@ -139,7 +138,7 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
-                    using TState = SerializedState<number, number>;
+                    using TState = SerializedState<number,number>;
                     using TAction = number;
 
                     auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(problem_path);
@@ -149,7 +148,7 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
-                    using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+                    using TState = SerializedOccupancyState<SerializedState<number,number>, JointHistoryTree_p<number>>;
                     using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);

@@ -17,7 +17,7 @@
 
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
-//#include <sdm/utils/logging/logger.hpp>
+#include <sdm/utils/logging/logger.hpp>
 
 namespace sdm
 {
@@ -55,7 +55,7 @@ namespace sdm
      * @brief Logger.
      * 
      */
-    //std::shared_ptr<MultiLogger> logger_;
+    std::shared_ptr<MultiLogger> logger_;
 
     /**
      * @brief Some variables for the algorithm.

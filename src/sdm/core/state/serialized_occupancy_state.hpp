@@ -6,11 +6,12 @@
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/struct/tuple.hpp>
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/state/serialized_state.hpp>
 
 namespace sdm
 {
-  template <typename TState = number, typename TJointHistory_p = JointHistoryTree_p<number>>
-  class SerializedOccupancyState : public MappedVector<Tuple<TState, TJointHistory_p, std::vector<number>>, double>
+  template <typename TState = SerializedState<number,number>, typename TJointHistory_p = JointHistoryTree_p<number>>
+  class SerializedOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
   {
   public:
     using jhistory_type = TJointHistory_p;
@@ -20,6 +21,7 @@ namespace sdm
     SerializedOccupancyState(double default_value);
     SerializedOccupancyState(std::size_t size, double default_value);
     SerializedOccupancyState(const SerializedOccupancyState &v);
+    // Faudrait construire d'autre contructeur, et notamment quand on lui donne directement un SerializedState,TjointHistory, et une valeur ? 
 
     std::set<jhistory_type> getJointHistories() const;
     std::set<state_type> getStates() const;

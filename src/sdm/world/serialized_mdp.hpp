@@ -2,6 +2,8 @@
 
 #include <sdm/types.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/struct/pair.hpp>
+#include <sdm/types.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_state.hpp>
@@ -35,8 +37,8 @@ namespace sdm
         oState &getState();
         double getDiscount(int t) const;
         
-        bool isSerialized() const {true;}
-        DiscreteMMDP *getUnderlyingProblem(){return this->mmdp_.get();};
+        bool isSerialized() const;
+        DiscreteMMDP *getUnderlyingProblem();
 
         oState getInitialState();
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;

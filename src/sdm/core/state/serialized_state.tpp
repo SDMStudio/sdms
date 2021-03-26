@@ -7,7 +7,7 @@ namespace sdm
     SerializedState<TState, TAction>::SerializedState()
     {
     }
-
+    
     template <typename TState, typename TAction>
     SerializedState<TState, TAction>::SerializedState(TState state) : Pair<TState, std::vector<TAction>>(state, {})
     {

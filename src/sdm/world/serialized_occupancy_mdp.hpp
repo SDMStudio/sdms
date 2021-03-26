@@ -5,6 +5,7 @@
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_occupancy_state.hpp>
+#include <sdm/core/state/serialized_state.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
@@ -14,7 +15,7 @@ namespace sdm
 
     class DiscreteDecPOMDP;
 
-    template <typename oState = SerializedOccupancyState<number, JointHistoryTree_p<number>>,
+    template <typename oState = SerializedOccupancyState<SerializedState<number,number>, JointHistoryTree_p<number>>,
               typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
     class SerializedOccupancyMDP : public SolvableByHSVI<oState, oAction>
     {

@@ -52,8 +52,14 @@ namespace sdm
 
             u.push_back(action);
 
-            for (auto &state_ : this->mmdp_->getStateSpace()->getAll())
+            for (number state_ = 0; state_<this->mmdp_->getStateSpace()->getNumItems(); state_++)
             {
+                //std::cout<<"zzzz \n";
+                //std::make_pair(0,{});
+                //std::cout<<a;
+                //std::cout<<"qqqq \n";
+                //std::cout<<hsvi->do_excess(a, t+1);
+
                 double tmp = this->mmdp_->getStateDynamics()->getTransitionProbability(x, this->mmdp_->getActionSpace()->joint2single(u), state_);//* hsvi->do_excess(state_, t + 1);
                 if (tmp > max)
                 {
@@ -135,5 +141,17 @@ namespace sdm
             }
         }
         return this->mmdp_->getDiscount();
+    }
+
+    template <typename oState, typename oAction>
+    DiscreteMMDP *SerializedMDP<oState, oAction>::getUnderlyingProblem()
+    {
+        return this->mmdp_.get();
+    }
+    
+    template <typename oState, typename oAction>
+    bool SerializedMDP<oState, oAction>::isSerialized() const
+    {
+        return true;
     }
 }

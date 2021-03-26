@@ -12,10 +12,6 @@
 
 #include <math.h>
 #include <sdm/utils/value_function/value_function.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/core/state/serialized_state.hpp>
-#include <sdm/world/serialized_mdp.hpp>
-#include <sdm/algorithms.hpp>
 
 
 namespace sdm
@@ -326,20 +322,20 @@ namespace sdm
 
             //J'aimerai bien avoir une variable pour avoir le nom de l'algo ou directement le MMDP.
             // Mais je n'arrive pas à trouver, et quand je fais under_pb->toMMDP(); il ne veut pas car toute les classes mères n'ont pas cette fonction
-            auto serial_mdp = std::make_shared<SerializedMDP<SerializedState<number>,number>>(algoname);
+            //auto serial_mdp = std::make_shared<SerializedMDP<SerializedState<number>,number>>(algoname);
 
-            MappedVector<SerializedState<number>,number> upperbound_result;
+            //MappedVector<SerializedState<number>,number> upperbound_result;
             //auto hsvi = sdm::algo::makeMappedHSVI<SerializedState<number>, number>(serial_mdp,under_pb->getDiscount(),0,under_pb->getPlanningHorizon(),1000);
 
 
-            for (auto &s : serial_mdp->getUnderlyingProblem()->getStateSpace()->getAll())
-            {
-                serial_mdp->getUnderlyingProblem()->setInternalState(s);
+            //for (auto &s : serial_mdp->getUnderlyingProblem()->getStateSpace()->getAll())
+            //{
+            //    serial_mdp->getUnderlyingProblem()->setInternalState(s);
                 //auto hsvi = sdm::algo::makeMappedHSVI<SerializedState<number>, number>(serial_mdp,under_pb->getDiscount(),0,under_pb->getPlanningHorizon(),1000);
                 //hsvi->do_solve();
                 //upperbound_result[s] = hsvi->getUpperBound();
-            }
-            std::cout<<upperbound_result;
+            //}
+            //std::cout<<upperbound_result;
             /*
             auto algo = sdm::algo::makeMappedHSVI<number, number>(this->algo_name_, this->mmdp_problem_);
             algo->do_solve();

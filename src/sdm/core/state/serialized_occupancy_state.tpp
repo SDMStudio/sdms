@@ -4,22 +4,22 @@ namespace sdm
 {
 
     template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState() : MappedVector<Tuple<TState, TJointHistory_p, std::vector<number>>, double>(0, 0)
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState() : MappedVector<Pair<TState, TJointHistory_p>, double>(0, 0)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(double default_value) : MappedVector<Tuple<TState, TJointHistory_p, std::vector<number>>, double>(default_value)
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(default_value)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(std::size_t size, double default_value) : MappedVector<Tuple<TState, TJointHistory_p, std::vector<number>>, double>(size, default_value)
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(std::size_t size, double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(size, default_value)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(const SerializedOccupancyState &v) : MappedVector<Tuple<TState, TJointHistory_p, std::vector<number>>, double>(v)
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(const SerializedOccupancyState &v) : MappedVector<Pair<TState, TJointHistory_p>, double>(v)
     {
     }
 
@@ -29,7 +29,7 @@ namespace sdm
         std::set<jhistory_type> possible_jhistories;
         for (const auto &key : *this)
         {
-            possible_jhistories.insert(std::get<1>(key.first));
+            possible_jhistories.insert(key.first.second);
         }
         return possible_jhistories;
     }
@@ -40,7 +40,7 @@ namespace sdm
         std::set<state_type> possible_states;
         for (const auto &key : *this)
         {
-            possible_states.insert(std::get<0>(key.first));
+            possible_states.insert(key.first.first);
         }
         return possible_states;
     }
@@ -51,7 +51,7 @@ namespace sdm
         std::set<typename SerializedOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> possible_ihistories;
         for (const auto &key : *this)
         {
-            auto jhist = std::get<1>(key.first);
+            auto jhist = key.first.second;
             auto ihist = jhist->getIndividualHistory(ag_id);
             possible_ihistories.insert(ihist);
         }
@@ -61,7 +61,8 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     number SerializedOccupancyState<TState, TJointHistory_p>::getCurrentAgentId() const
     {
-        return std::get<2>(this->begin()->first).size();
+        //return (this->begin()->first).first.getAction().size();
+        return this->begin()->first.first.getAction().size();
     }
 
 } // namespace sdm
