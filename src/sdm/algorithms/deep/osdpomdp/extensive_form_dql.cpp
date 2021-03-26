@@ -57,12 +57,6 @@ namespace sdm{
 		initialize();
 	}
 
-	action ExtensiveFormDQL::get_a_from_u2_u1(action u2, action u1){
-		std::vector<action> ja = {u2, u1};
-		action a = game->getActionSpace().joint2single(ja);
-		return a;
-	}
-
 	void ExtensiveFormDQL::estimate_initial_E_R(){
 		// reward total_R = 0;
 		// for (int episode = 0; episode < 1000; episode++){
@@ -71,7 +65,7 @@ namespace sdm{
 		// 	for (int step = 0; step < horizon; step++){
 		// 		action u2 = agent_0->uniform_action_distribution(agent_0->random_engine);
 		// 		action u1 = agent_1->uniform_action_distribution(agent_1->random_engine);
-		// 		action a = get_a_from_u2_u1(u2, u1);
+		// 		action a = get_u_from_u2_u1(u2, u1);
 		// 		std::tuple<std::vector<reward>, observation, state> r_z_x = game->getDynamicsGenerator(x, a);
 		// 		reward r = std::get<0>(r_z_x)[0];
 		// 		R += pow(game->getDiscount(), step) * r;
@@ -150,7 +144,7 @@ namespace sdm{
 	}
 
 	std::tuple<observation, observation, reward> ExtensiveFormDQL::act(){
-		action u = get_a_from_u2_u1(u2, u1s[k]);
+		action u = game->getActionSpace().joint2single({u2, u1s[k]});
 		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(xs[k], u);
 		std::vector<reward> rs = std::get<0>(r_z_next_x);
 		observation z = std::get<1>(r_z_next_x);
@@ -188,8 +182,8 @@ namespace sdm{
 	void ExtensiveFormDQL::update_replay_memory(){
 		// For each sampling/parallel world:
 		for(k = 0; k < K; k++){
-			// Create transition (u2 + u1s[k] * game->getNumActions(0) - u. if you disagree let me know)
-			transition t = std::make_tuple(o2, o1s[k], o1s, u2 + u1s[k] * game->getNumActions(0), rs[k], next_o2, next_o1s[k], next_o1s);
+			// Create transition.
+			transition t = std::make_tuple(o2, o1s[k], o1s, game->getActionSpace().joint2single({u2, u1s[k]}), rs[k], next_o2, next_o1s[k], next_o1s);
 			// Push it to the replay memory.
 			replay_memory->push(t);
 		}
@@ -242,9 +236,9 @@ namespace sdm{
 			for(step = 0; step < horizon; step++){
 				// Agent 2 chooses her action u2.
 				u2 = agents->get_epsilon_greedy_action_2(o2, o1s, epsilon);
-				// We randomly choose a Agent 2' observation z2.
+				// We randomly choose Agent 2's observation z2.
 				z2 = uniform_z2_distribution(random_engine);
-				// For each sampling/parallel world until we reach the K:
+				// For each sampling/parallel world until we reach K:
 				for(k = 0; k < K; k++){
 					// Agent 1 chooses her action u1s[k].
 					u1s[k] = agents->get_epsilon_greedy_action_1(o2, o1s[k], u2, o1s, epsilon);

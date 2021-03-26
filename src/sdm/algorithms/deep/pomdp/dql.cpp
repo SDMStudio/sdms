@@ -55,12 +55,6 @@ namespace sdm{
 		initialize();
 	}
 
-	action DQL::get_u_from_u2_u1(action u2, action u1){
-		std::vector<action> ja = {u2, u1};
-		action u = game->getActionSpace().joint2single(ja);
-		return u;
-	}
-
 	void DQL::update_epsilon(){
 		if (episode * eta < batch_size){
 			epsilon = 1;
@@ -70,7 +64,6 @@ namespace sdm{
 	}
 
 	std::tuple<observation, observation, reward> DQL::act(){
-		action u = get_u_from_u2_u1(u2, u1);
 		std::tuple<std::vector<reward>, observation, state> r_z_next_x = game->getDynamicsGenerator(x, u);
 		std::vector<reward> rs = std::get<0>(r_z_next_x);
 		observation z = std::get<1>(r_z_next_x);
@@ -96,7 +89,7 @@ namespace sdm{
 
 	void DQL::update_replay_memory(){
 		// Create transition
-		pomdp_transition t = std::make_tuple(o2, o1, u2, u1, u2_u1, z2, z1, r);
+		pomdp_transition t = std::make_tuple(o2, o1, u2, u1, u, z2, z1, r);
 		// Push it to the replay memory.
 		replay_memory->push(t, episode, step);
 	}
@@ -137,9 +130,9 @@ namespace sdm{
 		for(episode = 0; episode < episodes; episode++){
 			initialize_episode();
 			for(step = 0; step < horizon; step++){
-				u2_u1 = agents->get_epsilon_greedy_actions(o2, o1, epsilon);
-				u2 = u2_u1 % game->getNumActions(0);
-				u1 = u2_u1 / game->getNumActions(0);
+				u = agents->get_epsilon_greedy_actions(o2, o1, epsilon);
+				u2 = game->getActionSpace().single2joint(u)[0];
+				u1 = game->getActionSpace().single2joint(u)[1];
 				std::tie(z2, z1, r) = act();
 				update_replay_memory();
 				update_models();

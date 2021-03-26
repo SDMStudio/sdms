@@ -74,8 +74,8 @@ namespace sdm{
 		action u2;
 		// Action of agent 1.
 		action u1;
-		// The joint action of agents 2 and 1. Needed later.
-		action u2_u1;
+		// The joint action of agents 2 and 1.
+		action u;
 		// Current state of the game.
 		state x;
 		// Next state of the game.
@@ -107,8 +107,6 @@ namespace sdm{
 			float, float, float, float, float, float, float, 
 			torch::Device, std::shared_ptr<sdm::POSG>&, int, std::string, bool
 		);
-		// (Should be in POSG class.) Used to get the joint action a from private actions u2 and u1.
-		action get_u_from_u2_u1(action, action);
 		// Update epsilon according to the specified decay rate.
 		void update_epsilon();
 		// (Should be in POSG class.) Using action u2 and action u1; get observation z2, observation z1, and reward r.

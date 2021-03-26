@@ -119,8 +119,6 @@ namespace sdm{
 			float, float, float, float, float, float, float, 
 			torch::Device, std::shared_ptr<sdm::POSG>&, int, bool, std::string
 		);
-		// (Should be in POSG class.) Used to get the joint action a from private actions u2 and u1.
-		action get_a_from_u2_u1(action, action);
 		// For now it just sets E[R] to 0.
 		void estimate_initial_E_R();
 		// Update epsilon according to the specified decay rate.
