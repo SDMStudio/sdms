@@ -58,29 +58,29 @@ namespace sdm{
 	action Agents::get_greedy_action_2(history o2, std::vector<history> o1s){
 		// Let PyTorch know that we don't need to keep track of the gradient in this context.
 		torch::NoGradGuard no_grad;
-		// Q values for agent 0 (given o2 and u2).
-		std::vector<double> valid_q_values;
+		// Create vector for q values of agent 2's actions.
+		std::vector<double> q_values_agent_2;
 		// For each u2 possible:
 		for(action u2 = 0; u2 < game->getNumActions(0); u2++){
 			// Initialize the Q value to 0.
-			valid_q_values.push_back(0.0);
+			q_values_agent_2.push_back(0.0);
 			for (int k = 0; k < K; k++){
-				// Extract one of the all o1s.
+				// Extract one of the o1s.
 				history o1 = o1s[k];
 				// Create the Tensor to put in the network.
 				torch::Tensor o2_o1_o1s = torch::cat({o2, o1, torch::cat(o1s)}, 0);
 				// Put Tensor to GPU if needed.
 				o2_o1_o1s = o2_o1_o1s.to(device);
-				// Get u1, given o2, o1, u2, o1s.
+				// Get u1; given o2, o1, u2, o1s.
 				action u1 = get_greedy_action_1(o2, o1, u2, o1s);
 				// Get joint action u given u2 and u1.
 				action u = game->getActionSpace().joint2single({u2, u1});
 				// Get the Q value given u and add it to the relevant u2 index.
-				valid_q_values[u2] += policy_net(o2_o1_o1s).index({u}).item<double>();
+				q_values_agent_2[u2] += policy_net(o2_o1_o1s).index({u}).item<double>();
 			}
 		}
 		// Return the argmax.
-		return std::distance(valid_q_values.begin(), std::max_element(valid_q_values.begin(), valid_q_values.end()));
+		return std::distance(q_values_agent_2.begin(), std::max_element(q_values_agent_2.begin(), q_values_agent_2.end()));
 	}
 	// u_{\tau}^{1} = \arg \max_{{{u}'}_{\tau}^{1}} PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(k)} | o_{\tau}^{2} \}_{k=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau}^{2}, {{u}'}_{\tau}^{1})
 	action Agents::get_greedy_action_1(history o2, history o1, action u2, std::vector<history> o1s){
@@ -92,16 +92,16 @@ namespace sdm{
 		o2_o1_o1s = o2_o1_o1s.to(device);
 		// Put input Tensor to policy net, get q values for each possible joint action.
 		torch::Tensor q_values = policy_net(o2_o1_o1s);
-		// Cretae vector for valid q values, meaning q values that are possible given u2.
-		std::vector<double> valid_q_values = {};
+		// Create vector for q values of agent 1's actions.
+		std::vector<double> q_values_agent_1 = {};
 		// For each possible u1:
 		for(action u1 = 0; u1 < game->getNumActions(1); u1++){
 			action u = game->getActionSpace().joint2single({u2, u1});
 			// Add the corresponding q value given u.
-			valid_q_values.push_back(q_values.index({u}).item<double>());
+			q_values_agent_1.push_back(q_values.index({u}).item<double>());
 		}
 		// Return the argmax of valid q values.
-		return std::distance(valid_q_values.begin(), std::max_element(valid_q_values.begin(), valid_q_values.end()));
+		return std::distance(q_values_agent_1.begin(), std::max_element(q_values_agent_1.begin(), q_values_agent_1.end()));
 	}
 	//
 	action Agents::get_epsilon_greedy_action_2(history o2, std::vector<history> all_o1s, float epsilon){

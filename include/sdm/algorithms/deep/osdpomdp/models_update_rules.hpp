@@ -25,9 +25,9 @@ namespace sdm{
 		std::uniform_real_distribution<double> uniform_alpha_distribution;
 		// If we use induced bias or not i.e. the solution of POMDP.
 		bool induced_bias;
-		// Batch size of updates i.e. how many transitions at a time we use to update the parameters of the nets.
+		// Batch size of updates i.e. how many transitions at a time we use to update the parameters of the net.
 		number batch_size;
-		// Sampling memory size (|M|) i.e. how many sampled histories of agent 1 do we store per transition.
+		// Sampling memory size i.e. how many histories of agent 1 do we store per transition.
 		number K;
 		// CPU or GPU.
 		torch::Device device = torch::Device(torch::kCPU);
@@ -41,8 +41,14 @@ namespace sdm{
 		batch construct_batch(std::vector<transition>);
 		// {q}_{\tilde{s}_{\tau}^{2}}({o}_{\tau}, {u}_{\tau}) = PolicyNet(o_{\tau}^{2}, o_{\tau}^{1}, \{o_{\tau}^{1,(m)} | o_{\tau}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau}| o_{\tau}^{2}\}, {u}_{\tau})
 		torch::Tensor get_q_values(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
+		//
+		torch::Tensor get_next_u2_batch(torch::Tensor, std::vector<torch::Tensor>, torch::Tensor, DQN&);
+		//
+		torch::Tensor get_next_u1_batch(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
+		//
+		torch::Tensor get_next_u_batch(torch::Tensor, torch::Tensor);
 		// {q}_{\tilde{s}_{\tau}^{2}}^{Target}({o}_{\tau}, {u}_{\tau}) =  r_{\tau} + \gamma \cdot \max_{{{u}'}_{\tau}} TargetNet(o_{\tau+1}^{2}, o_{\tau+1}^{1}, \{o_{\tau+1}^{1,(m)} | o_{\tau+1}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau+1}| o_{\tau+1}^{2}\}, {{u}'}_{\tau})
-		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, std::shared_ptr<Agents>&, float);
+		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, std::vector<torch::Tensor>, torch::Tensor, torch::Tensor, DQN&);
 		// Update the parameters of policy net.
 		void update_policy_net(std::shared_ptr<Agents>&, torch::Tensor);
 	};
