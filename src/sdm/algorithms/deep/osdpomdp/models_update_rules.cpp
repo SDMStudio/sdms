@@ -146,6 +146,10 @@ namespace sdm{
 	}
 
 	torch::Tensor ModelsUpdateRules::get_next_u_batch(torch::Tensor next_u2_batch, torch::Tensor next_u1_batch){
+		// Put these to CPU since otherwise it'll be way too slow to do the next thing.
+		next_u2_batch = next_u2_batch.cpu();
+		next_u1_batch = next_u1_batch.cpu();
+		//
 		std::vector<int> next_u_batch_vector;
 			//
 			for (int i = 0; i < batch_size; i++){
