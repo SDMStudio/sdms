@@ -21,6 +21,7 @@
  */
 namespace sdm
 {
-  using BeliefState = MappedVector<number, double>;
+  // using BeliefState = MappedVector<number, double>;
+  
 
 } // namespace sdm

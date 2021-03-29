@@ -55,10 +55,12 @@ namespace sdm
                 ub_init = sdm::makeInitializer<TState, TAction>(ub_init_name); //std::make_shared<sdm::MaxInitializer<TState, TAction>>();
             }
 
-
             // Instanciate bounds
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
+
+            std::cout<<lower_bound->str()<<"\n";
+            std::cout<<upper_bound->str()<<"\n";
 
             return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
         }
@@ -153,7 +155,7 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
-                    using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+                    using TState = SerializedOccupancyState<SerializedState,JointHistoryTree_p<number>>;
                     using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);

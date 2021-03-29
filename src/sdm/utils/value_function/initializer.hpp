@@ -15,6 +15,7 @@
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/state_2_occupancy_vf.hpp>
 
+
 namespace sdm
 {
     /**
@@ -227,4 +228,4 @@ namespace sdm
             }
         }
     };
-} // namespace sdm
+}// namespace sdm

@@ -6,14 +6,14 @@
 
 namespace sdm
 {
-  // template <typename TState, typename TAction>
   class SerializedState : public Pair<number, std::vector<number>>
   {
   public:
-    // using state_type = TState;
-    // using action_type = TAction;
+    using state_type = number;
+    using action_type = number;
 
     SerializedState();
+    SerializedState(number state);
     SerializedState(number state, std::vector<number> actions);
     SerializedState(const SerializedState &v);
 

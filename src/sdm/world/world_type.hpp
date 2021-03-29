@@ -67,8 +67,8 @@ namespace sdm
         template <bool is_solving_pomdp = std::is_same<TState, BeliefState>::value>
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getUnderlyingProblem();
-
-        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<>, SerializedOccupancyState<>>::value>
+        
+        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<number, JointHistoryTree_p<number>>, SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>
         static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>
         getUnderlyingProblem();
 
