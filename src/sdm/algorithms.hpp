@@ -11,6 +11,7 @@
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/initializers.hpp>
+#include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 
 namespace sdm
 {
@@ -28,7 +29,7 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 10000, std::string name = "tab_hsvi")
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeMappedHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string ub_init_name, std::string lb_init_name, double discount, double error, int horizon, int trials, std::string name)
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -112,7 +113,7 @@ namespace sdm
                     auto mdp = std::make_shared<DiscreteMDP>(problem_path);
                     mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    return makeMappedHSVI<number, number>(mdp, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name);
+                    return makeMappedHSVI<number, number>(mdp, "MDPInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name);
                 }
                 else if ((formalism == "pomdp") || (formalism == "POMDP"))
                 {
@@ -123,7 +124,7 @@ namespace sdm
                     auto pomdp = std::make_shared<DiscretePOMDP>(problem_path);
                     auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(pomdp);
 
-                    return makeMappedHSVI<TState, TAction>(beliefMDP, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
+                    return makeMappedHSVI<TState, TAction>(beliefMDP, "MDPInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
@@ -137,26 +138,27 @@ namespace sdm
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
                     // auto dpomdp = std::make_shared<DiscreteDecPOMDP>(problem_path);
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
-                    return makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                    return makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, "MDPInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
-                    using TState = SerializedState<number,number>;
+                    using TState = SerializedState; //<number, number>;
                     using TAction = number;
 
-                    auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(problem_path);
+                    auto mmdp = std::make_shared<DiscreteMMDP>(problem_path);
+                    auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(mmdp);
                     serialized_mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    return makeMappedHSVI<TState, TAction>(serialized_mdp, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                    return makeMappedHSVI<TState, TAction>(serialized_mdp, "MDPInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
-                    using TState = SerializedOccupancyState<SerializedState<number,number>,JointHistoryTree_p<number>>;
+                    using TState = SerializedOccupancyState<SerializedState,JointHistoryTree_p<number>>;
                     using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
 
-                    return makeMappedHSVI<TState, TAction>(serialized_oMDP, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
+                    return makeMappedHSVI<TState, TAction>(serialized_oMDP, "MDPInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
                 }
             }
         }

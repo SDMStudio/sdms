@@ -12,12 +12,13 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
+
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/discrete_mmdp.hpp>
 
 namespace sdm
 {
-    class DiscretePOMDP;
-
     /**
      * @brief The BeliefMDP class is the interface that enables solving Discret POMDP using HSVI algorithm.
      * 
@@ -42,7 +43,6 @@ namespace sdm
         BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
         BeliefMDP(std::string underlying_pomdp);
 
-
         TBelief reset();
         TBelief &getState();
 
@@ -63,6 +63,7 @@ namespace sdm
          */
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
 
+        std::shared_ptr<DiscreteMDP> toMDP();
     };
 } // namespace sdm
 #include <sdm/world/belief_mdp.tpp>

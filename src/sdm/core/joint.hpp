@@ -8,6 +8,7 @@ Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
 #include <sdm/core/function.hpp>
+#include <sdm/utils/struct/vector.hpp>
 
 //!
 //! \file     joint.hpp
@@ -42,7 +43,7 @@ namespace sdm
 
     Joint() : std::vector<item>() {}
     Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
-    Joint(const std::vector<number> &num_agents, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
+    Joint(const std::vector<number> &, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
 
     number getNumAgents() const
     {
@@ -84,13 +85,6 @@ namespace sdm
   template class Joint<number>;
 
   typedef Joint<number> JointItem;
-
-  // //using boost::hash_combine
-  // template <class T>
-  // inline void hash_combine(std::size_t &seed, T const &v)
-  // {
-  //   seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-  // }
 } // namespace sdm
 
 namespace std
@@ -111,24 +105,3 @@ namespace std
     }
   };
 }
-
-
-namespace std
-{
-  template <typename T>
-  struct hash<std::vector<T>>
-  {
-    typedef std::vector<T> argument_type;
-    typedef std::size_t result_type;
-    result_type operator()(argument_type const &in) const
-    {
-      size_t size = in.size();
-      size_t seed = 0;
-      for (size_t i = 0; i < size; i++)
-        //Combine the hash of the current vector with the hashes of the previous ones
-        sdm::hash_combine(seed, in[i]);
-      return seed;
-    }
-  };
-}
-

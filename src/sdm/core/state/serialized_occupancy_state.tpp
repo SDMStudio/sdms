@@ -104,4 +104,11 @@ namespace sdm
     {
         return state.first.getAction();
     }
+
+    template <typename TState, typename TJointHistory_p>
+    number SerializedOccupancyState<TState, TJointHistory_p>::getState(const Pair<TState, TJointHistory_p> &pair_state_hist)
+    {
+        return pair_state_hist.first.getState();
+    }
+
 } // namespace sdm

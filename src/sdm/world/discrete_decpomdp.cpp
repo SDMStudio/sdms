@@ -54,6 +54,12 @@ namespace sdm
     }
 
     // // Other methods
+
+    std::shared_ptr<DiscreteMDP> DiscreteDecPOMDP::toMDP()
+    {
+        return this->toMMDP()->toMDP();
+    }
+
     std::shared_ptr<DiscretePOMDP> DiscreteDecPOMDP::toPOMDP()
     {
         std::shared_ptr<DiscreteSpace<number>> new_action_space = std::make_shared<DiscreteSpace<number>>(this->getActionSpace()->getNumJointItems());

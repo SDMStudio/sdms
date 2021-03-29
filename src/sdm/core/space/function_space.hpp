@@ -83,7 +83,7 @@ namespace sdm
             if (this->all_items_.empty())
             {
                 std::vector<std::vector<output_type>> tmp;
-                for (int i = 0; i < input_space_.getAll().size(); i++)
+                for (std::size_t i = 0; i < input_space_.getAll().size(); i++)
                 {
                     if (this->output_space_.size() == 1)
                     {

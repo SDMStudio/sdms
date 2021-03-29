@@ -69,7 +69,7 @@ namespace sdm
     }
 
     template <typename Iterator, typename Exception, typename Context>
-    inline x3::error_handler_result error_handler_base::on_error(Iterator &first, Iterator const &last, Exception const &x, Context const &context)
+    inline x3::error_handler_result error_handler_base::on_error(Iterator &, Iterator const &, Exception const &x, Context const &)
     {
       std::cout << "HELO" << std::endl;
       std::string which = x.which();

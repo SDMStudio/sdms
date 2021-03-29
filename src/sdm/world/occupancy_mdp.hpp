@@ -16,6 +16,8 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 
@@ -25,8 +27,6 @@
  */
 namespace sdm
 {
-
-    class DiscreteDecPOMDP;
 
     /**
      * @brief An occupancy MDP is a subclass of continuous state MDP where states are occupancy states. 
@@ -66,6 +66,9 @@ namespace sdm
         
         double getReward(const oState &ostate, const oAction &oaction) const;
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
+
+        std::shared_ptr<DiscreteMDP> toMDP();
+        // std::shared_ptr<DiscreteMDP> toPOMDP();
     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

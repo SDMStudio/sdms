@@ -53,7 +53,7 @@ namespace sdm
         return amax;
     }
 
-    std::shared_ptr<DiscreteSpace<number>> DiscreteMDP::getActionSpaceAt(const number &state)
+    std::shared_ptr<DiscreteSpace<number>> DiscreteMDP::getActionSpaceAt(const number &)
     {
         return this->getActionSpace();
     }
@@ -81,9 +81,20 @@ namespace sdm
     {
         return this;
     }
-    
+
     bool DiscreteMDP::isSerialized() const
     {
         return false;
     }
+
+    std::shared_ptr<DiscreteMDP> DiscreteMDP::getptr()
+    {
+        return shared_from_this();
+    }
+
+    std::shared_ptr<DiscreteMDP> DiscreteMDP::toMDP()
+    {
+        return this->getptr();
+    }
+
 }

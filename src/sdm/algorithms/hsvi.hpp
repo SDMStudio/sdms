@@ -22,9 +22,6 @@
 namespace sdm
 {
 
-  template <typename TState, typename TAction>
-  class SolvableByHSVI;
-
   /**
    * @brief 
    * 

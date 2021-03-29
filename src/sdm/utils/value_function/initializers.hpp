@@ -60,7 +60,14 @@ namespace sdm
         {
             typename map_type::iterator it = InitializerFactory<TState, TAction>::getRegistry().find(name);
             if (it == InitializerFactory<TState, TAction>::getRegistry().end())
-                return 0;
+            {
+                std::string init_names = "{";
+                for (auto &v : InitializerFactory<TState, TAction>::available())
+                {
+                    init_names = init_names + "\"" + v + "\" ";
+                }
+                throw sdm::exception::Exception(name + " not registered. Available initializers are : " + init_names + "}");
+            }
             return it->second();
         }
 

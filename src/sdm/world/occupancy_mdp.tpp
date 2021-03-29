@@ -92,11 +92,8 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, int t, HSVI<oState, oAction> *hsvi) const
+    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, int, HSVI<oState, oAction> *) const
     {
-        // std::cout << ostate << std::endl;
-        // std::cout << joint_idr << std::endl;
-
         oState new_ostate;
         for (auto &p_x_o : ostate)
         {
@@ -137,7 +134,7 @@ namespace sdm
             auto state = p_x_o.first.first;
             auto jhistory = p_x_o.first.second;
             std::vector<typename oAction::value_type::output_type> jaction;
-            for (int i = 0; i < joint_idr.size(); i++)
+            for (std::size_t i = 0; i < joint_idr.size(); i++)
             {
                 auto idr = joint_idr.at(i);
                 jaction.push_back(idr(jhistory->getIndividualHistory(i)));
@@ -154,5 +151,10 @@ namespace sdm
         return value_function->getValueAt(ost, t + 1);
     }
 
+    template <typename oState, typename oAction>
+    std::shared_ptr<DiscreteMDP> OccupancyMDP<oState, oAction>::toMDP()
+    {
+        return this->dpomdp_->toMDP();
+    }
 
 } // namespace sdm

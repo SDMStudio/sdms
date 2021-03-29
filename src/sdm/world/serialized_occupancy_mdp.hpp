@@ -2,6 +2,8 @@
 
 #include <sdm/types.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/discrete_pomdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_occupancy_state.hpp>
@@ -15,7 +17,15 @@ namespace sdm
 
     class DiscreteDecPOMDP;
 
-    template <typename oState = SerializedOccupancyState<SerializedState<number,number>, JointHistoryTree_p<number>>,
+    /**
+     * @brief An Serialized occupancy MDP is a subclass of continuous state MDP where states are occupancy states and the resolution is Serialized. 
+     * In the general case, a Serialized occupancy state refers to the knowledge that a central planner can have access to take decisions at a precise agent. 
+     * But in this implementation we call serialized occupancy state a distribution over serialized state and joint histories .
+     * 
+     * @tparam oState the serialized occupancy state type 
+     * @tparam oAction the occupancy action type 
+     */
+    template <typename oState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,
               typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
     class SerializedOccupancyMDP : public SolvableByHSVI<oState, oAction>
     {
@@ -43,11 +53,14 @@ namespace sdm
 
         oState getInitialState();
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
-        
+
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        
+
         double getReward(const oState &ostate, const oAction &oaction) const;
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
+
+        std::shared_ptr<SerializedMDP<>> toMDP();
+        // std::shared_ptr<DiscretePOMDP> toPOMDP();
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

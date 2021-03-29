@@ -94,7 +94,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, int t, HSVI<oState, oAction> *hsvi) const
+    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, int, HSVI<oState, oAction> *) const
     {
         number ag_id = ostate.getCurrentAgentId();
 
@@ -109,7 +109,7 @@ namespace sdm
 
 
             auto p_ihist = o->getIndividualHistory(ag_id);
-            u.push_back(indiv_dr(p_ihist));
+            u.push_back(indiv_dr.act(p_ihist));
 
             if (ag_id != this->dpomdp_->getNumAgents() - 1)
             {
@@ -136,7 +136,6 @@ namespace sdm
         return new_ostate;
     }
 
-    // A VERIFIER !!!!!!!!!!!!!!!!!!!!
     template <typename oState, typename oAction>
     double SerializedOccupancyMDP<oState, oAction>::getReward(const oState &ostate, const oAction &indiv_dr) const
     {
@@ -153,11 +152,13 @@ namespace sdm
         {
             auto pair_s_o = p_s_o.first;
             auto x = pair_s_o.first.getState();
-            auto o = pair_s_o.second;
             auto u = pair_s_o.first.getAction();
+            auto o = pair_s_o.second;
 
             std::vector<typename oAction::output_type> jaction(u.begin(), u.end());
-            jaction.push_back(indiv_dr(o->getIndividualHistory(ag_id)));
+
+            // Add the last selected action (the action of agent 0)
+            jaction.push_back(indiv_dr.act(o->getIndividualHistory(ag_id)));
 
             r += p_s_o.second * this->dpomdp_->getReward()->getReward(x, this->dpomdp_->getActionSpace()->joint2single(jaction));
         }
@@ -183,6 +184,13 @@ namespace sdm
             }
         }
         return this->dpomdp_->getDiscount();
+    }
+
+
+    template <typename oState, typename oAction>
+    std::shared_ptr<SerializedMDP<>> SerializedOccupancyMDP<oState, oAction>::toMDP()
+    {
+        return std::make_shared<SerializedMDP<>>(this->dpomdp_->toMMDP());
     }
 
 } // namespace sdm
