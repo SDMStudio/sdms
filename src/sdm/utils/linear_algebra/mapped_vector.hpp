@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <string>
+
 #include <iostream>
 #include <assert.h>
 
@@ -34,7 +35,7 @@ namespace sdm
     {
     protected:
         T default_value_;
-        std::size_t size_;
+        std::size_t size_ = -1;
 
         std::pair<TIndex, T> getMin() const;
         std::pair<TIndex, T> getMax() const;

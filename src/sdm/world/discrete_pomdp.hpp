@@ -12,7 +12,6 @@
 
 #include <sdm/types.hpp>
 #include <sdm/world/po_decision_process.hpp>
-#include <sdm/world/discrete_mdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>

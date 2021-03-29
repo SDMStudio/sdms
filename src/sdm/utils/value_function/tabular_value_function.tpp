@@ -3,7 +3,7 @@
 namespace sdm
 {
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer)
+    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer)
         : ValueFunction<TState, TAction, TValue>(problem, horizon), initializer_(initializer)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_, Container());
@@ -11,7 +11,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, TValue default_value) : TabularValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value) : TabularValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
     {
     }
 
@@ -22,7 +22,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize(TValue default_value, int t)
+    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize(TValue default_value, number t)
     {
         if (this->isInfiniteHorizon())
         {
@@ -36,8 +36,22 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TValue TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(const TState &state, int t)
+    TValue TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(const TState &state, number t)
     {
+
+        if (t < this->getHorizon())
+        {
+            if (this->representation[t].find(state) == this->representation[t].end())
+            {
+                if (this->init_function_ != nullptr)
+                {
+                    TValue i_value = this->init_function_->operator()(state, t);
+                    this->updateValueAt(state, t, i_value);
+                    return i_value;
+                }
+            }
+        }
+
         if (this->isInfiniteHorizon())
         {
             return this->representation[0].at(state);
@@ -49,7 +63,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, int t, TValue target)
+    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
     {
         if (this->isInfiniteHorizon())
         {
@@ -63,7 +77,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, int t)
+    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t)
     {
         this->updateValueAt(state, t, this->getBackupOperator().backup(this, state, t));
     }
@@ -79,7 +93,7 @@ namespace sdm
     {
         std::ostringstream res;
         res << "<tabular_value_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-        for (int i=0; i < this->representation.size(); i++)
+        for (int i = 0; i < this->representation.size(); i++)
         {
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (auto pair_st_val : this->representation[i])

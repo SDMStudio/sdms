@@ -53,7 +53,7 @@ namespace sdm
         for (auto &jhist : this->getJointHistories())
         {
             auto ihists = jhist->getIndividualHistories();
-            for (int i = 0; i < ihists.size(); i++)
+            for (std::size_t i = 0; i < ihists.size(); i++)
             {
                 if (first_passage)
                 {

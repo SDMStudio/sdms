@@ -31,7 +31,7 @@ namespace sdm
     DeterministicDecisionRule(std::vector<TState> acc_states, std::vector<TAction> n_actions)
     {
       assert(acc_states.size() == n_actions.size());
-      for (int i = 0; i < acc_states.size(); i++)
+      for (std::size_t i = 0; i < acc_states.size(); i++)
       {
         this->container_[acc_states[i]] = n_actions[i];
       }
@@ -42,7 +42,7 @@ namespace sdm
       return this->container_.at(s);
     }
 
-    TAction operator()(const TState &s) const
+    TAction operator()(const TState &s) 
     {
       return this->container_.at(s);
     }

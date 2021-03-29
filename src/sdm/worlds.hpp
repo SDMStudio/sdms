@@ -6,11 +6,11 @@
 #include <sdm/world/discrete_decpomdp.hpp>
 #include <sdm/world/ndpomdp.hpp>
 
+#include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serialized_mdp.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
 
 namespace sdm
 {

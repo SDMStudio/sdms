@@ -81,6 +81,7 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int t, HSVI<TBelief, TAction> *hsvi) const
     {
+        std::cout <<  "hsvi addresse "<<hsvi << std::endl;
         // Select o* as in the paper
         number selected_o = 0;
         double max_o = 0, tmp;
@@ -100,7 +101,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    std::shared_ptr<DiscreteSpace<TAction>> BeliefMDP<TBelief, TAction, TObservation>::getActionSpaceAt(const TBelief &belief)
+    std::shared_ptr<DiscreteSpace<TAction>> BeliefMDP<TBelief, TAction, TObservation>::getActionSpaceAt(const TBelief &)
     {
         return this->pomdp_->getActionSpace();
     }
@@ -139,5 +140,11 @@ namespace sdm
         return proba;
     }
 
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    std::shared_ptr<DiscreteMDP> BeliefMDP<TBelief, TAction, TObservation>::toMDP()
+    {
+        return this->pomdp_->toMDP();
+    }
 
 } // namespace sdm

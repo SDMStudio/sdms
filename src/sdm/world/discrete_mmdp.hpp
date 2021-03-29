@@ -12,7 +12,6 @@
 
 #include <sdm/types.hpp>
 #include <sdm/world/decision_process.hpp>
-#include <sdm/world/discrete_mdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>

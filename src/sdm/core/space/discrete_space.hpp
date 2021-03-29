@@ -74,8 +74,6 @@ namespace sdm
         template <bool TBool = std::is_integral<TItem>::value>
         DiscreteSpace(std::enable_if_t<TBool, int> num_items);
 
-        ~DiscreteSpace();
-
         /**
          * @brief Return true because this is a discrete space
          */

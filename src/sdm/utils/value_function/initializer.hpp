@@ -11,7 +11,9 @@
 #pragma once
 
 #include <math.h>
+#include <sdm/algorithms/hsvi.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/state_2_occupancy_vf.hpp>
 
 namespace sdm
 {
@@ -26,6 +28,7 @@ namespace sdm
     {
     public:
         virtual void init(ValueFunction<TState, TAction> *vf) = 0;
+        virtual ~Initializer() {}
     };
 
     /**
@@ -224,37 +227,4 @@ namespace sdm
             }
         }
     };
-
-    // template <typename TState, typename TAction>
-    // class MDPInitializer : public Initializer<TState, TAction>
-    // {
-    // protected:
-    //     std::string algo_name_;
-    //     std::string formalisme_;
-
-    // public:
-    //     MDPInitializer(std::string algo_name) : algo_name_(algo_name)
-    //     {
-    //     }
-
-    //     void init(ValueFunction<TState, TAction> *vf)
-    //     {
-    //         auto mdp = vf->getWorld()->toMDP();
-    //         auto algo = sdm::algo::makeMappedHSVI<>(this->algo_name_, mdp, );
-    //         algo->do_solve();
-    //         auto ubound = algo->getUpperBound();
-
-    //         for (int t = 0; t < vf->getHorizon(); t++)
-    //         {
-    //             double max = ubound->getValueAt(this->mdp_problem_->getStateSpace()->getAll()[0], t), newval;
-    //             for (auto &s : this->mdp_problem_->getStateSpace()->getAll())
-    //             {
-    //                 newval = ubound->getValueAt(s, t);
-    //                 max = (newval > max) ? newval : max;
-    //             }
-    //             vf->initialize(max, t);
-    //         }
-    //     }
-    // };
-
 } // namespace sdm

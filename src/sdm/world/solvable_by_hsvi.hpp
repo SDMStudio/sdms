@@ -25,6 +25,8 @@ namespace sdm
     class SolvableByHSVI
     {
     public:
+        virtual ~SolvableByHSVI() {}
+        
         /**
          * @brief Get the initial state
          */
@@ -70,7 +72,7 @@ namespace sdm
          * 
          * @return the underlying problem 
          */
-        virtual typename WorldType<TState, TAction>::type *getUnderlyingProblem() = 0;
+        virtual typename WorldType<TState, TAction>::underlying_problem_type *getUnderlyingProblem() = 0;
 
         /**
          * @brief Check if the problem is serialized.

@@ -1,5 +1,6 @@
 
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
 {
@@ -9,7 +10,7 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(T default_value) : std::unordered_map<TIndex, T>(), default_value_(default_value)
+    MappedVector<TIndex, T>::MappedVector(T default_value) : std::unordered_map<TIndex, T>(), default_value_(default_value), size_(0)
     {
     }
 
@@ -114,7 +115,7 @@ namespace sdm
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::at(const TIndex &i) const
     {
-        if (this->find(i) != this->end())
+        if (std::unordered_map<TIndex, T>::find(i) != std::unordered_map<TIndex, T>::end())
         {
             return std::unordered_map<TIndex, T>::at(i);
         }

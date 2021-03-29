@@ -25,7 +25,8 @@ namespace sdm
      * 
      */
     class DiscreteMDP : public FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>,
-                        public SolvableByHSVI<number, number>
+                        public SolvableByHSVI<number, number>,
+                        public std::enable_shared_from_this<DiscreteMDP>
     {
     public:
         DiscreteMDP();
@@ -34,8 +35,9 @@ namespace sdm
         DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number> start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
         DiscreteMDP(std::string &filename);
 
+        std::shared_ptr<DiscreteMDP> getptr();
         std::shared_ptr<Reward> getReward() const;
-        
+
         // SolvableByHSVI interface implementation
         number getInitialState();
         number nextState(const number &state, const number &action, int t = 0, HSVI<number, number> *hsvi = nullptr) const;
@@ -44,5 +46,8 @@ namespace sdm
         double getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, int t = 0) const;
         DiscreteMDP *getUnderlyingProblem();
         bool isSerialized() const;
+
+        // Problem conversion
+        std::shared_ptr<DiscreteMDP> toMDP();
     };
 } // namespace sdm

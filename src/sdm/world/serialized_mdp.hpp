@@ -14,9 +14,11 @@ namespace sdm
 
     class DiscreteMMDP;
 
-    template <typename oState = SerializedState<number, number>,
+    template <typename oState = SerializedState,
               typename oAction = number>
-    class SerializedMDP : public SolvableByHSVI<oState, oAction>
+    class SerializedMDP : public SolvableByHSVI<oState, oAction>,
+                          public std::enable_shared_from_this<SerializedMDP<oState, oAction>>
+
     {
     protected:
         std::shared_ptr<DiscreteMMDP> mmdp_;
@@ -32,20 +34,24 @@ namespace sdm
         SerializedMDP(std::string underlying_mmdp);
         //SerializedOccupancyMDP(std::string underlying_mdp, number hist_length);
 
+        std::shared_ptr<SerializedMDP> getptr();
+
         oState &getState();
         double getDiscount(int t) const;
-        
+
         bool isSerialized() const;
         DiscreteMMDP *getUnderlyingProblem();
 
         oState getInitialState();
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
-        
+
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        
+
         double getReward(const oState &ostate, const oAction &oaction) const;
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
 
+        // Problem conversion
+        std::shared_ptr<SerializedMDP> toMDP();
     };
 } // namespace sdm
 #include <sdm/world/serialized_mdp.tpp>

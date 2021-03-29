@@ -92,7 +92,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, int t, HSVI<oState, oAction> *hsvi) const
+    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, int, HSVI<oState, oAction> *) const
     {
         number ag_id = ostate.getCurrentAgentId();
 
@@ -107,13 +107,13 @@ namespace sdm
 
             if (ag_id != this->dpomdp_->getNumAgents() - 1)
             {
-                u.push_back(indiv_dr(o->getIndividualHistory(ag_id)));
+                u.push_back(indiv_dr.act(o->getIndividualHistory(ag_id)));
                 new_ostate[std::make_tuple(x, o, u)] = p_x_o.second;
             }
             else
             {
                 auto p_ihist = o->getIndividualHistory(ag_id);
-                u.push_back(indiv_dr(p_ihist));
+                u.push_back(indiv_dr.act(p_ihist));
                 for (auto &y : this->dpomdp_->getStateSpace()->getAll())
                 {
                     for (auto &z : this->dpomdp_->getObsSpace()->getAll())
@@ -153,7 +153,7 @@ namespace sdm
             std::vector<typename oAction::output_type> jaction(actions.begin(), actions.end());
 
             // Add the last selected action (the action of agent 0)
-            jaction.push_back(indiv_dr(jhistory->getIndividualHistory(ag_id)));
+            jaction.push_back(indiv_dr.act(jhistory->getIndividualHistory(ag_id)));
 
             r += p_x_o.second * this->dpomdp_->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
         }
@@ -179,6 +179,13 @@ namespace sdm
             }
         }
         return this->dpomdp_->getDiscount();
+    }
+
+
+    template <typename oState, typename oAction>
+    std::shared_ptr<SerializedMDP<>> SerializedOccupancyMDP<oState, oAction>::toMDP()
+    {
+        return std::make_shared<SerializedMDP<>>(this->dpomdp_->toMMDP());
     }
 
 } // namespace sdm

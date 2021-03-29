@@ -2,6 +2,8 @@
 
 #include <sdm/types.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/discrete_pomdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_occupancy_state.hpp>
@@ -42,11 +44,14 @@ namespace sdm
 
         oState getInitialState();
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
-        
+
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        
+
         double getReward(const oState &ostate, const oAction &oaction) const;
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
+
+        std::shared_ptr<SerializedMDP<>> toMDP();
+        // std::shared_ptr<DiscretePOMDP> toPOMDP();
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

@@ -35,7 +35,7 @@ namespace sdm
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
         auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
-        
+
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
@@ -73,14 +73,13 @@ namespace sdm
     template <typename TState, typename TAction>
     double HSVI<TState, TAction>::do_excess(const TState &s, number h)
     {
-
         number realTime = h;
         if (this->world_->isSerialized())
         {
-            //std::cout<<"\n Ancien Time : "<<realTime;
+            // Compute the real time for serialized problem
             realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
-            //std::cout<<"\n New Time : "<<realTime<<"\n";
         }
+
 
         return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
     }
