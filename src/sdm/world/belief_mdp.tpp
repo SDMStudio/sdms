@@ -81,7 +81,6 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int t, HSVI<TBelief, TAction> *hsvi) const
     {
-        std::cout <<  "hsvi addresse "<<hsvi << std::endl;
         // Select o* as in the paper
         number selected_o = 0;
         double max_o = 0, tmp;
