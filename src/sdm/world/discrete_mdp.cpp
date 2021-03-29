@@ -43,7 +43,6 @@ namespace sdm
         number amax = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
         {
-            std::cout<<hsvi->do_excess(state_, t + 1)<<"\n";
             double tmp = this->getStateDynamics()->getTransitionProbability(state, action, state_) * hsvi->do_excess(state_, t + 1);
             if (tmp > max)
             {

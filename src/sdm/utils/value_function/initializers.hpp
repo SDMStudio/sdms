@@ -39,6 +39,7 @@ namespace sdm
             {"MaxInitializer", &createInstance<TState, TAction, MaxInitializer>},
             {"BlindInitializer", &createInstance<TState, TAction, BlindInitializer>},
             {"ZeroInitializer", &createInstance<TState, TAction, ZeroInitializer>},
+            {"PolicyEvaluationInitializer", &createInstance<TState, TAction, PolicyEvaluationInitializer>},
         };
 
     public:

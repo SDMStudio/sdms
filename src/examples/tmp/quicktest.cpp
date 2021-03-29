@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     std::string filePath("../data/world/dpomdp/");
     
     const int nbfile(1);
-    std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
+    std::string all_file[nbfile] = {"tiger"};//,"tiger","recycling"};
 
 
     std::ofstream myfile;
@@ -133,8 +133,8 @@ int main(int argc, char **argv)
             }
 
         }
-    }
-
+    }*/
+    /*
     for(const std::string & filename : all_file)
     {
         
@@ -174,8 +174,8 @@ int main(int argc, char **argv)
                 t_begin = clock();
 
 
-                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
-                //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+                std::cout<<"Lower bound : "<<hsvi->getLowerBound()->str()<<"\n";
+                std::cout<<"Upper bound : "<<hsvi->getUpperBound()->str()<<"\n";
                 
                 
                 hsvi->do_solve();
@@ -235,6 +235,9 @@ int main(int argc, char **argv)
                 auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi");
 
                 t_begin = clock();
+
+                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->str()<<"\n";
+                //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->str()<<"\n";
 
                 hsvi->do_solve();
 
