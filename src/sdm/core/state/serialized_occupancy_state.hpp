@@ -31,8 +31,8 @@ namespace sdm
     std::set<typename state_type::state_type> getHiddenStates() const;
     std::set<typename state_type::action_type> getActions() const;
 
-    typename state_type::state_type getHiddenState(const state_type &state) const;
-    typename state_type::action_type getAction(const state_type &state) const;
+    typename state_type::state_type getHiddenState(const Pair<state_type,jhistory_type> &state) const;
+    std::vector<typename state_type::action_type> getAction(const Pair<state_type,jhistory_type> &state) const;
   };
 } // namespace sdm
 #include <sdm/core/state/serialized_occupancy_state.tpp>

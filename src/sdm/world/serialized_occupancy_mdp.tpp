@@ -99,13 +99,14 @@ namespace sdm
         number ag_id = ostate.getCurrentAgentId();
 
         oState new_ostate;
-        
+
         for (auto &p_s_o : ostate)
         {
             auto pair_s_o = p_s_o.first;
-            auto x = pair_s_o.first.getState();
+            auto x = ostate.getHiddenState(pair_s_o);
             auto o = pair_s_o.second;
-            auto u = pair_s_o.first.getAction();
+            auto u = ostate.getAction(pair_s_o);
+
 
             auto p_ihist = o->getIndividualHistory(ag_id);
             u.push_back(indiv_dr(p_ihist));

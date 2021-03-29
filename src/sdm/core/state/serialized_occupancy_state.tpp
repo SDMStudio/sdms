@@ -67,7 +67,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     std::set<typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::state_type> SerializedOccupancyState<TState, TJointHistory_p>::getHiddenStates() const
     {
-        std::set<state_type> states = this->getState();
+        std::set<state_type> states = this->getStates();
 
         std::set<typename state_type::state_type> possible_hidden_states;
         for (const auto &key : states)
@@ -82,7 +82,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     std::set<typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::action_type> SerializedOccupancyState<TState, TJointHistory_p>::getActions() const
     {
-        std::set<state_type> states = this->getState();
+        std::set<state_type> states = this->getStates();
 
         std::set<typename state_type::state_type> possible_action_states;
         for (const auto &key : states)
@@ -93,15 +93,15 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::state_type SerializedOccupancyState<TState, TJointHistory_p>::getHiddenState(const state_type &state) const
+    typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::state_type SerializedOccupancyState<TState, TJointHistory_p>::getHiddenState(const Pair<state_type,jhistory_type> &state) const
     {
-        return state.getState();
+        return state.first.getState();
     }
 
 
     template <typename TState, typename TJointHistory_p>
-    typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::action_type SerializedOccupancyState<TState, TJointHistory_p>::getAction(const state_type &state) const
+    std::vector<typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::action_type> SerializedOccupancyState<TState, TJointHistory_p>::getAction(const Pair<state_type,jhistory_type> &state) const
     {
-        return state.getAction();
+        return state.first.getAction();
     }
 } // namespace sdm
