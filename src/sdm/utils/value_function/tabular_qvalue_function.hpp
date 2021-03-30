@@ -10,17 +10,14 @@
  */
 #pragma once
 
+#include <map>
 #include <iostream>
 #include <type_traits>
-#include <map>
 
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/core/function.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 #include <sdm/utils/backup_operator/backup_operator.hpp>
-#include <sdm/core/state/state.hpp>
-#include <sdm/core/function.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -44,7 +41,7 @@ namespace sdm
     class TabularQValueFunction : public QValueFunction<TState, TAction, TValue>
     {
     protected:
-        using Container = TStruct<TState, TValue>;
+        using Container = TStruct<Pair<TState, TAction>, TValue>;
         using backup_operator_type = TBackupOperator<TState, TAction>;
 
         /**
@@ -66,9 +63,9 @@ namespace sdm
         std::shared_ptr<Initializer<TState, TAction>> initializer_;
 
     public:
-        TabularQValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
+        TabularQValueFunction(int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
 
-        TabularQValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon = 0, TValue default_value = 0.);
+        TabularQValueFunction(int horizon = 0, TValue default_value = 0.);
 
         /**
          * @brief Initialize the value function according using initializer.
@@ -97,8 +94,9 @@ namespace sdm
          * @param state the state
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
-        void updateValueAt(const TState &state, int t = 0);
-        void updateValueAt(const TState &state, int t, TValue target);
+        void updateQValueAt(const TState &state, const TAction &action, int t = 0);
+
+        void updateQValueAt(const TState &state, const TAction &action, int t, TValue target);
 
         std::string str();
 
