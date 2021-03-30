@@ -22,10 +22,15 @@ namespace sdm
     template <typename TState, typename TAction>
     void MDPInitializer<TState, TAction>::init(ValueFunction<TState, TAction> *vf)
     {
+        // Get relaxed MDP problem and the underlying problem  
         auto mdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toMDP();
         auto underlying_pb = mdp->getUnderlyingProblem();
 
+        // Instanciate HSVI for MDP 
         auto algorithm = algo::makeMappedHSVI<decltype(mdp->getInitialState()), number>(mdp, "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init");
+        algorithm->do_initialize();
+
+        // Solve HSVI from every possible initial state
         for (auto &s : underlying_pb->getStateSpace()->getAll())
         {
             double proba_s = underlying_pb->getStartDistrib().probabilities()[s];
@@ -36,6 +41,8 @@ namespace sdm
             }
         }
         auto ubound = algorithm->getUpperBound();
+
+        // Set the function that will be used to get interactively upper bounds
         vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
     }
 } // namespace sdm

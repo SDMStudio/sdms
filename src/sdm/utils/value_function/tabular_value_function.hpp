@@ -10,9 +10,9 @@
  */
 #pragma once
 
+#include <map>
 #include <iostream>
 #include <type_traits>
-#include <map>
 
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>

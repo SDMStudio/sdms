@@ -7,7 +7,6 @@ namespace sdm
         : ValueFunction<TState, TAction, TValue>(problem, horizon), initializer_(initializer)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_, Container());
-        this->initialize();
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>

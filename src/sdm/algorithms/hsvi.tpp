@@ -24,7 +24,6 @@ namespace sdm
                                                     name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
-        this->do_initialize();
     }
 
     template <typename TState, typename TAction>

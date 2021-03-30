@@ -17,7 +17,7 @@ namespace sdm
     template <typename oState, typename oAction>
     oState SerializedMDP<oState, oAction>::getInitialState()
     {
-        return this->istate_;
+        return this->mmdp_->getInternalState();
     }
 
     template <typename oState, typename oAction>
