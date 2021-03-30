@@ -67,14 +67,12 @@ namespace sdm{
 			for (int k = 0; k < K; k++){
 				// Extract one of the o1s.
 				history o1 = o1s[k];
-				// Create the Tensor to put in the network.
-				torch::Tensor o2_o1_o1s = torch::cat({o2, o1, torch::cat(o1s)}, 0);
-				// Put Tensor to GPU if needed.
-				o2_o1_o1s = o2_o1_o1s.to(device);
 				// Get u1; given o2, o1, u2, o1s.
 				action u1 = get_greedy_action_1(o2, o1, u2, o1s);
 				// Get joint action u given u2 and u1.
 				action u = game->getActionSpace().joint2single({u2, u1});
+				// Create the Tensor to put in the network, which is made up of o2, o1, and the concatenation of o1s; put it to the correct device.
+				torch::Tensor o2_o1_o1s = torch::cat({o2, o1, torch::cat(o1s)}).to(device);
 				// Get the Q value given u and add it to the relevant u2 index.
 				q_values_agent_2[u2] += policy_net(o2_o1_o1s).index({u}).item<double>();
 			}
@@ -86,10 +84,8 @@ namespace sdm{
 	action Agents::get_greedy_action_1(history o2, history o1, action u2, std::vector<history> o1s){
 		// Let PyTorch know that we don't need to keep track of the gradient in this context.
 		torch::NoGradGuard no_grad;
-		// Create the Tensor to put in the network.
-		torch::Tensor o2_o1_o1s = torch::cat({o2, o1, torch::cat(o1s)}, 0);
-		// Put Tensor to GPU if needed.
-		o2_o1_o1s = o2_o1_o1s.to(device);
+		// Create the Tensor to put in the network, which is made up of o2, o1, and the concatenation of o1s; put it to the correct device.
+		torch::Tensor o2_o1_o1s = torch::cat({o2, o1, torch::cat(o1s)}).to(device);
 		// Put input Tensor to policy net, get q values for each possible joint action.
 		torch::Tensor q_values = policy_net(o2_o1_o1s);
 		// Create vector for q values of agent 1's actions.
@@ -100,7 +96,7 @@ namespace sdm{
 			// Add the corresponding q value given u.
 			q_values_agent_1.push_back(q_values.index({u}).item<double>());
 		}
-		// Return the argmax of valid q values.
+		// Return the argmax.
 		return std::distance(q_values_agent_1.begin(), std::max_element(q_values_agent_1.begin(), q_values_agent_1.end()));
 	}
 	//

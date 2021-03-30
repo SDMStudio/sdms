@@ -47,7 +47,7 @@ namespace sdm{
 		torch::Tensor get_next_u1_batch(torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, DQN&);
 		//
 		torch::Tensor get_next_u_batch(torch::Tensor, torch::Tensor);
-		// {q}_{\tilde{s}_{\tau}^{2}}^{Target}({o}_{\tau}, {u}_{\tau}) =  r_{\tau} + \gamma \cdot \max_{{{u}'}_{\tau}} TargetNet(o_{\tau+1}^{2}, o_{\tau+1}^{1}, \{o_{\tau+1}^{1,(m)} | o_{\tau+1}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau+1}| o_{\tau+1}^{2}\}, {{u}'}_{\tau})
+		// (not anymore) {q}_{\tilde{s}_{\tau}^{2}}^{Target}({o}_{\tau}, {u}_{\tau}) =  r_{\tau} + \gamma \cdot \max_{{{u}'}_{\tau}} TargetNet(o_{\tau+1}^{2}, o_{\tau+1}^{1}, \{o_{\tau+1}^{1,(m)} | o_{\tau+1}^{2} \}_{m=0}^{|M|-1}, Pr\{x_{\tau+1}| o_{\tau+1}^{2}\}, {{u}'}_{\tau})
 		torch::Tensor get_target_q_values(torch::Tensor, torch::Tensor, std::vector<torch::Tensor>, torch::Tensor, torch::Tensor, DQN&);
 		// Update the parameters of policy net.
 		void update_policy_net(std::shared_ptr<Agents>&, torch::Tensor);
