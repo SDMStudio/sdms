@@ -227,7 +227,7 @@ namespace sdm
             }
         }
     };
-
+    
     template <typename TState, typename TAction>
     class PolicyEvaluationInitializer : public Initializer<TState, TAction>
     {
@@ -242,76 +242,65 @@ namespace sdm
             auto under_pb = vf->getWorld()->getUnderlyingProblem();
 
             // Je vais évaluer chaque politique en fonction d'une Value fonction correcte
-            auto lb_init = sdm::BlindInitializer<TState,TAction>();
-            lb_init.init(vf);
 
-            for (auto &s : under_pb->getStateSpace()->getAll())
+            std::vector<double> ra;
+
+            //for (const auto &a : under_pb->getActionSpace()->getAll())
+            //{
+            // auto lb_init = sdm::ZeroInitializer<TState,TAction>();
+            // lb_init.init(vf);
+
+            for (const auto &a : under_pb->getActionSpace()->getAll())
             {
-                double resultat =std::numeric_limits<double>::min(),tot = 0;
-                for (const auto &a : under_pb->getActionSpace()->getAll())
+                for(int t = vf->getHorizon()-1;t>=0 ;t--)
                 {
-                    // ra.push_back(std::numeric_limits<double>::max());
-                    // for (auto &s : under_pb->getStateSpace()->getAll())
+                    double resultat = vf->getQValueAt(s,a,t);
+                    // for(const auto &s : under_pb->getStateSpace()->getAll())
                     // {
-                    //    ra.back() = std::min(policyEvaluation(a,s,vf), ra.back());
+                    //     // double reward= under_pb->getReward(s, a);
+                    //     // double resultat = 0.0;
+                    //     // for(auto &s_2 : under_pb->getStateSpace()->getAll())
+                    //     // {
+                    //     //     resultat += under_pb->getStateDynamics()->getTransitionProbability(s, a, s_2)*(reward+ under_pb->getDiscount()*vf->getQValueAt(s_2,t+1));
+                    //     // }
                     // }
-                    resultat = std::max(policyEvaluation(a,s,vf), resultat);
-                    //ra.push_back(policyEvaluation(a,s,vf));
+                    // lb_init->initialise(resultat,t);
                 }
-                std::cout<<"\n s : "<<s;
-                std::cout<<"\n resultat : "<<resultat;
+            }
+
+                // ra.push_back(std::numeric_limits<double>::max());
+                // for (auto &s : under_pb->getStateSpace()->getAll())
+                // {
+                //    ra.back() = std::min(policyEvaluation(a,s,vf), ra.back());
+                // }
+                //ra.push_back(policyEvaluation(a,under_pb->getInternalState(),vf));
+            //}
+
+            std::cout<<vf->str();
+
+            if (vf->isInfiniteHorizon())
+            {
+                vf->initialize(*std::max_element(ra.begin(), ra.end()) / (1. - under_pb->getDiscount()));
+            }
+            else
+            {
+                double min_rsa = *std::max_element(ra.begin(), ra.end()), tot = 0;
                 for (int t = vf->getHorizon() - 1; t >= 0; t--)
                 {
                     if (vf->getWorld()->isSerialized())
                     {
                         if ((t + 1) % under_pb->getNumAgents() == 0)
                         {
-                            tot = resultat + under_pb->getDiscount() * tot;
+                            tot = min_rsa + under_pb->getDiscount() * tot;
                         }
                     }
                     else
                     {
-                        tot = resultat + under_pb->getDiscount() * tot;
+                        tot = min_rsa + under_pb->getDiscount() * tot;
                     }
-                    //vf->updateValueAt(s,t);
+                    vf->initialize(tot, t);
                 }
             }
-
-            // for (const auto &a : under_pb->getActionSpace()->getAll())
-            // {
-            //     // ra.push_back(std::numeric_limits<double>::max());
-            //     // for (auto &s : under_pb->getStateSpace()->getAll())
-            //     // {
-            //     //    ra.back() = std::min(policyEvaluation(a,s,vf), ra.back());
-            //     // }
-            //     ra.push_back(policyEvaluation(a,under_pb->getInternalState(),vf));
-            // }
-
-            std::cout<<vf->str();
-
-            // if (vf->isInfiniteHorizon())
-            // {
-            //     vf->initialize(*std::max_element(ra.begin(), ra.end()) / (1. - under_pb->getDiscount()));
-            // }
-            // else
-            // {
-            //     double min_rsa = *std::max_element(ra.begin(), ra.end()), tot = 0;
-            //     for (int t = vf->getHorizon() - 1; t >= 0; t--)
-            //     {
-            //         if (vf->getWorld()->isSerialized())
-            //         {
-            //             if ((t + 1) % under_pb->getNumAgents() == 0)
-            //             {
-            //                 tot = min_rsa + under_pb->getDiscount() * tot;
-            //             }
-            //         }
-            //         else
-            //         {
-            //             tot = min_rsa + under_pb->getDiscount() * tot;
-            //         }
-            //         vf->initialize(tot, t);
-            //     }
-            // }
         }
 
         double policyEvaluation(const number &politique, const number &state, ValueFunction<TState, TAction> *vf)

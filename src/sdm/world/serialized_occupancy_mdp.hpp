@@ -18,12 +18,12 @@ namespace sdm
     class DiscreteDecPOMDP;
 
     /**
-     * @brief An Serialized occupancy MDP is a subclass of continuous state MDP where states are occupancy states and the resolution is Serialized. 
+     * @brief An Serialized occupancy MDP is a subclass of continuous state MDP where states are seriliazed occupancy states and the resolution is serialized. 
      * In the general case, a Serialized occupancy state refers to the knowledge that a central planner can have access to take decisions at a precise agent. 
      * But in this implementation we call serialized occupancy state a distribution over serialized state and joint histories .
      * 
-     * @tparam oState the serialized occupancy state type 
-     * @tparam oAction the occupancy action type 
+     * @tparam oState refers to an serialized occupancy state type 
+     * @tparam oAction refers to a occupancy action type 
      */
     template <typename oState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,
               typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>

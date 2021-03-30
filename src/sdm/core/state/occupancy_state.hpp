@@ -19,6 +19,13 @@
 
 namespace sdm
 {
+
+  /**
+   * @brief A state of occupancy refers to a state in which all the knowledge is known by a central planner and which it relies on to make a decision.
+   * 
+   * @tparam TState refers to a number
+   * @tparam TJointHistory_p refers to a joint histories
+   */
   template <typename TState = number, typename TJointHistory_p = JointHistoryTree_p<number>>
   class OccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
   {
@@ -37,8 +44,24 @@ namespace sdm
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
     std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
 
+    /**
+     * @brief Return the hidden state of a precise occupancy state
+     * 
+     * @param pair_state_hist refers to a precise occupancy state
+     * @return TState refers to the hidden state returned
+     */
+    static TState getState(const Pair<TState, TJointHistory_p> &pair_state_hist);
 
-    static number getState(const Pair<TState, TJointHistory_p> &pair_state_hist);
+    /**
+     * @brief Return the hidden Joint history of a precise occupancy state
+     * 
+     * @param pair_state_hist refers to a precise occupancy state
+     * @return TJointHistory_p refers to the hidden Joint history returned
+     */
+    static TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist);
+
+    static double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

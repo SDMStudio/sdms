@@ -9,6 +9,14 @@
 
 namespace sdm
 {
+
+  /**
+   * @brief A serialized occupancy state refers to an occupancy state (i.e refers to the whole knowledge that a central planner can have access to take decisions) with a precise state for each agent. 
+   * But in this implementation we call serialized occupancy state a distribution over serialized state and joint histories .
+   * 
+   * @tparam TState
+   * @tparam TJointHistory_p 
+   */
   template <typename TState = SerializedState, typename TJointHistory_p = JointHistoryTree_p<number>>
   class SerializedOccupancyState : public OccupancyState<TState, TJointHistory_p>
   {

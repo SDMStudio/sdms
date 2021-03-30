@@ -16,6 +16,13 @@ namespace sdm
 
     class DiscreteMMDP;
 
+    /**
+     * @brief An Serialized MDP is a subclass of MDP where states are serialized states. 
+     * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
+     * 
+     * @tparam oState refer to the serialized state type
+     * @tparam oAction refer to the number type
+     */
     template <typename oState = SerializedState,
               typename oAction = number>
     class SerializedMDP : public SolvableByHSVI<oState, oAction>,

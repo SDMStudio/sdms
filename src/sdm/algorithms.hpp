@@ -44,19 +44,20 @@ namespace sdm
             }
 
             // Instanciate initializers
-            auto lb_init = sdm::makeInitializer<TState, TAction>("BlindInitializer");//std::make_shared<sdm::MinInitializer<TState, TAction>>();
-            auto lb_init2 = sdm::makeInitializer<TState, TAction>("PolicyEvaluationInitializer");//std::make_shared<sdm::MinInitializer<TState, TAction>>();
-
-            auto ub_init = sdm::makeInitializer<TState, TAction>("MaxInitializer");//std::make_shared<sdm::MaxInitializer<TState, TAction>>();
+            auto lb_init = sdm::makeInitializer<TState, TAction>(lb_init_name); //std::make_shared<sdm::MinInitializer<TState, TAction>>();
+            std::shared_ptr<Initializer<TState, TAction>> ub_init;
+            if (ub_init_name == "MDPInitializer")
+            {
+                ub_init = std::make_shared<sdm::MDPInitializer<TState, TAction>>("tabular_hsvi", error, trials);
+            }
+            else
+            {
+                ub_init = sdm::makeInitializer<TState, TAction>(ub_init_name); //std::make_shared<sdm::MaxInitializer<TState, TAction>>();
+            }
 
             // Instanciate bounds
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init));
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound2(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, lb_init2));
-
-
-            std::cout<<lower_bound->str()<<"\n";
-            std::cout<<lower_bound2->str()<<"\n";
 
             //std::cout<<upper_bound->str()<<"\n";
 
@@ -138,7 +139,7 @@ namespace sdm
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
                     // auto dpomdp = std::make_shared<DiscreteDecPOMDP>(problem_path);
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
-                    return makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, "MDPInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                    return makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, "MaxInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
@@ -149,7 +150,7 @@ namespace sdm
                     auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(mmdp);
                     serialized_mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    return makeMappedHSVI<TState, TAction>(serialized_mdp, "MDPInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                    return makeMappedHSVI<TState, TAction>(serialized_mdp, "MaxInitializer", "BlindInitializer", discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {

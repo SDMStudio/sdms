@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     */
     std::string filePath("../data/world/dpomdp/");
     
-    const int nbfile(1);
+    const int nbfile(3);
     std::string all_file[nbfile] = {"tiger"};//,"tiger","recycling"};
 
 
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 
                 //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
 
-                using TState = SerializedOccupancyState<SerializedState<number,number>,JointHistoryTree_p<number>>;
+                using TState = SerializedOccupancyState<SerializedState,JointHistoryTree_p<number>>;
                 using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
                 auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                 //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_hsvi");
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,"MDPInitializer","BlindInitializer", discount, 0, horizon,trials,"tab_hsvi");
 
                 t_begin = clock();
 
