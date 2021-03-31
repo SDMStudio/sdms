@@ -52,6 +52,7 @@ int solve(int argv, char **args)
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
         {
             auto algo = sdm::algo::make(algorithm, problem, formalism, ub_init, lb_init, discount, error, horizon, trials, name);
+            algo->do_initialize();
             algo->do_solve();
 
             if (vm.count("test"))

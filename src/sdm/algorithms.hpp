@@ -127,7 +127,7 @@ namespace sdm
 
                     using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
-                    // auto dpomdp = std::make_shared<DiscreteDecPOMDP>(problem_path);
+
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
                     return makeMappedHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
                 }

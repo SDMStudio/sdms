@@ -1,7 +1,7 @@
 /**
  * @file mdp_initializer.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief The file that contains MDPInitializer class
+ * @brief The file that contains the class for initialization base on MDP.
  * @version 1.0
  * @date 29/03/2021
  * 
@@ -15,13 +15,11 @@
 namespace sdm
 {
     /**
-     * @brief The MDP initializer enables to initialize the upperbound with the underlying MDP optimal value function.
+     * @brief The MDP initializer enables to initialize the upper bound in HSVI with the underlying MDP optimal value function. 
+     * This is a common usage in HSVI to use the solution of a relaxation of the problem in order to get a accurate upper bound (see also the class POMDPInitializer ). 
      * 
      * @tparam TState the state type
      * @tparam TAction the action type
-     * @param algo_name the algorithm that will be used to solve the underlying MDP.
-     * @param error the maximal error
-     * @param trials the maximal number of trials
      */
     template <typename TState, typename TAction>
     class MDPInitializer : public Initializer<TState, TAction>

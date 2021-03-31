@@ -15,7 +15,7 @@
 namespace sdm
 {
     /**
-     * @brief The POMDP initializer enables to initialize the upperbound with the underlying POMDP optimal value function.
+     * @brief The POMDP initializer enables to initialize the upper bound in HSVI with the underlying POMDP optimal value function.
      * 
      * @tparam TState the state type
      * @tparam TAction the action type

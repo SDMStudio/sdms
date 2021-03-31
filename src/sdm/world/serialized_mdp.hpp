@@ -31,17 +31,13 @@ namespace sdm
     {
     protected:
         std::shared_ptr<DiscreteMMDP> mmdp_;
-        oState istate_;
 
     public:
         using state_type = oState;
         using action_type = oAction;
-        // using observation_type = oObservation;
 
         SerializedMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp);
-        //SerializedOccupancyMDP(std::shared_ptr<DiscreteMDP> underlying_mdp, number hist_length);
         SerializedMDP(std::string underlying_mmdp);
-        //SerializedOccupancyMDP(std::string underlying_mdp, number hist_length);
 
         std::shared_ptr<SerializedMDP> getptr();
 
