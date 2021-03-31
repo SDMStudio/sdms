@@ -15,9 +15,12 @@
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
+
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/discrete_mdp.hpp>
 #include <sdm/world/discrete_pomdp.hpp>
+#include <sdm/world/belief_mdp.hpp>
+
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 
@@ -68,7 +71,13 @@ namespace sdm
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
 
         std::shared_ptr<DiscreteMDP> toMDP();
-        // std::shared_ptr<DiscreteMDP> toPOMDP();
+
+        /**
+         * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
+         * 
+         * @return a belief MDP
+         */
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

@@ -86,4 +86,14 @@ namespace sdm
         return pair_state_hist.second;
     }
 
+    template <typename TState, typename TJointHistory_p>
+    double OccupancyState<TState, TJointHistory_p>::getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist)
+    {
+        for (const auto &key : *this)
+        {
+            //possible_states.insert(key.first.first);
+        }        
+        return 0.0;
+    }
+
 } // namespace sdm

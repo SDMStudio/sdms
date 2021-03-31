@@ -13,6 +13,7 @@
 #include <sdm/types.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/decision_process.hpp>
+#include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
@@ -49,5 +50,13 @@ namespace sdm
 
         // Problem conversion
         std::shared_ptr<DiscreteMDP> toMDP();
+
+        /**
+         * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
+         * 
+         * @return a belief MDP
+         */
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+
     };
 } // namespace sdm

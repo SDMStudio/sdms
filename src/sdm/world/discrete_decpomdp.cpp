@@ -54,11 +54,17 @@ namespace sdm
     }
 
     // // Other methods
-
+    
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> DiscreteDecPOMDP::toBeliefMDP()
+    {
+        return this->toPOMDP()->toBeliefMDP();
+    }
+    
     std::shared_ptr<DiscreteMDP> DiscreteDecPOMDP::toMDP()
     {
         return this->toMMDP()->toMDP();
     }
+
 
     std::shared_ptr<DiscretePOMDP> DiscreteDecPOMDP::toPOMDP()
     {

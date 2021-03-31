@@ -193,4 +193,9 @@ namespace sdm
         return std::make_shared<SerializedMDP<>>(this->dpomdp_->toMMDP());
     }
 
+    template <typename oState, typename oAction>
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedOccupancyMDP<oState, oAction>::toBeliefMDP()
+    {
+        return this->dpomdp_->toBeliefMDP();
+    }
 } // namespace sdm

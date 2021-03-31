@@ -66,22 +66,17 @@ namespace sdm
     void initLogger();
 
   public:
-    /**
-     * @brief Construct a new HSVI object
-     * 
-     * @param trials 
-     * @param results 
-     */
-    // HSVI(number trials, std::string results);
 
     /**
-     * @brief Construct a new HSVI object
+     * @brief Construct the HSVI object.
      * 
-     * @param world the problem we want to solve
-     * @param lb 
-     * @param ub 
-     * @param trials 
-     * @param results 
+     * @param world the problem to be solved by HSVI
+     * @param lower_bound the lower bound 
+     * @param upper_bound the upperbound
+     * @param planning_horizon the planning horizon
+     * @param epsilon the error
+     * @param num_max_trials the maximum number of trials before stop
+     * @param name the name of the algorithm (this name is used to save logs)
      */
     HSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> &world,
          std::shared_ptr<ValueFunction<TState, TAction>> lower_bound,
@@ -93,56 +88,51 @@ namespace sdm
 
     /**
      * @brief Initialize the algorithm
-     * 
-     * @param tr_problem 
      */
     void do_initialize();
 
     /**
-     * @brief Solve the transformed problem
-     * 
-     * @param tr_problem 
-     * @param planning_horizon 
-     * @param epsilon 
-     * @param discount 
+     * @brief Solve a problem solvable by HSVI. 
      */
     void do_solve();
 
     /**
-     * @brief 
+     * @brief Test the learnt value function on one episode
+     */
+    void do_test();
+
+    /**
+     * @brief Computes the error between bounds (or excess).
      * 
-     * @param s 
-     * @return double 
+     * @param s the state
+     * @param t the timestep
+     * @return the error
      */
     double do_excess(const TState &s, number h);
 
     /**
      * @brief Check the end of HSVI algo
      * 
-     * @param h 
+     * @param s the current state
+     * @param h the current timestep
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
-     * @return false 
+     * @return false elsewhere
      */
     bool do_stop(const TState &s, number h);
 
     /**
-     * @brief Explore state
+     * @brief Explore a state.
      * 
-     * @param s 
-     * @param h 
+     * @param s the state to explore
+     * @param h the timestep of the exploration
      */
     void do_explore(const TState &s, number h);
 
     /**
-     * @brief Test the learnt value function on one episode
+     * @brief Select the next action
      * 
-     */
-    void do_test();
-
-    /**
-     * @brief Select the greedy action
-     * 
-     * @param s 
+     * @param s the current state
+     * @param h the current timestep
      * @return TAction 
      */
     TAction selectNextAction(const TState &s, number h);
@@ -150,13 +140,21 @@ namespace sdm
     /**
      * @brief Select the next state to explore 
      * 
-     * @param s 
-     * @param a 
-     * @return TState 
+     * @param s the current state
+     * @param a the current action
+     * @param h the current timestep
+     * @return the next state
      */
-    TState selectNextState(const TState &s, const TAction &a, number d);
+    TState selectNextState(const TState &s, const TAction &a, number h);
 
+    /**
+     * @brief Get the lower bound value function 
+     */
     std::shared_ptr<ValueFunction<TState, TAction>> getLowerBound() const;
+
+    /**
+     * @brief Get the upper bound value function 
+     */
     std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
 
     int getTrial() const;

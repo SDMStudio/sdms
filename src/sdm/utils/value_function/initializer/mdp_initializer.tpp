@@ -12,7 +12,6 @@ namespace sdm
 }
 namespace sdm
 {
-
     template <typename TState, typename TAction>
     MDPInitializer<TState, TAction>::MDPInitializer(std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials)
     {
@@ -22,10 +21,8 @@ namespace sdm
     template <typename TState, typename TAction>
     void MDPInitializer<TState, TAction>::init(ValueFunction<TState, TAction> *vf)
     {
-        std::cout << "Init start" << std::endl;
         auto mdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toMDP();
         auto underlying_pb = mdp->getUnderlyingProblem();
-        std::cout << "MDP Init after" << std::endl;
 
         auto algorithm = algo::makeMappedHSVI<decltype(mdp->getInitialState()), number>(mdp, "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init");
         for (auto &s : underlying_pb->getStateSpace()->getAll())

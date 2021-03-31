@@ -1,5 +1,7 @@
 #include <sdm/world/discrete_mdp.hpp>
 #include <sdm/parser/parser.hpp>
+#include <sdm/exception.hpp>
+
 
 namespace sdm
 {
@@ -95,6 +97,11 @@ namespace sdm
     std::shared_ptr<DiscreteMDP> DiscreteMDP::toMDP()
     {
         return this->getptr();
+    }
+
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> DiscreteMDP::toBeliefMDP()
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
 }

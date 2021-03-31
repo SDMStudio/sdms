@@ -91,6 +91,8 @@ namespace sdm
          */
         TValue getValueAt(const TState &state, number t = 0);
 
+        Container getValueAt(number t = 0);
+
         /**
          * @brief Update the value at a specific state and timestep.
          * 

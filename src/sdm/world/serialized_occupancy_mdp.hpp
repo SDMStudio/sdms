@@ -4,6 +4,7 @@
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/discrete_mdp.hpp>
 #include <sdm/world/discrete_pomdp.hpp>
+#include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_occupancy_state.hpp>
@@ -60,7 +61,13 @@ namespace sdm
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
 
         std::shared_ptr<SerializedMDP<>> toMDP();
-        // std::shared_ptr<DiscretePOMDP> toPOMDP();
+
+        /**
+         * @brief Get the corresponding Belief Markov Decision Process. It corresponds to the reformulation of the original POMP in a MDP where the state space is the space of beliefs. 
+         * 
+         * @return a belief MDP
+         */
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();   
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

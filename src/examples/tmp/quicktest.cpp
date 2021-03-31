@@ -54,15 +54,15 @@ int main(int argc, char **argv)
     */
     std::string filePath("../data/world/dpomdp/");
     
-    const int nbfile(3);
-    std::string all_file[nbfile] = {"tiger"};//,"tiger","recycling"};
+    const int nbfile(1);
+    std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
 
 
     std::ofstream myfile;
     myfile.open("resultat.csv");
     myfile<<"Filename,Horizon,Case,Discount,Resultat,Time,Trial \n";
 
-    int max_horizon(3);
+    int max_horizon(2);
 
     clock_t t_begin, t_end;
     float temps;
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                 //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,"MDPInitializer","BlindInitializer", discount, 0, horizon,trials,"tab_hsvi");
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,"PomdpHsviInitializer","BlindInitializer", discount, 0, horizon,trials,"tab_hsvi");
 
                 t_begin = clock();
 
@@ -244,8 +244,6 @@ int main(int argc, char **argv)
                 t_end = clock();
                 temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
                 //printf("temps = %f\n", temps);
-
-                hsvi->do_test();
 
                 myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
 

@@ -146,4 +146,11 @@ namespace sdm
     {
         return true;
     }
+    
+    template <typename oState, typename oAction>
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMDP<oState, oAction>::toBeliefMDP()
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+    
 }

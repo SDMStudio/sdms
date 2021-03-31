@@ -11,13 +11,27 @@
 #pragma once
 
 #include <map>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
+#include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
 
 namespace sdm
 {
     template <typename TState, typename TAction, template <typename TS, typename TA> class TInit>
     std::shared_ptr<Initializer<TState, TAction>> createInstance() { return std::shared_ptr<TInit<TState, TAction>>(new TInit<TState, TAction>); }
+
+    template <typename TState, typename TAction, template <typename TS, typename TA> class TInit>
+    std::shared_ptr<Initializer<TState, TAction>> createInstanceAlgoInit(std::string algo_name, double error, int trials) { return std::shared_ptr<TInit<TState, TAction>>(new TInit<TState, TAction>(algo_name, error, trials)); }
+
+    template <typename TState, typename TAction>
+    std::shared_ptr<Initializer<TState, TAction>> createInstanceTabMDPInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, MDPInitializer>, "tabular_hsvi", 0., 10000)(); }
+
+    template <typename TState, typename TAction>
+    std::shared_ptr<Initializer<TState, TAction>> createInstanceTabPOMDPInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, POMDPInitializer>, "tabular_hsvi", 0., 10000)(); }
 
     /**
      * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 
@@ -39,7 +53,9 @@ namespace sdm
             {"MaxInitializer", &createInstance<TState, TAction, MaxInitializer>},
             {"BlindInitializer", &createInstance<TState, TAction, BlindInitializer>},
             {"ZeroInitializer", &createInstance<TState, TAction, ZeroInitializer>},
-            {"PolicyEvaluationInitializer", &createInstance<TState, TAction, PolicyEvaluationInitializer>},
+            //{"PolicyEvaluationInitializer", &createInstance<TState, TAction, PolicyEvaluationInitializer>},
+            {"MdpHsviInitializer", &createInstanceTabMDPInit<TState, TAction>},
+            {"PomdpHsviInitializer", &createInstanceTabPOMDPInit<TState, TAction>},
         };
 
     public:

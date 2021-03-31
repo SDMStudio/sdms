@@ -63,7 +63,20 @@ namespace sdm
          */
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
 
+/**
+         * @brief Get the corresponding Markov Decision Process. It corresponds to the reformulation of the Belief MDP in a MDP where the blief state space is the state space. 
+         * 
+         * @return a belief MDP
+         */
         std::shared_ptr<DiscreteMDP> toMDP();
+
+        /**
+         * @brief Get the corresponding Belief Markov Decision Process. In this particular case, it will return the current MDP
+         * 
+         * @return a belief MDP
+         */
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+
     };
 } // namespace sdm
 #include <sdm/world/belief_mdp.tpp>

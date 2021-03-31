@@ -13,6 +13,7 @@
 #include <sdm/types.hpp>
 #include <sdm/world/po_decision_process.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/history.hpp>
@@ -57,6 +58,13 @@ namespace sdm
          * @return The corresponding POMDP.
          */
         std::shared_ptr<DiscretePOMDP> toPOMDP();
+
+        /**
+         * @brief Get the corresponding Partially Observable Markov Decision Process. The induced POMDP is the DecPOMP problem transformed as it was a single agent problem. The joint actions and observations are represented as single actions.
+         * 
+         * @return The corresponding POMDP.
+         */
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
 
         /**
          * @brief Get the corresponding Multi-agent Markov Decision Process. It corresponds to the relaxation of the original DecPOMP assuming that all agents can observation the entire state of the environment. 

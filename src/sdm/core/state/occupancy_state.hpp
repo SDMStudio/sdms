@@ -60,7 +60,13 @@ namespace sdm
      */
     static TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist);
 
-    static double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+    /**
+     * @brief Return the probability of a precise occupancy state
+     * 
+     * @param pair_state_hist refers to a precise occupancy state
+     * @return double refers to the probability returned
+     */
+    double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
 
   };
 } // namespace sdm
