@@ -34,37 +34,31 @@ namespace sdm
         }
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TValue TabularQValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(const TState &state, int t)
-    {
-        if (this->isInfiniteHorizon())
-        {
-            return this->representation[0].at(state);
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? 0 : this->representation[t].at(state);
-        }
-    }
+    // template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    // TValue TabularQValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(const TState &state, int t)
+    // {
+    // }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularQValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateQValueAt(const TState &state, const TAction &action, int t, TValue target)
     {
+        // To be modified
         if (this->isInfiniteHorizon())
         {
-            this->representation[0][Pair({state, action})] = target;
+            this->representation[0][{state, action}] = this->representation[0].at({state, action}) + this->lr * target;
         }
         else
         {
             assert(t < this->horizon_);
-            this->representation[t][Pair({state, action})] = target;
+            this->representation[t][{state, action}] = this->representation[t].at({state, action}) + this->lr * target;
         }
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularQValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateQValueAt(const TState &state, const TAction &action, int t)
     {
-        this->updateValueAt(state, t, this->getBackupOperator().backup(this, state, t));
+        // To be modified
+        // this->updateValueAt(state, t, this->getBackupOperator().backup(this, state, t));
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
@@ -78,7 +72,7 @@ namespace sdm
     {
         std::ostringstream res;
         res << "<tabular_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-        for (int i=0; i < this->representation.size(); i++)
+        for (int i = 0; i < this->representation.size(); i++)
         {
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (auto pair_st_val : this->representation[i])

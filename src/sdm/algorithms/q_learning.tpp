@@ -4,7 +4,7 @@ namespace sdm
 {
 
     template <typename TState, typename TAction, typename TObservation>
-    QLearning<TState, TAction, TObservation>::QLearning(std::shared_ptr<GymInterface> env,
+    QLearning<TState, TAction, TObservation>::QLearning(std::shared_ptr<GymInterface<TObservation, TAction>> env,
                                                         std::shared_ptr<QValueFunction<TState, TAction>> q_value,
                                                         std::shared_ptr<QValueFunction<TState, TAction>> q_target,
                                                         number planning_horizon,
@@ -53,12 +53,12 @@ namespace sdm
 
         clock_t t_begin = clock();
 
-        this->exploration_process->reset_exploration(this->max_steps_);
+        this->exploration_process->reset(this->max_steps_);
 
         while (this->step < this->max_steps_)
         {
             // Update exploration process
-            this->exploration_process->update_exploration(this->step);
+            this->exploration_process->update(this->step);
 
             // Do one episode
             this->do_episode();
@@ -123,9 +123,35 @@ namespace sdm
         this->is_done = done;
 
         // Update the model
-        this->q_value_->updateQValueAt(s, h);
+        this->update_model();
 
         this->step++;
+    }
+
+    template <typename TState, typename TAction, typename TObservation>
+    void QLearning<TState, TAction, TObservation>::update_model()
+    {
+        auto batch = this->experience_->sample(this->batch_size_);
+
+        for (const auto &transition : batch)
+        {
+            auto [s, a, r, s_] = transition;
+            target = r + this->discount_ * this->getQValueAt(s, h + 1 )->max() - this->getQValueAt(s, a, h);
+            this->q_value_->updateQValueAt(s, a, h, target);
+        }
+
+        // if (this->off_policy && t % this->target_update_freq == 0)
+        // {
+        //     this->update_target_model()
+        // }
+    }
+
+
+    template <typename TState, typename TAction, typename TObservation>
+    void QLearning<TState, TAction, TObservation>::select_action()
+    {
+        // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
+        return this->exploration_->getAction(this->qvalue_, this->current_obs); // random is (tmp < epsilon) else qvalue(current_obs)
     }
 
 } // namespace sdm

@@ -48,6 +48,16 @@ namespace sdm
     std::shared_ptr<QValueFunction<TState, TAction>> q_target_;
 
     /**
+     * @brief Experience Memory. 
+     */
+    std::shared_ptr<ReplayMemory> experience_;
+
+    /**
+     * @brief Exploration process. 
+     */
+    std::shared_ptr<Exploration> exploration_;
+
+    /**
      * @brief Logger.
      * 
      */
@@ -105,6 +115,13 @@ namespace sdm
      * 
      */
     void do_step();
+
+    /**
+     * @brief Update the q-value functions based on the memory/experience
+     * 
+     */
+    void update_model();
+
   };
 } // namespace sdm
 #include <sdm/algorithms/q_learning.tpp>
