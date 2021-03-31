@@ -80,6 +80,8 @@ namespace sdm
             auto value = this->pomdp_vf_->operator()(belief,tau);
             number min_int = 0;
 
+            std::cout<<"\n value :"<<value;
+
             if(value>0)
             {
                 for (auto &x : belief)
@@ -97,6 +99,8 @@ namespace sdm
                 min_ext = min_int;
             }
         }
+
+        std::cout<<"\n resultat : "<<resultat;
         // for (auto &p_b_v : mapped_vector_tau);
         // {
         //     number min_int = 0;

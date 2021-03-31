@@ -12,11 +12,6 @@ namespace sdm
     protected:
         std::shared_ptr<BinaryFunction<TBelief, number, double>> pomdp_vf_;
 
-        //J'aimerai bien créer cette variable avec la condition que c'est bien un SerializedOccupancyState
-        // Je sais pas si cela est possible mais ça permettrai d'éviter de la faire passer de fonction en fonction
-        //std::set<typename TOccupancyState::state_type> getAllStates;
-
-        //De façon temporaire je vais garder cette variable
         std::set<TBelief> getAllBelief;
 
 
