@@ -38,26 +38,24 @@ namespace sdm
         using action_type = TAction;
         using observation_type = TObservation;
 
+        BeliefMDP();
         BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
         BeliefMDP(std::string underlying_pomdp);
 
-        double getDiscount() { return this->pomdp_->getDiscount(); }
-        void setDiscount(double discount) { return this->pomdp_->setDiscount(discount); }
 
-        TBelief getInitialState();
-
+        TBelief reset();
         TBelief &getState();
 
-        std::shared_ptr<Reward> getReward() const;
+        bool isSerialized() const;
+        DiscretePOMDP *getUnderlyingProblem();
 
+        TBelief getInitialState();
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
-
         TBelief nextState(const TBelief &belief, const TAction &action, int t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
 
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
 
         double getReward(const TBelief &belief, const TAction &action) const;
-
         double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const;
 
         /**
@@ -65,7 +63,6 @@ namespace sdm
          */
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
 
-        TBelief reset();
     };
 } // namespace sdm
 #include <sdm/world/belief_mdp.tpp>

@@ -75,6 +75,12 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
+    double DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::getReward(typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::state_type s, typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::action_type a)
+    {
+        return this->getReward()->getReward(s, this->getAction(a));
+    }
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     void DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setReward(std::shared_ptr<TReward> reward_function)
     {
         this->reward_function_ = reward_function;

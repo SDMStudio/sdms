@@ -12,6 +12,7 @@ add_definitions (-DBOOST -DDENSE -DBOOST_TEST_DYN_LINK)
 
 add_executable (test_world test_world.cpp) 
 target_link_libraries(test_world
+  fmt
   ${TORCH_LIBRARIES}
   ${Boost_LIBRARIES}
   ${LIB_SDMS}

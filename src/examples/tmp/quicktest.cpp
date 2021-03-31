@@ -1,11 +1,10 @@
 #include <iostream>
-#include <sdm/common.hpp>
-#include <sdm/algorithms.hpp>
-#include <sdm/parser/parser.hpp>
+#include <fstream>
+#include <time.h>
 
-#include <sdm/world/ndpomdp.hpp>
-
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/types.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/utils/value_function/initializers.hpp>
 
 using namespace sdm;
 
@@ -31,26 +30,38 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::cout << "#> Parsing DecPOMDP file \"" << filename << "\"\n";
-    number n_agents = 2;
+    std::map<int, double> m = {{1, 3.5},
+                               {4, 10}};
 
-    using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
-    using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+    std::shared_ptr<SolvableByHSVI<number, number>> mdp = std::make_shared<DiscreteMDP>(filename);
+    // std::map<std::string, std::shared_ptr<sdm::Initializer<number, number>> (*)()> m2 = {
+    //     {"MaxInitializer", &sdm::createInstance<number, number, sdm::MaxInitializer>},
+    //     {"MinInitializer", &sdm::createInstance<number, number, sdm::MinInitializer>},
+    // };
 
-    auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, length_history);
+    // auto init = sdm::InitializerFactory<number, number>::make("MaxInitializer");
+    std::cout << "Available Init" << std::endl;
+    for (auto &v : sdm::InitializerFactory<number, number>::available())
+    {
+        std::cout << v << std::endl;
+    }
 
-    auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, 0.9, 0.1, horizon * n_agents);
+    // sdm::InitializerFactory<number, number>::addToRegistry<sdm::BlindInitializer>("BlindInitializer");
 
-    hsvi->do_solve();
-    hsvi->do_test();
+    std::cout << "Available Init" << std::endl;
 
-    // NDPOMDP ndpomdp(filename);
+    std::cout << sdm::InitializerFactory<number, number>::available() << std::endl;
 
-    // std::cout << "--------------------------------" << std::endl;
+    // auto init2 = sdm::makeInitializer<number, number>("BlindInitializer");
 
-    // std::cout << ndpomdp.getStateSpace() << std::endl;
-    // std::cout << ndpomdp.getActionSpace() << std::endl;
-    // std::cout << ndpomdp.getObsSpace() << std::endl;
+    // using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
+    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+
+    // auto upb = mdp->getUnderlyingProblem();
+
+    // std::cout << *upb->getStateSpace() << std::endl;
+    // std::cout << *upb->getActionSpace() << std::endl;
+    // std::cout << *upb << std::endl;
 
     return 0;
 }

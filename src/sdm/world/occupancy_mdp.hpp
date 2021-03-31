@@ -11,9 +11,13 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
+#include <sdm/core/joint.hpp>
 #include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/linear_algebra/vector.hpp>
+#include <sdm/utils/decision_rules/det_decision_rule.hpp>
 
 /**
  * @namespace  sdm
@@ -25,12 +29,13 @@ namespace sdm
     class DiscreteDecPOMDP;
 
     /**
-     * @brief 
+     * @brief An occupancy MDP is a subclass of continuous state MDP where states are occupancy states. 
+     * In the general case, an occupancy state refers to the whole knowledge that a central planner can have access to take decisions. But in this implementation we call occupancy state are distribution over state and joint histories .
      * 
-     * @tparam oState 
-     * @tparam oAction 
+     * @tparam oState the occupancy state type 
+     * @tparam oAction the occupancy action type 
      */
-    template <typename oState, typename oAction>
+    template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, typename oAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>
     class OccupancyMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:
@@ -43,6 +48,7 @@ namespace sdm
         using action_type = oAction;
         // using observation_type = oObservation;
 
+        OccupancyMDP();
         OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);
         OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length);
         OccupancyMDP(std::string underlying_dpomdp);
@@ -50,20 +56,16 @@ namespace sdm
 
         oState &getState();
 
-        std::shared_ptr<Reward> getReward() const;
-        double getDiscount() { return this->dpomdp_->getDiscount(); }
-        void setDiscount(double discount) { return this->dpomdp_->setDiscount(discount); }
-        
-        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        
-        /**
-         * @brief Get transformed reward from action and belief  
-         */
-        double getReward(const oState &ostate, const oAction &oaction) const;
+        bool isSerialized() const;
+        DiscreteDecPOMDP *getUnderlyingProblem();
 
         oState getInitialState();
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+
+        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
+        
+        double getReward(const oState &ostate, const oAction &oaction) const;
+        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

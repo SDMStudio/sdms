@@ -14,9 +14,6 @@
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 
-#include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/state/history.hpp>
-
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm

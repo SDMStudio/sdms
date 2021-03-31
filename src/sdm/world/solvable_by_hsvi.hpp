@@ -3,9 +3,10 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/space/discrete_space.hpp>
-#include <sdm/core/reward.hpp>
 #include <sdm/algorithms/hsvi.hpp>
+#include <sdm/world/world_type.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/exception.hpp>
 
 /**
  * @namespace  sdm
@@ -13,6 +14,7 @@
  */
 namespace sdm
 {
+
     /**
      * @brief Public interface that must be implemented by all transformed problems that can be solved using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
      * 
@@ -40,23 +42,6 @@ namespace sdm
         virtual TState nextState(const TState &state, const TAction &action, int t = 0, HSVI<TState, TAction> *hsvi = nullptr) const = 0;
 
         /**
-         * @brief Get the discount factor of the underlying problem.
-         * 
-         * @return double the discount factor
-         */
-        virtual double getDiscount() = 0;
-
-        /**
-         * @brief Get the reward function.
-         */
-        virtual std::shared_ptr<Reward> getReward() const = 0;
-
-        /**
-         * @brief Set the discount factor of the underlying problem.
-         */
-        virtual void setDiscount(double discount) = 0;
-
-        /**
          * @brief Get the actions availables at a specific state
          * 
          * @param state the state
@@ -79,5 +64,20 @@ namespace sdm
          * @return double 
          */
         virtual double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &state, const TAction &action, int t = 0) const = 0;
+
+        /**
+         * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
+         * 
+         * @return the underlying problem 
+         */
+        virtual typename WorldType<TState, TAction>::type *getUnderlyingProblem() = 0;
+
+        /**
+         * @brief Check if the problem is serialized.
+         * 
+         * @return true if the problem is serialized.
+         * @return false if the problem is not serialized.
+         */
+        virtual bool isSerialized() const = 0;
     };
 } // namespace sdm

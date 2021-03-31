@@ -10,12 +10,13 @@
  */
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <cmath>
 #include <string>
 #include <iostream>
 #include <assert.h>
 
+#include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
 namespace sdm
@@ -29,7 +30,7 @@ namespace sdm
      * @tparam T Type of value
      */
     template <typename TIndex, typename T = double>
-    class MappedVector : public std::map<TIndex, T>, public VectorImpl<TIndex, T>
+    class MappedVector : public std::unordered_map<TIndex, T>, public VectorImpl<TIndex, T>
     {
     protected:
         T default_value_;
@@ -53,9 +54,9 @@ namespace sdm
         T max() const;
         TIndex argmax() const;
 
-        T at(TIndex) const;
+        T at(const TIndex &) const;
         T operator^(const MappedVector &) const;
-        bool operator<(const MappedVector &);
+        bool operator<(const MappedVector &) const;
 
         T dot(const MappedVector &v2) const;
 
@@ -73,3 +74,23 @@ namespace sdm
     };
 } // namespace sdm
 #include <sdm/utils/linear_algebra/mapped_vector.tpp>
+
+namespace std
+{
+    template <typename S, typename V>
+    struct hash<sdm::MappedVector<S, V>>
+    {
+        typedef sdm::MappedVector<S, V> argument_type;
+        typedef std::size_t result_type;
+        inline result_type operator()(const argument_type &in) const
+        {
+            size_t seed = 0;
+            for (auto &v : in)
+            {
+                //Combine the hash of the current vector with the hashes of the previous ones
+                sdm::hash_combine(seed, v);
+            }
+            return seed;
+        }
+    };
+}

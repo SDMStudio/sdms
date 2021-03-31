@@ -24,7 +24,6 @@
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
 
-
 namespace sdm
 {
 
@@ -38,8 +37,7 @@ namespace sdm
      * @tparam TReward the reward function type
      * @tparam TDistrib the type of the start distribution
      */
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib,
-    bool is_fully_obs = true>
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs = true>
     class DecisionProcess : public DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>,
                             public GymInterface<TObsSpace, TActionSpace>
     {
@@ -70,6 +68,8 @@ namespace sdm
          */
         std::shared_ptr<TReward> getReward() const;
 
+        double getReward(state_type s, action_type a);
+
         /**
          * \brief Set the reward function
          */
@@ -81,7 +81,7 @@ namespace sdm
          * @return the initial state (which is the internal state)
          */
         observation_type reset();
-        
+
         /**
          * @brief Get the distribution over next states
          * 
