@@ -6,8 +6,6 @@ namespace sdm
     template <typename TBelief, typename TOccupancyState>
     Belief2OccupancyValueFunction<TBelief, TOccupancyState>::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction<TBelief, number>> pomdp_vf) : pomdp_vf_(pomdp_vf)
     {
-        std::cout << *pomdp_vf << std::endl;
-        // std::cout << *pomdp_vf->getInitFunction() << std::endl;
     }
 
     template <typename TBelief, typename TOccupancyState>
@@ -38,7 +36,6 @@ namespace sdm
             {
                 belief[b_s.first] = belief[b_s.first] / sum;
             }
-            // std::cout << "belief : " << belief << " --- p(o | ostate) =" << p_o_p.second << std::endl;
             value += p_o_p.second * this->sawtooth(belief, tau);
         }
         return value;
