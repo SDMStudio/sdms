@@ -161,7 +161,7 @@ namespace sdm
     template <typename oState, typename oAction>
     std::shared_ptr<BeliefMDP<BeliefState, number, number>> OccupancyMDP<oState, oAction>::toBeliefMDP()
     {
-        throw this->dpomdp_->toBeliefMDP();
+        return this->dpomdp_->toBeliefMDP();
     }
 
 } // namespace sdm

@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <string>
+#include <vector>
 
 #include <iostream>
 #include <assert.h>
@@ -64,6 +65,8 @@ namespace sdm
         std::size_t size() const;
 
         T getDefault() const;
+
+        std::vector<TIndex> getIndexes() const;
 
         std::string str() const;
 

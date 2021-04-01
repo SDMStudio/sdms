@@ -28,7 +28,7 @@ namespace sdm
     T MappedVector<TIndex, T>::norm_1() const
     {
         T v = 0;
-        for (auto item : *this)
+        for (const auto &item : *this)
         {
             v += std::abs(item.second);
         }
@@ -39,7 +39,7 @@ namespace sdm
     T MappedVector<TIndex, T>::norm_2() const
     {
         T v = 0;
-        for (auto item : *this)
+        for (const auto &item : *this)
         {
             v += std::pow(item.second, 2);
         }
@@ -51,7 +51,7 @@ namespace sdm
     {
         T min = std::numeric_limits<T>::max();
         TIndex amin;
-        for (auto item : *this)
+        for (const auto &item : *this)
         {
             if (min > item.second)
             {
@@ -79,7 +79,7 @@ namespace sdm
     {
         T max = -std::numeric_limits<T>::max();
         TIndex amax;
-        for (auto item : *this)
+        for (const auto &item : *this)
         {
             if (max < item.second)
             {
@@ -128,14 +128,14 @@ namespace sdm
     template <typename TIndex, typename T>
     bool MappedVector<TIndex, T>::operator<(const MappedVector &v2) const
     {
-        for (auto &item : *this)
+        for (const auto &item : *this)
         {
             if (v2.find(item.first) != v2.end())
             {
                 return item.second < v2.at(item.first);
             }
         }
-        for (auto &item : v2)
+        for (const auto &item : v2)
         {
             if (this->find(item.first) != this->end())
             {
@@ -155,7 +155,7 @@ namespace sdm
     T MappedVector<TIndex, T>::dot(const MappedVector &v2) const
     {
         T product = 0;
-        for (auto item : *this)
+        for (const auto &item : *this)
         {
             if (v2.find(item.first) != v2.end())
             {
@@ -178,13 +178,24 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
+    std::vector<TIndex> MappedVector<TIndex, T>::getIndexes() const
+    {
+        std::vector<TIndex> v_indexes;
+        for (const auto &p_i_v : *this)
+        {
+            v_indexes.push_back(p_i_v.first);
+        }
+        return v_indexes;
+    }
+
+    template <typename TIndex, typename T>
     std::string MappedVector<TIndex, T>::str() const
     {
         std::ostringstream res;
         std::string size = ((this->size_ > 0) ? std::to_string(this->size_) : "?");
         res << "[" << size << "]";
         res << "(";
-        for (auto val : *this)
+        for (const auto &val : *this)
         {
             res << val.first << " : " << val.second << ", ";
         }

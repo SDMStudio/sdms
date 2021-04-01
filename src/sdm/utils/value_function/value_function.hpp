@@ -68,6 +68,8 @@ namespace sdm
          */
         virtual ~ValueFunction() {}
 
+        std::shared_ptr<BinaryFunction<TState, number, TValue>> getInitFunction();
+
         /**
          * @brief Initialize the value function 
          */
@@ -99,6 +101,13 @@ namespace sdm
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() = 0;
+
+        /**
+         * @brief 
+         * 
+         * @return std::string 
+         */
+        virtual std::vector<TState> getSupport(number t) = 0;
 
         TValue operator()(const TState &state, const number &t = 0);
 

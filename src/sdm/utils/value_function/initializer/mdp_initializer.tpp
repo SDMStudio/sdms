@@ -39,7 +39,6 @@ namespace sdm
                 algorithm->do_solve();
             }
         }
-        std::cout<<"resultat :::::::: "<<algorithm->getUpperBound()->str();
         auto ubound = algorithm->getUpperBound();
 
         // Set the function that will be used to get interactively upper bounds

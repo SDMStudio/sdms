@@ -40,7 +40,19 @@ namespace sdm
 
         if (t < this->getHorizon())
         {
-            if (this->representation[t].find(state) == this->representation[t].end())
+            bool found = false;
+            auto first = this->representation[t].begin();
+            auto last = this->representation[t].end();
+
+            while (first != last && !found)
+            {
+                if (first->first == state)
+                {
+                    found = true;
+                }
+                ++first;
+            }
+            if (!found)
             {
                 if (this->init_function_ != nullptr)
                 {
@@ -120,4 +132,18 @@ namespace sdm
         res << "</tabular_value_function>" << std::endl;
         return res.str();
     }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    std::vector<TState> TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getSupport(number t)
+    {
+        if (this->isInfiniteHorizon())
+        {
+            return this->representation[0].getIndexes();
+        }
+        else
+        {
+            return (t >= this->getHorizon()) ? std::vector<TState>{} : this->representation[t].getIndexes();
+        }
+    }
+
 } // namespace sdm
