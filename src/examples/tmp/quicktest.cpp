@@ -54,15 +54,15 @@ int main(int argc, char **argv)
     */
     std::string filePath("../data/world/dpomdp/");
     
-    const int nbfile(1);
-    std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
+    const int nbfile(3);
+    std::string all_file[nbfile] = {"mabc","recycling","tiger"};//,"tiger","recycling"};
 
 
     std::ofstream myfile;
     myfile.open("resultat.csv");
-    myfile<<"Filename,Horizon,Case,Discount,Resultat,Time,Trial \n";
+    myfile<<"Filename,Horizon,Case,Discount,Upper_Bound,Lower_Bound,Resultat,Time,Trial \n";
 
-    int max_horizon(2);
+    int max_horizon(3);
 
     clock_t t_begin, t_end;
     float temps;
@@ -71,6 +71,12 @@ int main(int argc, char **argv)
 
     const int nb_discount(1);
     double all_discount[nb_discount] = {1};
+
+    const int nb_lower_bound(2);
+    std::string all_lower_bound[nb_lower_bound] = {"MinInitializer","BlindInitializer"};
+
+    const int nb_upper_bound(2);
+    std::string all_upper_bound[nb_upper_bound] = {"MdpHsviInitializer","MaxInitializer"};
 
     //number n_agents = 2;
 
@@ -212,45 +218,122 @@ int main(int argc, char **argv)
         {
             int horizon(i);
             int length_history(i);
-
             for(const double & discount : all_discount)
             {
-                std::cout<<"*************** Extensive \n";
-                std::cout<<"File : "<<filename<<"\n";
-                std::cout<<"Horizon : "<<horizon<<"\n";
-                std::cout<<"Discount : "<<discount<<"\n";
+                for(const std::string &upper_bound: all_upper_bound)
+                {
+                    for(const std::string &lower_bound: all_lower_bound)
+                    {
+                        //std::cout<<"*************** Extensive \n";
+                        std::cout<<"*************** Occupancy \n";
 
-                myfile<<filename<<","<<horizon<<",Extensive"<<","<<discount;
+                        std::cout<<"File : "<<filename<<"\n";
+                        std::cout<<"Horizon : "<<horizon<<"\n";
+                        std::cout<<"Discount : "<<discount<<"\n";
 
-                //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
+                        std::string name = filename+"#"+std::to_string(horizon)+"#Occupancy#"+std::to_string(discount)+"#"+upper_bound+"#"+lower_bound;
 
-                using TState = SerializedOccupancyState<SerializedState,JointHistoryTree_p<number>>;
-                using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+                        myfile<<filename<<","<<horizon<<",Occupancy"<<","<<discount<<","<<upper_bound<<","<<lower_bound;
 
-                auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+                        //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
 
-                //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
-                //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
+                        //using TState = SerializedOccupancyState<SerializedState,JointHistoryTree_p<number>>;
+                        //using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+                        using TState = OccupancyState<number, JointHistoryTree_p<number>>;
+                        using TAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>;
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,"PomdpHsviInitializer","BlindInitializer", discount, 0, horizon,trials,"tab_hsvi");
+                        //auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+                        auto somdp = std::make_shared<OccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
 
-                t_begin = clock();
 
-                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->str()<<"\n";
-                //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->str()<<"\n";
+                        //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
+                        //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
-                hsvi->do_solve();
+                        auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,upper_bound,lower_bound, discount, 0, horizon,trials,name);
+                        hsvi->do_initialize();
 
-                t_end = clock();
-                temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
-                //printf("temps = %f\n", temps);
+                        t_begin = clock();
 
-                myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
+                        //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->str()<<"\n";
+                        //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->str()<<"\n";
+                        
+                        hsvi->do_solve();
 
-                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
-                //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+                        t_end = clock();
+                        temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+                        //printf("temps = %f\n", temps);
 
-                myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
+                        myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
+
+                        //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
+                        //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+
+                        myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
+                    }
+                }
+            }
+
+        }
+    }
+
+        for(const std::string & filename : all_file)
+    {
+        for(int i(1);i<= max_horizon;++i)
+        {
+            int horizon(i);
+            int length_history(i);
+            for(const double & discount : all_discount)
+            {
+                for(const std::string &upper_bound: all_upper_bound)
+                {
+                    for(const std::string &lower_bound: all_lower_bound)
+                    {
+                        std::cout<<"*************** Extensive \n";
+                        //std::cout<<"*************** Occupancy \n";
+
+                        std::cout<<"File : "<<filename<<"\n";
+                        std::cout<<"Horizon : "<<horizon<<"\n";
+                        std::cout<<"Discount : "<<discount<<"\n";
+
+                        std::string name = filename+"#"+std::to_string(horizon)+"#Extensive#"+std::to_string(discount)+"#"+upper_bound+"#"+lower_bound;
+
+                        myfile<<filename<<","<<horizon<<",Extensive"<<","<<discount<<","<<upper_bound<<","<<lower_bound;
+
+                        //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
+
+                        using TState = SerializedOccupancyState<SerializedState,JointHistoryTree_p<number>>;
+                        using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+                        //using TState = OccupancyState<number, JointHistoryTree_p<number>>;
+                        //using TAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>;
+
+                        auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+                        //auto somdp = std::make_shared<OccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+
+                        //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
+                        //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
+
+                        auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,upper_bound,lower_bound, discount, 0, horizon,trials,name);
+                        hsvi->do_initialize();
+
+                        t_begin = clock();
+
+                        //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->str()<<"\n";
+                        //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->str()<<"\n";
+                        
+                        hsvi->do_solve();
+
+                        t_end = clock();
+                        temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
+                        //printf("temps = %f\n", temps);
+
+                        myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
+
+                        //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
+                        //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
+
+                        myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
+                    }
+                }
             }
 
         }

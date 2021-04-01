@@ -28,6 +28,7 @@ namespace sdm
             auto proba = ost.second;
             value += proba * this->mdp_vf_->operator()(state, tau);
         }
+        //std:: cout<<"\n value final : "<<value;
         return value;
     }
 
