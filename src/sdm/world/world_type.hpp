@@ -31,7 +31,7 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
+    template <typename TState, typename TAction = void>
     struct WorldType
     {
         // Return an instance of solvable by hsvi problem given the state type and the action type

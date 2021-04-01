@@ -9,7 +9,13 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TValue ValueFunction<TState, TAction, TValue>::operator()(const TState &state, const number& t)
+    std::shared_ptr<BinaryFunction<TState, number, TValue>> ValueFunction<TState, TAction, TValue>::getInitFunction()
+    {
+        return this->init_function_;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TValue ValueFunction<TState, TAction, TValue>::operator()(const TState &state, const number &t)
     {
         return this->getValueAt(state, t);
     }

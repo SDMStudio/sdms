@@ -104,6 +104,8 @@ namespace sdm
 
         std::string str();
 
+        std::vector<TState> getSupport(number t);
+
         backup_operator_type getBackupOperator();
 
         friend std::ostream &operator<<(std::ostream &os, TabularValueFunction<TState, TAction> &vf)

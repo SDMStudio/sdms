@@ -24,16 +24,13 @@ namespace sdm
     void POMDPInitializer<TState, TAction>::init(ValueFunction<TState, TAction> *vf)
     {
         auto pomdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toBeliefMDP();
+        std::cout << "Test " << pomdp->getInitialState() << std::endl;
         auto underlying_pb = pomdp->getUnderlyingProblem();
         auto algorithm = algo::makeMappedHSVI<decltype(pomdp->getInitialState()), number>(pomdp, "MdpHsviInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "pomdp_init");
         
         algorithm->do_initialize();
         algorithm->do_solve();
         auto ubound = algorithm->getUpperBound();
-
-
-        std::cout<<"\n mmmmmmmmmm"<<ubound->str();        
-        // Je remarque que cette fonction est appelé 2 fois, mais je ne comprends pas pourquoi ? A vérifier la raison
         
         vf->initialize(std::make_shared<Belief2OccupancyValueFunction<decltype(pomdp->getInitialState()), TState>>(ubound));
     }
