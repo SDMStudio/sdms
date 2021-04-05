@@ -24,13 +24,10 @@ namespace sdm
         double value = 0;
         for (auto &ost : ostate)
         {
-            auto state = TOccupancyState::getState(ost.first);
+            auto state = ostate.getState(ost.first);
             auto proba = ost.second;
-            double tmp = proba * this->mdp_vf_->operator()(state, tau);
-            value += tmp;
-            // std::cout << "- proba x V(" << state << ") = " << proba << " x " << this->mdp_vf_->operator()(state, tau) << " = " << tmp << std::endl;
+            value += proba * this->mdp_vf_->operator()(state, tau);
         }
-        // std::cout << "--- State2Occupancy : V(" << ostate << ") = " << value << std::endl;
         return value;
     }
 

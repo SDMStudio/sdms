@@ -11,7 +11,7 @@ namespace sdm
 
         std::shared_ptr<SolvableByHSVI<TState, TAction>> problem_;
 
-        void policy_iteration_inf();
+        //void policy_iteration_inf();
 
         void policy_iteration_non_inf();
 
@@ -21,7 +21,7 @@ namespace sdm
 
             void policy_iteration();
 
-            bool borne(MappedVector<TState,double> policy_evaluation_tempo,MappedVector<TState,double> policy_evaluation,double error = 0.1);
+            //bool borne(MappedVector<TState,double> policy_evaluation_tempo,MappedVector<TState,double> policy_evaluation,double error = 0.1);
 
             bool borne(typename sdm::MappedValueFunction<TState, TAction> policy_evaluation_tempo,typename sdm::MappedValueFunction<TState, TAction> policy_evaluation,double error = 0.1);
 

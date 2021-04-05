@@ -50,7 +50,15 @@ namespace sdm
      * @param pair_state_hist refers to a precise occupancy state
      * @return TState refers to the hidden state returned
      */
-    static TState getState(const Pair<TState, TJointHistory_p> &pair_state_hist);
+    TState getState(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
+
+    /**
+     * @brief Get the Hidden State of a precise occupancy state. For this situation, the hidden state is the current State
+     * 
+     * @param pair_state_hist 
+     * @return TState 
+     */
+    TState getHiddenState(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
 
     /**
      * @brief Return the hidden Joint history of a precise occupancy state
@@ -58,7 +66,7 @@ namespace sdm
      * @param pair_state_hist refers to a precise occupancy state
      * @return TJointHistory_p refers to the hidden Joint history returned
      */
-    static TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist);
+    TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
 
     /**
      * @brief Return the probability of a precise occupancy state

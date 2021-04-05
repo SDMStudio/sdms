@@ -11,9 +11,14 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     BeliefMDP<TBelief, TAction, TObservation>::BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp) : pomdp_(underlying_pomdp)
     {
+        double proba = 0;
         for (auto &s : this->pomdp_->getStateSpace()->getAll())
         {
-            this->istate_[s] = this->pomdp_->getStartDistrib().probabilities()[s];
+            proba = this->pomdp_->getStartDistrib().probabilities()[s];
+            if (proba > 0)
+            {
+                this->istate_[s] = proba;
+            }
         }
         this->cstate_ = this->istate_;
     }
@@ -59,7 +64,7 @@ namespace sdm
     TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const
     {
         TBelief nextBelief;
-        double tmp;
+        double tmp, obs_proba;
         for (number nextState = 0; nextState < this->pomdp_->getStateSpace()->getNumItems(); nextState++)
         {
             tmp = 0;
@@ -67,13 +72,17 @@ namespace sdm
             {
                 tmp += this->pomdp_->getStateDynamics()->getTransitionProbability(s, action, nextState) * belief.at(s);
             }
-            nextBelief[nextState] = this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState) * tmp;
+            obs_proba = this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState);
+            if (obs_proba && tmp)
+            {
+                nextBelief[nextState] = obs_proba * tmp;
+            }
         }
         // Normalize the belief
         double sum = nextBelief.norm_1();
-        for (number s_ = 0; s_ < this->pomdp_->getStateSpace()->getNumItems(); s_++)
+        for (const auto &pair_s_p : nextBelief)
         {
-            nextBelief[s_] = nextBelief[s_] / sum;
+            nextBelief[pair_s_p.first] = pair_s_p.second / sum;
         }
         return nextBelief;
     }
@@ -138,7 +147,6 @@ namespace sdm
         }
         return proba;
     }
-
 
     template <typename TBelief, typename TAction, typename TObservation>
     std::shared_ptr<DiscreteMDP> BeliefMDP<TBelief, TAction, TObservation>::toMDP()
