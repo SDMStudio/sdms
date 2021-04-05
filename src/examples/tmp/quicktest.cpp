@@ -15,6 +15,7 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 
+#include <sdm/utils/value_function/value_iteration.hpp>
 
 using namespace sdm;
 
@@ -54,15 +55,15 @@ int main(int argc, char **argv)
     */
     std::string filePath("../data/world/dpomdp/");
     
-    const int nbfile(3);
-    std::string all_file[nbfile] = {"mabc","recycling","tiger"};//,"tiger","recycling"};
+    const int nbfile(1);
+    std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
 
 
     std::ofstream myfile;
     myfile.open("resultat.csv");
     myfile<<"Filename,Horizon,Case,Discount,Upper_Bound,Lower_Bound,Resultat,Time,Trial \n";
 
-    int max_horizon(3);
+    int max_horizon(2);
 
     clock_t t_begin, t_end;
     float temps;
@@ -75,8 +76,8 @@ int main(int argc, char **argv)
     const int nb_lower_bound(2);
     std::string all_lower_bound[nb_lower_bound] = {"MinInitializer","BlindInitializer"};
 
-    const int nb_upper_bound(2);
-    std::string all_upper_bound[nb_upper_bound] = {"MdpHsviInitializer","MaxInitializer"};
+    const int nb_upper_bound(1);
+    std::string all_upper_bound[nb_upper_bound] = {"MdpHsviInitializer"};
 
     //number n_agents = 2;
 
@@ -141,10 +142,9 @@ int main(int argc, char **argv)
         }
     }*/
     /*
-    for(const std::string & filename : all_file)
+    for(std::string & filename : all_file)
     {
-        
-        for(int i(1);i<= max_horizon;++i)
+        for(int i(2);i<= max_horizon;++i)
         {
             int horizon(i);
             int length_history(i);
@@ -158,16 +158,19 @@ int main(int argc, char **argv)
 
                 myfile<<filename<<","<<horizon<<",MDP"<<","<<discount;
 
-                //std::cout << "#> Parsing DecPOMDP file \"" << filePath+filename+".dpomdp" << "\"\n";
 
                 using TState = number;
                 using TAction = number;
 
-                std::string a("../data/world/dpomdp/mabc.dpomdp");
+                std::string a = filePath+filename+".dpomdp";
 
                 //auto dpomdp_world= sdm::parser::parse_file(filePath+filename+".dpomdp")->toPOMDP()->toMDP();
                 auto somdp = std::make_shared<DiscreteMDP>(a);
-                somdp->getUnderlyingProblem()->setInternalState(0);
+
+
+                auto value = sdm::ValueIteration<TState,TAction>(somdp,discount,0,horizon);
+
+                value.policy_iteration();
 
                 //number s = 2;
                 //SerializedState<number> p(s,std::vector<number>{3});
@@ -175,15 +178,15 @@ int main(int argc, char **argv)
 
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp, discount, 0, horizon,trials,"tab_mdp");
+                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,"MdpHsviInitializer" ,"MinInitializer",discount, 0, horizon,trials,"tab_mdp");
 
                 t_begin = clock();
 
 
-                std::cout<<"Lower bound : "<<hsvi->getLowerBound()->str()<<"\n";
+                //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->str()<<"\n";
                 std::cout<<"Upper bound : "<<hsvi->getUpperBound()->str()<<"\n";
                 
-                
+                hsvi->do_initialize();
                 hsvi->do_solve();
 
                 t_end = clock();
@@ -192,12 +195,12 @@ int main(int argc, char **argv)
 
                 // //hsvi->do_test();
 
-                myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
+                //myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
 
                 // //std::cout<<"Lower bound : "<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState())<<"\n";
                 // //std::cout<<"Upper bound : "<<hsvi->getUpperBound()->getValueAt(somdp->getInitialState())<<"\n";
 
-                myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
+                //myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
                 
             }
 
@@ -211,10 +214,10 @@ int main(int argc, char **argv)
     {
         std::cout << v << std::endl;
     }*/
-    
+    /*
     for(const std::string & filename : all_file)
     {
-        for(int i(1);i<= max_horizon;++i)
+        for(int i(2);i<= max_horizon;++i)
         {
             int horizon(i);
             int length_history(i);
@@ -245,7 +248,6 @@ int main(int argc, char **argv)
                         //auto somdp = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
                         auto somdp = std::make_shared<OccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
 
-
                         //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                         //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
 
@@ -274,11 +276,11 @@ int main(int argc, char **argv)
             }
 
         }
-    }
-
-        for(const std::string & filename : all_file)
+    }*/
+    
+    for(const std::string & filename : all_file)
     {
-        for(int i(1);i<= max_horizon;++i)
+        for(int i(2);i<= max_horizon;++i)
         {
             int horizon(i);
             int length_history(i);
