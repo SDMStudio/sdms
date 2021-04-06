@@ -45,8 +45,6 @@ namespace sdm
 
         this->lower_bound_->initialize();
         this->upper_bound_->initialize();
-
-        std::cout<<this->upper_bound_;
     }
 
     template <typename TState, typename TAction>
@@ -58,7 +56,6 @@ namespace sdm
         clock_t t_begin = clock();
         do
         {
-            //std::cout<<this->upper_bound_->str();
             // Logging (save data and print algorithms variables)
             this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             this->do_explore(start_state, 0,0);
