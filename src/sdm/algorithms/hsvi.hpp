@@ -128,6 +128,10 @@ namespace sdm
      */
     void do_explore(const TState &s, number h);
 
+    //Pour le moment, je supprime pas les autres pour tester avec le gt 
+    void do_explore(const TState &s, number h, double gt);
+    bool do_stop(const TState &s, number h,double gt);
+    double do_excess_2(const TState &s, number h,double gt);
     /**
      * @brief Select the next action
      * 

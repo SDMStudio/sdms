@@ -20,8 +20,8 @@ namespace sdm
 
         // for (const auto &ost : ostate)
         // {
-        //     auto x = TOccupancyState::getState(ost.first);
-        //     auto o = TOccupancyState::getHistory(ost.first);
+        //     auto x = ostate.getHiddenState(ost.first);
+        //     auto o = ostate.getHistory(ost.first);
         //     auto p = ost.second;
         //     o_proba[o] += p;
         //     belief_map[o][x] += p;
@@ -68,7 +68,7 @@ namespace sdm
 
         double v_mdp = this->pomdp_vf_->getInitFunction()->operator()(bstate, tau);
         double min_ext = 0;
-
+        /*
         for (const TBelief &belief : this->pomdp_vf_->getSupport(tau))
         {
             double v_kappa = this->pomdp_vf_->operator()(belief, tau);
@@ -87,7 +87,7 @@ namespace sdm
             {
                 min_ext = min_int;
             }
-        }
+        }*/
         return v_mdp + min_ext;
     }
 

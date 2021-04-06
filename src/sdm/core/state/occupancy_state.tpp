@@ -75,13 +75,19 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    TState OccupancyState<TState, TJointHistory_p>::getState(const Pair<TState, TJointHistory_p> &pair_state_hist)
+    TState OccupancyState<TState, TJointHistory_p>::getState(const Pair<TState, TJointHistory_p> &pair_state_hist) const
     {
         return pair_state_hist.first;
     }
 
     template <typename TState, typename TJointHistory_p>
-    TJointHistory_p OccupancyState<TState, TJointHistory_p>::getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist)
+    TState OccupancyState<TState, TJointHistory_p>::getHiddenState(const Pair<TState, TJointHistory_p> &pair_state_hist) const
+    {
+        return this->getState(pair_state_hist);
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    TJointHistory_p OccupancyState<TState, TJointHistory_p>::getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist) const
     {
         return pair_state_hist.second;
     }

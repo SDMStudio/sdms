@@ -37,6 +37,8 @@ namespace sdm
             algorithm->do_solve();
         }
         auto ubound = algorithm->getUpperBound();
+        std::cout<<"\n Upper b!!!!!!";  
+
 
         // Set the function that will be used to get interactively upper bounds
         vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));

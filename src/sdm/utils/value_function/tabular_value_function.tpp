@@ -71,20 +71,7 @@ namespace sdm
             return (t >= this->getHorizon()) ? 0 : this->representation[t].at(state);
         }
     }
-
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    typename TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::Container TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(number t)
-    {
-        if (this->isInfiniteHorizon())
-        {
-            return this->representation[0];
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? 0 : this->representation[t];
-        }
-    }
-
+    
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
     {

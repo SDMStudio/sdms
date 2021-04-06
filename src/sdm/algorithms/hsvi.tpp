@@ -45,6 +45,8 @@ namespace sdm
 
         this->lower_bound_->initialize();
         this->upper_bound_->initialize();
+
+        std::cout<<this->upper_bound_;
     }
 
     template <typename TState, typename TAction>
@@ -56,11 +58,12 @@ namespace sdm
         clock_t t_begin = clock();
         do
         {
+            //std::cout<<this->upper_bound_->str();
             // Logging (save data and print algorithms variables)
             this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-            this->do_explore(start_state, 0);
+            this->do_explore(start_state, 0,0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0));
+        } while (!this->do_stop(start_state, 0,0));
 
         std::cout << "----------------------------------------------------" << std::endl;
         this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -78,9 +81,7 @@ namespace sdm
             // Compute the real time for serialized problem
             realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
         }
-
-
-        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
+        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h) - this->error_ )/ std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
     }
 
     template <typename TState, typename TAction>
@@ -155,4 +156,51 @@ namespace sdm
     {
         return this->trial;
     }
+
+    // ****************************** Avec Gt ********************
+
+    template <typename TState, typename TAction>
+    double HSVI<TState, TAction>::do_excess_2(const TState &s, number h, double gt)
+    {
+        number realTime = h;
+
+        if (this->world_->isSerialized())
+        {
+            // Compute the real time for serialized problem
+            realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
+        }
+        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, 0) - this->error_ + gt )/ std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
+    }
+
+    template <typename TState, typename TAction>
+    bool HSVI<TState, TAction>::do_stop(const TState &s, number h, double gt)
+    {
+        return ((this->do_excess(s, h) <= 0) || (this->trial > this->MAX_TRIALS) || (this->do_excess_2(s, h,gt) <= 0));
+    }
+
+    template <typename TState, typename TAction>
+    void HSVI<TState, TAction>::do_explore(const TState &s, number h, double gt)
+    {
+        if (!this->do_stop(s, h,gt))
+        {
+            // Update bounds
+            this->lower_bound_->updateValueAt(s, h);
+            this->upper_bound_->updateValueAt(s, h);
+
+            // Select next action and state following search process
+            TAction a = this->selectNextAction(s, h);
+
+            TState s_ = this->world_->nextState(s, a, h, this);
+
+            // Recursive explore
+            //this->do_explore(s_, h + 1);
+            this->do_explore(s_, h + 1,gt+this->world_->getReward(s,a));
+
+            // Update bounds
+            this->lower_bound_->updateValueAt(s, h);
+            this->upper_bound_->updateValueAt(s, h);
+        }
+    }
+
+
 } // namespace sdm
