@@ -54,6 +54,8 @@ namespace sdm
         int horizon_;
 
     public:
+        ValueFunction() {}
+
         /**
          * @brief Construct a new Incremental Value Function object
          * 

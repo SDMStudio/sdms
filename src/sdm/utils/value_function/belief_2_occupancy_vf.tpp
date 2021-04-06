@@ -13,32 +13,32 @@ namespace sdm
     std::enable_if_t<is_solving_dpomdp, double>
     Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
     {
-        double value = 0;
+        // double value = 0;
 
-        std::map<typename TOccupancyState::jhistory_type, double> o_proba;
-        std::map<typename TOccupancyState::jhistory_type, TBelief> belief_map; // Pas possible de faire decltype ici car o n'est pas encore déclaré TOccupancyState::jhistory_type plutot
+        // std::map<typename TOccupancyState::jhistory_type, double> o_proba;
+        // std::map<typename TOccupancyState::jhistory_type, TBelief> belief_map; // Pas possible de faire decltype ici car o n'est pas encore déclaré TOccupancyState::jhistory_type plutot
 
-        for (const auto &ost : ostate)
-        {
-            auto x = TOccupancyState::getState(ost.first);
-            auto o = TOccupancyState::getHistory(ost.first);
-            auto p = ost.second;
-            o_proba[o] += p;
-            belief_map[o][x] += p;
-        }
+        // for (const auto &ost : ostate)
+        // {
+        //     auto x = TOccupancyState::getState(ost.first);
+        //     auto o = TOccupancyState::getHistory(ost.first);
+        //     auto p = ost.second;
+        //     o_proba[o] += p;
+        //     belief_map[o][x] += p;
+        // }
 
-        // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
-        for (const auto &p_o_p : o_proba)
-        {
-            TBelief belief = belief_map[p_o_p.first];
-            double sum = belief.norm_1();
-            for (const auto &b_s : belief)
-            {
-                belief[b_s.first] = belief[b_s.first] / sum;
-            }
-            value += p_o_p.second * this->sawtooth(belief, tau);
-        }
-        return value;
+        // // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
+        // for (const auto &p_o_p : o_proba)
+        // {
+        //     TBelief belief = belief_map[p_o_p.first];
+        //     double sum = belief.norm_1();
+        //     for (const auto &b_s : belief)
+        //     {
+        //         belief[b_s.first] = belief[b_s.first] / sum;
+        //     }
+        //     value += p_o_p.second * this->sawtooth(belief, tau);
+        // }
+        // return value;
     }
 
     // template <typename TBelief, typename TOccupancyState>
@@ -96,8 +96,7 @@ namespace sdm
     std::enable_if_t<!is_solving_dpomdp, double>
     Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
     {
-        // return this->pomdp_vf_->operator()(ostate, tau);
-        return 0.0;
+        throw sdm::exception::Exception("The initializer used is not available for this formalism !");
     }
 
     template <typename TBelief, typename TOccupancyState>
