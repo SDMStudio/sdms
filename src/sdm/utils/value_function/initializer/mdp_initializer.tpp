@@ -1,5 +1,6 @@
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/algorithms/hsvi.hpp>
+#include <sdm/utils/value_function/value_iteration.hpp>
 #include <sdm/world/world_type.hpp>
 
 namespace sdm
@@ -25,25 +26,37 @@ namespace sdm
         auto mdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toMDP();
         auto underlying_pb = mdp->getUnderlyingProblem();
 
-        // Instanciate HSVI for MDP 
-        auto algorithm = algo::makeMappedHSVI<decltype(mdp->getInitialState()), number>(mdp, "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init");
-        algorithm->do_initialize();
-
-        // Solve HSVI from every possible initial state
-        for (auto &s : underlying_pb->getStateSpace()->getAll())
+        if (this->algo_name_ == "ValueIteration")
         {
-            double proba_s = underlying_pb->getStartDistrib().probabilities()[s];
-            if (proba_s > 0)
+            auto value = sdm::ValueIteration<decltype(mdp->getInitialState()), number>(mdp,underlying_pb->getDiscount(),this->error_,underlying_pb->getPlanningHorizon());
+
+            auto opti = value.policy_iteration();
+
+            vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(opti));
+        }else
+        {
+            auto initial = underlying_pb->getInternalState();
+            // Instanciate HSVI for MDP 
+            auto algorithm = algo::makeMappedHSVI<decltype(mdp->getInitialState()), number>(mdp, "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init");
+            algorithm->do_initialize();
+
+            // Solve HSVI from every possible initial state
+            for (auto &s : underlying_pb->getStateSpace()->getAll())
             {
+                double proba_s = underlying_pb->getStartDistrib().probabilities()[s];
                 underlying_pb->setInternalState(s);
                 algorithm->do_solve();
             }
+            auto ubound = algorithm->getUpperBound();
+
+            underlying_pb->setInternalState(initial);
+            
+            vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
+
         }
-        auto ubound = algorithm->getUpperBound();
         std::cout<<"\n Upper b!!!!!!";  
 
 
         // Set the function that will be used to get interactively upper bounds
-        vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
     }
 } // namespace sdm

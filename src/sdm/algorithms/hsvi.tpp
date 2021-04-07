@@ -45,8 +45,6 @@ namespace sdm
 
         this->lower_bound_->initialize();
         this->upper_bound_->initialize();
-
-        std::cout<<this->upper_bound_;
     }
 
     template <typename TState, typename TAction>

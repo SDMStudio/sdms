@@ -17,46 +17,17 @@
 
 #include <sdm/utils/value_function/value_iteration.hpp>
 
+#include <sdm/utils/value_function/initializers.hpp>
+
+
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    /*
-    std::string filename;
-    number horizon, length_history;
-
-    if (argc > 2)
-    {
-        filename = argv[1];
-        horizon = std::atoi(argv[2]);
-        length_history = horizon;
-
-        if (argc > 3)
-        {
-            length_history = std::atoi(argv[3]);
-        }
-    }
-    else
-    {
-        std::cerr << "Error:  arg[1] must be an input file, arg[2] must be the horizon, arg[3] is optional (the length of history)." << std::endl;
-        return 1;
-    }
-
-    std::map<int, double> m = {{1, 3.5},
-                               {4, 10}};
-
-    std::shared_ptr<SolvableByHSVI<number, number>> mdp = std::make_shared<DiscreteMDP>(filename);
-    // std::map<std::string, std::shared_ptr<sdm::Initializer<number, number>> (*)()> m2 = {
-    //     {"MaxInitializer", &sdm::createInstance<number, number, sdm::MaxInitializer>},
-    //     {"MinInitializer", &sdm::createInstance<number, number, sdm::MinInitializer>},
-    // };
-
-    // std::apply([](auto&&... args) {((std::cout << args << '\n'), ...);}, t);
-    */
     std::string filePath("../data/world/dpomdp/");
     
-    const int nbfile(1);
-    std::string all_file[nbfile] = {"mabc"};//,"tiger","recycling"};
+    const int nbfile(3);
+    std::string all_file[nbfile] = {"mabc","tiger","recycling"};
 
 
     std::ofstream myfile;
@@ -141,7 +112,7 @@ int main(int argc, char **argv)
 
         }
     }*/
-    /*
+    
     for(std::string & filename : all_file)
     {
         for(int i(2);i<= max_horizon;++i)
@@ -158,16 +129,20 @@ int main(int argc, char **argv)
 
                 myfile<<filename<<","<<horizon<<",MDP"<<","<<discount;
 
-
-                using TState = number;
-                using TAction = number;
-
                 std::string a = filePath+filename+".dpomdp";
 
-                //auto dpomdp_world= sdm::parser::parse_file(filePath+filename+".dpomdp")->toPOMDP()->toMDP();
-                auto somdp = std::make_shared<DiscreteMDP>(a);
+                using TState = SerializedState; //<number, number>;
+                using TAction = number;
 
-                auto value = sdm::ValueIteration<TState,TAction>(somdp,discount,0,horizon);
+                auto mmdp = std::make_shared<DiscreteMMDP>(a);
+                auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(mmdp);
+
+                //serialized_mdp->toMDP();
+
+                //auto dpomdp_world= sdm::parser::parse_file(filePath+filename+".dpomdp")->toPOMDP()->toMDP();
+                //auto somdp = std::make_shared<DiscreteMDP>(a);
+
+                auto value = sdm::ValueIteration<TState,TAction>(serialized_mdp,discount,0,horizon);
 
                 value.policy_iteration();
 
@@ -176,26 +151,49 @@ int main(int argc, char **argv)
                 //std::cout << p << std::endl;
 
                 //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
-                auto somdp2 = std::make_shared<DiscreteMDP>(a);
-                somdp2->getUnderlyingProblem()->setInternalState(0);
+                // auto somdp2 = std::make_shared<DiscreteMDP>(a);
 
-                auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp2,"MaxInitializer" ,"MinInitializer",1, 0, horizon,trials,"tab_mdp");
+                // auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp2,"MdpHsviInitializer" ,"MinInitializer",1, 0, horizon,trials,"tab_mdp");
 
-                t_begin = clock();
-                
-                hsvi->do_initialize();
-                hsvi->do_solve();
+                // t_begin = clock();
+
+                // std::cout<<"\n *************** HSVI 1 : ";
+
+                // hsvi->do_initialize();
+                // hsvi->do_solve();
+
+                // for(auto s : somdp2->getStateSpace()->getAll())
+                // {
+                //     somdp2->getUnderlyingProblem()->setInternalState(s);
+
+                //     auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp2,"MaxInitializer" ,"MinInitializer",1, 0, horizon,trials,"tab_mdp");
+                //     //auto hsvi2 = sdm::algo::makeMappedHSVI<TState, TAction>(somdp2,"MaxInitializer" ,"MinInitializer",1, 0, horizon,trials,"tab_mdp");
+
+                //     t_begin = clock();
+
+                //     std::cout<<"\n *************** HSVI 1 : ";
+
+                //     hsvi->do_initialize();
+                //     hsvi->do_solve();
+
+                //     std::cout<<"\n *************** HSVI 2 : ";
+
+                //     //hsvi2->do_initialize();
+                //     //hsvi2->do_solve();
+
+                // }
+                //std::cout<<"Upper : "<<hsvi->getUpperBound()->str();
 
                 t_end = clock();
                 // temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
 
                 //myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
-                myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
+                //myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
                 
             }
 
         }
-    }*/
+    }
 
     // auto init = sdm::InitializerFactory<number, number>::make("MaxInitializer");
     /*
@@ -267,7 +265,7 @@ int main(int argc, char **argv)
 
         }
     }*/
-
+    /*
     for(const std::string & filename : all_file)
     {
         for(int i(2);i<= max_horizon;++i)
@@ -317,6 +315,8 @@ int main(int argc, char **argv)
                         std::cout<<"Horizon : "<<horizon<<"\n";
                         std::cout<<"Discount : "<<discount<<"\n";
 
+                        name = filename+"#"+std::to_string(horizon)+"#Simultane#"+std::to_string(discount)+"#"+upper_bound+"#"+lower_bound;
+
                         myfile<<filename<<","<<horizon<<",Occupancy"<<","<<discount<<","<<upper_bound<<","<<lower_bound;
 
                         using TState2 = OccupancyState<number, JointHistoryTree_p<number>>;
@@ -324,7 +324,7 @@ int main(int argc, char **argv)
 
                         auto somdp2 = std::make_shared<OccupancyMDP<TState2, TAction2>>(filePath+filename+".dpomdp", length_history);
 
-                        auto hsvi2 = sdm::algo::makeMappedHSVI<TState2, TAction2>(somdp2,upper_bound,lower_bound, discount, 0, horizon,trials,"tab_hsvi");
+                        auto hsvi2 = sdm::algo::makeMappedHSVI<TState2, TAction2>(somdp2,upper_bound,lower_bound, discount, 0, horizon,trials,name);
 
                         hsvi2->do_initialize();
 
@@ -349,7 +349,7 @@ int main(int argc, char **argv)
             }
 
         }
-    }
+    }*/
 
     /*
     for(const std::string & filename : all_file)

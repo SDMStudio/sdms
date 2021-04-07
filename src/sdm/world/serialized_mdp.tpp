@@ -113,9 +113,9 @@ namespace sdm
     double SerializedMDP<oState, oAction>::getDiscount(int t) const
     {
 
-        if (this->getNumberAgent() > 1)
+        if (this->getNumAgents() > 1)
         {
-            if (t % this->getNumberAgent() != this->getNumberAgent() - 1)
+            if (t % this->getNumAgents() != this->getNumAgents() - 1)
             {
                 return 1.0;
             }

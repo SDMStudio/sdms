@@ -42,7 +42,7 @@ namespace sdm
         std::shared_ptr<SerializedMDP> getptr();
 
         oState &getState();
-        double getDiscount(int t) const;
+        double getDiscount(int t=0) const;
 
         bool isSerialized() const;
         DiscreteMMDP *getUnderlyingProblem();
@@ -56,7 +56,7 @@ namespace sdm
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
 
         // Problem conversion
-        std::shared_ptr<SerializedMDP> toMDP();
+        std::shared_ptr<SerializedMDP<oState, oAction>> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
