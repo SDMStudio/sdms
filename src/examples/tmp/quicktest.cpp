@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include <sdm/types.hpp>
+<<<<<<< HEAD
 #include <sdm/parser/parser.hpp>
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/world/belief_mdp.hpp>
@@ -22,6 +23,11 @@
 // #include <sdm/core/state/occupancy_state.hpp>
 
 // #include <sdm/utils/value_function/value_iteration.hpp>
+=======
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/algorithms/q_learning.hpp>
+>>>>>>> feature/qlearning
 
 using namespace sdm;
 
@@ -230,6 +236,7 @@ int main(int argc, char **argv)
                 t_end = clock();
                 // temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
 
+<<<<<<< HEAD
                 //myfile<<","<<hsvi->getLowerBound()->getValueAt(somdp->getInitialState()); 
                 myfile<<","<<temps<<","<<hsvi->getTrial()<<"\n";
                 
@@ -284,6 +291,17 @@ int main(int argc, char **argv)
 
                         //std::cout<<"Min Reward : "<<somdp->getReward()->getMinReward()<<"\n";
                         //std::cout<<"Max Reward : "<<somdp->getReward()->getMaxReward()<<"\n";
+=======
+    auto environment = std::make_shared<DiscreteMDP>(filename);
+
+    // Instanciate bounds
+    std::shared_ptr<sdm::QValueFunction<number, number>> qvalue(new sdm::MappedQValueFunction<number, number>(horizon));
+    std::shared_ptr<sdm::QValueFunction<number, number>> target_qvalue(new sdm::MappedQValueFunction<number, number>(horizon));
+
+    QLearning<number, number, number> algo(environment, qvalue, target_qvalue, params...);
+
+    algo->do_solve();
+>>>>>>> feature/qlearning
 
                         auto hsvi = sdm::algo::makeMappedHSVI<TState, TAction>(somdp,upper_bound,lower_bound, discount, 0, horizon,trials,name);
                         hsvi->do_initialize();
