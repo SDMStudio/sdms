@@ -94,7 +94,6 @@ namespace sdm
   class DiscretePOMDP;
   class DiscreteDecPOMDP;
 
-
   template <typename TState, typename TAction>
   class SolvableByHSVI;
 

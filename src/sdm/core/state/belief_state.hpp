@@ -10,7 +10,10 @@
  */
 #pragma once
 
+#include <algorithm>
+
 #include <sdm/types.hpp>
+#include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 
 namespace sdm
@@ -36,20 +39,27 @@ namespace sdm
 
 namespace std
 {
-    template <typename TState>
-    struct hash<sdm::BaseBeliefState<TState>>
+
+  union udouble
+  {
+    double d;
+    unsigned long u;
+  };
+
+  template <typename TState>
+  struct hash<sdm::BaseBeliefState<TState>>
+  {
+    typedef sdm::BaseBeliefState<TState> argument_type;
+    typedef std::size_t result_type;
+    inline result_type operator()(const argument_type &in) const
     {
-        typedef sdm::BaseBeliefState<TState> argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            size_t seed = 0;
-            for (auto &v : in)
-            {
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, v);
-            }
-            return seed;
-        }
-    };
+      size_t seed = 0;
+      for (const auto &v : in)
+      {
+        //Combine the hash of the current vector with the hashes of the previous ones
+        sdm::hash_combine(seed, v);
+      }
+      return seed;
+    }
+  };
 }

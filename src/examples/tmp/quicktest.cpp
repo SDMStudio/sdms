@@ -4,10 +4,11 @@
 
 #include <sdm/types.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/core/states.hpp>
+#include <sdm/core/state/belief_state.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
+#include <sdm/utils/value_function/tabular_value_function.hpp>
 
 // #include <sdm/world/discrete_mdp.hpp>
 // #include <sdm/utils/value_function/initializers.hpp>
@@ -42,14 +43,40 @@ int main(int argc, char **argv)
     try
     {
 
-        using TState = BeliefState;
-        using TAction = number;
-
         number horizon = 2;
-        auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction>>(filename);
-        auto lb_init = std::make_shared<MinInitializer<TState, TAction>>();
+        auto beliefMDP = std::make_shared<BeliefMDP<BeliefState, number>>(filename);
+        auto lb_init = std::make_shared<MinInitializer<BeliefState, number>>();
 
-        auto lower_bound = std::make_shared<sdm::MaxPlanValueFunction<TState, TAction>>(beliefMDP, horizon, lb_init);
+        auto lower_bound = std::make_shared<sdm::MappedValueFunction<BeliefState, number>>(beliefMDP, horizon, lb_init);
+
+        lower_bound->initialize();
+
+        auto s = beliefMDP->getInitialState();
+        std::cout << *lower_bound << std::endl;
+
+        for (number i = 0; i < 10; i++)
+        {
+            BeliefState b;
+            b[0] = 0.5;
+            b[1] = 0.5;
+            lower_bound->updateValueAt(b);
+            std::cout << *lower_bound << std::endl;
+        }
+
+        // for (number a = 0; a < beliefMDP->getUnderlyingProblem()->getActionSpace()->getNumItems(); a++)
+        // {
+        //     for (number o = 0; o < beliefMDP->getUnderlyingProblem()->getObsSpace()->getNumItems(); o++)
+        //     {
+        //         std::cout << "A" << a << "O" << o << std::endl;
+        //         auto s_ = beliefMDP->nextState(s, a, o);
+        //         std::cout << s_ << std::endl;
+        //         lower_bound->updateValueAt(s, 1);
+        //         std::cout << *lower_bound << std::endl;
+        //     }
+        // }
+
+        // lower_bound->updateValueAt(s);
+        // std::cout << *lower_bound << std::endl;
     }
     catch (sdm::exception::Exception &e)
     {

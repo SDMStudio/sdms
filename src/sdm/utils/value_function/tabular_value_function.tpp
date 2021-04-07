@@ -71,7 +71,7 @@ namespace sdm
             return (t >= this->getHorizon()) ? 0 : this->representation[t].at(state);
         }
     }
-    
+
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
     {
@@ -82,6 +82,7 @@ namespace sdm
         else
         {
             assert(t < this->horizon_);
+            // std::cout << " / Found ?  "<< (this->representation[t].find(state) != this->representation[t].end()) << " -- V(" << state << "," << t << ") = " << this->representation[t][state] <<std::endl;
             this->representation[t][state] = target;
         }
     }
