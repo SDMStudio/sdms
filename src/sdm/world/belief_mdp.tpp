@@ -11,6 +11,7 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     BeliefMDP<TBelief, TAction, TObservation>::BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp) : pomdp_(underlying_pomdp)
     {
+        // Set initial belief state
         double proba = 0;
         for (auto &s : this->pomdp_->getStateSpace()->getAll())
         {
@@ -73,6 +74,7 @@ namespace sdm
                 tmp += this->pomdp_->getStateDynamics()->getTransitionProbability(s, action, nextState) * belief.at(s);
             }
             obs_proba = this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState);
+
             if (obs_proba && tmp)
             {
                 nextBelief[nextState] = obs_proba * tmp;

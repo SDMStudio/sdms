@@ -67,7 +67,10 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();   
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP()
+        {
+
+        }
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

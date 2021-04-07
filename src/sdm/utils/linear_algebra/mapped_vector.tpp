@@ -157,10 +157,7 @@ namespace sdm
         T product = 0;
         for (const auto &item : *this)
         {
-            if (v2.find(item.first) != v2.end())
-            {
-                product += item.second * v2.at(item.first);
-            }
+            product += item.second * v2.at(item.first);
         }
         return product;
     }

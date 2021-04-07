@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
 #include <sdm/core/function.hpp>
 #include <sdm/core/state/serialized_occupancy_state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>

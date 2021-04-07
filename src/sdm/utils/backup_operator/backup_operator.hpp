@@ -23,4 +23,15 @@ namespace sdm
             return vf->getQValueAt(s, t)->max();
         }
     };
+
+    // template <typename TVector, typename TAction>
+    // class MacPlanBackupOperator : public BackupOperator<TVector, TAction, TVector>
+    // {
+    // public:
+    //     TVector backup(ValueFunction<TVector, TAction> *vf, TVector s, int t)
+    //     {
+
+    //         return vf->getQValueAt(s, t)->max();
+    //     }
+    // };
 } // namespace sdm

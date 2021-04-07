@@ -15,26 +15,31 @@
 
 namespace sdm
 {
-  class BeliefState : public MappedVector<number, double>
+  template <typename TState>
+  class BaseBeliefState : public MappedVector<TState, double>
   {
   public:
     using state_type = number;
 
-    BeliefState();
-    BeliefState(double default_value);
-    BeliefState(std::size_t size, double default_value);
-    BeliefState(const BeliefState &v);
+    BaseBeliefState();
+    BaseBeliefState(double default_value);
+    BaseBeliefState(std::size_t size, double default_value);
+    BaseBeliefState(const BaseBeliefState &v);
 
-    static number getState(const number &state);
+    static TState getState(const TState &state);
   };
+
+  using BeliefState = BaseBeliefState<number>;
 } // namespace sdm
+
+#include <sdm/core/state/belief_state.tpp>
 
 namespace std
 {
-    template <>
-    struct hash<sdm::BeliefState>
+    template <typename TState>
+    struct hash<sdm::BaseBeliefState<TState>>
     {
-        typedef sdm::BeliefState argument_type;
+        typedef sdm::BaseBeliefState<TState> argument_type;
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {

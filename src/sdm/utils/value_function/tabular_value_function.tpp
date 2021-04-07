@@ -37,7 +37,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     TValue TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(const TState &state, number t)
     {
-
         if (t < this->getHorizon())
         {
             bool found = false;
