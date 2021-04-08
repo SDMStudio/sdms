@@ -1,6 +1,8 @@
 #pragma once
 
 #include <math.h>
+#include <sdm/public/algorithm.hpp>
+
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
@@ -9,26 +11,45 @@
 namespace sdm
 {
     template <typename TState, typename TAction>
-    class ValueIteration
+    class ValueIteration : public Algorithm
     {
         protected :
 
         std::shared_ptr<SolvableByHSVI<TState, TAction>> problem_;
 
+        std::shared_ptr<sdm::MappedValueFunction<TState, TAction>> policy_evaluation_1_;
+        std::shared_ptr<sdm::MappedValueFunction<TState, TAction>> policy_evaluation_2_;
+
+        double error_;
+
+        bool borne();
+
         //void policy_iteration_inf();
 
-        std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> policy_iteration_non_inf();
+        //std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> policy_iteration_non_inf();
 
         public :
 
+            /**
+             * @brief Initialize the algorithm
+             */
+            void do_initialize();
+
+            /**
+             * @brief Solve a problem solvable by HSVI. 
+             */
+            void do_solve();
+
+            /**
+             * @brief Test the learnt value function on one episode
+             */
+            void do_test();
+
             ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem,double discount, double error, int horizon);
 
-            std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>>policy_iteration();
+            //std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>>policy_iteration();
 
-            //bool borne(MappedVector<TState,double> policy_evaluation_tempo,MappedVector<TState,double> policy_evaluation,double error = 0.1);
-
-            bool borne(std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> policy_evaluation_tempo,std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> policy_evaluation,double error = 0.1);
-
+            std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> getResult();
     };
 }
 #include <sdm/utils/value_function/value_iteration.tpp>

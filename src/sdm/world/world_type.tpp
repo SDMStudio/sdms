@@ -20,12 +20,12 @@ namespace sdm
             return BeliefMDP<>();
         }
 
-        template <bool is_serialized_belief_mdp>
-        static std::enable_if_t<is_serialized_belief_mdp, SerializedBeliefMDP<>>
-        getWorldType()
-        {
-            return SerializedBeliefMDP<>();
-        }
+        // template <bool is_serialized_belief_mdp>
+        // static std::enable_if_t<is_serialized_belief_mdp, SerializedBeliefMDP<>>
+        // getWorldType()
+        // {
+        //     return SerializedBeliefMDP<>();
+        // }
 
         template <bool is_serialized_mdp>
         static std::enable_if_t<is_serialized_mdp, SerializedMDP<SerializedState, number>>

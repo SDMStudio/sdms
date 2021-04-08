@@ -13,8 +13,7 @@
 
 #include <sdm/utils/value_function/initializers.hpp>
 
-#include <sdm/core/state/serialized_belief_state.hpp>
-#include <sdm/world/serialized_belief_mdp.hpp>
+#include <sdm/utils/value_function/value_iteration.hpp>
 
 using namespace sdm;
 
@@ -90,17 +89,20 @@ int main(int argc, char **argv)
 
                         try
                         {
-                            using TState = SerializedBeliefState;
+                            using TState = number;
                             using TAction = number;
-                            using TObservation = number;
 
-                            auto somdp = std::make_shared<SerializedBeliefMDP<TState, TAction,TObservation>>(filePath+filename+".dpomdp", length_history);
+                            std::string a(filePath+filename+".dpomdp");
 
-                            auto hsvi = sdm::algo::makeHSVI<TState, TAction>(somdp,"tabular","maxplan",upper_bound,lower_bound, discount, 0, horizon,trials,name);
+                            auto smdp = std::make_shared<DiscreteMDP>(a);
 
-                            hsvi->do_initialize();
+                            auto value = sdm::ValueIteration<TState,TAction>(smdp,discount,0,horizon);
 
-                            hsvi->do_solve();
+                            //auto hsvi = sdm::algo::makeHSVI<TState, TAction>(somdp,"tabular","maxplan",upper_bound,lower_bound, discount, 0, horizon,trials,name);
+
+                            //hsvi->do_initialize();
+
+                            //hsvi->do_solve();
 
                         }
                         catch (sdm::exception::Exception &e)
