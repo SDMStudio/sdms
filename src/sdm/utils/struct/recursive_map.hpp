@@ -53,9 +53,11 @@ namespace sdm
     public:
         using type = RecursiveMap<T0, T1>;
         using value_type = std::pair<const T0, T1>;
+        using value_list_type = value_type;
 
         RecursiveMap() : map_t<T0, T1>() {}
         RecursiveMap(const map_t<T0, T1> &x) : map_t<T0, T1>(x) {}
+        RecursiveMap(const RecursiveMap&rmap) : map_t<T0, T1>(rmap) {}
         RecursiveMap(std::initializer_list<value_type> vals) : map_t<T0, T1>(vals) {}
 
         /**
@@ -94,6 +96,7 @@ namespace sdm
 
         RecursiveMap() : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>() {}
         RecursiveMap(const map_t<T0, RecursiveMap_t<T1, T2, Ts...>> &x) : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>(x) {}
+        RecursiveMap(const RecursiveMap&rmap) : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>(rmap) {}
         RecursiveMap(std::initializer_list<value_list_type> vals) : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>()
         {
             for (const auto &v : vals)

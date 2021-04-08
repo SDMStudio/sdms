@@ -58,23 +58,23 @@ namespace sdm
         return this->problem_;
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    int ValueFunction<TState, TAction, TValue>::getHorizon() const
-    {
-        return this->horizon_;
-    }
+    // template <typename TState, typename TAction, typename TValue>
+    // int ValueFunction<TState, TAction, TValue>::getHorizon() const
+    // {
+    //     return this->horizon_;
+    // }
 
-    template <typename TState, typename TAction, typename TValue>
-    bool ValueFunction<TState, TAction, TValue>::isFiniteHorizon() const
-    {
-        return (this->horizon_ > 0);
-    }
+    // template <typename TState, typename TAction, typename TValue>
+    // bool ValueFunction<TState, TAction, TValue>::isFiniteHorizon() const
+    // {
+    //     return (this->horizon_ > 0);
+    // }
 
-    template <typename TState, typename TAction, typename TValue>
-    bool ValueFunction<TState, TAction, TValue>::isInfiniteHorizon() const
-    {
-        return !(this->isFiniteHorizon());
-    }
+    // template <typename TState, typename TAction, typename TValue>
+    // bool ValueFunction<TState, TAction, TValue>::isInfiniteHorizon() const
+    // {
+    //     return !(this->isFiniteHorizon());
+    // }
 
     template <typename TState, typename TAction, typename TValue>
     double ValueFunction<TState, TAction, TValue>::getDiscount(number t)

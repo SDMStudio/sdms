@@ -24,13 +24,12 @@ namespace sdm
         }
     };
 
-    // template <typename TVector, typename TAction>
-    // class MacPlanBackupOperator : public BackupOperator<TVector, TAction, TVector>
+    // template <typename TState, typename TAction>
+    // class ClassicQBackupOperator : public BackupOperator<TState, TAction, double>
     // {
     // public:
-    //     TVector backup(ValueFunction<TVector, TAction> *vf, TVector s, int t)
+    //     double backup(ValueFunction<TState, TAction> *vf, TState s, int t)
     //     {
-
     //         return vf->getQValueAt(s, t)->max();
     //     }
     // };

@@ -44,6 +44,14 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
+    std::tuple<TBelief, std::vector<double>, bool> BeliefMDP<TBelief, TAction, TObservation>::step(TAction action)
+    {
+        auto [next_obs, rewards, done] = this->pomdp_->step(action);
+        this->cstate_ = this->nextState(this->cstate_, action, next_obs);
+        return std::make_tuple(this->cstate_, rewards, done);
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
     bool BeliefMDP<TBelief, TAction, TObservation>::isSerialized() const
     {
         return false;

@@ -27,7 +27,7 @@ namespace sdm
      */
     template <typename TBelief = BeliefState, typename TAction = number, typename TObservation = number>
     class BeliefMDP : public SolvableByHSVI<TBelief, TAction>,
-                      public GymInterface<DiscreteSpace<TBelief>, DiscreteSpace<TAction>>
+                      public GymInterface<TBelief, TAction>
     {
     protected:
         std::shared_ptr<DiscretePOMDP> pomdp_;
@@ -37,7 +37,7 @@ namespace sdm
     public:
         using state_type = TBelief;
         using action_type = TAction;
-        using observation_type = TObservation;
+        using observation_type = TBelief;
 
         BeliefMDP();
         BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
@@ -45,6 +45,7 @@ namespace sdm
 
         TBelief reset();
         TBelief &getState();
+        std::tuple<TBelief, std::vector<double>, bool> step(TAction action);
 
         bool isSerialized() const;
         DiscretePOMDP *getUnderlyingProblem();

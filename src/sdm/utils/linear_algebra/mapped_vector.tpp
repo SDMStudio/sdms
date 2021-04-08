@@ -5,22 +5,22 @@
 namespace sdm
 {
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector() : std::unordered_map<TIndex, T>(), default_value_(0), size_(0)
+    MappedVector<TIndex, T>::MappedVector() : RecursiveMap<TIndex, T>(), default_value_(0.), size_(-1)
     {
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(T default_value) : std::unordered_map<TIndex, T>(), default_value_(default_value), size_(0)
+    MappedVector<TIndex, T>::MappedVector(T default_value) : RecursiveMap<TIndex, T>(), default_value_(default_value), size_(-1)
     {
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(std::size_t size, T default_value) : std::unordered_map<TIndex, T>(), default_value_(default_value), size_(size)
+    MappedVector<TIndex, T>::MappedVector(long size, T default_value) : RecursiveMap<TIndex, T>(), default_value_(default_value), size_(size)
     {
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : std::unordered_map<TIndex, T>(v), default_value_(v.getDefault()), size_(v.size())
+    MappedVector<TIndex, T>::MappedVector(const MappedVector &v) : RecursiveMap<TIndex, T>(v), default_value_(v.getDefault()), size_(v.size())
     {
     }
 
@@ -87,6 +87,10 @@ namespace sdm
                 max = item.second;
             }
         }
+        if (max == -std::numeric_limits<T>::max()){
+            amax = TIndex();
+            max = this->default_value_;
+        }
         return {amax, max};
     }
 
@@ -117,7 +121,7 @@ namespace sdm
     {
         if (this->find(i) != this->end())
         {
-            return std::unordered_map<TIndex, T>::at(i);
+            return RecursiveMap<TIndex, T>::at(i);
         }
         else
         {

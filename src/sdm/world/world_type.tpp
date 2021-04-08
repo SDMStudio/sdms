@@ -41,6 +41,12 @@ namespace sdm
             return OccupancyMDP<>();
         }
 
+        template <bool is_multi_agent>
+        static std::enable_if_t<is_multi_agent, DiscreteDecPOMDP>
+        getWorldType()
+        {
+            throw sdm::exception::Exception("Joint<number> cannot suffice to determine SolvableByHSVI problem.");
+        }
 
         template <bool is_solving_mdp>
         static std::enable_if_t<is_solving_mdp, DiscreteMDP>
@@ -69,6 +75,7 @@ namespace sdm
         {
             return DiscreteDecPOMDP();
         }
+
 
         template <bool is_solving_decpomdp>
         static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>

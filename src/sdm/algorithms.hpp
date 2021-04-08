@@ -6,13 +6,16 @@
 #include <sdm/tools.hpp>
 #include <sdm/worlds.hpp>
 #include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/q_learning.hpp>
 #include <sdm/public/algorithm.hpp>
 #include <sdm/core/states.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
+#include <sdm/utils/rl/exploration.hpp>
 
 namespace sdm
 {
@@ -134,6 +137,102 @@ namespace sdm
                     return makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
                 }
             }
+            else
+            {
+                throw sdm::exception::Exception("Undefined algorithm type : " + algo_name);
+            }
+        }
+
+        template <typename TObservation, typename TAction>
+        std::shared_ptr<sdm::QLearning<TObservation, TAction>> makeQLearning(std::shared_ptr<GymInterface<TObservation, TAction>> problem,
+                                                                             std::string qvalue_name,
+                                                                             std::string initializer_name,
+                                                                             number horizon = 0,
+                                                                             double discount = 0.9,
+                                                                             double lr = 0.01,
+                                                                             double batch_size = 1,
+                                                                             unsigned long num_max_steps = 100000,
+                                                                             std::string name = "qlearning")
+        {
+            assert(((discount < 1) || (horizon > 0)));
+
+            // Instanciate initializers and qvalue functions
+            auto initializer = std::make_shared<sdm::ZeroInitializer<TObservation, TAction>>();
+            auto qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, TAction>>(horizon, lr, initializer);
+
+            auto initializer_target = std::make_shared<sdm::ZeroInitializer<TObservation, TAction>>();
+            auto target_qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, TAction>>(horizon, lr, initializer_target);
+
+            // Instanciate exploration process
+            auto exploration_process = std::make_shared<sdm::EpsGreedy<TObservation, TAction>>();
+
+            return std::make_shared<QLearning<TObservation, TAction>>(problem, qvalue, target_qvalue, exploration_process, horizon, discount, lr, batch_size, num_max_steps, name);
+        }
+
+        /**
+         * @brief Build an algorithm given his name and the configurations required. 
+         * 
+         * @tparam TState Type of the state.
+         * @tparam TAction Type of the action.
+         * @param algo_name the name of the algorithm to be built* 
+         * @param problem the problem to be solved
+         * @param discount the discount factor
+         * @param error the accuracy
+         * @param horizon the planning horizon
+         * @param trials the maximum number of trials 
+         * @return auto pointer on algorithm instance
+         */
+        std::shared_ptr<Algorithm> make(std::string algo_name,
+                                        std::string problem_path,
+                                        std::string formalism,
+                                        std::string qvalue_name,
+                                        std::string initializer_name,
+                                        number horizon = 0,
+                                        double discount = 0.9,
+                                        double lr = 0.01,
+                                        double batch_size = 1,
+                                        unsigned long num_max_steps = 100000,
+                                        std::string name = "qlearning")
+        {
+            if ((algo_name == "qlearning"))
+            {
+                if ((formalism == "mdp") || (formalism == "MDP"))
+                {
+                    using env_type = DiscreteMDP;
+                    auto problem = std::make_shared<env_type>(problem_path);
+                    problem->setDiscount(discount);
+                    problem->setPlanningHorizon(horizon);
+                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                }
+                else if ((formalism == "pomdp") || (formalism == "POMDP"))
+                {
+                    using env_type = DiscretePOMDP;
+                    auto problem = std::make_shared<env_type>(problem_path);
+                    problem->setDiscount(discount);
+                    problem->setPlanningHorizon(horizon);
+                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                }
+                else if ((formalism == "beliefmdp") || (formalism == "BeliefMDP"))
+                {
+                    using env_type = BeliefMDP<>;
+                    auto problem = std::make_shared<env_type>(problem_path);
+                    problem->getUnderlyingProblem()->setDiscount(discount);
+                    problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
+                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                }
+                else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
+                {
+                    using env_type = DiscreteDecPOMDP;
+                    auto problem = std::make_shared<env_type>(problem_path);
+                    problem->setDiscount(discount);
+                    problem->setPlanningHorizon(horizon);
+                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                }
+            }
+            else
+            {
+                throw sdm::exception::Exception("Undefined algorithm type : " + algo_name);
+            }
         }
 
         /**
@@ -143,7 +242,7 @@ namespace sdm
          */
         std::vector<std::string> available()
         {
-            return {"hsvi"};
+            return {"hsvi", "qlearning"};
         }
 
     } // namespace algo

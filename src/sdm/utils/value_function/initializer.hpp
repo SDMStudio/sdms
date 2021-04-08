@@ -12,7 +12,9 @@
 
 #include <math.h>
 #include <sdm/algorithms/hsvi.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/base_value_function.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/state_2_occupancy_vf.hpp>
 
 namespace sdm
@@ -32,13 +34,27 @@ namespace sdm
     };
 
     /**
+     * @brief Abstract class for initializer. 
+     * 
+     * @tparam TState the state type
+     * @tparam TAction the action type
+     */
+    template <typename TState, typename TAction>
+    class QInitializer
+    {
+    public:
+        virtual void init(QValueFunction<TState, TAction> *vf) = 0;
+        virtual ~QInitializer() {}
+    };
+
+    /**
      * @brief  This initializer initializes a value function to a constant value.
      * 
      * @tparam TState the state type
      * @tparam TAction the action type
      */
     template <typename TState, typename TAction>
-    class ValueInitializer : public Initializer<TState, TAction>
+    class ValueInitializer : public Initializer<TState, TAction>, public QInitializer<TState, TAction>
     {
     protected:
         double value;
@@ -48,7 +64,7 @@ namespace sdm
         {
         }
 
-        void init(ValueFunction<TState, TAction> *vf)
+        void initBase(BaseValueFunction<TState, TAction> *vf)
         {
             if (vf->getHorizon() < 1)
             {
@@ -56,11 +72,21 @@ namespace sdm
             }
             else
             {
-                for (int t = 0; t < vf->getHorizon(); t++)
+                for (number t = 0; t < vf->getHorizon(); t++)
                 {
                     vf->initialize(this->value, t);
                 }
             }
+        }
+
+        void init(ValueFunction<TState, TAction> *vf)
+        {
+            this->initBase(vf);
+        }
+
+        void init(QValueFunction<TState, TAction> *vf)
+        {
+            this->initBase(vf);
         }
     };
 
@@ -227,9 +253,8 @@ namespace sdm
             }
         }
     };
-    
-    // A refaire ultérieurement !!
 
+    // A refaire ultérieurement !!
 
     // template <typename TState, typename TAction>
     // class PolicyEvaluationInitializer : public Initializer<TState, TAction>
@@ -330,4 +355,4 @@ namespace sdm
     //         return resultat;
     //     }
     // };
-}// namespace sdm
+} // namespace sdm

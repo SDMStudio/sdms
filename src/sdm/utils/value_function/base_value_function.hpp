@@ -12,8 +12,7 @@
 
 #include <memory>
 
-#include <sdm/core/function.hpp>
-#include <sdm/utils/value_function/base_value_function.hpp>
+#include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
 /**
@@ -23,33 +22,32 @@
 namespace sdm
 {
     /**
-     * @class QValueFunction
-     * @brief This class is the abstract class of value function. All value function must derived this class.
+     * @class BaseValueFunction
+     * @brief This class is the abstract class of all kind of value functions. All {state,action,q}-value function must derived this class.
      * 
      * @tparam TState Type of the state.
      * @tparam TAction Type of the action.
      * @tparam TValue Type of the value.
      */
     template <typename TState, typename TAction, typename TValue = double>
-    class QValueFunction : public BaseValueFunction<TState, TAction, TValue>
+    class BaseValueFunction
     {
     protected:
         /**
-         * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
-         * 
+         * @brief The horizon for planning.
          */
-        // std::shared_ptr<BinaryFunction<TState, TAction, number, TValue>> init_function_ = nullptr;
+        number horizon_;
 
     public:
-        QValueFunction();
+        BaseValueFunction();
+
+        BaseValueFunction(number horizon);
 
         /**
-         * @brief Construct a new Incremental Value Function object
+         * @brief Destroy the value function
          * 
-         * @param problem 
-         * @param default_value 
          */
-        QValueFunction(number horizon);
+        virtual ~BaseValueFunction() {}
 
         /**
          * @brief Initialize the value function 
@@ -64,7 +62,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        TValue getValueAt(const TState &state, number t = 0);
+        virtual TValue getValueAt(const TState &state, number t = 0) =0;
 
         /**
          * @brief Get the q-value at a state
@@ -83,22 +81,30 @@ namespace sdm
          */
         virtual TValue getQValueAt(const TState &state, const TAction &action, number t) = 0;
 
-        TAction getBestAction(const TState &state, number t = 0);
-
         /**
-         * @brief Update the value at a given state
+         * @brief Get the best action to do at a state
+         * 
+         * @param state the state
+         * @return the best action
          */
-        virtual void updateQValueAt(const TState &state, const TAction &action, number t = 0) = 0;
-
-        /**
-         * @brief Update the value at a given state (given a target)
-         */
-        virtual void updateQValueAt(const TState &state, const TAction &action, number t, TValue target) = 0;
+        virtual TAction getBestAction(const TState &state, number t) = 0;
 
         /**
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() = 0;
+
+        int getHorizon() const;
+
+        bool isFiniteHorizon() const;
+
+        bool isInfiniteHorizon() const;
+
+        friend std::ostream &operator<<(std::ostream &os, BaseValueFunction<TState, TAction> &vf)
+        {
+            os << vf.str();
+            return os;
+        }
     };
 } // namespace sdm
-#include <sdm/utils/value_function/qvalue_function.tpp>
+#include <sdm/utils/value_function/base_value_function.tpp>

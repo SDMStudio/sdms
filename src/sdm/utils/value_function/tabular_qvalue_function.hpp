@@ -10,13 +10,15 @@
  */
 #pragma once
 
-#include <map>
 #include <iostream>
 #include <type_traits>
 
+#include <sdm/types.hpp>
 #include <sdm/core/function.hpp>
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/utils/linear_algebra/sdms_vector.hpp>
+#include <sdm/utils/linear_algebra/mapped_matrix.hpp>
+
+#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/backup_operator/backup_operator.hpp>
 
 /**
@@ -36,13 +38,11 @@ namespace sdm
     template <typename TState,
               typename TAction,
               typename TValue = double,
-              template <typename TI, typename TV> class TBackupOperator = ClassicBellmanBackupOperator,
-              template <typename TI, typename TV> class TStruct = MappedVector>
+              template <typename TS, typename TA, typename TV> class TMatrix = MappedMatrix>
     class TabularQValueFunction : public QValueFunction<TState, TAction, TValue>
     {
     protected:
-        using Container = TStruct<Pair<TState, TAction>, TValue>;
-        using backup_operator_type = TBackupOperator<TState, TAction>;
+        using Container = TMatrix<TState, TAction, TValue>;
 
         /**
          * @brief The value function represention.
@@ -50,57 +50,60 @@ namespace sdm
          */
         std::vector<Container> representation;
 
-        /**
-         * @brief The backup operator used in order to update this value function. 
-         * 
-         */
-        backup_operator_type backup_op_;
+        double learning_rate_;
 
         /**
          * @brief The initializer to use for this value function. 
          * 
          */
-        std::shared_ptr<Initializer<TState, TAction>> initializer_;
+        std::shared_ptr<QInitializer<TState, TAction>> initializer_;
 
     public:
-        TabularQValueFunction(int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
+        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer);
 
-        TabularQValueFunction(int horizon = 0, TValue default_value = 0.);
+        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, TValue default_value = 0.);
 
         /**
-         * @brief Initialize the value function according using initializer.
-         * 
+         * @brief Initialize the value function 
          */
         void initialize();
 
         /**
-         * @brief Set all values of the vector to a default value. 
-         * 
-         * @param default_value the default value 
+         * @brief Initialize the value function with a default value
          */
-        void initialize(TValue default_value, int t = 0);
+        void initialize(TValue v, number t = 0);
 
         /**
-         * @brief Evaluate the value at a state.
-         * 
-         * @param state the state where we want to evaluate the function
-         * @return the value
-         */
-        TValue getValueAt(const TState &state, int t = 0);
-
-        /**
-         * @brief Update the value at a specific state and timestep.
+         * @brief Get the q-value at a state
          * 
          * @param state the state
-         * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
+         * @return the action value vector 
          */
-        void updateQValueAt(const TState &state, const TAction &action, int t = 0);
+        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t);
 
-        void updateQValueAt(const TState &state, const TAction &action, int t, TValue target);
+        /**
+         * @brief Get the q-value given state and action
+         * 
+         * @param state the state
+         * @param action the action
+         * @return the q-value
+         */
+        TValue getQValueAt(const TState &state, const TAction &action, number t);
 
+        /**
+         * @brief Update the value at a given state
+         */
+        void updateQValueAt(const TState &state, const TAction &action, number t = 0);
+
+        /**
+         * @brief Update the value at a given state (given a target)
+         */
+        void updateQValueAt(const TState &state, const TAction &action, number t, TValue target);
+
+        /**
+         * @brief Define this function in order to be able to display the value function
+         */
         std::string str();
-
-        backup_operator_type getBackupOperator();
 
         friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction<TState, TAction> &vf)
         {
@@ -110,13 +113,13 @@ namespace sdm
     };
 
     template <typename TState, typename TAction, typename TValue = double>
-    using MappedValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, MappedVector>;
+    using MappedQValueFunction = TabularQValueFunction<TState, TAction, TValue, MappedMatrix>;
 
-    template <typename TState, typename TAction, typename TValue = double>
-    using SparseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, SparseVector>;
+    // template <typename TState, typename TAction, typename TValue = double>
+    // using SparseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, SparseVector>;
 
-    template <typename TState, typename TAction, typename TValue = double>
-    using DenseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, DenseVector>;
+    // template <typename TState, typename TAction, typename TValue = double>
+    // using DenseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, DenseVector>;
 
 } // namespace sdm
-#include <sdm/utils/value_function/tabular_value_function.tpp>
+#include <sdm/utils/value_function/tabular_qvalue_function.tpp>
