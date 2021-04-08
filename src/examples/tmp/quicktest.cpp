@@ -13,6 +13,8 @@
 
 #include <sdm/utils/value_function/initializers.hpp>
 
+#include <sdm/core/state/serialized_belief_state.hpp>
+#include <sdm/world/serialized_belief_mdp.hpp>
 
 using namespace sdm;
 
@@ -88,10 +90,11 @@ int main(int argc, char **argv)
 
                         try
                         {
-                            using TState = OccupancyState<number, JointHistoryTree_p<number>>;
-                            using TAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>;
+                            using TState = SerializedBeliefState;
+                            using TAction = number;
+                            using TObservation = number;
 
-                            auto somdp = std::make_shared<OccupancyMDP<TState, TAction>>(filePath+filename+".dpomdp", length_history);
+                            auto somdp = std::make_shared<SerializedBeliefMDP<TState, TAction,TObservation>>(filePath+filename+".dpomdp", length_history);
 
                             auto hsvi = sdm::algo::makeHSVI<TState, TAction>(somdp,"tabular","maxplan",upper_bound,lower_bound, discount, 0, horizon,trials,name);
 

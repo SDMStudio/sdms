@@ -45,7 +45,7 @@ namespace sdm
     std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
 
     /**
-     * @brief Return the hidden state of a precise occupancy state
+     * @brief Return the state of a precise occupancy state
      * 
      * @param pair_state_hist refers to a precise occupancy state
      * @return TState refers to the hidden state returned

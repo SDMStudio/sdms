@@ -15,6 +15,9 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     class BeliefMDP;
 
+    template <typename TBelief, typename TAction, typename TObservation>
+    class SerializedBeliefMDP;
+
     template <typename oState, typename oAction>
     class OccupancyMDP;
 
@@ -43,6 +46,10 @@ namespace sdm
         static std::enable_if_t<is_belief_mdp, BeliefMDP<BeliefState, number, number>>
         getWorldType();
 
+        template <bool is_serialized_belief_mdp = std::is_any<TState, SerializedBeliefState>::value>
+        static std::enable_if_t<is_serialized_belief_mdp, SerializedBeliefMDP<SerializedBeliefState, number, number>>
+        getWorldType();
+
         template <bool is_serialized_mdp = std::is_same<TState, SerializedState>::value>
         static std::enable_if_t<is_serialized_mdp, SerializedMDP<SerializedState, number>>
         getWorldType();
@@ -64,7 +71,7 @@ namespace sdm
         static std::enable_if_t<is_solving_mmdp, DiscreteMMDP>
         getUnderlyingProblem();
 
-        template <bool is_solving_pomdp = std::is_same<TState, BeliefState>::value>
+        template <bool is_solving_pomdp = std::is_any<TState, BeliefState,SerializedBeliefState>::value>
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getUnderlyingProblem();
         

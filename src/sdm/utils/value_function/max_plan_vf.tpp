@@ -190,13 +190,14 @@ namespace sdm
                 {
                     auto pair_s_o = pair_s_o_p.first;
                     auto joint_history = state.getHistory(pair_s_o);
+                    auto s_state = state.getHiddenState(pair_s_o);
                     auto proba = pair_s_o_p.second;
 
-                    // Get joint action from JointDetDecisionRule
-
+                    //v[pair_s_o] = oMDP->getReward(state, jdr);
                     //Finalement, est ce qu'il y a besoin de faire cela ? Car en faisant cela, on doit under_pb->getReward()->getReward(),
                     // qui au final est une sous classe, et qui ne va pas prendre en compte ce qu'on a fait dans getReward de OccupancyState
 
+                    // Get joint action from JointDetDecisionRule
                     std::vector<typename TAction::value_type::output_type> jaction;
 
                     for (int i = 0; i < jdr.size(); i++)
@@ -206,17 +207,17 @@ namespace sdm
                         jaction.push_back(idr(p_ihist));
                     }            
 
-                    auto itex_joint_action = under_pb->getActionSpace()->joint2single(jaction);
-                    
-                    //v[pair_s_o] = oMDP->getReward(pair_s_o.first, jdr);
-                    v[pair_s_o] = under_pb->getReward()->getReward(pair_s_o.first, itex_joint_action);
+                    auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
+                    v[pair_s_o] = under_pb->getReward()->getReward(s_state, index_joint_action);
 
                     for (const auto &o : under_pb->getObsSpace()->getAll())
                     {
                         auto joint_history_next = joint_history->expand(o);
-                        for (const auto &s_ : under_pb->getStateSpace()->getAll())
+                        auto index_history = under_pb->getObsSpace()->joint2single(o);
+
+                        for (const typename TVector::state_type &s_ : under_pb->getStateSpace()->getAll())
                         {
-                            v[pair_s_o] += under_pb->getDiscount() * under_pb->getObsDynamics()->getDynamics(pair_s_o.first, itex_joint_action, under_pb->getObsSpace()->joint2single(o), s_) * plan.at(std::make_pair(s_,joint_history_next));
+                            v[pair_s_o] += under_pb->getDiscount() * under_pb->getObsDynamics()->getDynamics(s_state, index_joint_action, index_history, s_) * plan.at(std::make_pair(s_,joint_history_next));
                         }
                     }
                 }
@@ -250,37 +251,48 @@ namespace sdm
 
         number ag_id = state.getCurrentAgentId();
 
-        // Parcours des hyperplan support de la fonction au pas t+1
+        //Parcours des hyperplan support de la fonction au pas t+1
   
         for (const auto &plan : this->getSupport(t+1))
         {
-        // //     // Boucle over all joint decision rule at occupancy state
+        //     // Boucle over all joint decision rule at occupancy state
             for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
             {
                 TVector v;
                 for (const auto &pair_s_o_p : state)
                 {
                     auto pair_s_o = pair_s_o_p.first;
-                    auto state_ = state.getState(pair_s_o);
-                    auto joint_history = state.getHistory(pair_s_o);
+                    auto hidden_state = state.getHiddenState(pair_s_o);
+                    auto s_state = state.getState(pair_s_o);
+                    auto history = state.getHistory(pair_s_o);
                     auto action = state.getAction(pair_s_o);
                     auto proba = pair_s_o_p.second;
 
-        //             // Get joint action from JointDetDecisionRule
+                    // //Get joint action from JointDetDecisionRule
                     std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
 
-                    // Add the last selected action (the action of agent 0)
-                    jaction.push_back(indiv_dr.act(joint_history->getIndividualHistory(ag_id)));  
+                    // //Add the last selected action (the action of agent 0)
+                    jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
 
-                    // v[pair_s_o] = under_pb->getReward()->getReward(state_, jaction);
-                    // for (const auto &o : under_pb->getObsSpace()->getAll())
-                    // {
+                    //std::cout<<"\n joint2single "<<under_pb->getActionSpace()->joint2single(jaction);
+                    // Je ne comprend pas pourquoi cette ligne crash ? On l'utilise pourtant dans le SerializedOccupancyMDP
+                    // J'ai vérifié le jaction n'est pas vide
+                    //v[pair_s_o] = under_pb->getReward()->getReward(hidden_state, under_pb->getActionSpace()->joint2single(jaction));
+                    
+                    //Pareil, en utilisant cela, on utilise pas la structure qu'on a défini dans SerializedOccupancyMdp pour getReward.
+                    //v[pair_s_o] = soMDP->getReward(state,indiv_dr);
+
+        //             auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
+
+        //             for (const auto &o : under_pb->getObsSpace()->getAll())
+        //             {
         //                 auto joint_history_next = joint_history->expand(o);
-        //                 for (const auto &s_ : under_pb->getStateSpace()->getAll())
+        //                 auto index_history = under_pb->getObsSpace()->joint2single(o);
+        //                 for (const typename TVector::state_type &s_ : under_pb->getStateSpace()->getAll())
         //                 {
-        //                     v[pair_s_o] += under_pb->getDiscount() * under_pb->getObsDynamics()->getDynamics(pair_s_o.first, under_pb->getActionSpace()->joint2single(jaction), under_pb->getObsSpace()->joint2single(o), s_) * plan.at(std::make_pair(s_,joint_history_next));
+        //                     v[pair_s_o] += soMDP->getDiscount(t) * under_pb->getObsDynamics()->getDynamics(hidden_state, index_joint_action,index_history , s_.getState()) * plan.at(std::make_pair(s_,joint_history_next));
         //                 }
-                    // }
+        //             }
         //         }
 
         //         if (value_max < (tmp = state^v))
@@ -290,9 +302,9 @@ namespace sdm
                 }
             }
         }
-        std::cout<<"\n State : "<<state;
-        std::cout<<"\n value max"<<value_max;
-        std::cout<<"\n V max "<<v_max;
+        // std::cout<<"\n State : "<<state;
+        // std::cout<<"\n value max"<<value_max;
+        // std::cout<<"\n V max "<<v_max;
 
         return v_max;
     }

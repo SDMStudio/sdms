@@ -176,9 +176,9 @@ namespace sdm
     double SerializedOccupancyMDP<oState, oAction>::getDiscount(int t) const
     {
 
-        if (this->getNumAgents() > 1)
+        if (this->dpomdp_->getNumAgents() > 1)
         {
-            if (t % this->getNumAgents() != this->getNumAgents() - 1)
+            if (t % this->dpomdp_->getNumAgents() != this->dpomdp_->getNumAgents() - 1)
             {
                 return 1.0;
             }

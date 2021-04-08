@@ -96,7 +96,7 @@ namespace sdm
 
         if (ag_id != this->mmdp_->getNumAgents() - 1)
         {
-            return value_function->getValueAt(oState(ostate.getState(), u), t + 1);
+            return value_function->getValueAt(oState(x, u), t + 1);
         }
         else
         {
