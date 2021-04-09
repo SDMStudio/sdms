@@ -33,7 +33,7 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, int horizon, int trials, std::string name)
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name)
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -80,7 +80,7 @@ namespace sdm
          * @param trials the maximum number of trials 
          * @return auto pointer on algorithm instance
          */
-        std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount = 0.99, double error = 0.001, int horizon = 0, int trials = 1000, std::string name = "")
+        std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount = 0.99, double error = 0.001, number horizon = 0, int trials = 1000, std::string name = "")
         {
             if ((algo_name == "hsvi"))
             {
@@ -202,6 +202,7 @@ namespace sdm
                     auto problem = std::make_shared<env_type>(problem_path);
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
+                    problem->setupDynamicsGenerator();
                     return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "pomdp") || (formalism == "POMDP"))
@@ -210,6 +211,7 @@ namespace sdm
                     auto problem = std::make_shared<env_type>(problem_path);
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
+                    problem->setupDynamicsGenerator();
                     return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "beliefmdp") || (formalism == "BeliefMDP"))
@@ -218,6 +220,7 @@ namespace sdm
                     auto problem = std::make_shared<env_type>(problem_path);
                     problem->getUnderlyingProblem()->setDiscount(discount);
                     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
+                    problem->getUnderlyingProblem()->setupDynamicsGenerator();
                     return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
@@ -226,6 +229,26 @@ namespace sdm
                     auto problem = std::make_shared<env_type>(problem_path);
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
+                    problem->setupDynamicsGenerator();
+                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                }
+                else if ((formalism == "occupancymdp") || (formalism == "OccupancyMDP"))
+                {
+                    using TObservation = number;
+                    using TState = number;
+
+                    using TActionDescriptor = number;
+                    using TStateDescriptor = HistoryTree_p<TObservation>;
+
+                    using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+                    using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+
+                    using env_type = OccupancyMDP<TStatePrescriptor, TActionPrescriptor>;
+                    auto problem = std::make_shared<env_type>(problem_path, horizon);
+
+                    problem->getUnderlyingProblem()->setDiscount(discount);
+                    problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
+                    problem->getUnderlyingProblem()->setupDynamicsGenerator();
                     return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
             }

@@ -68,7 +68,7 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_->getQValueAt(this->env_->reset(), 0)->norm_1(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(this->episode, this->global_step, this->q_value_->getQValueAt(this->env_->reset(), 0)->max(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
                 this->do_log = false;
             }
             if (this->do_test_)

@@ -24,6 +24,7 @@ namespace sdm
           PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>(state_sp, obs_sp, start_distrib),
           obs_dynamics_(obs_dyn)
     {
+        // this->setupDynamicsGenerator();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
@@ -39,6 +40,7 @@ namespace sdm
                                                                                                                                     copy.getDiscount(),
                                                                                                                                     copy.getCriterion())
     {
+        // this->setupDynamicsGenerator();
     }
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::~PartiallyObservableDecisionProcess()
@@ -58,9 +60,9 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
-    template <bool TBool>
-    std::enable_if_t<TBool> PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::setupDynamicsGenerator()
+    void PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::setupDynamicsGenerator()
     {
+        // std::cout << "Setup PO process" << std::endl;
         int i = 0;
         for (auto &y : this->getStateSpace()->getAll())
         {
@@ -102,6 +104,7 @@ namespace sdm
     std::tuple<typename PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::observation_type, std::vector<double>, bool>
     PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::step(typename PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::action_type a)
     {
+        // std::cout << "In step PO process" << std::endl;
         this->ctimestep_++;
         auto rew = this->getReward()->getReward(this->getInternalState(), this->getAction(a));
         auto z = this->updateState_getObs(a);
@@ -109,12 +112,12 @@ namespace sdm
         return std::make_tuple(z, std::vector<double>{rew}, is_done);
     }
 
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
-    template <bool TBool>
-    std::enable_if_t<!TBool> PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::setupDynamicsGenerator()
-    {
-        throw sdm::exception::NotImplementedException();
-    }
+    // template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
+    // template <bool TBool>
+    // std::enable_if_t<!TBool> PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::setupDynamicsGenerator()
+    // {
+    //     throw sdm::exception::NotImplementedException();
+    // }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     template <bool TBool>

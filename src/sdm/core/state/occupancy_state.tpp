@@ -93,7 +93,7 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    double OccupancyState<TState, TJointHistory_p>::getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist)
+    double OccupancyState<TState, TJointHistory_p>::getProbability(const Pair<TState, TJointHistory_p> &)
     {
         for (const auto &key : *this)
         {

@@ -35,58 +35,62 @@ int main(int argc, char **argv)
 
     try
     {
+        using TActionDescriptor = number;
+        using TStateDescriptor = HistoryTree_p<number>;
 
-        // MappedVector<number, MappedVector<number, double>> dmap(0);
-        // std::cout << dmap << std::endl;
-        // dmap[2][5] = 10.5;
-        // std::cout << dmap << std::endl;
+        using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+        using TStatePrescriptor = OccupancyState<number, JointHistoryTree_p<number>>;
 
-        // MappedTensor<number, number, double> dmap = {{2, {{5, 10.2}}};
-        MappedQValueFunction<number, number> tab_qval(0, 0.1, std::make_shared<ValueInitializer<number, number>>(3));
-        std::cout << tab_qval << std::endl;
-        tab_qval.initialize();
-        std::cout << tab_qval << std::endl;
-        std::cout << tab_qval.getQValueAt(3, 1, 1) << std::endl;
-        std::cout << tab_qval.getQValueAt(2, 1, 0) << std::endl;
-        std::cout << tab_qval << std::endl;
-        tab_qval.updateQValueAt(3, 1, 1, 16);
-        tab_qval.updateQValueAt(0, 2, 0, 4);
-        std::cout << tab_qval << std::endl;
-        std::cout << tab_qval.getQValueAt(3, 1, 1) << std::endl;
-        std::cout << tab_qval.getQValueAt(2, 1, 0) << std::endl;
-        std::cout << tab_qval << std::endl;
-
-        number horizon = 3;
+        //--------
+        //-------- PARAMETERS
+        //--------
+        // !!! ATTENTION : faire les tests pour de petits horizons (BeliedMDP horizon <= 5 et OccupancyMDP horizon <= 3) pour BeliefMDP et OccupancyMDP sinon la complexité mémoire explose
+        number horizon = 2;
+        
+        // Pour de petits horizons, on laisse discount = 1.0
         double discount = 1.0, lr = 0.1;
-        number n_episode = 10, max_step = 10000;
-        // auto env = std::make_shared<BeliefMDP<>>(filename);
-        auto env = std::make_shared<BeliefMDP<>>(filename);
-        // auto env = std::make_shared<DiscretePOMDP>(filename);
-        // auto env = std::make_shared<DiscreteDecPOMDP>(filename);
+        number max_step = 100000;
 
+
+        //--------
+        //-------- Ex 1) QLEARNING POUR LA RESOLUTION EXACTE DES DecPOMDPs (as OccupancyMDP)
+        //--------
+        auto env = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);
         env->getUnderlyingProblem()->setDiscount(discount);
         env->getUnderlyingProblem()->setPlanningHorizon(horizon);
-        auto algo = sdm::algo::makeQLearning<BeliefState, number>(env, "qvalue_name", "initializer_name", horizon, discount, lr, 1, max_step, "test_qlearn");
+        env->getUnderlyingProblem()->setupDynamicsGenerator();
+
+        auto algo = sdm::algo::makeQLearning<TStatePrescriptor, TActionPrescriptor>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_omdp");
         algo->do_initialize();
         algo->do_solve();
 
-        // env->setPlanningHorizon(horizon);
+        //--------
+        //-------- Ex 2) QLEARNING POUR LA RESOLUTION EXACTE DES POMDPs (as BeliefMDP)
+        //--------
 
-        // for (number episode = 0; episode < n_episode; episode++)
-        // {
-        //     env->reset();
-        //     std::cout << "---------------" << std::endl;
-        //     for (number step = 0; step < 10; step++)
-        //     {
-        //         auto action = env->getActionSpaceAt(0)->sample();
-        //         auto [next_obs, rewards, done] = env->step(action);
-        //         std::cout << "#Ep " << episode +1 << "/" << n_episode << " | Step " << step << " | act=" << action <<" obs=" << next_obs << " rewards=" << rewards << " done=" << done << std::endl;
-        //         if (done)
-        //         {
-        //             break;
-        //         }
-        //     }
-        // }
+        // auto env = std::make_shared<BeliefMDP<>>(filename);
+        // env->getUnderlyingProblem()->setDiscount(discount);
+        // env->getUnderlyingProblem()->setPlanningHorizon(horizon);
+        // env->getUnderlyingProblem()->setupDynamicsGenerator();
+
+        // auto algo = sdm::algo::makeQLearning<BeliefState, number>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_bmdp");
+        // algo->do_initialize();
+        // algo->do_solve();
+
+
+        //--------
+        //-------- Ex 3) QLEARNING POUR LA RESOLUTION EXACTE DES MDPs
+        //--------
+
+        // auto env = std::make_shared<DiscreteMDP>(filename);
+        // env->setDiscount(discount);
+        // env->setPlanningHorizon(horizon);
+        // env->setupDynamicsGenerator();
+
+        // auto algo = sdm::algo::makeQLearning<number, number>(env, "qvalue_name", "initializer_name", horizon, discount, lr, 1, max_step, "test_qlearn");
+        // algo->do_initialize();
+        // algo->do_solve();
+
     }
     catch (sdm::exception::Exception &e)
     {

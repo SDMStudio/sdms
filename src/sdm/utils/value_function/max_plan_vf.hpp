@@ -51,8 +51,8 @@ namespace sdm
 
     public:
         MaxPlanValueFunction();
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer);
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon = 0, TValue default_value = 0.);
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer);
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon = 0, TValue default_value = 0.);
 
         void initialize();
         void initialize(TValue default_value, number t = 0);
@@ -141,7 +141,7 @@ namespace sdm
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         TVector backup_operator(const TVector &state, number t = 0);
 
-         // For SerializedDecPOMDP (i.e. SerializedOccupancyState as vector type)
+        // For SerializedDecPOMDP (i.e. SerializedOccupancyState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         TVector backup_operator(const TVector &state, number t = 0);
     };
@@ -150,7 +150,7 @@ namespace sdm
     class MaxPlanValueFunction<number, TAction, TValue> : public ValueFunction<number, TAction, TValue>
     {
     public:
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<number, TAction>> problem, int horizon, std::shared_ptr<Initializer<number, TAction>> initializer)
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<number, TAction>>, number, std::shared_ptr<Initializer<number, TAction>>)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
@@ -159,22 +159,22 @@ namespace sdm
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
-        void initialize(TValue default_value, number t = 0)
+        void initialize(TValue, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
 
-        TValue getValueAt(const number &state, number t = 0)
+        TValue getValueAt(const number &, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
 
-        void updateValueAt(const number &state, number t = 0)
+        void updateValueAt(const number &, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
 
-        std::vector<number> getSupport(number t)
+        std::vector<number> getSupport(number)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
@@ -189,7 +189,7 @@ namespace sdm
     class MaxPlanValueFunction<SerializedState, TAction, TValue> : public ValueFunction<SerializedState, TAction, TValue>
     {
     public:
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, int horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer)
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>>, number, std::shared_ptr<Initializer<SerializedState, TAction>>)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
@@ -198,22 +198,22 @@ namespace sdm
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
-        void initialize(TValue default_value, number t = 0)
+        void initialize(TValue, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
 
-        TValue getValueAt(const SerializedState &state, number t = 0)
+        TValue getValueAt(const SerializedState &, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
 
-        void updateValueAt(const SerializedState &state, number t = 0)
+        void updateValueAt(const SerializedState &, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
 
-        std::vector<SerializedState> getSupport(number t)
+        std::vector<SerializedState> getSupport(number)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }

@@ -52,7 +52,7 @@ namespace sdm
         /**
          * @brief The horizon for planning.
          */
-        int horizon_;
+        number horizon_;
 
     public:
         ValueFunction() {}

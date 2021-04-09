@@ -14,7 +14,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TValue QValueFunction<TState, TAction, TValue>::getValueAt(const TState &state, number t)
+    TValue QValueFunction<TState, TAction, TValue>::getValueAt(const TState &, number)
     {
         throw sdm::exception::NotImplementedException();
     }

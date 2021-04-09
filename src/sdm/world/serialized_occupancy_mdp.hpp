@@ -47,18 +47,18 @@ namespace sdm
         SerializedOccupancyMDP(std::string underlying_dpomdp, number hist_length);
 
         oState &getState();
-        double getDiscount(int t) const;
+        double getDiscount(number t) const;
 
         bool isSerialized() const;
         DiscreteDecPOMDP *getUnderlyingProblem();
 
         oState getInitialState();
-        oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        oState nextState(const oState &ostate, const oAction &oaction, number t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
 
         double getReward(const oState &ostate, const oAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
+        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t = 0) const;
 
         std::shared_ptr<SerializedMDP<>> toMDP();
 
@@ -69,7 +69,7 @@ namespace sdm
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP()
         {
-
+            throw sdm::exception::NotImplementedException();
         }
     };
 } // namespace sdm

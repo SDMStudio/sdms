@@ -36,13 +36,15 @@ namespace sdm
         this->container_[acc_states[i]] = n_actions[i];
       }
     }
+    
+    virtual ~DeterministicDecisionRule() {}
 
     TAction act(const TState &s) const
     {
       return this->container_.at(s);
     }
 
-    TAction operator()(const TState &s) 
+    TAction operator()(const TState &s)
     {
       return this->container_.at(s);
     }
@@ -51,7 +53,6 @@ namespace sdm
     {
       return this->container_ < v2.container_;
     }
-
 
     bool operator==(const DeterministicDecisionRule &v2) const
     {

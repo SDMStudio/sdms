@@ -105,12 +105,10 @@ namespace sdm
         template <bool TBool = is_fully_obs>
         std::enable_if_t<TBool, observation_type> updateState_getObs(action_type a);
         
+        virtual void setupDynamicsGenerator();
 
-        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
-        std::enable_if_t<TBool> setupDynamicsGenerator();
-
-        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
-        std::enable_if_t<!TBool> setupDynamicsGenerator();
+        // template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
+        // std::enable_if_t<!TBool> setupDynamicsGenerator();
 
         std::shared_ptr<TActionSpace> getActionSpace() const;
 

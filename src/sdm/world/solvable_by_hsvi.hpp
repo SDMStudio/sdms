@@ -41,7 +41,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next occupancy state
          */
-        virtual TState nextState(const TState &state, const TAction &action, int t = 0, HSVI<TState, TAction> *hsvi = nullptr) const = 0;
+        virtual TState nextState(const TState &state, const TAction &action, number t = 0, HSVI<TState, TAction> *hsvi = nullptr) const = 0;
 
         /**
          * @brief Get the actions availables at a specific state
@@ -65,7 +65,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &state, const TAction &action, int t = 0) const = 0;
+        virtual double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &state, const TAction &action, number t = 0) const = 0;
 
         /**
          * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  

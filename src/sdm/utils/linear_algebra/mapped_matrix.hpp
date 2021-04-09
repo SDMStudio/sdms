@@ -49,7 +49,7 @@ namespace sdm
             return this->dim_;
         }
 
-        MappedMatrix dot(const MappedMatrix &v2) const
+        MappedMatrix dot(const MappedMatrix &) const
         {
             throw sdm::exception::NotImplementedException();
         }

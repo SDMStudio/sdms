@@ -39,6 +39,7 @@ namespace sdm
         //     value += p_o_p.second * this->sawtooth(belief, tau);
         // }
         // return value;
+        throw sdm::exception::NotImplementedException();
     }
 
     // template <typename TBelief, typename TOccupancyState>

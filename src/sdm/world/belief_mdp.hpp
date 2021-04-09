@@ -52,12 +52,12 @@ namespace sdm
 
         TBelief getInitialState();
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
-        TBelief nextState(const TBelief &belief, const TAction &action, int t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
+        TBelief nextState(const TBelief &belief, const TAction &action, number t, HSVI<TBelief, TAction> *hsvi) const;
 
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
 
         double getReward(const TBelief &belief, const TAction &action) const;
-        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const;
+        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, number t) const;
 
         /**
          * @brief Get the Observation Probability p(o | b, a)

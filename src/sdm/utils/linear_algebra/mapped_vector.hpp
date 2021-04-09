@@ -56,6 +56,7 @@ namespace sdm
         MappedVector(long size, T default_value);
         MappedVector(const MappedVector &v);
         MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals) {}
+        virtual ~MappedVector();
 
         T norm_1() const;
         T norm_2() const;

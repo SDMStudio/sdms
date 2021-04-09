@@ -10,7 +10,7 @@ namespace sdm
     BaseValueFunction<TState, TAction, TValue>::BaseValueFunction(number horizon) : horizon_(horizon) {}
 
     template <typename TState, typename TAction, typename TValue>
-    int BaseValueFunction<TState, TAction, TValue>::getHorizon() const
+    number BaseValueFunction<TState, TAction, TValue>::getHorizon() const
     {
         return this->horizon_;
     }

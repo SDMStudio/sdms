@@ -94,7 +94,7 @@ namespace sdm
          */
         virtual std::string str() = 0;
 
-        int getHorizon() const;
+        number getHorizon() const;
 
         bool isFiniteHorizon() const;
 

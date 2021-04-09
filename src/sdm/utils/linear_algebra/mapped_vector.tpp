@@ -25,6 +25,9 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
+    MappedVector<TIndex, T>::~MappedVector() {}
+
+    template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::norm_1() const
     {
         T v = 0;
@@ -87,7 +90,8 @@ namespace sdm
                 max = item.second;
             }
         }
-        if (max == -std::numeric_limits<T>::max()){
+        if (max == -std::numeric_limits<T>::max())
+        {
             amax = TIndex();
             max = this->default_value_;
         }

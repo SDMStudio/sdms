@@ -13,6 +13,8 @@ namespace sdm
         using input_type = TInput;
         using output_type = TOutput;
 
+        virtual ~Function() {}
+        
         virtual output_type operator()(const input_type &) = 0;
     };
 
@@ -23,6 +25,8 @@ namespace sdm
         using input_type = std::pair<TInput1, TInput2>;
         using output_type = TOutput;
 
+        virtual ~BinaryFunction() {}
+        
         virtual output_type operator()(const TInput1 &, const TInput2 &) = 0;
 
         output_type operator()(const input_type &p_input)

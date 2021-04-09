@@ -131,7 +131,7 @@ namespace sdm
                 assert(under_pb->getDiscount() < 1);
                 double value;
                 double factor = 0, comp = 0;
-                int n = 0;
+                number n = 0;
                 do
                 {
                     comp = factor;
@@ -144,7 +144,7 @@ namespace sdm
             else
             {
                 double tot = 0;
-                for (int t = vf->getHorizon() - 1; t >= 0; t--)
+                for (number t = vf->getHorizon() - 1; t >= 0; t--)
                 {
                     if (vf->getWorld()->isSerialized())
                     {
@@ -235,7 +235,7 @@ namespace sdm
             else
             {
                 double min_rsa = *std::max_element(ra.begin(), ra.end()), tot = 0;
-                for (int t = vf->getHorizon() - 1; t >= 0; t--)
+                for (number t = vf->getHorizon() - 1; t >= 0; t--)
                 {
                     if (vf->getWorld()->isSerialized())
                     {

@@ -116,7 +116,7 @@ namespace sdm
         TState ostate = this->world_->getInitialState();
         TAction jdr;
         number end = (this->planning_horizon_ > 0) ? this->planning_horizon_ : 10;
-        for (int i = 0; i < end; i++)
+        for (number i = 0; i < end; i++)
         {
             std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
                       << std::endl;

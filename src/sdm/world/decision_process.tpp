@@ -26,7 +26,7 @@ namespace sdm
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::DecisionProcess(std::shared_ptr<TStateSpace> state_sp,
                                                                                                                             std::shared_ptr<TActionSpace> action_sp,
-                                                                                                                            std::shared_ptr<TObsSpace> obs_sp,
+                                                                                                                            std::shared_ptr<TObsSpace>,
                                                                                                                             std::shared_ptr<TStateDynamics> state_dyn,
                                                                                                                             std::shared_ptr<TReward> reward_fct,
                                                                                                                             TDistrib start_distrib,
@@ -37,6 +37,7 @@ namespace sdm
           //   GymInterface<TObsSpace, TActionSpace, std::is_same<typename TReward::value_type, std::vector<double>>::value>(obs_sp, action_sp),
           state_dynamics_(state_dyn), reward_function_(reward_fct)
     {
+        // this->setupDynamicsGenerator();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
@@ -50,6 +51,7 @@ namespace sdm
                                                                                                                             Criterion criterion)
         : DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>(state_sp, action_sp, state_sp, state_dyn, reward_fct, start_distrib, planning_horizon, discount, criterion)
     {
+        // this->setupDynamicsGenerator();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
@@ -88,11 +90,6 @@ namespace sdm
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::observation_type DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::reset()
     {
-        if (!this->is_setup)
-        {
-            this->setupDynamicsGenerator();
-            is_setup = true;
-        }
         return this->resetProcess();
     }
 
@@ -151,7 +148,7 @@ namespace sdm
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     template <bool TBool>
     std::enable_if_t<!TBool, std::tuple<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::observation_type, std::vector<double>, bool>>
-    DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::stepProcess(typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::action_type a)
+        DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::stepProcess(typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::action_type)
     {
         throw sdm::exception::Exception("Wrong class function call.");
     }
@@ -160,13 +157,14 @@ namespace sdm
     std::tuple<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::observation_type, std::vector<double>, bool>
     DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::step(typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::action_type a)
     {
+        // std::cout << "In step FO process" << std::endl;
         return this->stepProcess(a);
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
-    template <bool TBool>
-    std::enable_if_t<TBool> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
+    void DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
     {
+        // std::cout << "Setup FO process" << std::endl;
         for (auto &x : this->getStateSpace()->getAll())
         {
             this->dynamics_generator.emplace(x, std::unordered_map<action_type, TDistrib>());
@@ -182,12 +180,12 @@ namespace sdm
         }
     }
 
-    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
-    template <bool TBool>
-    std::enable_if_t<!TBool> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
-    {
-        throw sdm::exception::NotImplementedException();
-    }
+    // template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
+    // template <bool TBool>
+    // std::enable_if_t<!TBool> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
+    // {
+    //     throw sdm::exception::NotImplementedException();
+    // }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     std::shared_ptr<TActionSpace> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::getActionSpace() const

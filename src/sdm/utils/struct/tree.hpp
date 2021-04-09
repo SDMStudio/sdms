@@ -42,11 +42,11 @@ namespace sdm
     class Tree : public std::enable_shared_from_this<Tree<T>>
     {
     protected:
-        //! @brief maximum length of the tree
-        number max_depth_ = std::numeric_limits<number>::max();
-
         //! @brief depth of the tree
         number depth_ = 0;
+
+        //! @brief maximum length of the tree
+        number max_depth_ = std::numeric_limits<number>::max();
 
         //! @brief data of the current node
         T data_;

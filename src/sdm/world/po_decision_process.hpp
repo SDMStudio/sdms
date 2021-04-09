@@ -76,15 +76,14 @@ namespace sdm
          * @brief Setup the dynamics generator for discrete problems. 
          * The dynamics generator allows to efficiently interact with the environment without recomputing transition probabilities at each timestep.
          */
-        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
-        std::enable_if_t<TBool> setupDynamicsGenerator();
+        void setupDynamicsGenerator();
 
         /**
          * @brief Setup the dynamics generator for constinuous problems. 
          * The dynamics generator allows to efficiently interact with the environment without recomputing transition probabilities at each timestep.
          */
-        template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
-        std::enable_if_t<!TBool> setupDynamicsGenerator();
+        // template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
+        // std::enable_if_t<!TBool> setupDynamicsGenerator();
 
     protected:
         /**

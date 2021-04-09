@@ -94,7 +94,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, int, HSVI<oState, oAction> *) const
+    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, number, HSVI<oState, oAction> *) const
     {
         number ag_id = ostate.getCurrentAgentId();
 
@@ -166,14 +166,14 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    double SerializedOccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t) const
+    double SerializedOccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t) const
     {
         oState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);
     }
 
     template <typename oState, typename oAction>
-    double SerializedOccupancyMDP<oState, oAction>::getDiscount(int t) const
+    double SerializedOccupancyMDP<oState, oAction>::getDiscount(number t) const
     {
 
         if (this->getNumberAgent() > 1)
