@@ -3,9 +3,10 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/space/discrete_space.hpp>
-#include <sdm/core/reward.hpp>
 #include <sdm/algorithms/hsvi.hpp>
+#include <sdm/world/world_type.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/exception.hpp>
 
 /**
  * @namespace  sdm
@@ -13,6 +14,7 @@
  */
 namespace sdm
 {
+
     /**
      * @brief Public interface that must be implemented by all transformed problems that can be solved using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
      * 
@@ -23,6 +25,8 @@ namespace sdm
     class SolvableByHSVI
     {
     public:
+        virtual ~SolvableByHSVI() {}
+        
         /**
          * @brief Get the initial state
          */
@@ -37,24 +41,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next occupancy state
          */
-        virtual TState nextState(const TState &state, const TAction &action, int t = 0, HSVI<TState, TAction> *hsvi = nullptr) const = 0;
-
-        /**
-         * @brief Get the discount factor of the underlying problem.
-         * 
-         * @return double the discount factor
-         */
-        virtual double getDiscount() = 0;
-
-        /**
-         * @brief Get the reward function.
-         */
-        virtual std::shared_ptr<Reward> getReward() const = 0;
-
-        /**
-         * @brief Set the discount factor of the underlying problem.
-         */
-        virtual void setDiscount(double discount) = 0;
+        virtual TState nextState(const TState &state, const TAction &action, number t = 0, HSVI<TState, TAction> *hsvi = nullptr) const = 0;
 
         /**
          * @brief Get the actions availables at a specific state
@@ -78,6 +65,21 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &state, const TAction &action, int t = 0) const = 0;
+        virtual double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &state, const TAction &action, number t = 0) const = 0;
+
+        /**
+         * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
+         * 
+         * @return the underlying problem 
+         */
+        virtual typename WorldType<TState, TAction>::underlying_problem_type *getUnderlyingProblem() = 0;
+
+        /**
+         * @brief Check if the problem is serialized.
+         * 
+         * @return true if the problem is serialized.
+         * @return false if the problem is not serialized.
+         */
+        virtual bool isSerialized() const = 0;
     };
 } // namespace sdm

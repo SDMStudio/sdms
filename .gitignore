@@ -3,3 +3,9 @@ build
 .env
 *.old
 .old
+runs
+models
+figures
+Guide.png
+info
+*.out

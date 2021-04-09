@@ -24,7 +24,7 @@ namespace sdm
         /**
          * @brief Base exception class
          */
-        class Except : virtual public std::exception
+        class Exception : virtual public std::exception
         {
 
         protected:
@@ -35,7 +35,7 @@ namespace sdm
             /** Constructor (C++ STL string).
              *  @param msg_ The error message
              */
-            explicit Except(const std::string &msg_) : error_message(msg_)
+            explicit Exception(const std::string &msg_) : error_message(msg_)
             {
             }
 
@@ -50,16 +50,16 @@ namespace sdm
             }
         };
 
-        class NotImplementedException : public Except
+        class NotImplementedException : public Exception
         {
         public:
-            explicit NotImplementedException() : Except("Not Implemented Exception") {}
+            explicit NotImplementedException() : Exception("Not Implemented Exception") {}
         };
 
         /**
          * @brief Developpers use this class to raise a file not found exception 
          */
-        class FileNotFoundException : public Except
+        class FileNotFoundException : public Exception
         {
         private:
             std::string file;
@@ -68,7 +68,7 @@ namespace sdm
             /** Constructor (C++ STL string).
              *  @param file_ The file
              */
-            explicit FileNotFoundException(std::string file_) : Except("File \"" + file_ + "\" does not seem to exists."),
+            explicit FileNotFoundException(std::string file_) : Exception("File \"" + file_ + "\" does not seem to exists."),
                                                                 file(file_) {}
             std::string get_file() const { return file; }
         };
@@ -76,7 +76,7 @@ namespace sdm
         /**
          * @brief Developpers use this class to raise a parsing exception 
          */
-        class ParsingException : public Except
+        class ParsingException : public Exception
         {
         protected:
             std::string line_details;
@@ -85,7 +85,7 @@ namespace sdm
             /** Constructor (C++ STL string).
              *  @param line_details_ The line where error occures
              */
-            explicit ParsingException(const std::string &line_details_ = "") : Except("Parsing failed -> Stopped at: \"" + line_details_ + "\"\n"),
+            explicit ParsingException(const std::string &line_details_ = "") : Exception("Parsing failed -> Stopped at: \"" + line_details_ + "\"\n"),
                                                                                line_details(line_details_) {}
             std::string get_line_details() const { return line_details; }
         };

@@ -7,6 +7,7 @@
 #include <sdm/algorithms.hpp>
 #include <sdm/worlds.hpp>
 #include "examples/solve.cpp"
+#include "examples/learn.cpp"
 
 using namespace sdm;
 using namespace std;
@@ -34,7 +35,8 @@ void print_help()
   std::cout << "Commands:" << std::endl;
   std::cout << "  algorithms\t\tDisplay all available algorithms." << std::endl;
   std::cout << "  help\t\t\tShow this help message." << std::endl;
-  std::cout << "  solve\t\t\tSolve a sequential decision making problem using specified algorithm." << std::endl;
+  std::cout << "  solve\t\t\tSolve a sequential decision making problem using specified planning algorithm." << std::endl;
+  std::cout << "  learn\t\t\tSolve a sequential decision making problem using specified learning algorithm." << std::endl;
   std::cout << "  test\t\t\tTest a policy." << std::endl;
   std::cout << "  version\t\tShow the version." << std::endl;
   std::cout << "  worlds\t\tDisplay all available worlds." << std::endl
@@ -62,6 +64,11 @@ int main_sdms(int argv, char **args)
     else if (func.compare("solve") == 0)
     {
       solve(argv, args);
+    }
+    // DO LEARN
+    else if (func.compare("learn") == 0)
+    {
+      learn(argv, args);
     }
     // DO TEST
     else if (func.compare("test") == 0)

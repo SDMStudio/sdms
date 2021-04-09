@@ -52,7 +52,7 @@ set(SDMS_PROGRAM_NAME "SDMStudio")
 # set(SDMS_PROGRAM_NAME ${CMAKE_PROJECT_NAME})
 
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
-target_link_libraries(${SDMS_PROGRAM_NAME} ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${LIB_SDMS})
+target_link_libraries(${SDMS_PROGRAM_NAME} fmt ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${LIB_SDMS})
 
 ########### INSTALL #################
 install(DIRECTORY ${INCLUDE_DIR} DESTINATION include)

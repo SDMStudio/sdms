@@ -24,7 +24,6 @@
 namespace sdm
 {
 
-
   const size_t SUCCESS = 0;
   const size_t ERROR_IN_COMMAND_LINE = 1;
   const size_t ERROR_UNHANDLED_EXCEPTION = 2;
@@ -90,15 +89,31 @@ namespace sdm
   };
 
   class World;
-  class POMDP;
-  class DecPOMDP;
-  class State;
-  class Action;
-  class feedback;
+  class DiscreteMDP;
+  class DiscreteMMDP;
+  class DiscretePOMDP;
+  class DiscreteDecPOMDP;
 
-  template <typename S, typename A>
-  class UnaryFunction;
+  template <typename TState, typename TAction>
+  class SolvableByHSVI;
 
-  template <typename S, typename A>
-  class BinaryFunction;
+  template <typename TState, typename TAction>
+  struct WorldType;
+
+  //using boost::hash_combine
+  template <class T>
+  inline void hash_combine(std::size_t &seed, T const &v)
+  {
+    seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
 } // namespace sdm
+
+namespace std
+{
+
+  template <class T, class... Ts>
+  struct is_any : std::disjunction<std::is_same<T, Ts>...>
+  {
+  };
+
+} // namespace std

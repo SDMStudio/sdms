@@ -37,4 +37,9 @@ namespace sdm
         return std::make_shared<DiscreteMDP>(this->getStateSpace(), new_action_space, this->getStateDynamics(), this->getReward(), this->getStartDistrib(), this->getPlanningHorizon(), this->getDiscount(), this->getCriterion());
     }
 
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> DiscreteMMDP::toBeliefMDP()
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
 }

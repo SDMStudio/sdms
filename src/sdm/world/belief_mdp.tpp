@@ -3,12 +3,23 @@
 namespace sdm
 {
 
+    template <typename TState, typename TAction, typename TObservation>
+    BeliefMDP<TState, TAction, TObservation>::BeliefMDP()
+    {
+    }
+
     template <typename TBelief, typename TAction, typename TObservation>
     BeliefMDP<TBelief, TAction, TObservation>::BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp) : pomdp_(underlying_pomdp)
     {
+        // Set initial belief state
+        double proba = 0;
         for (auto &s : this->pomdp_->getStateSpace()->getAll())
         {
-            this->istate_[s] = this->pomdp_->getStartDistrib().probabilities()[s];
+            proba = this->pomdp_->getStartDistrib().probabilities()[s];
+            if (proba > 0)
+            {
+                this->istate_[s] = proba;
+            }
         }
         this->cstate_ = this->istate_;
     }
@@ -19,10 +30,13 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief BeliefMDP<TBelief, TAction, TObservation>::getInitialState()
+    TBelief BeliefMDP<TBelief, TAction, TObservation>::reset()
     {
-        return this->istate_;
+        this->cstate_ = this->istate_;
+        this->pomdp_->reset();
+        return this->cstate_;
     }
+
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief &BeliefMDP<TBelief, TAction, TObservation>::getState()
     {
@@ -30,16 +44,36 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    std::shared_ptr<Reward> BeliefMDP<TBelief, TAction, TObservation>::getReward() const
+    std::tuple<TBelief, std::vector<double>, bool> BeliefMDP<TBelief, TAction, TObservation>::step(TAction action)
     {
-        return this->pomdp_->getReward();
+        auto [next_obs, rewards, done] = this->pomdp_->step(action);
+        this->cstate_ = this->nextState(this->cstate_, action, next_obs);
+        return std::make_tuple(this->cstate_, rewards, done);
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    bool BeliefMDP<TBelief, TAction, TObservation>::isSerialized() const
+    {
+        return false;
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    DiscretePOMDP *BeliefMDP<TBelief, TAction, TObservation>::getUnderlyingProblem()
+    {
+        return this->pomdp_.get();
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    TBelief BeliefMDP<TBelief, TAction, TObservation>::getInitialState()
+    {
+        return this->istate_;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const
     {
         TBelief nextBelief;
-        double tmp;
+        double tmp, obs_proba;
         for (number nextState = 0; nextState < this->pomdp_->getStateSpace()->getNumItems(); nextState++)
         {
             tmp = 0;
@@ -47,19 +81,24 @@ namespace sdm
             {
                 tmp += this->pomdp_->getStateDynamics()->getTransitionProbability(s, action, nextState) * belief.at(s);
             }
-            nextBelief[nextState] = this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState) * tmp;
+            obs_proba = this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState);
+
+            if (obs_proba && tmp)
+            {
+                nextBelief[nextState] = obs_proba * tmp;
+            }
         }
         // Normalize the belief
         double sum = nextBelief.norm_1();
-        for (number s_ = 0; s_ < this->pomdp_->getStateSpace()->getNumItems(); s_++)
+        for (const auto &pair_s_p : nextBelief)
         {
-            nextBelief[s_] = nextBelief[s_] / sum;
+            nextBelief[pair_s_p.first] = pair_s_p.second / sum;
         }
         return nextBelief;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int t, HSVI<TBelief, TAction> *hsvi) const
+    TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, number t, HSVI<TBelief, TAction> *hsvi) const
     {
         // Select o* as in the paper
         number selected_o = 0;
@@ -80,7 +119,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    std::shared_ptr<DiscreteSpace<TAction>> BeliefMDP<TBelief, TAction, TObservation>::getActionSpaceAt(const TBelief &belief)
+    std::shared_ptr<DiscreteSpace<TAction>> BeliefMDP<TBelief, TAction, TObservation>::getActionSpaceAt(const TBelief &)
     {
         return this->pomdp_->getActionSpace();
     }
@@ -97,7 +136,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    double BeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const
+    double BeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, number t) const
     {
         double exp_next_v = 0;
         for (TObservation obs : this->pomdp_->getObsSpace()->getAll())
@@ -120,11 +159,15 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief BeliefMDP<TBelief, TAction, TObservation>::reset()
+    std::shared_ptr<DiscreteMDP> BeliefMDP<TBelief, TAction, TObservation>::toMDP()
     {
-        this->cstate_ = this->istate_;
-        this->pomdp_->reset();
-        return this->cstate_;
+        return this->pomdp_->toMDP();
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> BeliefMDP<TBelief, TAction, TObservation>::toBeliefMDP()
+    {
+        return this->pomdp_->toBeliefMDP();
     }
 
 } // namespace sdm

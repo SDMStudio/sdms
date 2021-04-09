@@ -29,6 +29,7 @@ namespace sdm
   class Space
   {
   public:
+    virtual ~Space() {}
 
     /**
      * @brief Check if the space is discrete.

@@ -7,12 +7,31 @@
 namespace sdm
 {
     template <class TInput, class TOutput>
-    class Function 
+    class Function
     {
     public:
         using input_type = TInput;
-        using output_type = TOutput; 
+        using output_type = TOutput;
 
-        TOutput operator()(const TInput &) const;
+        virtual ~Function() {}
+        
+        virtual output_type operator()(const input_type &) = 0;
+    };
+
+    template <class TInput1, class TInput2, class TOutput>
+    class BinaryFunction : public Function<std::pair<TInput1, TInput2>, TOutput>
+    {
+    public:
+        using input_type = std::pair<TInput1, TInput2>;
+        using output_type = TOutput;
+
+        virtual ~BinaryFunction() {}
+        
+        virtual output_type operator()(const TInput1 &, const TInput2 &) = 0;
+
+        output_type operator()(const input_type &p_input)
+        {
+            return this->operator()(p_input.first, p_input.second);
+        }
     };
 } // namespace sdm

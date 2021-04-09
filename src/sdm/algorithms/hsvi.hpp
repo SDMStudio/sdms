@@ -17,12 +17,10 @@
 
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/logging/logger.hpp>
 
 namespace sdm
 {
-
-  template <typename TState, typename TAction>
-  class SolvableByHSVI;
 
   /**
    * @brief 
@@ -34,7 +32,6 @@ namespace sdm
   class HSVI : public Algorithm
   {
   protected:
-
     /**
      * @brief The problem to be solved.
      * 
@@ -52,102 +49,119 @@ namespace sdm
     std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
 
     /**
+     * @brief Logger.
+     * 
+     */
+    std::shared_ptr<MultiLogger> logger_;
+
+    /**
      * @brief Some variables for the algorithm.
      * 
      */
     int trial, MAX_TRIALS;
     double error_;
     number planning_horizon_;
+    std::string name_ = "hsvi";
 
     void initLogger();
-    void updateValueFunction(TState s, number h);
 
   public:
-    /**
-     * @brief Construct a new HSVI object
-     * 
-     * @param trials 
-     * @param results 
-     */
-    // HSVI(number trials, std::string results);
 
     /**
-     * @brief Construct a new HSVI object
+     * @brief Construct the HSVI object.
      * 
-     * @param world the problem we want to solve
-     * @param lb 
-     * @param ub 
-     * @param trials 
-     * @param results 
+     * @param world the problem to be solved by HSVI
+     * @param lower_bound the lower bound 
+     * @param upper_bound the upperbound
+     * @param planning_horizon the planning horizon
+     * @param epsilon the error
+     * @param num_max_trials the maximum number of trials before stop
+     * @param name the name of the algorithm (this name is used to save logs)
      */
     HSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> &world,
          std::shared_ptr<ValueFunction<TState, TAction>> lower_bound,
          std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
          number planning_horizon,
          double epsilon,
-         number num_max_trials = 10000);
+         number num_max_trials = 10000,
+         std::string name = "hsvi");
 
     /**
      * @brief Initialize the algorithm
-     * 
-     * @param tr_problem 
      */
     void do_initialize();
 
     /**
-     * @brief Solve the transformed problem
-     * 
-     * @param tr_problem 
-     * @param planning_horizon 
-     * @param epsilon 
-     * @param discount 
+     * @brief Solve a problem solvable by HSVI. 
      */
     void do_solve();
 
     /**
-     * @brief 
-     * 
-     * @param s 
-     * @return double 
+     * @brief Test the learnt value function on one episode
      */
-    double do_excess(TState s, number h);
+    void do_test();
+
+    /**
+     * @brief Computes the error between bounds (or excess).
+     * 
+     * @param s the state
+     * @param t the timestep
+     * @return the error
+     */
+    double do_excess(const TState &s, number h);
 
     /**
      * @brief Check the end of HSVI algo
      * 
-     * @param h 
+     * @param s the current state
+     * @param h the current timestep
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
-     * @return false 
+     * @return false elsewhere
      */
-    bool do_stop(TState s, number h);
+    bool do_stop(const TState &s, number h);
 
     /**
-     * @brief Explore state
+     * @brief Explore a state.
      * 
-     * @param s 
-     * @param h 
+     * @param s the state to explore
+     * @param h the timestep of the exploration
      */
-    void do_explore(TState s, number h);
+    void do_explore(const TState &s, number h);
 
-
-    void do_test();
-
+    //Pour le moment, je supprime pas les autres pour tester avec le gt 
+    void do_explore(const TState &s, number h, double gt);
+    bool do_stop(const TState &s, number h,double gt);
+    double do_excess_2(const TState &s, number h,double gt);
     /**
-     * @brief Select the greedy action
+     * @brief Select the next action
      * 
-     * @param s 
+     * @param s the current state
+     * @param h the current timestep
      * @return TAction 
      */
-    TAction selectNextAction(TState s, number h);
+    TAction selectNextAction(const TState &s, number h);
 
     /**
      * @brief Select the next state to explore 
      * 
-     * @param s 
-     * @param a 
-     * @return TState 
+     * @param s the current state
+     * @param a the current action
+     * @param h the current timestep
+     * @return the next state
      */
-    TState selectNextState(TState s, TAction a, number d);
+    TState selectNextState(const TState &s, const TAction &a, number h);
+
+    /**
+     * @brief Get the lower bound value function 
+     */
+    std::shared_ptr<ValueFunction<TState, TAction>> getLowerBound() const;
+
+    /**
+     * @brief Get the upper bound value function 
+     */
+    std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
+
+    int getTrial() const;
   };
 } // namespace sdm
 #include <sdm/algorithms/hsvi.tpp>

@@ -1,5 +1,4 @@
 #include <sdm/world/discrete_pomdp.hpp>
-#include <sdm/world/belief_mdp.hpp>
 #include <sdm/parser/parser.hpp>
 
 namespace sdm

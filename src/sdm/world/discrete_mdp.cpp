@@ -1,5 +1,7 @@
 #include <sdm/world/discrete_mdp.hpp>
 #include <sdm/parser/parser.hpp>
+#include <sdm/exception.hpp>
+
 
 namespace sdm
 {
@@ -37,7 +39,7 @@ namespace sdm
         return this->getInternalState();
     }
 
-    number DiscreteMDP::nextState(const number &state, const number &action, int t, HSVI<number, number> *hsvi) const
+    number DiscreteMDP::nextState(const number &state, const number &action, number t, HSVI<number, number> *hsvi) const
     {
         double max = std::numeric_limits<double>::min();
         number amax = 0;
@@ -53,7 +55,7 @@ namespace sdm
         return amax;
     }
 
-    std::shared_ptr<DiscreteSpace<number>> DiscreteMDP::getActionSpaceAt(const number &state)
+    std::shared_ptr<DiscreteSpace<number>> DiscreteMDP::getActionSpaceAt(const number &)
     {
         return this->getActionSpace();
     }
@@ -62,13 +64,12 @@ namespace sdm
     {
         return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward();
     }
-
     double DiscreteMDP::getReward(const number &state, const number &action) const
     {
-        return this->getReward()->getReward(state, action);
+        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward()->getReward(state, action);
     }
 
-    double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, int t) const
+    double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, number t) const
     {
         double tmp = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
@@ -78,14 +79,29 @@ namespace sdm
         return tmp;
     }
 
-    double DiscreteMDP::getDiscount()
+    DiscreteMDP *DiscreteMDP::getUnderlyingProblem()
     {
-        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getDiscount();
+        return this;
     }
 
-    void DiscreteMDP::setDiscount(double discount)
+    bool DiscreteMDP::isSerialized() const
     {
-        FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::setDiscount(discount);
+        return false;
+    }
+
+    std::shared_ptr<DiscreteMDP> DiscreteMDP::getptr()
+    {
+        return shared_from_this();
+    }
+
+    std::shared_ptr<DiscreteMDP> DiscreteMDP::toMDP()
+    {
+        return this->getptr();
+    }
+
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> DiscreteMDP::toBeliefMDP()
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
 }

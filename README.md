@@ -28,7 +28,8 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 - [3. Basic Usage](#3-basic-usage)
     - [List available algorithms](#list-available-algorithms)
     - [List available worlds](#list-available-worlds)
-    - [Solve a problem](#solve-a-problem)
+    - [Solve a problem (with planning algorithm)](#solve-a-problem-with-planning-algorithm)
+    - [Solve a problem (with learning algorithm)](#solve-a-problem-with-learning-algorithm)
     - [Test a saved policy [TO DO]](#test-a-saved-policy-to-do)
 - [4. Get started](#4-get-started)
 
@@ -73,7 +74,7 @@ You can pass an parameter of the form `path/to/libtorch-xxxxx.zip` to specify wh
 **Install SDMS dependencies**
 
 ```bash
-apt-get install clang libeigen3-dev libboost-all-dev
+apt-get install clang libeigen3-dev libboost-all-dev libfmt-dev
 ```
 **Install pytorch**
 

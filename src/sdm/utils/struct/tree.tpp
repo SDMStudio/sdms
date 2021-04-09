@@ -15,7 +15,7 @@ namespace sdm
     }
 
     template <typename T>
-    Tree<T>::Tree(std::shared_ptr<Tree<T>> parent, const T &data) : data_(data), max_depth_(parent->getMaxDepth()), depth_(parent->getDepth() + 1)
+    Tree<T>::Tree(std::shared_ptr<Tree<T>> parent, const T &data) : max_depth_(parent->getMaxDepth()), depth_(parent->getDepth() + 1), data_(data)
     {
         this->parent_ = parent;
         if (parent->isOrigin())
