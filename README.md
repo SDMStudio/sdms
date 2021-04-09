@@ -52,7 +52,7 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 
 |        HSVI        | Q-Learning | Value Iteration | Policy Iteration | JESP  |
 | :----------------: | :--------: | :-------------: | :--------------: | :---: |
-| :heavy_check_mark: |    :x:     |       :x:       |       :x:        |  :x:  |
+| :heavy_check_mark: |    :heavy_check_mark:     |       :heavy_check_mark:       |       :x:        |  :x:  |
 
 
 # 2. Installation
@@ -60,20 +60,20 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 ## 2.1. Quick install
 In order to execute `install.sh` file, you may need to change permissions using `chmod +x install.sh`.
 ```bash
-  git clone https://gitlab.inria.fr/chroma1/plasma/sdms.git
-  cd sdms
-  sudo ./install.sh
+git clone https://gitlab.inria.fr/chroma1/plasma/sdms.git
+cd sdms
+./install.sh
 ```
 You can pass an parameter of the form `path/to/libtorch-xxxxx.zip` to specify which  configuration of PyTorch is to be used.
 ```bash
-  sudo ./install.sh path/to/libtorch-xxxxx.zip
+./install.sh path/to/libtorch-xxxxx.zip
 ```
 
 ## 2.2. Step by step installation
 **Install SDMS dependencies**
 
 ```bash
-  sudo apt-get install clang libeigen3-dev libboost-all-dev
+apt-get install clang libeigen3-dev libboost-all-dev
 ```
 **Install pytorch**
 
@@ -174,11 +174,18 @@ SDMStudio algorithms
 SDMStudio worlds
 ```
 
-### Solve a problem
+### Solve a problem (with planning algorithm)
 ```bash
 SDMStudio solve [ARG...]
 SDMStudio solve [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-e ERROR] [-d DISCOUNT] [-h HORIZON] [-t TRIALS]
 SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS]
+```
+
+### Solve a problem (with learning algorithm)
+```bash
+SDMStudio learn [ARG...]
+SDMStudio learn [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-l LEARNING_RATE] [-d DISCOUNT] [-h HORIZON] [-t NUM_TIMESTEPS] [-n EXP_NAME]
+SDMStudio learn [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--lr LEARNING_RATE] [--discount DISCOUNT] [--horizon HORIZON] [--nb_timesteps NUM_TIMESTEPS] [--name EXP_NAME]
 ```
 
 ### Test a saved policy [TO DO]
