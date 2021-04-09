@@ -3,65 +3,98 @@
 #include <time.h>
 
 #include <sdm/types.hpp>
+#include <sdm/algorithms.hpp>
 #include <sdm/world/discrete_mdp.hpp>
-#include <sdm/utils/value_function/initializers.hpp>
+#include <sdm/world/discrete_mmdp.hpp>
+#include <sdm/world/discrete_pomdp.hpp>
+#include <sdm/world/discrete_decpomdp.hpp>
+#include <sdm/world/belief_mdp.hpp>
+#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/struct/vector.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/linear_algebra/mapped_matrix.hpp>
+#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
     std::string filename;
-    number horizon, length_history;
-
-    if (argc > 2)
+    if (argc > 1)
     {
         filename = argv[1];
-        horizon = std::atoi(argv[2]);
-        length_history = horizon;
-
-        if (argc > 3)
-        {
-            length_history = std::atoi(argv[3]);
-        }
+        std::cout << "#> Parsing file \"" << filename << "\"\n";
     }
+
     else
     {
-        std::cerr << "Error:  arg[1] must be an input file, arg[2] must be the horizon, arg[3] is optional (the length of history)." << std::endl;
+        std::cerr << "Error: No input file provided." << std::endl;
         return 1;
     }
 
-    std::map<int, double> m = {{1, 3.5},
-                               {4, 10}};
-
-    std::shared_ptr<SolvableByHSVI<number, number>> mdp = std::make_shared<DiscreteMDP>(filename);
-    // std::map<std::string, std::shared_ptr<sdm::Initializer<number, number>> (*)()> m2 = {
-    //     {"MaxInitializer", &sdm::createInstance<number, number, sdm::MaxInitializer>},
-    //     {"MinInitializer", &sdm::createInstance<number, number, sdm::MinInitializer>},
-    // };
-
-    // auto init = sdm::InitializerFactory<number, number>::make("MaxInitializer");
-    std::cout << "Available Init" << std::endl;
-    for (auto &v : sdm::InitializerFactory<number, number>::available())
+    try
     {
-        std::cout << v << std::endl;
+        using TActionDescriptor = number;
+        using TStateDescriptor = HistoryTree_p<number>;
+
+        using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+        using TStatePrescriptor = OccupancyState<number, JointHistoryTree_p<number>>;
+
+        //--------
+        //-------- PARAMETERS
+        //--------
+        // !!! ATTENTION : faire les tests pour de petits horizons (BeliedMDP horizon <= 5 et OccupancyMDP horizon <= 3) pour BeliefMDP et OccupancyMDP sinon la complexité mémoire explose
+        number horizon = 2;
+        
+        // Pour de petits horizons, on laisse discount = 1.0
+        double discount = 1.0, lr = 0.1;
+        number max_step = 100000;
+
+
+        //--------
+        //-------- Ex 1) QLEARNING POUR LA RESOLUTION EXACTE DES DecPOMDPs (as OccupancyMDP)
+        //--------
+        auto env = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);
+        env->getUnderlyingProblem()->setDiscount(discount);
+        env->getUnderlyingProblem()->setPlanningHorizon(horizon);
+        env->getUnderlyingProblem()->setupDynamicsGenerator();
+
+        auto algo = sdm::algo::makeQLearning<TStatePrescriptor, TActionPrescriptor>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_omdp");
+        algo->do_initialize();
+        algo->do_solve();
+
+        //--------
+        //-------- Ex 2) QLEARNING POUR LA RESOLUTION EXACTE DES POMDPs (as BeliefMDP)
+        //--------
+
+        // auto env = std::make_shared<BeliefMDP<>>(filename);
+        // env->getUnderlyingProblem()->setDiscount(discount);
+        // env->getUnderlyingProblem()->setPlanningHorizon(horizon);
+        // env->getUnderlyingProblem()->setupDynamicsGenerator();
+
+        // auto algo = sdm::algo::makeQLearning<BeliefState, number>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_bmdp");
+        // algo->do_initialize();
+        // algo->do_solve();
+
+
+        //--------
+        //-------- Ex 3) QLEARNING POUR LA RESOLUTION EXACTE DES MDPs
+        //--------
+
+        // auto env = std::make_shared<DiscreteMDP>(filename);
+        // env->setDiscount(discount);
+        // env->setPlanningHorizon(horizon);
+        // env->setupDynamicsGenerator();
+
+        // auto algo = sdm::algo::makeQLearning<number, number>(env, "qvalue_name", "initializer_name", horizon, discount, lr, 1, max_step, "test_qlearn");
+        // algo->do_initialize();
+        // algo->do_solve();
+
     }
-
-    // sdm::InitializerFactory<number, number>::addToRegistry<sdm::BlindInitializer>("BlindInitializer");
-
-    std::cout << "Available Init" << std::endl;
-
-    std::cout << sdm::InitializerFactory<number, number>::available() << std::endl;
-
-    // auto init2 = sdm::makeInitializer<number, number>("BlindInitializer");
-
-    // using TState = SerializedOccupancyState<number, JointHistoryTree_p<number>>;
-    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
-
-    // auto upb = mdp->getUnderlyingProblem();
-
-    // std::cout << *upb->getStateSpace() << std::endl;
-    // std::cout << *upb->getActionSpace() << std::endl;
-    // std::cout << *upb << std::endl;
-
+    catch (sdm::exception::Exception &e)
+    {
+        std::cout << "!!! Exception: " << e.what() << std::endl;
+    }
     return 0;
 }

@@ -11,7 +11,11 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/public/algorithm.hpp>
 #include <sdm/world/gym_interface.hpp>
+#include <sdm/utils/rl/exploration.hpp>
+#include <sdm/utils/logging/logger.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
 
 namespace sdm
 {
@@ -21,39 +25,110 @@ namespace sdm
    * @tparam TState 
    * @tparam TAction 
    */
-  template <typename TState, typename TAction, typename TObservation>
-  class QLearning : public LearningAlgo<TState, TAction, TObservation>
+  template <typename TObservation, typename TAction>
+  class QLearning : public Algorithm
   {
+  private:
+    TObservation current_obs, last_obs;
+    number log_freq = 100, test_freq = 1000, save_freq = 10000;
+    bool do_log = false, do_test_ = false, do_save = false, is_done = false;
+
   protected:
     /**
-     * @brief Lower Bound representation. 
+     * @brief The problem to be solved.
+     * 
      */
-    std::shared_ptr<QValueFunction<TState, TAction>> q_value_, q_target_;
+    std::shared_ptr<GymInterface<TObservation, TAction>> env_;
+
+    /**
+     * @brief Q-value function. 
+     */
+    std::shared_ptr<QValueFunction<TObservation, TAction>> q_value_;
+
+    /**
+     * @brief Q-value target function. 
+     */
+    std::shared_ptr<QValueFunction<TObservation, TAction>> q_target_;
+
+    /**
+     * @brief Experience Memory. 
+     */
+    // std::shared_ptr<ReplayMemory> experience_;
+
+    /**
+     * @brief Exploration process. 
+     */
+    std::shared_ptr<EpsGreedy<TObservation, TAction>> exploration_process;
+
+    /**
+     * @brief Logger.
+     * 
+     */
+    std::shared_ptr<MultiLogger> logger_;
+
+    /**
+     * @brief Some variables for the algorithm.
+     * 
+     */
+    number planning_horizon_, step, episode;
+
+    double discount_, lr_, batch_size_;
+
+    unsigned long global_step, max_steps_;
+
+    std::string name_ = "qlearning";
 
   public:
-    /**
-     * @brief Construct a new QLearning object
-     * 
-     * @param trials 
-     * @param results 
-     */
-    QLearning(number trials, std::string results);
+    QLearning(std::shared_ptr<GymInterface<TObservation, TAction>> &env,
+              std::shared_ptr<QValueFunction<TObservation, TAction>> q_value,
+              std::shared_ptr<QValueFunction<TObservation, TAction>> q_target,
+              std::shared_ptr<EpsGreedy<TObservation, TAction>> exploration,
+              number planning_horizon,
+              double discount = 0.9,
+              double lr = 0.001,
+              double batch_size = 1,
+              number num_max_steps = 10000,
+              std::string name = "qlearning");
 
     /**
-     * @brief Construct a new QLearning object
+     * @brief Initialize the algorithm
      * 
-     * @param world the problem we want to solve
-     * @param lb 
-     * @param ub 
-     * @param trials 
-     * @param results 
      */
-    QLearning(std::shared_ptr<GymInterface> &env,
-              std::shared_ptr<QValueFunction<TState, TAction>> value,
-              std::shared_ptr<QValueFunction<TState, TAction>> target,
-              number planning_horizon,
-              double epsilon,
-              number num_max_trials = 10000);
+    void do_initialize();
+
+    /**
+     * @brief Learning procedure. Will attempt to solve the problem.
+     * 
+     */
+    void do_solve();
+
+    /**
+     * @brief Test the result of a problem.
+     * 
+     */
+    void do_test();
+
+    /**
+     * @brief 
+     * 
+     */
+    void do_episode();
+
+    /**
+     * @brief 
+     * 
+     */
+    void do_step();
+
+    /**
+     * @brief Update the q-value functions based on the memory/experience
+     * 
+     */
+    void update_model();
+
+    TAction select_action(const TObservation &obs);
+
+    void initLogger();
   };
 } // namespace sdm
 #include <sdm/algorithms/q_learning.tpp>

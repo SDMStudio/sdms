@@ -20,10 +20,9 @@ file(
 	GLOB_RECURSE
 	lib_world
 	${INCLUDE_DIR}/*
-	# ${INCLUDE_DIR}/world/discrete_mdp.cpp
-	# ${INCLUDE_DIR}/utils/value_function/*
+	# ${INCLUDE_DIR}/utils/struct/*
 	# ${INCLUDE_DIR}/core/*
-	# ${INCLUDE_DIR}/common.cpp
+	#${INCLUDE_DIR}/common.cpp
 	# ${INCLUDE_DIR}/tools.cpp
 )
 add_library(lib_world SHARED ${lib_world})

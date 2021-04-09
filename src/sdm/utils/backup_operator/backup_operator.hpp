@@ -23,4 +23,14 @@ namespace sdm
             return vf->getQValueAt(s, t)->max();
         }
     };
+
+    // template <typename TState, typename TAction>
+    // class ClassicQBackupOperator : public BackupOperator<TState, TAction, double>
+    // {
+    // public:
+    //     double backup(ValueFunction<TState, TAction> *vf, TState s, int t)
+    //     {
+    //         return vf->getQValueAt(s, t)->max();
+    //     }
+    // };
 } // namespace sdm

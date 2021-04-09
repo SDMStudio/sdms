@@ -13,7 +13,10 @@
 
 #include <sdm/types.hpp>
 #include <sdm/common.hpp>
-#include <sdm/worlds.hpp>
+#include <sdm/public/world.hpp>
+#include <sdm/public/feedback.hpp>
+#include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 
 namespace sdm

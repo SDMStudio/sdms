@@ -89,17 +89,16 @@ namespace sdm
   };
 
   class World;
-  class POMDP;
-  class DecPOMDP;
-  class State;
-  class Action;
-  class feedback;
+  class DiscreteMDP;
+  class DiscreteMMDP;
+  class DiscretePOMDP;
+  class DiscreteDecPOMDP;
 
-  template <typename S, typename A>
-  class UnaryFunction;
+  template <typename TState, typename TAction>
+  class SolvableByHSVI;
 
-  template <typename S, typename A>
-  class BinaryFunction;
+  template <typename TState, typename TAction>
+  struct WorldType;
 
   //using boost::hash_combine
   template <class T>

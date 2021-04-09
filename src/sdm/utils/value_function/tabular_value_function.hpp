@@ -10,9 +10,9 @@
  */
 #pragma once
 
+#include <map>
 #include <iostream>
 #include <type_traits>
-#include <map>
 
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
@@ -66,9 +66,9 @@ namespace sdm
         std::shared_ptr<Initializer<TState, TAction>> initializer_;
 
     public:
-        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
+        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
 
-        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon = 0, TValue default_value = 0.);
+        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon = 0, TValue default_value = 0.);
 
         /**
          * @brief Initialize the value function according using initializer.
@@ -81,7 +81,7 @@ namespace sdm
          * 
          * @param default_value the default value 
          */
-        void initialize(TValue default_value, int t = 0);
+        void initialize(TValue default_value, number t = 0);
 
         /**
          * @brief Evaluate the value at a state.
@@ -89,7 +89,7 @@ namespace sdm
          * @param state the state where we want to evaluate the function
          * @return the value
          */
-        TValue getValueAt(const TState &state, int t = 0);
+        TValue getValueAt(const TState &state, number t = 0);
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -97,10 +97,12 @@ namespace sdm
          * @param state the state
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
-        void updateValueAt(const TState &state, int t = 0);
-        void updateValueAt(const TState &state, int t, TValue target);
+        void updateValueAt(const TState &state, number t = 0);
+        void updateValueAt(const TState &state, number t, TValue target);
 
         std::string str();
+
+        std::vector<TState> getSupport(number t);
 
         backup_operator_type getBackupOperator();
 

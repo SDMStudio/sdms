@@ -11,11 +11,6 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    OccupancyMDP<oState, oAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : dpomdp_(underlying_dpomdp)
-    {
-    }
-
-    template <typename oState, typename oAction>
     OccupancyMDP<oState, oAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
     {
 
@@ -28,6 +23,8 @@ namespace sdm
         {
             jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents());
         }
+
+        this->ihistory_ = jhist;
 
         for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
         {
@@ -46,14 +43,34 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    OccupancyMDP<oState, oAction>::OccupancyMDP(std::string underlying_dpomdp) : OccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp))
-    {
-    }
-
-    template <typename oState, typename oAction>
     oState &OccupancyMDP<oState, oAction>::getState()
     {
         return this->cstate_;
+    }
+
+    template <typename oState, typename oAction>
+    oState OccupancyMDP<oState, oAction>::reset()
+    {
+        this->chistory_ = this->ihistory_;
+        this->cstate_ = this->istate_;
+        this->dpomdp_->reset();
+        return this->cstate_;
+    }
+
+    template <typename oState, typename oAction>
+    std::tuple<oState, std::vector<double>, bool> OccupancyMDP<oState, oAction>::step(oAction joint_idr)
+    {
+        std::vector<typename oAction::value_type::output_type> jaction;
+        for (number i = 0; i < joint_idr.size(); i++)
+        {
+            auto p_ihist = this->chistory_->getIndividualHistory(i);
+            auto idr = joint_idr.at(i);
+            jaction.push_back(idr(p_ihist));
+        }
+        auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);
+        this->chistory_ = this->chistory_->expand(next_obs);
+        this->cstate_ = this->nextState(this->cstate_, joint_idr);
+        return std::make_tuple(this->cstate_, rewards, done);
     }
 
     template <typename oState, typename oAction>
@@ -77,9 +94,9 @@ namespace sdm
     template <typename oState, typename oAction>
     std::shared_ptr<DiscreteSpace<oAction>> OccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
-        auto vect_i_hist = ostate.getIndividualHistories();
+        auto vect_i_hist = ostate.getAllIndividualHistories();
         std::vector<std::vector<typename oAction::value_type>> vect_i_dr = {};
-        for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
+        for (number ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
         {
             // Generate all individual decision rules for agent 'ag_id'
             std::vector<typename oState::jhistory_type::element_type::ihistory_type> v_inputs(vect_i_hist[ag_id].begin(), vect_i_hist[ag_id].end());
@@ -92,11 +109,8 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, int t, HSVI<oState, oAction> *hsvi) const
+    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, HSVI<oState, oAction> *) const
     {
-        // std::cout << ostate << std::endl;
-        // std::cout << joint_idr << std::endl;
-
         oState new_ostate;
         for (auto &p_x_o : ostate)
         {
@@ -110,7 +124,7 @@ namespace sdm
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
                     std::vector<typename oAction::value_type::output_type> jaction;
-                    for (int i = 0; i < joint_idr.size(); i++)
+                    for (number i = 0; i < joint_idr.size(); i++)
                     {
                         auto p_ihist = o->getIndividualHistory(i);
                         auto idr = joint_idr.at(i);
@@ -137,7 +151,7 @@ namespace sdm
             auto state = p_x_o.first.first;
             auto jhistory = p_x_o.first.second;
             std::vector<typename oAction::value_type::output_type> jaction;
-            for (int i = 0; i < joint_idr.size(); i++)
+            for (std::size_t i = 0; i < joint_idr.size(); i++)
             {
                 auto idr = joint_idr.at(i);
                 jaction.push_back(idr(jhistory->getIndividualHistory(i)));
@@ -148,11 +162,22 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    double OccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t) const
+    double OccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t) const
     {
         oState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);
     }
 
+    template <typename oState, typename oAction>
+    std::shared_ptr<DiscreteMDP> OccupancyMDP<oState, oAction>::toMDP()
+    {
+        return this->dpomdp_->toMDP();
+    }
+
+    template <typename oState, typename oAction>
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> OccupancyMDP<oState, oAction>::toBeliefMDP()
+    {
+        return this->dpomdp_->toBeliefMDP();
+    }
 
 } // namespace sdm

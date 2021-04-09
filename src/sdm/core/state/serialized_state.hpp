@@ -6,31 +6,30 @@
 
 namespace sdm
 {
-  template <typename TState = number, typename TAction = number>
-  class SerializedState : public Pair<TState, std::vector<TAction>>
+  class SerializedState : public Pair<number, std::vector<number>>
   {
   public:
-    using state_type = TState;
-    using action_type = TAction;
+    using state_type = number;
+    using action_type = number;
 
     SerializedState();
-    SerializedState(TState state, std::vector<TAction> actions);
+    SerializedState(number state);
+    SerializedState(number state, std::vector<number> actions);
     SerializedState(const SerializedState &v);
 
-    TState getState() const;
-    std::vector<TAction> getAction() const;
+    number getState() const;
+    std::vector<number> getAction() const;
     number getCurrentAgentId() const;
   };
-} // namespace sdm
 
-#include <sdm/core/state/serialized_state.tpp>
+} // namespace sdm
 
 namespace std
 {
-  template <typename S, typename A>
-  struct hash<sdm::SerializedState<S, A>>
+  template<>
+  struct hash<sdm::SerializedState>
   {
-    typedef sdm::SerializedState<S, A> argument_type;
+    typedef sdm::SerializedState argument_type;
     typedef std::size_t result_type;
     inline result_type operator()(const argument_type &in) const
     {

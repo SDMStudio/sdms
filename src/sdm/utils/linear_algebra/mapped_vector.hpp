@@ -13,11 +13,15 @@
 #include <unordered_map>
 #include <cmath>
 #include <string>
+#include <vector>
+
 #include <iostream>
 #include <assert.h>
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/struct/pair.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
 
 namespace sdm
 {
@@ -30,20 +34,29 @@ namespace sdm
      * @tparam T Type of value
      */
     template <typename TIndex, typename T = double>
-    class MappedVector : public std::unordered_map<TIndex, T>, public VectorImpl<TIndex, T>
+    class MappedVector : public RecursiveMap<TIndex, T>, public VectorImpl<TIndex, T>
     {
     protected:
         T default_value_;
-        std::size_t size_;
+        long size_ = -1;
 
         std::pair<TIndex, T> getMin() const;
         std::pair<TIndex, T> getMax() const;
 
     public:
+        using iterator = typename std::unordered_map<TIndex, T>::iterator;
+        using const_iterator = typename std::unordered_map<TIndex, T>::const_iterator;
+
+        using type = typename RecursiveMap<TIndex, T>::type;
+        using value_type = typename RecursiveMap<TIndex, T>::value_type;
+        using value_list_type = typename RecursiveMap<TIndex, T>::value_list_type;
+
         MappedVector();
         MappedVector(T default_value);
-        MappedVector(std::size_t size, T default_value);
+        MappedVector(long size, T default_value);
         MappedVector(const MappedVector &v);
+        MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals) {}
+        virtual ~MappedVector();
 
         T norm_1() const;
         T norm_2() const;
@@ -63,6 +76,8 @@ namespace sdm
         std::size_t size() const;
 
         T getDefault() const;
+
+        std::vector<TIndex> getIndexes() const;
 
         std::string str() const;
 
@@ -85,12 +100,11 @@ namespace std
         inline result_type operator()(const argument_type &in) const
         {
             size_t seed = 0;
-            for (auto &v : in)
+            for (const auto &v : in)
             {
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
-            return seed;
         }
     };
 }

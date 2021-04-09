@@ -24,7 +24,6 @@ namespace sdm
                                                     name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
-        this->do_initialize();
     }
 
     template <typename TState, typename TAction>
@@ -35,7 +34,7 @@ namespace sdm
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
         auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
-        
+
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
@@ -54,14 +53,15 @@ namespace sdm
         TState start_state = this->world_->getInitialState();
         this->trial = 0;
 
+        std::cout << start_state << std::endl;
         clock_t t_begin = clock();
         do
         {
             // Logging (save data and print algorithms variables)
             this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-            this->do_explore(start_state, 0);
+            this->do_explore(start_state, 0, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0));
+        } while (!this->do_stop(start_state, 0, 0));
 
         std::cout << "----------------------------------------------------" << std::endl;
         this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -73,16 +73,13 @@ namespace sdm
     template <typename TState, typename TAction>
     double HSVI<TState, TAction>::do_excess(const TState &s, number h)
     {
-
         number realTime = h;
         if (this->world_->isSerialized())
         {
-            //std::cout<<"\n Ancien Time : "<<realTime;
+            // Compute the real time for serialized problem
             realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
-            //std::cout<<"\n New Time : "<<realTime<<"\n";
         }
-
-        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h)) - this->error_ / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
+        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h) - this->error_) / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
     }
 
     template <typename TState, typename TAction>
@@ -120,7 +117,7 @@ namespace sdm
         TState ostate = this->world_->getInitialState();
         TAction jdr;
         number end = (this->planning_horizon_ > 0) ? this->planning_horizon_ : 10;
-        for (int i = 0; i < end; i++)
+        for (number i = 0; i < end; i++)
         {
             std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
                       << std::endl;
@@ -157,4 +154,50 @@ namespace sdm
     {
         return this->trial;
     }
+
+    // ****************************** Avec Gt ********************
+
+    template <typename TState, typename TAction>
+    double HSVI<TState, TAction>::do_excess_2(const TState &s, number h, double gt)
+    {
+        number realTime = h;
+
+        if (this->world_->isSerialized())
+        {
+            // Compute the real time for serialized problem
+            realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
+        }
+        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, 0) - this->error_ + gt) / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
+    }
+
+    template <typename TState, typename TAction>
+    bool HSVI<TState, TAction>::do_stop(const TState &s, number h, double gt)
+    {
+        return ((this->do_excess(s, h) <= 0) || (this->trial > this->MAX_TRIALS) || (this->do_excess_2(s, h, gt) <= 0));
+    }
+
+    template <typename TState, typename TAction>
+    void HSVI<TState, TAction>::do_explore(const TState &s, number h, double gt)
+    {
+        if (!this->do_stop(s, h, gt))
+        {
+            // Update bounds
+            this->lower_bound_->updateValueAt(s, h);
+            this->upper_bound_->updateValueAt(s, h);
+
+            // Select next action and state following search process
+            TAction a = this->selectNextAction(s, h);
+
+            TState s_ = this->world_->nextState(s, a, h, this);
+
+            // Recursive explore
+            //this->do_explore(s_, h + 1);
+            this->do_explore(s_, h + 1, gt + this->world_->getReward(s, a));
+
+            // Update bounds
+            this->lower_bound_->updateValueAt(s, h);
+            this->upper_bound_->updateValueAt(s, h);
+        }
+    }
+
 } // namespace sdm
