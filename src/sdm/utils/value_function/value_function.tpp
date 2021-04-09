@@ -5,7 +5,7 @@
 namespace sdm
 {
     template <typename TState, typename TAction, typename TValue>
-    ValueFunction<TState, TAction, TValue>::ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon) : problem_(problem), horizon_(horizon)
+    ValueFunction<TState, TAction, TValue>::ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon) : BaseValueFunction<TState, TAction, TValue>(horizon), problem_(problem)
     {
     }
 

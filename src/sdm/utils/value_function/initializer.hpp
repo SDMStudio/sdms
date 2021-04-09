@@ -144,11 +144,11 @@ namespace sdm
             else
             {
                 double tot = 0;
-                for (number t = vf->getHorizon() - 1; t >= 0; t--)
+                for (number t = vf->getHorizon(); t > 0; t--)
                 {
                     if (vf->getWorld()->isSerialized())
                     {
-                        if ((t + 1) % under_pb->getNumAgents() == 0)
+                        if (t % under_pb->getNumAgents() == 0)
                         {
                             tot = this->value_ + under_pb->getDiscount() * tot;
                         }
@@ -157,7 +157,7 @@ namespace sdm
                     {
                         tot = this->value_ + under_pb->getDiscount() * tot;
                     }
-                    vf->initialize(tot, t);
+                    vf->initialize(tot, t - 1);
                 }
             }
         }
@@ -235,11 +235,11 @@ namespace sdm
             else
             {
                 double min_rsa = *std::max_element(ra.begin(), ra.end()), tot = 0;
-                for (number t = vf->getHorizon() - 1; t >= 0; t--)
+                for (number t = vf->getHorizon(); t > 0; t--)
                 {
                     if (vf->getWorld()->isSerialized())
                     {
-                        if ((t + 1) % under_pb->getNumAgents() == 0)
+                        if (t % under_pb->getNumAgents() == 0)
                         {
                             tot = min_rsa + under_pb->getDiscount() * tot;
                         }
@@ -248,7 +248,7 @@ namespace sdm
                     {
                         tot = min_rsa + under_pb->getDiscount() * tot;
                     }
-                    vf->initialize(tot, t);
+                    vf->initialize(tot, t - 1);
                 }
             }
         }

@@ -10,14 +10,14 @@ using namespace sdm;
 using namespace std;
 namespace po = boost::program_options;
 
-int solve(int argv, char **args)
+int learn(int argv, char **args)
 {
     try
     {
-        std::string problem, algorithm, formalism, name, upper_bound, lower_bound, ub_init, lb_init;
-        int trials;
+        std::string problem, algorithm, formalism, name, qvalue, q_init;
+        unsigned long nb_timesteps;
         number horizon;
-        double error, discount;
+        double lr, discount;
 
         po::options_description options("Options");
         options.add_options()
@@ -26,21 +26,19 @@ int solve(int argv, char **args)
 
         po::options_description config("Configuration");
         config.add_options()
-        ("algorithm,a", po::value<string>(&algorithm)->default_value("hsvi"), "the algorithm to use")
+        ("algorithm,a", po::value<string>(&algorithm)->default_value("qlearning"), "the learning algorithm to use")
         ("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")
         ("formalism,f", po::value<string>(&formalism)->default_value("decpomdp"), "the formalism to use")
-        ("error,e", po::value<double>(&error)->default_value(0.001), "the error")
+        ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
         ("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")
-        ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon")
-        ("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials")
+        ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
+        ("nb_timesteps,t", po::value<unsigned long>(&nb_timesteps)->default_value(100000), "the maximum number of timesteps")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
         algo_config.add_options()
-        ("lower_bound", po::value<string>(&lower_bound)->default_value("tabular"), "the lower bound representation (HSVI, ValurIteration)")
-        ("upper_bound", po::value<string>(&upper_bound)->default_value("tabular"), "the upper bound representation (HSVI)")
-        ("lb_init", po::value<string>(&lb_init)->default_value("MinInitializer"), "the lower bound initialization method (HSVI, ValurIteration)")
-        ("ub_init", po::value<string>(&ub_init)->default_value("MaxInitializer"), "the upper bound initialization method (HSVI)");
+        ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
+        ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -69,7 +67,7 @@ int solve(int argv, char **args)
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
         {
-            auto algo = sdm::algo::make(algorithm, problem, formalism, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, name);
+            auto algo = sdm::algo::make(algorithm, problem, formalism, qvalue, q_init, horizon, discount, lr,  1, nb_timesteps, name);
             algo->do_initialize();
             algo->do_solve();
 
@@ -103,6 +101,6 @@ int solve(int argv, char **args)
 #define __main_program__
 int main(int argv, char **args)
 {
-    return solve(argv, args);
+    return learn(argv, args);
 }
 #endif

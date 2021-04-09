@@ -52,15 +52,15 @@ namespace sdm
             auto ub_init = sdm::makeInitializer<TState, TAction>(ub_init_name);
 
             // Instanciate bounds
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound;
-            if (lower_bound_name == "maxplan")
-            {
-                lower_bound = std::make_shared<sdm::MaxPlanValueFunction<TState, TAction>>(problem, horizon, lb_init);
-            }
-            else
-            {
-                lower_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, lb_init);
-            }
+            // std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound;
+            // if (lower_bound_name == "maxplan")
+            // {
+            //     lower_bound = std::make_shared<sdm::MaxPlanValueFunction<TState, TAction>>(problem, horizon, lb_init);
+            // }
+            // else
+            // {
+            auto lower_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, lb_init);
+            // }
             // std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, lb_init);
             std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
 

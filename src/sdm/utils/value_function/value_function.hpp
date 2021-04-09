@@ -49,11 +49,6 @@ namespace sdm
          */
         std::shared_ptr<BinaryFunction<TState, number, TValue>> init_function_ = nullptr;
 
-        /**
-         * @brief The horizon for planning.
-         */
-        number horizon_;
-
     public:
         ValueFunction() {}
 
