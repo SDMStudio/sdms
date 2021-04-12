@@ -11,9 +11,11 @@
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
+#include <sdm/utils/value_function/sawtooth_vf.hpp>
+
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
-#include <sdm/utils/value_function/value_iteration.hpp>
+#include <sdm/algorithms/value_iteration.hpp>
 
 namespace sdm
 {
@@ -59,8 +61,16 @@ namespace sdm
             {
                 lower_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, lb_init);
             }
-            // std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, lb_init);
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
+
+            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound;
+            if (upper_bound_name == "sawtooth")
+            {
+                upper_bound = std::make_shared<sdm::SawtoothValueFunction<TState, TAction>>(problem, horizon, ub_init);
+            }
+            else
+            {
+                upper_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, ub_init);
+            }
 
             return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
         }

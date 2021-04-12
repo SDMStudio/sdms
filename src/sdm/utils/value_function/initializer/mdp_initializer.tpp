@@ -1,6 +1,6 @@
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/algorithms/hsvi.hpp>
-#include <sdm/utils/value_function/value_iteration.hpp>
+#include <sdm/algorithms/value_iteration.hpp>
 #include <sdm/world/world_type.hpp>
 
 namespace sdm

@@ -28,14 +28,14 @@ namespace sdm
     std::shared_ptr<Initializer<TState, TAction>> createInstanceAlgoInit(std::string algo_name, double error, int trials) { return std::shared_ptr<TInit<TState, TAction>>(new TInit<TState, TAction>(algo_name, error, trials)); }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<Initializer<TState, TAction>> createInstanceTabMDPInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, MDPInitializer>, "tabular_hsvi", 0., 10000)(); }
+    std::shared_ptr<Initializer<TState, TAction>> createInstanceTabMDPInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, MDPInitializer>, "tabular_hsvi", 0., 200000)(); }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<Initializer<TState, TAction>> createInstanceMDPValueIterationInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, MDPInitializer>, "ValueIteration", 0., 10000)(); }
+    std::shared_ptr<Initializer<TState, TAction>> createInstanceMDPValueIterationInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, MDPInitializer>, "ValueIteration", 0., 200000)(); }
     //J'ai crée une nouvelle classe, car je n'ai pas réussi à les regrouper en une seule (createInstanceTabMDPInit(std::string algo_name), et ensuite appeler cela dans le registry ))
 
     template <typename TState, typename TAction>
-    std::shared_ptr<Initializer<TState, TAction>> createInstanceTabPOMDPInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, POMDPInitializer>, "tabular_hsvi", 0., 10000)(); }
+    std::shared_ptr<Initializer<TState, TAction>> createInstanceTabPOMDPInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, POMDPInitializer>, "tabular_hsvi", 0., 200000)(); }
 
     /**
      * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 

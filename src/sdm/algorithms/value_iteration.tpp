@@ -1,6 +1,5 @@
 
-#include <sdm/utils/value_function/value_iteration.hpp>
-
+#include <sdm/algorithms/value_iteration.hpp>
 namespace sdm
 {
     template <typename TState, typename TAction>
@@ -56,20 +55,6 @@ namespace sdm
     {
         
     }
-
-    // template <typename TState, typename TAction>
-    // std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> ValueIteration<TState,TAction>::policy_iteration()
-    // {
-    //     if(this->problem_->getUnderlyingProblem()->getDiscount() != 1)
-    //     {
-    //         //this->policy_iteration_inf(); Finalement, on peut écrire les deux problèmes avec une seule
-    //         return this->policy_iteration_non_inf();
-    //     }else
-    //     {
-    //         return this->policy_iteration_non_inf();
-    //     }
-
-    // }
     
     template <typename TState, typename TAction>
     bool ValueIteration<TState,TAction>::borne()
@@ -92,5 +77,11 @@ namespace sdm
     std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> ValueIteration<TState,TAction>::getResult()
     {
         return this->policy_evaluation_2_;
+    }
+
+    template <typename TState, typename TAction>
+    double ValueIteration<TState,TAction>::getResultOpti() 
+    {
+        return this->policy_evaluation_2_->getValueAt(this->problem_->getInitialState());
     }
 }

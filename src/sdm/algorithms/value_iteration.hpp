@@ -50,6 +50,8 @@ namespace sdm
             //std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>>policy_iteration();
 
             std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> getResult();
+
+            double getResultOpti();
     };
 }
-#include <sdm/utils/value_function/value_iteration.tpp>
+#include <sdm/algorithms/value_iteration.tpp>

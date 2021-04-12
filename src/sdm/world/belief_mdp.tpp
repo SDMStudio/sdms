@@ -80,6 +80,8 @@ namespace sdm
                 nextBelief[nextState] = obs_proba * tmp;
             }
         }
+
+        std::cout<<"\n next Belief "<<nextBelief.str();
         // Normalize the belief
         double sum = nextBelief.norm_1();
         for (const auto &pair_s_p : nextBelief)
@@ -92,6 +94,8 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int t, HSVI<TBelief, TAction> *hsvi) const
     {
+        std::cout<<"\n belief : "<<belief.str();
+        std::cout<<"\n belief : "<<std::hash<TBelief>()(belief);
         // Select o* as in the paper
         number selected_o = 0;
         double max_o = -std::numeric_limits<double>::max(), tmp;

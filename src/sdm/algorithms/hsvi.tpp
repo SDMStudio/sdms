@@ -199,5 +199,11 @@ namespace sdm
         }
     }
 
+    template <typename TState, typename TAction>
+    double HSVI<TState, TAction>::getResultOpti()
+    {
+        return this->lower_bound_->getValueAt(this->world_->getInitialState());
+    }
+
 
 } // namespace sdm

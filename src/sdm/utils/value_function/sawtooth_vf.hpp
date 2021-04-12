@@ -35,75 +35,118 @@ namespace sdm
          * @param state the state where we want to evaluate the function
          * @return the value
          */
-        TValue getValueAt(const TState &state, number t = 0)
-        {
-            this->getMaxAt(state, t).first;
-        }
+        TValue getValueAt(const TState &state, number t = 0);
 
-        void updateValueAt(const TState &state, number t)
-        {
-            this->updateValueAt(state, t, this->getBackupOperator().backup(this, state, t));
-            this->prune(t);
-        }
+        void updateValueAt(const TState &state, number t);
 
-        std::pair<TValue, TState> getMaxAt(const TState &state, number t)
-        {
-
-            double v_ub_state = this->getInitFunction()->operator()(state, t);
-            double min_ext = 0;
-
-            TState argmin_ = state; // to verify
-            for (const TState &ostate : this->getSupport(t))
-            {
-                double v_kappa = this->getValueAt(ostate, t);
-                double v_ub_kappa = this->getInitFunction()->operator()(ostate, t);
-                double phi = std::numeric_limits<double>::max();
-                for (auto &x : ostate)
-                {
-                    double v_int = (ostate.at(x.first) / x.second);
-                    if (v_int < phi)
-                    {
-                        phi = v_int;
-                    }
-                }
-                double min_int = phi * (v_kappa - v_ub_kappa);
-                if (min_int < min_ext)
-                {
-                    min_ext = min_int;
-                    argmin_ = ostate; // to verify
-                }
-            }
-            return std::make_pair(v_ub_state + min_ext, argmin_);
-        }
+        std::pair<TValue, TState> getMaxAt(const TState &state, number t);
 
         /**
          * @brief Point-wise pruning
          * 
          */
-        void prune(number t = 0)
+        void prune(number t = 0);
+
+        bool is_dominated(const TState &ostate, double value, number t);
+    };
+
+
+    template <class TAction, class TValue>
+    class SawtoothValueFunction<number, TAction, TValue> : public MappedValueFunction<number, TAction, TValue>
+    {
+    public:
+
+        SawtoothValueFunction()
         {
-            auto iter = this->representation[t].begin();
-            for (iter; iter != this->representation[t].end(); iter++)
-            {
-                if (this->is_dominated(iter->first, iter->second, t))
-                {
-                    this->representation[t].erase(iter->first);
-                    break;
-                }
-            }
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<number, TAction>> problem, int horizon = 0, TValue default_value = 0.)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
 
-        bool is_dominated(const TState &ostate, double value, number t)
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<number, TAction>> problem, int horizon, std::shared_ptr<Initializer<number, TAction>> initializer) : MappedValueFunction<number, TAction, TValue>(problem, horizon, initializer)
         {
-            auto pair_witness_ostate = this->getMaxAt(ostate, t);
-            if (pair_witness_ostate.second == ostate)
-            {
-                return false;
-            }
-            else
-            {
-                return (pair_witness_ostate.first <= value);
-            }
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+
+        void initialize()
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+        void initialize(TValue default_value, number t = 0)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+
+        TValue getValueAt(const number &state, number t = 0)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+
+        void updateValueAt(const number &state, number t = 0)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+
+        std::vector<number> getSupport(number t)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+
+        std::string str()
+        {
+            return "MaxPlanVF";
+        }
+    };
+
+    template <class TAction, class TValue >
+    class SawtoothValueFunction<SerializedState, TAction, TValue> : public MappedValueFunction<SerializedState, TAction, TValue>
+    {
+    public:
+
+        SawtoothValueFunction()
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, int horizon = 0, TValue default_value = 0.)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, int horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer) :MappedValueFunction<SerializedState, TAction, TValue>(problem, horizon, initializer)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        void initialize()
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+        void initialize(TValue default_value, number t = 0)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        TValue getValueAt(const SerializedState &state, number t = 0)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        void updateValueAt(const SerializedState &state, number t = 0)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        std::vector<SerializedState> getSupport(number t)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        std::string str()
+        {
+            return "MaxPlanVF";
         }
     };
 }
+#include <sdm/utils/value_function/sawtooth_vf.tpp>
