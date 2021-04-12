@@ -115,7 +115,7 @@ namespace sdm
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::at(const TIndex &i) const
     {
-        if (std::unordered_map<TIndex, T>::find(i) != std::unordered_map<TIndex, T>::end())
+        if (this->find(i) != this->end())
         {
             return std::unordered_map<TIndex, T>::at(i);
         }

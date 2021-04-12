@@ -20,6 +20,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
 {
@@ -42,6 +43,9 @@ namespace sdm
         std::pair<TIndex, T> getMax() const;
 
     public:
+        using iterator = typename std::unordered_map<TIndex, T>::iterator;
+        using const_iterator = typename std::unordered_map<TIndex, T>::const_iterator;
+
         MappedVector();
         MappedVector(T default_value);
         MappedVector(std::size_t size, T default_value);
@@ -89,12 +93,11 @@ namespace std
         inline result_type operator()(const argument_type &in) const
         {
             size_t seed = 0;
-            for (auto &v : in)
+            for (const auto &v : in)
             {
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
-            return seed;
         }
     };
 }

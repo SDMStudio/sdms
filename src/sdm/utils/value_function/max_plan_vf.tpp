@@ -42,18 +42,26 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     std::pair<TValue, TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getMaxAt(const TVector &state, number t)
     {
-        TValue current, max = -std::numeric_limits<TValue>::max();
-        TVector alpha_vector;
-        for (const auto &plan : this->representation[t])
+        if (t >= this->getHorizon())
         {
-            current = plan ^ state;
-            if (max < current)
-            {
-                max = current;
-                alpha_vector = plan;
-            }
+            return {0, 0};
         }
-        return {max, alpha_vector};
+        else
+        {
+            number h = (this->isInfiniteHorizon()) ? 0 : t;
+            TValue current, max = -std::numeric_limits<TValue>::max();
+            TVector alpha_vector;
+            for (const auto &plan : this->representation[h])
+            {
+                current = state ^ plan;
+                if (max < current)
+                {
+                    max = current;
+                    alpha_vector = plan;
+                }
+            }
+            return {max, alpha_vector};
+        }
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -75,7 +83,6 @@ namespace sdm
         // TODO : To change with true bellman backup ope
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
 
-        std::cout << new_hyperplan << std::endl;
         if (this->isInfiniteHorizon())
         {
             this->representation[0].push_back(new_hyperplan);
@@ -127,7 +134,7 @@ namespace sdm
         {
             for (const auto &alpha : refCount)
             {
-                if (max_value < (value = (alpha.first) ^ (frequency)))
+                if (max_value < (value = (frequency) ^ (alpha.first)))
                 {
                     max_value = value;
                     max_alpha = alpha.first;
@@ -330,7 +337,7 @@ namespace sdm
             for (number o = 0; o < n_obs; o++)
             {
                 auto next_belief = beliefMDP->nextState(state, a, o);
-                beta_a_o[a][o] = this->getMaxAt(next_belief, t).second;
+                beta_a_o[a][o] = this->getMaxAt(next_belief, t + 1).second;
             }
         }
         // \beta_a = R(s,a) + \gamma * \sum_{o, s'} [ \beta_{a,o}(s') * O(s', a, o) * T(s,a,s') ]
@@ -353,7 +360,7 @@ namespace sdm
         double current, max_v = -std::numeric_limits<double>::max();
         for (number a = 0; a < n_actions; a++)
         {
-            current = beta_a[a] ^ state;
+            current = state ^ beta_a[a];
             if (current > max_v)
             {
                 max_v = current;
