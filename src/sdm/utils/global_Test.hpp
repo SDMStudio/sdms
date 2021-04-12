@@ -10,61 +10,88 @@
 
 namespace sdm
 {
-    void test(std::string filepath,std::vector<std::string> all_formalism, std::vector<std::string> all_problem,std::vector<int> all_horizon,std::vector<double> all_discount,
-    std::vector<std::string> all_lower_bound,std::vector<std::string> all_upper_bound) 
+    /**
+     * @brief This function is utilized to do precise large scale experimentation
+     * 
+     * @param filepath 
+     * @param all_formalism a vector of all formalism to use (mdp/pomdp/...)
+     * @param all_problem a vector of all problem to be solved ( tiger/mabc/...)
+     * @param all_horizon a vector of all planning horizon 
+     * @param all_discount a vector of all discount factor
+     * @param all_lower_bound a vector of all lower_bound
+     * @param all_upper_bound a vector of all upper bound
+     * @param mean the number of repetition
+     * @param sauvegarde_path the path to save all the data
+     */
+    void test(std::vector<std::string> all_formalism={"mdp"}, std::vector<std::string> all_problem={"mabc"},std::vector<int> all_horizon={2},
+        std::vector<double> all_discount={1},std::vector<std::string> upper_bound_name = {""},std::vector<std::string> lower_bound_name={""},
+        std::vector<std::string> all_lower__init_name={"MinInitializer"},std::vector<std::string> all_upper_init_name= {"MaxInitializer"}, int mean = 2,
+        std::string filepath = "../data/world/dpomdp/",std::string save_path = "../run/Resultat/resultat.csv") 
     {
         std::ofstream myfile;
+
+        myfile.open(save_path);
+        myfile<<"Filename,Horizon,Discount,Upper_init,Lower_init,Problem,Resultat,Time,Trial \n";
+
         clock_t t_begin, t_end;
         double temps;
 
         for(const std::string & filename : all_problem)
         {
             std::string filepath_ = filepath+filename+".dpomdp";
-            for(const int &i :all_horizon)
+            for(const int &horizon :all_horizon)
             {
-                int horizon(i);
-                int length_history(i);
                 for(const double & discount : all_discount)
                 {
-                    for(const std::string &upper_bound: all_upper_bound)
+                    for(const std::string &upper_bound: all_upper_init_name)
                     {
-                        for(const std::string &lower_bound: all_lower_bound)
+                        for(const std::string &lower_bound: all_lower__init_name)
                         {
                             for(const std::string &formalism : all_formalism)
                             {
                                 std::string name = filename+"#"+std::to_string(horizon)+"#"+formalism+"#"+std::to_string(discount)+"#"+upper_bound+"#"+lower_bound;
                                 myfile<<filename<<","<<horizon<<","<<formalism<<","<<discount<<","<<upper_bound<<","<<lower_bound;
-                                
-                                std::cout<<"\n*************** \n";
-                                std::cout<<"Formalism : "<<formalism<<"\n";
-                                std::cout<<"File : "<<filename<<"\n";
-                                std::cout<<"Horizon : "<<horizon<<"\n";
-                                std::cout<<"Discount : "<<discount<<"\n";   
-                                std::cout<<"Upper_bound : "<<upper_bound<<"\n";
-                                std::cout<<"Lower_bound : "<<lower_bound<<"\n";
-                                std::cout<<"\n*************** \n";
-                                
-                                try
+
+                                std::vector<float> times;
+                                std::vector<float> trials;
+                                std::vector<double> results;
+                                for(int i =0; i<mean;i++)
                                 {
-                                    auto algo = sdm::algo::make("hsvi",filepath_,formalism,"","",upper_bound,lower_bound,discount,0,horizon,10000,name);
+                                    std::cout<<"\n*************** \n";
+                                    std::cout<<"Formalism : "<<formalism<<"\n";
+                                    std::cout<<"File : "<<filename<<"\n";
+                                    std::cout<<"Horizon : "<<horizon<<"\n";
+                                    std::cout<<"Discount : "<<discount<<"\n";   
+                                    std::cout<<"Upper_bound : "<<upper_bound<<"\n";
+                                    std::cout<<"Lower_bound : "<<lower_bound<<"\n";
+                                    std::cout<<"Try : "<<i<<"\n";
+                                    std::cout<<"\n*************** \n";
+                                    
+                                    try
+                                    {
+                                        auto algo = sdm::algo::make("hsvi",filepath_,formalism,"","",upper_bound,lower_bound,discount,0,horizon,10000,name);
 
-                                    //auto value = sdm::ValueIteration<TState,TAction>(smdp,discount,0,horizon);
-                                    t_begin = clock();
+                                        //auto value = sdm::ValueIteration<TState,TAction>(smdp,discount,0,horizon);
+                                        t_begin = clock();
 
-                                    algo->do_initialize();
-                                    algo->do_solve();
+                                        algo->do_initialize();
+                                        algo->do_solve();
 
-                                    t_end = clock();
-                                    temps = (float)(t_end - t_begin) / CLOCKS_PER_SEC;
-
-                                    //myfile<<","<<auto->getResultOpti();
-
-                                    //myfile<<","<<temps<<","<<auto->getTrial()<<"\n";
+                                        t_end = clock();
+                                        times.push_back((float)(t_end - t_begin) / CLOCKS_PER_SEC);
+                                        //trials.push_back(algo->getTrial());
+                                        results.push_back(algo->getResultOpti());
+                                    }
+                                    catch (sdm::exception::Exception &e)
+                                    {
+                                        std::cout << "!!! Exception: " << e.what() << std::endl;
+                                    }
                                 }
-                                catch (sdm::exception::Exception &e)
-                                {
-                                    std::cout << "!!! Exception: " << e.what() << std::endl;
-                                }
+
+                                myfile<<","<<std::accumulate( results.begin(), results.end(), 0.0) / results.size();
+                                myfile<<","<<std::accumulate( times.begin(), times.end(), 0.0) / times.size();
+                                myfile<<","<<std::accumulate( trials.begin(), trials.end(), 0.0) / trials.size();
+                                myfile<<"\n";
                             }
                         }
                     }

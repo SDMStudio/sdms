@@ -23,11 +23,11 @@ int main(int argc, char **argv)
     // }
     std::string filePath("../data/world/dpomdp/");
 
-    std::vector<std::string> all_problem = {"mabc"}; //,"tiger","recycling"};
+    std::vector<std::string> all_problem = {"mabc","tiger"}; //,"tiger","recycling"};
 
     std::vector<std::string> all_formalism = {"mdp"};
 
-    std::vector<int> all_horizon = {1,2};
+    std::vector<int> all_horizon = {2};
 
     std::vector<double> all_discount = {1};
 
@@ -35,6 +35,6 @@ int main(int argc, char **argv)
 
     std::vector<std::string> all_upper_bound = {"MaxInitializer"};
     
-    sdm::test(filePath,all_formalism, all_problem,all_horizon,all_discount,all_lower_bound,all_upper_bound);
+    sdm::test(all_formalism, all_problem,all_horizon,all_discount,{""},{""},all_lower_bound,all_upper_bound,1,filePath);
 
 }
