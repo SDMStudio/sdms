@@ -1,15 +1,15 @@
-#include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/serialized_belief_mdp.hpp>
 
 namespace sdm
 {
 
-    template <typename TState, typename TAction, typename TObservation>
-    SerializedBeliefMDP<TState, TAction, TObservation>::SerializedBeliefMDP()
+    template <typename TBelief, typename TAction, typename TObservation>
+    SerializedBeliefMDP<TBelief, TAction, TObservation>::SerializedBeliefMDP()
     {
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    SerializedBeliefMDP<TBelief, TAction, TObservation>::SerializedBeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp) : pomdp_(underlying_pomdp)
+    SerializedBeliefMDP<TBelief, TAction, TObservation>::SerializedBeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp) : mpomdp_(underlying_pomdp)
     {
         double proba = 0;
         for (auto &s : this->mpomdp_->getStateSpace()->getAll())
@@ -23,8 +23,8 @@ namespace sdm
         this->cstate_ = this->istate_;
     }
 
-    template <typename TState, typename TAction, typename TObservation>
-    SerializedBeliefMDP<TState, TAction, TObservation>::SerializedBeliefMDP(std::string underlying_dpomdp) : SerializedBeliefMDP(std::make_shared<DiscretePOMDP>(underlying_dpomdp))
+    template <typename TBelief, typename TAction, typename TObservation>
+    SerializedBeliefMDP<TBelief, TAction, TObservation>::SerializedBeliefMDP(std::string underlying_dpomdp) : SerializedBeliefMDP(std::make_shared<DiscretePOMDP>(underlying_dpomdp))
     {
     }
 
@@ -50,16 +50,16 @@ namespace sdm
     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const
     {
 
-        oState new_ostate;
+        TBelief new_belief;
 
-        number ag_id = ostate.getCurrentAgentId();
-        auto x = ostate.getState();
-        auto u = ostate.getAction();
+        number ag_id = belief.getCurrentAgentId();
+        auto x = belief.getState();
+        auto u = belief.getAction();
 
         if (ag_id != this->mpomdp_->getNumAgents() - 1)
         {
             u.push_back(action);
-            new_ostate = oState(x, u);
+            new_belief = TBelief(x, u);
         }
         else
         {
@@ -85,7 +85,7 @@ namespace sdm
                 nextBelief[pair_s_p.first] = pair_s_p.second / sum;
             }
         }
-        return new_ostate;
+        return new_belief;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -173,9 +173,16 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    std::shared_ptr<SerializedBeliefMDP<BeliefState, number, number>> SerializedBeliefMDP<TBelief, TAction, TObservation>::toSerializedBeliefMDP()
+    std::shared_ptr<SerializedBeliefMDP<TBelief, TAction, TObservation>> SerializedBeliefMDP<TBelief, TAction, TObservation>::toBeliefMDP()
     {
-        return this->mpomdp_->toSerializedBeliefMDP();
+        return this->getptr();
     }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    std::shared_ptr<SerializedBeliefMDP<TBelief, TAction, TObservation>> SerializedBeliefMDP<TBelief, TAction, TObservation>::getptr()
+    {
+        return SerializedBeliefMDP<TBelief, TAction, TObservation>::shared_from_this();
+    }
+
 
 } // namespace sdm

@@ -66,12 +66,12 @@ namespace sdm
     {
         TBelief nextBelief;
         double tmp, obs_proba;
-        for (number nextState = 0; nextState < this->pomdp_->getStateSpace()->getNumItems(); nextState++)
+        for (const auto &nextState : this->pomdp_->getStateSpace()->getAll())
         {
             tmp = 0;
-            for (number s = 0; s < this->pomdp_->getStateSpace()->getNumItems(); s++)
+            for (const auto &state : this->pomdp_->getStateSpace()->getAll())
             {
-                tmp += this->pomdp_->getStateDynamics()->getTransitionProbability(s, action, nextState) * belief.at(s);
+                tmp += this->pomdp_->getStateDynamics()->getTransitionProbability(state, action, nextState) * belief.at(state);
             }
             obs_proba = this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState);
 
@@ -94,9 +94,9 @@ namespace sdm
     {
         // Select o* as in the paper
         number selected_o = 0;
-        double max_o = 0, tmp;
+        double max_o = -std::numeric_limits<double>::max(), tmp;
 
-        for (number o = 0; o < this->pomdp_->getObsSpace()->getNumItems(); o++)
+        for (const auto &o : this->pomdp_->getObsSpace()->getAll())
         {
             tmp = this->getObservationProbability(action, o, belief);
             auto tau = this->nextState(belief, action, o);
@@ -120,7 +120,7 @@ namespace sdm
     double BeliefMDP<TBelief, TAction, TObservation>::getReward(const TBelief &belief, const TAction &action) const
     {
         double r = 0;
-        for (number s = 0; s < this->pomdp_->getStateSpace()->getNumItems(); s++)
+        for (const auto &s : this->pomdp_->getStateSpace()->getAll())
         {
             r += belief.at(s) * this->pomdp_->getReward()->getReward(s, action);
         }

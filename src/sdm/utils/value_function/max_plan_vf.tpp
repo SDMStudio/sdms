@@ -106,8 +106,7 @@ namespace sdm
         }
         else
         {
-            output = std::vector<TVector>(this->representation[t].begin(), this->representation[t].end());
-            return (t >= this->getHorizon()) ? std::vector<TVector>{} : output;
+            return (t >= this->getHorizon()) ? std::vector<TVector>{} : std::vector<TVector>(this->representation[t].begin(), this->representation[t].end());
         }
     }
 
@@ -180,55 +179,68 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
     {
         std::cout << "Formalism DecPOMDP" << std::endl;
-        // auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
-        // auto under_pb = this->getWorld()->getUnderlyingProblem();
+        auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-        // TVector v_max;
-        // double value_max = -std::numeric_limits<double>::max(), tmp;
-        // // Parcours des hyperplan support de la fonction au pas t+1
-        // for (const auto &plan : this->representation[t + 1])
-        // {
+        TVector v_max;
+        double value_max = -std::numeric_limits<double>::max(), tmp;
+        // Parcours des hyperplan support de la fonction au pas t+1
+  
+        for (const auto &plan : this->getSupport(t+1))
+        {
         //     // Boucle over all joint decision rule at occupancy state
-        //     for (const auto &jdr : oMDP->getActionSpaceAt(state)->getAll())
-        //     {
-        //         TVector v;
-        //         for (const auto &pair_s_o_p : state)
-        //         {
-        //             auto pair_s_o = pair_s_o_p.first;
-        //             auto joint_history = pair_s_o.second;
-        //             auto proba = pair_s_o_p.second;
+            for (const auto &jdr : oMDP->getActionSpaceAt(state)->getAll())
+            {
 
-        //             // Get joint action from JointDetDecisionRule
-        //             std::vector<typename oAction::value_type::output_type> jaction;
-        //             for (int i = 0; i < jdr.size(); i++)
-        //             {
-        //                 auto p_ihist = joint_history->getIndividualHistory(i);
-        //                 auto idr = jdr.at(i);
-        //                 jaction.push_back(idr(p_ihist));
-        //             }
+                TVector v;
+                for (const auto &pair_s_o_p : state)
+                {
+                    auto pair_s_o = pair_s_o_p.first;
+                    auto joint_history = state.getHistory(pair_s_o);
+                    auto s_state = state.getHiddenState(pair_s_o);
+                    auto proba = pair_s_o_p.second;
 
-        //             //
-        //             v[pair_s_o] = under_pb->getReward(pair_s_o.first, under_pb->getActionSpace()->joint2single(jaction));
-        //             for (auto &o : under_pb->getObsSpace()->getAll())
-        //             {
-        //                 auto joint_history_next = joint_history->expand(o);
-        //                 for (number s_ = 0; s_ < under_pb->getStateSpace()->getNumItems())
-        //                 {
-        //                     v[pair_s_o] += under_pb->getDiscount() * under_pb->getObsDynamics()->getDynamics(pair_s_o.first, under_pb->getActionSpace()->joint2single(jaction), o, s_) * plan[Pair(s_, joint_history_next)];
-        //                 }
-        //             }
-        //         }
+                    //v[pair_s_o] = oMDP->getReward(state, jdr);
+                    //Finalement, est ce qu'il y a besoin de faire cela ? Car en faisant cela, on doit under_pb->getReward()->getReward(),
+                    // qui au final est une sous classe, et qui ne va pas prendre en compte ce qu'on a fait dans getReward de OccupancyState
 
-        //         if (value_max < (tmp = v ^ state))
-        //         {
-        //             value_max = tmp;
-        //             v_max = v;
-        //         }
-        //     }
-        // }
+                    // Get joint action from JointDetDecisionRule
+                    std::vector<typename TAction::value_type::output_type> jaction;
 
-        // return v_max;
-        throw sdm::exception::NotImplementedException();
+                    for (int i = 0; i < jdr.size(); i++)
+                    {
+                        auto p_ihist = joint_history->getIndividualHistory(i);
+                        auto idr = jdr.at(i);
+                        jaction.push_back(idr(p_ihist));
+                    }            
+
+                    auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
+                    v[pair_s_o] = under_pb->getReward()->getReward(s_state, index_joint_action);
+
+                    for (const auto &o : under_pb->getObsSpace()->getAll())
+                    {
+                        auto joint_history_next = joint_history->expand(o);
+                        auto index_history = under_pb->getObsSpace()->joint2single(o);
+
+                        for (const typename TVector::state_type &s_ : under_pb->getStateSpace()->getAll())
+                        {
+                            v[pair_s_o] += under_pb->getDiscount() * under_pb->getObsDynamics()->getDynamics(s_state, index_joint_action, index_history, s_) * plan.at(std::make_pair(s_,joint_history_next));
+                        }
+                    }
+                }
+
+                if (value_max < (tmp = state^v))
+                {
+                    value_max = tmp;
+                    v_max = v;
+                }
+            }
+        }
+        std::cout<<"\n State : "<<state;
+        std::cout<<"\n value max"<<value_max;
+        std::cout<<"\n V max "<<v_max;
+
+        return v_max;
     }
 
     // For SerializedOccupancyMDP (i.e. SerializedOccupancyState as vector type)
@@ -237,7 +249,71 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
     {
         std::cout << "Formalism SerializedDecPOMDP" << std::endl;
-        throw sdm::exception::NotImplementedException();
+
+        auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
+
+        TVector v_max;
+        double value_max = -std::numeric_limits<double>::max(), tmp;
+
+        number ag_id = state.getCurrentAgentId();
+
+        //Parcours des hyperplan support de la fonction au pas t+1
+  
+        for (const auto &plan : this->getSupport(t+1))
+        {
+        //     // Boucle over all joint decision rule at occupancy state
+            for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
+            {
+                TVector v;
+                for (const auto &pair_s_o_p : state)
+                {
+                    auto pair_s_o = pair_s_o_p.first;
+                    auto hidden_state = state.getHiddenState(pair_s_o);
+                    auto s_state = state.getState(pair_s_o);
+                    auto history = state.getHistory(pair_s_o);
+                    auto action = state.getAction(pair_s_o);
+                    auto proba = pair_s_o_p.second;
+
+                    // //Get joint action from JointDetDecisionRule
+                    std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
+
+                    // //Add the last selected action (the action of agent 0)
+                    jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
+
+                    //std::cout<<"\n joint2single "<<under_pb->getActionSpace()->joint2single(jaction);
+                    // Je ne comprend pas pourquoi cette ligne crash ? On l'utilise pourtant dans le SerializedOccupancyMDP
+                    // J'ai vérifié le jaction n'est pas vide
+                    //v[pair_s_o] = under_pb->getReward()->getReward(hidden_state, under_pb->getActionSpace()->joint2single(jaction));
+                    
+                    //Pareil, en utilisant cela, on utilise pas la structure qu'on a défini dans SerializedOccupancyMdp pour getReward.
+                    //v[pair_s_o] = soMDP->getReward(state,indiv_dr);
+
+        //             auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
+
+        //             for (const auto &o : under_pb->getObsSpace()->getAll())
+        //             {
+        //                 auto joint_history_next = joint_history->expand(o);
+        //                 auto index_history = under_pb->getObsSpace()->joint2single(o);
+        //                 for (const typename TVector::state_type &s_ : under_pb->getStateSpace()->getAll())
+        //                 {
+        //                     v[pair_s_o] += soMDP->getDiscount(t) * under_pb->getObsDynamics()->getDynamics(hidden_state, index_joint_action,index_history , s_.getState()) * plan.at(std::make_pair(s_,joint_history_next));
+        //                 }
+        //             }
+        //         }
+
+        //         if (value_max < (tmp = state^v))
+        //         {
+        //             value_max = tmp;
+        //             v_max = v;
+                }
+            }
+        }
+        // std::cout<<"\n State : "<<state;
+        // std::cout<<"\n value max"<<value_max;
+        // std::cout<<"\n V max "<<v_max;
+
+        return v_max;
     }
 
     // For BeliefMDP

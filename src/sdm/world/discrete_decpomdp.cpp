@@ -62,7 +62,7 @@ namespace sdm
     
     std::shared_ptr<DiscreteMDP> DiscreteDecPOMDP::toMDP()
     {
-        return this->toMMDP()->toMDP();
+        return this->toPOMDP()->toMDP();
     }
 
 

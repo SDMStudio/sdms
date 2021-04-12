@@ -96,7 +96,7 @@ namespace sdm
 
         if (ag_id != this->mmdp_->getNumAgents() - 1)
         {
-            return value_function->getValueAt(oState(ostate.getState(), u), t + 1);
+            return value_function->getValueAt(oState(x, u), t + 1);
         }
         else
         {
@@ -113,9 +113,9 @@ namespace sdm
     double SerializedMDP<oState, oAction>::getDiscount(int t) const
     {
 
-        if (this->getNumberAgent() > 1)
+        if (this->getNumAgents() > 1)
         {
-            if (t % this->getNumberAgent() != this->getNumberAgent() - 1)
+            if (t % this->getNumAgents() != this->getNumAgents() - 1)
             {
                 return 1.0;
             }
