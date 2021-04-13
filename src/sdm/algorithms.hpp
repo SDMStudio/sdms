@@ -11,8 +11,11 @@
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
+#include <sdm/utils/value_function/sawtooth_vf.hpp>
+
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
+#include <sdm/algorithms/value_iteration.hpp>
 
 namespace sdm
 {
@@ -58,10 +61,45 @@ namespace sdm
             {
                 lower_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, lb_init);
             }
-            // std::shared_ptr<sdm::ValueFunction<TState, TAction>> lower_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, lb_init);
-            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound(new sdm::MappedValueFunction<TState, TAction>(problem, horizon, ub_init));
+
+            std::shared_ptr<sdm::ValueFunction<TState, TAction>> upper_bound;
+            if (upper_bound_name == "sawtooth")
+            {
+                upper_bound = std::make_shared<sdm::SawtoothValueFunction<TState, TAction>>(problem, horizon, ub_init);
+            }
+            else
+            {
+                upper_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, ub_init);
+            }
 
             return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
+        }
+
+        /**
+         * @brief Build the ValueIteration version. 
+         * 
+         * @tparam TState Type of the state.
+         * @tparam TAction Type of the action.
+         * @param problem the problem to be solved
+         * @param discount the discount factor
+         * @param error the accuracy
+         * @param horizon the planning horizon
+         * @return pointer on HSVI instance
+         */
+        template <typename TState, typename TAction>
+        std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, int horizon)
+        {
+            // Set params in the environment
+            problem->getUnderlyingProblem()->setDiscount(discount);
+            problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
+
+            // Increase the horizon for the value function if the problem is serialized
+            if (problem->isSerialized())
+            {
+                horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
+            }
+
+            return std::make_shared<ValueIteration<TState, TAction>>(problem,discount, horizon, error);
         }
 
         /**
