@@ -71,7 +71,7 @@ namespace sdm
         static std::enable_if_t<is_solving_mmdp, DiscreteMMDP>
         getUnderlyingProblem();
 
-        template <bool is_solving_pomdp = std::is_any<TState, BeliefState,SerializedBeliefState>::value>
+        template <bool is_solving_pomdp = std::is_any<TState, BeliefState>::value>
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getUnderlyingProblem();
         

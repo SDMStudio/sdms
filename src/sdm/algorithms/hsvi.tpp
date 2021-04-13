@@ -202,8 +202,6 @@ namespace sdm
         }
     }
 
-<<<<<<< HEAD
-=======
     template <typename TState, typename TAction>
     double HSVI<TState, TAction>::getResultOpti()
     {
@@ -211,5 +209,4 @@ namespace sdm
     }
 
 
->>>>>>> 3246eb7c09e741b29e0e90171e7df41e2cc3951b
 } // namespace sdm
