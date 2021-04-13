@@ -161,7 +161,7 @@ namespace sdm
      */
     std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
 
-    int getTrial() const;
+    int getTrial();
 
     double getResultOpti();
   };

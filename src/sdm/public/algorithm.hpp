@@ -30,5 +30,7 @@ namespace sdm
      * @return double 
      */
     virtual double getResultOpti() =0;
+
+    virtual int getTrial() = 0;
   };
 } // namespace sdm

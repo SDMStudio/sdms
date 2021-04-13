@@ -51,40 +51,47 @@ namespace sdm
     {
 
         TBelief new_belief;
-
         number ag_id = belief.getCurrentAgentId();
-        auto x = belief.getState();
-        auto u = belief.getAction();
 
-        if (ag_id != this->mpomdp_->getNumAgents() - 1)
+        for (const auto &s_belief : belief )
         {
-            u.push_back(action);
-            new_belief = TBelief(x, u);
-        }
-        else
-        {
-            BeliefState nextBelief;
-            double tmp, obs_proba;
-            for (number nextState = 0; nextState < this->mpomdp_->getStateSpace()->getNumItems(); nextState++)
+            auto s_belief_state = s_belief.first;
+            auto proba = s_belief.second;
+            auto x = belief.getHiddenState(s_belief_state);
+            auto u = belief.getAction(s_belief_state);
+
+            if (ag_id != this->mpomdp_->getNumAgents() - 1)
             {
-                tmp = 0;
-                for (number s = 0; s < this->mpomdp_->getStateSpace()->getNumItems(); s++)
+                u.push_back(action);
+                typename TBelief::state_type s(x,u);
+                new_belief[s] = proba;                
+            }
+            else
+            {
+                double tmp, obs_proba;
+                for (const auto &nextState :this->mpomdp_->getStateSpace()->getAll())
                 {
-                    tmp += this->mpomdp_->getStateDynamics()->getTransitionProbability(s, action, nextState) * x.at(s);
-                }
-                obs_proba = this->mpomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState);
-                if (obs_proba && tmp)
-                {
-                    nextBelief[nextState] = obs_proba * tmp;
+                    tmp = 0;
+                    for (const auto &s : this->mpomdp_->getStateSpace()->getAll())
+                    {
+                        tmp += this->mpomdp_->getStateDynamics()->getTransitionProbability(s, action, nextState) * belief.at(s);
+                    }
+                    obs_proba = this->mpomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState);
+                    if (obs_proba && tmp)
+                    {
+                        new_belief[nextState] = obs_proba * tmp;
+                    }
                 }
             }
-            // Normalize the belief
-            double sum = nextBelief.norm_1();
-            for (const auto &pair_s_p : nextBelief)
-            {
-                nextBelief[pair_s_p.first] = pair_s_p.second / sum;
-            }
         }
+
+        // Normalize the belief
+        double sum = new_belief.norm_1();
+        for (const auto &s_belief_state : new_belief)
+        {
+            new_belief[s_belief_state.first] = s_belief_state.second / sum;
+        }
+
         return new_belief;
     }
 
@@ -93,34 +100,40 @@ namespace sdm
     {
 
         TBelief new_belief;
-
         number ag_id = belief.getCurrentAgentId();
-        auto x = belief.getState();
-        auto u = belief.getAction();
 
-        if (ag_id != this->mpomdp_->getNumAgents() - 1)
+        for (const auto &s_belief : belief )
         {
-            u.push_back(action);
-            new_belief = TBelief(x, u);
-        }
-        else
-        {
-            // Select o* as in the paper
-            number selected_o = 0;
-            double max_o = 0, tmp;
+            auto s_belief_state = s_belief.first;
+            auto proba = s_belief.second;
+            auto x = belief.getHiddenState(s_belief_state);
+            auto u = belief.getAction(s_belief_state);
 
-            for (number o = 0; o < this->mpomdp_->getObsSpace()->getNumItems(); o++)
+            if (ag_id != this->mpomdp_->getNumAgents() - 1)
             {
-                tmp = this->getObservationProbability(action, o, belief);
-                auto tau = this->nextState(belief, action, o);
-                tmp *= hsvi->do_excess(tau, t + 1);
-                if (tmp > max_o)
-                {
-                    max_o = tmp;
-                    selected_o = o;
-                }
+                u.push_back(action);
+                typename TBelief::state_type s(x,u);
+                new_belief[s] = proba;  
             }
-            new_belief = this->nextState(belief, action, selected_o);
+            else
+            {
+                // Select o* as in the paper
+                number selected_o = 0;
+                double max_o = 0, tmp;
+
+                for (const auto o : this->mpomdp_->getObsSpace()->getAll())
+                {
+                    tmp = this->getObservationProbability(action, o, belief);
+                    auto tau = this->nextState(belief, action, o);
+                    tmp *= hsvi->do_excess(tau, t + 1);
+                    if (tmp > max_o)
+                    {
+                        max_o = tmp;
+                        selected_o = o;
+                    }
+                }
+                new_belief = this->nextState(belief, action, selected_o);
+            }
         }
         return new_belief;
     }
@@ -135,7 +148,7 @@ namespace sdm
     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getReward(const TBelief &belief, const TAction &action) const
     {
         double r = 0;
-        for (number s = 0; s < this->mpomdp_->getStateSpace()->getNumItems(); s++)
+        for (const auto &s : this->mpomdp_->getStateSpace()->getAll())
         {
             r += belief.at(s) * this->mpomdp_->getReward()->getReward(s, action);
         }
@@ -146,7 +159,7 @@ namespace sdm
     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const
     {
         double exp_next_v = 0;
-        for (TObservation obs : this->mpomdp_->getObsSpace()->getAll())
+        for (const TObservation &obs : this->mpomdp_->getObsSpace()->getAll())
         {
             auto next_belief = this->nextState(belief, action, obs);
             exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
@@ -158,11 +171,12 @@ namespace sdm
     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const
     {
         double proba = 0;
-        auto &b = belief.getState();
-        for (number s = 0; s < this->mpomdp_->getStateSpace()->getNumItems(); s++)
-        {
-            proba += this->mpomdp_->getObsDynamics()->getObservationProbability(action, obs, s) * b.at(s);
-        }
+
+        //auto &b = belief.getState();
+        // for (const auto s : this->mpomdp_->getStateSpace()->getAll())
+        // {
+        //     proba += this->mpomdp_->getObsDynamics()->getObservationProbability(action, obs, s) * b.at(s);
+        // }
         return proba;
     }
 

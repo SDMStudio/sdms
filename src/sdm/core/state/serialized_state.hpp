@@ -17,8 +17,25 @@ namespace sdm
     SerializedState(number state, std::vector<number> actions);
     SerializedState(const SerializedState &v);
 
+    /**
+     * @brief Get the hidden state of the serializedState
+     * 
+     * @return number 
+     */
     number getState() const;
+
+    /**
+     * @brief Get the hidden vector of action that were already decided
+     * 
+     * @return std::vector<number> 
+     */
     std::vector<number> getAction() const;
+
+    /**
+     * @brief Get the current Agent Id of the object
+     * 
+     * @return number 
+     */
     number getCurrentAgentId() const;
   };
 

@@ -52,6 +52,8 @@ namespace sdm
             std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> getResult();
 
             double getResultOpti();
+
+            int getTrial() {return 0;}
     };
 }
 #include <sdm/algorithms/value_iteration.tpp>

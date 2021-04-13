@@ -58,9 +58,9 @@ namespace sdm
         {
             // Logging (save data and print algorithms variables)
             this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-            this->do_explore(start_state, 0,0);
+            this->do_explore(start_state, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0,0));
+        } while (!this->do_stop(start_state,0));
 
         std::cout << "----------------------------------------------------" << std::endl;
         this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -149,7 +149,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    int HSVI<TState, TAction>::getTrial() const
+    int HSVI<TState, TAction>::getTrial() 
     {
         return this->trial;
     }

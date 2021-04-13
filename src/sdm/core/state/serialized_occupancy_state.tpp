@@ -60,8 +60,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     number SerializedOccupancyState<TState, TJointHistory_p>::getCurrentAgentId() const
     {
-        //return (this->begin()->first).first.getAction().size();
-        return this->begin()->first.first.getAction().size();
+        return this->begin()->first.first.getCurrentAgentId();
     }
 
     template <typename TState, typename TJointHistory_p>
