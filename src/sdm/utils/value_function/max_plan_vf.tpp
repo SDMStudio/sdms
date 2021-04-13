@@ -184,14 +184,13 @@ namespace sdm
 
         TVector v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;
-        // Parcours des hyperplan support de la fonction au pas t+1
   
-        for (const auto &plan : this->getSupport(t+1))
+        // Parcours des hyperplan support de la fonction au pas t+1
+        for (const auto &plan : this->representation[t + 1])
         {
-        //     // Boucle over all joint decision rule at occupancy state
+            // Boucle over all joint decision rule at occupancy state
             for (const auto &jdr : oMDP->getActionSpaceAt(state)->getAll())
             {
-
                 TVector v;
                 for (const auto &pair_s_o_p : state)
                 {
@@ -207,7 +206,7 @@ namespace sdm
                     // Get joint action from JointDetDecisionRule
                     std::vector<typename TAction::value_type::output_type> jaction;
 
-                    for (int i = 0; i < jdr.size(); i++)
+                    for (number i = 0; i < jdr.size(); i++)
                     {
                         auto p_ihist = joint_history->getIndividualHistory(i);
                         auto idr = jdr.at(i);
@@ -215,6 +214,7 @@ namespace sdm
                     }            
 
                     auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
+
                     v[pair_s_o] = under_pb->getReward()->getReward(s_state, index_joint_action);
 
                     for (const auto &o : under_pb->getObsSpace()->getAll())
