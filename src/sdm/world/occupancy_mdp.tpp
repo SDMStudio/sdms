@@ -51,6 +51,12 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
+    void OccupancyMDP<oState, oAction>::compress()
+    {
+
+    }
+
+    template <typename oState, typename oAction>
     oState &OccupancyMDP<oState, oAction>::getState()
     {
         return this->cstate_;
@@ -77,7 +83,9 @@ namespace sdm
     template <typename oState, typename oAction>
     std::shared_ptr<DiscreteSpace<oAction>> OccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
-        auto vect_i_hist = ostate.getAllIndividualHistories();
+        auto vect_i_hist = ostate.getAllIndividualHistories(); // get joint histories as vector
+
+        // Get individual decision rules for each agent
         std::vector<std::vector<typename oAction::value_type>> vect_i_dr = {};
         for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
         {
@@ -106,6 +114,7 @@ namespace sdm
                 for (auto &z : this->dpomdp_->getObsSpace()->getAll())
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
+
                     std::vector<typename oAction::value_type::output_type> jaction;
                     for (int i = 0; i < joint_idr.size(); i++)
                     {
@@ -113,6 +122,9 @@ namespace sdm
                         auto idr = joint_idr.at(i);
                         jaction.push_back(idr(p_ihist));
                     }
+
+                    // auto jaction = joint_idr.act(o->getIndividualHistories());
+
                     double proba = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
                     if (proba > 0)
                     {
@@ -156,8 +168,7 @@ namespace sdm
     {
         return this->dpomdp_->toMDP();
     }
-    
-    
+
     template <typename oState, typename oAction>
     std::shared_ptr<BeliefMDP<BeliefState, number, number>> OccupancyMDP<oState, oAction>::toBeliefMDP()
     {

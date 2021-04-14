@@ -4,6 +4,7 @@
 #include <map>
 
 #include <sdm/core/function.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/tools.hpp>
 
@@ -21,53 +22,37 @@ namespace sdm
    * @tparam TAction the action type
    */
   template <typename TState, typename TAction>
-  class DeterministicDecisionRule : public Function<TState, TAction>
+  class DeterministicDecisionRule : public std::map<TState, TAction>, public Function<TState, TAction>
   {
-  protected:
   public:
-    std::map<TState, TAction> container_;
-    DeterministicDecisionRule() {}
+    DeterministicDecisionRule();
+    DeterministicDecisionRule(std::vector<TState> acc_states, std::vector<TAction> n_actions);
 
-    DeterministicDecisionRule(std::vector<TState> acc_states, std::vector<TAction> n_actions)
-    {
-      assert(acc_states.size() == n_actions.size());
-      for (std::size_t i = 0; i < acc_states.size(); i++)
-      {
-        this->container_[acc_states[i]] = n_actions[i];
-      }
-    }
+    /**
+     * @brief Get the action deducted from a given state 
+     * 
+     * @param s the generic state
+     * @return the corresponding action
+     */
+    TAction act(const TState &s) const;
 
-    TAction act(const TState &s) const
-    {
-      return this->container_.at(s);
-    }
-
-    TAction operator()(const TState &s) 
-    {
-      return this->container_.at(s);
-    }
-
-    bool operator<(const DeterministicDecisionRule &v2) const
-    {
-      return this->container_ < v2.container_;
-    }
-
-
-    bool operator==(const DeterministicDecisionRule &v2) const
-    {
-      return this->container_ == v2.container_;
-    }
+    /**
+     * @brief Apply the DetDecisionRule function (similar to `act` or even `at`)
+     * 
+     * @param s the generic state
+     * @return the corresponding action
+     */
+    TAction operator()(const TState &s);
 
     friend std::ostream &operator<<(std::ostream &os, const DeterministicDecisionRule<TState, TAction> &dr)
     {
       os << "<decision-rule type=\"deterministic\">" << std::endl;
-      for (auto v : dr.container_)
+      for (const auto &pair_s_a : dr)
       {
-        os << "\t<decision state=\"" << v.first << "\">" << std::endl;
+        os << "\t<decision state=\"" << pair_s_a.first << "\">" << std::endl;
         std::ostringstream res;
-        res << "\t\t" << v.second << std::endl;
+        res << "\t\t" << pair_s_a.second << std::endl;
         sdm::tools::indentedOutput(os, res.str().c_str());
-        // os << "\t\t" << v.second << std::endl;
         os << "\t<decision/>" << std::endl;
       }
       os << "<decision-rule/>" << std::endl;
@@ -80,22 +65,4 @@ namespace sdm
 
 } // namespace sdm
 
-namespace std
-{
-  template <typename S, typename A>
-  struct hash<sdm::DeterministicDecisionRule<S, A>>
-  {
-    typedef sdm::DeterministicDecisionRule<S, A> argument_type;
-    typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in) const
-    {
-      size_t seed = 0;
-      for (auto &input : in.container_)
-      {
-        //Combine the hash of the current vector with the hashes of the previous ones
-        sdm::hash_combine(seed, input);
-      }
-      return seed;
-    }
-  };
-}
+#include <sdm/utils/decision_rules/det_decision_rule.tpp>

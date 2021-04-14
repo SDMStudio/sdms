@@ -153,6 +153,7 @@ namespace sdm
                     using TStateDescriptor = HistoryTree_p<TObservation>;
 
                     using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+                    // using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);

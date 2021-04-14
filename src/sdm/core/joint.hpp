@@ -1,6 +1,3 @@
-/*=============================================================================
-Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
-==============================================================================*/
 #pragma once
 
 #include <vector>
@@ -10,26 +7,12 @@ Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
 #include <sdm/core/function.hpp>
 #include <sdm/utils/struct/vector.hpp>
 
-//!
-//! \file     joint.hpp
-//! \author   Jilles S. Dibangoye
-//! \brief    joint class
-//! \version  1.0
-//! \date     12 Avril 2016
-//!
-//! This class provides getter and setter methods for joint objects.
-//!
-
-/*!
- *  \namespace  sdm
- *  namespace   grouping all tools required for sequential decision making.
- */
 namespace sdm
 {
-  /*!
-   *  \class      Joint
-   *  \brief      class of joint item instances.
+  /**
+   * @brief This class is used for joint objects. It can be a JointHistoryTree, a JointObservation, a JointAction, etc.
    * 
+   * @tparam The type of item.
    */
   template <typename item>
   class Joint : public std::vector<item>, public Function<number, item>
@@ -44,6 +27,7 @@ namespace sdm
     Joint() : std::vector<item>() {}
     Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
     Joint(const std::vector<number> &, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
+    virtual ~Joint() {}
 
     number getNumAgents() const
     {
@@ -68,7 +52,6 @@ namespace sdm
           std::ostringstream res;
           res << j[ag] << ", ";
           sdm::tools::indentedOutput(os, res.str().c_str());
-          // os << j[ag] << ", ";
         }
         os << j[ag];
       }

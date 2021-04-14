@@ -58,6 +58,7 @@ namespace sdm
         OccupancyMDP(std::string underlying_dpomdp, number hist_length);
 
         oState &getState();
+        void compress();
 
         bool isSerialized() const;
         DiscreteDecPOMDP *getUnderlyingProblem();
