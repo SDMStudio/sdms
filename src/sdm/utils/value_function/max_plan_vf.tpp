@@ -81,10 +81,10 @@ namespace sdm
     void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
     {
         // TODO : To change with true bellman backup ope
-        // std::cout<<"\n state : "<<state;
-        // std::cout<<"\n tau :"<<t;
+        std::cout<<"\n state : "<<state;
+        std::cout<<"\n tau :"<<t;
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
-        // std::cout<<"\n new plan : "<<new_hyperplan;
+        std::cout<<"\n new plan : "<<new_hyperplan;
 
         if (this->isInfiniteHorizon())
         {
@@ -288,6 +288,10 @@ namespace sdm
 
         number ag_id = state.getCurrentAgentId();
 
+        std::cout<<"\n state :"<<state;
+        std::cout<<"\n state default:"<<state.getDefault();
+
+
         if(ag_id == under_pb->getNumAgents()-1)
         {
             //std::cout<<"\n tau+1 :"<<t+1<<", max horizon :"<<this->getHorizon();
@@ -298,7 +302,7 @@ namespace sdm
                     // Boucle over all joint decision rule at occupancy state
                     for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
                     {
-                        TVector v;
+                        TVector v(-10000);
                         for (const auto &pair_s_o_p : state)
                         {
                             auto pair_s_o = pair_s_o_p.first;
@@ -342,7 +346,7 @@ namespace sdm
             {
                 for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
                 {
-                    TVector v;
+                    TVector v(-10000);
                     for (const auto &pair_s_o_p : state)
                     {
                         auto pair_s_o = pair_s_o_p.first;
@@ -376,7 +380,7 @@ namespace sdm
                     // Boucle over all joint decision rule at occupancy state
                     for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
                     {
-                        TVector v;
+                        TVector v(-10000);
                         for (const auto &pair_s_o_p : state)
                         {
                             auto pair_s_o = pair_s_o_p.first;

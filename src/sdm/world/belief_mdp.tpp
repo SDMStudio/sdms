@@ -143,6 +143,8 @@ namespace sdm
         for (TObservation obs : this->pomdp_->getObsSpace()->getAll())
         {
             auto next_belief = this->nextState(belief, action, obs);
+            std::cout<<"\n proba :"<<this->getObservationProbability(action, obs, belief);
+            std::cout<<"\n value_function :"<<value_function->getValueAt(next_belief, t + 1);
             exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
         }
         return exp_next_v;
