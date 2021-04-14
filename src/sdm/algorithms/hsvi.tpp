@@ -59,17 +59,9 @@ namespace sdm
         {
             // Logging (save data and print algorithms variables)
             this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-<<<<<<< HEAD
             this->do_explore(start_state, 0);
             this->trial++;
         } while (!this->do_stop(start_state,0));
-=======
-            // std::cout << *this->lower_bound_ << std::endl;
-            // std::cout << *this->upper_bound_ << std::endl;
-            this->do_explore(start_state, 0);
-            this->trial++;
-        } while (!this->do_stop(start_state, 0));
->>>>>>> d5f868f8ff396c91d58e36680065f0a88ddb8bab
 
         std::cout << "----------------------------------------------------" << std::endl;
         this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);

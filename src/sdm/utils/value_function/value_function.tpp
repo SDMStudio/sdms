@@ -28,6 +28,8 @@ namespace sdm
         {
             (*q_s)[a] = this->getQValueAt(state, a, t);
         }
+        // std::cout<<"\n  state : "<<state<<", tau : "<<t;
+        // std::cout<<"\n Qvalue : "<<*q_s;
         return q_s;
     }
 
@@ -35,6 +37,9 @@ namespace sdm
     TValue ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, const TAction &action, number t)
     {
         // implement bellman operator
+        // std::cout<<"\n  state : "<<state<<", tau : "<<t<<", action : "<<action;
+        // std::cout<<"\n reward : "<<this->getWorld()->getReward(state, action);
+        // std::cout<<"\n getExpectedNext : "<<this->getWorld()->getExpectedNextValue(this, state, action, t);
         return this->getWorld()->getReward(state, action) + this->getDiscount(t) * this->getWorld()->getExpectedNextValue(this, state, action, t);
     }
 

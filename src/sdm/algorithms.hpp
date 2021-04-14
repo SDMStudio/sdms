@@ -17,6 +17,9 @@
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/algorithms/value_iteration.hpp>
 
+#include <sdm/utils/value_function/max_plan_vf_2.hpp>
+
+
 namespace sdm
 {
     namespace algo
@@ -56,6 +59,10 @@ namespace sdm
             if (lower_bound_name == "maxplan")
             {
                 lower_bound = std::make_shared<sdm::MaxPlanValueFunction<TState, TAction>>(problem, horizon, lb_init);
+            }
+            else if (lower_bound_name == "maxplan2")
+            {
+                lower_bound = std::make_shared<sdm::MaxPlanValueFunction2<TState, TAction>>(problem, horizon, lb_init);
             }
             else
             {
