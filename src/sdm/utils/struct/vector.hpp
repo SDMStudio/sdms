@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include <sdm/types.hpp>
+
 namespace sdm
 {
     // template <typename T>

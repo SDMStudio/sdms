@@ -17,7 +17,7 @@ namespace sdm
         assert(acc_states.size() == actions.size());
         for (std::size_t ag_id = 0; ag_id < acc_states.size(); ag_id++)
         {
-            this->push_back(std::make_shared<DeterministicDecisionRule<TState, TAction>>(acc_states[ag_id], actions[ag_id]));
+            this->push_back(DeterministicDecisionRule<TState, TAction>(acc_states[ag_id], actions[ag_id]));
         }
     }
 
@@ -28,7 +28,7 @@ namespace sdm
         Joint<TAction> jaction;
         for (number ag_id = 0; ag_id < jobserv.size(); ag_id++)
         {
-            jaction.push_back(this->at(ag_id)->act(jobserv.at(ag_id)));
+            jaction.push_back(this->at(ag_id).act(jobserv.at(ag_id)));
         }
         return jaction;
     }

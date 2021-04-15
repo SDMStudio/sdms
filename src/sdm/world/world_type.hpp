@@ -2,7 +2,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/states.hpp>
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/core/actions.hpp>
 
 namespace sdm
 {
@@ -59,7 +59,7 @@ namespace sdm
         getWorldType();
 
         template <bool is_occupancy_mdp = std::is_same<TState, OccupancyState<>>::value>
-        static std::enable_if_t<is_occupancy_mdp, OccupancyMDP<OccupancyState<>, Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>>
+        static std::enable_if_t<is_occupancy_mdp, OccupancyMDP<OccupancyState<>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>>
         getWorldType();
 
         // Return an instance of the underlying problem that corresponds to the problems solved

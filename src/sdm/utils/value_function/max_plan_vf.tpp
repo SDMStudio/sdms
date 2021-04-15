@@ -193,9 +193,9 @@ namespace sdm
         auto getAll_actionspace = oMDP->getActionSpaceAt(state)->getAll();
 
         // Parcours des hyperplan support de la fonction au pas t+1
-        if(t+1<this->getHorizon())
+        if (t + 1 < this->getHorizon())
         {
-            for (const auto &plan : this->representation[t+1])
+            for (const auto &plan : this->representation[t + 1])
             {
                 // Boucle over all joint decision rule at occupancy state
                 for (const auto &jdr : getAll_actionspace)
@@ -208,17 +208,10 @@ namespace sdm
                         auto s_state = state.getHiddenState(pair_s_o);
 
                         // Get joint action from JointDetDecisionRule
-                        std::vector<typename TAction::value_type::output_type> jaction;
-
-                        for (number i = 0; i < jdr.size(); i++)
-                        {
-                            auto p_ihist = joint_history->getIndividualHistory(i);
-                            auto idr = jdr.at(i);
-                            jaction.push_back(idr(p_ihist));
-                        }            
+                        auto jaction = jdr.act(joint_history->getIndividualHistories());
 
                         auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
-                        double tmp =0;
+                        double tmp = 0;
 
                         for (const auto &o : getAll_o)
                         {
@@ -227,12 +220,12 @@ namespace sdm
 
                             for (const auto &s_ : getAll_s)
                             {
-                                tmp += plan.at(std::make_pair(s_,joint_history_next)) * under_pb->getObsDynamics()->getDynamics(s_state, index_joint_action, index_history, s_);
+                                tmp += plan.at(std::make_pair(s_, joint_history_next)) * under_pb->getObsDynamics()->getDynamics(s_state, index_joint_action, index_history, s_);
                             }
                         }
-                        v[pair_s_o] = under_pb->getReward(s_state, jaction) + under_pb->getDiscount()*tmp;
+                        v[pair_s_o] = under_pb->getReward(s_state, jaction) + under_pb->getDiscount() * tmp;
                     }
-                    if (value_max < (tmp = state^v))
+                    if (value_max < (tmp = state ^ v))
                     {
                         value_max = tmp;
                         v_max = v;
@@ -252,18 +245,11 @@ namespace sdm
                     auto s_state = state.getHiddenState(pair_s_o);
 
                     // Get joint action from JointDetDecisionRule
-                    std::vector<typename TAction::value_type::output_type> jaction;
+                    auto jaction = jdr.act(joint_history->getIndividualHistories());
 
-                    for (number i = 0; i < jdr.size(); i++)
-                    {
-                        auto p_ihist = joint_history->getIndividualHistory(i);
-                        auto idr = jdr.at(i);
-                        jaction.push_back(idr(p_ihist));
-                    }            
-
-                    v[pair_s_o] = under_pb->getReward(s_state, jaction);// + under_pb->getDiscount()*tmp;
+                    v[pair_s_o] = under_pb->getReward(s_state, jaction); // + under_pb->getDiscount()*tmp;
                 }
-                if (value_max < (tmp = state^v))
+                if (value_max < (tmp = state ^ v))
                 {
                     value_max = tmp;
                     v_max = v;
@@ -280,7 +266,7 @@ namespace sdm
     {
         std::cout << "Formalism SerializedDecPOMDP" << std::endl;
 
-        auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
+        auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector, TAction>>(this->getWorld());
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector v_max;
@@ -288,12 +274,12 @@ namespace sdm
 
         number ag_id = state.getCurrentAgentId();
 
-        if(ag_id == under_pb->getNumAgents()-1)
+        if (ag_id == under_pb->getNumAgents() - 1)
         {
             //std::cout<<"\n tau+1 :"<<t+1<<", max horizon :"<<this->getHorizon();
-            if(t+1<this->getHorizon())
+            if (t + 1 < this->getHorizon())
             {
-                for (const auto &plan : this->representation[t+1])
+                for (const auto &plan : this->representation[t + 1])
                 {
                     // Boucle over all joint decision rule at occupancy state
                     for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
@@ -316,21 +302,21 @@ namespace sdm
                             auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
 
                             v[pair_s_o] = under_pb->getReward(hidden_state, jaction);
-                            
+
                             //v[pair_s_o] = soMDP->getReward(state,indiv_dr);
 
                             for (const auto &o : under_pb->getObsSpace()->getAll())
                             {
                                 auto history_next = history->expand(o);
                                 auto index_history = under_pb->getObsSpace()->joint2single(o);
-                                for (const typename TVector::state_type s_: under_pb->getStateSpace()->getAll())
+                                for (const typename TVector::state_type s_ : under_pb->getStateSpace()->getAll())
                                 {
-                                    v[pair_s_o] += soMDP->getDiscount(t) * under_pb->getObsDynamics()->getDynamics(hidden_state, index_joint_action,index_history , s_.getState()) * plan.at(std::make_pair(s_,history_next));
+                                    v[pair_s_o] += soMDP->getDiscount(t) * under_pb->getObsDynamics()->getDynamics(hidden_state, index_joint_action, index_history, s_.getState()) * plan.at(std::make_pair(s_, history_next));
                                 }
                             }
                         }
 
-                        if (value_max < (tmp = state^v))
+                        if (value_max < (tmp = state ^ v))
                         {
                             value_max = tmp;
                             v_max = v;
@@ -356,22 +342,23 @@ namespace sdm
                         std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
                         jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
 
-                        v[pair_s_o] = under_pb->getReward(hidden_state, jaction);// + under_pb->getDiscount()*tmp;
+                        v[pair_s_o] = under_pb->getReward(hidden_state, jaction); // + under_pb->getDiscount()*tmp;
                     }
-                    if (value_max < (tmp = state^v))
+                    if (value_max < (tmp = state ^ v))
                     {
                         value_max = tmp;
                         v_max = v;
                     }
                 }
             }
-        }else
+        }
+        else
         {
-            if(t+1<this->getHorizon())
+            if (t + 1 < this->getHorizon())
             {
-                for (const auto &plan : this->representation[t+1])
+                for (const auto &plan : this->representation[t + 1])
                 {
-                    std::cout<<"\n plan : "<<plan;
+                    std::cout << "\n plan : " << plan;
 
                     // Boucle over all joint decision rule at occupancy state
                     for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
@@ -392,22 +379,22 @@ namespace sdm
 
                             //Add the last selected action (the action of agent 0)
                             jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
-                            
+
                             for (const auto &o : under_pb->getObsSpace()->getAll())
                             {
                                 auto history_next = history->expand(o);
-                                for (const auto &hidden_s_: under_pb->getStateSpace()->getAll())
+                                for (const auto &hidden_s_ : under_pb->getStateSpace()->getAll())
                                 {
-                                    typename TVector::state_type s_(hidden_s_,jaction);
-                                    std::cout<<"\n s_ "<<s_<<", histo_next : "<<history;
-                                    std::cout<<"\n plan at : "<<plan.at(std::make_pair(s_,history));
-                                    v[pair_s_o] += soMDP->getDiscount(t) *plan.at(std::make_pair(s_,history));
+                                    typename TVector::state_type s_(hidden_s_, jaction);
+                                    std::cout << "\n s_ " << s_ << ", histo_next : " << history;
+                                    std::cout << "\n plan at : " << plan.at(std::make_pair(s_, history));
+                                    v[pair_s_o] += soMDP->getDiscount(t) * plan.at(std::make_pair(s_, history));
                                 }
                             }
-                            std::cout<<"\n res !!!! :"<<v[pair_s_o];
+                            std::cout << "\n res !!!! :" << v[pair_s_o];
                         }
 
-                        if (value_max < (tmp = state^v))
+                        if (value_max < (tmp = state ^ v))
                         {
                             value_max = tmp;
                             v_max = v;

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <sdm/core/function.hpp>
 #include <sdm/core/joint.hpp>
+#include <sdm/core/function.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
 
 namespace sdm
@@ -15,9 +15,13 @@ namespace sdm
    * @tparam TAction the action type
    */
     template <typename TState, typename TAction>
-    class JointDeterministicDecisionRule : public Joint<std::shared_ptr<DeterministicDecisionRule<TState, TAction>>>
+    class JointDeterministicDecisionRule
+        : public Joint<DeterministicDecisionRule<TState, TAction>>,
+          public Function<Joint<TState>, Joint<TAction>>
     {
     public:
+        using output_type = typename Function<Joint<TState>, Joint<TAction>>::output_type;
+
         JointDeterministicDecisionRule();
         JointDeterministicDecisionRule(const std::vector<DeterministicDecisionRule<TState, TAction>> &idr_list);
         JointDeterministicDecisionRule(std::vector<std::vector<TState>> acc_states, std::vector<std::vector<TAction>> actions);

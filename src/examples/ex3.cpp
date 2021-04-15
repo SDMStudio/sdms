@@ -14,7 +14,7 @@
 #include <sdm/spaces.hpp>
 #include <sdm/core/state/history.hpp>
 #include <sdm/core/action/discrete_action.hpp>
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
 

@@ -1,5 +1,5 @@
 #include <sdm/core/space/multi_discrete_space.hpp>
-#include <sdm/utils/decision_rules/variations.hpp>
+#include <sdm/core/variations.hpp>
 
 namespace sdm
 {

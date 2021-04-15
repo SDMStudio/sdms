@@ -26,6 +26,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type> OccupancyState<TState, TJointHistory_p>::getJointHistories() const
     {
+        // Get the set of joint histories that are in the support of the OccupancyState  
         std::set<jhistory_type> possible_jhistories;
         for (const auto &key : *this)
         {
@@ -37,6 +38,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     std::set<typename OccupancyState<TState, TJointHistory_p>::state_type> OccupancyState<TState, TJointHistory_p>::getStates() const
     {
+        // Get the set of states that are in the support of the OccupancyState  
         std::set<state_type> possible_states;
         for (const auto &key : *this)
         {
@@ -49,17 +51,19 @@ namespace sdm
     std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> OccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
     {
         std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> possible_ihistories;
+
         bool first_passage = true;
-        for (const auto &jhist : this->getJointHistories())
+        for (const auto &jhist : this->getJointHistories()) // for all joint history in the support
         {
-            auto ihists = jhist->getIndividualHistories();
+            auto ihists = jhist->getIndividualHistories(); // get associated individual histories for each agent
             for (std::size_t i = 0; i < ihists.size(); i++)
             {
+                // Init the set for agent i
                 if (first_passage)
                 {
                     possible_ihistories.push_back({});
                 }
-
+                // Add the indiv history of agent i in his set 
                 possible_ihistories[i].insert(ihists[i]);
             }
             first_passage = false;

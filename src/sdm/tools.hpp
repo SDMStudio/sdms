@@ -15,6 +15,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <set>
+
+#include <sdm/utils/struct/vector.hpp>
 
 namespace sdm
 {
@@ -57,6 +60,12 @@ namespace sdm
          * @return the built string 
          */
         std::string repeatString(const std::string &str, size_t times);
+
+        template <typename T>
+        std::vector<T> set2vector(const std::set<T> &set)
+        {
+            return std::vector<T>(set.begin(), set.end());
+        }
 
     } // namespace tools
 } // namespace sdm

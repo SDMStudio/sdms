@@ -7,7 +7,7 @@
 #include <sdm/core/state/serialized_belief_state.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
 
 namespace sdm
 {

@@ -55,5 +55,6 @@ namespace sdm
             }
             return stream.str();
         }
+
     } // namespace tools
 } // namespace sdm

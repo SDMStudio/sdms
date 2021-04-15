@@ -21,7 +21,7 @@
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
 
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
 
 namespace sdm
 {
@@ -36,7 +36,7 @@ namespace sdm
 
     {
     public:
-        using occupancy_mdp = OccupancyMDP<OccupancyState<number, JointHistoryTree_p<number>>, Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>;
+        using occupancy_mdp = OccupancyMDP<OccupancyState<number, JointHistoryTree_p<number>>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>;
 
         DiscreteDecPOMDP();
         DiscreteDecPOMDP(std::string &filename);

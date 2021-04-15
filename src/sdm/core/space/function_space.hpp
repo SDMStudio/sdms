@@ -13,7 +13,7 @@
 #include <vector>
 
 #include <sdm/core/space/discrete_space.hpp>
-#include <sdm/utils/decision_rules/variations.hpp>
+#include <sdm/core/variations.hpp>
 #include <sdm/types.hpp>
 
 namespace sdm

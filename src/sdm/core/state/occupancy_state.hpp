@@ -38,10 +38,31 @@ namespace sdm
     OccupancyState(std::size_t size, double default_value);
     OccupancyState(const OccupancyState &v);
 
+    /**
+     * @brief Get the set of states that are in the support of the occupancy state.
+     * 
+     * @return the possible states
+     */
     std::set<state_type> getStates() const;
 
+    /**
+     * @brief Get the set of joint histories that are in the support of the occupancy state.
+     * 
+     * @return the possible joint hitories
+     */
     std::set<jhistory_type> getJointHistories() const;
+
+    /**
+     * @brief Get the set of individual histories that are in the support of the occupancy state (for all agents).
+     * 
+     */
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
+
+    /**
+     * @brief Get the set of individual histories that are in the support of the occupancy state (for a given agent).
+     * 
+     * @param ag_id the agent id
+     */
     std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
 
     /**

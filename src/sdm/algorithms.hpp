@@ -8,7 +8,7 @@
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/public/algorithm.hpp>
 #include <sdm/core/states.hpp>
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/core/actions.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
 #include <sdm/utils/value_function/sawtooth_vf.hpp>
@@ -152,8 +152,8 @@ namespace sdm
                     using TActionDescriptor = number;
                     using TStateDescriptor = HistoryTree_p<TObservation>;
 
-                    using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
-                    // using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
+                    // using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+                    using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);

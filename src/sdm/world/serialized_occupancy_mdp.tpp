@@ -82,12 +82,10 @@ namespace sdm
         number ag_id = ostate.getCurrentAgentId();
 
         // Get the individual possible histories for the current agent (as vector)
-        auto indiv_hist = ostate.getIndividualHistories(ag_id);
-
-        std::vector<typename oState::jhistory_type::element_type::ihistory_type> v_inputs(indiv_hist.begin(), indiv_hist.end());
+        auto indiv_hist = sdm::tools::set2vector(ostate.getIndividualHistories(ag_id));
 
         // Generate all individual decision rules for agent 'ag_id' (the current agent)
-        FunctionSpace<oAction> f_indiv_dr_space(v_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
+        FunctionSpace<oAction> f_indiv_dr_space(indiv_hist, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
 
         // Now we can return a discrete space of all indiv decision rules
         return std::make_shared<DiscreteSpace<oAction>>(f_indiv_dr_space.getAll());

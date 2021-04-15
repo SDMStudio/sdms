@@ -63,11 +63,6 @@ namespace sdm
     template <typename T>
     std::vector<std::shared_ptr<HistoryTree<T>>> JointHistoryTree<T>::getIndividualHistories() const
     {
-        // std::vector<std::shared_ptr<HistoryTree<T>>> ihists;
-        // for (number i = 0; i < this->indiv_hist.getNumAgents(); i++)
-        // {
-        //     ihists.push_back(this->getIndividualHistory(i));
-        // }
         return this->indiv_hist;
     }
 

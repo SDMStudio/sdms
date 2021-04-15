@@ -12,7 +12,7 @@
 #include <cassert>
 #include <sdm/worlds.hpp>
 #include <sdm/spaces.hpp>
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
 #include <sdm/exception.hpp>
 
 using namespace sdm;

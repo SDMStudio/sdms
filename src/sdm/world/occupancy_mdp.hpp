@@ -22,7 +22,7 @@
 #include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/core/action/joint_det_decision_rule.hpp>
 
 /**
  * @namespace  sdm
@@ -38,7 +38,7 @@ namespace sdm
      * @tparam oState the occupancy state type 
      * @tparam oAction the occupancy action type 
      */
-    template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, typename oAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>
+    template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, typename oAction = JointDeterministicDecisionRule<HistoryTree_p<number>, number>>
     class OccupancyMDP : public SolvableByHSVI<oState, oAction>
     {
     protected:

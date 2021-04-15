@@ -33,7 +33,7 @@ namespace sdm
         {
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
             {
-                Pair<typename oState::state_type, typename oState::jhistory_type> p_x_h(s, jhist);
+                auto p_x_h = std::make_pair(s, jhist);
                 this->istate_[p_x_h] = this->dpomdp_->getStartDistrib().probabilities()[s];
             }
         }
@@ -53,7 +53,6 @@ namespace sdm
     template <typename oState, typename oAction>
     void OccupancyMDP<oState, oAction>::compress()
     {
-
     }
 
     template <typename oState, typename oAction>
@@ -83,26 +82,35 @@ namespace sdm
     template <typename oState, typename oAction>
     std::shared_ptr<DiscreteSpace<oAction>> OccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
-        auto vect_i_hist = ostate.getAllIndividualHistories(); // get joint histories as vector
+        using decision_rule_t = typename oAction::value_type;
+        auto vect_i_hist = ostate.getAllIndividualHistories(); // get possible histories for all agents
 
         // Get individual decision rules for each agent
-        std::vector<std::vector<typename oAction::value_type>> vect_i_dr = {};
+        std::vector<std::vector<decision_rule_t>> vect_i_dr = {};
         for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
         {
             // Generate all individual decision rules for agent 'ag_id'
-            std::vector<typename oState::jhistory_type::element_type::ihistory_type> v_inputs(vect_i_hist[ag_id].begin(), vect_i_hist[ag_id].end());
-            FunctionSpace<typename oAction::value_type> f_indiv_dr_space(v_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
+            auto vect_inputs = sdm::tools::set2vector(vect_i_hist[ag_id]);
+            FunctionSpace<decision_rule_t> f_indiv_dr_space(vect_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
             vect_i_dr.push_back(f_indiv_dr_space.getAll());
         }
 
+        // Get joint decision rules for each agent
+        std::vector<oAction> vect_j_dr = {};
+        for (const auto &joint_idr : MultiDiscreteSpace<decision_rule_t>(vect_i_dr).getAll())
+        {
+            vect_j_dr.push_back(oAction(joint_idr));
+        }
+
         // Now we can return a discrete space of all joint decision rules
-        return std::make_shared<DiscreteSpace<oAction>>(MultiDiscreteSpace<typename oAction::output_type>(vect_i_dr).getAll());
+        return std::make_shared<DiscreteSpace<oAction>>(vect_j_dr);
     }
 
     template <typename oState, typename oAction>
     oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, int, HSVI<oState, oAction> *) const
     {
         oState new_ostate;
+        // for all element in the support of the occupancy state
         for (auto &p_x_o : ostate)
         {
             auto x = p_x_o.first.first;
@@ -114,17 +122,7 @@ namespace sdm
                 for (auto &z : this->dpomdp_->getObsSpace()->getAll())
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
-
-                    std::vector<typename oAction::value_type::output_type> jaction;
-                    for (int i = 0; i < joint_idr.size(); i++)
-                    {
-                        auto p_ihist = o->getIndividualHistory(i);
-                        auto idr = joint_idr.at(i);
-                        jaction.push_back(idr(p_ihist));
-                    }
-
-                    // auto jaction = joint_idr.act(o->getIndividualHistories());
-
+                    auto jaction = joint_idr.act(o->getIndividualHistories());
                     double proba = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
                     if (proba > 0)
                     {
@@ -143,15 +141,10 @@ namespace sdm
         double r = 0;
         for (auto &p_x_o : ostate)
         {
-            auto state = p_x_o.first.first;
-            auto jhistory = p_x_o.first.second;
-            std::vector<typename oAction::value_type::output_type> jaction;
-            for (std::size_t i = 0; i < joint_idr.size(); i++)
-            {
-                auto idr = joint_idr.at(i);
-                jaction.push_back(idr(jhistory->getIndividualHistory(i)));
-            }
-            r += p_x_o.second * this->dpomdp_->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
+            auto x = p_x_o.first.first;
+            auto o = p_x_o.first.second;
+            auto jaction = joint_idr.act(o->getIndividualHistories());
+            r += p_x_o.second * this->dpomdp_->getReward()->getReward(x, this->dpomdp_->getActionSpace()->joint2single(jaction));
         }
         return r;
     }
