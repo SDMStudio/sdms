@@ -54,6 +54,7 @@ namespace sdm
         this->trial = 0;
         // std::cout << *this->lower_bound_ << std::endl;
 
+        std::cout << start_state << std::endl;
         clock_t t_begin = clock();
         do
         {
@@ -117,7 +118,7 @@ namespace sdm
         TState ostate = this->world_->getInitialState();
         TAction jdr;
         number end = (this->planning_horizon_ > 0) ? this->planning_horizon_ : 10;
-        for (int i = 0; i < end; i++)
+        for (number i = 0; i < end; i++)
         {
             std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
                       << std::endl;

@@ -41,24 +41,22 @@ namespace sdm
         std::shared_ptr<SerializedBeliefMDP<TBelief, TAction, TObservation>> getptr();
 
         TBelief &getState();
-        double getDiscount(int t) const;
+        double getDiscount(number t) const;
 
         bool isSerialized() const;
         DiscretePOMDP *getUnderlyingProblem();
 
         TBelief getInitialState();
-        TBelief nextState(const TBelief &ostate, const TAction &oaction, int t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
+        TBelief nextState(const TBelief &ostate, const TAction &oaction, number t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
 
         //Tempo à vérifier leur utilité
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
 
-
-
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &);
 
         double getReward(const TBelief &ostate, const TAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &ostate, const TAction &oaction, int t = 0) const;
+        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &ostate, const TAction &oaction, number t = 0) const;
 
         std::shared_ptr<DiscreteMDP> toMDP();
 

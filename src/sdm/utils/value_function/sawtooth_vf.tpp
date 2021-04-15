@@ -6,13 +6,13 @@ namespace sdm
     SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction() {}
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
 
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, int horizon, TValue default_value) : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value) : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
     {
 
     }

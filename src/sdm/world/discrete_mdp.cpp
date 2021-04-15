@@ -39,7 +39,7 @@ namespace sdm
         return this->getInternalState();
     }
 
-    number DiscreteMDP::nextState(const number &state, const number &action, int t, HSVI<number, number> *hsvi) const
+    number DiscreteMDP::nextState(const number &state, const number &action, number t, HSVI<number, number> *hsvi) const
     {
         std::cout<<"\n action :"<<action;
         std::cout<<"\n state :"<<state;
@@ -73,7 +73,7 @@ namespace sdm
         return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward()->getReward(state, action);
     }
 
-    double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, int t) const
+    double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, number t) const
     {
         double tmp = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)

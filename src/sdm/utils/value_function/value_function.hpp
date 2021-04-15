@@ -13,6 +13,7 @@
 #include <memory>
 
 #include <sdm/core/function.hpp>
+#include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
 /**
@@ -33,7 +34,7 @@ namespace sdm
      * @tparam TValue Type of the value.
      */
     template <typename TState, typename TAction, typename TValue = double>
-    class ValueFunction : public BinaryFunction<TState, number, TValue>
+    class ValueFunction : public BaseValueFunction<TState, TAction, TValue>, public BinaryFunction<TState, number, TValue>
     {
     protected:
         /**
@@ -47,11 +48,6 @@ namespace sdm
          * 
          */
         std::shared_ptr<BinaryFunction<TState, number, TValue>> init_function_ = nullptr;
-
-        /**
-         * @brief The horizon for planning.
-         */
-        int horizon_;
 
     public:
         ValueFunction() {}
@@ -145,11 +141,11 @@ namespace sdm
          */
         std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
 
-        int getHorizon() const;
+        // int getHorizon() const;
 
-        bool isFiniteHorizon() const;
+        // bool isFiniteHorizon() const;
 
-        bool isInfiniteHorizon() const;
+        // bool isInfiniteHorizon() const;
 
         friend std::ostream &operator<<(std::ostream &os, ValueFunction<TState, TAction> &vf)
         {

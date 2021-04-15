@@ -8,10 +8,10 @@ namespace sdm
     namespace algo
     {
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, int horizon, int trials, std::string name);
-    
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name);
+
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, int horizon);
+        std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, number horizon);
     }
 }
 namespace sdm
@@ -31,17 +31,18 @@ namespace sdm
 
         if (this->algo_name_ == "ValueIteration")
         {
-            auto value = algo::makeValueIteration<decltype(mdp->getInitialState()), number>(mdp,underlying_pb->getDiscount(),this->error_,underlying_pb->getPlanningHorizon());
+            auto value = algo::makeValueIteration<decltype(mdp->getInitialState()), number>(mdp, underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon());
             value->do_initialize();
             value->do_solve();
             //auto opti = value.policy_iteration();
 
             vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(value->getResult()));
-        }else
+        }
+        else
         {
             auto initial = underlying_pb->getInternalState();
-            // Instanciate HSVI for MDP 
-            auto algorithm = algo::makeHSVI<decltype(mdp->getInitialState()), number>(mdp,"tabular","tabular" ,"MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init");
+            // Instanciate HSVI for MDP
+            auto algorithm = algo::makeHSVI<decltype(mdp->getInitialState()), number>(mdp, "tabular", "tabular", "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init");
             algorithm->do_initialize();
 
             // Solve HSVI from every possible initial state
@@ -54,9 +55,8 @@ namespace sdm
             auto ubound = algorithm->getUpperBound();
 
             underlying_pb->setInternalState(initial);
-            
-            vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
 
+            vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
         }
         // Set the function that will be used to get interactively upper bounds
     }

@@ -21,7 +21,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedMDP<oState, oAction>::nextState(const oState &ostate, const oAction &action, int t, HSVI<oState, oAction> *hsvi) const
+    oState SerializedMDP<oState, oAction>::nextState(const oState &ostate, const oAction &action, number t, HSVI<oState, oAction> *hsvi) const
     {
         oState new_ostate;
 
@@ -85,7 +85,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    double SerializedMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &action, int t) const
+    double SerializedMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &action, number t) const
     {
 
         number ag_id = ostate.getCurrentAgentId();
@@ -110,7 +110,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    double SerializedMDP<oState, oAction>::getDiscount(int t) const
+    double SerializedMDP<oState, oAction>::getDiscount(number t) const
     {
 
         if (this->getNumAgents() > 1)

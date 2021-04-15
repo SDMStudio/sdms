@@ -1,50 +1,97 @@
-#include <sdm/utils/global_Test.hpp>
 
-#include <sdm/core/state/serialized_belief_state.hpp>
-#include <sdm/world/serialized_belief_mdp.hpp>
+#include <sdm/types.hpp>
+#include <sdm/algorithms.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/discrete_mmdp.hpp>
+#include <sdm/world/discrete_pomdp.hpp>
+#include <sdm/world/discrete_decpomdp.hpp>
+#include <sdm/world/belief_mdp.hpp>
+#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/struct/vector.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/linear_algebra/mapped_matrix.hpp>
+#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // try
-    // {
-    //     number horizon = 2;
+    std::string filename;
+    if (argc > 1)
+    {
+        filename = argv[1];
+        std::cout << "#> Parsing file \"" << filename << "\"\n";
+    }
 
-    //     using TState = BeliefState;
-    //     using TAction = number;
+    else
+    {
+        std::cerr << "Error: No input file provided." << std::endl;
+        return 1;
+    }
 
-    //     auto sbmdp = std::make_shared<BeliefMDP<TState, TAction>>("../data/world/dpomdp/tiger.dpomdp");
+    try
+    {
+        using TActionDescriptor = number;
+        using TStateDescriptor = HistoryTree_p<number>;
 
-    //     auto algo = sdm::algo::makeHSVI<TState,TAction>(sbmdp,"","","MaxInitializer","MinInitializer",1,0,2,1000,"");
+        using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+        using TStatePrescriptor = OccupancyState<number, JointHistoryTree_p<number>>;
 
-    //     algo->do_initialize();
-    //     algo->do_solve();
-
-    //     //auto lb_init = std::make_shared<MinInitializer<TState, TAction>>();
-
-    //     //auto lower_bound = std::make_shared<sdm::MaxPlanValueFunction<TState, TAction>>(beliefMDP, horizon, lb_init);
-    // }
-    // catch (sdm::exception::Exception &e)
-    // {
-    //     std::cout << "!!! Exception: " << e.what() << std::endl;
-    // }
+        //--------
+        //-------- PARAMETERS
+        //--------
+        // !!! ATTENTION : faire les tests pour de petits horizons (BeliedMDP horizon <= 5 et OccupancyMDP horizon <= 3) pour BeliefMDP et OccupancyMDP sinon la complexité mémoire explose
+        number horizon = 2;
+        
+        // Pour de petits horizons, on laisse discount = 1.0
+        double discount = 1.0, lr = 0.1;
+        number max_step = 100000;
 
 
-    std::string filePath("../data/world/dpomdp/");
+        //--------
+        //-------- Ex 1) QLEARNING POUR LA RESOLUTION EXACTE DES DecPOMDPs (as OccupancyMDP)
+        //--------
+        auto env = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);
+        env->getUnderlyingProblem()->setDiscount(discount);
+        env->getUnderlyingProblem()->setPlanningHorizon(horizon);
+        env->getUnderlyingProblem()->setupDynamicsGenerator();
 
-    std::vector<std::string> all_problem = {"mabc","tiger","recycling"};
+        auto algo = sdm::algo::makeQLearning<TStatePrescriptor, TActionPrescriptor>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_omdp");
+        algo->do_initialize();
+        algo->do_solve();
 
-    std::vector<std::string> all_formalism = {"extensive-decpomdp","decpomdp"};
+        //--------
+        //-------- Ex 2) QLEARNING POUR LA RESOLUTION EXACTE DES POMDPs (as BeliefMDP)
+        //--------
 
-    std::vector<int> all_horizon = {3};
+        // auto env = std::make_shared<BeliefMDP<>>(filename);
+        // env->getUnderlyingProblem()->setDiscount(discount);
+        // env->getUnderlyingProblem()->setPlanningHorizon(horizon);
+        // env->getUnderlyingProblem()->setupDynamicsGenerator();
 
-    std::vector<double> all_discount = {1};
+        // auto algo = sdm::algo::makeQLearning<BeliefState, number>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_bmdp");
+        // algo->do_initialize();
+        // algo->do_solve();
 
-    std::vector<std::string> all_lower_bound = {"MinInitializer"};
 
-    std::vector<std::string> all_upper_bound = {"MdpHsviInitializer"};
-    
-    sdm::test(all_formalism, all_problem,all_horizon,all_discount,{"sawtooth"},{""},all_lower_bound,all_upper_bound,1,filePath);
+        //--------
+        //-------- Ex 3) QLEARNING POUR LA RESOLUTION EXACTE DES MDPs
+        //--------
 
+        // auto env = std::make_shared<DiscreteMDP>(filename);
+        // env->setDiscount(discount);
+        // env->setPlanningHorizon(horizon);
+        // env->setupDynamicsGenerator();
+
+        // auto algo = sdm::algo::makeQLearning<number, number>(env, "qvalue_name", "initializer_name", horizon, discount, lr, 1, max_step, "test_qlearn");
+        // algo->do_initialize();
+        // algo->do_solve();
+
+    }
+    catch (sdm::exception::Exception &e)
+    {
+        std::cout << "!!! Exception: " << e.what() << std::endl;
+    }
+    return 0;
 }

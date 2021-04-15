@@ -11,11 +11,6 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    OccupancyMDP<oState, oAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : dpomdp_(underlying_dpomdp)
-    {
-    }
-
-    template <typename oState, typename oAction>
     OccupancyMDP<oState, oAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
     {
 
@@ -28,6 +23,8 @@ namespace sdm
         {
             jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents());
         }
+
+        this->ihistory_ = jhist;
 
         for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
         {
@@ -46,19 +43,34 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    OccupancyMDP<oState, oAction>::OccupancyMDP(std::string underlying_dpomdp) : OccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp))
-    {
-    }
-
-    template <typename oState, typename oAction>
-    void OccupancyMDP<oState, oAction>::compress()
-    {
-    }
-
-    template <typename oState, typename oAction>
     oState &OccupancyMDP<oState, oAction>::getState()
     {
         return this->cstate_;
+    }
+
+    template <typename oState, typename oAction>
+    oState OccupancyMDP<oState, oAction>::reset()
+    {
+        this->chistory_ = this->ihistory_;
+        this->cstate_ = this->istate_;
+        this->dpomdp_->reset();
+        return this->cstate_;
+    }
+
+    template <typename oState, typename oAction>
+    std::tuple<oState, std::vector<double>, bool> OccupancyMDP<oState, oAction>::step(oAction joint_idr)
+    {
+        std::vector<typename oAction::value_type::output_type> jaction;
+        for (number i = 0; i < joint_idr.size(); i++)
+        {
+            auto p_ihist = this->chistory_->getIndividualHistory(i);
+            auto idr = joint_idr.at(i);
+            jaction.push_back(idr(p_ihist));
+        }
+        auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);
+        this->chistory_ = this->chistory_->expand(next_obs);
+        this->cstate_ = this->nextState(this->cstate_, joint_idr);
+        return std::make_tuple(this->cstate_, rewards, done);
     }
 
     template <typename oState, typename oAction>
@@ -107,7 +119,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, int, HSVI<oState, oAction> *) const
+    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, HSVI<oState, oAction> *) const
     {
         oState new_ostate;
         // for all element in the support of the occupancy state
@@ -150,7 +162,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    double OccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t) const
+    double OccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t) const
     {
         oState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);

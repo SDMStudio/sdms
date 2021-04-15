@@ -27,7 +27,7 @@ namespace sdm
      */
     template <typename TBelief = BeliefState, typename TAction = number, typename TObservation = number>
     class BeliefMDP : public SolvableByHSVI<TBelief, TAction>,
-                      public GymInterface<DiscreteSpace<TBelief>, DiscreteSpace<TAction>>
+                      public GymInterface<TBelief, TAction>
     {
     protected:
         std::shared_ptr<DiscretePOMDP> pomdp_;
@@ -37,7 +37,7 @@ namespace sdm
     public:
         using state_type = TBelief;
         using action_type = TAction;
-        using observation_type = TObservation;
+        using observation_type = TBelief;
 
         BeliefMDP();
         BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
@@ -45,18 +45,19 @@ namespace sdm
 
         TBelief reset();
         TBelief &getState();
+        std::tuple<TBelief, std::vector<double>, bool> step(TAction action);
 
         bool isSerialized() const;
         DiscretePOMDP *getUnderlyingProblem();
 
         TBelief getInitialState();
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
-        TBelief nextState(const TBelief &belief, const TAction &action, int t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
+        TBelief nextState(const TBelief &belief, const TAction &action, number t, HSVI<TBelief, TAction> *hsvi) const;
 
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
 
         double getReward(const TBelief &belief, const TAction &action) const;
-        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const;
+        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, number t) const;
 
         /**
          * @brief Get the Observation Probability p(o | b, a)
