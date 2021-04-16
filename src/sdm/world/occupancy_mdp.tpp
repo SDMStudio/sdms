@@ -78,6 +78,25 @@ namespace sdm
     std::shared_ptr<DiscreteSpace<oAction>> OccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
         auto vect_i_hist = ostate.getAllIndividualHistories();
+        ostate.getPartialIndividualHistories();
+        std::vector<std::vector<typename oAction::value_type>> vect_i_dr = {};
+        for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
+        {
+            // Generate all individual decision rules for agent 'ag_id'
+            std::vector<typename oState::jhistory_type::element_type::ihistory_type> v_inputs(vect_i_hist[ag_id].begin(), vect_i_hist[ag_id].end());
+            FunctionSpace<typename oAction::value_type> f_indiv_dr_space(v_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
+            vect_i_dr.push_back(f_indiv_dr_space.getAll());
+        }
+
+        // Now we can return a discrete space of all joint decision rules
+        return std::make_shared<DiscreteSpace<oAction>>(MultiDiscreteSpace<typename oAction::output_type>(vect_i_dr).getAll());
+    }
+
+
+    template <typename oState, typename oAction>
+    std::shared_ptr<DiscreteSpace<oAction>> OccupancyMDP<oState, oAction>::getPartialActionSpaceAt(const oState &ostate)
+    {
+        auto vect_i_hist = ostate.getPartialIndividualHistories();
         std::vector<std::vector<typename oAction::value_type>> vect_i_dr = {};
         for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
         {

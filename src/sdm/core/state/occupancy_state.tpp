@@ -67,6 +67,68 @@ namespace sdm
         return possible_ihistories;
     }
 
+template <typename TState, typename TJointHistory_p>
+std::vector<std::map<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type,typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> OccupancyState<TState, TJointHistory_p>::getPartialIndividualHistories() const
+{
+    std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> possible_ihistories;
+    std::vector<std::map<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type,typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> blocks;
+    bool first_passage = true;
+    auto N = 1;
+    for (const auto &jhist : this->getJointHistories())
+    {
+        if (first_passage)
+        {//adds a first block.
+            std::map<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type,typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> block;
+            block[jhist->getIndividualHistories()[0]]=jhist->getIndividualHistories()[1];
+            blocks.push_back(block);
+        }
+        else
+        {//finds in which block this joint history needs to be added.
+            std::map<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type,typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> mapFound;
+            bool notFound;
+            auto key = jhist->getIndividualHistories()[0];
+            auto val = jhist->getIndividualHistories()[1];
+            for (const auto& map : blocks)
+            {
+                auto resultKey = map.find(key);
+                auto resultValues = std::find_if(map.begin(),map.end(),[val](const auto& mo) {return mo.second == val; });
+                if ((resultKey!=map.end()))// || (resultValues!=map.end()))
+                {// creates a new block
+                    mapFound = map;
+                    notFound = false;
+                }
+            }
+            if (notFound == true){
+                N++;
+                std::map<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type,typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> block;
+                block[jhist->getIndividualHistories()[0]]=jhist->getIndividualHistories()[1];
+                blocks.push_back(block);
+            }
+            else
+            {//adds to the existing block.*
+                //N++;
+                mapFound[key] = val;
+                //blocks.push_back({});
+            }
+        }
+        std::cout << "eheh, N : " << N << " blocks found ";
+        /*
+        auto ihists = jhist->getIndividualHistories();
+        for (std::size_t i = 0; i < ihists.size(); i++)
+        {
+            if (first_passage)
+            {
+                //possible_ihistories.push_back({});
+            }
+
+            //possible_ihistories[i].insert(ihists[i]);
+        }
+        */
+        first_passage = false;
+    }
+    return blocks;
+}
+
     template <typename TState, typename TJointHistory_p>
     std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> OccupancyState<TState, TJointHistory_p>::getIndividualHistories(number ag_id) const
     {

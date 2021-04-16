@@ -396,16 +396,18 @@ namespace sdm
 
                             //Add the last selected action (the action of agent 0)
                             jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
-                            
+                            //auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
+
                             for (const auto &o : under_pb->getObsSpace()->getAll())
                             {
+                                //auto index_history = under_pb->getObsSpace()->joint2single(o);
                                 auto history_next = history->expand(o);
                                 for (const auto &hidden_s_: under_pb->getStateSpace()->getAll())
                                 {
                                     typename TVector::state_type s_(hidden_s_,jaction);
                                     std::cout<<"\n s_ "<<s_<<", histo_next : "<<history;
                                     std::cout<<"\n plan at : "<<plan.at(std::make_pair(s_,history));
-                                    v[pair_s_o] += soMDP->getDiscount(t) *plan.at(std::make_pair(s_,history));
+                                    v[pair_s_o] += soMDP->getDiscount(t) * plan.at(std::make_pair(s_,history));
                                 }
                             }
                             std::cout<<"\n res !!!! :"<<v[pair_s_o];

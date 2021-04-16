@@ -66,7 +66,8 @@ namespace sdm
         oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
-        
+        std::shared_ptr<DiscreteSpace<oAction>> getPartialActionSpaceAt(const oState &);
+
         double getReward(const oState &ostate, const oAction &oaction) const;
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
 

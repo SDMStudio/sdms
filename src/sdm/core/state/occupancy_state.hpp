@@ -42,6 +42,7 @@ namespace sdm
 
     std::set<jhistory_type> getJointHistories() const;
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
+    std::vector<std::map<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type,typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> getPartialIndividualHistories() const;
     std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
 
     /**
