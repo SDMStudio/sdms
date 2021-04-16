@@ -19,7 +19,7 @@ namespace sdm
     class OccupancyMDP;
 
     template <typename oState, typename oAction>
-    class HISOccupancyMDP;
+    class PrivateOccupancyMDP;
 
     template <typename oState, typename oAction>
     class SerializedMDP;
@@ -58,8 +58,8 @@ namespace sdm
         static std::enable_if_t<is_occupancy_mdp, OccupancyMDP<OccupancyState<>, Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>>
         getWorldType();
 
-        template <bool is_his_occupancy_mdp = std::is_same<TState, PrivateOccupancyState<>>::value>
-        static std::enable_if_t<is_his_occupancy_mdp, HISOccupancyMDP<PrivateOccupancyState<>, Pair<Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>, number>>>
+        template <bool is_private_occupancy_mdp = std::is_same<TState, PrivateOccupancyState<>>::value>
+        static std::enable_if_t<is_private_occupancy_mdp, PrivateOccupancyMDP<PrivateOccupancyState<>, Pair<Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>, number>>>
         getWorldType();
 
         // Return an instance of the underlying problem that corresponds to the problems solved

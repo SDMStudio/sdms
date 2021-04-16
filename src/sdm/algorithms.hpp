@@ -267,7 +267,7 @@ namespace sdm
                     using TStatePrescriptor = PrivateOccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     using env_type = PrivateOccupancyMDP<TStatePrescriptor, TActionPrescriptor>;
-                    // auto problem = std::make_shared<env_type>(problem_path, horizon);
+                    auto problem = std::make_shared<env_type>(problem_path, horizon);
 
                 //     problem->getUnderlyingProblem()->setDiscount(discount_factor);
                 //     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
