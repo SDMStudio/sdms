@@ -38,19 +38,19 @@ namespace sdm
     {
         if (t < this->getHorizon())
         {
-            bool found = false;
-            auto first = this->representation[t].begin();
-            auto last = this->representation[t].end();
+            // bool found = false;
+            // auto first = this->representation[t].begin();
+            // auto last = this->representation[t].end();
 
-            while (first != last && !found)
-            {
-                if (first->first == state)
-                {
-                    found = true;
-                }
-                ++first;
-            }
-            if (!found)
+            // while (first != last && !found)
+            // {
+            //     if (first->first == state)
+            //     {
+            //         found = true;
+            //     }
+            //     ++first;
+            // }
+            if ((this->representation[t].find(state) == this->representation[t].end()))
             {
                 if (this->init_function_ != nullptr)
                 {
@@ -81,7 +81,6 @@ namespace sdm
         else
         {
             assert(t < this->horizon_);
-            // std::cout << " / Found ?  "<< (this->representation[t].find(state) != this->representation[t].end()) << " -- V(" << state << "," << t << ") = " << this->representation[t][state] <<std::endl;
             this->representation[t][state] = target;
         }
     }

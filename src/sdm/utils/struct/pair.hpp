@@ -32,4 +32,4 @@ namespace std
             return seed;
         }
     };
-}
+} 

@@ -107,3 +107,17 @@ namespace sdm
     }
 
 } // namespace sdm
+
+namespace std
+{
+  template <typename S, typename V>
+  struct hash<sdm::OccupancyState<S, V>>
+  {
+    typedef sdm::OccupancyState<S, V> argument_type;
+    typedef std::size_t result_type;
+    inline result_type operator()(const argument_type &in) const
+    {
+      return std::hash<sdm::MappedVector<sdm::Pair<S, V>, double>>()(in);
+    }
+  };
+}

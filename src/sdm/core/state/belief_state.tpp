@@ -29,3 +29,18 @@ namespace sdm
     }
 
 } // namespace sdm
+
+namespace std
+{
+
+  template <typename TState>
+  struct hash<sdm::BaseBeliefState<TState>>
+  {
+    typedef sdm::BaseBeliefState<TState> argument_type;
+    typedef std::size_t result_type;
+    inline result_type operator()(const argument_type &in) const
+    {
+      return std::hash<sdm::MappedVector<TState, double>>()(in);
+    }
+  };
+}

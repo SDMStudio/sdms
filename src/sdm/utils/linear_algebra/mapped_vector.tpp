@@ -62,6 +62,11 @@ namespace sdm
                 min = item.second;
             }
         }
+        if (min == std::numeric_limits<T>::max())
+        {
+            amin = TIndex();
+            min = this->default_value_;
+        }
         return {amin, min};
     }
 
@@ -110,15 +115,51 @@ namespace sdm
         return this->getMax().first;
     }
 
-    // template <typename TIndex, typename T>
-    // T MappedVector<TIndex, T>::operator+(const MappedVector &v2) const
-    // {
-    // }
+    template <typename TIndex, typename T>
+    bool MappedVector<TIndex, T>::operator==(const MappedVector<TIndex, T> &v2) const
+    {
+        double eps = 0.0000001;
+        if (std::abs(this->getDefault() - v2.getDefault()) > eps)
+        {
+            return false;
+        }
+        for (const auto &v : *this)
+        {
+            if (v2.find(v.first) == v2.end())
+            {
+                return false;
+            }
+            else
+            {
+                if (std::abs(v2.at(v.first) - v.second) > eps)
+                {
+                    return false;
+                }
+            }
+        }
 
-    // template <typename TIndex, typename T>
-    // T MappedVector<TIndex, T>::operator-(const MappedVector &v2) const
-    // {
-    // }
+        for (const auto &v : v2)
+        {
+            if (this->find(v.first) == this->end())
+            {
+                return false;
+            }
+            else
+            {
+                if (std::abs(this->at(v.first) - v.second) > eps)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    template <typename TIndex, typename T>
+    bool MappedVector<TIndex, T>::operator!=(const MappedVector<TIndex, T> &v2) const
+    {
+        return (!this->operator==(v2));
+    }
 
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::at(const TIndex &i) const
@@ -211,3 +252,24 @@ namespace sdm
     }
 
 } // namespace sdm
+
+namespace std
+{
+    template <typename S, typename V>
+    struct hash<sdm::MappedVector<S, V>>
+    {
+        typedef sdm::MappedVector<S, V> argument_type;
+        typedef std::size_t result_type;
+        inline result_type operator()(const argument_type &in) const
+        {
+            size_t seed = 0;
+            std::map<S, V> ordered(in.begin(), in.end());
+            for (const auto &v : ordered)
+            {
+                //Combine the hash of the current vector with the hashes of the previous ones
+                sdm::hash_combine(seed, v);
+            }
+            return seed;
+        }
+    };
+}

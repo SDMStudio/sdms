@@ -12,7 +12,7 @@ namespace sdm
                                                 double discount,
                                                 double lr,
                                                 double batch_size,
-                                                number num_max_steps,
+                                                unsigned long num_max_steps,
                                                 std::string name) : env_(env),
                                                                     q_value_(q_value),
                                                                     q_target_(q_target),

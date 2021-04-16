@@ -82,12 +82,11 @@ namespace sdm
                 tmp += this->pomdp_->getStateDynamics()->getTransitionProbability(state, action, nextState) * belief.at(state);
             }
             obs_proba = this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, nextState);
-            nextBelief[nextState] = obs_proba * tmp;
 
-            // if (obs_proba && tmp)
-            // {
-            //     nextBelief[nextState] = obs_proba * tmp;
-            // }
+            if (obs_proba && tmp)
+            {
+                nextBelief[nextState] = obs_proba * tmp;
+            }
         }
         // Normalize the belief
         double sum = nextBelief.norm_1();
@@ -104,27 +103,20 @@ namespace sdm
         // Select o* as in the paper
         number selected_o = 0;
         double max_o = -std::numeric_limits<double>::max(), tmp;
-        std::cout<<"\n belief :"<<belief;
-        std::cout<<"\n actiion : "<<action;
-        std::cout<<"\n tau : "<<t;
+        TBelief select_next_state;
         for (const auto &o : this->pomdp_->getObsSpace()->getAll())
         {
             tmp = this->getObservationProbability(action, o, belief);
-            std::cout<<"\n o : "<<o;
-            std::cout<<"\n getObservationProba : "<<tmp;
-            std::cout<<"\n next_belief_tempo"<<this->nextState(belief, action, o);
             auto tau = this->nextState(belief, action, o);
-            std::cout<<"\n excess : "<<hsvi->do_excess(tau, t + 1);
             tmp *= hsvi->do_excess(tau, t + 1);
             if (tmp > max_o)
             {
                 max_o = tmp;
                 selected_o = o;
+                select_next_state = tau;
             }
         }
-        std::cout<<"\n next_belief : "<<this->nextState(belief, action, selected_o);
-        std::cout<<"\n value : "<<tmp;
-        return this->nextState(belief, action, selected_o);
+        return select_next_state;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -159,10 +151,15 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     double BeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const
     {
-        double proba = 0;
+        double proba = 0, tmp;
         for (number s = 0; s < this->pomdp_->getStateSpace()->getNumItems(); s++)
         {
-            proba += this->pomdp_->getObsDynamics()->getObservationProbability(action, obs, s) * belief.at(s);
+            tmp = 0;
+            for (auto next_s : this->pomdp_->getStateSpace()->getAll())
+            {
+                tmp += this->pomdp_->getObsDynamics()->getDynamics(s, action, obs, next_s);
+            }
+            proba += tmp * belief.at(s);
         }
         return proba;
     }
