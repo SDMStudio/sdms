@@ -19,6 +19,9 @@ namespace sdm
     class OccupancyMDP;
 
     template <typename oState, typename oAction>
+    class HISOccupancyMDP;
+
+    template <typename oState, typename oAction>
     class SerializedMDP;
 
     template <typename oState, typename oAction>
@@ -55,6 +58,10 @@ namespace sdm
         static std::enable_if_t<is_occupancy_mdp, OccupancyMDP<OccupancyState<>, Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>>
         getWorldType();
 
+        template <bool is_his_occupancy_mdp = std::is_same<TState, PrivateOccupancyState<>>::value>
+        static std::enable_if_t<is_his_occupancy_mdp, HISOccupancyMDP<PrivateOccupancyState<>, Pair<Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>, number>>>
+        getWorldType();
+
         // Return an instance of the underlying problem that corresponds to the problems solved
         template <bool is_solving_mdp = std::is_same<TState, number>::value>
         static std::enable_if_t<is_solving_mdp, DiscreteMDP>
@@ -67,8 +74,8 @@ namespace sdm
         template <bool is_solving_pomdp = std::is_same<TState, BeliefState>::value>
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getUnderlyingProblem();
-        
-        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<number, JointHistoryTree_p<number>>, SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>
+
+        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<number, JointHistoryTree_p<number>>, PrivateOccupancyState<>, SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>
         static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>
         getUnderlyingProblem();
 

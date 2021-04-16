@@ -2,20 +2,25 @@
 namespace sdm
 {
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer)
+    TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(
+        number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer
+    )
         : QValueFunction<TState, TAction, TValue>(horizon), initializer_(initializer), learning_rate_(learning_rate)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_, Container());
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(number horizon, double learning_rate, TValue default_value) : TabularQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(
+        number horizon, double learning_rate, TValue default_value
+    ) : TabularQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
     {
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     void TabularQValueFunction<TState, TAction, TValue, TMatrix>::initialize()
-    {
+    {   
+        // std::cout << "yo" << std::endl;
         this->initializer_->init(this);
     }
 
@@ -34,7 +39,9 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    std::shared_ptr<VectorImpl<TAction, TValue>> TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(const TState &state, number t)
+    std::shared_ptr<VectorImpl<TAction, TValue>> TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(
+        const TState &state, number t
+    )
     {
         using v_type = typename TMatrix<TState, TAction, TValue>::value_type::second_type;
         if (this->isInfiniteHorizon())
@@ -43,7 +50,9 @@ namespace sdm
         }
         else
         {
-            return (t >= this->getHorizon()) ? std::make_shared<v_type>(0) : std::make_shared<v_type>(this->representation[t].at(state));
+            return (
+                t >= this->getHorizon()) ? std::make_shared<v_type>(0) : std::make_shared<v_type>(this->representation[t].at(state)
+            );
         }
     }
 
@@ -61,7 +70,9 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(const TState &state, const TAction &action, number t, TValue target)
+    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(
+        const TState &state, const TAction &action, number t, TValue target
+    )
     {
         // To be modified
         if (this->isInfiniteHorizon())
@@ -87,10 +98,13 @@ namespace sdm
     std::string TabularQValueFunction<TState, TAction, TValue, TMatrix>::str()
     {
         std::ostringstream res;
-        res << "<tabular_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
+        res << "<tabular_qvalue_function horizon=\"" 
+            << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon()
+        )) << "\">" << std::endl;
         for (sdm::size_t i = 0; i < this->representation.size(); i++)
         {
-            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
+            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" 
+                << this->representation[i].getDefault() << "\">" << std::endl;
             for (auto pair_st_val : this->representation[i])
             {
                 res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;

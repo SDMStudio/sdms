@@ -41,6 +41,13 @@ namespace sdm
             return OccupancyMDP<>();
         }
 
+        template <bool is_his_occupancy_mdp>
+        static std::enable_if_t<is_his_occupancy_mdp, HISOccupancyMDP<>>
+        getWorldType()
+        {
+            return HISOccupancyMDP<>();
+        }
+
         template <bool is_multi_agent>
         static std::enable_if_t<is_multi_agent, DiscreteDecPOMDP>
         getWorldType()

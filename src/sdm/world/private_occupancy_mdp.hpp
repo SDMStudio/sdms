@@ -14,7 +14,7 @@
 #include <sdm/core/joint.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/state.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
 
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/discrete_mdp.hpp>
@@ -39,10 +39,10 @@ namespace sdm
      * @tparam oState the occupancy state type 
      * @tparam oAction the occupancy action type 
      */
-    template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, 
-              typename oAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>
-    class OccupancyMDP : public SolvableByHSVI<oState, oAction>,
-                         public GymInterface<oState, oAction>
+    template <typename oState = PrivateOccupancyState<number, JointHistoryTree_p<number>>, 
+              typename oAction = Pair<Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>, number>>
+    class PrivateOccupancyMDP : public SolvableByHSVI<oState, oAction>,
+                            public GymInterface<oState, oAction>
     {
     protected:
         std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
@@ -54,7 +54,7 @@ namespace sdm
         using action_type = oAction;
         // using observation_type = oObservation;
 
-        OccupancyMDP();
+        PrivateOccupancyMDP();
 
         /**
          * @brief Construct a new Occupancy MDP  
@@ -62,7 +62,7 @@ namespace sdm
          * @param underlying_dpomdp the underlying DecPOMDP 
          * @param hist_length the maximum length of the history
          */
-        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length = -1);
+        PrivateOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length = -1);
 
         /**
          * @brief Construct a new Occupancy MDP  
@@ -70,7 +70,7 @@ namespace sdm
          * @param underlying_dpomdp the underlying DecPOMDP (as a filename)
          * @param hist_length the maximum length of the history
          */
-        OccupancyMDP(std::string underlying_dpomdp, number hist_length = -1);
+        PrivateOccupancyMDP(std::string underlying_dpomdp, number hist_length = -1);
 
         oState reset();
         oState &getState();
@@ -85,7 +85,8 @@ namespace sdm
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
 
         double getReward(const oState &ostate, const oAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t = 0) const;
+        double getExpectedNextValue(
+            ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t = 0) const;
 
         std::shared_ptr<DiscreteMDP> toMDP();
 
@@ -97,4 +98,4 @@ namespace sdm
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
     };
 } // namespace sdm
-#include <sdm/world/occupancy_mdp.tpp>
+#include <sdm/world/private_occupancy_mdp.tpp>

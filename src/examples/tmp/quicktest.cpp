@@ -44,7 +44,8 @@ int main(int argc, char **argv)
         //--------
         //-------- PARAMETERS
         //--------
-        // !!! ATTENTION : faire les tests pour de petits horizons (BeliedMDP horizon <= 5 et OccupancyMDP horizon <= 3) pour BeliefMDP et OccupancyMDP sinon la complexité mémoire explose
+        // !!! ATTENTION : faire les tests pour de petits horizons (BeliedMDP horizon <= 5 et OccupancyMDP horizon <= 3) pour 
+        // BeliefMDP et OccupancyMDP sinon la complexité mémoire explose
         number horizon = 2;
         
         // Pour de petits horizons, on laisse discount = 1.0
@@ -60,7 +61,9 @@ int main(int argc, char **argv)
         env->getUnderlyingProblem()->setPlanningHorizon(horizon);
         env->getUnderlyingProblem()->setupDynamicsGenerator();
 
-        auto algo = sdm::algo::makeQLearning<TStatePrescriptor, TActionPrescriptor>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_omdp");
+        auto algo = sdm::algo::makeQLearning<TStatePrescriptor, TActionPrescriptor>(
+            env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_omdp"
+        );
         algo->do_initialize();
         algo->do_solve();
 

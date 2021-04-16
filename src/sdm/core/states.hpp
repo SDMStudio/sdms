@@ -5,5 +5,6 @@
 #include <sdm/core/state/history.hpp>
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/core/state/serialized_state.hpp>
 #include <sdm/core/state/serialized_occupancy_state.hpp>

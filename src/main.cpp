@@ -79,9 +79,9 @@ int main_sdms(int argv, char **args)
     else if (func.compare("algorithms") == 0)
     {
       std::cout << "ALGORITHM\t"<< std::endl;
-      for (auto algo : sdm::algo::available())
+      for (auto a : sdm::algo::available())
       {
-        std::cout << algo << std::endl;
+        std::cout << a << std::endl;
       }
     }
     // LIST WORLDS

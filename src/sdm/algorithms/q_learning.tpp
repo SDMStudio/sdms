@@ -1,4 +1,5 @@
 #include <sdm/algorithms/q_learning.hpp>
+#include <typeinfo>
 
 namespace sdm
 {
@@ -42,7 +43,8 @@ namespace sdm
     void QLearning<TObservation, TAction>::do_initialize()
     {
         this->initLogger();
-
+        
+        // std::cout << typeid(this->q_value_).name() << std::endl;
         this->q_value_->initialize();
         this->q_target_->initialize();
     }
@@ -68,17 +70,22 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_->getQValueAt(this->env_->reset(), 0)->max(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(
+                    this->episode, 
+                    this->global_step, 
+                    this->q_value_->getQValueAt(this->env_->reset(), 0)->max(), 
+                    (float)(clock() - t_begin) / CLOCKS_PER_SEC
+                );
                 this->do_log = false;
             }
-            if (this->do_test_)
-            {
-                std::cout << "--------- TESTING ---------" << std::endl;
-                this->do_test();
-                this->do_test_ = false;
-            }
+            // if (this->do_test_)
+            // {
+            //     std::cout << "--------- TESTING ---------" << std::endl;
+            //     this->do_test();
+            //     this->do_test_ = false;
+            // }
         }
-        std::cout << "Final QValue :" << *this->q_value_ << std::endl;
+        // std::cout << "Final QValue :" << *this->q_value_ << std::endl;
     }
 
     template <typename TObservation, typename TAction>

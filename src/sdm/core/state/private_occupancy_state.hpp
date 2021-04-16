@@ -21,27 +21,28 @@ namespace sdm
 {
 
   /**
-   * @brief A state of occupancy refers to a state in which all the knowledge is known by a central planner and which it 
-   * relies on to make a decision.
+   * @brief A private state of occupancy refers to a 
    * 
    * @tparam TState refers to a number
-   * @tparam THistory_p refers to a joint histories
+   * @tparam TJointHistory_p refers to a joint histories
    */
-  template <typename TState, typename THistory_p>
-  class BaseOccupancyState : public MappedVector<Pair<TState, THistory_p>, double>
+  template <typename TState = number, typename TJointHistory_p = HistoryTree_p<number>>
+  class PrivateOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
   {
   public:
-    using history_type = THistory_p;
+    using jhistory_type = TJointHistory_p;
     using state_type = TState;
 
-    BaseOccupancyState();
-    BaseOccupancyState(double default_value);
-    BaseOccupancyState(std::size_t size, double default_value);
-    BaseOccupancyState(const BaseOccupancyState &v);
+    PrivateOccupancyState();
+    PrivateOccupancyState(double default_value);
+    PrivateOccupancyState(std::size_t size, double default_value);
+    PrivateOccupancyState(const PrivateOccupancyState &v);
 
     std::set<state_type> getStates() const;
 
-    std::set<history_type> getHistories() const;
+    std::set<jhistory_type> getHistories() const;
+    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
+    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
 
     /**
      * @brief Return the hidden state of a precise occupancy state
@@ -49,7 +50,7 @@ namespace sdm
      * @param pair_state_hist refers to a precise occupancy state
      * @return TState refers to the hidden state returned
      */
-    TState getState(const Pair<TState, THistory_p> &pair_state_hist) const;
+    TState getState(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
 
     /**
      * @brief Get the Hidden State of a precise occupancy state. For this situation, the hidden state is the current State
@@ -57,15 +58,15 @@ namespace sdm
      * @param pair_state_hist 
      * @return TState 
      */
-    TState getHiddenState(const Pair<TState, THistory_p> &pair_state_hist) const;
+    TState getHiddenState(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
 
     /**
-     * @brief Return the hidden history of a precise occupancy state
+     * @brief Return the hidden  history of a precise occupancy state
      * 
      * @param pair_state_hist refers to a precise occupancy state
-     * @return THistory_p refers to the hidden history returned
+     * @return TJointHistory_p refers to the hidden  history returned
      */
-    THistory_p getHistory(const Pair<TState, THistory_p> &pair_state_hist) const;
+    TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
 
     /**
      * @brief Return the probability of a precise occupancy state
@@ -73,18 +74,18 @@ namespace sdm
      * @param pair_state_hist refers to a precise occupancy state
      * @return double refers to the probability returned
      */
-    double getProbability(const Pair<TState, THistory_p> &pair_state_hist);
+    double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
 
   };
 } // namespace sdm
-#include <sdm/core/state/base_occupancy_state.tpp>
+#include <sdm/core/state/private_occupancy_state.tpp>
 
 namespace std
 {
     template <typename S, typename V>
-    struct hash<sdm::BaseOccupancyState<S, V>>
+    struct hash<sdm::PrivateOccupancyState<S, V>>
     {
-        typedef sdm::BaseOccupancyState<S, V> argument_type;
+        typedef sdm::PrivateOccupancyState<S, V> argument_type;
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {

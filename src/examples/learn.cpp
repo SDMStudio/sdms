@@ -14,10 +14,10 @@ int learn(int argv, char **args)
 {
     try
     {
-        std::string problem, algorithm, formalism, name, qvalue, q_init;
+        std::string problem_path, algorithm_name, formalism, name, qvalue_type, q_init_method;
         unsigned long nb_timesteps;
         number horizon;
-        double lr, discount;
+        double lr, discount_factor;
 
         po::options_description options("Options");
         options.add_options()
@@ -26,21 +26,23 @@ int learn(int argv, char **args)
 
         po::options_description config("Configuration");
         config.add_options()
-        ("algorithm,a", po::value<string>(&algorithm)->default_value("qlearning"), "the learning algorithm to use")
-        ("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")
+        ("algorithm,a", po::value<string>(&algorithm_name)->default_value("qlearning"), "the learning algorithm to use")
+        ("problem,p", po::value<string>(&problem_path)->default_value("tiger"), "the problem to be solved")
         ("formalism,f", po::value<string>(&formalism)->default_value("decpomdp"), "the formalism to use")
         ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
-        ("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")
+        ("discount,d", po::value<double>(&discount_factor)->default_value(0.9), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("nb_timesteps,t", po::value<unsigned long>(&nb_timesteps)->default_value(100000), "the maximum number of timesteps")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
         algo_config.add_options()
-        ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
-        ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
+        ("qvalue,q", po::value<string>(&qvalue_type)->default_value("tabular"), "the representation of the Q-Value")
+        ("init,i", po::value<string>(&q_init_method)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
-        po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
+        po::options_description visible(
+            "\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations."
+        );
         visible.add(options).add(config).add(algo_config);
 
         po::options_description config_file_options;
@@ -65,26 +67,27 @@ int learn(int argv, char **args)
         }
 
         std::vector<std::string> av_algos = sdm::algo::available();
-        if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
+        if (std::find(av_algos.begin(), av_algos.end(), algorithm_name) != av_algos.end())
         {
-            auto algo = sdm::algo::make(algorithm, problem, formalism, qvalue, q_init, horizon, discount, lr,  1, nb_timesteps, name);
-            algo->do_initialize();
-            algo->do_solve();
+            auto a = sdm::algo::make(
+                algorithm_name, problem_path, formalism, qvalue_type, q_init_method, horizon, discount_factor, lr,  1, nb_timesteps, name
+            );
+            a->do_initialize();
+            a->do_solve();
 
             if (vm.count("test"))
             {
-                algo->do_test();
+                a->do_test();
             }
         }
         else
         {
-            std::cout << "Error: " << algorithm << " is not a valid algorithm." << std::endl
-                      << std::endl;
+            std::cout << "Error: " << algorithm_name << " is not a valid algorithm." << std::endl << std::endl;
             std::cout << "#> Available algorithms are : " << std::endl;
             std::cout << "ALGORITHM\t" << std::endl;
-            for (auto algo : sdm::algo::available())
+            for (auto a : sdm::algo::available())
             {
-                std::cout << algo << std::endl;
+                std::cout << a << std::endl;
             }
         }
     }
