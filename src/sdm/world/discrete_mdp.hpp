@@ -25,15 +25,32 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class DiscreteMDP : public FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>,
+    class DiscreteMDP : public FullyObservableDecisionProcess<DiscreteSpace<number>, 
+                                                              DiscreteSpace<number>, 
+                                                              StateDynamics, 
+                                                              Reward, 
+                                                              std::discrete_distribution<number>>,
                         public SolvableByHSVI<number, number>,
                         public std::enable_shared_from_this<DiscreteMDP>
     {
     public:
         DiscreteMDP();
         DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp);
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::discrete_distribution<number>);
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number> start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+        DiscreteMDP(
+            std::shared_ptr<DiscreteSpace<number>> state_sp, 
+            std::shared_ptr<DiscreteSpace<number>> action_sp, 
+            std::discrete_distribution<number>
+        );
+        DiscreteMDP(
+            std::shared_ptr<DiscreteSpace<number>> state_sp, 
+            std::shared_ptr<DiscreteSpace<number>> action_sp, 
+            std::shared_ptr<StateDynamics>, 
+            std::shared_ptr<Reward>, 
+            std::discrete_distribution<number> start_distrib, 
+            number planning_horizon = 0, 
+            double discount = 0.9, 
+            Criterion criterion = Criterion::REW_MAX
+        );
         DiscreteMDP(std::string &filename);
 
         std::shared_ptr<DiscreteMDP> getptr();
@@ -44,7 +61,9 @@ namespace sdm
         number nextState(const number &state, const number &action, number t = 0, HSVI<number, number> *hsvi = nullptr) const;
         std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(const number &state);
         double getReward(const number &state, const number &action) const;
-        double getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, number t = 0) const;
+        double getExpectedNextValue(
+            ValueFunction<number, number> *value_function, const number &state, const number &action, number t = 0
+        ) const;
         DiscreteMDP *getUnderlyingProblem();
         bool isSerialized() const;
 
@@ -52,7 +71,8 @@ namespace sdm
         std::shared_ptr<DiscreteMDP> toMDP();
 
         /**
-         * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
+         * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't 
+         * possible to transform a MMDP to a belief MDP  
          * 
          * @return a belief MDP
          */

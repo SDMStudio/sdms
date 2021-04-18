@@ -50,9 +50,7 @@ namespace sdm
         }
         else
         {
-            return (
-                t >= this->getHorizon()) ? std::make_shared<v_type>(0) : std::make_shared<v_type>(this->representation[t].at(state)
-            );
+            return (t >= this->getHorizon()) ? std::make_shared<v_type>(0) : std::make_shared<v_type>(this->representation[t].at(state));
         }
     }
 

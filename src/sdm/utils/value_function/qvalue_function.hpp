@@ -12,6 +12,7 @@
 
 #include <memory>
 
+#include <sdm/core/state/history.hpp>
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>

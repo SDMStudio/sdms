@@ -11,20 +11,50 @@ namespace sdm
     }
 
     DiscreteMDP::DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp)
-        : StochasticProcessBase<DiscreteSpace<number>, std::discrete_distribution<number>>(state_sp),
-          FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>(state_sp, action_sp)
+        : StochasticProcessBase<DiscreteSpace<number>, 
+                                std::discrete_distribution<number>>(state_sp),
+                                FullyObservableDecisionProcess<DiscreteSpace<number>, 
+                                DiscreteSpace<number>, 
+                                StateDynamics, 
+                                Reward, 
+                                std::discrete_distribution<number>>(state_sp, action_sp)
     {
     }
 
-    DiscreteMDP::DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::discrete_distribution<number> start_distrib)
-        : StochasticProcessBase<DiscreteSpace<number>, std::discrete_distribution<number>>(state_sp, start_distrib),
-          FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>(state_sp, action_sp, start_distrib)
+    DiscreteMDP::DiscreteMDP(
+        std::shared_ptr<DiscreteSpace<number>> state_sp, 
+        std::shared_ptr<DiscreteSpace<number>> action_sp, 
+        std::discrete_distribution<number> start_distrib
+    )
+        : StochasticProcessBase<DiscreteSpace<number>, 
+                                std::discrete_distribution<number>>(state_sp, start_distrib),
+                                FullyObservableDecisionProcess<DiscreteSpace<number>, 
+                                DiscreteSpace<number>, 
+                                StateDynamics, 
+                                Reward, 
+                                std::discrete_distribution<number>>(state_sp, action_sp, start_distrib)
     {
     }
 
-    DiscreteMDP::DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<Reward> rew, std::discrete_distribution<number> start_distrib, number planning_horizon, double discount, Criterion criterion)
-        : StochasticProcessBase<DiscreteSpace<number>, std::discrete_distribution<number>>(state_sp, start_distrib),
-          FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>(state_sp, action_sp, state_dyn, rew, start_distrib, planning_horizon, discount, criterion)
+    DiscreteMDP::DiscreteMDP(
+        std::shared_ptr<DiscreteSpace<number>> state_sp, 
+        std::shared_ptr<DiscreteSpace<number>> action_sp, 
+        std::shared_ptr<StateDynamics> state_dyn, 
+        std::shared_ptr<Reward> rew, 
+        std::discrete_distribution<number> start_distrib, 
+        number planning_horizon, 
+        double discount, 
+        Criterion criterion
+    )
+        : StochasticProcessBase<DiscreteSpace<number>, 
+                                std::discrete_distribution<number>>(state_sp, start_distrib),
+                                FullyObservableDecisionProcess<DiscreteSpace<number>, 
+                                DiscreteSpace<number>, 
+                                StateDynamics, 
+                                Reward, 
+                                std::discrete_distribution<number>>(
+                                    state_sp, action_sp, state_dyn, rew, start_distrib, planning_horizon, discount, criterion
+                                )
     {
     }
 
@@ -62,14 +92,24 @@ namespace sdm
 
     std::shared_ptr<Reward> DiscreteMDP::getReward() const
     {
-        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward();
+        return FullyObservableDecisionProcess<DiscreteSpace<number>, 
+                                              DiscreteSpace<number>, 
+                                              StateDynamics, 
+                                              Reward, 
+                                              std::discrete_distribution<number>>::getReward();
     }
     double DiscreteMDP::getReward(const number &state, const number &action) const
     {
-        return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward()->getReward(state, action);
+        return FullyObservableDecisionProcess<DiscreteSpace<number>, 
+                                              DiscreteSpace<number>, 
+                                              StateDynamics, 
+                                              Reward, 
+                                              std::discrete_distribution<number>>::getReward()->getReward(state, action);
     }
 
-    double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, number t) const
+    double DiscreteMDP::getExpectedNextValue(
+        ValueFunction<number, number> *value_function, const number &state, const number &action, number t
+    ) const
     {
         double tmp = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)

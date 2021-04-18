@@ -197,7 +197,7 @@ namespace sdm
                                         std::string name = "qlearning")
         {
             if ((algo_name == "qlearning"))
-            {
+            {   
                 if ((formalism == "mdp") || (formalism == "MDP"))
                 {
                     using env_type = DiscreteMDP;
@@ -205,7 +205,9 @@ namespace sdm
                     problem->setDiscount(discount_factor);
                     problem->setPlanningHorizon(horizon);
                     problem->setupDynamicsGenerator();
-                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name);
+                    return makeQLearning<env_type::observation_type, env_type::action_type>(
+                        problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name
+                    );
                 }
                 else if ((formalism == "pomdp") || (formalism == "POMDP"))
                 {
@@ -255,7 +257,7 @@ namespace sdm
                         problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name
                     );
                 }
-                else if ((formalism == "hisoccupancymdp") || (formalism == "HISOccupancyMDP"))
+                else if ((formalism == "privateoccupancymdp") || (formalism == "PrivateOccupancyMDP"))
                 {
                     using TObservation = number;
                     using TState = number;
@@ -263,18 +265,20 @@ namespace sdm
                     using TActionDescriptor = number;
                     using TStateDescriptor = HistoryTree_p<TObservation>;
 
-                    using TActionPrescriptor = Pair<Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>, TActionDescriptor>;
-                    using TStatePrescriptor = PrivateOccupancyState<TState, JointHistoryTree_p<TObservation>>;
+                    using TActionPrescriptor = Pair<Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>, 
+                                                    TActionDescriptor>;
+                    using TStatePrescriptor = Pair<PrivateOccupancyState<TState, JointHistoryTree_p<TObservation>>, 
+                                                   JointHistoryTree_p<TObservation>>;
 
                     using env_type = PrivateOccupancyMDP<TStatePrescriptor, TActionPrescriptor>;
                     auto problem = std::make_shared<env_type>(problem_path, horizon);
 
-                //     problem->getUnderlyingProblem()->setDiscount(discount_factor);
-                //     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
-                //     problem->getUnderlyingProblem()->setupDynamicsGenerator();
-                //     return makeQLearning<env_type::observation_type, env_type::action_type>(
-                //         problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name
-                //     );
+                    problem->getUnderlyingProblem()->setDiscount(discount_factor);
+                    problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
+                    problem->getUnderlyingProblem()->setupDynamicsGenerator();
+                    return makeQLearning<env_type::observation_type, env_type::action_type>(
+                        problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name
+                    );
                 }
             }
             else

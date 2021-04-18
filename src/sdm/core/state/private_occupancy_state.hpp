@@ -26,7 +26,7 @@ namespace sdm
    * @tparam TState refers to a number
    * @tparam TJointHistory_p refers to a joint histories
    */
-  template <typename TState = number, typename TJointHistory_p = HistoryTree_p<number>>
+  template <typename TState = number, typename TJointHistory_p = JointHistoryTree_p<number>>
   class PrivateOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
   {
   public:
