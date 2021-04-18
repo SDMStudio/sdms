@@ -33,6 +33,14 @@ namespace sdm
     }
 
     template <typename T>
+    JointHistoryTree<T>::JointHistoryTree(std::vector<ihistory_type> trees){
+        for (number i = 0; i < trees.size(); i++)
+        {
+            this->indiv_hist.push_back(trees[i]);
+        }
+    }
+
+    template <typename T>
     void JointHistoryTree<T>::addIndivHist(std::shared_ptr<HistoryTree<T>> ihist)
     {
         this->indiv_hist.push_back(ihist);

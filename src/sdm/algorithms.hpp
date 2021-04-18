@@ -7,6 +7,7 @@
 #include <sdm/worlds.hpp>
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/algorithms/q_learning.hpp>
+#include <sdm/algorithms/his_q_learning.hpp>
 #include <sdm/public/algorithm.hpp>
 #include <sdm/core/states.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
@@ -171,6 +172,34 @@ namespace sdm
             );
         }
 
+        template <typename TObservation, typename TAction>
+        std::shared_ptr<sdm::HISQLearning<TObservation, TAction>> makeHISQLearning(std::shared_ptr<GymInterface<TObservation, TAction>> problem,
+                                                                             std::string qvalue_name,
+                                                                             std::string initializer_name,
+                                                                             number horizon = 0,
+                                                                             double discount_factor = 0.9,
+                                                                             double lr = 0.01,
+                                                                             double batch_size = 1,
+                                                                             unsigned long num_max_steps = 100000,
+                                                                             std::string name = "qlearning")
+        {
+            assert(((discount_factor < 1) || (horizon > 0)));
+
+            // Instanciate initializers and qvalue functions
+            auto initializer = std::make_shared<sdm::ZeroInitializer<TObservation, TAction>>();
+            auto qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, TAction>>(horizon, lr, initializer);
+
+            auto initializer_target = std::make_shared<sdm::ZeroInitializer<TObservation, TAction>>();
+            auto target_qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, TAction>>(horizon, lr, initializer_target);
+
+            // Instanciate exploration process
+            auto exploration_process = std::make_shared<sdm::EpsGreedy<TObservation, TAction>>();
+
+            return std::make_shared<HISQLearning<TObservation, TAction>>(
+                problem, qvalue, target_qvalue, exploration_process, horizon, discount_factor, lr, batch_size, num_max_steps, name
+            );
+        }
+
         /**
          * @brief Build an algorithm given his name and the configurations required. 
          * 
@@ -263,7 +292,7 @@ namespace sdm
                     using TState = number;
 
                     using TActionDescriptor = number;
-                    using TStateDescriptor = HistoryTree_p<TObservation>;
+                    using TStateDescriptor = Pair<HistoryTree_p<TObservation>, Joint<number>>;
 
                     using TActionPrescriptor = Pair<Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>, 
                                                     TActionDescriptor>;
@@ -276,7 +305,7 @@ namespace sdm
                     problem->getUnderlyingProblem()->setDiscount(discount_factor);
                     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
                     problem->getUnderlyingProblem()->setupDynamicsGenerator();
-                    return makeQLearning<env_type::observation_type, env_type::action_type>(
+                    return makeHISQLearning<env_type::observation_type, env_type::action_type>(
                         problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name
                     );
                 }

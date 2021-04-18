@@ -50,6 +50,8 @@ namespace sdm
 
         JointHistoryTree(number n_agents, number max_depth);
 
+        JointHistoryTree(std::vector<ihistory_type> trees);
+
         /*!
          *  @fn     JointHistoryTree(std::shared_ptr<JointHistoryTree>, const T&, bool = true)
          *  @brief  constructor

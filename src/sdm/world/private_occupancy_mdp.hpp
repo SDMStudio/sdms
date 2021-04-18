@@ -40,7 +40,7 @@ namespace sdm
      * @tparam oAction the occupancy action type 
      */
     template <typename oState = Pair<PrivateOccupancyState<number, JointHistoryTree_p<number>>, JointHistoryTree_p<number>>, 
-              typename oAction = Pair<Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>, number>>
+              typename oAction = Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>>
     class PrivateOccupancyMDP : public SolvableByHSVI<oState, oAction>,
                                 public GymInterface<oState, oAction>
     {

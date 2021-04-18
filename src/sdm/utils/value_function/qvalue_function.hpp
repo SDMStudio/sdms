@@ -16,6 +16,7 @@
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/world/gym_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -85,6 +86,8 @@ namespace sdm
         virtual TValue getQValueAt(const TState &state, const TAction &action, number t) = 0;
 
         TAction getBestAction(const TState &state, number t = 0);
+
+        TAction getBestAction_his(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t = 0);
 
         /**
          * @brief Update the value at a given state

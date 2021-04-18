@@ -59,7 +59,7 @@ namespace sdm
         getWorldType();
 
         template <bool is_private_occupancy_mdp = std::is_same<TState, Pair<PrivateOccupancyState<>, JointHistoryTree_p<number>>>::value>
-        static std::enable_if_t<is_private_occupancy_mdp, PrivateOccupancyMDP<Pair<PrivateOccupancyState<>, JointHistoryTree_p<number>>, Pair<Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>, number>>>
+        static std::enable_if_t<is_private_occupancy_mdp, PrivateOccupancyMDP<Pair<PrivateOccupancyState<>, JointHistoryTree_p<number>>, Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>>>
         getWorldType();
 
         // Return an instance of the underlying problem that corresponds to the problems solved
