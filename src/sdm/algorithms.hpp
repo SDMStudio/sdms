@@ -186,11 +186,11 @@ namespace sdm
             assert(((discount_factor < 1) || (horizon > 0)));
 
             // Instanciate initializers and qvalue functions
-            auto initializer = std::make_shared<sdm::ZeroInitializer<TObservation, TAction>>();
-            auto qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, TAction>>(horizon, lr, initializer);
+            auto initializer = std::make_shared<sdm::ZeroInitializer<TObservation, typename TAction::second_type>>();
+            auto qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, typename TAction::second_type>>(horizon, lr, initializer);
 
-            auto initializer_target = std::make_shared<sdm::ZeroInitializer<TObservation, TAction>>();
-            auto target_qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, TAction>>(horizon, lr, initializer_target);
+            auto initializer_target = std::make_shared<sdm::ZeroInitializer<TObservation, typename TAction::second_type>>();
+            auto target_qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, typename TAction::second_type>>(horizon, lr, initializer_target);
 
             // Instanciate exploration process
             auto exploration_process = std::make_shared<sdm::EpsGreedy<TObservation, TAction>>();

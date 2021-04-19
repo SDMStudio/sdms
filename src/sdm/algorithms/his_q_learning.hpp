@@ -43,12 +43,12 @@ namespace sdm
     /**
      * @brief Q-value function. 
      */
-    std::shared_ptr<QValueFunction<TObservation, TAction>> q_value_;
+    std::shared_ptr<QValueFunction<TObservation, typename TAction::second_type>> q_value_;
 
     /**
      * @brief Q-value target function. 
      */
-    std::shared_ptr<QValueFunction<TObservation, TAction>> q_target_;
+    std::shared_ptr<QValueFunction<TObservation, typename TAction::second_type>> q_target_;
 
     /**
      * @brief Experience Memory. 

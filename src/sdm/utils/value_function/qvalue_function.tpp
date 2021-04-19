@@ -27,12 +27,12 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TAction QValueFunction<TState, TAction, TValue>::getBestAction_his(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t)
+    Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, TAction>> QValueFunction<TState, TAction, TValue>::getBestAction_his(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t)
     {   
         PrivateOccupancyState<number, JointHistoryTree_p<number>> s2 = state.first;
         // JointHistoryTree_p<number> o = state.second;
         HistoryTree_p<number> o2 = state.second->getIndividualHistory(1);
-        std::vector<TState> acc_states;
+        std::vector<Pair<HistoryTree_p<number>, Joint<number>>> acc_states;
         std::vector<number> n_actions;
         for (auto &o1: s2.getIndividualHistories(1)){
             for (number u2; u2 < env->getUnderlyingProblem()->getNumActions(1); u2++){
@@ -40,7 +40,7 @@ namespace sdm
                 actions.push_back(u2);
                 std::vector<HistoryTree_p<number>> histories = {o1, o2};
                 JointHistoryTree_p<number> o = std::make_shared<typename TState::second_type>(JointHistoryTree(histories));
-                TState acc_state = std::make_tuple(o, actions);
+                auto acc_state = std::make_tuple(o, actions);
                 acc_states.push_back(acc_state);
                 auto qvalues = this->getQValueAt(acc_state, t);
                 for(number i; env->getUnderlyingProblem()->getNumActions(); i++){
