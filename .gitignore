@@ -9,3 +9,5 @@ figures
 Guide.png
 info
 *.out
+*.csv
+*.txt
