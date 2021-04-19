@@ -65,7 +65,7 @@ git clone https://gitlab.inria.fr/chroma1/plasma/sdms.git
 cd sdms
 ./install.sh
 ```
-You can pass an parameter of the form `path/to/libtorch-xxxxx.zip` to specify which  configuration of PyTorch is to be used.
+You can pass a parameter of the form `path/to/libtorch-xxxxx.zip` to specify which  configuration of PyTorch is to be used.
 ```bash
 ./install.sh path/to/libtorch-xxxxx.zip
 ```
@@ -116,14 +116,20 @@ docker run --rm -ti sdms:<tag>
 
 ### For developers
 
-Developers can use the multi-stage build architecture to improve flexibility during development process. If you don't want to install SDMS dependencies on your machine or you want to avoid building a new docker image each time you make changes in the code, you can build and run the base `dev` image using `bind mount` tools to mount your local repo in a container. The following command lines should do that: 
+Developers can use the multi-stage build architecture to improve flexibility during development process. For instance, if you have  difficulties to install SDMS on your system, you can build (or use a pre-built docker image) and run the base image `dev` using `bind mount` tools. This will mount your local `sdms` folder in the created container.  
 
 ```bash
+# To build and use a development image
+cd sdms/
 docker build --target dev -t sdms:develop .
 docker run -ti --name sdms-dev --mount type=bind,source="$(pwd)",target=/home/sdms sdms:devel
+
+# To use a pre-built development image
+cd sdms/
+docker run -ti --name sdms-dev --mount type=bind,source="$(pwd)",target=/home/sdms blavad/sdms:0.4-cpu-devel
 ```
 
-With custom parameters, it is possible to build an image that is configure to work with any required version of CUDA.
+With custom parameters, it is possible to build an image that is configured to work with a required version of CUDA.
 ```bash
 docker build --build-arg BASE_IMAGE=nvidia/cuda:<tag> --build-arg LIBTORCH_URL=<url/to/cuda/libtorch> --target dev -t sdms:<tag> .
 
@@ -149,7 +155,7 @@ oarsub -p "cluster='cluster-name'" -I
 g5k-setup-nvidia-docker -t
 module load cudnn
 
-# Pull the docker image that is adapted for your usage (on g5k must be 'cuda10.1-cudnn8') 
+# Pull the docker image that is adapted to your usage (on g5k must be 'cuda10.1-cudnn8') 
 docker pull blavad/sdms:<version> # ex: docker pull blavad/sdms:0.1-cuda10.1-cudnn8-devel
 
 # (alternatively you can build the image yourself)
@@ -178,8 +184,13 @@ SDMStudio worlds
 ### Solve a problem (with planning algorithm)
 ```bash
 SDMStudio solve [ARG...]
-SDMStudio solve [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-e ERROR] [-d DISCOUNT] [-h HORIZON] [-t TRIALS]
-SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS]
+SDMStudio solve [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-e ERROR] [-d DISCOUNT] [-h HORIZON] [-t TRIALS] [-n EXP_NAME]
+SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS] [--name EXP_NAME]
+```
+**Exemple:** solve the multi-agent problem called *tiger* as it was a single-agent problem. HSVI will be used by default. 
+```bash
+cd sdms/
+SDMStudio solve -p data/world/dpomdp/tiger.dpomdp -f pomdp -e 0.001 -d 1.0 -h 4
 ```
 
 ### Solve a problem (with learning algorithm)
@@ -187,6 +198,12 @@ SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [
 SDMStudio learn [ARG...]
 SDMStudio learn [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-l LEARNING_RATE] [-d DISCOUNT] [-h HORIZON] [-t NUM_TIMESTEPS] [-n EXP_NAME]
 SDMStudio learn [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--lr LEARNING_RATE] [--discount DISCOUNT] [--horizon HORIZON] [--nb_timesteps NUM_TIMESTEPS] [--name EXP_NAME]
+```
+
+**Exemple:** solve the multi-agent problem called *tiger* as it was a single-agent problem. Q-learning will be used by default. 
+```bash
+cd sdms/
+SDMStudio learn -p data/world/dpomdp/tiger.dpomdp -f pomdp -l 0.01 -d 1.0 -h 4 -t 30000 
 ```
 
 ### Test a saved policy [TO DO]
