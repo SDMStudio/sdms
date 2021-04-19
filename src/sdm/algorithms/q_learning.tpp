@@ -13,7 +13,7 @@ namespace sdm
                                                 double discount,
                                                 double lr,
                                                 double batch_size,
-                                                number num_max_steps,
+                                                unsigned long num_max_steps,
                                                 std::string name) : env_(env),
                                                                     q_value_(q_value),
                                                                     q_target_(q_target),
@@ -102,7 +102,7 @@ namespace sdm
 
         unsigned long stop_cond = this->global_step + this->planning_horizon_;
         while (this->global_step < stop_cond)
-        {
+        {   
             this->do_step();
 
             //Save the model
@@ -119,7 +119,7 @@ namespace sdm
 
     template <typename TObservation, typename TAction>
     void QLearning<TObservation, TAction>::do_step()
-    {
+    {   
         // Action selection following policy and exploration process
         auto current_action = this->select_action(this->current_obs);
 
@@ -130,7 +130,9 @@ namespace sdm
         // this->experience->store_experience(this->current_obs, action, rewards, next_obs, done);
 
         this->last_obs = this->current_obs;
+
         this->current_obs = next_obs;
+
         this->is_done = done;
 
         // Update the model

@@ -87,7 +87,7 @@ namespace sdm
 
         TAction getBestAction(const TState &state, number t = 0);
 
-        Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>> getBestAction_his(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t = 0);
+        // Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>> getBestAction_his(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t = 0);
 
         /**
          * @brief Update the value at a given state

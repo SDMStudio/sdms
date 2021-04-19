@@ -14,41 +14,28 @@ namespace sdm
     PrivateOccupancyMDP<oState, oAction>::PrivateOccupancyMDP(
         std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
     {   
-        typename oState::second_type jhist;
+
+        typename oState::jhistory_type hist;
         if (hist_length > 0)
         {
-            jhist = std::make_shared<typename oState::first_type::jhistory_type::element_type>(
-                this->dpomdp_->getNumAgents(), hist_length);
-        }
-        else
-        {
-            jhist = std::make_shared<typename oState::first_type::jhistory_type::element_type>(this->dpomdp_->getNumAgents());
-        }
-
-        this->ijhistory_ = jhist;
-
-        typename oState::first_type::jhistory_type hist;
-        if (hist_length > 0)
-        {
-            hist = std::make_shared<typename oState::first_type::jhistory_type::element_type>(
+            hist = std::make_shared<typename oState::jhistory_type::element_type>(
                 this->dpomdp_->getNumAgents() - 1, hist_length);
         }
         else
         {
-            hist = std::make_shared<typename oState::first_type::jhistory_type::element_type>(this->dpomdp_->getNumAgents() - 1);
+            hist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents() - 1);
         }
 
         this->ihistory_ = hist;
 
-        for (typename oState::first_type::state_type s : this->dpomdp_->getStateSpace()->getAll())
+        for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
         {
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
             {
-                Pair<typename oState::first_type::state_type, typename oState::first_type::jhistory_type> p_x_h(s, hist);
-                this->istate_.first[p_x_h] = this->dpomdp_->getStartDistrib().probabilities()[s];
+                Pair<typename oState::state_type, typename oState::jhistory_type> p_x_h(s, hist);
+                this->istate_[p_x_h] = this->dpomdp_->getStartDistrib().probabilities()[s];
             }
         }
-        this->istate_.second = this->ijhistory_;
         this->cstate_ = this->istate_;
     }
 
@@ -70,33 +57,30 @@ namespace sdm
     {
         this->chistory_ = this->ihistory_;
         this->cstate_ = this->istate_;
-        this->cjhistory_ = this->ijhistory_;
         this->dpomdp_->reset();
         return this->cstate_;
     }
 
     template <typename oState, typename oAction>
     std::tuple<oState, std::vector<double>, bool> PrivateOccupancyMDP<oState, oAction>::step(oAction oaction)
-    {
+    {   
+        
         std::vector<typename oAction::first_type::value_type::output_type> jaction;
-        Joint<typename oAction::first_type::value_type::output_type> actions;
-        actions.push_back(oaction.second);
-        for (number i = oaction.first.size() - 1; i > 1; i--)
+        for (number i = 0; i < oaction.first.size(); i++)
         {
             auto p_ihist = this->chistory_->getIndividualHistory(i);
             auto idr = oaction.first.at(i);
-            actions.push_back(idr(std::make_pair(p_ihist, actions)));
+            jaction.push_back(idr(p_ihist));
+
         }
-        for (number i = 0; i < oaction.first.size() + 1; i++)
-        {
-            jaction.push_back(actions[i]);
-        }
+        jaction.push_back(oaction.second);
+
         auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);
-        this->cjhistory_ = this->cjhistory_->expand(next_obs);
+
         next_obs.pop_back();
         this->chistory_ = this->chistory_->expand(next_obs);
         this->cstate_ = this->nextState(this->cstate_, oaction);
-        this->cstate_.second = this->cjhistory_;
+
         return std::make_tuple(this->cstate_, rewards, done);
     }
 
@@ -121,23 +105,17 @@ namespace sdm
     template <typename oState, typename oAction>
     std::shared_ptr<DiscreteSpace<oAction>> PrivateOccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
-        auto vect_i_hist = ostate.first.getAllIndividualHistories();
+        auto vect_i_hist = ostate.getAllIndividualHistories();
         std::vector<std::vector<typename oAction::first_type::value_type>> vect_idr = {};
         for (number ag_id = 0; ag_id < this->dpomdp_->getNumAgents() - 1; ag_id++)
         {
             // Generate all individual decision rules for agent 'ag_id'
-            std::vector<typename oState::first_type::jhistory_type::element_type::ihistory_type> v_inputs(
+            std::vector<typename oState::jhistory_type::element_type::ihistory_type> v_inputs(
                 vect_i_hist[ag_id].begin(), 
                 vect_i_hist[ag_id].end()
             );
-            std::vector<Pair<HistoryTree_p<number>, Joint<number>>> v_inputs_;
-            for (auto &v_input: v_inputs){
-                Joint<typename oAction::first_type::value_type::output_type> actions;
-                actions.push_back(0); // clearly not correct to do this, will revisit later
-                v_inputs_.push_back(make_pair(v_input, actions));
-            }
             FunctionSpace<typename oAction::first_type::value_type> f_indiv_dr_space(
-                v_inputs_, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll()
+                v_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll()
             );
             vect_idr.push_back(f_indiv_dr_space.getAll());
         }
@@ -158,7 +136,7 @@ namespace sdm
         const oState &ostate, const oAction &oaction, number, HSVI<oState, oAction> *) const
     {
         oState new_ostate;
-        for (auto &p_x_o : ostate.first)
+        for (auto &p_x_o : ostate)
         {
             auto x = p_x_o.first.first;
             auto o = p_x_o.first.second;
@@ -168,21 +146,18 @@ namespace sdm
                 // {
                 for (auto &z : this->dpomdp_->getObsSpace()->getAll())
                 {   
+                    auto zn = z.back();
                     z.pop_back();
-                    Pair<typename oState::first_type::state_type, typename oState::first_type::jhistory_type> new_index(y, o->expand(z));
+                    Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
                     std::vector<typename oAction::first_type::value_type::output_type> jaction;
-                    Joint<typename oAction::first_type::value_type::output_type> actions;
-                    actions.push_back(oaction.second);
-                    for (number i = oaction.first.size() - 1; i > 1; i--)
+                    for (number i = 0; i < oaction.first.size(); i++)
                     {
                         auto p_ihist = o->getIndividualHistory(i);
                         auto idr = oaction.first.at(i);
-                        actions.push_back(idr(std::make_pair(p_ihist, actions)));
+                        jaction.push_back(idr(p_ihist));
                     }
-                    for (number i = 0; i < oaction.first.size() + 1; i++)
-                    {
-                        jaction.push_back(actions[i]);
-                    }
+                    jaction.push_back(oaction.second);
+                    z.push_back(zn);
                     double proba = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(
                         x, 
                         this->dpomdp_->getActionSpace()->joint2single(jaction), 
@@ -191,7 +166,7 @@ namespace sdm
                     );
                     if (proba > 0)
                     {
-                        new_ostate.first[new_index] = new_ostate.first.at(new_index) + proba;
+                        new_ostate[new_index] = new_ostate.at(new_index) + proba;
                     }
                 }
             }
@@ -204,7 +179,7 @@ namespace sdm
     double PrivateOccupancyMDP<oState, oAction>::getReward(const oState &ostate, const oAction &oaction) const
     {
         double r = 0;
-        for (auto &p_x_o : ostate.first)
+        for (auto &p_x_o : ostate)
         {
             auto state = p_x_o.first.first;
             auto jhistory = p_x_o.first.second;
@@ -214,7 +189,7 @@ namespace sdm
             for (number i = oaction.first.size() - 1; i > 1; i--)
             {
                 auto idr = oaction.first.at(i);
-                actions.push_back(idr(std::make_pair(jhistory->getIndividualHistory(i), actions)));
+                actions.push_back(idr(jhistory->getIndividualHistory(i)));
             }
             for (number i = 0; i < oaction.first.size() + 1; i++)
             {

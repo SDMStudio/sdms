@@ -39,16 +39,15 @@ namespace sdm
      * @tparam oState the occupancy state type 
      * @tparam oAction the occupancy action type 
      */
-    template <typename oState = Pair<PrivateOccupancyState<number, JointHistoryTree_p<number>>, JointHistoryTree_p<number>>, 
-              typename oAction = Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>>
+    template <typename oState = PrivateOccupancyState<number, JointHistoryTree_p<number>>, 
+              typename oAction = Pair<Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>, number>>
     class PrivateOccupancyMDP : public SolvableByHSVI<oState, oAction>,
                                 public GymInterface<oState, oAction>
     {
     protected:
         std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
         oState istate_, cstate_;
-        typename oState::first_type::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
-        typename oState::second_type ijhistory_ = nullptr, cjhistory_ = nullptr;
+        typename oState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
 
     public:
         using state_type = oState;

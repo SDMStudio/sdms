@@ -29,7 +29,7 @@ namespace sdm
 
     template <typename TDecProcess>
     std::tuple<typename InteractiveWorld<TDecProcess>::observation_type, std::vector<double>, bool> InteractiveWorld<TDecProcess>::step(InteractiveWorld<TDecProcess>::action_type ja)
-    {
+    {   
         this->ctimestep_++;
         number jaction = this->internal_formalism_->getActionSpace().joint2single(ja);
         std::tuple<std::vector<double>, number, number> tuple_ = this->internal_formalism_->getDynamicsGenerator(this->internal_formalism_->getInternalState(), jaction);

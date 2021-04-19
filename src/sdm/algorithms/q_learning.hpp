@@ -87,7 +87,7 @@ namespace sdm
               double discount = 0.9,
               double lr = 0.001,
               double batch_size = 1,
-              number num_max_steps = 10000,
+              unsigned long num_max_steps = 10000,
               std::string name = "qlearning");
 
     /**
