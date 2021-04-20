@@ -29,7 +29,8 @@ namespace sdm
    * @tparam TAction 
    */
   template <typename TState, typename TAction>
-  class HSVI : public Algorithm
+  class HSVI : public Algorithm,
+               public std::enable_shared_from_this<HSVI<TState, TAction>>
   {
   protected:
     /**
@@ -66,7 +67,6 @@ namespace sdm
     void initLogger();
 
   public:
-
     /**
      * @brief Construct the HSVI object.
      * 
@@ -86,8 +86,11 @@ namespace sdm
          number num_max_trials = 10000,
          std::string name = "hsvi");
 
+    std::shared_ptr<HSVI<TState, TAction>> getptr();
+
     /**
-     * @brief Initialize the algorithm
+     * @brief 
+     * 
      */
     void do_initialize();
 
@@ -128,10 +131,10 @@ namespace sdm
      */
     void do_explore(const TState &s, number h);
 
-    //Pour le moment, je supprime pas les autres pour tester avec le gt 
+    //Pour le moment, je supprime pas les autres pour tester avec le gt
     void do_explore(const TState &s, number h, double gt);
-    bool do_stop(const TState &s, number h,double gt);
-    double do_excess_2(const TState &s, number h,double gt);
+    bool do_stop(const TState &s, number h, double gt);
+    double do_excess_2(const TState &s, number h, double gt);
     /**
      * @brief Select the next action
      * 

@@ -42,13 +42,13 @@ namespace sdm
         std::shared_ptr<SerializedMDP> getptr();
 
         oState &getState();
-        double getDiscount(number t=0) const;
+        double getDiscount(number t = 0) const;
 
         bool isSerialized() const;
         DiscreteMMDP *getUnderlyingProblem();
 
         oState getInitialState();
-        oState nextState(const oState &ostate, const oAction &oaction, number t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        oState nextState(const oState &ostate, const oAction &oaction, number t = 0, std::shared_ptr<HSVI<oState, oAction>> hsvi = nullptr) const;
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
 
@@ -63,7 +63,7 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();        
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
     };
 } // namespace sdm
 #include <sdm/world/serialized_mdp.tpp>

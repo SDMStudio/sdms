@@ -41,7 +41,7 @@ namespace sdm
 
         // SolvableByHSVI interface implementation
         number getInitialState();
-        number nextState(const number &state, const number &action, number t = 0, HSVI<number, number> *hsvi = nullptr) const;
+        number nextState(const number &state, const number &action, number t = 0, std::shared_ptr<HSVI<number, number>> hsvi = nullptr) const;
         std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(const number &state);
         double getReward(const number &state, const number &action) const;
         double getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, number t = 0) const;
@@ -57,6 +57,5 @@ namespace sdm
          * @return a belief MDP
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
-
     };
 } // namespace sdm

@@ -21,7 +21,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedMDP<oState, oAction>::nextState(const oState &ostate, const oAction &action, number t, HSVI<oState, oAction> *hsvi) const
+    oState SerializedMDP<oState, oAction>::nextState(const oState &ostate, const oAction &action, number t, std::shared_ptr<HSVI<oState, oAction>> hsvi) const
     {
         oState new_ostate;
 

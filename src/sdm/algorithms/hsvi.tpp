@@ -27,6 +27,12 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
+    std::shared_ptr<HSVI<TState, TAction>> HSVI<TState, TAction>::getptr()
+    {
+        return this->shared_from_this();
+    }
+
+    template <typename TState, typename TAction>
     void HSVI<TState, TAction>::initLogger()
     {
         std::string format = "#> Trial : {}\tError : {}\t\tV_lb({}) / V_ub({})\n";
@@ -62,7 +68,7 @@ namespace sdm
             this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             this->do_explore(start_state, 0);
             this->trial++;
-        } while (!this->do_stop(start_state,0));
+        } while (!this->do_stop(start_state, 0));
 
         std::cout << "----------------------------------------------------" << std::endl;
         this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -101,14 +107,17 @@ namespace sdm
             // Select next action and state following search process
             TAction a = this->selectNextAction(s, h);
 
-            TState s_ = this->world_->nextState(s, a, h, this);
+            TState s_ = this->world_->nextState(s, a, h, this->getptr());
 
+            std::cout << "EXPLORE -- s " << s_ << " -- a " << a << std::endl;
             // Recursive explore
             this->do_explore(s_, h + 1);
 
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
+            std::cout << "LOWER BOUND = " << *this->lower_bound_ << std::endl;
+            std::cout << "UPPER BOUND = " << *this->upper_bound_ << std::endl;
         }
     }
 
@@ -128,7 +137,7 @@ namespace sdm
                       << std::endl;
             std::cout << "#> Action\n"
                       << jdr << std::endl;
-            ostate = this->world_->nextState(ostate, jdr, i, this);
+            ostate = this->world_->nextState(ostate, jdr, i, this->getptr());
         }
     }
 
@@ -151,7 +160,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    int HSVI<TState, TAction>::getTrial() 
+    int HSVI<TState, TAction>::getTrial()
     {
         return this->trial;
     }
@@ -189,7 +198,7 @@ namespace sdm
             // Select next action and state following search process
             TAction a = this->selectNextAction(s, h);
 
-            TState s_ = this->world_->nextState(s, a, h, this);
+            TState s_ = this->world_->nextState(s, a, h, this->getptr());
 
             // Recursive explore
             //this->do_explore(s_, h + 1);
@@ -206,6 +215,5 @@ namespace sdm
     {
         return this->lower_bound_->getValueAt(this->world_->getInitialState());
     }
-
 
 } // namespace sdm

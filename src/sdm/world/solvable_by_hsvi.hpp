@@ -41,7 +41,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next occupancy state
          */
-        virtual TState nextState(const TState &state, const TAction &action, number t = 0, HSVI<TState, TAction> *hsvi = nullptr) const = 0;
+        virtual TState nextState(const TState &state, const TAction &action, number t = 0, std::shared_ptr<HSVI<TState, TAction>> hsvi = nullptr) const = 0;
 
         /**
          * @brief Get the actions availables at a specific state

@@ -47,7 +47,7 @@ namespace sdm
         DiscretePOMDP *getUnderlyingProblem();
 
         TBelief getInitialState();
-        TBelief nextState(const TBelief &ostate, const TAction &oaction, number t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
+        TBelief nextState(const TBelief &ostate, const TAction &oaction, number t = 0, std::shared_ptr<HSVI<TBelief, TAction>> hsvi = nullptr) const;
 
         //Tempo à vérifier leur utilité
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;

@@ -2,7 +2,6 @@
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
 
-
 namespace sdm
 {
 
@@ -39,10 +38,8 @@ namespace sdm
         return this->getInternalState();
     }
 
-    number DiscreteMDP::nextState(const number &state, const number &action, number t, HSVI<number, number> *hsvi) const
+    number DiscreteMDP::nextState(const number &state, const number &action, number t, std::shared_ptr<HSVI<number, number>> hsvi) const
     {
-        std::cout<<"\n action :"<<action;
-        std::cout<<"\n state :"<<state;
         double max = std::numeric_limits<double>::min();
         number amax = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
@@ -54,8 +51,6 @@ namespace sdm
                 amax = state_;
             }
         }
-        std::cout<<"\n amax : "<<amax;
-        std::cout<<"\n max : "<<max;
         return amax;
     }
 

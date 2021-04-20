@@ -70,21 +70,30 @@ namespace sdm
          */
         OccupancyMDP(std::string underlying_dpomdp, number hist_length = -1);
 
+        // ---------- RL GymInterface -------------
         oState reset();
         oState &getState();
         std::tuple<oState, std::vector<double>, bool> step(oAction action);
 
+        // ---------- HSVI exact interface -------------
         bool isSerialized() const;
         DiscreteDecPOMDP *getUnderlyingProblem();
 
         oState getInitialState();
-        oState nextState(const oState &ostate, const oAction &oaction, number t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        oState nextState(const oState &ostate, const oAction &oaction, number t = 0, std::shared_ptr<HSVI<oState, oAction>> hsvi = nullptr) const;
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
 
         double getReward(const oState &ostate, const oAction &oaction) const;
         double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t = 0) const;
 
+        // ---------- Other -------------
+        
+        /**
+         * @brief Get the corresponding Markov Decision Process. 
+         * 
+         * @return std::shared_ptr<DiscreteMDP> 
+         */
         std::shared_ptr<DiscreteMDP> toMDP();
 
         /**

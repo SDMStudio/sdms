@@ -52,7 +52,7 @@ namespace sdm
 
         TBelief getInitialState();
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
-        TBelief nextState(const TBelief &belief, const TAction &action, number t, HSVI<TBelief, TAction> *hsvi) const;
+        TBelief nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const;
 
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
 

@@ -60,17 +60,11 @@ namespace sdm
     template <typename oState, typename oAction>
     std::tuple<oState, std::vector<double>, bool> OccupancyMDP<oState, oAction>::step(oAction joint_idr)
     {
-        std::vector<typename oAction::value_type::output_type> jaction;
-        for (number i = 0; i < joint_idr.size(); i++)
-        {
-            auto p_ihist = this->chistory_->getIndividualHistory(i);
-            auto idr = joint_idr.at(i);
-            jaction.push_back(idr(p_ihist));
-        }
-        auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);
-        this->chistory_ = this->chistory_->expand(next_obs);
-        this->cstate_ = this->nextState(this->cstate_, joint_idr);
-        return std::make_tuple(this->cstate_, rewards, done);
+        auto jaction = joint_idr.act(this->chistory_->getIndividualHistories()); // Select action based on joint separable decision rule
+        auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);           // Do step and get next observation and rewards
+        this->chistory_ = this->chistory_->expand(next_obs);                     // Update the history based on the observation
+        this->cstate_ = this->nextState(this->cstate_, joint_idr);               // Update the occupancy state
+        return std::make_tuple(this->cstate_, rewards, done);                    // return the new occupancy state and the perceived rewards
     }
 
     template <typename oState, typename oAction>
@@ -95,7 +89,9 @@ namespace sdm
     std::shared_ptr<DiscreteSpace<oAction>> OccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {
         using decision_rule_t = typename oAction::value_type;
-        auto vect_i_hist = ostate.getAllIndividualHistories(); // get possible histories for all agents
+
+        // Get possible histories for all agents
+        auto vect_i_hist = ostate.getAllIndividualHistories();
 
         // Get individual decision rules for each agent
         std::vector<std::vector<decision_rule_t>> vect_i_dr = {};
@@ -114,14 +110,17 @@ namespace sdm
             vect_j_dr.push_back(oAction(joint_idr));
         }
 
+        std::cout << "vect_j_dr=" << vect_j_dr << std::endl;
+        std::cout << std::endl;
+
         // Now we can return a discrete space of all joint decision rules
         return std::make_shared<DiscreteSpace<oAction>>(vect_j_dr);
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, HSVI<oState, oAction> *) const
+    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>> hsvi) const
     {
-        oState new_ostate;
+        oState new_ostate, tmp;
         // for all element in the support of the occupancy state
         for (auto &p_x_o : ostate)
         {
@@ -135,15 +134,32 @@ namespace sdm
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
                     auto jaction = joint_idr.act(o->getIndividualHistories());
+                    // Compute de proba of the next couple (state, joint history)
                     double proba = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
+                    
+                    // -> TO REPLACE WITH
+                    // double proba = p_x_o.second * this->dpomdp_->getDynamics(x, jaction, z, y);
+
                     if (proba > 0)
                     {
                         new_ostate[new_index] = new_ostate.at(new_index) + proba;
                     }
                 }
+                // }
             }
-            // }
         }
+
+        // Compress the occupancy state
+        // if (hsvi != nullptr)
+        // {
+        //     tmp = new_ostate;
+        //     new_ostate = new_ostate.compress();
+        //     if (tmp != new_ostate)
+        //     {
+        //         std::cout << "\n\nBefore : " << tmp << std::endl;
+        //         std::cout << "\nAfter : " << new_ostate << std::endl;
+        //     }
+        // }
         return new_ostate;
     }
 
@@ -157,6 +173,9 @@ namespace sdm
             auto o = p_x_o.first.second;
             auto jaction = joint_idr.act(o->getIndividualHistories());
             r += p_x_o.second * this->dpomdp_->getReward()->getReward(x, this->dpomdp_->getActionSpace()->joint2single(jaction));
+
+            // REPLACE BY
+            // r += p_x_o.second * this->dpomdp_->getReward(x, jaction);
         }
         return r;
     }
@@ -165,6 +184,7 @@ namespace sdm
     double OccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t) const
     {
         oState ost = this->nextState(ostate, oaction);
+        // std::cout << "OState in Exp -->" << ost << std::endl;
         return value_function->getValueAt(ost, t + 1);
     }
 

@@ -24,9 +24,96 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    bool OccupancyState<TState, TJointHistory_p>::areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &hist1, const typename TJointHistory_p::element_type::ihistory_type &hist2, number ag_id)
+    {
+        /**
+         * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
+         **/
+
+        // Transform proba representation from s(x, \theta) to s(x, \theta^{-i} \mid \theta^i) and s(x, \theta^{-i} \mid \theta'^i)
+        MappedVector<Pair<TState, Joint<typename TJointHistory_p::element_type::ihistory_type>>, double> proba_theta, proba_theta_;
+        for (const auto &pair_s_o_p : *this)
+        {
+            // Transform representation of hist1 (= \theta^i)
+            if (pair_s_o_p.first.second->getIndividualHistory(ag_id) == hist1)
+            {
+                // Get all individual histories except that of agent i
+                auto other = pair_s_o_p.first.second->getIndividualHistories();
+                other.erase(std::remove(other.begin(), other.end(), hist1), other.end());
+                // Compute p(x, o^{-i} | o^i)
+                proba_theta[std::make_pair(pair_s_o_p.first.first, other)] += pair_s_o_p.second;
+            }
+
+            // Transform representation of hist2 (= \theta'^i)
+            if (pair_s_o_p.first.second->getIndividualHistory(ag_id) == hist2)
+            {
+                // Get all individual histories except that of agent i
+                auto other = pair_s_o_p.first.second->getIndividualHistories();
+                other.erase(std::remove(other.begin(), other.end(), hist2), other.end());
+                // Compute p(x, o^{-i} | o'^i)
+                proba_theta_[std::make_pair(pair_s_o_p.first.first, other)] += pair_s_o_p.second;
+            }
+        }
+
+        // If p(x, o^{-i} | o^i) and p(x, o^{-i} | o'^i) are equal then histories are equivalent
+        if (proba_theta != proba_theta_)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    bool OccupancyState<TState, TJointHistory_p>::areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2)
+    {
+        if (p1.first != p2.first)
+        {
+            return false;
+        }
+        for (number ag_id = 0; ag_id < p1.second->getIndividualHistories().size(); ag_id++)
+        {
+            if (!this->areIndividualHistoryLPE(p1.second->getIndividualHistory(ag_id), p2.second->getIndividualHistory(ag_id), ag_id))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    auto OccupancyState<TState, TJointHistory_p>::compress()
+    {
+        /**
+         * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
+         **/
+        OccupancyState<TState, TJointHistory_p> compact_ostate;
+        auto support = this->getIndexes();
+        for (auto iter = support.begin(); iter != support.end();)
+        {
+            auto pair_s_o = *iter;
+            compact_ostate[pair_s_o] = this->at(pair_s_o);
+            iter = support.erase(iter);
+            for (auto iter2 = iter; iter2 != support.end();)
+            {
+                auto pair_s_o_2 = *iter2;
+                if (this->areStateJointHistoryPairsLPE(pair_s_o, pair_s_o_2))
+                {
+                    compact_ostate[pair_s_o] = compact_ostate[pair_s_o] + this->at(pair_s_o_2);
+                    iter2 = support.erase(iter2);
+                }
+                else
+                {
+                    iter2++;
+                }
+            }
+        }
+        return compact_ostate;
+    }
+
+    template <typename TState, typename TJointHistory_p>
     std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type> OccupancyState<TState, TJointHistory_p>::getJointHistories() const
     {
-        // Get the set of joint histories that are in the support of the OccupancyState  
+        // Get the set of joint histories that are in the support of the OccupancyState
         std::set<jhistory_type> possible_jhistories;
         for (const auto &key : *this)
         {
@@ -38,7 +125,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     std::set<typename OccupancyState<TState, TJointHistory_p>::state_type> OccupancyState<TState, TJointHistory_p>::getStates() const
     {
-        // Get the set of states that are in the support of the OccupancyState  
+        // Get the set of states that are in the support of the OccupancyState
         std::set<state_type> possible_states;
         for (const auto &key : *this)
         {
@@ -63,7 +150,7 @@ namespace sdm
                 {
                     possible_ihistories.push_back({});
                 }
-                // Add the indiv history of agent i in his set 
+                // Add the indiv history of agent i in his set
                 possible_ihistories[i].insert(ihists[i]);
             }
             first_passage = false;
@@ -102,7 +189,7 @@ namespace sdm
         for (const auto &key : *this)
         {
             //possible_states.insert(key.first.first);
-        }        
+        }
         return 0.0;
     }
 
@@ -110,14 +197,14 @@ namespace sdm
 
 namespace std
 {
-  template <typename S, typename V>
-  struct hash<sdm::OccupancyState<S, V>>
-  {
-    typedef sdm::OccupancyState<S, V> argument_type;
-    typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in) const
+    template <typename S, typename V>
+    struct hash<sdm::OccupancyState<S, V>>
     {
-      return std::hash<sdm::MappedVector<sdm::Pair<S, V>, double>>()(in);
-    }
-  };
+        typedef sdm::OccupancyState<S, V> argument_type;
+        typedef std::size_t result_type;
+        inline result_type operator()(const argument_type &in) const
+        {
+            return std::hash<sdm::MappedVector<sdm::Pair<S, V>, double>>()(in);
+        }
+    };
 }

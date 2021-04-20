@@ -96,6 +96,16 @@ namespace sdm
      * @return double refers to the probability returned
      */
     double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+
+    /**
+     * @brief Compress the current occupancy state with LPE method.
+     * 
+     */
+    auto compress();
+
+    bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &hist1, const typename TJointHistory_p::element_type::ihistory_type &hist2, number ag_id);
+    
+    bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2);
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

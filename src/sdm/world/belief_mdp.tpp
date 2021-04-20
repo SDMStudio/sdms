@@ -98,7 +98,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, number t, HSVI<TBelief, TAction> *hsvi) const
+    TBelief BeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const
     {
         // Select o* as in the paper
         number selected_o = 0;

@@ -92,7 +92,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, number, HSVI<oState, oAction> *) const
+    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, number, std::shared_ptr<HSVI<oState, oAction>>) const
     {
         number ag_id = ostate.getCurrentAgentId();
 

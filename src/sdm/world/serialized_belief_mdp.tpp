@@ -53,7 +53,7 @@ namespace sdm
         TBelief new_belief;
         number ag_id = belief.getCurrentAgentId();
 
-        for (const auto &s_belief : belief )
+        for (const auto &s_belief : belief)
         {
             auto s_belief_state = s_belief.first;
             auto proba = s_belief.second;
@@ -63,13 +63,13 @@ namespace sdm
             if (ag_id != this->mpomdp_->getNumAgents() - 1)
             {
                 u.push_back(action);
-                typename TBelief::state_type s(x,u);
-                new_belief[s] = proba;                
+                typename TBelief::state_type s(x, u);
+                new_belief[s] = proba;
             }
             else
             {
                 double tmp, obs_proba;
-                for (const auto &nextState :this->mpomdp_->getStateSpace()->getAll())
+                for (const auto &nextState : this->mpomdp_->getStateSpace()->getAll())
                 {
                     tmp = 0;
                     for (const auto &s : this->mpomdp_->getStateSpace()->getAll())
@@ -96,13 +96,13 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, number t, HSVI<TBelief, TAction> *hsvi) const
+    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const
     {
 
         TBelief new_belief;
         number ag_id = belief.getCurrentAgentId();
 
-        for (const auto &s_belief : belief )
+        for (const auto &s_belief : belief)
         {
             auto s_belief_state = s_belief.first;
             auto proba = s_belief.second;
@@ -112,8 +112,8 @@ namespace sdm
             if (ag_id != this->mpomdp_->getNumAgents() - 1)
             {
                 u.push_back(action);
-                typename TBelief::state_type s(x,u);
-                new_belief[s] = proba;  
+                typename TBelief::state_type s(x, u);
+                new_belief[s] = proba;
             }
             else
             {
@@ -197,6 +197,5 @@ namespace sdm
     {
         return SerializedBeliefMDP<TBelief, TAction, TObservation>::shared_from_this();
     }
-
 
 } // namespace sdm
