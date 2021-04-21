@@ -110,9 +110,6 @@ namespace sdm
             vect_j_dr.push_back(oAction(joint_idr));
         }
 
-        std::cout << "vect_j_dr=" << vect_j_dr << std::endl;
-        std::cout << std::endl;
-
         // Now we can return a discrete space of all joint decision rules
         return std::make_shared<DiscreteSpace<oAction>>(vect_j_dr);
     }
