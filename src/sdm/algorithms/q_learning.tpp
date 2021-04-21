@@ -104,7 +104,6 @@ namespace sdm
         while (this->global_step < stop_cond)
         {   
             this->do_step();
-
             //Save the model
             this->do_save = (this->global_step % this->save_freq == 0);
             this->do_log = (this->global_step % this->log_freq == 0);
@@ -122,13 +121,10 @@ namespace sdm
     {   
         // Action selection following policy and exploration process
         auto current_action = this->select_action(this->current_obs);
-
         // One step in env and get next observation and rewards
         auto [next_obs, rewards, done] = this->env_->step(current_action);
-
         // Store experience in the associated buffer
         // this->experience->store_experience(this->current_obs, action, rewards, next_obs, done);
-
         this->last_obs = this->current_obs;
 
         this->current_obs = next_obs;

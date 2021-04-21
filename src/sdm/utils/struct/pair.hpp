@@ -9,6 +9,9 @@ namespace sdm
     using Pair = std::pair<T, U>;
 
     template <typename T, typename U>
+    using Pair_p = std::shared_ptr<Pair<T, U>>;
+
+    template <typename T, typename U>
     std::ostream &operator<<(std::ostream &os, const sdm::Pair<T, U> &pair)
     {
         os << "Pair{" << pair.first << ", " << pair.second << "}";
