@@ -58,22 +58,32 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 # 2. Installation
 
 ## 2.1. Quick install
+
+**Install ILOG CPLEX** (optional)
+
+Install *ILOG CPLEX* (see https://www.ibm.com)
+
+**Install SDMS and dependencies**
 In order to execute `install.sh` file, you may need to change permissions using `chmod +x install.sh`.
 ```bash
   git clone https://gitlab.inria.fr/chroma1/plasma/sdms.git
   cd sdms
-  sudo ./install.sh
+  ./install.sh
 ```
 You can pass an parameter of the form `path/to/libtorch-xxxxx.zip` to specify which  configuration of PyTorch is to be used.
 ```bash
-  sudo ./install.sh path/to/libtorch-xxxxx.zip
+  ./install.sh path/to/libtorch-xxxxx.zip
 ```
 
 ## 2.2. Step by step installation
+**Install ILOG CPLEX** (optional)
+
+Install *ILOG CPLEX* from https://www.ibm.com . 
+
 **Install SDMS dependencies**
 
 ```bash
-  sudo apt-get install clang libeigen3-dev libboost-all-dev libfmt-dev
+  apt-get install clang libeigen3-dev libboost-all-dev libfmt-dev
 ```
 **Install pytorch**
 
@@ -82,12 +92,16 @@ Download the last version of PyTorch C++ for cxx11 ABI according to your machine
 wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-xxxxxxx.zip -O libtorch.zip
 unzip libtorch.zip -d /opt
 ```
+
 **Build and install SDM'Studio**
+
 ```bash
 mkdir -p build && cd build
-cmake .. -DCMAKE_PREFIX_PATH=/opt/libtorch
+cmake .. 
 make install
 ```
+
+> :warning: **Default pass to ILOG CPLEX is `/opt/ibm/ILOG/CPLEX_Studio_Community201/`**. Use `cmake .. -DCPLEX_ROOT_DIR=/path/to/your/ILOG/CPLEX/` to specify the installation directory on your machine.
 
 ## 2.3 Docker Image
 

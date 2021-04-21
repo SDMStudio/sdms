@@ -33,6 +33,18 @@ option(BUILD_SDMS "Build SDM'Studio" ON)
 option(BUILD_DOCS "Build SDMS documentation" OFF)
 option(BUILD_TESTS "Build tests for SDMS" OFF)
 
+# Path to third party (can be defined if different from default) 
+# --> Pytorch
+if(NOT DEFINED CMAKE_PREFIX_PATH)
+    set(CMAKE_PREFIX_PATH "/opt/libtorch")
+endif()
+
+# --> ILOG CPLEX
+if(NOT DEFINED CPLEX_ROOT_DIR)
+    set(CPLEX_ROOT_DIR "/opt/ibm/ILOG/CPLEX_Studio_Community201/")
+endif()
+
+
 # Set useful variables
 set(SDMS_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src)
 set(SDMS_SOURCE_DIRS ${CMAKE_SOURCE_DIR}/src)
@@ -44,7 +56,6 @@ set(SOURCE_DIR ${SDMS_SOURCE_DIRS}/sdm)
 set(EXAMPLES_DIR ${SDMS_SOURCE_DIRS}/examples)
 set(ALGOS_DIR ${SDMS_SOURCE_DIRS}/algos)
 
-
 # Set names of libraries
 set(LIB_SDMS ${CMAKE_PROJECT_NAME})
 
@@ -52,7 +63,6 @@ if (BUILD_SDMS)
     message(STATUS "Building SDMS sources.")
     add_subdirectory(src)
 endif()
-
 
 # Build documentation
 if(BUILD_DOCS)

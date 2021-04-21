@@ -118,7 +118,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>> hsvi) const
+    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>>) const
     {
         oState new_ostate, tmp;
         // for all element in the support of the occupancy state
@@ -136,7 +136,7 @@ namespace sdm
                     auto jaction = joint_idr.act(o->getIndividualHistories());
                     // Compute de proba of the next couple (state, joint history)
                     double proba = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
-                    
+
                     // -> TO REPLACE WITH
                     // double proba = p_x_o.second * this->dpomdp_->getDynamics(x, jaction, z, y);
 
@@ -150,15 +150,12 @@ namespace sdm
         }
 
         // Compress the occupancy state
-        // if (hsvi != nullptr)
+        // tmp = new_ostate;
+        // new_ostate = new_ostate.compress();
+        // if (tmp != new_ostate)
         // {
-        //     tmp = new_ostate;
-        //     new_ostate = new_ostate.compress();
-        //     if (tmp != new_ostate)
-        //     {
-        //         std::cout << "\n\nBefore : " << tmp << std::endl;
-        //         std::cout << "\nAfter : " << new_ostate << std::endl;
-        //     }
+        //     std::cout << "\n\nBefore : " << tmp << std::endl;
+        //     std::cout << "\nAfter : " << new_ostate << std::endl;
         // }
         return new_ostate;
     }
@@ -174,7 +171,7 @@ namespace sdm
             auto jaction = joint_idr.act(o->getIndividualHistories());
             r += p_x_o.second * this->dpomdp_->getReward()->getReward(x, this->dpomdp_->getActionSpace()->joint2single(jaction));
 
-            // REPLACE BY
+            // REPLACE BY IN LATER VERSION
             // r += p_x_o.second * this->dpomdp_->getReward(x, jaction);
         }
         return r;

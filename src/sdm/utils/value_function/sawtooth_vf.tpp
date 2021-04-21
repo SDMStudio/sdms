@@ -32,8 +32,7 @@ namespace sdm
             }
 
             bool already_exist = false;
-            auto iter = this->representation[t].begin();
-            for (iter; iter != this->representation[t].end(); iter++)
+            for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
             {  
                 if(iter->first == state)
                 {
@@ -98,8 +97,7 @@ namespace sdm
     {
         std::vector<TState> to_delete;
         
-        auto iter = this->representation[t].begin();
-        for (iter; iter != this->representation[t].end(); iter++)
+        for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
         {          
             if (this->is_dominated(iter->first, iter->second, t))
             {
