@@ -147,13 +147,7 @@ namespace sdm
         }
 
         // Compress the occupancy state
-        // tmp = new_ostate;
-        // new_ostate = new_ostate.compress();
-        // if (tmp != new_ostate)
-        // {
-        //     std::cout << "\n\nBefore : " << tmp << std::endl;
-        //     std::cout << "\nAfter : " << new_ostate << std::endl;
-        // }
+        new_ostate = new_ostate.compress();
         return new_ostate;
     }
 
