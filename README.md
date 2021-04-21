@@ -78,7 +78,7 @@ You can pass an parameter of the form `path/to/libtorch-xxxxx.zip` to specify wh
 ## 2.2. Step by step installation
 **Install ILOG CPLEX** (optional)
 
-Install *ILOG CPLEX* from https://www.ibm.com . 
+Get ***ILOG CPLEX*** on https://www.ibm.com. 
 
 **Install SDMS dependencies**
 
@@ -101,7 +101,8 @@ cmake ..
 make install
 ```
 
-> :warning: **Default pass to ILOG CPLEX is `/opt/ibm/ILOG/CPLEX_Studio_Community201/`**. Use `cmake .. -DCPLEX_ROOT_DIR=/path/to/your/ILOG/CPLEX/` to specify the installation directory on your machine.
+> :warning: 
+> **Default path to ILOG CPLEX is `/opt/ibm/ILOG/CPLEX_Studio_Community201/`**. Use `cmake .. -DCPLEX_ROOT_DIR=/path/to/your/ILOG/CPLEX/` to specify the installation directory on your machine.
 
 ## 2.3 Docker Image
 
