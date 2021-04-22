@@ -66,6 +66,9 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     bool OccupancyState<TState, TJointHistory_p>::areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2)
     {
+        /**
+         * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
+         **/
         if (p1.first != p2.first)
         {
             return false;
@@ -88,6 +91,8 @@ namespace sdm
          **/
         OccupancyState<TState, TJointHistory_p> compact_ostate;
         auto support = this->getIndexes();
+        // Sort support to get same label for cluster of equivalent histories but different states 
+        std::sort(support.begin(), support.end());
         for (auto iter = support.begin(); iter != support.end();)
         {
             auto pair_s_o = *iter;

@@ -103,10 +103,10 @@ namespace sdm
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
-
+         
             // Select next action and state following search process
             TAction a = this->selectNextAction(s, h);
-
+         
             TState s_ = this->world_->nextState(s, a, h, this->getptr());
 
             // Recursive explore

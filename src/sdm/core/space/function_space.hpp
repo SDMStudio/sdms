@@ -82,6 +82,7 @@ namespace sdm
             assert(this->output_space_.size() > 0);
             if (this->all_items_.empty())
             {
+                // Build appropriate input for Variation (vector of vector of output)
                 std::vector<std::vector<output_type>> tmp;
                 for (std::size_t i = 0; i < input_space_.getAll().size(); i++)
                 {
@@ -94,13 +95,15 @@ namespace sdm
                         tmp.push_back(this->output_space_[i].getAll());
                     }
                 }
+
+                // Generate all possible functions
                 Variations<TFunction> funct_generator(input_space_.getAll(), tmp);
                 number idx = 0;
                 for (auto it = funct_generator.begin(); it != funct_generator.end(); it = funct_generator.next())
                 {
                     this->all_items_.insert(funct_bimap_value(idx, *it));
                     idx++;
-                    // this->all_items_.push_back(*it);
+                    this->list_items_.push_back(*it);
                 }
                 this->num_items_ = this->all_items_.size();
             }
