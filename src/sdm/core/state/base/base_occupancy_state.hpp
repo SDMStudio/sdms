@@ -58,9 +58,9 @@ namespace sdm
     /**
      * @brief Get the set of individual histories that are in the support of the occupancy state (for a given agent).
      * 
-     * @param ag_id the agent id
+     * @param number the agent id
      */
-    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
+    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ) const;
 
     /**
      * @brief Return the state of a precise occupancy state

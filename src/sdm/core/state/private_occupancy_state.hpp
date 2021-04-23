@@ -34,9 +34,9 @@ namespace sdm
     using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
 
     PrivateOccupancyState();
-    PrivateOccupancyState(double default_value);
-    PrivateOccupancyState(std::size_t size, double default_value);
-    PrivateOccupancyState(const PrivateOccupancyState &v);
+    PrivateOccupancyState(double);
+    PrivateOccupancyState(std::size_t, double);
+    PrivateOccupancyState(const PrivateOccupancyState &);
   };
 } // namespace sdm
 #include <sdm/core/state/private_occupancy_state.tpp>

@@ -24,34 +24,33 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    bool OccupancyState<TState, TJointHistory_p>::areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &hist1, const typename TJointHistory_p::element_type::ihistory_type &hist2, number ag_id)
+    bool OccupancyState<TState, TJointHistory_p>::areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &history_1, const typename TJointHistory_p::element_type::ihistory_type &history_2, number agent_identifier)
     {
         /**
          * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
          **/
-
         // Transform proba representation from s(x, \theta) to s(x, \theta^{-i} \mid \theta^i) and s(x, \theta^{-i} \mid \theta'^i)
         MappedVector<Pair<TState, Joint<typename TJointHistory_p::element_type::ihistory_type>>, double> proba_theta, proba_theta_;
-        for (const auto &pair_s_o_p : *this)
+        for (const auto &pair_state_history_probability : *this)
         {
-            // Transform representation of hist1 (= \theta^i)
-            if (pair_s_o_p.first.second->getIndividualHistory(ag_id) == hist1)
+            // Transform representation of history_1 (= \theta^i)
+            if (pair_state_history_probability.first.second->getIndividualHistory(agent_identifier) == history_1)
             {
                 // Get all individual histories except that of agent i
-                auto other = pair_s_o_p.first.second->getIndividualHistories();
-                other.erase(std::remove(other.begin(), other.end(), hist1), other.end());
+                auto agent_histories = pair_state_history_probability.first.second->getIndividualHistories();
+                agent_histories.erase(std::remove(agent_histories.begin(), agent_histories.end(), history_1), agent_histories.end());
                 // Compute p(x, o^{-i} | o^i)
-                proba_theta[std::make_pair(pair_s_o_p.first.first, other)] += pair_s_o_p.second;
+                proba_theta[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
             }
 
-            // Transform representation of hist2 (= \theta'^i)
-            if (pair_s_o_p.first.second->getIndividualHistory(ag_id) == hist2)
+            // Transform representation of history_2 (= \theta'^i)
+            if (pair_state_history_probability.first.second->getIndividualHistory(agent_identifier) == history_2)
             {
                 // Get all individual histories except that of agent i
-                auto other = pair_s_o_p.first.second->getIndividualHistories();
-                other.erase(std::remove(other.begin(), other.end(), hist2), other.end());
+                auto agent_histories = pair_state_history_probability.first.second->getIndividualHistories();
+                agent_histories.erase(std::remove(agent_histories.begin(), agent_histories.end(), history_2), agent_histories.end());
                 // Compute p(x, o^{-i} | o'^i)
-                proba_theta_[std::make_pair(pair_s_o_p.first.first, other)] += pair_s_o_p.second;
+                proba_theta_[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
             }
         }
 
@@ -73,9 +72,9 @@ namespace sdm
         {
             return false;
         }
-        for (number ag_id = 0; ag_id < p1.second->getIndividualHistories().size(); ag_id++)
+        for (number agent_identifier = 0; agent_identifier < p1.second->getIndividualHistories().size(); agent_identifier++)
         {
-            if (!this->areIndividualHistoryLPE(p1.second->getIndividualHistory(ag_id), p2.second->getIndividualHistory(ag_id), ag_id))
+            if (!this->areIndividualHistoryLPE(p1.second->getIndividualHistory(agent_identifier), p2.second->getIndividualHistory(agent_identifier), agent_identifier))
             {
                 return false;
             }
