@@ -1,15 +1,13 @@
 #pragma once
 
-#include <string>
-
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
-#include <sdm/core/state/state.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/history.hpp>
 
 namespace sdm
 {
-
   /**
    * @brief A serialized occupancy state refers to an occupancy state (i.e refers to the whole knowledge that a central planner can have access to take decisions) with a precise state for each agent. 
    * But in this implementation we call serialized occupancy state a distribution over serialized state and joint histories .
@@ -38,24 +36,3 @@ namespace sdm
   };
 } // namespace sdm
 #include <sdm/core/state/serialized_occupancy_state.tpp>
-
-namespace std
-{
-  template <typename S, typename V>
-  struct hash<sdm::SerializedOccupancyState<S, V>>
-  {
-    typedef sdm::SerializedOccupancyState<S, V> argument_type;
-    typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in) const
-    {
-      size_t seed = 0;
-      for (auto &v : in)
-      {
-        //Combine the hash of the current vector with the hashes of the previous ones
-        sdm::hash_combine(seed, v.first);
-        sdm::hash_combine(seed, v.second);
-      }
-      return seed;
-    }
-  };
-}
