@@ -131,6 +131,8 @@ namespace sdm
                 }
             }
         }
+        // Compress the occupancy state 
+        new_ostate = new_ostate.compress();
         return new_ostate;
     }
 
