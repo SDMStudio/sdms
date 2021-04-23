@@ -21,5 +21,5 @@ fi
 mkdir -p ./build && cd ./build
 
 # Build and install SDMS
-cmake .. -DCMAKE_PREFIX_PATH=/opt/libtorch && make install
+cmake .. && make install
 echo "#> Installation completed. Use 'SDMStudio --help' to see how to use it."

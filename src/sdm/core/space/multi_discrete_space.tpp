@@ -134,17 +134,20 @@ namespace sdm
     void MultiDiscreteSpace<TItem>::generateJointItems()
     {
         this->all_items_.clear();
+        // Build a vector of vector of items to fit with Variation construct
         std::vector<std::vector<TItem>> v_possible_items;
         for (auto sp : this->getSpaces())
         {
             v_possible_items.push_back(sp->getAll());
         }
 
+        // Generate joint items and store in containers
         number counter = 0;
         Variations<Joint<TItem>> vars(v_possible_items);
         for (auto v = vars.begin(); v != vars.end(); v = vars.next())
         {
             this->all_items_.insert(jitems_bimap_value(counter, *v));
+            this->list_items_.push_back(*v);
             counter++;
         }
     }
@@ -156,13 +159,7 @@ namespace sdm
         {
             this->generateJointItems();
         }
-
-        std::vector<Joint<TItem>> v;
-        for (auto &it : this->all_items_.left)
-        {
-            v.push_back(it.second);
-        }
-        return v;
+        return this->list_items_;
     }
 
     template <typename TItem>

@@ -103,21 +103,27 @@ namespace sdm
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
-
+         
             // Select next action and state following search process
             TAction a = this->selectNextAction(s, h);
-
+         
             TState s_ = this->world_->nextState(s, a, h, this->getptr());
 
+<<<<<<< HEAD
             // std::cout << "EXPLORE -- s " << s_ << " -- a " << a << std::endl;
+=======
+>>>>>>> feature/base
             // Recursive explore
             this->do_explore(s_, h + 1);
 
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
+<<<<<<< HEAD
             // std::cout << "LOWER BOUND = " << *this->lower_bound_ << std::endl;
             // std::cout << "UPPER BOUND = " << *this->upper_bound_ << std::endl;
+=======
+>>>>>>> feature/base
         }
     }
 

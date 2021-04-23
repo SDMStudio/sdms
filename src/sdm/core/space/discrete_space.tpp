@@ -7,7 +7,7 @@ namespace sdm
     DiscreteSpace<TItem>::DiscreteSpace() : num_items_(0) {}
 
     template <typename TItem>
-    DiscreteSpace<TItem>::DiscreteSpace(const std::vector<TItem> &items) : num_items_(items.size())
+    DiscreteSpace<TItem>::DiscreteSpace(const std::vector<TItem> &items) : num_items_(items.size()), list_items_(items)
     {
         for (number i = 0; i < this->num_items_; i++)
         {
@@ -52,12 +52,7 @@ namespace sdm
     template <typename TItem>
     std::vector<TItem> DiscreteSpace<TItem>::getAll()
     {
-        std::vector<TItem> v;
-        for (auto &it : this->all_items_.left)
-        {
-            v.push_back(it.second);
-        }
-        return v;
+        return this->list_items_;
     }
 
     template <typename TItem>
@@ -106,6 +101,7 @@ namespace sdm
         for (number idx = 0; idx < this->num_items_; ++idx)
         {
             this->all_items_.insert(items_bimap_value(idx, sp.getItem(idx)));
+            this->list_items_.push_back(sp.getItem(idx));
         }
         return *this;
     }

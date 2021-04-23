@@ -41,6 +41,9 @@ namespace sdm
 
         /** @brief the list of possible items in the space with their index **/
         items_bimap all_items_;
+        
+        /** @brief the list of possible items without their index **/
+        std::vector<TItem> list_items_;
 
     public:
         using value_type = TItem;
