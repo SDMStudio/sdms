@@ -95,6 +95,7 @@ namespace sdm
 
         /**
          * @brief Get the distribution over next states
+         * @warning : Quand est-ce que cette fonction peut-elle servir?
          * 
          * @param cstate the current state
          * @param caction the current action
@@ -144,11 +145,11 @@ namespace sdm
 
         template <bool TBool = std::is_same<TActionSpace, MultiDiscreteSpace<number>>::value>
         std::enable_if_t<TBool, number>
-        getAction(action_type a);
+        getAction(action_type);
 
         template <bool TBool = std::is_same<TActionSpace, MultiDiscreteSpace<number>>::value>
         std::enable_if_t<!TBool, action_type>
-        getAction(action_type a);
+        getAction(action_type);
 
         template <bool TBool = is_fully_obs> //std::is_same<TStateSpace, TObsSpace>::value>
         std::enable_if_t<TBool, observation_type>
@@ -160,11 +161,11 @@ namespace sdm
 
         template <bool TBool = is_fully_obs> //std::is_same<TStateSpace, TObsSpace>::value>
         std::enable_if_t<TBool, std::tuple<observation_type, std::vector<double>, bool>>
-        stepProcess(action_type a);
+        stepProcess(action_type);
 
         template <bool TBool = is_fully_obs> //std::is_same<TStateSpace, TObsSpace>::value>
         std::enable_if_t<!TBool, std::tuple<observation_type, std::vector<double>, bool>>
-        stepProcess(action_type a);
+        stepProcess(action_type);
     };
 
     template <typename TStateSpace, typename TActionSpace, typename TStateDynamics, typename TReward, typename TDistrib>

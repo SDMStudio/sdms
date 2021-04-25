@@ -74,6 +74,9 @@ int main(int argc, char **argv)
                 vect_i_dr.push_back(f_indiv_dr_space.getAll());
             }
 
+            /**
+             * @warning What follows makes no sense for me ... at least from the comment. 
+             */
             // Now that we stored all possible decision rule for each agent, we can get all joint decision rules for the controler (map a joint history to a joint individual decision rule)
             FunctionSpace<TPrescriptorN2Action> f_joint_dr_space({j_history}, MultiDiscreteSpace(vect_i_dr).getAll());
             std::cout << "Joint Decision Rules : T = " << trial << std::endl;

@@ -53,6 +53,7 @@ namespace sdm
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
+         * @warning The above claim is not true!!!!
          * 
          * @return a belief MDP
          */
