@@ -19,7 +19,7 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &v) : BaseOccupancyState<TState, TJointHistory_p>(v)
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state) : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state)
     {
     }
 
@@ -30,7 +30,7 @@ namespace sdm
          * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
          **/
         // Transform proba representation from s(x, \theta) to s(x, \theta^{-i} \mid \theta^i) and s(x, \theta^{-i} \mid \theta'^i)
-        MappedVector<Pair<TState, Joint<typename TJointHistory_p::element_type::ihistory_type>>, double> proba_theta, proba_theta_;
+        MappedVector<Pair<TState, Joint<typename TJointHistory_p::element_type::ihistory_type>>, double> private_occupancy_state_1, private_occupancy_state_2;
         for (const auto &pair_state_history_probability : *this)
         {
             // Transform representation of history_1 (= \theta^i)
@@ -40,7 +40,7 @@ namespace sdm
                 auto agent_histories = pair_state_history_probability.first.second->getIndividualHistories();
                 agent_histories.erase(std::remove(agent_histories.begin(), agent_histories.end(), history_1), agent_histories.end());
                 // Compute p(x, o^{-i} | o^i)
-                proba_theta[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
+                private_occupancy_state_1[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
             }
 
             // Transform representation of history_2 (= \theta'^i)
@@ -50,15 +50,16 @@ namespace sdm
                 auto agent_histories = pair_state_history_probability.first.second->getIndividualHistories();
                 agent_histories.erase(std::remove(agent_histories.begin(), agent_histories.end(), history_2), agent_histories.end());
                 // Compute p(x, o^{-i} | o'^i)
-                proba_theta_[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
+                private_occupancy_state_2[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
             }
         }
 
         // If p(x, o^{-i} | o^i) and p(x, o^{-i} | o'^i) are equal then histories are equivalent
-        if (proba_theta != proba_theta_)
+        if (private_occupancy_state_1 != private_occupancy_state_2)
         {
             return false;
         }
+        
         return true;
     }
 

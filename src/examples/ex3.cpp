@@ -40,7 +40,6 @@ int main(int argc, char **argv)
     {
         // Defines the different types 
         using TObservation = number;
-        using TState = number;
 
         using TActionDescriptor = number;
         using TStateDescriptor = HistoryTree_p<TObservation>;

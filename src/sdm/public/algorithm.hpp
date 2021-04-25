@@ -6,6 +6,9 @@ namespace sdm
   class Algorithm
   {
   public:
+  
+    virtual ~Algorithm() {}
+
     /**
      * @brief Initialize the algorithm.
      * 

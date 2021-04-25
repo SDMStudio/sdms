@@ -179,13 +179,13 @@ namespace sdm
     // For OccupancyMDP (i.e. OccupancyState as vector type)
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    TVector MaxPlanValueFunction2<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
+    TVector MaxPlanValueFunction2<TVector, TAction, TValue>::backup_operator(const TVector &, number )
     {
         // //std::cout << "Formalism DecPOMDP" << std::endl;
         // auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
         // auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-        // TVector v_max;
+        TVector v_max;
         // double value_max = -std::numeric_limits<double>::max(), tmp;
 
         // auto getAll_o = under_pb->getObsSpace()->getAll();
@@ -270,22 +270,22 @@ namespace sdm
         //         }
         //     }
         // }
-        // return v_max;
-        throw sdm::exception::Exception("MaxPlanVF2");
+        return v_max;
+        //throw sdm::exception::Exception("MaxPlanVF2");
 
     }
 
     // For SerializedOccupancyMDP (i.e. SerializedOccupancyState as vector type)
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    TVector MaxPlanValueFunction2<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
+    TVector MaxPlanValueFunction2<TVector, TAction, TValue>::backup_operator(const TVector &, number )
     {
         // std::cout << "Formalism SerializedDecPOMDP" << std::endl;
 
         // auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
         // auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-        // TVector v_max;
+        TVector v_max;
         // double value_max = -std::numeric_limits<double>::max(), tmp;
 
         // number ag_id = state.getCurrentAgentId();
@@ -426,15 +426,16 @@ namespace sdm
         //         }
         //     }
         // }
-        // return v_max;
-        throw sdm::exception::Exception("MaxPlanVF2");
+        return v_max;
+        //throw sdm::exception::Exception("MaxPlanVF2");
     }
 
     // For BeliefMDP
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int>>
-    TVector MaxPlanValueFunction2<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
+    TVector MaxPlanValueFunction2<TVector, TAction, TValue>::backup_operator(const TVector &, number)
     {
+        TVector v;
         // auto beliefMDP = std::static_pointer_cast<BeliefMDP<>>(this->getWorld());
         // auto under_pb = this->getWorld()->getUnderlyingProblem();
 
@@ -484,7 +485,8 @@ namespace sdm
         // }
         // auto new_plan = beta_a[a_max];
         // return new_plan;
-        throw sdm::exception::Exception("MaxPlanVF2");
+        // throw sdm::exception::Exception("MaxPlanVF2");
+        return v;
     }
 
 } // namespace sdm

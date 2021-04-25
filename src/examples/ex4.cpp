@@ -17,7 +17,7 @@
 
 using namespace sdm;
 
-int main(int argc, char **argv)
+int main(int, char **)
 {
     // DiscreteSpace contain a list of possible items any type (string in the following exemple)
     DiscreteSpace<std::string> hello_dsp({"Hello", "Hi", "Good Morning"});

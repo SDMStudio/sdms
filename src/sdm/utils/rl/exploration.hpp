@@ -2,12 +2,20 @@
 
 #include <sdm/utils/value_function/qvalue_function.hpp>
 
+/**
+ * @warning Attention avec les classes virtuelles -- et les destructions de instances qui derivent des classes derivees de ces classes virtuelles.
+ *          La destruction requiert que l'on dispose d'un destructeur virtuel dans la classe de base. 
+ * 
+ *          Par ailleurs, encore une fois -- c'est une tres mauvaise habitude de mettre le corps du code dans le .hpp 
+ */
 namespace sdm
 {
 
     template <typename TObservation, typename TAction>
     class Exploration
     {
+        public:
+        virtual ~Exploration(){}
         virtual void reset(unsigned long nb_timesteps) = 0;
         virtual void update(unsigned long nb_timesteps) = 0;
         virtual TAction getAction(std::shared_ptr<QValueFunction<TObservation, TAction>> policy, TObservation obs, number t) = 0;

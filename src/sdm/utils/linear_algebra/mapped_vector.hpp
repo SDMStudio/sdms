@@ -37,8 +37,15 @@ namespace sdm
     class MappedVector : public RecursiveMap<TIndex, T>, public VectorImpl<TIndex, T>
     {
     protected:
+
         T default_value_;
         long size_ = -1;
+        double precision = 0.0000001;
+
+        std::vector<TIndex> v_indexes;
+
+        bool bmin = false, bmax = false;
+        std::pair<TIndex, T> pmin, pmax;
 
         std::pair<TIndex, T> getMin() const;
         std::pair<TIndex, T> getMax() const;
@@ -52,10 +59,10 @@ namespace sdm
         using value_list_type = typename RecursiveMap<TIndex, T>::value_list_type;
 
         MappedVector();
-        MappedVector(T default_value);
-        MappedVector(long size, T default_value);
-        MappedVector(const MappedVector &v);
-        MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals) {}
+        MappedVector(T);
+        MappedVector(long, T);
+        MappedVector(const MappedVector &);
+        MappedVector(std::initializer_list<value_list_type>);
         virtual ~MappedVector();
 
         T norm_1() const;
@@ -68,20 +75,35 @@ namespace sdm
         TIndex argmax() const;
 
         T at(const TIndex &) const;
+
+        /**
+         * @brief This method implements a non-commutative dot product
+         * @comment: It is worth noticing that sometimes arg1.dot(arg2) !=  arg2.dot(arg1)
+         * @return T 
+         */
         T operator^(const MappedVector &) const;
 
-        bool operator==(const MappedVector &v2) const;
-        bool operator!=(const MappedVector &v2) const;
+        bool operator==(const MappedVector &) const;
+        bool operator!=(const MappedVector &) const;
         bool operator<(const MappedVector &) const;
 
-        T dot(const MappedVector &v2) const;
+        /**
+         * @brief This method implements a non-commutative dot product
+         * @comment: It is worth noticing that sometimes arg1.dot(arg2) !=  arg2.dot(arg1)
+         * @return T 
+         */
+        T dot(const MappedVector &) const;
 
         std::size_t size() const;
 
         T getDefault() const;
 
+        void setIndexes();
+
         std::vector<TIndex> getIndexes() const;
 
+        void setPrecision(double);
+        
         std::string str() const;
 
         friend std::ostream &operator<<(std::ostream &os, const MappedVector &vect)

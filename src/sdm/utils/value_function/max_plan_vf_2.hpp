@@ -51,11 +51,11 @@ namespace sdm
 
     public:
         MaxPlanValueFunction2();
-        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer);
-        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon = 0, TValue default_value = 0.);
+        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int , std::shared_ptr<Initializer<TVector, TAction>> );
+        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int  = 0, TValue  = 0.);
 
         void initialize();
-        void initialize(TValue default_value, number t = 0);
+        void initialize(TValue , number  = 0);
 
         /**
          * @brief Get the Value at state x 
@@ -63,19 +63,19 @@ namespace sdm
          * @param state the state 
          * @return TValue 
          */
-        TValue getValueAt(const TVector &state, number t = 0);
+        TValue getValueAt(const TVector &, number  = 0);
 
         /**
          * @brief Update the max plan representation by adding a new hyperplan
          */
-        void updateValueAt(const TVector &state, number t = 0);
+        void updateValueAt(const TVector &, number  = 0);
 
         /**
          * @brief 
          * 
          * @return std::string 
          */
-        std::vector<TVector> getSupport(number t);
+        std::vector<TVector> getSupport(number );
 
         /**
          * @brief Get the maximum value and hyperplan at a specific state
@@ -83,13 +83,13 @@ namespace sdm
          * @param state a specific state
          * @return the maximum value and hyperplan at a specific state (std::pair<TValue, TVector>) 
          */
-        std::pair<TValue, TVector> getMaxAt(const TVector &state, number t);
+        std::pair<TValue, TVector> getMaxAt(const TVector &, number );
 
         /**
          * @brief Prune unecessary vectors
          * 
          */
-        void prune(number t = 0);
+        void prune(number  = 0);
 
         /*!
          * @brief this method prunes dominated alpha-vectors, known as Lark's pruning.
@@ -97,14 +97,14 @@ namespace sdm
          * it performs a linear programming providing a gap delta, and a frequency f. If the gap is over a certain
          * threshold epsilon, that means one can preserve the selected vector, otherwise one should discard it.
          */
-        void lark_prune(number t = 0);
+        void lark_prune(number  = 0);
 
         /*!
          * @brief this method prunes dominated points, known as bounded pruning by Trey Smith.
          * This approach stores the number of frequency states, among those already visited, that are maximal at a hyperplan.
          * And prune hyperplan with a number of maximal frequency states zero.
          */
-        void bounded_prune(number t = 0);
+        void bounded_prune(number  = 0);
 
         /**
          * @brief Get the number of hyperplans 
@@ -117,7 +117,7 @@ namespace sdm
         {
             std::ostringstream res;
             res << "<maxplan_value_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-            for (int i = 0; i < this->representation.size(); i++)
+            for (number i = 0; i < this->representation.size(); i++)
             {
                 res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
                 for (auto plan : this->representation[i])
@@ -135,22 +135,22 @@ namespace sdm
 
         // For POMDP (i.e. BeliefState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int> = 0>
-        TVector backup_operator(const TVector &state, number t = 0);
+        TVector backup_operator(const TVector &, number  = 0);
 
         // For DecPOMDP (i.e. OccupancyState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        TVector backup_operator(const TVector &state, number t = 0);
+        TVector backup_operator(const TVector &, number  = 0);
 
          // For SerializedDecPOMDP (i.e. SerializedOccupancyState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        TVector backup_operator(const TVector &state, number t = 0);
+        TVector backup_operator(const TVector &, number  = 0);
     };
 
     template <class TAction, class TValue>
     class MaxPlanValueFunction2<number, TAction, TValue> : public ValueFunction<number, TAction, TValue>
     {
     public:
-        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<number, TAction>> problem, int horizon, std::shared_ptr<Initializer<number, TAction>> initializer)
+        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<number, TAction>>, int, std::shared_ptr<Initializer<number, TAction>>)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
@@ -159,22 +159,22 @@ namespace sdm
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
-        void initialize(TValue default_value, number t = 0)
+        void initialize(TValue, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
 
-        TValue getValueAt(const number &state, number t = 0)
+        TValue getValueAt(const number &, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
 
-        void updateValueAt(const number &state, number t = 0)
+        void updateValueAt(const number &, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
 
-        std::vector<number> getSupport(number t)
+        std::vector<number> getSupport(number)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
@@ -189,7 +189,7 @@ namespace sdm
     class MaxPlanValueFunction2<SerializedState, TAction, TValue> : public ValueFunction<SerializedState, TAction, TValue>
     {
     public:
-        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, int horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer)
+        MaxPlanValueFunction2(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>>, int, std::shared_ptr<Initializer<SerializedState, TAction>>)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
@@ -198,22 +198,22 @@ namespace sdm
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
-        void initialize(TValue default_value, number t = 0)
+        void initialize(TValue, number= 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
 
-        TValue getValueAt(const SerializedState &state, number t = 0)
+        TValue getValueAt(const SerializedState &, number= 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
 
-        void updateValueAt(const SerializedState &state, number t = 0)
+        void updateValueAt(const SerializedState &, number = 0)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
 
-        std::vector<SerializedState> getSupport(number t)
+        std::vector<SerializedState> getSupport(number)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }

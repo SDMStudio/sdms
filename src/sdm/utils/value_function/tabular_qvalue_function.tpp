@@ -3,7 +3,7 @@ namespace sdm
 {
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer)
-        : QValueFunction<TState, TAction, TValue>(horizon), initializer_(initializer), learning_rate_(learning_rate)
+        : QValueFunction<TState, TAction, TValue>(horizon), learning_rate_(learning_rate), initializer_(initializer)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_, Container());
     }
@@ -76,7 +76,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(const TState &state, const TAction &action, number t)
+    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(const TState &, const TAction &, number)
     {
         // To be modified
         // this->updateQValueAt(state, t, this->getBackupOperator().backup(this, state, t));

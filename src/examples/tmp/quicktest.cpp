@@ -1,7 +1,7 @@
 #include <ilcplex/ilocplex.h>
 ILOSTLBEGIN
 
-int main(int argc, char **argv)
+int main(int, char **)
 {
     IloEnv env;
     try
