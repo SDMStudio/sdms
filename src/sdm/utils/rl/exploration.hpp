@@ -16,9 +16,9 @@ namespace sdm
     {
         public:
         virtual ~Exploration(){}
-        virtual void reset(unsigned long nb_timesteps) = 0;
-        virtual void update(unsigned long nb_timesteps) = 0;
-        virtual TAction getAction(std::shared_ptr<QValueFunction<TObservation, TAction>> policy, TObservation obs, number t) = 0;
+        virtual void reset(unsigned long) = 0;
+        virtual void update(unsigned long) = 0;
+        virtual TAction getAction(std::shared_ptr<QValueFunction<TObservation, TAction>>, TObservation, number) = 0;
     };
 
     template <typename TObservation, typename TAction>
@@ -64,14 +64,6 @@ namespace sdm
 
         TAction getAction(std::shared_ptr<QValueFunction<TObservation, TAction>>, TObservation, number)
         {
-            //     if (random < this.eps)
-            //     {
-            //         return policy->getWorld()->getActionSpaceAt(obs)->sample();
-            //     }
-            //     else
-            //     {
-            //         return policy->getBestAction(obs, t);
-            //     }
             throw sdm::exception::NotImplementedException();
         }
     };
