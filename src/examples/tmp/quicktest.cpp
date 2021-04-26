@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cassert>
 
-#include <sdm/worlds.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
 

@@ -44,7 +44,7 @@ namespace sdm
     auto compress();
     bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &hist1, const typename TJointHistory_p::element_type::ihistory_type &hist2, number ag_id);
     bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2);
-    // void finalize();
+    void finalize();
 
   protected:
     Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, jhistory_type>>> private_omap_;

@@ -25,7 +25,7 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals) 
+    MappedVector<TIndex, T>::MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals)
     {
     }
 
@@ -57,7 +57,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMin() const
     {
-        if(!this->bmin)
+        if (!this->bmin)
         {
             T min = std::numeric_limits<T>::max();
             TIndex amin;
@@ -96,7 +96,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMax() const
     {
-        if(!this->bmax)
+        if (!this->bmax)
         {
             T max = -std::numeric_limits<T>::max();
             TIndex amax;
@@ -114,7 +114,7 @@ namespace sdm
                 amax = TIndex();
                 max = this->default_value_;
             }
-            
+
             this->pmax = {amax, max};
         }
 
@@ -134,7 +134,8 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    void MappedVector<TIndex, T>::setPrecision(double precision){
+    void MappedVector<TIndex, T>::setPrecision(double precision)
+    {
         this->precision = precision;
     }
 
@@ -145,7 +146,7 @@ namespace sdm
         {
             return false;
         }
-        
+
         for (const auto &v : *this)
         {
             if (v2.find(v.first) == v2.end())
@@ -251,21 +252,27 @@ namespace sdm
 
     template <typename TIndex, typename T>
     void MappedVector<TIndex, T>::setIndexes()
-    {        
-        if( this->v_indexes.size() == 0 )
+    {
+        if (this->v_indexes.size() == 0)
         {
             for (const auto &p_i_v : *this)
             {
                 this->v_indexes.push_back(p_i_v.first);
             }
-        } 
+        }
     }
 
     template <typename TIndex, typename T>
     std::vector<TIndex> MappedVector<TIndex, T>::getIndexes() const
-    {        
+    {
         // assert( (this->v_indexes.size()>0) );
-        return this->v_indexes;
+        // return this->v_indexes;
+        std::vector<TIndex> indexes;
+        for (const auto &p_i_v : *this)
+        {
+            indexes.push_back(p_i_v.first);
+        }
+        return indexes;
     }
 
     template <typename TIndex, typename T>
