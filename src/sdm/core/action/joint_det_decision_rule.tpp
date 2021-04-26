@@ -24,7 +24,7 @@ namespace sdm
     template <typename TState, typename TAction>
     Joint<TAction> JointDeterministicDecisionRule<TState, TAction>::act(const Joint<TState> &jobserv) const
     {
-        assert(this->size() == jobserv.size());
+        // assert(this->size() == jobserv.size());
         Joint<TAction> jaction;
         for (number ag_id = 0; ag_id < jobserv.size(); ag_id++)
         {
