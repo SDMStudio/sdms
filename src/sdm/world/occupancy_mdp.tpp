@@ -34,6 +34,9 @@ namespace sdm
                 this->istate_[p_x_h] = this->dpomdp_->getStartDistrib().probabilities()[s];
             }
         }
+
+        this->istate_.finalizing();
+        
         this->cstate_ = this->istate_;
     }
 
@@ -145,6 +148,9 @@ namespace sdm
                 // }
             }
         }
+
+        // finalizing the construction of the occupancy state
+        new_ostate.finalizing();
 
         // Compress the occupancy state
         new_ostate = new_ostate.compress();

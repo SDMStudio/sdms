@@ -106,6 +106,17 @@ namespace sdm
      * @brief Return the probability of a precise occupancy state
      */
     double getProbability(const Pair<TState, TJointHistory_p> &);
+
+    /**
+     * @brief Sets the probability of a precise state-history pair
+     */
+    void setProbability(const Pair<TState, TJointHistory_p> &, double);
+
+    /**
+     * @brief Sets all the precomputed data structures of the occupancy state
+     */
+    void finalizing();
+
   };
 } // namespace sdm
 #include <sdm/core/state/base/base_occupancy_state.tpp>

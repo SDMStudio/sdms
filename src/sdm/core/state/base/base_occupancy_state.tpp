@@ -58,7 +58,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> BaseOccupancyState<TState, TJointHistory_p>::getStates() const
     {
-        assert( (!this->state_space.empty()) );
+        //assert( (!this->state_space.empty()) );
         return this->state_space;
     }
 
@@ -89,14 +89,14 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     std::vector<std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> BaseOccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
     {
-        assert( (!this->agent_history_spaces.empty()) );
-         return this->agent_history_spaces;
+        //assert( (!this->agent_history_spaces.empty()) );
+        return this->agent_history_spaces;
     }
 
     template <typename TState, typename TJointHistory_p>
     std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> BaseOccupancyState<TState, TJointHistory_p>::getIndividualHistories(number ag_id) const
     {
-        assert( (!this->agent_history_spaces[ag_id].empty()) );
+        //assert( (!this->agent_history_spaces[ag_id].empty()) );
         return this->agent_history_spaces[ag_id];
     }
 
@@ -124,6 +124,20 @@ namespace sdm
     double BaseOccupancyState<TState, TJointHistory_p>::getProbability(const Pair<TState, TJointHistory_p> &index)
     {
         return this->at(index);
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::setProbability(const Pair<TState, TJointHistory_p> & pair_state_jhistory, double probability)
+    {
+        (*this)[pair_state_jhistory] = probability;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::finalizing()
+    {
+        this->setStates();
+        this->setJointHistories();
+        this->setAllIndividualHistories();
     }
 
 } // namespace sdm

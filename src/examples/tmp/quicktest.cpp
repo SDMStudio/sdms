@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 		// Construct DecPOMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 		auto omdp_world = sdm::parser::parse_file(filename)->toOccupancyMDP();
+		std::cout << "#> omdp_world reference \"" << omdp_world << "\"\n";
 
         // We will show how to expand an initial occupancy state and generate next ones 
         int depth = 0, limit = 3;
@@ -45,7 +46,7 @@ int main(int argc, char **argv)
             depth ++;
             ostate = omdp_world->nextState(ostate, oaction);
             oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-        }while(depth < limit);
+        } while(depth < limit);
     }
     catch (sdm::exception::Exception &e)
     {
