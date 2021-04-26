@@ -42,12 +42,12 @@ namespace sdm
     OccupancyState(const OccupancyState &);
 
     auto compress();
-    bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &hist1, const typename TJointHistory_p::element_type::ihistory_type &hist2, number ag_id);
-    bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2);
-    // void finalize();
+    bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &, const typename TJointHistory_p::element_type::ihistory_type &, number);
+    bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &, const Pair<TState, TJointHistory_p> &);
 
   protected:
     Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, jhistory_type>>> private_omap_;
+    
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

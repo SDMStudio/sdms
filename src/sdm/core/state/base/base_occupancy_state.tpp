@@ -25,6 +25,10 @@ namespace sdm
           list_jhistories(v.getJointHistories()),
           all_list_ihistories(v.getAllIndividualHistories())
     {
+        for(const auto& pair_s_o : v)
+        {
+          list_jhistory_states[pair_s_o.first.second] = v.getStatesAt(pair_s_o.first.second);
+        }
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -93,6 +97,12 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> &BaseOccupancyState<TState, TJointHistory_p>::getStatesAt(TJointHistory_p jhistory) const
+    {
+        return this->list_jhistory_states[jhistory];
+    }
+
+    template <typename TState, typename TJointHistory_p>
     const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> &BaseOccupancyState<TState, TJointHistory_p>::getStates() const
     {
         return this->list_states;
@@ -101,10 +111,10 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::setStates()
     {
-        this->list_states.clear();
-        for (const auto &key : *this)
+        for (const auto &pair_s_o : *this)
         {
-            this->list_states.insert(key.first.first);
+            this->list_states.insert(pair_s_o.first.first);
+            this->list_jhistory_states[pair_s_o.first.second].insert(pair_s_o.first.first);
         }
     }
 

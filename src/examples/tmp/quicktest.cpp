@@ -33,19 +33,23 @@ int main(int argc, char **argv)
 		std::cout << "#> omdp_world reference \"" << omdp_world << "\"\n";
 
         // We will show how to expand an initial occupancy state and generate next ones 
-        int depth = 0, limit = 3;
+        int depth = 0, limit = 2;
         auto ostate = omdp_world->getInitialState();
         auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
+    	
+        std::cout << "#> Print depth \"" << depth << "\"\n";
+    	std::cout << "#> Print occupancy state \n" << ostate << "\n";
+    	std::cout << "#> Print joint decision rule \n" << oaction << "\n";
 
         do
         {
-    		std::cout << "#> Print depth \"" << depth << "\"\n";
-    		std::cout << "#> Print occupancy state \n" << ostate << "\n";
-    		std::cout << "#> Print joint decision rule \n" << oaction << "\n";
-
             depth ++;
             ostate = omdp_world->nextState(ostate, oaction);
             oaction = omdp_world->getActionSpaceAt(ostate)->sample();
+
+    		std::cout << "#> Print depth \"" << depth << "\"\n";
+    		std::cout << "#> Print occupancy state \n" << ostate << "\n";
+    		std::cout << "#> Print joint decision rule \n" << oaction << "\n";
         } while(depth < limit);
     }
     catch (sdm::exception::Exception &e)

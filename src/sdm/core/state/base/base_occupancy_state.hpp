@@ -52,22 +52,25 @@ namespace sdm
     BaseOccupancyState(std::size_t, double);
     BaseOccupancyState(const BaseOccupancyState &);
 
-    void setProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba);
-    void addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba);
+    void setProbabilityAt(const Pair<TState, TJointHistory_p> &, double );
+    void addProbabilityAt(const Pair<TState, TJointHistory_p> &, double );
     void finalize();
 
     /**
      * @brief Return the probability of a precise occupancy state
      */
-    double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+    double getProbability(const Pair<TState, TJointHistory_p> &);
 
     /**
      * @brief Get the set of states that are in the support of the occupancy state.
      * @comment: Very bad idea, since you may end of with too many states wrt each joint histories. Instead we should get back the belief state according with a given joint history.
      *            -- require run of setJointHistories(); 
-     * @return the possible states
+     * @return the possible states per joint histories
      */
     const std::set<state_type> &getStates() const;
+
+    const std::unordered_map<jhistory_type, std::set<state_type>> &getStatesAt(jhistory_type) const;
+
 
     void setStates();
 
@@ -92,7 +95,7 @@ namespace sdm
      * @comment: Should be pre-computed 
      * @param number the agent identifier
      */
-    const std::set<typename jhistory_type::element_type::ihistory_type> &getIndividualHistories(number ag_id) const;
+    const std::set<typename jhistory_type::element_type::ihistory_type> &getIndividualHistories(number) const;
 
     /**
      * @brief Return the state of a precise occupancy state
@@ -117,6 +120,7 @@ namespace sdm
   protected:
     std::set<state_type> list_states;
     std::set<jhistory_type> list_jhistories;
+    std::unordered_map<jhistory_type, std::set<state_type>> list_jhistory_states;
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
     
 

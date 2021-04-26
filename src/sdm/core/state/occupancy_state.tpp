@@ -24,14 +24,15 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    bool OccupancyState<TState, TJointHistory_p>::areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &history_1, const typename TJointHistory_p::element_type::ihistory_type &history_2, number agent_identifier)
+    bool OccupancyState<TState, TJointHistory_p>::areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &ihistory_1, const typename TJointHistory_p::element_type::ihistory_type &ihistory_2, number agent_identifier)
     {
+        return this->private_omap_[agent_identifier][ihistory_1] == this->private_omap_[agent_identifier][ihistory_2];
+
         /**
          * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
          **/
         // Transform proba representation from s(x, \theta) to s(x, \theta^{-i} \mid \theta^i) and s(x, \theta^{-i} \mid \theta'^i)
-        MappedVector<Pair<TState, Joint<typename TJointHistory_p::element_type::ihistory_type>>, double> private_occupancy_state_1, private_occupancy_state_2;
-        for (const auto &pair_state_history_probability : *this)
+        /*for (const auto &pair_state_history_probability : *this)
         {
             // Transform representation of history_1 (= \theta^i)
             if (pair_state_history_probability.first.second->getIndividualHistory(agent_identifier) == history_1)
@@ -60,7 +61,7 @@ namespace sdm
             return false;
         }
         
-        return true;
+        return true;*/
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -89,13 +90,54 @@ namespace sdm
         /**
          * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
          **/
-        OccupancyState<TState, TJointHistory_p> compact_ostate;
-        auto support = this->getIndexes();
-        // Sort support to get same label for cluster of equivalent histories but different states
+        OccupancyState<TState, TJointHistory_p> current_compact_ostate;
+        OccupancyState<TState, TJointHistory_p> previous_compact_ostate = *this;
+
+        for(int agent_id = 0; agent_id<2; ++agent_id)
+        {
+            auto support = this->getAllIndividualHistories()[agent_id];
+            
+            // Sort support 
+            std::sort(support.begin(), support.end());
+            
+            for (auto iter_first = support.begin(); iter_first != support.end();)
+            {
+                auto ihistory_first = *iter_first;
+                iter_first = support.erase(iter_first);
+                for (auto iter_second = iter_first; iter_second != support.end();)
+                {
+                    auto ihistory_second = *iter_second;
+
+                    if( this->areIndividualHistoryLPE(ihistory_first, ihistory_second, agent_id) )
+                    {
+                        iter_second = support.erase(iter_second);
+
+                        for(const auto&  pair_s_o_prob: previous_compact_ostate.private_omap_[agent_id][ihistory_second] )
+                        {
+                            current_compact_ostate.addProbabilityAt(pair_s_o_prob.first, pair_s_o_prob.second);
+                        }
+                    }
+                }
+            }
+
+            previous_compact_ostate = current_compact_ostate;
+            current_compact_ostate.clear();
+        } 
+            
+       return current_compact_ostate;
+
+
+
+
+        /*auto support = this->getIndexes();
+
+        // Sort support 
         std::sort(support.begin(), support.end());
+
+        // go over the joint history support
         for (auto iter = support.begin(); iter != support.end();)
         {
-            auto pair_s_o = *iter;
+            auto jhistory = *iter;
             compact_ostate.setProbabilityAt(pair_s_o, this->at(pair_s_o));
             iter = support.erase(iter);
             for (auto iter2 = iter; iter2 != support.end();)
@@ -113,6 +155,7 @@ namespace sdm
             }
         }
         return compact_ostate;
+        */
     }
 
     // template <typename TState, typename TJointHistory_p>
