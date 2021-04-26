@@ -58,7 +58,6 @@ namespace sdm
     {
         TState start_state = this->world_->getInitialState();
         this->trial = 0;
-        // std::cout << *this->lower_bound_ << std::endl;
 
         std::cout << start_state << std::endl;
         clock_t t_begin = clock();

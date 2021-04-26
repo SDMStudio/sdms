@@ -91,19 +91,19 @@ namespace sdm
          **/
         OccupancyState<TState, TJointHistory_p> compact_ostate;
         auto support = this->getIndexes();
-        // Sort support to get same label for cluster of equivalent histories but different states 
+        // Sort support to get same label for cluster of equivalent histories but different states
         std::sort(support.begin(), support.end());
         for (auto iter = support.begin(); iter != support.end();)
         {
             auto pair_s_o = *iter;
-            compact_ostate[pair_s_o] = this->at(pair_s_o);
+            compact_ostate.setProbabilityAt(pair_s_o, this->at(pair_s_o));
             iter = support.erase(iter);
             for (auto iter2 = iter; iter2 != support.end();)
             {
                 auto pair_s_o_2 = *iter2;
                 if (this->areStateJointHistoryPairsLPE(pair_s_o, pair_s_o_2))
                 {
-                    compact_ostate[pair_s_o] = compact_ostate[pair_s_o] + this->at(pair_s_o_2);
+                    compact_ostate.addProbabilityAt(pair_s_o, this->at(pair_s_o_2));
                     iter2 = support.erase(iter2);
                 }
                 else
@@ -113,6 +113,26 @@ namespace sdm
             }
         }
         return compact_ostate;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void OccupancyState<TState, TJointHistory_p>::finalize()
+    {
+        BaseOccupancyState<TState, TJointHistory_p>::finalize();
+
+        // Build the private occupancy map
+        // for (const auto &pair_state_jhist : *this)
+        // {
+        //     auto state = this->getState(pair_state_jhist);
+        //     auto jhist = this->getHistory(pair_state_jhist);
+        //     auto proba = this->getProbability(pair_state_jhist);
+        //     for (number ag = 0; ag < jhist->getNumAgents(); ag++)
+        //     {
+        //         auto other_histories = jhist->getIndividualHistories();
+        //         other_histories.erase(std::remove(other_histories.begin(), other_histories.end(), jhist->getIndividualHistory(ag)), other_histories.end());
+        //         this->private_omap_[ag][jhist->getIndividualHistory(ag)][{state, std::make_shared<TJointHistory_p>(other_histories)}] += proba;
+        //     }
+        // }
     }
 
 } // namespace sdm

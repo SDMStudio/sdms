@@ -19,63 +19,88 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(const BaseOccupancyState &v) : MappedVector<Pair<TState, TJointHistory_p>, double>(v)
+    BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(const BaseOccupancyState &v)
+        : MappedVector<Pair<TState, TJointHistory_p>, double>(v),
+          list_states(v.getStates()),
+          list_jhistories(v.getJointHistories()),
+          all_list_ihistories(v.getAllIndividualHistories())
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type> BaseOccupancyState<TState, TJointHistory_p>::getJointHistories() const
+    void BaseOccupancyState<TState, TJointHistory_p>::setProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba)
     {
-        // Get the set of joint histories that are in the support of the BaseOccupancyState
-        std::set<jhistory_type> possible_jhistories;
+        // Set the new occupancy measure
+        (*this)[pair_state_hist] = proba;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba)
+    {
+        if (this->find(pair_state_hist) != this->end())
+        {
+            (*this)[pair_state_hist] += proba;
+        }
+        else
+        {
+            this->setProbabilityAt(pair_state_hist, proba);
+        }
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::finalize()
+    {
+        // Set basic accessors 
+        this->list_states.clear();
+        this->list_jhistories.clear();
+        this->all_list_ihistories.clear();
+
         for (const auto &key : *this)
         {
-            possible_jhistories.insert(key.first.second);
+            this->list_states.insert(key.first.first);
+            this->list_jhistories.insert(key.first.second);
         }
-        return possible_jhistories;
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> BaseOccupancyState<TState, TJointHistory_p>::getStates() const
-    {
-        // Get the set of states that are in the support of the BaseOccupancyState
-        std::set<state_type> possible_states;
-        for (const auto &key : *this)
-        {
-            possible_states.insert(key.first.first);
-        }
-        return possible_states;
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    std::vector<std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> BaseOccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
-    {
-        std::vector<std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> possible_ihistories;
 
         bool first_passage = true;
-        for (const auto &jhist : this->getJointHistories()) // for all joint history in the support
+        for (const auto &jhist : this->getJointHistories())
         {
-            auto ihists = jhist->getIndividualHistories(); // get associated individual histories for each agent
+            auto ihists = jhist->getIndividualHistories();
             for (std::size_t i = 0; i < ihists.size(); i++)
             {
-                // Init the set for agent i
                 if (first_passage)
                 {
-                    possible_ihistories.push_back({});
+                    this->all_list_ihistories.push_back({});
                 }
-                // Add the indiv history of agent i in his set
-                possible_ihistories[i].insert(ihists[i]);
+
+                this->all_list_ihistories[i].insert(ihists[i]);
             }
             first_passage = false;
         }
-        return possible_ihistories;
     }
 
     template <typename TState, typename TJointHistory_p>
-    std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> BaseOccupancyState<TState, TJointHistory_p>::getIndividualHistories(number ag_id) const
+    const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type> &BaseOccupancyState<TState, TJointHistory_p>::getJointHistories() const
     {
-        std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> All_ihistories = getAllIndividualHistories();
-        return All_ihistories[ag_id];
+        // Get the set of joint histories that are in the support of the BaseOccupancyState
+        return this->list_jhistories;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> &BaseOccupancyState<TState, TJointHistory_p>::getStates() const
+    {
+        return this->list_states;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const std::vector<std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> &BaseOccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
+    {
+        return this->all_list_ihistories;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type> &BaseOccupancyState<TState, TJointHistory_p>::getIndividualHistories(number ag_id) const
+    {
+        return this->all_list_ihistories[ag_id];
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -89,8 +114,6 @@ namespace sdm
     {
         return this->getState(pair_state_hist);
     }
-
-
 
     template <typename TState, typename TJointHistory_p>
     TJointHistory_p BaseOccupancyState<TState, TJointHistory_p>::getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist) const

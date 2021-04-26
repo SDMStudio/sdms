@@ -12,6 +12,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/core/state/history.hpp>
 #include <sdm/core/state/base/base_occupancy_state.hpp>
@@ -32,6 +33,7 @@ namespace sdm
   {
   public:
     using jhistory_type = typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type;
+    using ihistory_type = typename jhistory_type::element_type::ihistory_type;
     using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
 
     OccupancyState();
@@ -42,6 +44,10 @@ namespace sdm
     auto compress();
     bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &hist1, const typename TJointHistory_p::element_type::ihistory_type &hist2, number ag_id);
     bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2);
+    void finalize();
+
+  protected:
+    Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, jhistory_type>>> private_omap_;
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

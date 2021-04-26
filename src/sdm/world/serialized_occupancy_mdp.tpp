@@ -35,9 +35,10 @@ namespace sdm
             if (this->dpomdp_->getStartDistrib().probabilities()[x] > 0)
             {
                 Pair<typename oState::state_type, typename oState::jhistory_type> p_s_o(s, jhist);
-                this->istate_[p_s_o] = this->dpomdp_->getStartDistrib().probabilities()[x];
+                this->istate_.setProbabilityAt(p_s_o, this->dpomdp_->getStartDistrib().probabilities()[x]);
             }
         }
+        this->istate_.finalize();
         this->cstate_ = this->istate_;
     }
 
@@ -95,9 +96,7 @@ namespace sdm
     oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, number, std::shared_ptr<HSVI<oState, oAction>>) const
     {
         number ag_id = ostate.getCurrentAgentId();
-
         oState new_ostate;
-
         for (auto &p_s_o : ostate)
         {
             auto pair_s_o = p_s_o.first;
@@ -105,34 +104,35 @@ namespace sdm
             auto o = pair_s_o.second;
             auto u = ostate.getAction(pair_s_o);
 
-
             auto p_ihist = o->getIndividualHistory(ag_id);
             u.push_back(indiv_dr.act(p_ihist));
 
             if (ag_id != this->dpomdp_->getNumAgents() - 1)
             {
-                typename oState::state_type s(x,u);
+                typename oState::state_type s(x, u);
                 Pair<typename oState::state_type, typename oState::jhistory_type> s_o(s, o);
-                new_ostate[s_o] = p_s_o.second;
+                new_ostate.setProbabilityAt(s_o, p_s_o.second);
             }
             else
             {
                 for (typename oState::state_type y : this->dpomdp_->getStateSpace()->getAll())
-                {                    
+                {
                     for (auto &z : this->dpomdp_->getObsSpace()->getAll())
                     {
                         Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
                         double proba = p_s_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(u), this->dpomdp_->getObsSpace()->joint2single(z), y.getState());
                         if (proba > 0)
                         {
-                            new_ostate[new_index] = new_ostate.at(new_index) + proba;
+                            new_ostate.addProbabilityAt(new_index, proba);
                         }
                     }
                 }
             }
         }
-        // Compress the occupancy state 
+        // Compress the occupancy state
         new_ostate = new_ostate.compress();
+        new_ostate.finalize();
+
         return new_ostate;
     }
 
@@ -141,7 +141,6 @@ namespace sdm
     {
         double r = 0;
         number ag_id = ostate.getCurrentAgentId();
-        
 
         if (ag_id != this->dpomdp_->getNumAgents() - 1)
         {
@@ -185,7 +184,6 @@ namespace sdm
         }
         return this->dpomdp_->getDiscount();
     }
-
 
     template <typename oState, typename oAction>
     std::shared_ptr<SerializedMDP<>> SerializedOccupancyMDP<oState, oAction>::toMDP()

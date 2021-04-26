@@ -35,32 +35,36 @@ namespace sdm
     BaseOccupancyState(std::size_t size, double default_value);
     BaseOccupancyState(const BaseOccupancyState &v);
 
+    void setProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba);
+    void addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba);
+    void finalize();
+    
     /**
      * @brief Get the set of states that are in the support of the occupancy state.
      * 
      * @return the possible states
      */
-    std::set<state_type> getStates() const;
+    const std::set<state_type> &getStates() const;
 
     /**
      * @brief Get the set of joint histories that are in the support of the occupancy state.
      * 
      * @return the possible joint hitories
      */
-    std::set<jhistory_type> getJointHistories() const;
+    const std::set<jhistory_type> &getJointHistories() const;
 
     /**
      * @brief Get the set of individual histories that are in the support of the occupancy state (for all agents).
      * 
      */
-    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
+    const std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> &getAllIndividualHistories() const;
 
     /**
      * @brief Get the set of individual histories that are in the support of the occupancy state (for a given agent).
      * 
      * @param ag_id the agent id
      */
-    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
+    const std::set<typename jhistory_type::element_type::ihistory_type> &getIndividualHistories(number ag_id) const;
 
     /**
      * @brief Return the state of a precise occupancy state
@@ -84,6 +88,11 @@ namespace sdm
      * @brief Return the probability of a precise occupancy state
      */
     double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+
+  protected:
+    std::set<state_type> list_states;
+    std::set<jhistory_type> list_jhistories;
+    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
   };
 } // namespace sdm
 #include <sdm/core/state/base/base_occupancy_state.tpp>

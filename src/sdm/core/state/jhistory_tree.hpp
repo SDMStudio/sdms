@@ -28,8 +28,8 @@ namespace sdm
     class JointHistoryTree : public HistoryTree<Joint<T>>
     {
     protected:
-
         void addIndivHist(std::shared_ptr<HistoryTree<T>> ihist);
+
     public:
         using ihistory_type = std::shared_ptr<HistoryTree<T>>;
         Joint<std::shared_ptr<HistoryTree<T>>> indiv_hist;
@@ -59,6 +59,13 @@ namespace sdm
          *  This constructor builds a tree with a given parent and item.
          */
         JointHistoryTree(std::shared_ptr<JointHistoryTree<T>> parent, const Joint<T> &item);
+
+        /**
+         * @brief Construct a new joint history based on individual histories
+         * 
+         * @param ihistories the list of individual histories
+         */
+        JointHistoryTree(const Joint<std::shared_ptr<HistoryTree<T>>> &ihistories);
 
         /*!
          *  @fn     HistoryTree<T> *expand(const T &data);

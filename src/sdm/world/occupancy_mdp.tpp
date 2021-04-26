@@ -31,9 +31,10 @@ namespace sdm
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
             {
                 auto p_x_h = std::make_pair(s, jhist);
-                this->istate_[p_x_h] = this->dpomdp_->getStartDistrib().probabilities()[s];
+                this->istate_.setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
             }
         }
+        this->istate_.finalize();
         this->cstate_ = this->istate_;
     }
 
@@ -136,10 +137,9 @@ namespace sdm
 
                     // -> TO REPLACE WITH
                     // double proba = p_x_o.second * this->dpomdp_->getDynamics(x, jaction, z, y);
-
                     if (proba > 0)
                     {
-                        new_ostate[new_index] = new_ostate.at(new_index) + proba;
+                        new_ostate.addProbabilityAt(new_index, proba);
                     }
                 }
                 // }
@@ -148,6 +148,8 @@ namespace sdm
 
         // Compress the occupancy state
         new_ostate = new_ostate.compress();
+        new_ostate.finalize();
+
         return new_ostate;
     }
 
