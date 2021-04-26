@@ -29,10 +29,10 @@ namespace sdm
     {
     public:
         DiscreteMMDP();
-        DiscreteMMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<MultiDiscreteSpace<number>> action_sp);
-        DiscreteMMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<MultiDiscreteSpace<number>> action_sp, std::discrete_distribution<number>);
-        DiscreteMMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<MultiDiscreteSpace<number>> action_sp, std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number> start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
-        DiscreteMMDP(std::string &filename);
+        DiscreteMMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<MultiDiscreteSpace<number>> );
+        DiscreteMMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<MultiDiscreteSpace<number>> , std::discrete_distribution<number>);
+        DiscreteMMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<MultiDiscreteSpace<number>> , std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number> , number  = 0, double  = 0.9, Criterion  = Criterion::REW_MAX);
+        DiscreteMMDP(std::string &);
 
         /**
          * @brief Get the corresponding Markov Decision Process. It corresponds to the reformulation of the MMDP in a MDP where the Joint discrete action space becOme a discrete action Space . 

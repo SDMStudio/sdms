@@ -60,7 +60,7 @@ namespace sdm
          * @param underlying_dpomdp the underlying DecPOMDP 
          * @param hist_length the maximum length of the history
          */
-        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length = -1);
+        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> , number  = -1);
 
         /**
          * @brief Construct a new Occupancy MDP  
@@ -68,24 +68,24 @@ namespace sdm
          * @param underlying_dpomdp the underlying DecPOMDP (as a filename)
          * @param hist_length the maximum length of the history
          */
-        OccupancyMDP(std::string underlying_dpomdp, number hist_length = -1);
+        OccupancyMDP(std::string , number  = -1);
 
         // ---------- RL GymInterface -------------
         oState reset();
         oState &getState();
-        std::tuple<oState, std::vector<double>, bool> step(oAction action);
+        std::tuple<oState, std::vector<double>, bool> step(oAction );
 
         // ---------- HSVI exact interface -------------
         bool isSerialized() const;
         DiscreteDecPOMDP *getUnderlyingProblem();
 
         oState getInitialState();
-        oState nextState(const oState &ostate, const oAction &oaction, number t = 0, std::shared_ptr<HSVI<oState, oAction>> hsvi = nullptr, bool compression = true) const;
+        oState nextState(const oState &, const oAction &, number = 0, std::shared_ptr<HSVI<oState, oAction>>  = nullptr, bool  = true) const;
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
 
-        double getReward(const oState &ostate, const oAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t = 0) const;
+        double getReward(const oState &, const oAction &) const;
+        double getExpectedNextValue(ValueFunction<oState, oAction> *, const oState &, const oAction &, number = 0) const;
 
         // ---------- Other -------------
         

@@ -51,11 +51,11 @@ namespace sdm
 
     public:
         MaxPlanValueFunction();
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer);
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon = 0, TValue default_value = 0.);
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number, std::shared_ptr<Initializer<TVector, TAction>>);
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number = 0, TValue = 0.);
 
         void initialize();
-        void initialize(TValue default_value, number t = 0);
+        void initialize(TValue, number = 0);
 
         /**
          * @brief Get the Value at state x 
@@ -63,19 +63,19 @@ namespace sdm
          * @param state the state 
          * @return TValue 
          */
-        TValue getValueAt(const TVector &state, number t = 0);
+        TValue getValueAt(const TVector &, number = 0);
 
         /**
          * @brief Update the max plan representation by adding a new hyperplan
          */
-        void updateValueAt(const TVector &state, number t = 0);
+        void updateValueAt(const TVector &, number = 0);
 
         /**
          * @brief 
          * 
          * @return std::string 
          */
-        std::vector<TVector> getSupport(number t);
+        std::vector<TVector> getSupport(number);
 
         /**
          * @brief Get the maximum value and hyperplan at a specific state
@@ -83,13 +83,13 @@ namespace sdm
          * @param state a specific state
          * @return the maximum value and hyperplan at a specific state (std::pair<TValue, TVector>) 
          */
-        std::pair<TValue, TVector> getMaxAt(const TVector &state, number t);
+        std::pair<TValue, TVector> getMaxAt(const TVector &, number);
 
         /**
          * @brief Prune unecessary vectors
          * 
          */
-        void prune(number t = 0);
+        void prune(number = 0);
 
         /*!
          * @brief this method prunes dominated alpha-vectors, known as Lark's pruning.
@@ -97,14 +97,14 @@ namespace sdm
          * it performs a linear programming providing a gap delta, and a frequency f. If the gap is over a certain
          * threshold epsilon, that means one can preserve the selected vector, otherwise one should discard it.
          */
-        void lark_prune(number t = 0);
+        void lark_prune(number = 0);
 
         /*!
          * @brief this method prunes dominated points, known as bounded pruning by Trey Smith.
          * This approach stores the number of frequency states, among those already visited, that are maximal at a hyperplan.
          * And prune hyperplan with a number of maximal frequency states zero.
          */
-        void bounded_prune(number t = 0);
+        void bounded_prune(number = 0);
 
         /**
          * @brief Get the number of hyperplans 

@@ -36,8 +36,8 @@ namespace sdm
     {
     public:
         DiscretePOMDP();
-        DiscretePOMDP(std::string &filename);
-        DiscretePOMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::shared_ptr<DiscreteSpace<number>> obs_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<ObservationDynamics> obs_dyn, std::shared_ptr<Reward>, std::discrete_distribution<number> start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+        DiscretePOMDP(std::string &);
+        DiscretePOMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<StateDynamics> , std::shared_ptr<ObservationDynamics> , std::shared_ptr<Reward>, std::discrete_distribution<number> , number  = 0, double  = 0.9, Criterion  = Criterion::REW_MAX);
         
         std::shared_ptr<DiscretePOMDP> getptr();
 

@@ -126,6 +126,12 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
+    const std::set<state_type>& DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::getNextStateDistrib(state_type cstate, action_type caction) const
+    {
+        return this->reachable_state_space.at(cstate).at(caction);
+    }
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     template <bool TBool>
     std::enable_if_t<TBool, typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::observation_type> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::updateState_getObs(DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::action_type a)
     {
@@ -168,14 +174,23 @@ namespace sdm
         for (auto &x : this->getStateSpace()->getAll())
         {
             this->dynamics_generator.emplace(x, std::unordered_map<action_type, TDistrib>());
+
+            this->reachable_state_space.emplace(x, std::unordered_map<action_type, st::set<state_type>>());
+
             for (auto &a : this->getActionSpace()->getAll())
             {
                 std::vector<double> v;
+                
+                this->reachable_state_space[x].emplace(a, st::set<state_type>());
+
                 for (auto &y : this->getStateSpace()->getAll())
                 {
                     v.push_back(this->getStateDynamics()->getTransitionProbability(x, this->getAction(a), y));
+                    
+                    this->reachable_state_space[x][a].insert(y);
                 }
-                this->dynamics_generator[x].emplace(a, TDistrib(v.begin(), v.end()));
+
+                this->dynamics_generator[x].emplace(a, TDistrib(v.begin(), v.end()));    
             }
         }
     }

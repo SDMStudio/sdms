@@ -31,8 +31,8 @@ namespace sdm
         using action_type = typename TActionSpace::value_type;
 
         DecisionProcessBase();
-        DecisionProcessBase(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp);
-        DecisionProcessBase(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+        DecisionProcessBase(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>);
+        DecisionProcessBase(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
 
         /**
          * @brief Get the filename
@@ -46,7 +46,7 @@ namespace sdm
          * 
          * @param filename the filename that permit to build this process
          */
-        void setFileName(std::string filename);
+        void setFileName(std::string);
 
         /**
          * @brief Get the bound
@@ -60,7 +60,7 @@ namespace sdm
          * 
          * @param bound the bound
          */
-        void setBound(double bound);
+        void setBound(double);
 
         /**
          * @brief Get the criterion. Can be of two types : REW_MAX (reward maximisation) or COST_MIN (cost minimization).
