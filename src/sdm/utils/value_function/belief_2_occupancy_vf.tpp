@@ -11,7 +11,7 @@ namespace sdm
     template <typename TBelief, typename TOccupancyState>
     template <bool is_solving_dpomdp>
     std::enable_if_t<is_solving_dpomdp, double>
-    Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
+    Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &, const number &)
     {
         // double value = 0;
 
@@ -95,7 +95,7 @@ namespace sdm
     template <typename TBelief, typename TOccupancyState>
     template <bool is_solving_dpomdp>
     std::enable_if_t<!is_solving_dpomdp, double>
-    Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
+    Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &, const number &)
     {
         throw sdm::exception::Exception("The initializer used is not available for this formalism !");
     }

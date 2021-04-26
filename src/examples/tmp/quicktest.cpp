@@ -1,39 +1,49 @@
-#include <ilcplex/ilocplex.h>
-ILOSTLBEGIN
+#include <iostream>
+
+#include <sdm/utils/value_function/max_plan_LP.hpp>
 
 int main(int argc, char **argv)
 {
-    IloEnv env;
-    try
-    {
-        IloModel model(env);
-        IloNumVarArray vars(env);
-        vars.add(IloNumVar(env, 0.0, 40.0));
-        vars.add(IloNumVar(env));
-        vars.add(IloNumVar(env));
-        model.add(IloMaximize(env, vars[0] + 2 * vars[1] + 3 * vars[2]));
-        model.add(-vars[0] + vars[1] + vars[2] <= 20);
-        model.add(vars[0] - 3 * vars[1] + vars[2] <= 30);
-        IloCplex cplex(model);
-        if (!cplex.solve())
-        {
-            env.error() << "Failed to optimize LP." << endl;
-            throw(-1);
-        }
-        IloNumArray vals(env);
-        env.out() << "Solution status = " << cplex.getStatus() << endl;
-        env.out() << "Solution value = " << cplex.getObjValue() << endl;
-        cplex.getValues(vals, vars);
-        env.out() << "Values = " << vals << endl;
-    }
-    catch (IloException &e)
-    {
-        cerr << "Concert exception caught: " << e << endl;
-    }
-    catch (...)
-    {
-        cerr << "Unknown exception caught" << endl;
-    }
-    env.end();
+
+	// std::string filename;
+
+	// if (argc > 1)
+	// {
+	// 	filename = argv[1];
+	// }
+
+	// else
+	// {
+	// 	std::cerr << "Error: Require 1 input file." << std::endl;
+	// 	return 1;
+	// }
+
+	// try
+	// {
+	// 	// Construct DecPOMDP using parser
+	// 	std::cout << "#> Parsing file \"" << filename << "\"\n";
+	// 	auto omdp_world = sdm::parser::parse_file(filename)->toOccupancyMDP();
+
+    //     // We will show how to expand an initial occupancy state and generate next ones 
+    //     int depth = 0, limit = 3;
+    //     auto ostate = omdp_world->getInitialState();
+    //     auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
+
+    //     do
+    //     {
+    // 		std::cout << "#> Print depth \"" << depth << "\"\n";
+    // 		std::cout << "#> Print occupancy state \n" << ostate << "\n";
+    // 		std::cout << "#> Print joint decision rule \n" << oaction << "\n";
+
+    //         depth ++;
+    //         ostate = omdp_world->nextState(ostate, oaction);
+    //         oaction = omdp_world->getActionSpaceAt(ostate)->sample();
+    //     }while(depth < limit);
+    // }
+    // catch (sdm::exception::Exception &e)
+    // {
+    //     std::cout << "!!! Exception: " << e.what() << std::endl;
+    // }
+
     return 0;
 } // END main

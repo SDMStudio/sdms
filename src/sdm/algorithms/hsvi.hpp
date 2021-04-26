@@ -111,7 +111,7 @@ namespace sdm
      * @param t the timestep
      * @return the error
      */
-    double do_excess(const TState &s, number h);
+    double do_excess(const TState &, number);
 
     /**
      * @brief Check the end of HSVI algo
@@ -121,7 +121,7 @@ namespace sdm
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
      * @return false elsewhere
      */
-    bool do_stop(const TState &s, number h);
+    bool do_stop(const TState &, number);
 
     /**
      * @brief Explore a state.
@@ -132,9 +132,9 @@ namespace sdm
     void do_explore(const TState &s, number h);
 
     //Pour le moment, je supprime pas les autres pour tester avec le gt
-    void do_explore(const TState &s, number h, double gt);
-    bool do_stop(const TState &s, number h, double gt);
-    double do_excess_2(const TState &s, number h, double gt);
+    void do_explore(const TState &, number, double);
+    bool do_stop(const TState &, number, double);
+    double do_excess_2(const TState &, number , double);
     /**
      * @brief Select the next action
      * 
@@ -142,7 +142,7 @@ namespace sdm
      * @param h the current timestep
      * @return TAction 
      */
-    TAction selectNextAction(const TState &s, number h);
+    TAction selectNextAction(const TState &, number );
 
     /**
      * @brief Select the next state to explore 
@@ -152,7 +152,7 @@ namespace sdm
      * @param h the current timestep
      * @return the next state
      */
-    TState selectNextState(const TState &s, const TAction &a, number h);
+    TState selectNextState(const TState &, const TAction &, number);
 
     /**
      * @brief Get the lower bound value function 

@@ -182,7 +182,7 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
     {
         //std::cout << "Formalism DecPOMDP" << std::endl;
-        auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
+        auto oMDP = std::static_pointer_cast<OccupancyMDP<TVector,TAction>>(this->getWorld());
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector v_max;
@@ -292,7 +292,6 @@ namespace sdm
                             auto s_state = state.getState(pair_s_o);
                             auto history = state.getHistory(pair_s_o);
                             auto action = state.getAction(pair_s_o);
-                            auto proba = pair_s_o_p.second;
 
                             // //Get joint action from JointDetDecisionRule
                             std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
@@ -336,7 +335,6 @@ namespace sdm
                         auto s_state = state.getState(pair_s_o);
                         auto history = state.getHistory(pair_s_o);
                         auto action = state.getAction(pair_s_o);
-                        auto proba = pair_s_o_p.second;
 
                         // Get joint action from JointDetDecisionRule
                         std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
@@ -367,11 +365,9 @@ namespace sdm
                         for (const auto &pair_s_o_p : state)
                         {
                             auto pair_s_o = pair_s_o_p.first;
-                            auto hidden_state = state.getHiddenState(pair_s_o);
                             auto s_state = state.getState(pair_s_o);
                             auto history = state.getHistory(pair_s_o);
                             auto action = state.getAction(pair_s_o);
-                            auto proba = pair_s_o_p.second;
 
                             v[pair_s_o] = 0;
 
@@ -419,7 +415,8 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int>>
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
     {
-        auto beliefMDP = std::static_pointer_cast<BeliefMDP<>>(this->getWorld());
+
+        auto beliefMDP = std::static_pointer_cast<BeliefMDP<TVector,TAction,number>>(this->getWorld());
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         number n_obs = under_pb->getObsSpace()->getNumItems();

@@ -20,8 +20,19 @@
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/utils/value_function/max_plan_vf_2.hpp>
+#include <sdm/utils/value_function/max_plan_LP.hpp>
+
 
 #include <sdm/utils/rl/exploration.hpp>
+
+
+/**
+ * @brief 
+ * @comment: Ce ficher est trop sale pour moi. Pour moi, il faut eviter d'utiliser des chaines de caracteres pour les algorithmes, les problemes, etc. 
+ *           Il faut utiliser des enum ... Pour moi, il faudrait autant de fichier qu'il y'a de type d'algorithmes, de problemes, etc.
+ *           Par ailleurs, pardon pas de code dans le hpp -- c'est vraiment une tres mauvaise pratique.
+ */
+
 
 namespace sdm
 {
@@ -66,6 +77,10 @@ namespace sdm
             else if (lower_bound_name == "maxplan2")
             {
                 lower_bound = std::make_shared<sdm::MaxPlanValueFunction2<TState, TAction>>(problem, horizon, lb_init);
+            }
+            else if (lower_bound_name == "maxplan_lp")
+            {
+                lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
             }
             else
             {
@@ -127,6 +142,8 @@ namespace sdm
          */
         std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount = 0.99, double error = 0.001, number horizon = 0, int trials = 1000, std::string name = "")
         {
+            std::shared_ptr<Algorithm> p_algo;
+
             if ((algo_name == "hsvi"))
             {
                 if ((formalism == "mdp") || (formalism == "MDP"))
@@ -134,7 +151,7 @@ namespace sdm
                     auto mdp = std::make_shared<DiscreteMDP>(problem_path);
                     mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    return makeHSVI<number, number>(mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name);
+                    p_algo = makeHSVI<number, number>(mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name);
                 }
                 else if ((formalism == "pomdp") || (formalism == "POMDP"))
                 {
@@ -145,7 +162,7 @@ namespace sdm
                     auto pomdp = std::make_shared<DiscretePOMDP>(problem_path);
                     auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(pomdp);
 
-                    return makeHSVI<TState, TAction>(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
+                    p_algo =  makeHSVI<TState, TAction>(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
@@ -160,7 +177,7 @@ namespace sdm
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
-                    return makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                    p_algo =  makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
@@ -171,7 +188,7 @@ namespace sdm
                     auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(mmdp);
                     serialized_mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    return makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                    p_algo =  makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
@@ -180,19 +197,21 @@ namespace sdm
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
 
-                    return makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
+                    p_algo =  makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
                 }
             }
             else
             {
                 throw sdm::exception::Exception("Undefined algorithm type : " + algo_name);
             }
+
+            return p_algo;
         }
 
         template <typename TObservation, typename TAction>
         std::shared_ptr<sdm::QLearning<TObservation, TAction>> makeQLearning(std::shared_ptr<GymInterface<TObservation, TAction>> problem,
-                                                                             std::string qvalue_name,
-                                                                             std::string initializer_name,
+                                                                             std::string,
+                                                                             std::string,
                                                                              number horizon = 0,
                                                                              double discount = 0.9,
                                                                              double lr = 0.01,
@@ -240,6 +259,8 @@ namespace sdm
                                         unsigned long num_max_steps = 100000,
                                         std::string name = "qlearning")
         {
+            std::shared_ptr<Algorithm> p_algo = nullptr;
+
             if ((algo_name == "qlearning"))
             {
                 if ((formalism == "mdp") || (formalism == "MDP"))
@@ -249,7 +270,7 @@ namespace sdm
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
                     problem->setupDynamicsGenerator();
-                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo = makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "pomdp") || (formalism == "POMDP"))
                 {
@@ -258,7 +279,7 @@ namespace sdm
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
                     problem->setupDynamicsGenerator();
-                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "beliefmdp") || (formalism == "BeliefMDP"))
                 {
@@ -267,7 +288,7 @@ namespace sdm
                     problem->getUnderlyingProblem()->setDiscount(discount);
                     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
                     problem->getUnderlyingProblem()->setupDynamicsGenerator();
-                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
@@ -276,7 +297,7 @@ namespace sdm
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
                     problem->setupDynamicsGenerator();
-                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "occupancymdp") || (formalism == "OccupancyMDP"))
                 {
@@ -295,13 +316,15 @@ namespace sdm
                     problem->getUnderlyingProblem()->setDiscount(discount);
                     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
                     problem->getUnderlyingProblem()->setupDynamicsGenerator();
-                    return makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
             }
             else
             {
-                throw sdm::exception::Exception("Undefined algorithm type : " + algo_name);
+                //throw sdm::exception::Exception("Undefined algorithm type : " + algo_name);
             }
+
+            return p_algo;
         }
 
         /**

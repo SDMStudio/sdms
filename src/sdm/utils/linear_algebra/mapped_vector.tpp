@@ -25,6 +25,11 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
+    MappedVector<TIndex, T>::MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals) 
+    {
+    }
+
+    template <typename TIndex, typename T>
     MappedVector<TIndex, T>::~MappedVector() {}
 
     template <typename TIndex, typename T>
@@ -52,77 +57,95 @@ namespace sdm
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMin() const
     {
-        T min = std::numeric_limits<T>::max();
-        TIndex amin;
-        for (const auto &item : *this)
+        if(!this->bmin)
         {
-            if (min > item.second)
+            T min = std::numeric_limits<T>::max();
+            TIndex amin;
+            for (const auto &item : *this)
             {
-                amin = item.first;
-                min = item.second;
+                if (min > item.second)
+                {
+                    amin = item.first;
+                    min = item.second;
+                }
             }
+            if (min == std::numeric_limits<T>::max())
+            {
+                amin = TIndex();
+                min = this->default_value_;
+            }
+
+            this->pmin = {amin, min};
         }
-        if (min == std::numeric_limits<T>::max())
-        {
-            amin = TIndex();
-            min = this->default_value_;
-        }
-        return {amin, min};
+
+        return this->pmin;
     }
 
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::min() const
     {
-        return this->getMin().second;
+        return this->pmin.second;
     }
 
     template <typename TIndex, typename T>
     TIndex MappedVector<TIndex, T>::argmin() const
     {
-        return this->getMin().first;
+        return this->pmin.first;
     }
 
     template <typename TIndex, typename T>
     std::pair<TIndex, T> MappedVector<TIndex, T>::getMax() const
     {
-        T max = -std::numeric_limits<T>::max();
-        TIndex amax;
-        for (const auto &item : *this)
+        if(!this->bmax)
         {
-            if (max < item.second)
+            T max = -std::numeric_limits<T>::max();
+            TIndex amax;
+            for (const auto &item : *this)
             {
-                amax = item.first;
-                max = item.second;
+                if (max < item.second)
+                {
+                    amax = item.first;
+                    max = item.second;
+                }
             }
+
+            if (max == -std::numeric_limits<T>::max())
+            {
+                amax = TIndex();
+                max = this->default_value_;
+            }
+            
+            this->pmax = {amax, max};
         }
-        if (max == -std::numeric_limits<T>::max())
-        {
-            amax = TIndex();
-            max = this->default_value_;
-        }
-        return {amax, max};
+
+        return this->pmax;
     }
 
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::max() const
     {
-        return this->getMax().second;
+        return this->pmax.second;
     }
 
     template <typename TIndex, typename T>
     TIndex MappedVector<TIndex, T>::argmax() const
     {
-        return this->getMax().first;
+        return this->pmax.first;
+    }
+
+    template <typename TIndex, typename T>
+    void MappedVector<TIndex, T>::setPrecision(double precision){
+        this->precision = precision;
     }
 
     template <typename TIndex, typename T>
     bool MappedVector<TIndex, T>::operator==(const MappedVector<TIndex, T> &v2) const
     {
-        double eps = 0.0000001;
-        if (std::abs(this->getDefault() - v2.getDefault()) > eps)
+        if (std::abs(this->getDefault() - v2.getDefault()) > this->precision)
         {
             return false;
         }
+
         for (const auto &v : *this)
         {
             if (v2.find(v.first) == v2.end())
@@ -131,7 +154,7 @@ namespace sdm
             }
             else
             {
-                if (std::abs(v2.at(v.first) - v.second) > eps)
+                if (std::abs(v2.at(v.first) - v.second) > this->precision)
                 {
                     return false;
                 }
@@ -146,12 +169,13 @@ namespace sdm
             }
             else
             {
-                if (std::abs(this->at(v.first) - v.second) > eps)
+                if (std::abs(this->at(v.first) - v.second) > this->precision)
                 {
                     return false;
                 }
             }
         }
+
         return true;
     }
 
@@ -204,10 +228,12 @@ namespace sdm
     T MappedVector<TIndex, T>::dot(const MappedVector &v2) const
     {
         T product = 0;
+
         for (const auto &item : *this)
         {
             product += item.second * v2.at(item.first);
         }
+
         return product;
     }
 
@@ -224,14 +250,22 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    std::vector<TIndex> MappedVector<TIndex, T>::getIndexes() const
-    {
-        std::vector<TIndex> v_indexes;
-        for (const auto &p_i_v : *this)
+    void MappedVector<TIndex, T>::setIndexes()
+    {        
+        if( this->v_indexes.size() == 0 )
         {
-            v_indexes.push_back(p_i_v.first);
-        }
-        return v_indexes;
+            for (const auto &p_i_v : *this)
+            {
+                this->v_indexes.push_back(p_i_v.first);
+            }
+        } 
+    }
+
+    template <typename TIndex, typename T>
+    std::vector<TIndex> MappedVector<TIndex, T>::getIndexes() const
+    {        
+        assert( (this->v_indexes.size()>0) );
+        return this->v_indexes;
     }
 
     template <typename TIndex, typename T>

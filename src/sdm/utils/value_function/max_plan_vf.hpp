@@ -117,7 +117,8 @@ namespace sdm
         {
             std::ostringstream res;
             res << "<maxplan_value_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-            for (int i = 0; i < this->representation.size(); i++)
+            
+            for (number i = 0; i < this->representation.size(); i++)
             {
                 res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
                 for (auto plan : this->representation[i])
@@ -133,17 +134,21 @@ namespace sdm
             return res.str();
         }
 
+        /**
+         * @warning je ne comprends pas ce qui est fait ci-dessous. C'est etrange ...  pour moi c'est contraire a ce qu'on attend des templates -- ici on duplique les choses ... etrange vraiment etrange ...
+         */
+
         // For POMDP (i.e. BeliefState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int> = 0>
-        TVector backup_operator(const TVector &state, number t = 0);
+        TVector backup_operator(const TVector &, number = 0);
 
         // For DecPOMDP (i.e. OccupancyState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        TVector backup_operator(const TVector &state, number t = 0);
+        TVector backup_operator(const TVector &, number = 0);
 
         // For SerializedDecPOMDP (i.e. SerializedOccupancyState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        TVector backup_operator(const TVector &state, number t = 0);
+        TVector backup_operator(const TVector &, number = 0);
     };
 
     template <class TAction, class TValue>
@@ -151,6 +156,10 @@ namespace sdm
     {
     public:
         MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<number, TAction>>, number, std::shared_ptr<Initializer<number, TAction>>)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
+        MaxPlanValueFunction()
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
@@ -190,6 +199,11 @@ namespace sdm
     {
     public:
         MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>>, number, std::shared_ptr<Initializer<SerializedState, TAction>>)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        MaxPlanValueFunction()
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
