@@ -85,6 +85,31 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    const std::shared_ptr<OccupancyState>& OccupancyState<TState, TJointHistory_p>::getFullyUncompressedOccupancy() const
+    {
+        return this->fully_uncompressed_occupancy_state;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const std::vector<ihistory_type> & OccupancyState<TState, TJointHistory_p>::getJointLabels(const std::vector<ihistory_type> & list_ihistories)
+    {
+        std::vector<ihistory_type> new_list_ihistories;
+        for(int agent=0; agent<2; ++agent)
+        {   
+           new_list_ihistories.push_back( this->private_ihistory_map_[ agent ][ list_ihistories[agent] ] ); 
+        }
+
+        return new_list_ihistories;
+    }
+
+
+    template <typename TState, typename TJointHistory_p>
+    const std::shared_ptr<OccupancyState>& OccupancyState<TState, TJointHistory_p>::getOneStepUncompressedOccupancy() const
+    {
+        return this->one_step_left_compressed_occupancy_state;
+    }
+
+    template <typename TState, typename TJointHistory_p>
     auto OccupancyState<TState, TJointHistory_p>::compress()
     {
         /**
@@ -124,6 +149,9 @@ namespace sdm
             current_compact_ostate.clear();
         } 
             
+       current_compact_ostate.setOneStepUncompressedOccupancy( this );
+       current_compact_ostate.setFullyUncompressedOccupancy( this->fully_uncompressed_occupancy_state );
+
        return current_compact_ostate;
 
 
