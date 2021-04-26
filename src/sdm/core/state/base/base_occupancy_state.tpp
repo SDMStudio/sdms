@@ -48,19 +48,15 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    void BaseOccupancyState<TState, TJointHistory_p>::finalize()
+    const std::vector<std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> &BaseOccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
     {
-        // Set basic accessors 
-        this->list_states.clear();
-        this->list_jhistories.clear();
+        return this->all_list_ihistories;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::setAllIndividualHistories()
+    {
         this->all_list_ihistories.clear();
-
-        for (const auto &key : *this)
-        {
-            this->list_states.insert(key.first.first);
-            this->list_jhistories.insert(key.first.second);
-        }
-
         bool first_passage = true;
         for (const auto &jhist : this->getJointHistories())
         {
@@ -86,15 +82,30 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::setJointHistories()
+    {
+        // Get the set of joint histories that are in the support of the BaseOccupancyState
+        this->list_jhistories.clear();
+        for (const auto &key : *this)
+        {
+            this->list_jhistories.insert(key.first.second);
+        }
+    }
+
+    template <typename TState, typename TJointHistory_p>
     const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> &BaseOccupancyState<TState, TJointHistory_p>::getStates() const
     {
         return this->list_states;
     }
 
     template <typename TState, typename TJointHistory_p>
-    const std::vector<std::set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> &BaseOccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
+    void BaseOccupancyState<TState, TJointHistory_p>::setStates()
     {
-        return this->all_list_ihistories;
+        this->list_states.clear();
+        for (const auto &key : *this)
+        {
+            this->list_states.insert(key.first.first);
+        }
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -122,9 +133,11 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    double BaseOccupancyState<TState, TJointHistory_p>::getProbability(const Pair<TState, TJointHistory_p> &index)
+    void BaseOccupancyState<TState, TJointHistory_p>::finalize()
     {
-        return this->at(index);
+        this->setStates();
+        this->setJointHistories();
+        this->setAllIndividualHistories();
     }
 
 } // namespace sdm

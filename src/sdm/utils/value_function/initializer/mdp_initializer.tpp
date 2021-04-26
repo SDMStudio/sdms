@@ -48,10 +48,13 @@ namespace sdm
             // Solve HSVI from every possible initial state
             for (auto &s : underlying_pb->getStateSpace()->getAll())
             {
-                double proba_s = underlying_pb->getStartDistrib().probabilities()[s];
-                underlying_pb->setInternalState(s);
-                algorithm->do_solve();
+                if( underlying_pb->getStartDistrib().probabilities()[s] > 0 )
+                {
+                    underlying_pb->setInternalState(s);
+                    algorithm->do_solve();
+                }
             }
+            
             auto ubound = algorithm->getUpperBound();
 
             underlying_pb->setInternalState(initial);

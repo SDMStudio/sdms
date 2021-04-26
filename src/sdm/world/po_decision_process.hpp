@@ -45,17 +45,18 @@ namespace sdm
         using PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>::getObsSpace;
 
         PartiallyObservableDecisionProcess();
-        PartiallyObservableDecisionProcess(std::shared_ptr<TStateSpace> state_sp,
-                                           std::shared_ptr<TActionSpace> action_sp,
-                                           std::shared_ptr<TObsSpace> obs_sp,
-                                           std::shared_ptr<TStateDynamics> state_dyn,
-                                           std::shared_ptr<TObsDynamics> obs_dyn, std::shared_ptr<TReward>,
-                                           TDistrib start_distrib,
-                                           number planning_horizon = 0,
-                                           double discount = 0.9,
-                                           Criterion criterion = Criterion::REW_MAX);
+        PartiallyObservableDecisionProcess(std::shared_ptr<TStateSpace>,
+                                           std::shared_ptr<TActionSpace>,
+                                           std::shared_ptr<TObsSpace>,
+                                           std::shared_ptr<TStateDynamics>,
+                                           std::shared_ptr<TObsDynamics>, 
+                                           std::shared_ptr<TReward>,
+                                           TDistrib,
+                                           number = 0,
+                                           double = 0.9,
+                                           Criterion = Criterion::REW_MAX);
 
-        PartiallyObservableDecisionProcess(PartiallyObservableDecisionProcess &copy);
+        PartiallyObservableDecisionProcess(PartiallyObservableDecisionProcess &);
         virtual ~PartiallyObservableDecisionProcess();
 
         /**
@@ -66,11 +67,11 @@ namespace sdm
         /**
          * \brief Set the observation dynamics
          */
-        void setObsDynamics(std::shared_ptr<TObsDynamics> obs_dyn);
+        void setObsDynamics(std::shared_ptr<TObsDynamics>);
 
-        observation_type updateState_getObs(action_type a);
+        observation_type updateState_getObs(action_type);
         
-        std::tuple<observation_type, std::vector<double>, bool> step(action_type a);
+        std::tuple<observation_type, std::vector<double>, bool> step(action_type);
 
         /**
          * @brief Setup the dynamics generator for discrete problems. 
@@ -79,7 +80,7 @@ namespace sdm
         void setupDynamicsGenerator();
 
         /**
-         * @brief Setup the dynamics generator for constinuous problems. 
+         * @brief Setup the dynamics generator for continuous problems. 
          * The dynamics generator allows to efficiently interact with the environment without recomputing transition probabilities at each timestep.
          */
         // template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
@@ -98,11 +99,11 @@ namespace sdm
 
         template <bool TBool = std::is_same<TObsSpace, MultiDiscreteSpace<number>>::value>
         std::enable_if_t<TBool, number>
-        getObservation(observation_type o);
+        getObservation(observation_type);
 
         template <bool TBool = std::is_same<TObsSpace, MultiDiscreteSpace<number>>::value>
         std::enable_if_t<!TBool, observation_type>
-        getObservation(observation_type o);
+        getObservation(observation_type);
 
     };
 

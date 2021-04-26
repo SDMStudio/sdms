@@ -147,7 +147,10 @@ namespace sdm
         }
 
         // Compress the occupancy state
-        new_ostate = new_ostate.compress();
+        // new_ostate.finalize();
+        // new_ostate = new_ostate.compress();
+
+        // finalizing the construction of the occupancy state
         new_ostate.finalize();
 
         return new_ostate;

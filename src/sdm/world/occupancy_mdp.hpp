@@ -43,8 +43,8 @@ namespace sdm
                          public GymInterface<oState, oAction>
     {
     protected:
-        std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
         oState istate_, cstate_;
+        std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
         typename oState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
 
     public:
@@ -98,7 +98,7 @@ namespace sdm
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
-         * 
+         * @warning The above comment is wrong!!!
          * @return a belief MDP
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();

@@ -58,7 +58,7 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon);
+        ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number);
 
         /**
          * @brief Destroy the value function
@@ -83,17 +83,17 @@ namespace sdm
          * 
          * @param init_function the function that enables to get initial values 
          */
-        void initialize(std::shared_ptr<BinaryFunction<TState, number, TValue>> init_function);
+        void initialize(std::shared_ptr<BinaryFunction<TState, number, TValue>>);
 
         /**
          * @brief Get the value at a given state
          */
-        virtual TValue getValueAt(const TState &state, number t = 0) = 0;
+        virtual TValue getValueAt(const TState &, number = 0) = 0;
 
         /**
          * @brief Update the value at a given state
          */
-        virtual void updateValueAt(const TState &s, number t = 0) = 0;
+        virtual void updateValueAt(const TState &, number = 0) = 0;
 
         /**
          * @brief Define this function in order to be able to display the value function
@@ -105,9 +105,9 @@ namespace sdm
          * 
          * @return std::string 
          */
-        virtual std::vector<TState> getSupport(number t) = 0;
+        virtual std::vector<TState> getSupport(number) = 0;
 
-        TValue operator()(const TState &state, const number &t = 0);
+        TValue operator()(const TState &, const number & = 0);
 
         /**
          * @brief Get the q-value at a state
@@ -115,7 +115,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t);
+        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &, number t);
 
         /**
          * @brief Get the q-value given state and action
@@ -124,7 +124,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        TValue getQValueAt(const TState &state, const TAction &action, number t);
+        TValue getQValueAt(const TState &, const TAction &, number );
 
         /**
          * @brief Get the best action to do at a state
@@ -132,7 +132,7 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        TAction getBestAction(const TState &state, number t = 0);
+        TAction getBestAction(const TState &, number = 0);
 
         /**
          * @brief Get the world (i.e. the problem that is solve by HSVI).
@@ -159,7 +159,7 @@ namespace sdm
          * @param t the timestep
          * @return double the discount factor
          */
-        double getDiscount(number t);
+        double getDiscount(number );
     };
 } // namespace sdm
 #include <sdm/utils/value_function/value_function.tpp>

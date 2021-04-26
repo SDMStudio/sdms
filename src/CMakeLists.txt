@@ -13,6 +13,7 @@ endif()
 # Check CPLEX dependancy and include directories
 if(CPLEX_FOUND)
 	include_directories(${CPLEX_INCLUDE_DIRS})
+	message(${CPLEX_INCLUDE_DIRS})
 	add_definitions("-DWITH_CPLEX")
 	add_definitions("-DIL_STD")
 endif()

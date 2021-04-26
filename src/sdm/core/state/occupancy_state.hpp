@@ -37,14 +37,14 @@ namespace sdm
     using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
 
     OccupancyState();
-    OccupancyState(double default_value);
-    OccupancyState(std::size_t size, double default_value);
-    OccupancyState(const OccupancyState &v);
+    OccupancyState(double);
+    OccupancyState(std::size_t, double);
+    OccupancyState(const OccupancyState &);
 
     auto compress();
     bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &hist1, const typename TJointHistory_p::element_type::ihistory_type &hist2, number ag_id);
     bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2);
-    void finalize();
+    // void finalize();
 
   protected:
     Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, jhistory_type>>> private_omap_;

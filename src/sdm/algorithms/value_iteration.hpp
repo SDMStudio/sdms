@@ -27,21 +27,21 @@ namespace sdm
 
     public:
         /**
-             * @brief Initialize the algorithm
-             */
+         * @brief Initialize the algorithm
+         */
         void do_initialize();
 
         /**
-             * @brief Solve a problem solvable by HSVI. 
-             */
+         * @brief Solve a problem solvable by HSVI. 
+         */
         void do_solve();
 
         /**
-             * @brief Test the learnt value function on one episode
-             */
+         * @brief Test the learnt value function on one episode
+         */
         void do_test();
 
-        ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, number horizon);
+        ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>>, double, double, number);
 
         //std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>>policy_iteration();
 
