@@ -52,8 +52,38 @@ namespace sdm
          */
         std::vector<TValue> default_values_per_horizon;
 
-
+        /**
+         * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
+         * 
+         * @tparam T 
+         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
+         * 
+         * @param const TVector& : occupancy state
+         * @param const TVector& : hyperplan
+         * @param const TAction& : joint decision rule
+         * @param number : time step
+         * 
+         * 
+         * @return TVector 
+         */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
+        TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
+
+        /**
+         * @brief Compute the next hyperplan for a precise serialized_occupancy_state, hyperplan and a joint decision rule
+         * 
+         * @tparam T 
+         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
+         * 
+         * @param const TVector& : serialized_occupancy_state
+         * @param const TVector& : hyperplan
+         * @param const TAction& : joint decision rule
+         * @param number : time step
+         * 
+         * 
+         * @return TVector 
+         */
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
 
     public:

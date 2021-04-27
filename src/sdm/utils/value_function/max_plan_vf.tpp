@@ -200,7 +200,7 @@ namespace sdm
 
             v[pair_s_o] = under_pb->getReward(serial_hidden_state, action);
 
-            for (const auto &serial_hidden_next_state : under_pb->getReacheableStates(serial_hidden_state, action)->getAll())
+            for (const auto &serial_hidden_next_state : under_pb->getReacheableStates(serial_hidden_state, action))
             {
                 for (const auto &serial_observation : under_pb->getReacheableObservations(action, serial_hidden_next_state))
                 {
@@ -209,7 +209,6 @@ namespace sdm
                 }
             }
         }
-
         return new_hyperplan;
     }
 
@@ -269,7 +268,6 @@ namespace sdm
                 a_max = a;
             }
         }
-
         auto new_plan = beta_a[a_max];
         
         return new_plan;
