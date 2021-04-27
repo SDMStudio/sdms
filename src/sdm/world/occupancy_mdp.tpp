@@ -13,7 +13,7 @@ namespace sdm
     template <typename oState, typename oAction>
     OccupancyMDP<oState, oAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
     {
-
+        std::cout << "In OccMDP" << std::endl;
         typename oState::jhistory_type jhist;
         if (hist_length > 0)
         {
@@ -26,6 +26,7 @@ namespace sdm
 
         this->ihistory_ = jhist;
 
+        std::cout << "Initial History " << this->ihistory_ << std::endl;
         for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
         {
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
@@ -34,7 +35,12 @@ namespace sdm
                 this->istate_.setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
             }
         }
+        std::cout << "istate)" << this->istate_ << std::endl;
         this->istate_.finalize();
+        // this->istate_.setFullyUncompressedOccupancy(this->istate_.getptr());
+        // std::cout << "getFullyUncompressedOccupancy="<< this->istate_.getFullyUncompressedOccupancy() << std::endl;
+        // this->istate_.setOneStepUncompressedOccupancy(this->istate_.getptr());
+        // std::cout << "setOneStepUncompressedOccupancy="<< this->istate_.getFullyUncompressedOccupancy() << std::endl;
         this->cstate_ = this->istate_;
     }
 
@@ -120,14 +126,14 @@ namespace sdm
     {
         oState new_fully_uncompressed_occupancy_state, new_one_step_left_compressed_occupancy_state, new_compressed_occupancy_state;
 
-        // for all element in the support of the occupancy state
-        for (auto &p_x_o : ostate.getFullyUncompressedOccupancy())
+        // for all element in the support of the occupancy state (fully uncompressed version)
+        for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
         {
             auto x = p_x_o.first.first;
             auto o = p_x_o.first.second;
             for (auto &y : this->dpomdp_->getStateSpace()->getAll()) // a change
             {
-                for (auto &z : this->dpomdp_->getObsSpace()->getAll()) // a change 
+                for (auto &z : this->dpomdp_->getObsSpace()->getAll()) // a change
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
 
@@ -139,19 +145,17 @@ namespace sdm
                     if (p_x_o.second * proba > 0)
                     {
                         new_fully_uncompressed_occupancy_state.addProbabilityAt(new_index, p_x_o.second * proba);
-                        
-                        if( ostate.getProbabilityAt(p_x_o.first) * proba > 0 )
+                        if (ostate.getProbability(p_x_o.first) * proba > 0)
                         {
-                            new_one_step_left_compressed_occupancy_state.addProbabilityAt(new_index, ostate.getProbabilityAt(p_x_o.first) * proba);
+                            new_one_step_left_compressed_occupancy_state.addProbabilityAt(new_index, ostate.getProbability(p_x_o.first) * proba);
                         }
-                    } 
+                    }
                 }
             }
         }
 
         // Compress the occupancy state
         new_one_step_left_compressed_occupancy_state.finalize();
-
 
         if (compression)
         {
@@ -163,6 +167,12 @@ namespace sdm
         }
 
         return new_one_step_left_compressed_occupancy_state;
+    }
+
+    template <typename oState, typename oAction>
+    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number h, std::shared_ptr<HSVI<oState, oAction>> hsvi) const
+    {
+        return this->nextState(ostate, joint_idr, h, hsvi, true);
     }
 
     template <typename oState, typename oAction>
@@ -186,7 +196,6 @@ namespace sdm
     double OccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t) const
     {
         oState ost = this->nextState(ostate, oaction);
-        // std::cout << "OState in Exp -->" << ost << std::endl;
         return value_function->getValueAt(ost, t + 1);
     }
 

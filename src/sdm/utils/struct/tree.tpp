@@ -22,7 +22,8 @@ namespace sdm
         {
             this->origin_ = parent;
         }
-        else {
+        else
+        {
             this->origin_ = parent->getOrigin();
         }
     }
@@ -115,5 +116,23 @@ namespace sdm
     number Tree<T>::getMaxDepth() const
     {
         return this->max_depth_;
+    }
+
+    template <typename T>
+    std::string Tree<T>::str()
+    {
+        std::ostringstream res;
+        res << sdm::tools::addIndent("", this->getDepth());
+        res << "<tree address=\"" << this << "\" size=\"" << this->getNumChildren() << "\"  horizon=\"" << this->getDepth() << "\">" << std::endl;
+        res << sdm::tools::addIndent("<data>", this->getDepth() + 1) << std::endl;
+        res << sdm::tools::addIndent("", this->getDepth() + 2) << this->getData() << std::endl;
+        res << sdm::tools::addIndent("</data>", this->getDepth() + 1) << std::endl;
+        for (auto child : this->getChildren())
+        {
+            res << *child << std::endl;
+        }
+        res << sdm::tools::addIndent("", this->getDepth());
+        res << "</tree>" << std::endl;
+        return res.str();
     }
 } // namespace sdm

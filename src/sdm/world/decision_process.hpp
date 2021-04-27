@@ -94,14 +94,6 @@ namespace sdm
         TDistrib getNextStateDistrib(state_type, action_type);
 
         /**
-         * @brief Get the Next State Distrib object
-         * @param state_type
-         * @param action_type
-         * @return const std::set<state_type>& 
-         */
-        const std::set<state_type>& getNextStateDistrib(state_type, action_type) const;
-
-        /**
          * @brief Get the distribution over next states
          * @warning : Quand est-ce que cette fonction peut-elle servir?
          * 
@@ -110,6 +102,14 @@ namespace sdm
          * @return the distribution over next states
          */
         TDistrib getNextStateDistrib(action_type);
+
+        /**
+         * @brief Get the Next State Distrib object
+         * @param state_type
+         * @param action_type
+         * @return const std::set<state_type>& 
+         */
+        const std::vector<state_type>& getNextReachableState(state_type, action_type) const;
 
         template <bool TBool = is_fully_obs>
         std::enable_if_t<TBool, observation_type> updateState_getObs(action_type);
@@ -154,7 +154,7 @@ namespace sdm
         /**
          * @brief Map (state, jaction) to Set of reachable next states
          */
-        std::unordered_map<state_type, std::unordered_map<action_type, std::set<state_type>>> reachable_state_space;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::vector<state_type>>> reachable_state_space;
 
         template <bool TBool = std::is_same<TActionSpace, MultiDiscreteSpace<number>>::value>
         std::enable_if_t<TBool, number>

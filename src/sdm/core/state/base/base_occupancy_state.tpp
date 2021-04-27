@@ -25,9 +25,9 @@ namespace sdm
           list_jhistories(v.getJointHistories()),
           all_list_ihistories(v.getAllIndividualHistories())
     {
-        for(const auto& pair_s_o : v)
+        for (const auto &pair_s_o : v)
         {
-          list_jhistory_states[pair_s_o.first.second] = v.getStatesAt(pair_s_o.first.second);
+            list_jhistory_states[pair_s_o.first.second] = v.getStatesAt(pair_s_o.first.second);
         }
     }
 
@@ -39,16 +39,31 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::setProbabilityAt(const TState &state, const TJointHistory_p &jhist, double proba)
+    {
+        this->setProbabilityAt(Pair<TState, TJointHistory_p>(state, jhist), proba);
+    }
+
+    template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba)
     {
+        std::cout << "Pass " << pair_state_hist << " " << proba << std::endl;
         if (this->find(pair_state_hist) != this->end())
         {
+            std::cout << "Find " << pair_state_hist << " " << proba << std::endl;
             (*this)[pair_state_hist] += proba;
         }
         else
         {
+            std::cout << "Not found " << pair_state_hist << " " << proba << std::endl;
             this->setProbabilityAt(pair_state_hist, proba);
         }
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::addProbabilityAt(const TState &state, const TJointHistory_p &jhist, double proba)
+    {
+        this->addProbabilityAt(Pair<TState, TJointHistory_p>(state, jhist), proba);
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -97,14 +112,9 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> &BaseOccupancyState<TState, TJointHistory_p>::getStatesAt(TJointHistory_p jhistory) const
+    const std::set<TState> &BaseOccupancyState<TState, TJointHistory_p>::getStatesAt(const TJointHistory_p &jhistory) const
     {
-<<<<<<< HEAD
-        //assert( (!this->agent_history_spaces.empty()) );
-        return this->agent_history_spaces;
-=======
-        return this->list_jhistory_states[jhistory];
->>>>>>> fafe39e68d96d2fefd0a3a6f3c90b72a097121d6
+        return this->list_jhistory_states.at(jhistory);
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -148,11 +158,48 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    double BaseOccupancyState<TState, TJointHistory_p>::getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist) const
+    {
+        // Set the new occupancy measure
+        return this->at(pair_state_hist);
+    }
+
+    template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::finalize()
     {
+        std::cout << "Finalize" << std::endl;
         this->setStates();
+        std::cout << "States set" << std::endl;
         this->setJointHistories();
+        std::cout << "JHitories set" << std::endl;
         this->setAllIndividualHistories();
+        std::cout << "IHistories set" << std::endl;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    std::shared_ptr<BaseOccupancyState<TState, TJointHistory_p>> BaseOccupancyState<TState, TJointHistory_p>::getptr()
+    {
+        return this->shared_from_this();
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    std::string BaseOccupancyState<TState, TJointHistory_p>::str() const
+    {
+
+        std::ostringstream res, tmp;
+        res << "<occupancy-state horizon='?'>" << std::endl;
+        for (const auto pair_x_o_p : *this)
+        {
+            auto joint_hist = pair_x_o_p.first.second;
+
+            res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
+            res << tools::addIndent(pair_x_o_p.first.second->str(), 2);
+            res << "\t\t" << pair_x_o_p.second << std::endl;
+            res << "\t<probability>" << std::endl;
+        }
+        res << "</occupancy-state>" << std::endl;
+
+        return res.str();
     }
 
     template <typename TState, typename TJointHistory_p>

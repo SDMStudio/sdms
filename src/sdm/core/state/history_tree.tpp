@@ -76,4 +76,24 @@ namespace sdm
         return std::static_pointer_cast<output>(trace);
     }
 
+    template <typename T>
+    std::string HistoryTree<T>::str()
+    {
+        std::ostringstream res;
+        std::list<T> items;
+        std::shared_ptr<Tree<T>> chistory = this->shared_from_this(), origin = this->getOrigin();
+        res << "<history id=\"" << chistory << "\"  horizon=\"" << this->getDepth() << "\" value=\"";
+        while (chistory != origin)
+        {
+            items.push_front(chistory->getData());
+            chistory = chistory->getParent();
+        }
+        for (auto item : items)
+        {
+            res << item << " ";
+        }
+        res << "\"/>" << std::endl;
+        return res.str();
+    }
+
 } // namespace sdm

@@ -32,26 +32,61 @@ namespace sdm
         MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int , std::shared_ptr<Initializer<TVector, TAction>> );
         MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int = 0, TValue = 0.);
 
-        /*
-        *  \fn    std::shared_ptr<Action> greedy(const std::shared_ptr<State>&, number, double&);
-        *  \param const std::shared_ptr<State>&               : current occupancy state
-        *  \param const std::shared_ptr<State>&               : identifier of the hyperplan to use
-        *  \param double&                                     : the reference of the value to be returned
-        *  \brief Returns the greedy decision rule for the current occupancy state and the prescribed hyperplan
+       /**
+        * @brief Returns the greedy decision rule for the current occupancy state and the prescribed hyperplan
         * Maximize \sum_{x,o,u} A(u|o) s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha(x_,o_)  ]
         * Subject to:
         *       A(u|o) <= A_i(u_i|o_i)
         *       A(u|o) >= \sum_i A_i(u_i|o_i) + 1 - n
         *       \sum_{u_i} A_i(u_i|o_i) = 1
+        * 
+        * @param const TVector& : current occupancy state
+        * @param const TVector& : hyperplan to use
+        * @param double& : the reference of the value to be returned
+        * @param double  : precision
+        * 
+        * @return TAction 
         */
         TAction greedyMaxPlane(const TVector&, const TVector&, double&, double);
 
-        void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&); // J'ai enlever le const pour le moment, car j'ai besoin de under_problem
+        /**
+         * @brief Set coefficient of variable a(u|o)  for all u and o i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_)  ]
+         * 
+         * @param const TVector& : current occupancy state
+         * @param IloNumVarArray&
+         * @param IloObjective&
+         * @param const TVector& : hyperplan to use
+         * 
+         */
+        void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&);
 
-        void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&); // std::vector<std::set<typename TVector::jhistory_type::element_type::ihistory_type>>
+        /**
+         * @brief Set the variable used in greedyMaxPlane
+         * 
+         * @param const TVector&
+         * @param std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& : A map with for each agent, a set of Individual history
+         * @param IloEnv& 
+         * @param IloNumVarArray&
+         */
+        void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&); 
 
+        /**
+         * @brief Update the max plan representation by adding a new hyperplan 
+         * 
+         * @param const TVector & : current occupancy state
+         * @param number : time
+         * 
+         */
         void updateValueAt(const TVector &, number );
 
+        /**
+         * @brief Do the backup operator (return a new hyperplan) for a precise occupancy state
+         * 
+         * @param const TVector & : current occupancy state
+         * @param number : time
+         * 
+         * @return TVector : hyperplan
+         */
         TVector backup_operator(const TVector &, number);
     };
 

@@ -83,9 +83,9 @@ namespace sdm
         std::shared_ptr<HistoryTree<T>> getIndividualHistory(number ag_id) const;
         std::vector<std::shared_ptr<HistoryTree<T>>> getIndividualHistories() const;
 
-        friend std::ostream &operator<<(std::ostream &os, const JointHistoryTree &j_hist)
+        friend std::ostream &operator<<(std::ostream &os, JointHistoryTree &j_hist)
         {
-            os << static_cast<HistoryTree<Joint<T>>>(j_hist);
+            os << j_hist.str();
             return os;
         }
     };

@@ -52,7 +52,7 @@ namespace sdm
         // 0. Build variables a(u|o), a_i(u_i|o_i)
         this->setGreedyVariables(occupancy_state, ihs, env, var); 
 
-        // 1. Build objective function \sum_{o,u} A(u|o) \sum_x s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_) ]
+        // 1. Build objective function \sum_{o,u} A(u|o) \sum_x s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \hyperplan_i(x_,o_) ]
         this->setGreedyObjective(occupancy_state, var, obj, hyperplan);
 
         // 3. Build decentralized control constraints [  a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n ] ---- and ---- [ a(u|o) <= a_i(u_i|o_i) ]
@@ -115,7 +115,7 @@ namespace sdm
 
 
   template <typename TVector, typename TAction, typename TValue>
-  void MaxPlanValueFunctionLP<TVector, TAction, TValue>::setGreedyObjective(const TVector& occupancy_state, IloNumVarArray& var, IloObjective& obj, const TVector& alpha)
+  void MaxPlanValueFunctionLP<TVector, TAction, TValue>::setGreedyObjective(const TVector& occupancy_state, IloNumVarArray& var, IloObjective& obj, const TVector& hyperplan)
   {
     number recover = 0;
 
@@ -142,7 +142,7 @@ namespace sdm
 
               for(auto x_=0; x_<this->getWorld()->getUnderlyingProblem()->getStateSpace()->getNumItems(); ++x_)
               {
-                factor += this->getWorld()->getUnderlyingProblem()->getDiscount() * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(x,u,z_,x_) * alpha.at(std::make_pair(x_,joint_history_next));
+                factor += this->getWorld()->getUnderlyingProblem()->getDiscount() * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(x,u,z_,x_) * hyperplan.at(std::make_pair(x_,joint_history_next));
               }
             }
           }
@@ -152,24 +152,12 @@ namespace sdm
 
       //<! 1.b get variable a(u|o)
       recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u, joint_history));
-      //<! 1.c set coefficient of variable a(u|o) i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_)  ]
+      //<! 1.c set coefficient of variable a(u|o) i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \hyperplan_i(x_,o_)  ]
       obj.setLinearCoef(var[recover], weight);
       } // for all u
     } // for all o
   }
 
-
-
-
-  /**
-   * @brief 
-   * @tparam TVector 
-   * @tparam TAction 
-   * @tparam TValue 
-   * @param const TVector &  the occupancy state 
-   * @param number           the horizon
-   * @return TVector 
-   */
   template <typename TVector, typename TAction, typename TValue>
   TVector MaxPlanValueFunctionLP<TVector, TAction, TValue>::backup_operator(const TVector &occupancy_state, number t)
   {
@@ -177,7 +165,7 @@ namespace sdm
     TAction max_decision_rule, joint_decision_rule;
     double max = -std::numeric_limits<double>::max(), value, cvalue;
 
-    for(const auto& hyperplan : this->getSupport(t+1)) // Changer nom de fonction 
+    for(const auto& hyperplan : this->getSupport(t+1)) 
     {
       joint_decision_rule = this->greedyMaxPlane(occupancy_state, hyperplan, value, 0);
       if( value > max )

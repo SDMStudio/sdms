@@ -94,7 +94,7 @@ namespace sdm
         virtual ~Tree();
 
         bool isOrigin() const;
-        
+
         const T &getData() const;
 
         number getNumChildren() const;
@@ -117,20 +117,11 @@ namespace sdm
 
         void setMaxDepth(number) const;
 
-        friend std::ostream &operator<<(std::ostream &os, const Tree<T> &tree)
+        std::string str();
+
+        friend std::ostream &operator<<(std::ostream &os, Tree<T> &tree)
         {
-            os << sdm::tools::addIndent("", tree.getDepth());
-            os << "<tree address=\"" << &tree << "\" size=\"" << tree.getNumChildren() << "\"  horizon=\"" << tree.getDepth() << "\">" << std::endl;
-            os << sdm::tools::addIndent("<data>", tree.getDepth() + 1) << std::endl;
-            os << sdm::tools::addIndent("", tree.getDepth() + 2) << tree.getData() << std::endl;
-            os << sdm::tools::addIndent("</data>", tree.getDepth() + 1) << std::endl;
-            for (auto child : tree.getChildren())
-            {
-                os << *child << std::endl;
-            }
-            os << sdm::tools::addIndent("", tree.getDepth());
-            os << "</tree>" << std::endl;
-            // }
+            os << tree.str();
             return os;
         }
     };

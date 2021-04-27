@@ -35,6 +35,7 @@ namespace sdm
     using jhistory_type = typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type;
     using ihistory_type = typename jhistory_type::element_type::ihistory_type;
     using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
+    using private_ostate_type = PrivateOccupancyState<TState, jhistory_type>;
 
     OccupancyState();
     OccupancyState(double);
@@ -44,25 +45,32 @@ namespace sdm
     auto compress();
     bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &, const typename TJointHistory_p::element_type::ihistory_type &, number);
     bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &, const Pair<TState, TJointHistory_p> &);
+    void finalize();
 
-    const std::shared_ptr<OccupancyState>&  getFullyUncompressedOccupancy() const;
+    const Joint<std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>> &getPrivateOccupancyStates() const;
+    const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &getPrivateOccupancyState(const number &agent_id) const;
+    const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &getPrivateOccupancyState(const number &agent_id, const ihistory_type &ihistory) const;
 
-    void setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyState>&);
+    const std::shared_ptr<OccupancyState> &getFullyUncompressedOccupancy() const;
+    void setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
-    void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState>&);
+    const std::shared_ptr<OccupancyState> &getOneStepUncompressedOccupancy() const;
+    void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
-    const std::shared_ptr<OccupancyState>& getOneStepUncompressedOccupancy() const;
+    std::vector<ihistory_type> getJointLabels(const std::vector<ihistory_type> &) const;
 
-    const std::vector<ihistory_type> & getJointLabels(const std::vector<ihistory_type> &);
+    std::shared_ptr<OccupancyState<TState, TJointHistory_p>> getptr();
 
   protected:
-    Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, jhistory_type>>> private_omap_;
+    /** @brief This representation of occupancy states consists of private occupancy states for each agent*/
+    // Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, TJointHistory_p>>> private_omap_;
+    Joint<RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>>> private_omap_;
 
-    std::shared_ptr<OccupancyState> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state; 
+    /** @brief Keep in memory the uncompressed occupancy states */
+    std::shared_ptr<OccupancyState> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state;
 
-    Joint<unordered_map<ihistory_type, ihistory_type>> private_ihistory_map_;
-
-
+    /** @brief Keep relations between all private ihistories and labels */
+    Joint<RecursiveMap<ihistory_type, ihistory_type>> private_ihistory_map_;
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

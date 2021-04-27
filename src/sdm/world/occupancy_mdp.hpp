@@ -80,7 +80,8 @@ namespace sdm
         DiscreteDecPOMDP *getUnderlyingProblem();
 
         oState getInitialState();
-        oState nextState(const oState &, const oAction &, number = 0, std::shared_ptr<HSVI<oState, oAction>>  = nullptr, bool  = true) const;
+        oState nextState(const oState &, const oAction &, number, std::shared_ptr<HSVI<oState, oAction>>, bool) const;
+        oState nextState(const oState &, const oAction &, number = 0, std::shared_ptr<HSVI<oState, oAction>>  = nullptr) const;
 
         std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
 

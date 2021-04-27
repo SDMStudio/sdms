@@ -92,7 +92,7 @@ namespace sdm
          */
         std::shared_ptr<TObsDynamics> obs_dynamics_;
 
-        std::unordered_map<state_type, >
+        // std::unordered_map<state_type, >
 
         /**
          * @brief map integer representing joint state/observation to this couple (state, observation)
