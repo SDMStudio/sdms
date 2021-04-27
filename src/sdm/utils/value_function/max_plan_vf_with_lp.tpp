@@ -1,8 +1,5 @@
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-
 namespace sdm
 {
-
   template <typename TVector, typename TAction, typename TValue>
   MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP() {}
 
@@ -15,9 +12,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue >
   TAction MaxPlanValueFunctionLP<TVector, TAction, TValue>::greedyMaxPlane(const TVector &occupancy_state, const TVector &hyperplan, double &value, double)
-  {
-      auto this->getWorld()->getUnderlyingProblem() = this->getWorld()->getUnderlyingProblem();
-      
+  {      
       //Identifiant, compteur des contraintes
       number c = 0;
 
@@ -183,7 +178,7 @@ namespace sdm
   template <typename TVector, typename TAction, typename TValue>
   void MaxPlanValueFunctionLP<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
   {
-    auto new_hyperplan = this->backup_operator<TVector>(state, t);
+    auto new_hyperplan = this->backup_operator(state, t);
     this->representation[this->isInfiniteHorizon() ? 0 : t].push_back(new_hyperplan);
     //this->prune(t);
   }
