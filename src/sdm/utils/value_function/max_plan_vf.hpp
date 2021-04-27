@@ -47,7 +47,14 @@ namespace sdm
          */
         std::shared_ptr<Initializer<TVector, TAction>> initializer_;
 
-        // std::vector<TValue> default_value_;
+        /**
+         * @brief the default values, one for each decision epoch.
+         */
+        std::vector<TValue> default_values_per_horizon;
+
+
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
+        TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
 
     public:
         MaxPlanValueFunction();
@@ -135,18 +142,32 @@ namespace sdm
         }
 
         /**
-         * @warning je ne comprends pas ce qui est fait ci-dessous. C'est etrange ...  pour moi c'est contraire a ce qu'on attend des templates -- ici on duplique les choses ... etrange vraiment etrange ...
+         * @brief backup operator for the belief state -- type of the state -- 
+         * @param const TVector & belief state 
+         * @param number horizon
+         * @tparam T 
+         * @return TVector 
          */
-
-        // For POMDP (i.e. BeliefState as vector type)
         template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int> = 0>
         TVector backup_operator(const TVector &, number = 0);
 
-        // For DecPOMDP (i.e. OccupancyState as vector type)
+        /**
+         * @brief backup operator for the occupancy state -- type of the state -- 
+         * @param const TVector & occupancy state 
+         * @param number horizon
+         * @tparam T 
+         * @return TVector 
+         */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         TVector backup_operator(const TVector &, number = 0);
 
-        // For SerializedDecPOMDP (i.e. SerializedOccupancyState as vector type)
+        /**
+         * @brief backup operator for the serial occupancy state -- type of the state -- 
+         * @param const TVector & serial occupancy state 
+         * @param number horizon
+         * @tparam T 
+         * @return TVector 
+         */
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         TVector backup_operator(const TVector &, number = 0);
     };

@@ -11,6 +11,7 @@ namespace sdm
         : ValueFunction<TVector, TAction, TValue>(problem, horizon), initializer_(initializer)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, HyperplanSet({}));
+        this->default_values_per_horizon = std::vector<TValue>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, 0);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -22,7 +23,8 @@ namespace sdm
     void MaxPlanValueFunction<TVector, TAction, TValue>::initialize(TValue value, number t)
     {
         TVector new_v(value);
-        this->representation[this->isInfiniteHorizon() ? 0 : t].push_back(new_v);
+        this->representation[t].push_back( new_v );
+        this->default_values_per_horizon[t] = value;
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -34,12 +36,10 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     std::pair<TValue, TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getMaxAt(const TVector &state, number t)
     {
-        number h = (this->isInfiniteHorizon()) ? 0 : t;
-        
         TValue current, max = -std::numeric_limits<TValue>::max();
         TVector alpha_vector;
             
-        for (const auto &plan : this->representation[h])
+        for (const auto &plan : this->representation[t])
         {
             current = state ^ plan;
                 
@@ -56,7 +56,7 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     TValue MaxPlanValueFunction<TVector, TAction, TValue>::getValueAt(const TVector &state, number t)
     {
-        return this->getMaxAt(state, this->isInfiniteHorizon() ? 0 : t).first;
+        return this->getMaxAt(state, t).first;
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -64,15 +64,16 @@ namespace sdm
     {
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
 
-        this->representation[this->isInfiniteHorizon() ? 0 : t].push_back(new_hyperplan);
+        if(std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
+            this->representation[t].push_back(new_hyperplan);
+
+        //this->prune(t);    
      }
 
     template <typename TVector, typename TAction, typename TValue>
     std::vector<TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getSupport(number t)
     {
-        number h = this->isInfiniteHorizon() ? 0 : t;
-
-        return std::vector<TVector>(this->representation[h].begin(), this->representation[h].end());
+        return this->representation[t];
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -84,42 +85,7 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number t)
     {
-        std::map<TVector, number> refCount;
-
-        number h = this->isInfiniteHorizon() ? 0 : t;
-
-        //<! initialize the count for each hyperplan
-        for (const auto &plan : this->representation[h])
-        {
-            refCount.emplace(plan, 0);
-        }
-
-        //<! update the count
-        TVector max_alpha;
-        TValue max_value = -std::numeric_limits<TValue>::max(), value;
-        for (const auto &frequency : this->representation[h])
-        {
-            for (const auto &alpha : refCount)
-            {
-                if (max_value < (value = (frequency) ^ (alpha.first)))
-                {
-                    max_value = value;
-                    max_alpha = alpha.first;
-                }
-            }
-
-            if (refCount.find(max_alpha) != refCount.end())
-            {
-                refCount.at(max_alpha)++;
-            }
-        }
-
-        //<! remove dominated alpha-vectors
-        for (const auto &alpha : this->representation[h])
-        {
-            if (refCount.at(alpha) == 0)
-                this->representation[h].erase(alpha);
-        }
+        throw sdm::exception::Exception("MaxPlanVF cannot be used for bounded_prune().");
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -128,218 +94,126 @@ namespace sdm
         return this->representation.size();
     }
 
-    // For OccupancyMDP (i.e. OccupancyState as vector type)
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
     {
-<<<<<<< HEAD
-        //std::cout << "Formalism DecPOMDP" << std::endl;
-        auto oMDP = std::static_pointer_cast<OccupancyMDP<TVector,TAction>>(this->getWorld());
-=======
         auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
->>>>>>> fafe39e68d96d2fefd0a3a6f3c90b72a097121d6
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;
 
-        auto getAll_o = under_pb->getObsSpace()->getAll();
-        auto getAll_s = under_pb->getStateSpace()->getAll();
-        auto getAll_actionspace = oMDP->getActionSpaceAt(state)->getAll();
+        auto all_joint_decision_rules = oMDP->getActionSpaceAt(occupancy_state)->getAll();
 
-        // Parcours des hyperplan support de la fonction au pas t+1
-            for (const auto &plan : this->representation[t + 1])
+        // Go other the hyperplanes of decision step t+1
+        for (const auto &next_hyperplan : this->getSupport(t+1))
+        {
+            // Go over all joint decision rules at occupancy occupancy_state
+            for (const auto &joint_decision_rule : all_joint_decision_rules)
             {
-                // Boucle over all joint decision rule at occupancy state
-                for (const auto &jdr : getAll_actionspace)
+                TVector v = this->getHyperplanAt(occupancy_state, next_hyperplan, joint_decision_rule, t);
+
+                if (value_max < (tmp = occupancy_state^v))
                 {
-                    TVector v;
-                    for (const auto &pair_s_o_p : state)
-                    {
-                        auto pair_s_o = pair_s_o_p.first;
-                        auto joint_history = state.getHistory(pair_s_o);
-                        auto s_state = state.getHiddenState(pair_s_o);
-
-                        // Get joint action from JointDetDecisionRule
-                        auto jaction = jdr.act(joint_history->getIndividualHistories());
-
-                        auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
-                        double tmp = 0;
-
-                        for (const auto &o : getAll_o)
-                        {
-                            auto joint_history_next = joint_history->expand(o);
-                            auto index_history = under_pb->getObsSpace()->joint2single(o);
-
-                            for (const auto &s_ : getAll_s)
-                            {
-                                tmp += plan.at(std::make_pair(s_, joint_history_next)) * under_pb->getObsDynamics()->getDynamics(s_state, index_joint_action, index_history, s_);
-                            }
-                        }
-                        v[pair_s_o] = under_pb->getReward(s_state, jaction) + under_pb->getDiscount() * tmp;
-                    }
-                    if (value_max < (tmp = state ^ v))
-                    {
-                        value_max = tmp;
-                        v_max = v;
-                    }
+                    value_max = tmp;
+                    v_max = v;
                 }
             }
+        }
 
         return v_max;
     }
 
-    // For SerializedOccupancyMDP (i.e. SerializedOccupancyState as vector type)
+    template <typename TVector, typename TAction, typename TValue>
+    template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
+    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&occupancy_state, const TVector&next_hyperplan, const TAction&joint_decision_rule, number t)
+    {
+        TVector new_hyperplan(this->default_value_[t]);
+
+        for(auto uncompressed_s_o: occupancy_state.getFullUncompressedOccupancyState())
+        {
+            auto uncompressed_hidden_state = uncompressed_s_o.first.first; 
+            auto uncompressed_joint_history = uncompressed_s_o.first.second; 
+            auto compressed_joint_history = occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
+            auto action = joint_decision_rule(compressed_joint_history.getIndividualHistories()); 
+            
+            new_hyperplan[uncompressed_s_o] = this->getWorld()->getUnderlyingProblem()->getReward()->getReward(uncompressed_hidden_state, action);
+            for(auto next_hidden_state : this->getWorld()->getReacheableStates(uncompressed_hidden_state, action))
+            {
+                for(auto next_observation : this->getWorld()->getReacheableObservations(action, next_hidden_state))
+                {
+                    auto next_joint_history =  compressed_joint_history->expand(next_observation);
+                    new_hyperplan[uncompressed_s_o] += this->getWorld()->getUnderlyingProblem()->getDiscount() * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(uncompressed_hidden_state, action, next_observation, next_hidden_state) * next_hyperplan.at({next_hidden_state,next_joint_history});
+                }
+            }
+        }
+
+        return new_hyperplan;
+    }
+
+
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
+    TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &serial_occupancy_state, number t)
     {
-        std::cout << "Formalism SerializedDecPOMDP" << std::endl;
-
-        auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector, TAction>>(this->getWorld());
+        auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;
 
-        number ag_id = state.getCurrentAgentId();
+        auto getAll_actionspace = soMDP->getActionSpaceAt(serialized_occupancy_state)->getAll();
 
-        if (ag_id == under_pb->getNumAgents() - 1)
+        for (const auto &next_hyperplan : this->getSupport(t+1))
         {
-            //std::cout<<"\n tau+1 :"<<t+1<<", max horizon :"<<this->getHorizon();
-            if (t + 1 < this->getHorizon())
+            // Go over all joint decision rules at serialized_occupancy_state 
+            for (const auto &serial_decision_rule : getAll_actionspace)
             {
-                for (const auto &plan : this->representation[t + 1])
+                TVector v = this->getHyperplanAt(serial_occupancy_state, next_hyperplan, serial_decision_rule, t);
+                if (value_max < (tmp = serialized_occupancy_state^v))
                 {
-                    // Boucle over all joint decision rule at occupancy state
-                    for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
-                    {
-                        TVector v;
-                        for (const auto &pair_s_o_p : state)
-                        {
-                            auto pair_s_o = pair_s_o_p.first;
-                            auto hidden_state = state.getHiddenState(pair_s_o);
-                            auto s_state = state.getState(pair_s_o);
-                            auto history = state.getHistory(pair_s_o);
-                            auto action = state.getAction(pair_s_o);
-
-                            // //Get joint action from JointDetDecisionRule
-                            std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
-
-                            // //Add the last selected action (the action of agent 0)
-                            jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
-                            auto index_joint_action = under_pb->getActionSpace()->joint2single(jaction);
-
-                            v[pair_s_o] = under_pb->getReward(hidden_state, jaction);
-
-                            //v[pair_s_o] = soMDP->getReward(state,indiv_dr);
-
-                            for (const auto &o : under_pb->getObsSpace()->getAll())
-                            {
-                                auto history_next = history->expand(o);
-                                auto index_history = under_pb->getObsSpace()->joint2single(o);
-                                for (const typename TVector::state_type s_ : under_pb->getStateSpace()->getAll())
-                                {
-                                    v[pair_s_o] += soMDP->getDiscount(t) * under_pb->getObsDynamics()->getDynamics(hidden_state, index_joint_action, index_history, s_.getState()) * plan.at(std::make_pair(s_, history_next));
-                                }
-                            }
-                        }
-
-                        if (value_max < (tmp = state ^ v))
-                        {
-                            value_max = tmp;
-                            v_max = v;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
-                {
-                    TVector v;
-                    for (const auto &pair_s_o_p : state)
-                    {
-                        auto pair_s_o = pair_s_o_p.first;
-                        auto hidden_state = state.getHiddenState(pair_s_o);
-                        auto s_state = state.getState(pair_s_o);
-                        auto history = state.getHistory(pair_s_o);
-                        auto action = state.getAction(pair_s_o);
-
-                        // Get joint action from JointDetDecisionRule
-                        std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
-                        jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
-
-                        v[pair_s_o] = under_pb->getReward(hidden_state, jaction); // + under_pb->getDiscount()*tmp;
-                    }
-                    if (value_max < (tmp = state ^ v))
-                    {
-                        value_max = tmp;
-                        v_max = v;
-                    }
+                    value_max = tmp;
+                    v_max = v;
                 }
             }
         }
-        else
-        {
-            if (t + 1 < this->getHorizon())
-            {
-                for (const auto &plan : this->representation[t + 1])
-                {
-                    std::cout << "\n plan : " << plan;
 
-                    // Boucle over all joint decision rule at occupancy state
-                    for (const auto &indiv_dr : soMDP->getActionSpaceAt(state)->getAll())
-                    {
-                        TVector v;
-                        for (const auto &pair_s_o_p : state)
-                        {
-                            auto pair_s_o = pair_s_o_p.first;
-                            auto s_state = state.getState(pair_s_o);
-                            auto history = state.getHistory(pair_s_o);
-                            auto action = state.getAction(pair_s_o);
-
-                            v[pair_s_o] = 0;
-
-                            std::vector<typename TAction::output_type> jaction(action.begin(), action.end());
-
-                            //Add the last selected action (the action of agent 0)
-                            jaction.push_back(indiv_dr.act(history->getIndividualHistory(ag_id)));
-
-                            for (const auto &o : under_pb->getObsSpace()->getAll())
-                            {
-                                auto history_next = history->expand(o);
-                                for (const auto &hidden_s_ : under_pb->getStateSpace()->getAll())
-                                {
-                                    typename TVector::state_type s_(hidden_s_, jaction);
-                                    std::cout << "\n s_ " << s_ << ", histo_next : " << history;
-                                    std::cout << "\n plan at : " << plan.at(std::make_pair(s_, history));
-                                    v[pair_s_o] += soMDP->getDiscount(t) * plan.at(std::make_pair(s_, history));
-                                }
-                            }
-                            std::cout << "\n res !!!! :" << v[pair_s_o];
-                        }
-
-                        if (value_max < (tmp = state ^ v))
-                        {
-                            value_max = tmp;
-                            v_max = v;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (const auto &pair_s_o_p : state)
-                {
-                    auto pair_s_o = pair_s_o_p.first;
-                    v_max[pair_s_o] = 0;
-                }
-            }
-        }
         return v_max;
     }
+
+
+    template <typename TVector, typename TAction, typename TValue>
+    template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
+    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&serial_occupancy_state, const TVector&next_hyperplan, const TAction&serial_decision_rule, number t)
+    {
+        TVector new_hyperplan(this->default_value_[t]);
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
+
+        for (const auto &pair_s_o_p : serialized_occupancy_state)
+        {
+            auto pair_s_o = pair_s_o_p.first;
+            auto serial_hidden_state = serialized_occupancy_state.getState(pair_s_o);
+            auto history = serialized_occupancy_state.getHistory(pair_s_o);
+
+            auto action = indiv_dr.act(history->getIndividualHistory(serialized_occupancy_state.getCurrentAgentId()));
+
+            v[pair_s_o] = under_pb->getReward(serial_hidden_state, action);
+
+            for (const auto &serial_hidden_next_state : under_pb->getReacheableStates(serial_hidden_state, action)->getAll())
+            {
+                for (const auto &serial_observation : under_pb->getReacheableObservations(action, serial_hidden_next_state))
+                {
+                    auto history_next = history->expand(serial_observation);
+                    v[pair_s_o] +=  under_pb->getDiscount(t) *  plan.at(std::make_pair(serial_hidden_next_state,history_next)) * under_pb->getObsDynamics(serial_hidden_state, action, serial_observation, serial_hidden_next_state);
+                }
+            }
+        }
+
+        return new_hyperplan;
+    }
+
+    
 
     // For BeliefMDP
     template <typename TVector, typename TAction, typename TValue>
@@ -383,6 +257,7 @@ namespace sdm
                 beta_a[a][s] = under_pb->getReward(s, a) + under_pb->getDiscount() * tmp;
             }
         }
+
         number a_max;
         double current, max_v = -std::numeric_limits<double>::max();
         for (number a = 0; a < n_actions; a++)
@@ -394,7 +269,9 @@ namespace sdm
                 a_max = a;
             }
         }
+
         auto new_plan = beta_a[a_max];
+        
         return new_plan;
     }
 
