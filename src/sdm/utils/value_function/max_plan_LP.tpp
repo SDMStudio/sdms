@@ -174,10 +174,12 @@ namespace sdm
     
     for(auto iter=occupancy_state.begin(); iter != occupancy_state.end(); ++iter){
 
+      auto joint_history = occupancy_state.getHistory(it->first);
+
       for(auto u=0; u<under_problem->getActionSpace()->getNumItems(); ++u){
 
-        // index = common::getNumber(common::getVarNameJointHistoryDecisionRule(u, iter->first));
-        // a->setJointProbability(iter->first, u, cplex.getValue(var[index]));
+        index = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,joint_history));
+        a->setJointProbability(joint_history, u, cplex.getValue(var[index]));
       }
     }
 
@@ -262,73 +264,89 @@ namespace sdm
       } // for all u
     } // for all o
 
-    // // 3.bis Build decentralized control constraints [ a(u|o) <= a_i(u_i|o_i) ]
-    // for(auto it=o->begin(); it!=o->end(); ++it){
-    //   auto jh = it->first;
-    //   for(action u=0; u<common::model->getNumActions(); ++u){
-    //     for(agent ag=0; ag<common::model->getNumAgents(); ++ag){
-    //       auto ih = jh->at(ag);
-    //       auto iu = common::model->getActionIndex(ag,u);
-    //       //<! 3.b set constraint a(u|o) <= a_i(u_i|o_i)
-    //       con.add(IloRange(env, -IloInfinity, 0.0));
-    //       //<! 3.b.1 get variable a(u|o)
-    //       recover = common::getNumber(common::getVarNameJointHistoryDecisionRule(u,jh));
-    //       //<! 3.b.2 set coefficient of variable a(u|o)
-    //       con[c].setLinearCoef(var[recover], +1.0);
-    //       //<! 3.b.3 get variable a_i(u_i|o_i)
-    //       recover = common::getNumber(common::getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
-    //       //<! 3.b.4 set coefficient of variable a_i(u_i|o_i)
-    //       con[c].setLinearCoef(var[recover], -1.0);
-    //       //<! increment constraints
-    //       c++;
-    //     } // for all agent
-    //   } // for all u
-    // } // for all o
+    // 3.bis Build decentralized control constraints [ a(u|o) <= a_i(u_i|o_i) ]
+    for(auto it=occupancy_state.begin(); it!=occupancy_state.end(); ++it){
+      auto jh = occupancy_state.getHistory(it->first);
+      for(action u=0; u<under_problem->getActionSpace()->getNumItems(); ++u){
+        for(agent ag=0; ag<number_agent; ++ag){
+          auto ih = joint_history->getIndividualHistory(ag);
+          auto iu = under_problem->getActionSpace()->getItem(ag,u);
+          //<! 3.b set constraint a(u|o) <= a_i(u_i|o_i)
+          con.add(IloRange(env, -IloInfinity, 0.0));
+          //<! 3.b.1 get variable a(u|o)
+          recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,jh));
+          //<! 3.b.2 set coefficient of variable a(u|o)
+          con[c].setLinearCoef(var[recover], +1.0);
+          //<! 3.b.3 get variable a_i(u_i|o_i)
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
+          //<! 3.b.4 set coefficient of variable a_i(u_i|o_i)
+          con[c].setLinearCoef(var[recover], -1.0);
+          //<! increment constraints
+          c++;
+        } // for all agent
+      } // for all u
+    } // for all o
 
-    // // 4. Build deterministic policy constraints
-    // for(agent ag=0; ag<common::model->getNumAgents(); ++ag){
-    //   for(auto ih : ihs[ag]){
-    //     //<! 4.a set constraint  \sum_{u_i} a_i(u_i|o_i) = 1
-    //     con.add(IloRange(env, 1.0, 1.0));
-    //     for(action iu=0; iu<common::model->getNumActions(ag); ++iu){
-    //       recover = common::getNumber(common::getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
-    //       con[c].setLinearCoef(var[recover], +1.0);
-    //     }
-    //     //<! increment constraints
-    //     c++;
-    //   }
-    // }
+    // 4. Build deterministic policy constraints
+    for(agent ag=0; ag<number_agent; ++ag){
+      for(auto ih : ihs[ag]){
+        //<! 4.a set constraint  \sum_{u_i} a_i(u_i|o_i) = 1
+        con.add(IloRange(env, 1.0, 1.0));
+        for(action iu=0; iu<under_problem->getActionSpace()->getSpace(ag)->getNumItems(); ++iu){
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
+          con[c].setLinearCoef(var[recover], +1.0);
+        }
+        //<! increment constraints
+        c++;
+      }
+    }
   }
+
+  template <typename TVector, typename TAction, typename TValue>
+  TVector MaxPlanValueFunctionLP<TVector, TAction, TValue>::backup_operator(const TVector &occupancy_state, number t)
+  {
+    double max = -std::numeric_limits<double>::max(),value;
+    TAction max_decision_rule, joint_decision_rule;
+
+    for(auto hyperplan : this->getSupport(t+1)) // Changer nom de fonction 
+    {
+      joint_decision_rule = this->greedyMaxPlane(occupancy_state, hyperplan, value, 0);
+      if( value > max )
+      {
+        max_decision_rule = joint_decision_rule;
+        max = value;
+      }
+    }
+
+    TVector new_hyperplan;
+    for(auto uncompressed_s_o: occupancy_state.getFullUncompressedOccupancyState())
+    {
+      auto uncompressed_hidden_state = uncompressed_s_o.first.first; 
+      auto uncompressed_joint_history = uncompressed_s_o.first.second; 
+      auto uncompressed_action = max_decision_rule(occupancy_state.getJointLabels(uncompressed_joint_history.getIndividualHistories())); 
+      
+      for(auto next_hidden_state : this->getWorld()->getReacheableStates(uncompressed_hidden_state,uncompressed_action))
+      {
+        for(auto next_observation : this->getWorld()->getReacheableObservations(uncompressed_action,next_hidden_state))
+        {
+
+        }
+      }
+      new_hyperplan[uncompressed_s_o] = ;
+    }
+
+  }
+
 
   template <typename TVector, typename TAction, typename TValue>
   void MaxPlanValueFunctionLP<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
   {
-    // TODO : To change with true bellman backup ope
-    if (t + 1 < this->getHorizon())
-    {
-      for (const auto &plan : this->representation[t + 1])
-      {
-        std::cout<<"\n next plan ";
-        double value = 0;
-        this->greedyMaxPlane(state,plan,value,0);
-      }
-    }
-    
-    throw sdm::exception::Exception("MaxPlanLP cannot be used for State = SerializedState.");
 
+    auto new_hyperplan = this->backup_operator<TVector>(state, t);
 
-      //auto new_hyperplan = this->backup_operator<TVector>(state, t);
+    this->representation[this->isInfiniteHorizon() ? 0 : t].push_back(new_hyperplan);
 
-      // if (this->isInfiniteHorizon())
-      // {
-      //     this->representation[0].push_back(new_hyperplan);
-      // }
-      // else
-      // {
-      //     assert(t < this->horizon_);
-      //     this->representation[t].push_back(new_hyperplan);
-      // }
-      // this->prune(t);
+    this->prune(t);
   }
 
   //*********** Fonction moins importante à partir d'ici
@@ -337,7 +355,7 @@ namespace sdm
   std::string MaxPlanValueFunctionLP<TVector, TAction, TValue>::getVarNameJointHistoryDecisionRule(action a, typename TVector::jhistory_type jh)
   {
     std::ostringstream oss;
-    oss << "jdr" << "." << a  << "." << *jh;
+    oss << "jdr" << "." << a  << "." << jh;
     return oss.str();
   }
 
@@ -366,7 +384,7 @@ namespace sdm
   std::string MaxPlanValueFunctionLP<TVector, TAction, TValue>::getVarNameIndividualHistoryDecisionRule(action a, typename TVector::jhistory_type::element_type::ihistory_type ih, agent ag)
   {
     std::ostringstream oss;
-    oss << "idr" << "." << a  << "." << *ih << "." << ag;
+    oss << "idr" << "." << a  << "." << ih << "." << ag;
     return oss.str();
   }
 

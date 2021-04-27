@@ -71,7 +71,9 @@ namespace sdm
         //Pareil ici pour le constant
         void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&); // std::vector<std::set<typename TVector::jhistory_type::element_type::ihistory_type>>
 
-        void updateValueAt(const TVector &state, number t);
+        void updateValueAt(const TVector &, number );
+
+        TVector backup_operator(const TVector &, number);
 
     };
 
