@@ -47,15 +47,12 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba)
     {
-        std::cout << "Pass " << pair_state_hist << " " << proba << std::endl;
         if (this->find(pair_state_hist) != this->end())
         {
-            std::cout << "Find " << pair_state_hist << " " << proba << std::endl;
             (*this)[pair_state_hist] += proba;
         }
         else
         {
-            std::cout << "Not found " << pair_state_hist << " " << proba << std::endl;
             this->setProbabilityAt(pair_state_hist, proba);
         }
     }
@@ -167,13 +164,9 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::finalize()
     {
-        std::cout << "Finalize" << std::endl;
         this->setStates();
-        std::cout << "States set" << std::endl;
         this->setJointHistories();
-        std::cout << "JHitories set" << std::endl;
         this->setAllIndividualHistories();
-        std::cout << "IHistories set" << std::endl;
     }
 
     template <typename TState, typename TJointHistory_p>

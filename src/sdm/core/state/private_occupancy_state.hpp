@@ -41,27 +41,20 @@ namespace sdm
     PrivateOccupancyState(std::size_t, double);
     PrivateOccupancyState(const PrivateOccupancyState &);
 
-    std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> getPrivateOccupancyStateAt(const ihistory_type &) const;
-
     number getAgentId() const;
     std::string str() const;
 
     void finalize();
+    bool operator==(const PrivateOccupancyState &) const;
 
   protected:
-    typedef boost::bimaps::bimap<TJointHistory_p, std::size_t> bimap_type;
+    typedef boost::bimaps::bimap<TJointHistory_p, Joint<ihistory_type>> bimap_type;
     typedef typename bimap_type::value_type bimap_value;
 
     /**
      * @brief Bimap that map joint histories and hash of o^{-i} 
      */
-    // RecursiveMap<ihistory_type, bimap_type> bimap_jhist_hash;
-    bimap_type bimap_jhist_hash;
-    
-    /**
-     * @brief Map an individual history to its private occupancy state
-     */
-    // RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>> compact_private_ostate;
+    bimap_type bimap_jhist_partial_jhist;
 
     /**
      * @brief The agent's identifier 

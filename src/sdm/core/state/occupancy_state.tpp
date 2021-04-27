@@ -20,85 +20,30 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state) : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state), private_omap_(occupancy_state.getPrivateOccupancyStates())
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state) : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state), tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.getPrivateOccupancyStates())
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    const Joint<std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>> &OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyStates() const
+    const Joint<RecursiveMap<typename OccupancyState<TState, TJointHistory_p>::ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>>> &OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyStates() const
     {
-        return this->private_omap_;
+        return this->tuple_of_maps_from_histories_to_private_occupancy_states_;
     }
 
     template <typename TState, typename TJointHistory_p>
     const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyState(const number &agent_id, const ihistory_type &ihistory) const
     {
-        return this->getPrivateOccupancyState(agent_id)->getPrivateOccupancyStateAt(ihistory);
+        return this->tuple_of_maps_from_histories_to_private_occupancy_states_.at(agent_id).at(ihistory);
     }
 
     template <typename TState, typename TJointHistory_p>
     bool OccupancyState<TState, TJointHistory_p>::areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &ihistory_1, const typename TJointHistory_p::element_type::ihistory_type &ihistory_2, number agent_identifier)
     {
         return this->getPrivateOccupancyState(agent_identifier, ihistory_1) == this->getPrivateOccupancyState(agent_identifier, ihistory_2);
-
-        /**
-         * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
-         **/
-        // Transform proba representation from s(x, \theta) to s(x, \theta^{-i} \mid \theta^i) and s(x, \theta^{-i} \mid \theta'^i)
-        /*for (const auto &pair_state_history_probability : *this)
-        {
-            // Transform representation of history_1 (= \theta^i)
-            if (pair_state_history_probability.first.second->getIndividualHistory(agent_identifier) == history_1)
-            {
-                // Get all individual histories except that of agent i
-                auto agent_histories = pair_state_history_probability.first.second->getIndividualHistories();
-                agent_histories.erase(std::remove(agent_histories.begin(), agent_histories.end(), history_1), agent_histories.end());
-                // Compute p(x, o^{-i} | o^i)
-                private_occupancy_state_1[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
-            }
-
-            // Transform representation of history_2 (= \theta'^i)
-            if (pair_state_history_probability.first.second->getIndividualHistory(agent_identifier) == history_2)
-            {
-                // Get all individual histories except that of agent i
-                auto agent_histories = pair_state_history_probability.first.second->getIndividualHistories();
-                agent_histories.erase(std::remove(agent_histories.begin(), agent_histories.end(), history_2), agent_histories.end());
-                // Compute p(x, o^{-i} | o'^i)
-                private_occupancy_state_2[std::make_pair(pair_state_history_probability.first.first, agent_histories)] += pair_state_history_probability.second;
-            }
-        }
-
-        // If p(x, o^{-i} | o^i) and p(x, o^{-i} | o'^i) are equal then histories are equivalent
-        if (private_occupancy_state_1 != private_occupancy_state_2)
-        {
-            return false;
-        }
-        
-        return true;*/
     }
 
     template <typename TState, typename TJointHistory_p>
-    bool OccupancyState<TState, TJointHistory_p>::areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &p1, const Pair<TState, TJointHistory_p> &p2)
-    {
-        /**
-         * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
-         **/
-        if (p1.first != p2.first)
-        {
-            return false;
-        }
-        for (number agent_identifier = 0; agent_identifier < p1.second->getIndividualHistories().size(); agent_identifier++)
-        {
-            if (!this->areIndividualHistoryLPE(p1.second->getIndividualHistory(agent_identifier), p2.second->getIndividualHistory(agent_identifier), agent_identifier))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    const std::shared_ptr<OccupancyState<TState, TJointHistory_p>> &OccupancyState<TState, TJointHistory_p>::getFullyUncompressedOccupancy() const
+    std::shared_ptr<OccupancyState<TState, TJointHistory_p>> OccupancyState<TState, TJointHistory_p>::getFullyUncompressedOccupancy() const
     {
         return this->fully_uncompressed_occupancy_state;
     }
@@ -122,7 +67,7 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    const std::shared_ptr<OccupancyState<TState, TJointHistory_p>> &OccupancyState<TState, TJointHistory_p>::getOneStepUncompressedOccupancy() const
+    std::shared_ptr<OccupancyState<TState, TJointHistory_p>> OccupancyState<TState, TJointHistory_p>::getOneStepUncompressedOccupancy() const
     {
         return this->one_step_left_compressed_occupancy_state;
     }
@@ -136,9 +81,6 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     auto OccupancyState<TState, TJointHistory_p>::compress()
     {
-        /**
-         * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
-         **/
         OccupancyState<TState, TJointHistory_p> current_compact_ostate;
         OccupancyState<TState, TJointHistory_p> previous_compact_ostate = *this;
 
@@ -161,7 +103,7 @@ namespace sdm
                     {
                         iter_second = support.erase(iter_second);
 
-                        for (const auto &pair_s_o_prob : previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second))
+                        for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second))
                         {
                             current_compact_ostate.addProbabilityAt(pair_s_o_prob.first, pair_s_o_prob.second);
                         }
@@ -174,37 +116,9 @@ namespace sdm
         }
 
         current_compact_ostate.setOneStepUncompressedOccupancy(this->getptr());
-        current_compact_ostate.setFullyUncompressedOccupancy(this->fully_uncompressed_occupancy_state);
+        current_compact_ostate.setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
 
         return current_compact_ostate;
-
-        /*auto support = this->getIndexes();
-
-        // Sort support 
-        std::sort(support.begin(), support.end());
-
-        // go over the joint history support
-        for (auto iter = support.begin(); iter != support.end();)
-        {
-            auto jhistory = *iter;
-            compact_ostate.setProbabilityAt(pair_s_o, this->at(pair_s_o));
-            iter = support.erase(iter);
-            for (auto iter2 = iter; iter2 != support.end();)
-            {
-                auto pair_s_o_2 = *iter2;
-                if (this->areStateJointHistoryPairsLPE(pair_s_o, pair_s_o_2))
-                {
-                    compact_ostate.addProbabilityAt(pair_s_o, this->at(pair_s_o_2));
-                    iter2 = support.erase(iter2);
-                }
-                else
-                {
-                    iter2++;
-                }
-            }
-        }
-        return compact_ostate;
-        */
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -213,42 +127,32 @@ namespace sdm
         BaseOccupancyState<TState, TJointHistory_p>::finalize();
 
         // Build the private occupancy map
-        if (this->private_omap_.empty())
+        for (number agent_id = 0; agent_id < 2; agent_id++)
         {
-            for (const auto &pair_state_jhist : *this)
-            {
-                auto state = this->getState(pair_state_jhist.first);
-                auto jhist = this->getHistory(pair_state_jhist.first);
-                auto proba = this->getProbability(pair_state_jhist.first);
+            this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
+        }
 
-                for (number ag = 0; ag < jhist->getIndividualHistories().size(); ag++)
+        for (const auto &pair_state_jhist : *this)
+        {
+            auto jhist = this->getHistory(pair_state_jhist.first);
+            auto proba = this->getProbability(pair_state_jhist.first);
+
+            for (number agent_id = 0; agent_id < 2; agent_id++)
+            {
+                // Set private OccupancyState
+                if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
                 {
-                    // std::cout << "state=" << state << " jhist=" << jhist << " proba=" << proba << " ag=" << ag << std::endl;
-                    // Init map for agent i
-                    if (this->private_omap_.size() <= ag)
-                    {
-                        // Add empty private occupancy state of agent i
-                        this->private_omap_.push_back(std::make_shared<PrivateOccupancyState<TState, TJointHistory_p>>(ag, this->default_value_));
-                    }
-
-                    // Get joint history except private one
-                    // auto other_histories = jhist->getIndividualHistories();
-                    // other_histories.erase(std::remove(other_histories.begin(), other_histories.end(), jhist->getIndividualHistory(ag)), other_histories.end());
-
-                    // Set private OccupancyState
-                    // if (this->private_omap_[ag].find(jhist->getIndividualHistory(ag)) == this->private_omap_[ag].end())
-                    // {
-                    //     this->private_omap_[ag].emplace(jhist->getIndividualHistory(ag), PrivateOccupancyState(ag, jhist->getIndividualHistory(ag), this->default_value_));
-                    // }
-                    // Set private occupancy measure
-                    // std::cout << "this->private_omap_[ag][jhist->getIndividualHistory(ag)]=" << this->private_omap_[ag][jhist->getIndividualHistory(ag)] << std::endl;
-                    this->private_omap_[ag]->addProbabilityAt(pair_state_jhist.first, proba);
-                    // std::cout << "after private ostate = " << this->private_omap_[ag][jhist->getIndividualHistory(ag)] << std::endl;
+                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState<TState, TJointHistory_p>>(agent_id, this->default_value_));
                 }
+                // Set private occupancy measure
+                this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id][jhist->getIndividualHistory(agent_id)]->addProbabilityAt(pair_state_jhist.first, proba);
             }
-            for (number ag = 0; ag < 2; ag++)
+        }
+        for (number agent_id = 0; agent_id < 2; agent_id++)
+        {
+            for (const auto &pair_ihist_private_occupancy_state : this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id])
             {
-                this->private_omap_[ag]->finalize();
+                pair_ihist_private_occupancy_state.second->finalize();
             }
         }
     }

@@ -40,7 +40,7 @@ namespace sdm
 
         T default_value_;
         long size_ = -1;
-        double precision = 0.0000001;
+        double precision = 0.0001;
 
         std::vector<TIndex> v_indexes;
 
@@ -93,8 +93,6 @@ namespace sdm
          * @return T 
          */
         T dot(const MappedVector &) const;
-
-        std::size_t size() const;
 
         T getDefault() const;
 
