@@ -99,12 +99,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     const std::set<typename BaseOccupancyState<TState, TJointHistory_p>::state_type> &BaseOccupancyState<TState, TJointHistory_p>::getStatesAt(TJointHistory_p jhistory) const
     {
-<<<<<<< HEAD
-        //assert( (!this->agent_history_spaces.empty()) );
-        return this->agent_history_spaces;
-=======
         return this->list_jhistory_states[jhistory];
->>>>>>> fafe39e68d96d2fefd0a3a6f3c90b72a097121d6
     }
 
     template <typename TState, typename TJointHistory_p>

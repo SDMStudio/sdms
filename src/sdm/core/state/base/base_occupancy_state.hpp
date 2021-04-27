@@ -116,7 +116,6 @@ namespace sdm
      */
     TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &) const;
 
-<<<<<<< HEAD
     /**
      * @brief Return the probability of a precise occupancy state
      */
@@ -128,7 +127,6 @@ namespace sdm
      * @return number 
      */
     number getHorizon() const;
-=======
 
   protected:
     std::set<state_type> list_states;
@@ -137,7 +135,6 @@ namespace sdm
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
     
 
->>>>>>> fafe39e68d96d2fefd0a3a6f3c90b72a097121d6
   };
 } // namespace sdm
 #include <sdm/core/state/base/base_occupancy_state.tpp>

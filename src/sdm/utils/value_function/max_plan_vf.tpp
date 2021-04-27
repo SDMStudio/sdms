@@ -133,12 +133,8 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
     {
-<<<<<<< HEAD
         //std::cout << "Formalism DecPOMDP" << std::endl;
         auto oMDP = std::static_pointer_cast<OccupancyMDP<TVector,TAction>>(this->getWorld());
-=======
-        auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
->>>>>>> fafe39e68d96d2fefd0a3a6f3c90b72a097121d6
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector v_max;

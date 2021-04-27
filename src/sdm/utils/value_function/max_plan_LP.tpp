@@ -323,13 +323,17 @@ namespace sdm
     {
       auto uncompressed_hidden_state = uncompressed_s_o.first.first; 
       auto uncompressed_joint_history = uncompressed_s_o.first.second; 
+
+      auto compressed_joint_history = 
       auto uncompressed_action = max_decision_rule(occupancy_state.getJointLabels(uncompressed_joint_history.getIndividualHistories())); 
+
+
       
       for(auto next_hidden_state : this->getWorld()->getReacheableStates(uncompressed_hidden_state,uncompressed_action))
       {
         for(auto next_observation : this->getWorld()->getReacheableObservations(uncompressed_action,next_hidden_state))
         {
-
+          auto next_joint_history = uncompressed_joint_history->expand(next_observation);
         }
       }
       new_hyperplan[uncompressed_s_o] = ;
