@@ -8,6 +8,7 @@
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
+#include <sdm/utils/value_function/decentralized_constraints_with_lp.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
 #include <ilcplex/ilocplex.h>
 /**
@@ -23,29 +24,8 @@ namespace sdm
      * @tparam TValue value type (default : double)
      */
     template <typename TVector, typename TAction, typename TValue = double>
-    class MaxPlanValueFunctionLP : public MaxPlanValueFunction<TVector, TAction, TValue>
+    class MaxPlanValueFunctionLP : public MaxPlanValueFunction<TVector, TAction, TValue>, public DecentralizedConstraintsLP<TVector, TAction, TValue>
     {
-        //Pour le moment le code n'est pas optimisé, avec beaucoup de boucle non efficace
-
-    protected :
-
-    //*********** De façon temporaire, je crée les fonctions de base ici, mais elles seront déplacés dans une classe mère
-
-    void setNumber(const std::string& ,number);
-
-    std::unordered_map<std::string, number> variables;
-
-    std::string getVarNameWeight(number);
-    std::string getVarNameJointHistoryDecisionRule(action , typename TVector::jhistory_type );
-    std::string getVarNameIndividualHistoryDecisionRule(action , typename TVector::jhistory_type::element_type::ihistory_type , agent );
-    number getNumber(const std::string& );
-
-    TAction getDecentralizedVariables(const IloCplex&, const IloNumVarArray&, const TVector&);
-
-    void setDecentralizedVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&, number&);// J'ai enlever le const pour le moment, car j'ai besoin de under_problem
-
-    void setDecentralizedConstraints(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&);// J'ai enlever le const pour le moment, car j'ai besoin de under_problem
-
     public:
 
         MaxPlanValueFunctionLP();
@@ -68,16 +48,17 @@ namespace sdm
 
         void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&); // J'ai enlever le const pour le moment, car j'ai besoin de under_problem
 
-        //Pareil ici pour le constant
         void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&); // std::vector<std::set<typename TVector::jhistory_type::element_type::ihistory_type>>
 
         void updateValueAt(const TVector &, number );
 
         TVector backup_operator(const TVector &, number);
-
     };
 
-        template <class TAction, class TValue>
+
+    // a supprimer imperativement avant la publication JMLR
+
+    template <class TAction, class TValue>
     class MaxPlanValueFunctionLP<number, TAction, TValue> : public MaxPlanValueFunction<number, TAction, TValue>
     {
     public:
@@ -195,4 +176,4 @@ namespace sdm
     };
 
 }
-#include <sdm/utils/value_function/max_plan_LP.tpp>
+#include <sdm/utils/value_function/max_plan_vf_with_lp.tpp>
