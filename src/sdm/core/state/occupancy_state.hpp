@@ -49,10 +49,13 @@ namespace sdm
     const Joint<RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>>> &getPrivateOccupancyStates() const;
     const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &getPrivateOccupancyState(const number &agent_id, const ihistory_type &ihistory) const;
 
-    const std::shared_ptr<OccupancyState> &getFullyUncompressedOccupancy() const;
+    /**
+     * @brief Get the fully uncompressed occupancy state
+     */
+    std::shared_ptr<OccupancyState> getFullyUncompressedOccupancy() const;
     void setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
-    const std::shared_ptr<OccupancyState> &getOneStepUncompressedOccupancy() const;
+    std::shared_ptr<OccupancyState> getOneStepUncompressedOccupancy() const;
     void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
     std::vector<ihistory_type> getJointLabels(const std::vector<ihistory_type> &) const;

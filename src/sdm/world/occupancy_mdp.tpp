@@ -13,7 +13,6 @@ namespace sdm
     template <typename oState, typename oAction>
     OccupancyMDP<oState, oAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
     {
-        std::cout << "In OccMDP" << std::endl;
         typename oState::jhistory_type jhist;
         if (hist_length > 0)
         {
@@ -26,7 +25,6 @@ namespace sdm
 
         this->ihistory_ = jhist;
 
-        std::cout << "Initial History " << this->ihistory_ << std::endl;
         for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
         {
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
@@ -35,12 +33,9 @@ namespace sdm
                 this->istate_.setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
             }
         }
-        std::cout << "istate)" << this->istate_ << std::endl;
         this->istate_.finalize();
-        // this->istate_.setFullyUncompressedOccupancy(this->istate_.getptr());
-        // std::cout << "getFullyUncompressedOccupancy="<< this->istate_.getFullyUncompressedOccupancy() << std::endl;
-        // this->istate_.setOneStepUncompressedOccupancy(this->istate_.getptr());
-        // std::cout << "setOneStepUncompressedOccupancy="<< this->istate_.getFullyUncompressedOccupancy() << std::endl;
+        this->istate_.setFullyUncompressedOccupancy(this->istate_.getptr());
+        this->istate_.setOneStepUncompressedOccupancy(this->istate_.getptr());
         this->cstate_ = this->istate_;
     }
 
