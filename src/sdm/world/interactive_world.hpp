@@ -40,7 +40,7 @@ namespace sdm
         using reward_type = typename reward_type::value_type;
 
         //! \param intern_formalism problem to interact with
-        InteractiveWorld(TDecProcess *real_world);
+        InteractiveWorld(TDecProcess *);
 
         InteractiveWorld(const TDecProcess &);
 
@@ -48,7 +48,7 @@ namespace sdm
 
         observation_type reset();
 
-        std::tuple<observation_type, reward_type, bool> step(action_type ja); 
+        std::tuple<observation_type, reward_type, bool> step(action_type ); 
     };
 } // namespace sdm
 #include <sdm/world/interactive_world.tpp>

@@ -145,7 +145,7 @@ namespace sdm
         {
             return false;
         }
-
+        
         for (const auto &v : *this)
         {
             if (v2.find(v.first) == v2.end())
@@ -264,7 +264,7 @@ namespace sdm
     template <typename TIndex, typename T>
     std::vector<TIndex> MappedVector<TIndex, T>::getIndexes() const
     {        
-        assert( (this->v_indexes.size()>0) );
+        // assert( (this->v_indexes.size()>0) );
         return this->v_indexes;
     }
 

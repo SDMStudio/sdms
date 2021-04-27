@@ -25,11 +25,11 @@ namespace sdm
     using state_type = number;
 
     BaseBeliefState();
-    BaseBeliefState(double default_value);
-    BaseBeliefState(std::size_t size, double default_value);
-    BaseBeliefState(const BaseBeliefState &v);
+    BaseBeliefState(double);
+    BaseBeliefState(std::size_t, double );
+    BaseBeliefState(const BaseBeliefState &);
 
-    static TState getState(const TState &state);
+    static TState getState(const TState &);
   };
 
   using BeliefState = BaseBeliefState<number>;

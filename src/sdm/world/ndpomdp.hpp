@@ -98,7 +98,7 @@ namespace sdm
          * @param jaction the joint action
          * @return a tuple containing reward, next_osbservation and next_state
          **/
-        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number state, number jaction);
+        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number , number );
 
         std::vector<std::pair<number, number>> getUniqueValidNeighbors();
 
@@ -134,7 +134,7 @@ namespace sdm
          */
         number getNumJObservations() const;
 
-        virtual number getNumObservations(number agent) const;
+        virtual number getNumObservations(number ) const;
 
         /**
          * \brief Getter for the action spaces
@@ -149,7 +149,7 @@ namespace sdm
         /**
          * \brief Get the number of Actions for a specific agent
          */
-        number getNumActions(number agent) const;
+        number getNumActions(number ) const;
 
         /**
          * \brief Get the number of Action for every agents

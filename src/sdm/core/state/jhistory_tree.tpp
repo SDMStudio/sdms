@@ -33,6 +33,12 @@ namespace sdm
     }
 
     template <typename T>
+    JointHistoryTree<T>::JointHistoryTree(const Joint<std::shared_ptr<HistoryTree<T>>> &ihistories) : HistoryTree<Joint<T>>(), indiv_hist(ihistories)
+    {
+        
+    }
+
+    template <typename T>
     void JointHistoryTree<T>::addIndivHist(std::shared_ptr<HistoryTree<T>> ihist)
     {
         this->indiv_hist.push_back(ihist);

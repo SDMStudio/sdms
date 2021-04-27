@@ -10,7 +10,7 @@ namespace sdm
     MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer)
         : ValueFunction<TVector, TAction, TValue>(problem, horizon), initializer_(initializer)
     {
-        this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_, HyperplanSet({}));
+        this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, HyperplanSet({}));
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -22,15 +22,7 @@ namespace sdm
     void MaxPlanValueFunction<TVector, TAction, TValue>::initialize(TValue value, number t)
     {
         TVector new_v(value);
-        if (this->isInfiniteHorizon())
-        {
-            this->representation[0].push_back(new_v);
-        }
-        else
-        {
-            assert(t < this->getHorizon());
-            this->representation[t].push_back(new_v);
-        }
+        this->representation[this->isInfiniteHorizon() ? 0 : t].push_back(new_v);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -42,75 +34,45 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     std::pair<TValue, TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getMaxAt(const TVector &state, number t)
     {
-        if (t >= this->getHorizon())
+        number h = (this->isInfiniteHorizon()) ? 0 : t;
+        
+        TValue current, max = -std::numeric_limits<TValue>::max();
+        TVector alpha_vector;
+            
+        for (const auto &plan : this->representation[h])
         {
-            return {0, 0};
-        }
-        else
-        {
-            number h = (this->isInfiniteHorizon()) ? 0 : t;
-            TValue current, max = -std::numeric_limits<TValue>::max();
-            TVector alpha_vector;
-            for (const auto &plan : this->representation[h])
+            current = state ^ plan;
+                
+            if (max < current)
             {
-                current = state ^ plan;
-                if (max < current)
-                {
-                    max = current;
-                    alpha_vector = plan;
-                }
+                max = current;
+                alpha_vector = plan;
             }
-            return {max, alpha_vector};
         }
+
+        return {max, alpha_vector};
     }
 
     template <typename TVector, typename TAction, typename TValue>
     TValue MaxPlanValueFunction<TVector, TAction, TValue>::getValueAt(const TVector &state, number t)
     {
-        if (this->isInfiniteHorizon())
-        {
-            return this->getMaxAt(state, 0).first;
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? 0 : this->getMaxAt(state, t).first;
-        }
+        return this->getMaxAt(state, this->isInfiniteHorizon() ? 0 : t).first;
     }
 
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
     {
-        // TODO : To change with true bellman backup ope
-        // std::cout<<"\n state : "<<state;
-        // std::cout<<"\n tau :"<<t;
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
-        // std::cout<<"\n new plan : "<<new_hyperplan;
 
-        if (this->isInfiniteHorizon())
-        {
-            this->representation[0].push_back(new_hyperplan);
-        }
-        else
-        {
-            assert(t < this->horizon_);
-            this->representation[t].push_back(new_hyperplan);
-        }
-        // this->prune(t);
-    }
+        this->representation[this->isInfiniteHorizon() ? 0 : t].push_back(new_hyperplan);
+     }
 
     template <typename TVector, typename TAction, typename TValue>
     std::vector<TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getSupport(number t)
     {
-        std::vector<TVector> output;
-        if (this->isInfiniteHorizon())
-        {
-            output = std::vector<TVector>(this->representation[0].begin(), this->representation[0].end());
-            return output;
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? std::vector<TVector>{} : std::vector<TVector>(this->representation[t].begin(), this->representation[t].end());
-        }
+        number h = this->isInfiniteHorizon() ? 0 : t;
+
+        return std::vector<TVector>(this->representation[h].begin(), this->representation[h].end());
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -124,8 +86,10 @@ namespace sdm
     {
         std::map<TVector, number> refCount;
 
+        number h = this->isInfiniteHorizon() ? 0 : t;
+
         //<! initialize the count for each hyperplan
-        for (const auto &plan : (this->isInfiniteHorizon() ? this->representation[0] : this->representation[t]))
+        for (const auto &plan : this->representation[h])
         {
             refCount.emplace(plan, 0);
         }
@@ -133,7 +97,7 @@ namespace sdm
         //<! update the count
         TVector max_alpha;
         TValue max_value = -std::numeric_limits<TValue>::max(), value;
-        for (const auto &frequency : (this->isInfiniteHorizon() ? this->representation[0] : this->representation[t]))
+        for (const auto &frequency : this->representation[h])
         {
             for (const auto &alpha : refCount)
             {
@@ -151,22 +115,10 @@ namespace sdm
         }
 
         //<! remove dominated alpha-vectors
-        if (this->isInfiniteHorizon())
+        for (const auto &alpha : this->representation[h])
         {
-            for (const auto &alpha : this->representation[0])
-            {
-                if (refCount.at(alpha) == 0)
-                    this->representation[0].erase(alpha);
-            }
-        }
-        else
-        {
-            assert(t < this->horizon_);
-            for (const auto &alpha : this->representation[t])
-            {
-                if (refCount.at(alpha) == 0)
-                    this->representation[t].erase(alpha);
-            }
+            if (refCount.at(alpha) == 0)
+                this->representation[h].erase(alpha);
         }
     }
 
@@ -181,8 +133,12 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
     {
+<<<<<<< HEAD
         //std::cout << "Formalism DecPOMDP" << std::endl;
         auto oMDP = std::static_pointer_cast<OccupancyMDP<TVector,TAction>>(this->getWorld());
+=======
+        auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
+>>>>>>> fafe39e68d96d2fefd0a3a6f3c90b72a097121d6
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector v_max;
@@ -193,8 +149,6 @@ namespace sdm
         auto getAll_actionspace = oMDP->getActionSpaceAt(state)->getAll();
 
         // Parcours des hyperplan support de la fonction au pas t+1
-        if (t + 1 < this->getHorizon())
-        {
             for (const auto &plan : this->representation[t + 1])
             {
                 // Boucle over all joint decision rule at occupancy state
@@ -232,30 +186,7 @@ namespace sdm
                     }
                 }
             }
-        }
-        else
-        {
-            for (const auto &jdr : getAll_actionspace)
-            {
-                TVector v;
-                for (const auto &pair_s_o_p : state)
-                {
-                    auto pair_s_o = pair_s_o_p.first;
-                    auto joint_history = state.getHistory(pair_s_o);
-                    auto s_state = state.getHiddenState(pair_s_o);
 
-                    // Get joint action from JointDetDecisionRule
-                    auto jaction = jdr.act(joint_history->getIndividualHistories());
-
-                    v[pair_s_o] = under_pb->getReward(s_state, jaction); // + under_pb->getDiscount()*tmp;
-                }
-                if (value_max < (tmp = state ^ v))
-                {
-                    value_max = tmp;
-                    v_max = v;
-                }
-            }
-        }
         return v_max;
     }
 

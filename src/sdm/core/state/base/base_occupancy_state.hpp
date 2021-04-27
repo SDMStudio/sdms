@@ -52,13 +52,26 @@ namespace sdm
     BaseOccupancyState(std::size_t, double);
     BaseOccupancyState(const BaseOccupancyState &);
 
+    void setProbabilityAt(const Pair<TState, TJointHistory_p> &, double );
+    void addProbabilityAt(const Pair<TState, TJointHistory_p> &, double );
+    void finalize();
+
+    /**
+     * @brief Return the probability of a precise occupancy state
+     */
+    double getProbability(const Pair<TState, TJointHistory_p> &);
+
     /**
      * @brief Get the set of states that are in the support of the occupancy state.
      * @comment: Very bad idea, since you may end of with too many states wrt each joint histories. Instead we should get back the belief state according with a given joint history.
      *            -- require run of setJointHistories(); 
-     * @return the possible states
+     * @return the possible states per joint histories
      */
-    std::set<state_type> getStates() const;
+    const std::set<state_type> &getStates() const;
+
+    const std::unordered_map<jhistory_type, std::set<state_type>> &getStatesAt(jhistory_type) const;
+
+
     void setStates();
 
     /**
@@ -66,14 +79,15 @@ namespace sdm
      * @comment: Should be pre-computed -- require run of setJointHistories();
      * @return the possible joint hitories
      */
-    std::set<jhistory_type> getJointHistories() const;
+    const std::set<jhistory_type> &getJointHistories() const;
+    
     void setJointHistories();
 
     /**
      * @brief Get the set of individual histories that are in the support of the occupancy state (for all agents).
      * @comment: Should be pre-computed,  -- require run of setAllIndividualHistories();
      */
-    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
+    const std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> &getAllIndividualHistories() const;
     void setAllIndividualHistories();
 
     /**
@@ -81,7 +95,7 @@ namespace sdm
      * @comment: Should be pre-computed 
      * @param number the agent identifier
      */
-    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number) const;
+    const std::set<typename jhistory_type::element_type::ihistory_type> &getIndividualHistories(number) const;
 
     /**
      * @brief Return the state of a precise occupancy state
@@ -102,6 +116,7 @@ namespace sdm
      */
     TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &) const;
 
+<<<<<<< HEAD
     /**
      * @brief Return the probability of a precise occupancy state
      */
@@ -113,6 +128,16 @@ namespace sdm
      * @return number 
      */
     number getHorizon() const;
+=======
+
+  protected:
+    std::set<state_type> list_states;
+    std::set<jhistory_type> list_jhistories;
+    std::unordered_map<jhistory_type, std::set<state_type>> list_jhistory_states;
+    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
+    
+
+>>>>>>> fafe39e68d96d2fefd0a3a6f3c90b72a097121d6
   };
 } // namespace sdm
 #include <sdm/core/state/base/base_occupancy_state.tpp>

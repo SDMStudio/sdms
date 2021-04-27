@@ -31,9 +31,10 @@ namespace sdm
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
             {
                 auto p_x_h = std::make_pair(s, jhist);
-                this->istate_[p_x_h] = this->dpomdp_->getStartDistrib().probabilities()[s];
+                this->istate_.setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
             }
         }
+        this->istate_.finalize();
         this->cstate_ = this->istate_;
     }
 
@@ -115,40 +116,53 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>>) const
+    oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>>, bool compression) const
     {
-        oState new_ostate, tmp;
+        oState new_fully_uncompressed_occupancy_state, new_one_step_left_compressed_occupancy_state, new_compressed_occupancy_state;
+
         // for all element in the support of the occupancy state
-        for (auto &p_x_o : ostate)
+        for (auto &p_x_o : ostate.getFullyUncompressedOccupancy())
         {
             auto x = p_x_o.first.first;
             auto o = p_x_o.first.second;
-            for (auto &y : this->dpomdp_->getStateSpace()->getAll())
+            for (auto &y : this->dpomdp_->getStateSpace()->getAll()) // a change
             {
-                // for (auto &u : this->dpomdp_->getActionSpace().getAll())
-                // {
-                for (auto &z : this->dpomdp_->getObsSpace()->getAll())
+                for (auto &z : this->dpomdp_->getObsSpace()->getAll()) // a change 
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
-                    auto jaction = joint_idr.act(o->getIndividualHistories());
+
+                    auto jaction = joint_idr.act(ostate.getJointLabels(o->getIndividualHistories()));
+
                     // Compute de proba of the next couple (state, joint history)
-                    double proba = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
+                    double proba = this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
 
-                    // -> TO REPLACE WITH
-                    // double proba = p_x_o.second * this->dpomdp_->getDynamics(x, jaction, z, y);
-
-                    if (proba > 0)
+                    if (p_x_o.second * proba > 0)
                     {
-                        new_ostate[new_index] = new_ostate.at(new_index) + proba;
-                    }
+                        new_fully_uncompressed_occupancy_state.addProbabilityAt(new_index, p_x_o.second * proba);
+                        
+                        if( ostate.getProbabilityAt(p_x_o.first) * proba > 0 )
+                        {
+                            new_one_step_left_compressed_occupancy_state.addProbabilityAt(new_index, ostate.getProbabilityAt(p_x_o.first) * proba);
+                        }
+                    } 
                 }
-                // }
             }
         }
 
         // Compress the occupancy state
-        new_ostate = new_ostate.compress();
-        return new_ostate;
+        new_one_step_left_compressed_occupancy_state.finalize();
+
+
+        if (compression)
+        {
+            new_compressed_occupancy_state = new_one_step_left_compressed_occupancy_state.compress();
+            // finalizing the construction of the occupancy state
+            new_compressed_occupancy_state.finalize();
+
+            return new_compressed_occupancy_state;
+        }
+
+        return new_one_step_left_compressed_occupancy_state;
     }
 
     template <typename oState, typename oAction>

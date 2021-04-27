@@ -34,48 +34,21 @@ namespace sdm
         using value_type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::value_type;
         using value_list_type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::value_list_type;
 
-        MappedMatrix() {}
-        MappedMatrix(TValue default_value) : default_value_(default_value) {}
-        MappedMatrix(std::vector<long> dim, TValue default_value) : dim_(dim), default_value_(default_value) {}
-        MappedMatrix(const MappedMatrix &copy) : RecursiveMap<TLig, MappedVector<TCol, TValue>>(copy), dim_(copy.dim()), default_value_(copy.getDefault()) {}
-        MappedMatrix(std::initializer_list<value_list_type> vals) : RecursiveMap<TLig, MappedVector<TCol, TValue>>(vals) {}
+        MappedMatrix();
+        MappedMatrix(TValue default_value);
+        MappedMatrix(std::vector<long> dim, TValue default_value);
+        MappedMatrix(const MappedMatrix &copy);
+        MappedMatrix(std::initializer_list<value_list_type> vals);
 
-        TValue getDefault() const
-        {
-            return this->default_value_;
-        }
-        std::vector<long> dim() const
-        {
-            return this->dim_;
-        }
+        TValue getDefault() const;
+        std::vector<long> dim() const;
+        MappedMatrix dot(const MappedMatrix &) const;
+        MappedVector<TCol, TValue> at(const TLig &i) const;
 
-        MappedMatrix dot(const MappedMatrix &) const
-        {
-            throw sdm::exception::NotImplementedException();
-        }
-
-        MappedVector<TCol, TValue> at(const TLig &i) const
-        {
-            if (this->find(i) != this->end())
-            {
-                return RecursiveMap<TLig, MappedVector<TCol, TValue>>::at(i);
-            }
-            else
-            {
-                return this->default_value_;
-            }
-        }
-
-        std::string str() const
-        {
-            std::ostringstream res;
-            res << "<MappedMatrix>" << std::endl;
-
-            res << "</MappedMatrix>" << std::endl;
-            return res.str();
-        }
+        std::string str() const;
     };
 } // namespace sdm
+#include <sdm/utils/linear_algebra/mapped_matrix.tpp>
 
 namespace std
 {
