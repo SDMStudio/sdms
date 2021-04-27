@@ -47,8 +47,9 @@ namespace sdm
     bool areStateJointHistoryPairsLPE(const Pair<TState, TJointHistory_p> &, const Pair<TState, TJointHistory_p> &);
     void finalize();
 
-    const Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, TJointHistory_p>>> &getPrivateOccupancyStates() const;
-    const PrivateOccupancyState<TState, TJointHistory_p> &getPrivateOccupancyState(const number &agent_id, const ihistory_type &ihistory) const;
+    const Joint<std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>> &getPrivateOccupancyStates() const;
+    const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &getPrivateOccupancyState(const number &agent_id) const;
+    const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &getPrivateOccupancyState(const number &agent_id, const ihistory_type &ihistory) const;
 
     const std::shared_ptr<OccupancyState> &getFullyUncompressedOccupancy() const;
     void setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
@@ -61,14 +62,14 @@ namespace sdm
     std::shared_ptr<OccupancyState<TState, TJointHistory_p>> getptr();
 
   protected:
-    /** @brief This representation of occupancy states consists of private occupancy states for each agent*/ 
+    /** @brief This representation of occupancy states consists of private occupancy states for each agent*/
     // Joint<RecursiveMap<ihistory_type, PrivateOccupancyState<TState, TJointHistory_p>>> private_omap_;
-    Joint<std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>> private_omap_;
-    
-    /** @brief Keep in memory the uncompressed occupancy states */ 
+    Joint<RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>>> private_omap_;
+
+    /** @brief Keep in memory the uncompressed occupancy states */
     std::shared_ptr<OccupancyState> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state;
 
-    /** @brief Keep relations between all private ihistories and labels */ 
+    /** @brief Keep relations between all private ihistories and labels */
     Joint<RecursiveMap<ihistory_type, ihistory_type>> private_ihistory_map_;
   };
 } // namespace sdm

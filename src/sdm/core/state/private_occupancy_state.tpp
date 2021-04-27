@@ -27,7 +27,7 @@ namespace sdm
 
     template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
-        const PrivateOccupancyState &v) : BaseOccupancyState<TState, TJointHistory_p>(v), agent_id_(v.getAgentId())
+        const PrivateOccupancyState &v) : BaseOccupancyState<TState, TJointHistory_p>(v), agent_id_(v.getAgentId()), bimap_jhist_hash(v.bimap_jhist_hash), compact_private_ostate(v.compact_private_ostate)
     {
     }
 
@@ -38,9 +38,9 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type PrivateOccupancyState<TState, TJointHistory_p>::getPrivateHistory() const
+    std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> PrivateOccupancyState<TState, TJointHistory_p>::getPrivateOccupancyStateAt(const typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type &ihistory) const
     {
-        return this->current_ihistory_;
+        return this->compact_private_ostate.at(ihistory);
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -48,7 +48,7 @@ namespace sdm
     {
         std::ostringstream res, tmp;
         res << "<private-occupancy-state horizon='?'>" << std::endl;
-        for (const auto pair_x_o_p : *this)
+        for (const auto &pair_x_o_p : *this)
         {
             auto joint_hist = pair_x_o_p.first.second;
 
@@ -76,6 +76,7 @@ namespace sdm
         {
             auto jhist = this->getHistory(pair_state_hist_prob.first);
             this->bimap_jhist_hash[jhist->getIndividualHistory(this->agent_id_)].insert(bimap_value(jhist, hash_function(jhist->getIndividualHistories())));
+            this->compact_private_ostate[jhist->getIndividualHistory(this->agent_id_)].addProbability(pair_state_hist_prob.first, pair_state_hist_prob.second);
         }
     }
 

@@ -41,8 +41,9 @@ namespace sdm
     PrivateOccupancyState(std::size_t, double);
     PrivateOccupancyState(const PrivateOccupancyState &);
 
+    std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> getPrivateOccupancyStateAt(const ihistory_type &) const;
+
     number getAgentId() const;
-    ihistory_type getPrivateHistory() const;
     std::string str() const;
 
     void finalize();
@@ -54,7 +55,13 @@ namespace sdm
     /**
      * @brief Bimap that map joint histories and hash of o^{-i} 
      */
-    RecursiveMap<ihistory_type, bimap_type> bimap_jhist_hash;
+    // RecursiveMap<ihistory_type, bimap_type> bimap_jhist_hash;
+    bimap_type bimap_jhist_hash;
+    
+    /**
+     * @brief Map an individual history to its private occupancy state
+     */
+    // RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>> compact_private_ostate;
 
     /**
      * @brief The agent's identifier 

@@ -25,21 +25,21 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    const Joint<RecursiveMap<typename OccupancyState<TState, TJointHistory_p>::ihistory_type, PrivateOccupancyState<TState, TJointHistory_p>>> &OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyStates() const
+    const Joint<std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>> &OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyStates() const
     {
         return this->private_omap_;
     }
 
     template <typename TState, typename TJointHistory_p>
-    const PrivateOccupancyState<TState, TJointHistory_p> &OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyState(const number &agent_id, const typename OccupancyState<TState, TJointHistory_p>::ihistory_type &ihistory) const
+    const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyState(const number &agent_id, const ihistory_type &ihistory) const
     {
-        return this->private_omap_[agent_id];
+        return this->getPrivateOccupancyState(agent_id)->getPrivateOccupancyStateAt(ihistory);
     }
 
     template <typename TState, typename TJointHistory_p>
     bool OccupancyState<TState, TJointHistory_p>::areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &ihistory_1, const typename TJointHistory_p::element_type::ihistory_type &ihistory_2, number agent_identifier)
     {
-        return this->private_omap_[agent_identifier][ihistory_1] == this->private_omap_[agent_identifier][ihistory_2];
+        return this->getPrivateOccupancyState(agent_identifier, ihistory_1) == this->getPrivateOccupancyState(agent_identifier, ihistory_2);
 
         /**
          * reference -> JAIR 2016 : https://www.jair.org/index.php/jair/article/view/10986/26136 (page 492-493)
@@ -161,7 +161,7 @@ namespace sdm
                     {
                         iter_second = support.erase(iter_second);
 
-                        for (const auto &pair_s_o_prob : previous_compact_ostate.private_omap_[agent_id][ihistory_second])
+                        for (const auto &pair_s_o_prob : previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second))
                         {
                             current_compact_ostate.addProbabilityAt(pair_s_o_prob.first, pair_s_o_prob.second);
                         }
@@ -223,7 +223,7 @@ namespace sdm
 
                 for (number ag = 0; ag < jhist->getIndividualHistories().size(); ag++)
                 {
-                    std::cout << "state=" << state << " jhist=" << jhist << " proba=" << proba << " ag=" << ag << std::endl;
+                    // std::cout << "state=" << state << " jhist=" << jhist << " proba=" << proba << " ag=" << ag << std::endl;
                     // Init map for agent i
                     if (this->private_omap_.size() <= ag)
                     {
