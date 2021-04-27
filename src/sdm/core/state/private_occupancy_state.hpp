@@ -37,6 +37,7 @@ namespace sdm
     PrivateOccupancyState(double);
     PrivateOccupancyState(std::size_t, double);
     PrivateOccupancyState(const PrivateOccupancyState &);
+    std::string str() const;
   };
 } // namespace sdm
 #include <sdm/core/state/private_occupancy_state.tpp>

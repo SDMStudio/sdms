@@ -26,6 +26,28 @@ namespace sdm
     {
     }
 
+    template <typename TState, typename TJointHistory_p>
+    std::string PrivateOccupancyState<TState, TJointHistory_p>::str() const
+    {
+        std::ostringstream res, tmp;
+        res << "<private-occupancy-state horizon='?'>" << std::endl;
+        for (const auto pair_x_o_p : *this)
+        {
+            auto joint_hist = pair_x_o_p.first.second;
+
+            res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
+            for (auto ihist : pair_x_o_p.first.second->getIndividualHistories())
+            {
+                res << tools::addIndent(ihist->str(), 2);
+            }
+            res << "\t\t" << pair_x_o_p.second << std::endl;
+            res << "\t<probability>" << std::endl;
+        }
+        res << "</private-occupancy-state>" << std::endl;
+
+        return res.str();
+    }
+
 } // namespace sdm
 
 namespace std

@@ -77,6 +77,14 @@ namespace sdm
         std::shared_ptr<output> expand(const T &data, bool backup = true);
 
         number getHorizon() const;
+
+        std::string str();
+
+        friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
+        {
+            os << i_hist.str();
+            return os;
+        }
     };
 
 } // namespace sdm

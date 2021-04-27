@@ -46,6 +46,5 @@ namespace sdm
     using ActObsHistoryTree_p = HistoryTree_p<std::pair<action_t, obs_t>>;
 
     // using tensor_jhistory_tree = JointHistoryTree<Tensor>;
-    
 
 } // namespace sdm

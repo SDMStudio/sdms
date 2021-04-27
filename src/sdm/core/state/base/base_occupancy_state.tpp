@@ -35,6 +35,12 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::setProbabilityAt(const TState &state, const TJointHistory_p &jhist, double proba)
+    {
+        this->setProbabilityAt(std::make_pair<TState, TJointHistory_p>(state, jhist), proba);
+    }
+
+    template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba)
     {
         if (this->find(pair_state_hist) != this->end())
@@ -45,6 +51,12 @@ namespace sdm
         {
             this->setProbabilityAt(pair_state_hist, proba);
         }
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::addProbabilityAt(const TState &state, const TJointHistory_p &jhist, double proba)
+    {
+        this->addProbabilityAt(Pair<TState, TJointHistory_p>(state, jhist), proba);
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -133,11 +145,38 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    double BaseOccupancyState<TState, TJointHistory_p>::getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist)
+    {
+        // Set the new occupancy measure
+        return this->at(pair_state_hist);
+    }
+
+    template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::finalize()
     {
         this->setStates();
         this->setJointHistories();
         this->setAllIndividualHistories();
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    std::string BaseOccupancyState<TState, TJointHistory_p>::str() const
+    {
+
+        std::ostringstream res, tmp;
+        res << "<occupancy-state horizon='?'>" << std::endl;
+        for (const auto pair_x_o_p : *this)
+        {
+            auto joint_hist = pair_x_o_p.first.second;
+
+            res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
+            res << tools::addIndent(pair_x_o_p.first.second->str(), 2);
+            res << "\t\t" << pair_x_o_p.second << std::endl;
+            res << "\t<probability>" << std::endl;
+        }
+        res << "</occupancy-state>" << std::endl;
+
+        return res.str();
     }
 
 } // namespace sdm

@@ -26,40 +26,22 @@ namespace sdm
   template <typename TState, typename TJointHistory_p>
   class BaseOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
   {
-  protected:
-    /**
-     * @brief tuple of private history spaces, one private history space per agent
-     */
-    std::vector<std::set<typename TJointHistory_p::element_type::ihistory_type>> agent_history_spaces;
-
-    /**
-     * @brief space of joint histories of all agents
-     */
-    std::set<TJointHistory_p> joint_history_space;
-
-    /**
-     * @brief space of all reachable states, those in the support of the occupancy state
-     * @comment: Should not be used since there are to much possible wrt each joint history, belief states whould have been a better choice.
-     */
-    std::set<TState> state_space;
-
   public:
-  using jhistory_type = TJointHistory_p;
-  using state_type = TState;
+    using jhistory_type = TJointHistory_p;
+    using state_type = TState;
 
     BaseOccupancyState();
     BaseOccupancyState(double);
     BaseOccupancyState(std::size_t, double);
     BaseOccupancyState(const BaseOccupancyState &);
 
+    void setProbabilityAt(const TState &state, const TJointHistory_p &jhist, double proba);
     void setProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba);
-    void addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba);
-    void finalize();
 
-    /**
-     * @brief Return the probability of a precise occupancy state
-     */
-    double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+    void addProbabilityAt(const TState &state, const TJointHistory_p &jhist, double proba);
+    void addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba);
+
+    void finalize();
 
     /**
      * @brief Get the set of states that are in the support of the occupancy state.
@@ -77,7 +59,7 @@ namespace sdm
      * @return the possible joint hitories
      */
     const std::set<jhistory_type> &getJointHistories() const;
-    
+
     void setJointHistories();
 
     /**
@@ -113,13 +95,49 @@ namespace sdm
      */
     TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &) const;
 
+    /**
+     * @brief Return the probability of a precise occupancy state
+     */
+    double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+
+    std::string str() const;
+
+    /**
+     *  @brief  Returns an ostream instance
+     *
+     *  This method allows the \@occupancy_state instances to be printed
+     *  using an XML style, e.g., for the dpomdp-tiger problem, we'll have
+     *  <occupation-state  horizon="3">
+     *      <joint-history id="0"  belief="0.7225 0.175">
+     *        <agent id="1" history="hear-left:hear-left::hear-left"/>
+     *        <agent id="0" history="hear-right:hear-left::hear-left"/>
+     *      </joint-history>
+     *  </occupation-state>
+     *  This method requires \@dpomdp havind a semantic associated with each
+     *  action and observation id. If no semantic is available, it print the id.
+     */
+    friend std::ostream &operator<<(std::ostream &os, BaseOccupancyState &ostate)
+    {
+      os << ostate.str();
+      return os;
+    }
 
   protected:
+    /**
+     * @brief space of all reachable states, those in the support of the occupancy state
+     * @comment: Should not be used since there are to much possible wrt each joint history, belief states whould have been a better choice.
+     */
     std::set<state_type> list_states;
-    std::set<jhistory_type> list_jhistories;
-    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
-    
 
+    /**
+     * @brief space of joint histories of all agents
+     */
+    std::set<jhistory_type> list_jhistories;
+
+    /**
+     * @brief tuple of private history spaces, one private history space per agent
+     */
+    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
   };
 } // namespace sdm
 #include <sdm/core/state/base/base_occupancy_state.tpp>

@@ -28,7 +28,8 @@ int main(int argc, char **argv)
 	{
 		// Construct DecPOMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
-		auto omdp_world = sdm::parser::parse_file(filename)->toOccupancyMDP();
+		// auto omdp_world = sdm::parser::parse_file(filename)->toOccupancyMDP();
+		auto omdp_world = std::make_shared<sdm::OccupancyMDP<>>(filename);
 		std::cout << "#> omdp_world reference \"" << omdp_world << "\"\n";
 
         // We will show how to expand an initial occupancy state and generate next ones 
@@ -40,6 +41,7 @@ int main(int argc, char **argv)
         {
     		std::cout << "#> Print depth \"" << depth << "\"\n";
     		std::cout << "#> Print occupancy state \n" << ostate << "\n";
+			std::cout << "#> Private occupancy state \n" << ostate.getPrivateOccupancyStates() << std::endl;
     		std::cout << "#> Print joint decision rule \n" << oaction << "\n";
 
             depth ++;

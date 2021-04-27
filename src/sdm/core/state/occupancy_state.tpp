@@ -1,4 +1,5 @@
 #include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
 
 namespace sdm
 {
@@ -19,8 +20,20 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state) : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state)
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state) : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state), private_omap_(occupancy_state.getPrivateOccupancyStates())
     {
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const Joint<RecursiveMap<typename OccupancyState<TState, TJointHistory_p>::ihistory_type, PrivateOccupancyState<TState, TJointHistory_p>>>& OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyStates() const
+    {
+        return this->private_omap_;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const PrivateOccupancyState<TState, TJointHistory_p>& OccupancyState<TState, TJointHistory_p>::getPrivateOccupancyState(const number &agent_id, const typename OccupancyState<TState, TJointHistory_p>::ihistory_type &ihistory) const
+    {
+        return this->private_omap_[agent_id][ihistory];
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -59,7 +72,7 @@ namespace sdm
         {
             return false;
         }
-        
+
         return true;
     }
 
@@ -121,18 +134,36 @@ namespace sdm
         BaseOccupancyState<TState, TJointHistory_p>::finalize();
 
         // Build the private occupancy map
-        // for (const auto &pair_state_jhist : *this)
-        // {
-        //     auto state = this->getState(pair_state_jhist);
-        //     auto jhist = this->getHistory(pair_state_jhist);
-        //     auto proba = this->getProbability(pair_state_jhist);
-        //     for (number ag = 0; ag < jhist->getNumAgents(); ag++)
-        //     {
-        //         auto other_histories = jhist->getIndividualHistories();
-        //         other_histories.erase(std::remove(other_histories.begin(), other_histories.end(), jhist->getIndividualHistory(ag)), other_histories.end());
-        //         this->private_omap_[ag][jhist->getIndividualHistory(ag)][{state, std::make_shared<TJointHistory_p>(other_histories)}] += proba;
-        //     }
-        // }
+        if (this->private_omap_.empty())
+        {
+            for (const auto &pair_state_jhist : *this)
+            {
+                auto state = this->getState(pair_state_jhist.first);
+                auto jhist = this->getHistory(pair_state_jhist.first);
+                auto proba = this->getProbability(pair_state_jhist.first);
+
+                for (number ag = 0; ag < jhist->getIndividualHistories().size(); ag++)
+                {
+                    // Init map for agent i
+                    if (this->private_omap_.size() <= ag)
+                    {
+                        this->private_omap_.push_back({});
+                    }
+
+                    // Get joint history except private one
+                    auto other_histories = jhist->getIndividualHistories();
+                    other_histories.erase(std::remove(other_histories.begin(), other_histories.end(), jhist->getIndividualHistory(ag)), other_histories.end());
+
+                    // Set private OccupancyState
+                    if (this->private_omap_[ag].find(jhist->getIndividualHistory(ag)) == this->private_omap_[ag].end())
+                    {
+                        this->private_omap_[ag].emplace(jhist->getIndividualHistory(ag), PrivateOccupancyState(this->default_value_));
+                    }
+                    // Set private occupancy measure
+                    this->private_omap_[ag][jhist->getIndividualHistory(ag)].addProbabilityAt(state, std::make_shared<typename private_ostate_type::jhistory_type::element_type>(other_histories), proba);
+                }
+            }
+        }
     }
 
 } // namespace sdm
