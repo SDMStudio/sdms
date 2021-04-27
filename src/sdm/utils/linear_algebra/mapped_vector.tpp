@@ -239,12 +239,6 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    std::size_t MappedVector<TIndex, T>::size() const
-    {
-        return this->size_;
-    }
-
-    template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::getDefault() const
     {
         return this->default_value_;
