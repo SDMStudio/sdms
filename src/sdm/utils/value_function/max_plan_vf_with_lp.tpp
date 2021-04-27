@@ -161,11 +161,11 @@ namespace sdm
   template <typename TVector, typename TAction, typename TValue>
   TVector MaxPlanValueFunctionLP<TVector, TAction, TValue>::backup_operator(const TVector &occupancy_state, number t)
   {
-    TVector next_hyperplan, new_hyperplan;
+    TVector next_hyperplan;
     TAction max_decision_rule, joint_decision_rule;
     double max = -std::numeric_limits<double>::max(), value, cvalue;
 
-    for(const auto& hyperplan : this->getSupport(t+1)) // Changer nom de fonction 
+    for(const auto& hyperplan : this->getSupport(t+1)) 
     {
       joint_decision_rule = this->greedyMaxPlane(occupancy_state, hyperplan, value, 0);
       if( value > max )
@@ -175,25 +175,8 @@ namespace sdm
         max = value;
       }
     }
-
-    for(auto uncompressed_s_o: occupancy_state.getFullUncompressedOccupancyState())
-    {
-      auto uncompressed_hidden_state = uncompressed_s_o.first.first; 
-      auto uncompressed_joint_history = uncompressed_s_o.first.second; 
-      auto compressed_joint_history = occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
-      auto action = max_decision_rule(compressed_joint_history.getIndividualHistories()); 
-      
-      new_hyperplan[uncompressed_s_o] = this->getWorld()->getUnderlyingProblem()->getReward()->getReward(uncompressed_hidden_state, action);
-      for(auto next_hidden_state : this->getWorld()->getReacheableStates(uncompressed_hidden_state, action))
-      {
-        for(auto next_observation : this->getWorld()->getReacheableObservations(action, next_hidden_state))
-        {
-          auto next_joint_history =  compressed_joint_history->expand(next_observation);
-          new_hyperplan[uncompressed_s_o] += this->getWorld()->getUnderlyingProblem()->getDiscount() * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(uncompressed_hidden_state, action, next_observation, next_hidden_state) * next_hyperplan.at({next_hidden_state,next_joint_history});
-        }
-      }
-    }
-    return new_hyperplan;
+    
+    return this->getHyperplanAt(occupancy_state, next_hyperplan, max_decision_rule, t);
   }
 
 
