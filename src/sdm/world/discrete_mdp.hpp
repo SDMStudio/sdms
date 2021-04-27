@@ -31,20 +31,20 @@ namespace sdm
     {
     public:
         DiscreteMDP();
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp);
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::discrete_distribution<number>);
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number> start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
-        DiscreteMDP(std::string &filename);
+        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> );
+        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> , std::discrete_distribution<number>);
+        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number> , number  = 0, double  = 0.9, Criterion  = Criterion::REW_MAX);
+        DiscreteMDP(std::string &);
 
         std::shared_ptr<DiscreteMDP> getptr();
         std::shared_ptr<Reward> getReward() const;
 
         // SolvableByHSVI interface implementation
         number getInitialState();
-        number nextState(const number &state, const number &action, number t = 0, std::shared_ptr<HSVI<number, number>> hsvi = nullptr) const;
-        std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(const number &state);
-        double getReward(const number &state, const number &action) const;
-        double getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, number t = 0) const;
+        number nextState(const number &, const number &, number = 0, std::shared_ptr<HSVI<number, number>>  = nullptr) const;
+        std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(const number &);
+        double getReward(const number &, const number &) const;
+        double getExpectedNextValue(ValueFunction<number, number> *, const number &, const number &, number = 0) const;
         DiscreteMDP *getUnderlyingProblem();
         bool isSerialized() const;
 

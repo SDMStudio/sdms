@@ -39,9 +39,9 @@ namespace sdm
         using occupancy_mdp = OccupancyMDP<OccupancyState<number, JointHistoryTree_p<number>>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>;
 
         DiscreteDecPOMDP();
-        DiscreteDecPOMDP(std::string &filename);
-        DiscreteDecPOMDP(DiscreteDecPOMDP &copy);
-        DiscreteDecPOMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<MultiDiscreteSpace<number>> action_sp, std::shared_ptr<MultiDiscreteSpace<number>> obs_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<ObservationDynamics> obs_dyn, std::shared_ptr<Reward>, std::discrete_distribution<number> start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+        DiscreteDecPOMDP(std::string &);
+        DiscreteDecPOMDP(DiscreteDecPOMDP &);
+        DiscreteDecPOMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<MultiDiscreteSpace<number>> , std::shared_ptr<MultiDiscreteSpace<number>> , std::shared_ptr<StateDynamics> , std::shared_ptr<ObservationDynamics> , std::shared_ptr<Reward>, std::discrete_distribution<number> , number  = 0, double  = 0.9, Criterion  = Criterion::REW_MAX);
 
         std::shared_ptr<DiscreteDecPOMDP> getptr();
 

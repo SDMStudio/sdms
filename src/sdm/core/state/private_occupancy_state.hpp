@@ -11,6 +11,7 @@
 #pragma once
 
 #include <string>
+#include <boost/bimap.hpp>
 
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
@@ -31,13 +32,34 @@ namespace sdm
   {
   public:
     using jhistory_type = typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type;
+    using ihistory_type = typename jhistory_type::element_type::ihistory_type;
     using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
 
     PrivateOccupancyState();
     PrivateOccupancyState(double);
+    PrivateOccupancyState(number, double);
     PrivateOccupancyState(std::size_t, double);
     PrivateOccupancyState(const PrivateOccupancyState &);
+
+    number getAgentId() const;
+    ihistory_type getPrivateHistory() const;
     std::string str() const;
+
+    void finalize();
+
+  protected:
+    typedef boost::bimaps::bimap<TJointHistory_p, std::size_t> bimap_type;
+    typedef typename bimap_type::value_type bimap_value;
+
+    /**
+     * @brief Bimap that map joint histories and hash of o^{-i} 
+     */
+    RecursiveMap<ihistory_type, bimap_type> bimap_jhist_hash;
+
+    /**
+     * @brief The agent's identifier 
+     */
+    number agent_id_;
   };
 } // namespace sdm
 #include <sdm/core/state/private_occupancy_state.tpp>

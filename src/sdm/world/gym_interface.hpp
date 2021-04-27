@@ -29,7 +29,7 @@ namespace sdm
         virtual std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TObservation &) = 0;
 
         virtual TObservation reset() = 0;
-        virtual std::tuple<TObservation, std::vector<double>, bool> step(TAction a) = 0;
+        virtual std::tuple<TObservation, std::vector<double>, bool> step(TAction ) = 0;
     };
 } // namespace sdm
 

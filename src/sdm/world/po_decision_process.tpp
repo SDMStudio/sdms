@@ -94,7 +94,7 @@ namespace sdm
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     typename PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::observation_type PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::updateState_getObs(PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::action_type a)
     {
-        number state_obs_index = this->getNextStateDistrib(a)(sdm::common::global_urng());
+        number state_obs_index = this->getNextStateDistrib(a)(common::global_urng());
         auto pair_st_obs = this->encoding[state_obs_index];
         this->setInternalState(pair_st_obs.first);
         return pair_st_obs.second;

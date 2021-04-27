@@ -15,6 +15,11 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(number ag_id, double default_value) : BaseOccupancyState<TState, TJointHistory_p>(default_value), agent_id_(ag_id)
+    {
+    }
+
+    template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
         std::size_t size, double default_value) : BaseOccupancyState<TState, TJointHistory_p>(size, default_value)
     {
@@ -22,8 +27,20 @@ namespace sdm
 
     template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
-        const PrivateOccupancyState &v) : BaseOccupancyState<TState, TJointHistory_p>(v)
+        const PrivateOccupancyState &v) : BaseOccupancyState<TState, TJointHistory_p>(v), agent_id_(v.getAgentId())
     {
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    number PrivateOccupancyState<TState, TJointHistory_p>::getAgentId() const
+    {
+        return this->agent_id_;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type PrivateOccupancyState<TState, TJointHistory_p>::getPrivateHistory() const
+    {
+        return this->current_ihistory_;
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -46,6 +63,20 @@ namespace sdm
         res << "</private-occupancy-state>" << std::endl;
 
         return res.str();
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void PrivateOccupancyState<TState, TJointHistory_p>::finalize()
+    {
+        BaseOccupancyState<TState, TJointHistory_p>::finalize();
+
+        // Add elements in bimap jhistory <--> jhistory^{-i}
+        std::hash<Joint<typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type>> hash_function;
+        for (const auto &pair_state_hist_prob : *this)
+        {
+            auto jhist = this->getHistory(pair_state_hist_prob.first);
+            this->bimap_jhist_hash[jhist->getIndividualHistory(this->agent_id_)].insert(bimap_value(jhist, hash_function(jhist->getIndividualHistories())));
+        }
     }
 
 } // namespace sdm

@@ -47,10 +47,10 @@ namespace sdm
         using action_type = typename DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::action_type;
 
         DecisionProcess();
-        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp);
-        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, TDistrib);
-        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
-        DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp, std::shared_ptr<TObsSpace> obs_sp, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib start_distrib, number planning_horizon = 0, double discount = 0.9, Criterion criterion = Criterion::REW_MAX);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, TDistrib);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TObsSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
         virtual ~DecisionProcess();
 
         /**
@@ -61,19 +61,19 @@ namespace sdm
         /**
          * \brief Set the state dynamics
          */
-        void setStateDynamics(std::shared_ptr<TStateDynamics> state_dyn);
+        void setStateDynamics(std::shared_ptr<TStateDynamics>);
 
         /**
          * \brief Get the reward function
          */
         std::shared_ptr<TReward> getReward() const;
 
-        double getReward(state_type s, action_type a);
+        double getReward(state_type, action_type);
 
         /**
          * \brief Set the reward function
          */
-        void setReward(std::shared_ptr<TReward> reward_function);
+        void setReward(std::shared_ptr<TReward>);
 
         /**
          * @brief Reset the process to initial settings.
@@ -82,7 +82,7 @@ namespace sdm
          */
         observation_type reset();
 
-        std::tuple<observation_type, std::vector<double>, bool> step(action_type a);
+        std::tuple<observation_type, std::vector<double>, bool> step(action_type);
 
         /**
          * @brief Get the distribution over next states
@@ -91,7 +91,7 @@ namespace sdm
          * @param caction the current action
          * @return the distribution over next states
          */
-        TDistrib getNextStateDistrib(state_type cstate, action_type caction);
+        TDistrib getNextStateDistrib(state_type, action_type);
 
         /**
          * @brief Get the distribution over next states
@@ -101,10 +101,18 @@ namespace sdm
          * @param caction the current action
          * @return the distribution over next states
          */
-        TDistrib getNextStateDistrib(action_type caction);
+        TDistrib getNextStateDistrib(action_type);
+
+        /**
+         * @brief Get the Next State Distrib object
+         * @param state_type
+         * @param action_type
+         * @return const std::set<state_type>& 
+         */
+        const std::vector<state_type>& getNextReachableState(state_type, action_type) const;
 
         template <bool TBool = is_fully_obs>
-        std::enable_if_t<TBool, observation_type> updateState_getObs(action_type a);
+        std::enable_if_t<TBool, observation_type> updateState_getObs(action_type);
         
         virtual void setupDynamicsGenerator();
 
@@ -142,6 +150,11 @@ namespace sdm
          * @brief Map (state, jaction) to probability of (next_state, next_observation) --> i.e. s_{t+1}, o_{t+1} ~ P(S_{t+1}, O_{t+1}  | S_t = s, A_t = a )
          */
         std::unordered_map<state_type, std::unordered_map<action_type, TDistrib>> dynamics_generator;
+
+        /**
+         * @brief Map (state, jaction) to Set of reachable next states
+         */
+        std::unordered_map<state_type, std::unordered_map<action_type, std::vector<state_type>>> reachable_state_space;
 
         template <bool TBool = std::is_same<TActionSpace, MultiDiscreteSpace<number>>::value>
         std::enable_if_t<TBool, number>
