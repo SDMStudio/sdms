@@ -24,18 +24,19 @@ namespace sdm
         }
 
         this->ihistory_ = jhist;
+        this->istate_ = std::make_shared<oState>();
 
         for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
         {
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
             {
                 auto p_x_h = std::make_pair(s, jhist);
-                this->istate_.setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
+                this->istate_->setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
             }
         }
-        this->istate_.finalize();
-        this->istate_.setFullyUncompressedOccupancy(this->istate_.getptr());
-        this->istate_.setOneStepUncompressedOccupancy(this->istate_.getptr());
+        this->istate_->finalize();
+        this->istate_->setFullyUncompressedOccupancy(this->istate_->getptr());
+        this->istate_->setOneStepUncompressedOccupancy(this->istate_->getptr());
         this->cstate_ = this->istate_;
     }
 
@@ -47,7 +48,7 @@ namespace sdm
     template <typename oState, typename oAction>
     oState &OccupancyMDP<oState, oAction>::getState()
     {
-        return this->cstate_;
+        return *this->cstate_;
     }
 
     template <typename oState, typename oAction>
@@ -56,7 +57,7 @@ namespace sdm
         this->chistory_ = this->ihistory_;
         this->cstate_ = this->istate_;
         this->dpomdp_->reset();
-        return this->cstate_;
+        return *this->cstate_;
     }
 
     template <typename oState, typename oAction>
@@ -65,8 +66,8 @@ namespace sdm
         auto jaction = joint_idr.act(this->chistory_->getIndividualHistories()); // Select action based on joint separable decision rule
         auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);           // Do step and get next observation and rewards
         this->chistory_ = this->chistory_->expand(next_obs);                     // Update the history based on the observation
-        this->cstate_ = this->nextState(this->cstate_, joint_idr);               // Update the occupancy state
-        return std::make_tuple(this->cstate_, rewards, done);                    // return the new occupancy state and the perceived rewards
+        *this->cstate_ = this->nextState(*this->cstate_, joint_idr);             // Update the occupancy state
+        return std::make_tuple(*this->cstate_, rewards, done);                   // return the new occupancy state and the perceived rewards
     }
 
     template <typename oState, typename oAction>
@@ -84,7 +85,7 @@ namespace sdm
     template <typename oState, typename oAction>
     oState OccupancyMDP<oState, oAction>::getInitialState()
     {
-        return this->istate_;
+        return *this->istate_;
     }
 
     template <typename oState, typename oAction>
@@ -119,30 +120,43 @@ namespace sdm
     template <typename oState, typename oAction>
     oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>>, bool compression) const
     {
-        oState new_fully_uncompressed_occupancy_state, new_one_step_left_compressed_occupancy_state, new_compressed_occupancy_state;
+        std::cout << "NEXT STATE --> A VERIFIER" << std::endl;
+        std::cout << "in nextState --> ostate=" << ostate << " jdr=" << joint_idr << std::endl;
+        std::shared_ptr<oState> new_compressed_occupancy_state;
+        std::shared_ptr<oState> new_fully_uncompressed_occupancy_state = std::make_shared<oState>();
+        std::shared_ptr<oState> new_one_step_left_compressed_occupancy_state = std::make_shared<oState>();
 
+        std::cout << "ostate.getFullyUncompressedOccupancy()=" << ostate.getFullyUncompressedOccupancy() << std::endl;
         // for all element in the support of the occupancy state (fully uncompressed version)
         for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
         {
+            std::cout << "1" << std::endl;
             auto x = p_x_o.first.first;
             auto o = p_x_o.first.second;
             for (auto &y : this->dpomdp_->getStateSpace()->getAll()) // a change
             {
+                std::cout << "2" << std::endl;
                 for (auto &z : this->dpomdp_->getObsSpace()->getAll()) // a change
                 {
+                    std::cout << "3" << std::endl;
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
 
+                    std::cout << "4 - " << o->getIndividualHistories() << std::endl;
+                    std::cout << ostate.getJointLabels(o->getIndividualHistories()) << std::endl;
                     auto jaction = joint_idr.act(ostate.getJointLabels(o->getIndividualHistories()));
 
                     // Compute de proba of the next couple (state, joint history)
+                    std::cout << "5" << std::endl;
                     double proba = this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
 
                     if (p_x_o.second * proba > 0)
                     {
-                        new_fully_uncompressed_occupancy_state.addProbabilityAt(new_index, p_x_o.second * proba);
+                        std::cout << "6" << std::endl;
+                        new_fully_uncompressed_occupancy_state->addProbabilityAt(new_index, p_x_o.second * proba);
                         if (ostate.getProbability(p_x_o.first) * proba > 0)
                         {
-                            new_one_step_left_compressed_occupancy_state.addProbabilityAt(new_index, ostate.getProbability(p_x_o.first) * proba);
+                            std::cout << "7" << std::endl;
+                            new_one_step_left_compressed_occupancy_state->addProbabilityAt(new_index, ostate.getProbability(p_x_o.first) * proba);
                         }
                     }
                 }
@@ -150,18 +164,27 @@ namespace sdm
         }
 
         // Compress the occupancy state
-        new_one_step_left_compressed_occupancy_state.finalize();
+        std::cout << "8" << std::endl;
+        new_one_step_left_compressed_occupancy_state->finalize();
 
         if (compression)
         {
-            new_compressed_occupancy_state = new_one_step_left_compressed_occupancy_state.compress();
+            std::cout << "9" << std::endl;
+            new_compressed_occupancy_state = std::make_shared<oState>(new_one_step_left_compressed_occupancy_state->compress());
             // finalizing the construction of the occupancy state
-            new_compressed_occupancy_state.finalize();
+            std::cout << "10" << std::endl;
+            new_compressed_occupancy_state->finalize();
+            new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
+            new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
+            std::cout << "11" << std::endl;
 
-            return new_compressed_occupancy_state;
+            return *new_compressed_occupancy_state;
         }
 
-        return new_one_step_left_compressed_occupancy_state;
+        new_one_step_left_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
+        new_one_step_left_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
+        std::cout << "12" << std::endl;
+        return *new_one_step_left_compressed_occupancy_state;
     }
 
     template <typename oState, typename oAction>

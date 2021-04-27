@@ -23,7 +23,8 @@ namespace sdm
         : MappedVector<Pair<TState, TJointHistory_p>, double>(v),
           list_states(v.getStates()),
           list_jhistories(v.getJointHistories()),
-          all_list_ihistories(v.getAllIndividualHistories())
+          all_list_ihistories(v.getAllIndividualHistories()),
+          num_agents(v.num_agents)
     {
         for (const auto &pair_s_o : v)
         {
@@ -198,10 +199,11 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     number BaseOccupancyState<TState, TJointHistory_p>::getHorizon() const
     {
-        if(this->agent_history_spaces.empty() or this->agent_history_spaces[0].empty())
+        if (this->agent_history_spaces.empty() or this->agent_history_spaces[0].empty())
         {
             return 0;
-        }else
+        }
+        else
         {
             return (*this->agent_history_spaces[0].begin())->getHorizon();
         }

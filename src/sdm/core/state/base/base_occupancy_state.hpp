@@ -144,6 +144,11 @@ namespace sdm
      * @brief tuple of private history spaces, one private history space per agent
      */
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
+
+    /**
+     * @brief the number of agents 
+     */
+    number num_agents = 2;
   };
 } // namespace sdm
 #include <sdm/core/state/base/base_occupancy_state.tpp>

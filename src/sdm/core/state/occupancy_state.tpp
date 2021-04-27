@@ -5,23 +5,36 @@ namespace sdm
 {
 
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState()
+    OccupancyState<TState, TJointHistory_p>::OccupancyState() : OccupancyState<TState, TJointHistory_p>(0, 0)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(double default_value) : BaseOccupancyState<TState, TJointHistory_p>(default_value)
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(double default_value) : OccupancyState<TState, TJointHistory_p>(0, default_value)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(std::size_t size, double default_value) : BaseOccupancyState<TState, TJointHistory_p>(size, default_value)
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(std::size_t size, double default_value)
+        : BaseOccupancyState<TState, TJointHistory_p>(size, default_value)
     {
+        // Build the private occupancy map
+        for (number agent_id = 0; agent_id < this->num_agents; agent_id++)
+        {
+            this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
+            this->private_ihistory_map_.push_back({});
+        }
     }
 
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state) : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state), tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.getPrivateOccupancyStates())
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state)
+        : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state),
+          tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.getPrivateOccupancyStates()),
+          fully_uncompressed_occupancy_state(occupancy_state.getFullyUncompressedOccupancy()),
+          one_step_left_compressed_occupancy_state(occupancy_state.getOneStepUncompressedOccupancy()),
+          private_ihistory_map_(occupancy_state.private_ihistory_map_)
     {
+
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -58,11 +71,19 @@ namespace sdm
     std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> OccupancyState<TState, TJointHistory_p>::getJointLabels(const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_ihistories) const
     {
         std::vector<ihistory_type> new_list_ihistories;
-        for (int agent = 0; agent < 2; ++agent)
+        for (int agent = 0; agent < this->num_agents; ++agent)
         {
-            new_list_ihistories.push_back(this->private_ihistory_map_.at(agent).at(list_ihistories.at(agent)));
+            if (this->private_ihistory_map_.at(agent).find(list_ihistories.at(agent)) == this->private_ihistory_map_.at(agent).end())
+            {
+                // if the ihistory was never compressed
+                new_list_ihistories.push_back(list_ihistories.at(agent));
+            }
+            else
+            {
+                // if the ihistory was compressed
+                new_list_ihistories.push_back(this->private_ihistory_map_.at(agent).at(list_ihistories.at(agent)));
+            }
         }
-
         return new_list_ihistories;
     }
 
@@ -84,7 +105,7 @@ namespace sdm
         OccupancyState<TState, TJointHistory_p> current_compact_ostate;
         OccupancyState<TState, TJointHistory_p> previous_compact_ostate = *this;
 
-        for (int agent_id = 0; agent_id < 2; ++agent_id)
+        for (int agent_id = 0; agent_id < this->num_agents; ++agent_id)
         {
             auto support_set = this->getIndividualHistories(agent_id);
             auto support = tools::set2vector(support_set);
@@ -101,12 +122,18 @@ namespace sdm
 
                     if (this->areIndividualHistoryLPE(ihistory_first, ihistory_second, agent_id))
                     {
-                        iter_second = support.erase(iter_second);
+                        this->private_ihistory_map_[agent_id][ihistory_second] = ihistory_first; // Store label
+                        iter_second = support.erase(iter_second);                                // Erase unecessary equivalent individual history
 
+                        // Set probability of the compact occupancy state
                         for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second))
                         {
                             current_compact_ostate.addProbabilityAt(pair_s_o_prob.first, pair_s_o_prob.second);
                         }
+                    }
+                    else
+                    {
+                        iter_second++;
                     }
                 }
             }
@@ -126,20 +153,14 @@ namespace sdm
     {
         BaseOccupancyState<TState, TJointHistory_p>::finalize();
 
-        // Build the private occupancy map
-        for (number agent_id = 0; agent_id < 2; agent_id++)
-        {
-            this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
-        }
-
         for (const auto &pair_state_jhist : *this)
         {
             auto jhist = this->getHistory(pair_state_jhist.first);
             auto proba = this->getProbability(pair_state_jhist.first);
 
-            for (number agent_id = 0; agent_id < 2; agent_id++)
+            for (number agent_id = 0; agent_id < this->num_agents; agent_id++)
             {
-                // Set private OccupancyState
+                // Instanciation empty private occupancy state associated to ihitory and agent i if not exists
                 if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
                 {
                     this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState<TState, TJointHistory_p>>(agent_id, this->default_value_));
@@ -148,13 +169,15 @@ namespace sdm
                 this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id][jhist->getIndividualHistory(agent_id)]->addProbabilityAt(pair_state_jhist.first, proba);
             }
         }
-        for (number agent_id = 0; agent_id < 2; agent_id++)
+        for (number agent_id = 0; agent_id < this->num_agents; agent_id++)
         {
             for (const auto &pair_ihist_private_occupancy_state : this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id])
             {
                 pair_ihist_private_occupancy_state.second->finalize();
             }
         }
+
+        // Build the private occupancy map
     }
 
     template <typename TState, typename TJointHistory_p>
