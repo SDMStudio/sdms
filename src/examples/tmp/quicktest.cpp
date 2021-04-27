@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cassert>
 
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>

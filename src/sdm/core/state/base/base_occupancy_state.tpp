@@ -202,6 +202,18 @@ namespace sdm
         return res.str();
     }
 
+    template <typename TState, typename TJointHistory_p>
+    number BaseOccupancyState<TState, TJointHistory_p>::getHorizon() const
+    {
+        if(this->agent_history_spaces.empty() or this->agent_history_spaces[0].empty())
+        {
+            return 0;
+        }else
+        {
+            return (*this->agent_history_spaces[0].begin())->getHorizon();
+        }
+    }
+
 } // namespace sdm
 
 namespace std

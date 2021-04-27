@@ -115,6 +115,13 @@ namespace sdm
       os << ostate.str();
       return os;
     }
+    
+    /**
+     * @brief Return the horizon of this occupancy state
+     * 
+     * @return number 
+     */
+    number getHorizon() const;
 
   protected:
     /**

@@ -159,6 +159,10 @@ namespace sdm
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
         }
+        MaxPlanValueFunction()
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+        }
 
         void initialize()
         {
@@ -195,6 +199,11 @@ namespace sdm
     {
     public:
         MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>>, number, std::shared_ptr<Initializer<SerializedState, TAction>>)
+        {
+            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+        }
+
+        MaxPlanValueFunction()
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
