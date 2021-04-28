@@ -96,7 +96,7 @@ namespace sdm
 
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &state, number t)
+    TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &occupancy_state, number t)
     {
         auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
         auto under_pb = this->getWorld()->getUnderlyingProblem();
@@ -163,15 +163,15 @@ namespace sdm
         TVector v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;
 
-        auto getAll_actionspace = soMDP->getActionSpaceAt(serialized_occupancy_state)->getAll();
+        auto getAll_actionspace = soMDP->getActionSpaceAt(serial_occupancy_state)->getAll();
 
         for (const auto &next_hyperplan : this->getSupport(t+1))
         {
-            // Go over all joint decision rules at serialized_occupancy_state 
+            // Go over all joint decision rules at serial_occupancy_state 
             for (const auto &serial_decision_rule : getAll_actionspace)
             {
                 TVector v = this->getHyperplanAt(serial_occupancy_state, next_hyperplan, serial_decision_rule, t);
-                if (value_max < (tmp = serialized_occupancy_state^v))
+                if (value_max < (tmp = serial_occupancy_state^v))
                 {
                     value_max = tmp;
                     v_max = v;
@@ -190,26 +190,25 @@ namespace sdm
         TVector new_hyperplan(this->default_value_[t]);
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-        for (const auto &pair_s_o_p : serialized_occupancy_state)
+        for (const auto &pair_s_o_p : serial_occupancy_state)
         {
             auto pair_s_o = pair_s_o_p.first;
-            auto serial_hidden_state = serialized_occupancy_state.getState(pair_s_o);
-            auto history = serialized_occupancy_state.getHistory(pair_s_o);
+            auto serial_hidden_state = serial_occupancy_state.getState(pair_s_o);
+            auto history = serial_occupancy_state.getHistory(pair_s_o);
 
-            auto action = indiv_dr.act(history->getIndividualHistory(serialized_occupancy_state.getCurrentAgentId()));
+            auto action = serial_decision_rule.act(history->getIndividualHistory(serial_occupancy_state.getCurrentAgentId()));
 
-            v[pair_s_o] = under_pb->getReward(serial_hidden_state, action);
+            new_hyperplan[pair_s_o] = under_pb->getReward(serial_hidden_state, action);
 
-            for (const auto &serial_hidden_next_state : under_pb->getReacheableStates(serial_hidden_state, action)->getAll())
+            for (const auto &serial_hidden_next_state : under_pb->getReacheableStates(serial_hidden_state, action))
             {
                 for (const auto &serial_observation : under_pb->getReacheableObservations(action, serial_hidden_next_state))
                 {
                     auto history_next = history->expand(serial_observation);
-                    v[pair_s_o] +=  under_pb->getDiscount(t) *  plan.at(std::make_pair(serial_hidden_next_state,history_next)) * under_pb->getObsDynamics(serial_hidden_state, action, serial_observation, serial_hidden_next_state);
+                    new_hyperplan[pair_s_o] +=  under_pb->getDiscount(t) *  next_hyperplan.at(std::make_pair(serial_hidden_next_state,history_next)) * under_pb->getObsDynamics(serial_hidden_state, action, serial_observation, serial_hidden_next_state);
                 }
             }
         }
-
         return new_hyperplan;
     }
 
@@ -269,7 +268,6 @@ namespace sdm
                 a_max = a;
             }
         }
-
         auto new_plan = beta_a[a_max];
         
         return new_plan;

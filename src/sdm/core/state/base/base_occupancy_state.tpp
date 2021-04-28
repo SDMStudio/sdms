@@ -23,7 +23,8 @@ namespace sdm
         : MappedVector<Pair<TState, TJointHistory_p>, double>(v),
           list_states(v.getStates()),
           list_jhistories(v.getJointHistories()),
-          all_list_ihistories(v.getAllIndividualHistories())
+          all_list_ihistories(v.getAllIndividualHistories()),
+          num_agents(v.num_agents)
     {
         for (const auto &pair_s_o : v)
         {
@@ -47,15 +48,12 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::addProbabilityAt(const Pair<TState, TJointHistory_p> &pair_state_hist, double proba)
     {
-        std::cout << "Pass " << pair_state_hist << " " << proba << std::endl;
         if (this->find(pair_state_hist) != this->end())
         {
-            std::cout << "Find " << pair_state_hist << " " << proba << std::endl;
             (*this)[pair_state_hist] += proba;
         }
         else
         {
-            std::cout << "Not found " << pair_state_hist << " " << proba << std::endl;
             this->setProbabilityAt(pair_state_hist, proba);
         }
     }
@@ -167,13 +165,9 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::finalize()
     {
-        std::cout << "Finalize" << std::endl;
         this->setStates();
-        std::cout << "States set" << std::endl;
         this->setJointHistories();
-        std::cout << "JHitories set" << std::endl;
         this->setAllIndividualHistories();
-        std::cout << "IHistories set" << std::endl;
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -205,10 +199,11 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     number BaseOccupancyState<TState, TJointHistory_p>::getHorizon() const
     {
-        if(this->agent_history_spaces.empty() or this->agent_history_spaces[0].empty())
+        if (this->agent_history_spaces.empty() or this->agent_history_spaces[0].empty())
         {
             return 0;
-        }else
+        }
+        else
         {
             return (*this->agent_history_spaces[0].begin())->getHorizon();
         }

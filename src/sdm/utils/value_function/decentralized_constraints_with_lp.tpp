@@ -8,7 +8,7 @@ namespace sdm
     number index = 0;
     
     for(auto iter=occupancy_state.begin(); iter != occupancy_state.end(); ++iter){
-      auto joint_history = occupancy_state.getHistory(it->first);
+      auto joint_history = occupancy_state.getHistory(iter->first);
       for(auto u=0; u<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u){
         index = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,joint_history));
         a->setJointProbability(joint_history, u, cplex.getValue(var[index]));
@@ -70,18 +70,18 @@ namespace sdm
 
     for(auto it=occupancy_state.begin(); it!=occupancy_state.end(); ++it)
     {
-      auto joint_history = occupancy_state.getHistory(it->first);
+      auto jh = occupancy_state.getHistory(it->first);
       for(auto u=0; u<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
       {
         //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
         con.add(IloRange(env, 1 - number_agent, +IloInfinity));
         //<! 3.a.1 get variable a(u|o)
-        recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,joint_history));
+        recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,jh));
         //<! 3.a.2 set coefficient of variable a(u|o)
         con[c].setLinearCoef(var[recover], +1.0);
         for(number ag=0; ag<number_agent; ++ag)
         {
-          auto ih = joint_history->getIndividualHistory(ag);
+          auto ih = jh->getIndividualHistory(ag);
 
           auto iu = this->getWorld()->getUnderlyingProblem()->getActionSpace()->getItem(ag,u);
           //<! 3.a.3 get variables a_i(u_i|o_i)
@@ -99,7 +99,7 @@ namespace sdm
       auto jh = occupancy_state.getHistory(it->first);
       for(action u=0; u<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u){
         for(agent ag=0; ag<number_agent; ++ag){
-          auto ih = joint_history->getIndividualHistory(ag);
+          auto ih = jh->getIndividualHistory(ag);
           auto iu = this->getWorld()->getUnderlyingProblem()->getActionSpace()->getItem(ag,u);
           //<! 3.b set constraint a(u|o) <= a_i(u_i|o_i)
           con.add(IloRange(env, -IloInfinity, 0.0));

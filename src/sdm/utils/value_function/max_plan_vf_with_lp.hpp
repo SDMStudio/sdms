@@ -4,7 +4,6 @@
 
 #include <sdm/core/state/serialized_state.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
