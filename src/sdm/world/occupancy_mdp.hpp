@@ -43,7 +43,7 @@ namespace sdm
                          public GymInterface<oState, oAction>
     {
     protected:
-        oState istate_, cstate_;
+        std::shared_ptr<oState> istate_, cstate_;
         std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
         typename oState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
 

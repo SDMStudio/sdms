@@ -55,14 +55,15 @@ int main(int argc, char **argv)
 		do
 		{
 			depth++;
-			ostate = omdp_world->nextState(ostate, oaction);
-			oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-
 			std::cout << "#> Print depth \"" << depth << "\"\n";
+
+			ostate = omdp_world->nextState(ostate, oaction);
 			std::cout << "#> Print occupancy state \n"
 					  << ostate << "\n";
 			std::cout << "#> Private occupancy state \n"
 					  << ostate.getPrivateOccupancyStates() << std::endl;
+					  
+			oaction = omdp_world->getActionSpaceAt(ostate)->sample();
 			std::cout << "#> Print joint decision rule \n"
 					  << oaction << "\n";
 		} while (depth < limit);

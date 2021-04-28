@@ -46,18 +46,35 @@ namespace sdm
     bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &, const typename TJointHistory_p::element_type::ihistory_type &, number);
     void finalize();
 
+    /**
+     * @brief Get the private occupancy state structure. This structure consists of a set of private occupancy state for each agent. 
+     */
     const Joint<RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>>> &getPrivateOccupancyStates() const;
+
+    /**
+     * @brief Get a specific private occupancy state. The private occupancy state return is for a specific agent and a specific history of this agent. 
+     * 
+     * @param agent_id the agent id
+     * @param ihistory the individual history
+     * @return the corresponding private occupancy state
+     */
     const std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>> &getPrivateOccupancyState(const number &agent_id, const ihistory_type &ihistory) const;
 
     /**
-     * @brief Get the fully uncompressed occupancy state
+     * @brief Get the fully uncompressed occupancy state.
      */
     std::shared_ptr<OccupancyState> getFullyUncompressedOccupancy() const;
     void setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
+    /**
+     * @brief Get the one step uncompressed occupancy state. 
+     */
     std::shared_ptr<OccupancyState> getOneStepUncompressedOccupancy() const;
     void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
+    /**
+     * @brief Get the list of labels that corresponds to the list of ihistories
+     */
     std::vector<ihistory_type> getJointLabels(const std::vector<ihistory_type> &) const;
 
     std::shared_ptr<OccupancyState<TState, TJointHistory_p>> getptr();
