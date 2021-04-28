@@ -29,8 +29,6 @@ namespace sdm
         {
             (*q_s)[a] = this->getQValueAt(state, a, t);
         }
-        // std::cout<<"\n  state : "<<state<<", tau : "<<t;
-        // std::cout<<"\n Qvalue : "<<*q_s;
         return q_s;
     }
 
@@ -38,10 +36,7 @@ namespace sdm
     TValue ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, const TAction &action, number t)
     {
         // implement bellman operator
-        // std::cout<<"\n  state : "<<state<<", tau : "<<t<<", action : "<<action;
-        // std::cout<<"\n reward : "<<this->getWorld()->getReward(state, action);
-        // std::cout<<"\n getExpectedNext : "<<this->getWorld()->getExpectedNextValue(this, state, action, t);
-        return this->getWorld()->getReward(state, action) + this->getDiscount(t) * this->getWorld()->getExpectedNextValue(this, state, action, t);
+        return this->getWorld()->getReward(state, action) + this->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -63,24 +58,6 @@ namespace sdm
         return this->problem_;
     }
 
-    // template <typename TState, typename TAction, typename TValue>
-    // int ValueFunction<TState, TAction, TValue>::getHorizon() const
-    // {
-    //     return this->horizon_;
-    // }
-
-    // template <typename TState, typename TAction, typename TValue>
-    // bool ValueFunction<TState, TAction, TValue>::isFiniteHorizon() const
-    // {
-    //     return (this->horizon_ > 0);
-    // }
-
-    // template <typename TState, typename TAction, typename TValue>
-    // bool ValueFunction<TState, TAction, TValue>::isInfiniteHorizon() const
-    // {
-    //     return !(this->isFiniteHorizon());
-    // }
-
     template <typename TState, typename TAction, typename TValue>
     double ValueFunction<TState, TAction, TValue>::getDiscount(number t)
     {
@@ -93,6 +70,13 @@ namespace sdm
             }
         }
         return this->getWorld()->getUnderlyingProblem()->getDiscount();
+    }
+
+
+    template <typename TState, typename TAction, typename TValue>
+    std::shared_ptr<ValueFunction<TState, TAction, TValue>> ValueFunction<TState, TAction, TValue>::getptr()
+    {
+        return std::static_pointer_cast<ValueFunction<TState, TAction, TValue>>(this->shared_from_this());
     }
 
 } // namespace sdm

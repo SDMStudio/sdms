@@ -55,7 +55,7 @@ namespace sdm
 
 
         double getReward(const oState &ostate, const oAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<oState, oAction>> value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
 
         std::shared_ptr<SerializedMMDP<>> toMDP();
 

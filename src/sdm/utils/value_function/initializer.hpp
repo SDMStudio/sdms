@@ -29,7 +29,7 @@ namespace sdm
     class Initializer
     {
     public:
-        virtual void init(ValueFunction<TState, TAction> *vf) = 0;
+        virtual void init(std::shared_ptr<ValueFunction<TState, TAction>> vf) = 0;
         virtual ~Initializer() {}
     };
 
@@ -43,7 +43,7 @@ namespace sdm
     class QInitializer
     {
     public:
-        virtual void init(QValueFunction<TState, TAction> *vf) = 0;
+        virtual void init(std::shared_ptr<QValueFunction<TState, TAction>> vf) = 0;
         virtual ~QInitializer() {}
     };
 
@@ -64,7 +64,7 @@ namespace sdm
         {
         }
 
-        void initBase(BaseValueFunction<TState, TAction> *vf)
+        void initBase(std::shared_ptr<BaseValueFunction<TState, TAction>> vf)
         {
             if (vf->getHorizon() < 1)
             {
@@ -79,12 +79,12 @@ namespace sdm
             }
         }
 
-        void init(ValueFunction<TState, TAction> *vf)
+        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
         {
             this->initBase(vf);
         }
 
-        void init(QValueFunction<TState, TAction> *vf)
+        void init(std::shared_ptr<QValueFunction<TState, TAction>> vf)
         {
             this->initBase(vf);
         }
@@ -121,7 +121,7 @@ namespace sdm
         BoundInitializer() {}
         BoundInitializer(double value) : value_(value) {}
 
-        void init(ValueFunction<TState, TAction> *vf)
+        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
         {
             auto under_pb = vf->getWorld()->getUnderlyingProblem();
 
@@ -175,7 +175,7 @@ namespace sdm
     public:
         MinInitializer() { std::cout << "In MinInitalizer" << std::endl; }
 
-        void init(ValueFunction<TState, TAction> *vf)
+        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
         {
             this->value_ = vf->getWorld()->getUnderlyingProblem()->getReward()->getMinReward();
             BoundInitializer<TState, TAction>::init(vf);
@@ -194,7 +194,7 @@ namespace sdm
     public:
         MaxInitializer() { std::cout << "In MaxInitalizer" << std::endl; }
 
-        void init(ValueFunction<TState, TAction> *vf)
+        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
         {
             this->value_ = vf->getWorld()->getUnderlyingProblem()->getReward()->getMaxReward();
             BoundInitializer<TState, TAction>::init(vf);
@@ -215,7 +215,7 @@ namespace sdm
             std::cout << "In BlindInitalizer" << std::endl;
         }
 
-        void init(ValueFunction<TState, TAction> *vf)
+        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
         {
             auto under_pb = vf->getWorld()->getUnderlyingProblem();
             std::vector<double> ra;
@@ -265,7 +265,7 @@ namespace sdm
     //         std::cout << "In PolicyEvaluationInitializer" << std::endl;
     //     }
 
-    //     void init(ValueFunction<TState, TAction> *vf)
+    //     void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
     //     {
     //         auto under_pb = vf->getWorld()->getUnderlyingProblem();
 
@@ -331,7 +331,7 @@ namespace sdm
     //         }
     //     }
 
-    //     double policyEvaluation(const number &politique, const number &state, ValueFunction<TState, TAction> *vf)
+    //     double policyEvaluation(const number &politique, const number &state, std::shared_ptr<ValueFunction<TState, TAction>> vf)
     //     {
     //         auto under_pb = vf->getWorld()->getUnderlyingProblem();
     //         double reward= under_pb->getReward(state, politique);
@@ -343,7 +343,7 @@ namespace sdm
     //         return resultat;
     //     }
 
-    //     double policyEvaluation(const Joint<number> &politique, const number &state, ValueFunction<TState, TAction> *vf)
+    //     double policyEvaluation(const Joint<number> &politique, const number &state, std::shared_ptr<ValueFunction<TState, TAction>> vf)
     //     {
     //         auto under_pb = vf->getWorld()->getUnderlyingProblem();
     //         double reward= under_pb->getReward(state, politique);

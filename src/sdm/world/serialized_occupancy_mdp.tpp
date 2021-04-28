@@ -153,7 +153,7 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    double SerializedOccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t) const
+    double SerializedOccupancyMDP<oState, oAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<oState, oAction>> value_function, const oState &ostate, const oAction &oaction, int t) const
     {
         oState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);

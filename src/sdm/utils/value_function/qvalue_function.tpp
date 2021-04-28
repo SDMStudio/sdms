@@ -26,4 +26,11 @@ namespace sdm
         return qvalues->argmax();
     }
 
+
+    template <typename TState, typename TAction, typename TValue>
+    std::shared_ptr<QValueFunction<TState, TAction, TValue>> QValueFunction<TState, TAction, TValue>::getptr()
+    {
+        return std::static_pointer_cast<QValueFunction<TState, TAction, TValue>>(this->shared_from_this());
+    }
+
 } // namespace sdm

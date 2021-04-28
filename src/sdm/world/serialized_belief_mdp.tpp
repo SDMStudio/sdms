@@ -166,7 +166,7 @@ namespace sdm
     }//Me paraît bien
 
     template <typename TBelief, typename TAction, typename TObservation>
-    double SerializedBeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const
+    double SerializedBeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, int t) const
     {
         double exp_next_v = 0;
         for (const auto &obs : this->serialized_mpomdp_->getObsSpace()->getAll())

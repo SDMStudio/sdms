@@ -137,7 +137,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    double BeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, number t) const
+    double BeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, number t) const
     {
         double exp_next_v = 0;
         for (TObservation obs : this->pomdp_->getObsSpace()->getAll())

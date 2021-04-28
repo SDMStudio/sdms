@@ -57,7 +57,7 @@ namespace sdm
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &belief);
 
         double getReward(const TBelief &ostate, const TAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &ostate, const TAction &oaction, int t = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &ostate, const TAction &oaction, int t = 0) const;
 
         std::shared_ptr<SerializedMMDP<>> toMDP();
 

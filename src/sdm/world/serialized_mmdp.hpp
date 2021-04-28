@@ -89,7 +89,7 @@ namespace sdm
          * 
          * @return double 
          */
-        double getExpectedNextValue(ValueFunction<TState, TAction>*, const TState&, const TAction&, number = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState&, const TAction&, number = 0) const;
 
         /**
          * @brief Get the Next State Space object for a precise serialized state

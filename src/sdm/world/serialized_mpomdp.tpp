@@ -162,7 +162,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    std::vector<Joint<number>> SerializedMPOMDP<TState,TAction>::getObsSpaceAt(const typename TState &serialized_state) const
+    std::vector<Joint<number>> SerializedMPOMDP<TState,TAction>::getObsSpaceAt(const  TState &serialized_state) const
     {
         if(serialized_state.getCurrentAgentId() != this->getNumAgents() -1 )
         {
@@ -183,9 +183,9 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double getObservationProbability(const TAction &action, const Joint<number> joint_obs,const typename TState &s)
+    double getObservationProbability(const TAction &action, const Joint<number> joint_obs,const  TState &s)
     {
-        this->decpomdp_->getObsDynamics()->
+        // this->decpomdp_->getObsDynamics()->
     }
 
     // template <typename TState, typename TAction>
@@ -195,7 +195,7 @@ namespace sdm
     // }
 
     template <typename TState, typename TAction>
-    double SerializedMPOMDP<TState,TAction>::getDynamics(const typename TState &serialized_state,const TAction action,const Joint<number> joint_obs,const typename TState &serialized_state_next) const
+    double SerializedMPOMDP<TState,TAction>::getDynamics(const  TState &serialized_state,const TAction action,const Joint<number> joint_obs,const  TState &serialized_state_next) const
     {
         std::vector<number> all_action = serialized_state.getAction();
         all_action.push_back(action);

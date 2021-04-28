@@ -25,6 +25,7 @@ namespace sdm
    */
   template <typename TState, typename TJointHistory_p>
   class BaseOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>,
+                            //  public MappedMatrix<TJointHistory_p, TState, double>,
                              public std::enable_shared_from_this<BaseOccupancyState<TState, TJointHistory_p>>
   {
   public:
@@ -104,7 +105,7 @@ namespace sdm
      * @brief Return a shared pointer on current object
      */
     std::shared_ptr<BaseOccupancyState<TState, TJointHistory_p>> getptr();
-    
+
     std::string str() const;
 
     /**
@@ -115,7 +116,7 @@ namespace sdm
       os << ostate.str();
       return os;
     }
-    
+
     /**
      * @brief Return the horizon of this occupancy state
      * 

@@ -21,7 +21,6 @@
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 //#include <sdm/utils/value_function/max_plan_vf_with_lp.hpp>
 
-
 #include <sdm/utils/rl/exploration.hpp>
 
 
@@ -111,7 +110,7 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, int horizon)
+        std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, number horizon)
         {
             // Set params in the environment
             problem->getUnderlyingProblem()->setDiscount(discount);
@@ -181,8 +180,8 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
-                    using TState = SerializedState; //<number, number>;
-                    using TAction = number;
+                    // using TState = SerializedState; //<number, number>;
+                    // using TAction = number;
 
                     //auto serialized_mdp = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path);
                     //serialized_mdp->getUnderlyingProblem()->setInternalState(0);
@@ -191,9 +190,9 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
                 {
-                    using TState = SerializedBeliefState; //<number, number>;
-                    using TAction = number;
-                    using TObservation = Joint<number>;
+                    // using TState = SerializedBeliefState; //<number, number>;
+                    // using TAction = number;
+                    // using TObservation = Joint<number>;
 
                     // auto serialized_pomdp = std::make_shared<SerializedBeliefMDP<TState, TAction,TObservation>>(problem_path);
 
@@ -201,8 +200,8 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
-                    using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
-                    using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+                    // using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
+                    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
                     //auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
 

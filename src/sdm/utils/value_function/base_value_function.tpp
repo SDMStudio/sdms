@@ -26,4 +26,11 @@ namespace sdm
     {
         return !(this->isFiniteHorizon());
     }
+
+    template <typename TState, typename TAction, typename TValue>
+    std::shared_ptr<BaseValueFunction<TState, TAction, TValue>> BaseValueFunction<TState, TAction, TValue>::getptr()
+    {
+        return this->shared_from_this();
+    }
+
 }

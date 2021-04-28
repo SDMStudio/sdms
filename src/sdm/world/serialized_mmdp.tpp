@@ -150,7 +150,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double SerializedMMDP<TState, TAction>::getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &serialized_state, const TAction &action, number t) const
+    double SerializedMMDP<TState, TAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const TState &serialized_state, const TAction &action, number t) const
     {
         number agent_identifier = serialized_state.getCurrentAgentId();
 

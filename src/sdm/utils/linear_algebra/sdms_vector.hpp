@@ -45,10 +45,10 @@ namespace sdm
     T norm_1() const;
     T norm_2() const;
 
-    T min() const;
-    I argmin() const;
-    T max() const;
-    I argmax() const;
+    T min();
+    I argmin();
+    T max();
+    I argmax();
 
     bool operator<(const sdmsVector &) const;
     T operator^(const sdmsVector &) const;
