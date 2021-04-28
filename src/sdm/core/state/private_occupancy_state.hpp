@@ -43,11 +43,15 @@ namespace sdm
 
     number getAgentId() const;
     std::string str() const;
+    const std::vector<ihistory_type> &getPartialJointHistory(const TJointHistory_p &) const;
+    TJointHistory_p getJointHistory(const std::vector<ihistory_type> &) const;
 
     void finalize();
     bool operator==(const PrivateOccupancyState &) const;
 
   protected:
+    std::vector<ihistory_type> getPartialJointHistory(const std::vector<ihistory_type> &) const;
+
     typedef boost::bimaps::bimap<TJointHistory_p, Joint<ihistory_type>> bimap_type;
     typedef typename bimap_type::value_type bimap_value;
 

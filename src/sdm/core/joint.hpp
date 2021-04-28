@@ -19,7 +19,7 @@ namespace sdm
   {
   protected:
     //! \brief the number of agents
-    number num_agents_;
+    number num_agents_ = 0;
 
   public:
     using value_type = item;

@@ -20,11 +20,11 @@ namespace sdm
         double discount,
         Criterion criterion)
         : StochasticProcessBase<TStateSpace, TDistrib>(state_sp, start_distrib),
-          DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, false>(state_sp, action_sp, obs_sp, state_dyn, reward_f, start_distrib, planning_horizon, discount, criterion),
+          DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, false>(state_sp, action_sp, obs_sp, state_dyn, reward_f, start_distrib, planning_horizon, discount, criterion, false),
           PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>(state_sp, obs_sp, start_distrib),
           obs_dynamics_(obs_dyn)
     {
-        // this->setupDynamicsGenerator();
+        this->setupDynamicsGenerator();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
@@ -40,8 +40,9 @@ namespace sdm
                                                                                                                                     copy.getDiscount(),
                                                                                                                                     copy.getCriterion())
     {
-        // this->setupDynamicsGenerator();
+        this->setupDynamicsGenerator();
     }
+
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::~PartiallyObservableDecisionProcess()
     {
@@ -75,18 +76,44 @@ namespace sdm
 
         for (auto &x : this->getStateSpace()->getAll())
         {
+            this->reachable_state_space.emplace(x, std::unordered_map<action_type, std::set<state_type>>());
             this->dynamics_generator.emplace(x, std::unordered_map<PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::action_type, TDistrib>());
             for (auto &a : this->getActionSpace()->getAll())
             {
+                this->reachable_state_space[x].emplace(a, std::set<state_type>());
                 std::vector<double> v;
                 for (auto &y : this->getStateSpace()->getAll())
                 {
+                    // Setup next reachable states
+                    if (this->getStateDynamics()->getTransitionProbability(x, this->getAction(a), y) > 0)
+                    {
+                        this->reachable_state_space[x][a].insert(y);
+                    }
+
+                    // Setup dynamics 
                     for (auto &z : this->getObsSpace()->getAll())
                     {
                         v.push_back(this->getObsDynamics()->getDynamics(x, this->getAction(a), this->getObservation(z), y));
                     }
                 }
                 this->dynamics_generator[x].emplace(a, TDistrib(v.begin(), v.end()));
+            }
+        }
+
+        // Setup reachable observations
+        for (auto &a : this->getActionSpace()->getAll())
+        {
+            this->reachable_observation_space.emplace(a, std::unordered_map<state_type, std::set<observation_type>>());
+            for (auto &y : this->getStateSpace()->getAll())
+            {
+                this->reachable_observation_space[a].emplace(y, std::set<observation_type>());
+                for (auto &z : this->getObsSpace()->getAll())
+                {
+                    if (this->getObsDynamics()->getObservationProbability(this->getAction(a), this->getObservation(z), y) > 0)
+                    {
+                        this->reachable_observation_space[a][y].insert(z);
+                    }
+                }
             }
         }
     }
