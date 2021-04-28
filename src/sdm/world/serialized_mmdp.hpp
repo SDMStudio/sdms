@@ -31,37 +31,20 @@ namespace sdm
      * @brief An Serialized MDP is a subclass of MDP where states are serialized states. 
      * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
      * 
-     * @tparam TState refer to the serialized state type
-     * @tparam oAction refer to the number type
+     * @tparam TState refers to the serialized state type
+     * @tparam TAction refers to the number type
      */
-    template <typename TState = SerializedState,
-              typename oAction = number>
-    class SerializedMMDP : public SolvableByHSVI<TState, oAction>,
-                           public std::enable_shared_from_this<SerializedMMDP<TState, oAction>>,
-                           public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<oAction>, std::discrete_distribution<number>>
-
+    template <typename TState = SerializedState, typename TAction = number>
+    class SerializedMMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<TAction>, std::discrete_distribution<number>>,
+                           //public SolvableByHSVI<TState, TAction>,
+                           public std::enable_shared_from_this<SerializedMMDP<TState, TAction>>
     {
-    protected:
-        std::shared_ptr<DiscreteMMDP> mmdp_;
-
-        /**
-         * @brief Refer to the Serialized State Space
-         * 
-         */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
-
-        /**
-         * @brief Initialize the attribut "serialized_state_space";
-         * 
-         */
-        void createInitSerializedStateSpace(std::shared_ptr<DiscreteMMDP>);
-
     public:
         using state_type = TState;
-        using action_type = oAction;
+        using action_type = TAction;
 
-        SerializedMMDP(std::shared_ptr<DiscreteMMDP> );
-        SerializedMMDP(std::string );
+        SerializedMMDP(std::shared_ptr<DiscreteMMDP>);
+        SerializedMMDP(std::string);
 
 
         /**
@@ -70,93 +53,66 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        double getDiscount(number =0) const;
-
-        // /**
-        //  * @brief Get the Discount object
-        //  * 
-        //  * @return double 
-        //  */
-        // double getDiscount() const {
-        //     return this->mmdp_->discount_;
-        // }
+        double getDiscount(number = 0) const;
 
         /**
-         * @brief Set the Discount object
-         * 
-         * @param double : discount 
+         * @brief 
+         *  
+         * @return true 
+         * @return false 
          */
-        void setDiscount(double );
-
         bool isSerialized() const;
-        SerializedMMDP<TState,oAction> *getUnderlyingProblem();
-
-        TState getInitialState();
-        TState nextState(const TState&, const oAction &, number = 0, HSVI<TState, oAction> * = nullptr) const;
-        double getExpectedNextValue(ValueFunction<TState, oAction> *, const TState &, const oAction &, number = 0) const;
-
 
         /**
-         * @brief Get the Hidden State Space object
+         * @brief Get itself ...
          * 
-         * @return std::shared_ptr<DiscreteSpace<number>> 
+         * @return SerializedMMDP<TState,TAction>* 
          */
-        std::shared_ptr<DiscreteSpace<number>> getHiddenStateSpace() const;
+        SerializedMMDP<TState, TAction>* getUnderlyingProblem();
+
+        /**
+         * @brief Get the initial serial state 
+         * @return TState 
+         */
+        TState getInitialState();
+
+        /**
+         * @brief 
+         * 
+         * @return TState 
+         */
+        TState nextState(const TState&, const TAction&, number = 0, HSVI<TState, TAction>* = nullptr) const;
+        
+
+        /**
+         * @brief Get the Expected Next Value object
+         * 
+         * @return double 
+         */
+        double getExpectedNextValue(ValueFunction<TState, TAction>*, const TState&, const TAction&, number = 0) const;
 
         /**
          * @brief Get the Next State Space object for a precise serialized state
-         * 
+         * @comment: surcharger la fonction 'getReachableSerialStates(...)'
          * @param serialized_state 
          * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
          */
-        std::shared_ptr<DiscreteSpace<SerializedState>> getNextStateSpace(const TState &) const;
+        const std::vector<TState>& getReachableSerialStates(const TState&, const TAction&) const;
 
         /**
          * @brief Get All the Serialized State Space
          * 
          * @return std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> 
          */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> getStateSpace() const;
-
-        /**
-         * @brief Get the Serialized State Space for a precise agent
-         * 
-         * @param ag_id 
-         * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
-         */
-        std::shared_ptr<DiscreteSpace<SerializedState>> getStateSpaceAt(number ) const;
-
-
-        /**
-         * @brief Get the Observation Space object. In this situation, it will return the Serialized State Space
-         * 
-         * @return std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> 
-         */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> getObsSpace() const;
-
-        /**
-         * @brief Get the Observation Space object of a precise agent. In this situation, it will return the Serialized State Space of a precise agent
-         * 
-         * @param ag_id 
-         * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
-         */
-        std::shared_ptr<DiscreteSpace<SerializedState>> getObsSpaceAt(number ) const;
+        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> getSerialStateSpace() const;
 
 
         /**
          * @brief Get the Action Space object
          * 
-         * @return std::shared_ptr<MultiDiscreteSpace<oAction>> 
+         * @return std::shared_ptr<MultiDiscreteSpace<TAction>> 
          */
-        std::shared_ptr<MultiDiscreteSpace<oAction>> getActionSpace()const;
-
-        /**
-         * @brief Get the Action Space for a precise serialized_state
-         * 
-         * @param serialized_state 
-         * @return std::shared_ptr<DiscreteSpace<oAction>> 
-         */
-        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const TState &) ;
+        std::shared_ptr<MultiDiscreteSpace<TAction>> getSerialActionSpace(number )const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
@@ -165,19 +121,7 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const TState &,const oAction &) const;
-
-        /**
-         * @brief Get the Reward for a precise serialized_state and the joint action.
-         * 
-         * @param serialized_state 
-         * @param joint_action 
-         * @return double 
-         */
-        double getReward(const TState &,const Joint<oAction> &) const;
-
-
-        std::shared_ptr<Reward> getReward() const; 
+        double getReward(const TState &,const TAction &) const;
 
         /**
          * @brief Get the probability to be in serialized_state_next giving a precise serialized_state and the action of the last agent. 
@@ -186,12 +130,12 @@ namespace sdm
          * @param serialized_state_next 
          * @return double 
          */
-        double getDynamics(const TState &,const oAction &, const TState &) const;
+        double getTransitionProbability(const TState &,const TAction &, const TState &) const;
 
-        number getNumAgents() const;
-
-        //TState getInternalState() const;
+        TState getInternalState() const;
+        
         void setInternalState(TState );
+        
         void setPlanningHorizon(number );      
 
         /**
@@ -204,9 +148,9 @@ namespace sdm
         /**
          * @brief Transform the current problem to a MDP. In this situation, it will returr the current problem
          * 
-         * @return std::shared_ptr<SerializedMMDP<TState, oAction>> 
+         * @return std::shared_ptr<SerializedMMDP<TState, TAction>> 
          */
-        std::shared_ptr<SerializedMMDP<TState, oAction>> toMDP();
+        std::shared_ptr<SerializedMMDP<TState, TAction>> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a Serialized MMDP to a belief MDP  
@@ -214,7 +158,38 @@ namespace sdm
          * @return a belief MDP
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
+
+        number getNumAgents() const;
   
+    protected:
+        /**
+         * @brief the simultaneous multi-agent Markov decision process
+         */
+        std::shared_ptr<DiscreteMMDP> mmdp_;
+
+        /**
+         * @brief Refer to the Serialized State Space
+         * 
+         */
+        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
+
+        /**
+         * @brief Map (serial state, seial action) to Set of reachable seial states
+         */
+        std::unordered_map<state_type, std::unordered_map<action_type, std::vector<state_type>>> reachable_state_space;
+
+        /**
+         * @brief Initialize "serialized_state_space_"
+         * 
+         */
+        void createInitSerializedStateSpace();
+
+        /**
+         * @brief Initialize "serialized_state_space_"
+         * 
+         */
+        void createInitReachableStateSpace();
+
     };
 } // namespace sdm
 #include <sdm/world/serialized_mmdp.tpp>

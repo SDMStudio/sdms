@@ -17,27 +17,35 @@ namespace sdm
      * @brief An Serialized MDP is a subclass of MDP where states are serialized states. 
      * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
      * 
-     * @tparam oState refer to the serialized state type
-     * @tparam oAction refer to the number type
+     * @tparam TState refer to the serialized state type
+     * @tparam TAction refer to the number type
      */
-    template <typename oState = SerializedState,
-              typename oAction = number>
-    class SerializedMPOMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<oState>>, MultiDiscreteSpace<oAction>, std::discrete_distribution<number>>, 
-                             public SerializedMMDP<SerializedState,number>
-
+    template <typename TState = SerializedState, typename TAction = number>
+    class SerializedMPOMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<TAction>, std::discrete_distribution<number>>,
+                            public SerializedMMDP<SerializedState,number>
     {
     protected:
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
         std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
+        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
 
     public:
-        using state_type = oState;
-        using action_type = oAction;
+        using state_type = TState;
+        using action_type = TAction;
 
         SerializedMPOMDP();
-        SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_mmdp);
-        SerializedMPOMDP(std::string underlying_mmdp);
+        SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP>);
+        SerializedMPOMDP(std::string);
+
+    //     bool isSerialized() const;
+
+    //     SerializedMPOMDP<TState, TAction> *getUnderlyingProblem();
+
+    //     TState getInitialState();
+        
+    //     //TState nextState(const TState &Serial_Occupancy_state, const TAction &Serial_Occupancy_action, int t = 0, HSVI<TState, TAction> *hsvi = nullptr) const;
+
+    //     //double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &Serial_Occupancy_state, const TAction &Serial_Occupancy_action, int t = 0) const;
 
         std::shared_ptr<SerializedMMDP<>> toMDP();
 
@@ -53,36 +61,36 @@ namespace sdm
         //  * @brief For a precise SerializedState, this function return the next SerializedState possible
         //  * 
         //  * @param state 
-        //  * @return std::shared_ptr<DiscreteSpace<typename oState::state_type>> 
+        //  * @return std::shared_ptr<DiscreteSpace<typename TState>> 
         //  */
-        // std::shared_ptr<DiscreteSpace<typename oState::state_type>> getNextSerializedStateSpace(const typename oState::state_type &state) const;
+        // std::shared_ptr<DiscreteSpace<typename TState>> getNextSerializedStateSpace(const typename TState &state) const;
 
         // /**
         //  * @brief For a precise SerializedState, this function return the next SerializedState possible
         //  * 
         //  * @param state is a serialized state
         //  * @param action is an action
-        //  * @return std::shared_ptr<DiscreteSpace<typename oState::state_type>> 
+        //  * @return std::shared_ptr<DiscreteSpace<typename TState>> 
         //  */
-        // std::shared_ptr<DiscreteSpace<typename oState::state_type>> getNextSerializedStateSpace(const typename oState::state_type &state, const number &action) const;
+        // std::shared_ptr<DiscreteSpace<typename TState>> getNextSerializedStateSpace(const typename TState &state, const number &action) const;
 
         // /**
         //  * @brief THis function return all the serializedState possible
         //  * 
-        //  * @return std::shared_ptr<MultiSpace<DiscreteSpace<typename oState::state_type>>> 
+        //  * @return std::shared_ptr<MultiSpace<DiscreteSpace<typename TState>>> 
         //  */
-        // std::shared_ptr<MultiSpace<DiscreteSpace<typename oState::state_type>>> getSerializedStateSpace() const; 
+        // std::shared_ptr<MultiSpace<DiscreteSpace<typename TState>>> getSerializedStateSpace() const; 
 
         // /**
         //  * @brief Get the Serialized State Space of a precise agent
         //  * 
         //  * @param ag_id is the identifiant of an agent 
-        //  * @return std::shared_ptr<DiscreteSpace<typename oState::state_type>> 
+        //  * @return std::shared_ptr<DiscreteSpace<typename TState>> 
         //  */
-        // std::shared_ptr<DiscreteSpace<typename oState::state_type>> getSerializedStateSpaceAt(number ag_id) const;
+        // std::shared_ptr<DiscreteSpace<typename TState>> getSerializedStateSpaceAt(number ag_id) const;
 
-        // std::shared_ptr<MultiSpace<DiscreteSpace<typename oState::state_type>>> getStateSpace() const; 
-        // std::shared_ptr<DiscreteSpace<typename oState::state_type>> getStateSpaceAt(number ag_id) const;
+        // std::shared_ptr<MultiSpace<DiscreteSpace<typename TState>>> getStateSpace() const; 
+        // std::shared_ptr<DiscreteSpace<typename TState>> getStateSpaceAt(number ag_id) const;
 
         /**
          * @brief Get the Obs Space of the SerializedMPOMDP. In this situation, it is the same as the ObsSpace of a Dec-Pomdp
@@ -96,7 +104,7 @@ namespace sdm
          * 
          * @return std::shared_ptr<MultiDiscreteSpace<number>> 
          */
-        std::vector<Joint<number>> getObsSpaceAt(const typename oState::state_type &serialized_state) const;
+        std::vector<Joint<number>> getObsSpaceAt(const typename TState &serialized_state) const;
 
                 /**
          * @brief Get the Obs Space of a precise agent
@@ -105,6 +113,12 @@ namespace sdm
          * @return std::shared_ptr<DiscreteSpace<number>> 
          */
         std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ag_id) const;
+
+        double getObservationProbability(const TAction &action, const Joint<number> joint_obs,const typename TState &s) const;
+
+        double getDynamics(const typename TState &s,const TAction action,const Joint<number> joint_obs,const typename TState &s_) const;
+
+        std::shared_ptr<DiscreteSpace<SerializedState>> getReachableSerialStates(const TState&, const TAction&) const;
 
 
         // /**
@@ -127,7 +141,7 @@ namespace sdm
         //  * @param s_ is a serialized State
         //  * @return double 
         //  */
-        // double getObsDynamics(const typename oState::state_type &s,const number action,const Joint<number> joint_obs,const typename oState::state_type &s_) const;
+        // double getObsDynamics(const typename TState &s,const number action,const Joint<number> joint_obs,const typename TState &s_) const;
 
         // /**
         //  * @brief Get the Action Space of a SerializedMPOMDP. In this situation, it is the same as the ActionSpace of a Dec-Pomdp
@@ -145,13 +159,13 @@ namespace sdm
         // // std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(number ag_id) ;
 
 
-        // double getReward(const typename oState::state_type &s,const number &action) const;
-        // double getReward(const typename oState::state_type &s,const Joint<number> &action) const;
+        // double getReward(const typename TState &s,const number &action) const;
+        // double getReward(const typename TState &s,const Joint<number> &action) const;
 
 
         // std::shared_ptr<Reward> getReward() const; // A modifier, car pour 
 
-        // double getDynamics(const typename oState::state_type &s,const number &action, const typename oState::state_type &s_) const;
+        // double getDynamics(const typename TState &s,const number &action, const typename TState &s_) const;
 
         // number getNumAgents() const;
 
@@ -159,8 +173,8 @@ namespace sdm
 
         // void setPlanningHorizon(number horizon);
 
-        // //oState getInternalState() const;
-        // void setInternalState(const typename oState::state_type  new_i_state);
+        // //TState getInternalState() const;
+        // void setInternalState(const typename TState  new_i_state);
         
     };
 } // namespace sdm
