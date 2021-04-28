@@ -10,7 +10,8 @@
 
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
-//#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+
+#include <sdm/world/serialized_mmdp structure.hpp>
 
 /*
 De : Jilles 
@@ -35,8 +36,7 @@ namespace sdm
      * @tparam TAction refers to the number type
      */
     template <typename TState = SerializedState, typename TAction = number>
-    class SerializedMMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<TAction>, std::discrete_distribution<number>>,
-                           //public SolvableByHSVI<TState, TAction>,
+    class SerializedMMDP : public SolvableByHSVI<TState, TAction>,
                            public std::enable_shared_from_this<SerializedMMDP<TState, TAction>>
     {
     public:
@@ -46,15 +46,6 @@ namespace sdm
         SerializedMMDP();
         SerializedMMDP(std::shared_ptr<DiscreteMMDP>);
         SerializedMMDP(std::string);
-
-
-        /**
-         * @brief Return the Serialized Discount
-         * 
-         * @param t 
-         * @return double 
-         */
-        double getDiscount(number = 0) const;
 
         /**
          * @brief 
@@ -69,7 +60,7 @@ namespace sdm
          * 
          * @return SerializedMMDP<TState,TAction>* 
          */
-        SerializedMMDP<TState, TAction>* getUnderlyingProblem();
+        SerializedMMDPStructure<TState, TAction>* getUnderlyingProblem();
 
         /**
          * @brief Get the initial serial state 
@@ -82,8 +73,9 @@ namespace sdm
          * 
          * @return TState 
          */
-        TState nextState(const TState&, const TAction&, number = 0, HSVI<TState, TAction>* = nullptr) const;
-        
+        TState nextState(const TState&, const TAction&, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
+
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &serialized_state) ;        
 
         /**
          * @brief Get the Expected Next Value object
@@ -93,29 +85,6 @@ namespace sdm
         double getExpectedNextValue(ValueFunction<TState, TAction>*, const TState&, const TAction&, number = 0) const;
 
         /**
-         * @brief Get the Next State Space object for a precise serialized state
-         * @comment: surcharger la fonction 'getReachableSerialStates(...)'
-         * @param serialized_state 
-         * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
-         */
-        const std::set<TState>& getReachableSerialStates(const TState&, const TAction&) const;
-
-        /**
-         * @brief Get All the Serialized State Space
-         * 
-         * @return std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> 
-         */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> getSerialStateSpace() const;
-
-
-        /**
-         * @brief Get the Action Space object
-         * 
-         * @return std::shared_ptr<MultiDiscreteSpace<TAction>> 
-         */
-        std::shared_ptr<MultiDiscreteSpace<TAction>> getSerialActionSpace(number )const;
-
-        /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
          * 
          * @param serialized_state 
@@ -123,21 +92,6 @@ namespace sdm
          * @return double 
          */
         double getReward(const TState &,const TAction &) const;
-
-        /**
-         * @brief Get the probability to be in serialized_state_next giving a precise serialized_state and the action of the last agent. 
-         * @param serialized_state 
-         * @param action 
-         * @param serialized_state_next 
-         * @return double 
-         */
-        double getTransitionProbability(const TState &,const TAction &, const TState &) const;
-
-        TState getInternalState() const;
-        
-        void setInternalState(TState );
-        
-        void setPlanningHorizon(number );      
 
         /**
          * @brief Return the current problem
@@ -160,36 +114,12 @@ namespace sdm
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
 
-        number getNumAgents() const;
   
     protected:
         /**
          * @brief the simultaneous multi-agent Markov decision process
          */
-        std::shared_ptr<DiscreteMMDP> mmdp_;
-
-        /**
-         * @brief Refer to the Serialized State Space
-         * 
-         */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
-
-        /**
-         * @brief Map (serial state, seial action) to Set of reachable seial states
-         */
-        std::unordered_map<state_type, std::unordered_map<action_type, std::set<state_type>>> reachable_state_space;
-
-        /**
-         * @brief Initialize Serial State Space
-         * 
-         */
-        void createInitSerializedStateSpace();
-
-        /**
-         * @brief Initialize "serialized_state_space_"
-         * 
-         */
-        void createInitReachableStateSpace();
+        std::shared_ptr<SerializedMMDPStructure<TState,number>> serial_mmdp_;
 
     };
 } // namespace sdm

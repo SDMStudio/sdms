@@ -11,7 +11,7 @@
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
 
-#include <sdm/world/serialized_mmdp.hpp>
+#include <sdm/world/serialized_mmdp structure.hpp>
 
 namespace sdm
 {
@@ -23,7 +23,7 @@ namespace sdm
      * @tparam TAction refer to the number type
      */
     template <typename TState = SerializedState, typename TAction = number>
-    class SerializedMPOMDP : public SerializedMMDP<SerializedState,number>
+    class SerializedMPOMDP : public SerializedMMDPStructure<SerializedState,number>
     {
     protected:
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
@@ -77,7 +77,7 @@ namespace sdm
          */
         std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ) const;
 
-        double getObservationProbability(const TAction &, const Joint<number> ,const TState &) const;
+        double getObservationProbability(const Joint<number>&, const Joint<number> ,const TState &) const;
 
         double getDynamics(const TState &,const TAction ,const Joint<number> ,const TState &) const;
     };

@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
 	std::string a("../data/world/dpomdp/tiger.dpomdp");
 
-	// auto serialized_mdp = std::make_shared<sdm::SerializedMMDP<TState, TAction>>(a);
+	//auto serialized_mdp = std::make_shared<sdm::SerializedMMDP<TState, TAction>>(a);
 	auto serialized_pomdp = std::make_shared<sdm::SerializedMPOMDP<TState, TAction>>(a);
 
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 		std::cout<<"\n s  :"<<s;
 	}
 
-	// auto serialized_pomdp = std::make_shared<sdm::SerializedMPOMDP<TState, TAction>>(a);
+	//auto serialized_pomdp = std::make_shared<sdm::SerializedMPOMDP<TState, TAction>>(a);
 
 	return 0;
 } // END main
