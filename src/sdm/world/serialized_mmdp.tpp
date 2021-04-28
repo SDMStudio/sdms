@@ -8,7 +8,17 @@ namespace sdm
     SerializedMMDP<TState, oAction>::SerializedMMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : mmdp_(underlying_mmdp)
     {
         this->setPlanningHorizon(mmdp_->getPlanningHorizon());
+        this->createInitSerializedStateSpace(underlying_mmdp);
+    }
 
+    template <typename TState, typename oAction>
+    SerializedMMDP<TState, oAction>::SerializedMMDP(std::string underlying_mmdp) : SerializedMMDP(std::make_shared<DiscreteMMDP>(underlying_mmdp))
+    {
+    }
+
+    template <typename TState, typename oAction>
+    void SerializedMMDP<TState, oAction>::createInitSerializedStateSpace(std::shared_ptr<DiscreteMMDP> underlying_mmdp)
+    {
         std::vector<std::shared_ptr<DiscreteSpace<TState>>> all_serialized_state;
 
         number n_agents = this->getNumAgents();
@@ -24,7 +34,7 @@ namespace sdm
             {
                 for(const auto &action : all_past_action)
                 {
-                    for(const auto &action_agent_i : this->mmdp_->getActionSpace()->getSpaces()[i-1]->getAll())
+                    for(const auto &action_agent_i : underlying_mmdp->getActionSpace()->getSpaces()[i-1]->getAll())
                     {
                         std::vector<oAction> temp_action = action;
                         temp_action.push_back(action_agent_i);
@@ -36,7 +46,7 @@ namespace sdm
                 all_new_action.push_back({});
             }
 
-            for(const auto &state : this->mmdp_->getStateSpace()->getAll())
+            for(const auto &state : underlying_mmdp->getStateSpace()->getAll())
             {
                 for(const auto &action : all_new_action)
                 {
@@ -49,11 +59,6 @@ namespace sdm
         }
 
         this->serialized_state_space_= std::make_shared<MultiSpace<DiscreteSpace<TState>>>(all_serialized_state);
-    }
-
-    template <typename TState, typename oAction>
-    SerializedMMDP<TState, oAction>::SerializedMMDP(std::string underlying_mmdp) : SerializedMMDP(std::make_shared<DiscreteMMDP>(underlying_mmdp))
-    {
     }
 
     template <typename TState, typename oAction>

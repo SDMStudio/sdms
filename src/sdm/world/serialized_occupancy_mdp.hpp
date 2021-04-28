@@ -25,18 +25,15 @@ namespace sdm
      */
     template <typename oState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,
               typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
-    class SerializedOccupancyMDP : public SolvableByHSVI<oState, oAction>,
-                                    public SerializedMPOMDP<oState,oAction> 
+    class SerializedOccupancyMDP : public SolvableByHSVI<oState, oAction> 
     {
     protected:
         std::shared_ptr<SerializedMPOMDP<oState,oAction>> serialized_mpomdp_;
         oState istate_;
-        //oState cstate_;
 
     public:
         using state_type = oState;
         using action_type = oAction;
-        // using observation_type = oObservation;
 
         SerializedOccupancyMDP();
         SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);

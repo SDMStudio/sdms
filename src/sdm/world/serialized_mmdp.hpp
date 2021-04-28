@@ -50,6 +50,12 @@ namespace sdm
          */
         std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
 
+        /**
+         * @brief Initialize the attribut "serialized_state_space";
+         * 
+         */
+        void createInitSerializedStateSpace(std::shared_ptr<DiscreteMMDP>);
+
     public:
         using state_type = TState;
         using action_type = oAction;
@@ -86,8 +92,8 @@ namespace sdm
         SerializedMMDP<TState,oAction> *getUnderlyingProblem();
 
         TState getInitialState();
-        TState nextState(const TState&, const oAction &, number = 0, HSVI<TState, oAction> *hsvi = nullptr) const;
-        double getExpectedNextValue(ValueFunction<TState, oAction> *value_function, const TState &, const oAction &, number = 0) const;
+        TState nextState(const TState&, const oAction &, number = 0, HSVI<TState, oAction> * = nullptr) const;
+        double getExpectedNextValue(ValueFunction<TState, oAction> *, const TState &, const oAction &, number = 0) const;
 
 
         /**
