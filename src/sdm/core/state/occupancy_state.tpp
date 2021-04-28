@@ -125,10 +125,6 @@ namespace sdm
                         this->private_ihistory_map_[agent_id][ihistory_second] = ihistory_first; // Store label
                         iter_second = support.erase(iter_second);                                // Erase unecessary equivalent individual history
 
-<<<<<<< HEAD
-=======
-                        // Set probability of the compact occupancy state
->>>>>>> 11300a7f1d5338730771f2239b0c028b72850004
                         for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second))
                         {
                             current_compact_ostate.addProbabilityAt(pair_s_o_prob.first, pair_s_o_prob.second);
