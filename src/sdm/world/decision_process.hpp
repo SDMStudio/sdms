@@ -49,8 +49,8 @@ namespace sdm
         DecisionProcess();
         DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>);
         DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, TDistrib);
-        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
-        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TObsSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX, bool setup = true);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TObsSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX, bool setup = true);
         virtual ~DecisionProcess();
 
         /**
@@ -109,12 +109,18 @@ namespace sdm
          * @param action_type
          * @return const std::set<state_type>& 
          */
-        const std::vector<state_type>& getNextReachableState(state_type, action_type) const;
+        const std::set<state_type>& getReachableStates(state_type, action_type) const;
+        const std::set<observation_type>& getReachableObservations(action_type, state_type) const;
 
         template <bool TBool = is_fully_obs>
         std::enable_if_t<TBool, observation_type> updateState_getObs(action_type);
         
-        virtual void setupDynamicsGenerator();
+        template <bool TBool = is_fully_obs>
+        std::enable_if_t<TBool> setupDynamicsGenerator();
+
+        template <bool TBool = is_fully_obs>
+        std::enable_if_t<!TBool> setupDynamicsGenerator();
+
 
         // template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
         // std::enable_if_t<!TBool> setupDynamicsGenerator();
@@ -154,7 +160,12 @@ namespace sdm
         /**
          * @brief Map (state, action) to Set of reachable states
          */
-        std::unordered_map<state_type, std::unordered_map<action_type, std::vector<state_type>>> reachable_state_space;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::set<state_type>>> reachable_state_space;
+
+        /**
+         * @brief Map (jaction, next_state) to Set of reachable next observations
+         */
+        std::unordered_map<action_type, std::unordered_map<state_type, std::set<observation_type>>> reachable_observation_space;
 
         template <bool TBool = std::is_same<TActionSpace, MultiDiscreteSpace<number>>::value>
         std::enable_if_t<TBool, number>

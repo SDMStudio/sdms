@@ -79,7 +79,7 @@ namespace sdm
 
             std::unordered_map<TAction,std::set<TState>> map_action_next_serial_state;
 
-            for(auto action : this->getActionSpace()->getNumJointItems())
+            for(auto action : this->getActionSpace()->getSpace(agent_identifier)->getAll())
             {
                 std::vector<TAction> serial_action(u);
                 serial_action.push_back(action);
@@ -91,9 +91,7 @@ namespace sdm
                     Joint<TAction> joint_action(serial_action);
                     try
                     {
-                        std::cout<<"\n next Reachable : "<<this->mmdp_->getNextReachableState(x, joint_action);
-
-                        for(const auto next_state : this->mmdp_->getNextReachableState(x, joint_action))
+                        for(const auto next_state : this->mmdp_->getReachableStates(x, joint_action))
                         {
                             all_next_serial_state.insert(SerializedState(next_state,std::vector<TAction>()));
                         }

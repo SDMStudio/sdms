@@ -88,9 +88,10 @@ namespace sdm
   {
     return this->dynamics;
   }
-  
+
   const std::vector<Matrix> &ObservationDynamics::getObservationProbabilities() const
   {
     return this->o_model;
   }
+
 } // namespace sdm

@@ -52,32 +52,28 @@ namespace sdm
     {
         for(const auto action : this->getActionSpace()->getAll())
         {
-            std::unordered_map<TState,std::set<number>> map_serial_state_obs;
+            std::unordered_map<TState,std::set<Joint<number>>> map_serial_state_obs;
 
             for(const auto serialized_state : this->serialized_state_space_->getAll())
             {
-                
-                std::vector<TAction> serial_action(serialized_state.getAction());
-                serial_action.push_back(action);
+                std::set<Joint<number>> all_obs;
 
-                std::set<number> all_obs;
-
-
-                if(serialized_state.getCurrentAgentId() +1 == this->getNumAgents())
+                if(serialized_state.getCurrentAgentId() == 0)
                 {
-                    Joint<TAction> joint_action(serial_action);
+                    Joint<number> joint_action(action);
                     try
                     {
-                        std::cout<<"\n next Reachable : "<<this->decpomdp_->getReacheableObservations(joint_action,serialized_state.getState());
-                        all_obs = this->decpomdp_->getReacheableObservations(joint_action,serialized_state.getState());
+                        for(const auto obs : this->decpomdp_->getReachableObservations(joint_action,serialized_state.getState()))
+                        {
+                            all_obs.insert(obs);
+                        }
                     }
                     catch(const std::exception& e)
                     {
                     }
                 }else
                 {
-                    std::cout<<"\n "<<this->serialized_observation_space_->getNumJointItems();
-                    all_obs.insert(this->serialized_observation_space_->getItem(this->serialized_observation_space_->getNumJointItems()));
+                    all_obs.insert(this->serialized_observation_space_->single2joint(this->serialized_observation_space_->getNumJointItems()-1));
                 }
                 map_serial_state_obs.emplace(serialized_state.getState(),all_obs);
             }
@@ -86,9 +82,9 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    const std::set<number>& SerializedMPOMDP<TState, TAction>::getReacheableObservations(const TAction& serial_action, const TState& serial_state)
+    const std::set<Joint<number>>& SerializedMPOMDP<TState, TAction>::getReachableObservations(const Joint<number>& serial_action, const TState& serial_state)
     {
-        return this->reachable_state_space.at(serial_action).at(serial_state);
+        return this->reachable_obs_state_space.at(serial_action).at(serial_state);
     }
 
     template <typename TState, typename TAction>

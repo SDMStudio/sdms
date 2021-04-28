@@ -60,6 +60,26 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    std::vector<typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type> PrivateOccupancyState<TState, TJointHistory_p>::getPartialJointHistory(const std::vector<typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type> &joint_history) const
+    {
+        auto partial_jhist = joint_history;
+        partial_jhist.erase(partial_jhist.begin() + this->getAgentId());
+        return partial_jhist;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const std::vector<typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type> &PrivateOccupancyState<TState, TJointHistory_p>::getPartialJointHistory(const TJointHistory_p &joint_history) const
+    {
+        return bimap_jhist_partial_jhist.left.at(joint_history);
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    TJointHistory_p PrivateOccupancyState<TState, TJointHistory_p>::getJointHistory(const std::vector<ihistory_type> &partial_joint_history) const
+    {
+        return bimap_jhist_partial_jhist.right.at(partial_joint_history);
+    }
+
+    template <typename TState, typename TJointHistory_p>
     void PrivateOccupancyState<TState, TJointHistory_p>::finalize()
     {
         BaseOccupancyState<TState, TJointHistory_p>::finalize();
@@ -68,7 +88,10 @@ namespace sdm
         for (const auto &pair_state_hist_prob : *this)
         {
             auto jhist = this->getHistory(pair_state_hist_prob.first);
-            this->bimap_jhist_partial_jhist.insert(bimap_value(jhist, jhist->getIndividualHistories()));
+            // Get partial joint history
+            auto partial_jhist = this->getPartialJointHistory(jhist->getIndividualHistories());
+            //
+            this->bimap_jhist_partial_jhist.insert(bimap_value(jhist, partial_jhist));
         }
     }
 
@@ -76,21 +99,26 @@ namespace sdm
     bool PrivateOccupancyState<TState, TJointHistory_p>::operator==(const PrivateOccupancyState<TState, TJointHistory_p> &other) const
     {
         double ratio = -1;
-        if (this->size() != other.size()){
+        // Check that private occupancy states are defined on the same support
+        if (this->size() != other.size())
+        {
             return false;
         }
         for (const auto &pair_partial_joint_history_joint_history : this->bimap_jhist_partial_jhist.right)
         {
-            auto current_joint_history = pair_partial_joint_history_joint_history.second;
             auto partial_joint_history = pair_partial_joint_history_joint_history.first;
+            auto current_joint_history = pair_partial_joint_history_joint_history.second;
             auto other_joint_history = other.bimap_jhist_partial_jhist.right.at(partial_joint_history);
 
             for (const auto &hidden_state : this->getStatesAt(current_joint_history))
             {
+                // Get value in the current private occupancy state
                 auto current_pair_state_joint_history = std::make_pair(hidden_state, current_joint_history);
-                auto other_pair_state_joint_history = std::make_pair(hidden_state, other_joint_history);
                 auto current_value = this->at(current_pair_state_joint_history);
-                auto other_value = this->at(other_pair_state_joint_history);
+
+                // Get corresponding value in the other private occupancy state
+                auto other_pair_state_joint_history = std::make_pair(hidden_state, other_joint_history);
+                auto other_value = other.at(other_pair_state_joint_history);
 
                 if (other_value == 0)
                 {
@@ -100,9 +128,10 @@ namespace sdm
                 {
                     ratio = current_value / other_value;
                 }
-                else if (ratio - (current_value / other_value) > this->precision){
+                else if (ratio - (current_value / other_value) > this->precision)
+                {
                     return false;
-                } 
+                }
             }
         }
         return true;
