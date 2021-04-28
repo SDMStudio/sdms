@@ -3,6 +3,10 @@
 
 namespace sdm
 {
+    template <typename TState, typename TAction>
+    SerializedMMDP<TState, TAction>::SerializedMMDP()
+    {
+    }
 
     template <typename TState, typename TAction>
     SerializedMMDP<TState, TAction>::SerializedMMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : mmdp_(underlying_mmdp)
@@ -73,25 +77,25 @@ namespace sdm
             auto u = serialized_state.getAction();
             number agent_identifier = serialized_state.getCurrentAgentId();
 
-            std::unordered_map<TAction,std::vector<TState>> map_action_next_serial_state;
+            std::unordered_map<TAction,std::set<TState>> map_action_next_serial_state;
 
-            for(const auto action : this->getActionSpace()->getSpace(agent_identifier)->getAll())
+            for(auto action : this->getActionSpace()->getNumJointItems())
             {
                 std::vector<TAction> serial_action(u);
                 serial_action.push_back(action);
 
-                std::vector<state_type> all_next_serial_state;
+                std::set<TState> all_next_serial_state;
 
                 if(agent_identifier +1 == this->getNumAgents())
                 {
                     Joint<TAction> joint_action(serial_action);
                     try
                     {
-                        std::cout<<"\n next Reachable : "<<this->mmdp_->getReachableStates(x, joint_action);
+                        std::cout<<"\n next Reachable : "<<this->mmdp_->getNextReachableState(x, joint_action);
 
-                        for(const auto next_state : this->mmdp_->getReachableStates(x, joint_action))
+                        for(const auto next_state : this->mmdp_->getNextReachableState(x, joint_action))
                         {
-                            all_next_serial_state.push_back(SerializedState(next_state,std::vector<TAction>()));
+                            all_next_serial_state.insert(SerializedState(next_state,std::vector<TAction>()));
                         }
                     }
                     catch(const std::exception& e)
@@ -100,7 +104,7 @@ namespace sdm
                 }else
                 {
 
-                    all_next_serial_state.push_back(SerializedState(x,u));
+                    all_next_serial_state.insert(SerializedState(x,u));
                 }
                 map_action_next_serial_state.emplace(action,all_next_serial_state);
             }
@@ -218,7 +222,7 @@ namespace sdm
     // }
 
     template <typename TState, typename TAction>
-    const std::vector<TState>& SerializedMMDP<TState,TAction>::getReachableSerialStates(const TState &serialized_state, const TAction& serial_action) const
+    const std::set<TState>& SerializedMMDP<TState,TAction>::getReachableSerialStates(const TState &serialized_state, const TAction& serial_action) const
     {  
         return this->reachable_state_space.at(serialized_state).at(serial_action);
     }

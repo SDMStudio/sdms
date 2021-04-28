@@ -11,6 +11,8 @@
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
 
+#include <sdm/world/serialized_mmdp.hpp>
+
 namespace sdm
 {
     /**
@@ -21,13 +23,26 @@ namespace sdm
      * @tparam TAction refer to the number type
      */
     template <typename TState = SerializedState, typename TAction = number>
-    class SerializedMPOMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<TAction>, std::discrete_distribution<number>>,
-                            public SerializedMMDP<SerializedState,number>
+    class SerializedMPOMDP : public SerializedMMDP<SerializedState,number>
     {
     protected:
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
         std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
         std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
+
+        std::unordered_map<TAction, std::unordered_map<TState, std::set<number>>> reachable_obs_state_space;
+
+        /**
+         * @brief Initialize Serial Observation Space
+         * 
+         */
+        void createInitSerialObservationSpace();
+
+        /**
+         * @brief Initialize "reachable_obs_state_space"
+         * 
+         */
+        void createInitReachableObsStateSpace();
 
     public:
         using state_type = TState;
@@ -36,6 +51,8 @@ namespace sdm
         SerializedMPOMDP();
         SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP>);
         SerializedMPOMDP(std::string);
+
+        const std::set<number>& getReacheableObservations(const TAction& , const TState& );
 
     //     bool isSerialized() const;
 
@@ -100,25 +117,18 @@ namespace sdm
         std::shared_ptr<MultiDiscreteSpace<number>> getObsSpace() const;
 
         /**
-         * @brief Get the Obs Space of the SerializedMPOMDP. In this situation, it is the same as the ObsSpace of a Dec-Pomdp
-         * 
-         * @return std::shared_ptr<MultiDiscreteSpace<number>> 
-         */
-        std::vector<Joint<number>> getObsSpaceAt(const typename TState &serialized_state) const;
-
-                /**
          * @brief Get the Obs Space of a precise agent
          * 
          * @param ag_id is the identifiant of a precise agent
          * @return std::shared_ptr<DiscreteSpace<number>> 
          */
-        std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ag_id) const;
+        std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ) const;
 
-        double getObservationProbability(const TAction &action, const Joint<number> joint_obs,const typename TState &s) const;
+        double getObservationProbability(const TAction &, const Joint<number> ,const TState &) const;
 
-        double getDynamics(const typename TState &s,const TAction action,const Joint<number> joint_obs,const typename TState &s_) const;
+        double getDynamics(const TState &,const TAction ,const Joint<number> ,const TState &) const;
 
-        std::shared_ptr<DiscreteSpace<SerializedState>> getReachableSerialStates(const TState&, const TAction&) const;
+        //std::shared_ptr<DiscreteSpace<SerializedState>> getReachableSerialStates(const TState&, const TAction&) const;
 
 
         // /**

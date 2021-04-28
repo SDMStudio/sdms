@@ -43,6 +43,7 @@ namespace sdm
         using state_type = TState;
         using action_type = TAction;
 
+        SerializedMMDP();
         SerializedMMDP(std::shared_ptr<DiscreteMMDP>);
         SerializedMMDP(std::string);
 
@@ -97,7 +98,7 @@ namespace sdm
          * @param serialized_state 
          * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
          */
-        const std::vector<TState>& getReachableSerialStates(const TState&, const TAction&) const;
+        const std::set<TState>& getReachableSerialStates(const TState&, const TAction&) const;
 
         /**
          * @brief Get All the Serialized State Space
@@ -176,10 +177,10 @@ namespace sdm
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states
          */
-        std::unordered_map<state_type, std::unordered_map<action_type, std::vector<state_type>>> reachable_state_space;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::set<state_type>>> reachable_state_space;
 
         /**
-         * @brief Initialize "serialized_state_space_"
+         * @brief Initialize Serial State Space
          * 
          */
         void createInitSerializedStateSpace();
