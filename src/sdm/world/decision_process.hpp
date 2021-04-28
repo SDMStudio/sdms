@@ -49,8 +49,8 @@ namespace sdm
         DecisionProcess();
         DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>);
         DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, TDistrib);
-        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
-        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TObsSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX, bool setup = true);
+        DecisionProcess(std::shared_ptr<TStateSpace>, std::shared_ptr<TActionSpace>, std::shared_ptr<TObsSpace>, std::shared_ptr<TStateDynamics>, std::shared_ptr<TReward>, TDistrib, number = 0, double = 0.9, Criterion = Criterion::REW_MAX, bool setup = true);
         virtual ~DecisionProcess();
 
         /**

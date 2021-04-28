@@ -32,7 +32,8 @@ namespace sdm
           tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.getPrivateOccupancyStates()),
           fully_uncompressed_occupancy_state(occupancy_state.getFullyUncompressedOccupancy()),
           one_step_left_compressed_occupancy_state(occupancy_state.getOneStepUncompressedOccupancy()),
-          private_ihistory_map_(occupancy_state.private_ihistory_map_)
+          private_ihistory_map_(occupancy_state.private_ihistory_map_),
+          jhistory_map_(occupancy_state.jhistory_map_)
     {
     }
 
@@ -64,6 +65,7 @@ namespace sdm
     std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> OccupancyState<TState, TJointHistory_p>::getJointLabels(const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_ihistories) const
     {
         std::vector<ihistory_type> new_list_ihistories;
+        // std::cout << "!!! private_ihistory_map_=" << this->private_ihistory_map_ << std::endl;
         for (int agent = 0; agent < this->num_agents; ++agent)
         {
             if (this->private_ihistory_map_.at(agent).find(list_ihistories.at(agent)) == this->private_ihistory_map_.at(agent).end())
@@ -95,7 +97,10 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     TJointHistory_p OccupancyState<TState, TJointHistory_p>::getCompressedJointHistory(const TJointHistory_p &joint_history) const
     {
-        return this->jhistory_map_.at(this->getJointLabels(joint_history->getIndividualHistories()));
+        auto labels = this->getJointLabels(joint_history->getIndividualHistories());
+        // std::cout << "labels=" << labels << std::endl;
+        // std::cout << "jhistory_map_=" << this->jhistory_map_ << std::endl;
+        return this->jhistory_map_.at(labels);
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -134,7 +139,7 @@ namespace sdm
                     auto ihistory_second = *iter_second; // Get the ihistory we want check the equivalence
                     if (this->areIndividualHistoryLPE(ihistory_first, ihistory_second, agent_id))
                     {
-                        this->private_ihistory_map_[agent_id][ihistory_second] = ihistory_first; // Store label
+                        this->private_ihistory_map_[agent_id][ihistory_second] = ihistory_first; // Store label 
                         iter_second = support.erase(iter_second);                                // Erase unecessary equivalent individual history
 
                         // Set probability of the compact occupancy state
@@ -153,6 +158,7 @@ namespace sdm
             }
 
             previous_compact_ostate = current_compact_ostate;
+            previous_compact_ostate.private_ihistory_map_ = this->private_ihistory_map_; 
             previous_compact_ostate.finalize();
             current_compact_ostate.clear();
         }
@@ -169,7 +175,7 @@ namespace sdm
         {
             auto jhist = this->getHistory(pair_state_jhist.first);
             auto proba = this->getProbability(pair_state_jhist.first);
-            
+
             // Store relation between joint history and list of individual histories
             this->jhistory_map_.emplace(jhist->getIndividualHistories(), jhist);
 
@@ -191,7 +197,6 @@ namespace sdm
                 pair_ihist_private_occupancy_state.second->finalize();
             }
         }
-
     }
 
     template <typename TState, typename TJointHistory_p>

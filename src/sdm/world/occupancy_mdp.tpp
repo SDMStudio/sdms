@@ -128,17 +128,10 @@ namespace sdm
         for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
         {
             auto x = p_x_o.first.first;
-            std::cout << "x=" << x << std::endl;
             auto o = p_x_o.first.second;
-            std::cout << "o=" << o << std::endl;
 
             // Get joint action based on a joint decision rule and a joint history
-            auto joint_indiv_hist = o->getIndividualHistories();
-            std::cout << "joint_indiv_hist=" << joint_indiv_hist << std::endl;
-            auto joint_labels = ostate.getJointLabels(joint_indiv_hist);
-            std::cout << "joint_labels=" << joint_labels << std::endl;
-            auto jaction = joint_idr.act(joint_labels);
-            std::cout << "jaction=" << jaction << std::endl;
+            auto jaction = joint_idr.act(ostate.getJointLabels(o->getIndividualHistories()));
             for (auto &y : this->dpomdp_->getReachableStates(x, jaction))
             {
                 for (auto &z : this->dpomdp_->getReachableObservations(jaction, y))
@@ -147,16 +140,13 @@ namespace sdm
                     // Compute the proba of the next couple (state, joint history)
                     double proba = this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
 
-                    std::cout << "proba=" << proba << std::endl;
                     if (p_x_o.second * proba > 0)
                     {
                         new_fully_uncompressed_occupancy_state->addProbabilityAt(new_index, p_x_o.second * proba);
 
-                        //
+                        // 
                         auto compressed_joint_history = ostate.getCompressedJointHistory(p_x_o.first.second);
-                        std::cout << "compressed_joint_history=" << compressed_joint_history << std::endl;
                         auto occupancy_measure = ostate.getProbability(std::make_pair(p_x_o.first.first, compressed_joint_history)) * proba;
-                        std::cout << "occupancy_measure=" << occupancy_measure << std::endl;
                         if (occupancy_measure > 0)
                         {
                             new_one_step_left_compressed_occupancy_state->addProbabilityAt(new_index, occupancy_measure);

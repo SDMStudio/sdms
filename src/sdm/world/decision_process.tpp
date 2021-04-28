@@ -32,12 +32,16 @@ namespace sdm
                                                                                                                             TDistrib start_distrib,
                                                                                                                             number planning_horizon,
                                                                                                                             double discount,
-                                                                                                                            Criterion criterion)
+                                                                                                                            Criterion criterion,
+                                                                                                                            bool setup)
         : DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>(state_sp, action_sp, start_distrib, planning_horizon, discount, criterion),
           //   GymInterface<TObsSpace, TActionSpace, std::is_same<typename TReward::value_type, std::vector<double>>::value>(obs_sp, action_sp),
           state_dynamics_(state_dyn), reward_function_(reward_fct)
     {
-        // this->setupDynamicsGenerator();
+        if (setup)
+        {
+            this->setupDynamicsGenerator();
+        }
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
@@ -48,10 +52,14 @@ namespace sdm
                                                                                                                             TDistrib start_distrib,
                                                                                                                             number planning_horizon,
                                                                                                                             double discount,
-                                                                                                                            Criterion criterion)
+                                                                                                                            Criterion criterion,
+                                                                                                                            bool setup)
         : DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>(state_sp, action_sp, state_sp, state_dyn, reward_fct, start_distrib, planning_horizon, discount, criterion)
     {
-        // this->setupDynamicsGenerator();
+        if (setup)
+        {
+            this->setupDynamicsGenerator();
+        }
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>

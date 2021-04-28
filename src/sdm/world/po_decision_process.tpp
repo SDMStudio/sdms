@@ -20,11 +20,11 @@ namespace sdm
         double discount,
         Criterion criterion)
         : StochasticProcessBase<TStateSpace, TDistrib>(state_sp, start_distrib),
-          DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, false>(state_sp, action_sp, obs_sp, state_dyn, reward_f, start_distrib, planning_horizon, discount, criterion),
+          DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, false>(state_sp, action_sp, obs_sp, state_dyn, reward_f, start_distrib, planning_horizon, discount, criterion, false),
           PartiallyObservableProcessBase<TStateSpace, TObsSpace, TDistrib>(state_sp, obs_sp, start_distrib),
           obs_dynamics_(obs_dyn)
     {
-        // this->setupDynamicsGenerator();
+        this->setupDynamicsGenerator();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
@@ -40,8 +40,9 @@ namespace sdm
                                                                                                                                     copy.getDiscount(),
                                                                                                                                     copy.getCriterion())
     {
-        // this->setupDynamicsGenerator();
+        this->setupDynamicsGenerator();
     }
+
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::~PartiallyObservableDecisionProcess()
     {
