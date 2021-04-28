@@ -158,7 +158,7 @@ namespace sdm
         std::unordered_map<state_type, std::unordered_map<action_type, TDistrib>> dynamics_generator;
 
         /**
-         * @brief Map (state, jaction) to Set of reachable next states
+         * @brief Map (state, action) to Set of reachable states
          */
         std::unordered_map<state_type, std::unordered_map<action_type, std::set<state_type>>> reachable_state_space;
 

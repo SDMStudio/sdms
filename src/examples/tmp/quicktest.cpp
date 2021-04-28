@@ -12,7 +12,6 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-
 	std::string filename;
 
 	if (argc > 1)
@@ -59,7 +58,8 @@ int main(int argc, char **argv)
 		auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
 
 		std::cout << "#> Print depth \"" << depth << "\"\n";
-		std::cout << "#> Print occupancy state \n" << ostate << "\n";
+		std::cout << "#> Print occupancy state \n"
+				  << ostate << "\n";
 		std::cout << "#> Print joint decision rule \n"
 				  << oaction << "\n";
 
@@ -69,10 +69,12 @@ int main(int argc, char **argv)
 			std::cout << "#> Print depth \"" << depth << "\"\n";
 
 			ostate = omdp_world->nextState(ostate, oaction);
-			std::cout << "#> Print occupancy state \n" << ostate << "\n";
+			std::cout << "#> Print occupancy state \n"
+					  << ostate << "\n";
 
 			oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-			std::cout << "#> Print joint decision rule \n"  << oaction << "\n";
+			std::cout << "#> Print joint decision rule \n"
+					  << oaction << "\n";
 		} while (depth < limit);
 	}
 	catch (exception::Exception &e)

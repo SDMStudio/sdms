@@ -11,35 +11,34 @@ namespace sdm
     }
 
     template <typename oState, typename oAction>
-    SerializedOccupancyMDP<oState, oAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : dpomdp_(underlying_dpomdp)
+    SerializedOccupancyMDP<oState, oAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<oState,oAction>>(underlying_dpomdp))
     {
     }
 
     template <typename oState, typename oAction>
-    SerializedOccupancyMDP<oState, oAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
+    SerializedOccupancyMDP<oState, oAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<oState,oAction>>(underlying_dpomdp))
     {
 
         typename oState::jhistory_type jhist;
         if (hist_length > 0)
         {
-            jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents(), hist_length);
+            jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), hist_length);
         }
         else
         {
-            jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents());
+            jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents());
         }
 
-        for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
+        for (const auto s : this->serialized_mpomdp_->getSerializedStateSpaceAt(0)->getAll())
         {
             auto x = s.getState();
-            if (this->dpomdp_->getStartDistrib().probabilities()[x] > 0)
+            if (this->serialized_mpomdp_->getStartDistrib().probabilities()[x] > 0) 
             {
                 Pair<typename oState::state_type, typename oState::jhistory_type> p_s_o(s, jhist);
-                this->istate_.setProbabilityAt(p_s_o, this->dpomdp_->getStartDistrib().probabilities()[x]);
+                this->istate_[p_s_o] = this->serialized_mpomdp_->getStartDistrib().probabilities()[x];
             }
         }
-        this->istate_.finalize();
-        this->cstate_ = this->istate_;
+        //this->cstate_ = this->istate_;
     }
 
     template <typename oState, typename oAction>
@@ -52,22 +51,16 @@ namespace sdm
     {
     }
 
-    template <typename oState, typename oAction>
-    oState &SerializedOccupancyMDP<oState, oAction>::getState()
-    {
-        return this->cstate_;
-    }
+    // template <typename oState, typename oAction>
+    // oState &SerializedOccupancyMDP<oState, oAction>::getState()
+    // {
+    //     return this->cstate_;
+    // }
 
     template <typename oState, typename oAction>
-    bool SerializedOccupancyMDP<oState, oAction>::isSerialized() const
+    SerializedMPOMDP<oState,oAction> *SerializedOccupancyMDP<oState, oAction>::getUnderlyingProblem()
     {
-        return true;
-    }
-
-    template <typename oState, typename oAction>
-    DiscreteDecPOMDP *SerializedOccupancyMDP<oState, oAction>::getUnderlyingProblem()
-    {
-        return this->dpomdp_.get();
+        return this->serialized_mpomdp_.get();
     }
 
     template <typename oState, typename oAction>
@@ -83,20 +76,24 @@ namespace sdm
         number ag_id = ostate.getCurrentAgentId();
 
         // Get the individual possible histories for the current agent (as vector)
-        auto indiv_hist = sdm::tools::set2vector(ostate.getIndividualHistories(ag_id));
+        auto indiv_hist = ostate.getIndividualHistories(ag_id);
+
+        std::vector<typename oState::jhistory_type::element_type::ihistory_type> v_inputs(indiv_hist.begin(), indiv_hist.end());
 
         // Generate all individual decision rules for agent 'ag_id' (the current agent)
-        FunctionSpace<oAction> f_indiv_dr_space(indiv_hist, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
+        FunctionSpace<oAction> f_indiv_dr_space(v_inputs, this->serialized_mpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
 
         // Now we can return a discrete space of all indiv decision rules
         return std::make_shared<DiscreteSpace<oAction>>(f_indiv_dr_space.getAll());
     }
 
     template <typename oState, typename oAction>
-    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, number, std::shared_ptr<HSVI<oState, oAction>>) const
+    oState SerializedOccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &indiv_dr, int, HSVI<oState, oAction> *) const
     {
         number ag_id = ostate.getCurrentAgentId();
+
         oState new_ostate;
+
         for (auto &p_s_o : ostate)
         {
             auto pair_s_o = p_s_o.first;
@@ -107,32 +104,29 @@ namespace sdm
             auto p_ihist = o->getIndividualHistory(ag_id);
             u.push_back(indiv_dr.act(p_ihist));
 
-            if (ag_id != this->dpomdp_->getNumAgents() - 1)
+            if (ag_id != this->serialized_mpomdp_->getNumAgents() - 1)
             {
-                typename oState::state_type s(x, u);
+                typename oState::state_type s(x,u);
                 Pair<typename oState::state_type, typename oState::jhistory_type> s_o(s, o);
-                new_ostate.setProbabilityAt(s_o, p_s_o.second);
+                new_ostate[s_o] = p_s_o.second;
             }
             else
             {
-                for (typename oState::state_type y : this->dpomdp_->getStateSpace()->getAll())
-                {
-                    for (auto &z : this->dpomdp_->getObsSpace()->getAll())
-                    {
+                for (const auto y : this->serialized_mpomdp_->getSerializedStateSpaceAt(0)->getAll())
+                {    
+                    for (auto &z : this->serialized_mpomdp_->getObsSpace()->getAll())
+                    {  
                         Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
-                        double proba = p_s_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(u), this->dpomdp_->getObsSpace()->joint2single(z), y.getState());
+                        double proba = p_s_o.second * this->serialized_mpomdp_->getObsDynamics(pair_s_o.first, indiv_dr.act(p_ihist), z, y);
                         if (proba > 0)
                         {
-                            new_ostate.addProbabilityAt(new_index, proba);
+                            new_ostate[new_index] = new_ostate.at(new_index) + proba;
                         }
                     }
                 }
             }
         }
-        // Compress the occupancy state
-        new_ostate = new_ostate.compress();
-        new_ostate.finalize();
-
+        //std::cout<<"\n next_state :"<<new_ostate;
         return new_ostate;
     }
 
@@ -141,8 +135,9 @@ namespace sdm
     {
         double r = 0;
         number ag_id = ostate.getCurrentAgentId();
+        
 
-        if (ag_id != this->dpomdp_->getNumAgents() - 1)
+        if (ag_id != this->serialized_mpomdp_->getNumAgents() - 1)
         {
             return 0;
         }
@@ -150,50 +145,37 @@ namespace sdm
         for (auto &p_s_o : ostate)
         {
             auto pair_s_o = p_s_o.first;
-            auto x = pair_s_o.first.getState();
-            auto u = pair_s_o.first.getAction();
             auto o = pair_s_o.second;
 
-            std::vector<typename oAction::output_type> jaction(u.begin(), u.end());
-
-            // Add the last selected action (the action of agent 0)
-            jaction.push_back(indiv_dr.act(o->getIndividualHistory(ag_id)));
-
-            r += p_s_o.second * this->dpomdp_->getReward()->getReward(x, this->dpomdp_->getActionSpace()->joint2single(jaction));
+            r += p_s_o.second * this->serialized_mpomdp_->getReward(pair_s_o.first,indiv_dr.act(o->getIndividualHistory(ag_id)));
         }
         return r;
     }
 
     template <typename oState, typename oAction>
-    double SerializedOccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t) const
+    double SerializedOccupancyMDP<oState, oAction>::getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, int t) const
     {
         oState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);
     }
 
     template <typename oState, typename oAction>
-    double SerializedOccupancyMDP<oState, oAction>::getDiscount(number t) const
+    double SerializedOccupancyMDP<oState, oAction>::getDiscount(int t) const
     {
+        return this->serialized_mpomdp_->getDiscount(t);
+    }
 
-        if (this->dpomdp_->getNumAgents() > 1)
-        {
-            if (t % this->dpomdp_->getNumAgents() != this->dpomdp_->getNumAgents() - 1)
-            {
-                return 1.0;
-            }
-        }
-        return this->dpomdp_->getDiscount();
+
+    template <typename oState, typename oAction>
+    std::shared_ptr<SerializedMMDP<>> SerializedOccupancyMDP<oState, oAction>::toMDP()
+    {
+        return this->serialized_mpomdp_->toMDP();
     }
 
     template <typename oState, typename oAction>
-    std::shared_ptr<SerializedMDP<>> SerializedOccupancyMDP<oState, oAction>::toMDP()
+    bool SerializedOccupancyMDP<oState, oAction>::isSerialized() const
     {
-        return std::make_shared<SerializedMDP<>>(this->dpomdp_->toMMDP());
+        return this->serialized_mpomdp_->isSerialized();
     }
-
-    // template <typename oState, typename oAction>
-    // std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedOccupancyMDP<oState, oAction>::toBeliefMDP()
-    // {
-    //     return std::make_shared<SerializedBeliefMDP<>>(this->dpomdp_->toMPOMDP());
-    // }
+    
 } // namespace sdm

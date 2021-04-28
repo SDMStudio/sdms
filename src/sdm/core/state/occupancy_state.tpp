@@ -142,7 +142,6 @@ namespace sdm
                         this->private_ihistory_map_[agent_id][ihistory_second] = ihistory_first; // Store label 
                         iter_second = support.erase(iter_second);                                // Erase unecessary equivalent individual history
 
-                        // Set probability of the compact occupancy state
                         for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second))
                         {
                             auto partial_jhist = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second)->getPartialJointHistory(pair_s_o_prob.first.second);

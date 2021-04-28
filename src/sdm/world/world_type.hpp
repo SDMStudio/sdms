@@ -22,10 +22,13 @@ namespace sdm
     class OccupancyMDP;
 
     template <typename oState, typename oAction>
-    class SerializedMDP;
+    class SerializedMMDP;
 
     template <typename oState, typename oAction>
     class SerializedOccupancyMDP;
+
+    template <typename oState, typename oAction>
+    class SerializedMPOMDP;
 
     /**
      * @brief Allows developers to get access to the type of underlying problem that is solved when dealing with a kind of state and action in HSVI.
@@ -50,8 +53,8 @@ namespace sdm
         static std::enable_if_t<is_serialized_belief_mdp, SerializedBeliefMDP<SerializedBeliefState, number, number>>
         getWorldType();
 
-        template <bool is_serialized_mdp = std::is_same<TState, SerializedState>::value>
-        static std::enable_if_t<is_serialized_mdp, SerializedMDP<SerializedState, number>>
+        template <bool is_serialized_mdp = std::is_any<TState, SerializedState>::value>
+        static std::enable_if_t<is_serialized_mdp, SerializedMMDP<SerializedState, number>>
         getWorldType();
 
         template <bool is_serialized_occupancy_mdp = std::is_any<TState, SerializedOccupancyState<>>::value>
@@ -67,16 +70,24 @@ namespace sdm
         static std::enable_if_t<is_solving_mdp, DiscreteMDP>
         getUnderlyingProblem();
 
-        template <bool is_solving_mmdp = std::is_same<TState, SerializedState>::value>
-        static std::enable_if_t<is_solving_mmdp, DiscreteMMDP>
-        getUnderlyingProblem();
-
-        template <bool is_solving_pomdp = std::is_any<TState, BeliefState,SerializedBeliefState>::value>
+        template <bool is_solving_pomdp = std::is_any<TState, BeliefState>::value>
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getUnderlyingProblem();
         
-        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<number, JointHistoryTree_p<number>>, SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>
+        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<number, JointHistoryTree_p<number>>>::value>
         static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>
+        getUnderlyingProblem();
+
+        template <bool is_solving_serialized_mmdp = std::is_same<TState, SerializedState>::value>
+        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDP<SerializedState,number>>
+        getUnderlyingProblem();
+
+        template <bool is_solving_serialized_mpomdp = std::is_any<TState,SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>
+        static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP<SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,DeterministicDecisionRule<HistoryTree_p<number>, number>>>
+        getUnderlyingProblem();
+
+        template <bool is_solving_serialized_pomdp = std::is_any<TState,SerializedBeliefState>::value>
+        static std::enable_if_t<is_solving_serialized_pomdp, SerializedMPOMDP<SerializedBeliefState,number>>
         getUnderlyingProblem();
 
         using type = decltype(WorldType<TState, TAction>::getWorldType());

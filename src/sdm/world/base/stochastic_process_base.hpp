@@ -45,12 +45,6 @@ namespace sdm
         std::shared_ptr<TStateSpace> getStateSpace() const;
         void setStateSpace(std::shared_ptr<TStateSpace>);
 
-    private:
-        /**
-         * @brief The internal state
-         */
-        state_type internal_state_;
-
     protected:
         /**
          * @brief The state space
@@ -61,6 +55,11 @@ namespace sdm
          * @brief The initial state distribution
          */
         TDistrib start_distrib_;
+
+        /**
+         * @brief The internal state
+         */
+        state_type internal_state_;
     };
 } // namespace sdm
 #include <sdm/world/base/stochastic_process_base.tpp>
