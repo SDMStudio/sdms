@@ -126,9 +126,15 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
-    const std::vector<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::state_type> &DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::getNextReachableState(state_type cstate, action_type caction) const
+    const std::set<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::state_type> &DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::getReachableStates(state_type cstate, action_type caction) const
     {
         return this->reachable_state_space.at(cstate).at(caction);
+    }
+
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
+    const std::set<typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::observation_type> &DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::getReachableObservations(DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::action_type caction, DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::state_type next_state) const
+    {
+        return this->reachable_observation_space.at(caction).at(next_state);
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
@@ -168,40 +174,58 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
-    void DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
+    template <bool TBool>
+    std::enable_if_t<TBool> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
     {
         using state_type = typename DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::state_type;
         // std::cout << "Setup FO process" << std::endl;
         for (auto &x : this->getStateSpace()->getAll())
         {
             this->dynamics_generator.emplace(x, std::unordered_map<action_type, TDistrib>());
-            this->reachable_state_space.emplace(x, std::unordered_map<action_type, std::vector<state_type>>());
+            this->reachable_state_space.emplace(x, std::unordered_map<action_type, std::set<state_type>>());
 
             for (auto &a : this->getActionSpace()->getAll())
             {
                 std::vector<double> v;
-                this->reachable_state_space[x].emplace(a, std::vector<state_type>());
+                this->reachable_state_space[x].emplace(a, std::set<state_type>());
 
                 for (auto &y : this->getStateSpace()->getAll())
                 {
                     v.push_back(this->getStateDynamics()->getTransitionProbability(x, this->getAction(a), y));
                     if (this->getStateDynamics()->getTransitionProbability(x, this->getAction(a), y) > 0)
                     {
-                        this->reachable_state_space[x][a].push_back(y);
+                        this->reachable_state_space[x][a].insert(y);
                     }
                 }
 
                 this->dynamics_generator[x].emplace(a, TDistrib(v.begin(), v.end()));
             }
         }
+
+        // Setup reachable observations
+        for (auto &a : this->getActionSpace()->getAll())
+        {
+            this->reachable_observation_space.emplace(a, std::unordered_map<state_type, std::set<observation_type>>());
+            for (auto &x : this->getStateSpace()->getAll())
+            {
+                this->reachable_observation_space[a].emplace(x, std::set<observation_type>());
+                for (auto &y : this->getStateSpace()->getAll())
+                {
+                    if (this->getStateDynamics()->getTransitionProbability(x, this->getAction(a), y) > 0)
+                    {
+                        this->reachable_observation_space[a][x].insert(y);
+                    }
+                }
+            }
+        }
     }
 
-    // template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
-    // template <bool TBool>
-    // std::enable_if_t<!TBool> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
-    // {
-    //     throw sdm::exception::NotImplementedException();
-    // }
+    template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
+    template <bool TBool>
+    std::enable_if_t<!TBool> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::setupDynamicsGenerator()
+    {
+        throw sdm::exception::NotImplementedException();
+    }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     std::shared_ptr<TActionSpace> DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::getActionSpace() const

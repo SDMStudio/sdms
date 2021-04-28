@@ -169,14 +169,15 @@ namespace sdm
 
         if (compression)
         {
-            std::cout << "9" << std::endl;
+            std::cout << "9 " << std::endl;
             new_compressed_occupancy_state = std::make_shared<oState>(new_one_step_left_compressed_occupancy_state->compress());
             // finalizing the construction of the occupancy state
             std::cout << "10" << std::endl;
             new_compressed_occupancy_state->finalize();
-            new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
-            new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
             std::cout << "11" << std::endl;
+            std::cout << *new_compressed_occupancy_state << std::endl;
+            std::cout << *new_compressed_occupancy_state->getOneStepUncompressedOccupancy() << std::endl;
+            std::cout << *new_compressed_occupancy_state->getFullyUncompressedOccupancy() << std::endl;
 
             return *new_compressed_occupancy_state;
         }

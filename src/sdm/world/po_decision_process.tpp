@@ -75,18 +75,44 @@ namespace sdm
 
         for (auto &x : this->getStateSpace()->getAll())
         {
+            this->reachable_state_space.emplace(x, std::unordered_map<action_type, std::set<state_type>>());
             this->dynamics_generator.emplace(x, std::unordered_map<PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::action_type, TDistrib>());
             for (auto &a : this->getActionSpace()->getAll())
             {
+                this->reachable_state_space[x].emplace(a, std::set<state_type>());
                 std::vector<double> v;
                 for (auto &y : this->getStateSpace()->getAll())
                 {
+                    // Setup next reachable states
+                    if (this->getStateDynamics()->getTransitionProbability(x, this->getAction(a), y) > 0)
+                    {
+                        this->reachable_state_space[x][a].insert(y);
+                    }
+
+                    // Setup dynamics 
                     for (auto &z : this->getObsSpace()->getAll())
                     {
                         v.push_back(this->getObsDynamics()->getDynamics(x, this->getAction(a), this->getObservation(z), y));
                     }
                 }
                 this->dynamics_generator[x].emplace(a, TDistrib(v.begin(), v.end()));
+            }
+        }
+
+        // Setup reachable observations
+        for (auto &a : this->getActionSpace()->getAll())
+        {
+            this->reachable_observation_space.emplace(a, std::unordered_map<state_type, std::set<observation_type>>());
+            for (auto &y : this->getStateSpace()->getAll())
+            {
+                this->reachable_observation_space[a].emplace(y, std::set<observation_type>());
+                for (auto &z : this->getObsSpace()->getAll())
+                {
+                    if (this->getObsDynamics()->getObservationProbability(this->getAction(a), this->getObservation(z), y) > 0)
+                    {
+                        this->reachable_observation_space[a][y].insert(z);
+                    }
+                }
             }
         }
     }
