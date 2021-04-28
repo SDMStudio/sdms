@@ -77,6 +77,11 @@ namespace sdm
      */
     std::vector<ihistory_type> getJointLabels(const std::vector<ihistory_type> &) const;
 
+    /**
+     * @brief Get the Compressed Joint History object
+     */
+    TJointHistory_p getCompressedJointHistory(const TJointHistory_p &) const;
+
     std::shared_ptr<OccupancyState<TState, TJointHistory_p>> getptr();
 
   protected:
@@ -88,6 +93,11 @@ namespace sdm
 
     /** @brief Keep relations between all private ihistories and labels */
     Joint<RecursiveMap<ihistory_type, ihistory_type>> private_ihistory_map_;
+
+    /**
+     * @brief 
+     */
+    RecursiveMap<std::vector<ihistory_type>, jhistory_type> jhistory_map_;
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

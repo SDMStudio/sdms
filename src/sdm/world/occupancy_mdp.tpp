@@ -120,43 +120,46 @@ namespace sdm
     template <typename oState, typename oAction>
     oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>>, bool compression) const
     {
-        std::cout << "NEXT STATE --> A VERIFIER" << std::endl;
-        std::cout << "in nextState --> ostate=" << ostate << " jdr=" << joint_idr << std::endl;
         std::shared_ptr<oState> new_compressed_occupancy_state;
         std::shared_ptr<oState> new_fully_uncompressed_occupancy_state = std::make_shared<oState>();
         std::shared_ptr<oState> new_one_step_left_compressed_occupancy_state = std::make_shared<oState>();
 
-        std::cout << "ostate.getFullyUncompressedOccupancy()=" << ostate.getFullyUncompressedOccupancy() << std::endl;
         // for all element in the support of the occupancy state (fully uncompressed version)
         for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
         {
-            std::cout << "1" << std::endl;
             auto x = p_x_o.first.first;
+            std::cout << "x=" << x << std::endl;
             auto o = p_x_o.first.second;
-            for (auto &y : this->dpomdp_->getStateSpace()->getAll()) // a change
+            std::cout << "o=" << o << std::endl;
+
+            // Get joint action based on a joint decision rule and a joint history
+            auto joint_indiv_hist = o->getIndividualHistories();
+            std::cout << "joint_indiv_hist=" << joint_indiv_hist << std::endl;
+            auto joint_labels = ostate.getJointLabels(joint_indiv_hist);
+            std::cout << "joint_labels=" << joint_labels << std::endl;
+            auto jaction = joint_idr.act(joint_labels);
+            std::cout << "jaction=" << jaction << std::endl;
+            for (auto &y : this->dpomdp_->getReachableStates(x, jaction))
             {
-                std::cout << "2" << std::endl;
-                for (auto &z : this->dpomdp_->getObsSpace()->getAll()) // a change
+                for (auto &z : this->dpomdp_->getReachableObservations(jaction, y))
                 {
-                    std::cout << "3" << std::endl;
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
-
-                    std::cout << "4 - " << o->getIndividualHistories() << std::endl;
-                    std::cout << ostate.getJointLabels(o->getIndividualHistories()) << std::endl;
-                    auto jaction = joint_idr.act(ostate.getJointLabels(o->getIndividualHistories()));
-
-                    // Compute de proba of the next couple (state, joint history)
-                    std::cout << "5" << std::endl;
+                    // Compute the proba of the next couple (state, joint history)
                     double proba = this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
 
+                    std::cout << "proba=" << proba << std::endl;
                     if (p_x_o.second * proba > 0)
                     {
-                        std::cout << "6" << std::endl;
                         new_fully_uncompressed_occupancy_state->addProbabilityAt(new_index, p_x_o.second * proba);
-                        if (ostate.getProbability(p_x_o.first) * proba > 0)
+
+                        //
+                        auto compressed_joint_history = ostate.getCompressedJointHistory(p_x_o.first.second);
+                        std::cout << "compressed_joint_history=" << compressed_joint_history << std::endl;
+                        auto occupancy_measure = ostate.getProbability(std::make_pair(p_x_o.first.first, compressed_joint_history)) * proba;
+                        std::cout << "occupancy_measure=" << occupancy_measure << std::endl;
+                        if (occupancy_measure > 0)
                         {
-                            std::cout << "7" << std::endl;
-                            new_one_step_left_compressed_occupancy_state->addProbabilityAt(new_index, ostate.getProbability(p_x_o.first) * proba);
+                            new_one_step_left_compressed_occupancy_state->addProbabilityAt(new_index, occupancy_measure);
                         }
                     }
                 }
@@ -164,27 +167,25 @@ namespace sdm
         }
 
         // Compress the occupancy state
-        std::cout << "8" << std::endl;
         new_one_step_left_compressed_occupancy_state->finalize();
 
         if (compression)
         {
-            std::cout << "9 " << std::endl;
             new_compressed_occupancy_state = std::make_shared<oState>(new_one_step_left_compressed_occupancy_state->compress());
+            new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
+            new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
+
             // finalizing the construction of the occupancy state
-            std::cout << "10" << std::endl;
-            new_compressed_occupancy_state->finalize();
-            std::cout << "11" << std::endl;
-            std::cout << *new_compressed_occupancy_state << std::endl;
-            std::cout << *new_compressed_occupancy_state->getOneStepUncompressedOccupancy() << std::endl;
-            std::cout << *new_compressed_occupancy_state->getFullyUncompressedOccupancy() << std::endl;
+            // new_compressed_occupancy_state->finalize();
+            // std::cout << *new_compressed_occupancy_state << std::endl;
+            // std::cout << *new_compressed_occupancy_state->getOneStepUncompressedOccupancy() << std::endl;
+            // std::cout << *new_compressed_occupancy_state->getFullyUncompressedOccupancy() << std::endl;
 
             return *new_compressed_occupancy_state;
         }
 
         new_one_step_left_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
         new_one_step_left_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
-        std::cout << "12" << std::endl;
         return *new_one_step_left_compressed_occupancy_state;
     }
 
