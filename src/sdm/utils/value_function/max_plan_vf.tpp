@@ -112,7 +112,7 @@ namespace sdm
             // Go over all joint decision rules at occupancy occupancy_state
             for (const auto &joint_decision_rule : all_joint_decision_rules)
             {
-                TVector v = this->getHyperplanAt(occupancy_state, next_hyperplan, joint_decision_rule, t);
+                TVector v = this->getHyperplanAt<TVector>(occupancy_state, next_hyperplan, joint_decision_rule, t);
 
                 if (value_max < (tmp = occupancy_state^v))
                 {
@@ -129,7 +129,7 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&occupancy_state, const TVector&next_hyperplan, const TAction&joint_decision_rule, number t)
     {
-        TVector new_hyperplan(this->default_value_[t]);
+        TVector new_hyperplan(this->default_values_per_horizon[t]);
 
         for(auto uncompressed_s_o: occupancy_state.getFullUncompressedOccupancyState())
         {
@@ -170,7 +170,7 @@ namespace sdm
             // Go over all joint decision rules at serial_occupancy_state 
             for (const auto &serial_decision_rule : getAll_actionspace)
             {
-                TVector v = this->getHyperplanAt(serial_occupancy_state, next_hyperplan, serial_decision_rule, t);
+                TVector v = this->getHyperplanAt<TVector>(serial_occupancy_state, next_hyperplan, serial_decision_rule, t);
                 if (value_max < (tmp = serial_occupancy_state^v))
                 {
                     value_max = tmp;
@@ -187,7 +187,7 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&serial_occupancy_state, const TVector&next_hyperplan, const TAction&serial_decision_rule, number t)
     {
-        TVector new_hyperplan(this->default_value_[t]);
+        TVector new_hyperplan(this->default_values_per_horizon[t]);
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         for (const auto &pair_s_o_p : serial_occupancy_state)

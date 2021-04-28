@@ -36,7 +36,8 @@ namespace sdm
         std::vector<std::shared_ptr<TSpace>> spaces_;
 
     public:
-        using value_type = void;
+        //using value_type = void;
+        using value_type = typename TSpace::value_type;
 
         MultiSpace();
         MultiSpace(const std::vector<std::shared_ptr<TSpace>> &);
@@ -64,6 +65,13 @@ namespace sdm
          * @return a shared pointer on a specific space 
          */
         std::shared_ptr<TSpace> getSpace(number index) const;
+
+        /**
+         * @brief Transform the Multi Space in a vector of value_type 
+         * 
+         * @return std::vector<value_type> 
+         */
+        std::vector<value_type> getAll();
 
         /**
          * @brief Change the list of spaces. You may prefer build a new MultiSpace instead of changing values of existing one.

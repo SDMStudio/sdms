@@ -111,7 +111,7 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, number horizon)
+        std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, int horizon)
         {
             // Set params in the environment
             problem->getUnderlyingProblem()->setDiscount(discount);
@@ -123,8 +123,9 @@ namespace sdm
                 horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
             }
 
-            return std::make_shared<ValueIteration<TState, TAction>>(problem,discount, horizon, error);
+            return std::make_shared<ValueIteration<TState, TAction>>(problem,discount, error,horizon);
         }
+
 
         /**
          * @brief Build an algorithm given his name and the configurations required. 
@@ -183,11 +184,20 @@ namespace sdm
                     using TState = SerializedState; //<number, number>;
                     using TAction = number;
 
-                    auto mmdp = std::make_shared<DiscreteMMDP>(problem_path);
-                    auto serialized_mdp = std::make_shared<SerializedMDP<TState, TAction>>(mmdp);
+                    auto serialized_mdp = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path);
                     serialized_mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    p_algo =  makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                    return makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                }
+                else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
+                {
+                    using TState = SerializedBeliefState; //<number, number>;
+                    using TAction = number;
+                    using TObservation = Joint<number>;
+
+                    // auto serialized_pomdp = std::make_shared<SerializedBeliefMDP<TState, TAction,TObservation>>(problem_path);
+
+                    // return makeHSVI<TState, TAction>(serialized_pomdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
@@ -196,7 +206,7 @@ namespace sdm
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
 
-                    p_algo =  makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
+                    return makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
                 }
             }
             else

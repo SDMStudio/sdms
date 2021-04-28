@@ -63,6 +63,20 @@ namespace sdm
     }
 
     template <typename TSpace>
+    std::vector<typename TSpace::value_type> MultiSpace<TSpace>::getAll()
+    {
+        std::vector<typename TSpace::value_type> all_states;
+        for(const auto &space : this->getSpaces())
+        {
+            for(const auto &s : space->getAll())
+            {
+                all_states.push_back(s);
+            }
+        }
+        return all_states;
+    }
+
+    template <typename TSpace>
     std::string MultiSpace<TSpace>::str() const
     {
         std::ostringstream res;

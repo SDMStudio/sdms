@@ -7,13 +7,9 @@
 #include <sdm/core/state/serialized_belief_state.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/core/action/det_decision_rule.hpp>
 
 namespace sdm
 {
-
-    class DiscretePOMDP;
-
     /**
      * @brief An Serialized MDP is a subclass of POMDP where belief are serialized beliefs. 
      * In the general case, a serialized belief refers to the whole knowledge that a central planner can have access to take decisions at the time step of a precise agent. 
@@ -23,42 +19,47 @@ namespace sdm
      */
     template <typename TBelief = SerializedBeliefState,
               typename TAction = number,
-              typename TObservation = number>
-    class SerializedBeliefMDP : public BeliefMDP<TBelief, TAction, TObservation>,
-                                public std::enable_shared_from_this<SerializedBeliefMDP<TBelief, TAction,TObservation>>
+              typename TObservation = Joint<number>>
+    class SerializedBeliefMDP : public SerializedMPOMDP<TBelief,TAction>, 
+                                public std::enable_shared_from_this<SerializedBeliefMDP<TBelief, TAction,TObservation>>,
+                                public SolvableByHSVI<TBelief, TAction>
     {
     protected:
-        std::shared_ptr<DiscretePOMDP> mpomdp_;
+        std::shared_ptr<SerializedMPOMDP<TBelief,TAction>> serialized_mpomdp_;
+        TBelief istate_;
+
+        //std::shared_ptr<DiscretePOMDP> mpomdp_;
 
     public:
         using state_type = TBelief;
         using action_type = TAction;
 
         SerializedBeliefMDP();
-        SerializedBeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_mmdp);
-        SerializedBeliefMDP(std::string underlying_mmdp);
+        SerializedBeliefMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);
+        SerializedBeliefMDP(std::string underlying_dpomdp);
 
         std::shared_ptr<SerializedBeliefMDP<TBelief, TAction, TObservation>> getptr();
 
-        TBelief &getState();
-        double getDiscount(number t) const;
+        //TBelief &getState();
+        double getDiscount(int t) const;
 
         bool isSerialized() const;
-        DiscretePOMDP *getUnderlyingProblem();
+        SerializedMPOMDP<TBelief,TAction> *getUnderlyingProblem();
 
         TBelief getInitialState();
-        TBelief nextState(const TBelief &ostate, const TAction &oaction, number t = 0, std::shared_ptr<HSVI<TBelief, TAction>> hsvi = nullptr) const;
+        TBelief nextState(const TBelief &ostate, const TAction &oaction, int t = 0, HSVI<TBelief, TAction> *hsvi = nullptr) const;
 
         //Tempo à vérifier leur utilité
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
+        
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
 
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &);
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &belief);
 
         double getReward(const TBelief &ostate, const TAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &ostate, const TAction &oaction, number t = 0) const;
+        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &ostate, const TAction &oaction, int t = 0) const;
 
-        std::shared_ptr<DiscreteMDP> toMDP();
+        std::shared_ptr<SerializedMMDP<>> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  

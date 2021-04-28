@@ -66,7 +66,7 @@ namespace sdm
          * 
          * @return TVector 
          */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
 
         /**

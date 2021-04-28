@@ -28,10 +28,10 @@ namespace sdm
         }
 
         template <bool is_serialized_mdp>
-        static std::enable_if_t<is_serialized_mdp, SerializedMDP<SerializedState, number>>
+        static std::enable_if_t<is_serialized_mdp, SerializedMMDP<SerializedState, number>>
         getWorldType()
         {
-            return SerializedMDP<SerializedState, number>();
+            return SerializedMMDP<>();
         }
 
         template <bool is_serialized_occupancy_mdp>
@@ -48,11 +48,68 @@ namespace sdm
             return OccupancyMDP<>();
         }
 
-        template <bool is_multi_agent>
-        static std::enable_if_t<is_multi_agent, DiscreteDecPOMDP>
-        getWorldType()
+        // template <bool is_multi_agent>
+        // static std::enable_if_t<is_multi_agent, DiscreteDecPOMDP>
+        // getWorldType()
+        // {
+        //     throw sdm::exception::Exception("Joint<number> cannot suffice to determine SolvableByHSVI problem.");
+        // }
+
+        template <bool is_solving_mdp>
+        static std::enable_if_t<is_solving_mdp, DiscreteMDP>
+        getAssociatedProblem()
         {
-            throw sdm::exception::Exception("Joint<number> cannot suffice to determine SolvableByHSVI problem.");
+            return DiscreteMDP();
         }
+
+        // template <bool is_solving_mmdp>
+        // static std::enable_if_t<is_solving_mmdp, DiscreteMMDP>
+        // getAssociatedProblem()
+        // {
+        //     return DiscreteMMDP();
+        // }
+
+        template <bool is_solving_pomdp>
+        static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
+        getAssociatedProblem()
+        {
+            return DiscretePOMDP();
+        }
+
+        template <bool is_solving_decpomdp>
+        static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>
+        getAssociatedProblem()
+        {
+            return DiscreteDecPOMDP();
+        }
+
+        template <bool is_solving_decpomdp>
+        static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>
+        getAssociatedProblem()
+        {
+            return DiscreteDecPOMDP();
+        }
+
+        template <bool is_solving_serialized_mmdp>
+        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDP>
+        getAssociatedProblem()
+        {
+            return SerializedMMDP();
+        }
+
+        template <bool is_solving_serialized_mpomdp>
+        static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP>
+        getAssociatedProblem()
+        {
+            return SerializedMPOMDP();
+        }
+
+        template <bool is_solving_serialized_pomdp>
+        static std::enable_if_t<is_solving_serialized_pomdp, SerializedMPOMDP>
+        getAssociatedProblem()
+        {
+            return SerializedMPOMDP();
+        }
+
     };
 } // namespace sdm
