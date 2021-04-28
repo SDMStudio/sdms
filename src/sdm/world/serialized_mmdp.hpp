@@ -36,8 +36,8 @@ namespace sdm
      */
     template <typename TState = SerializedState, typename TAction = number>
     class SerializedMMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<TAction>, std::discrete_distribution<number>>,
-                           public SolvableByHSVI<TState, TAction>,
-                           public std::enable_shared_from_this<SerializedMMDP<TState, TAction>>,
+                           //public SolvableByHSVI<TState, TAction>,
+                           public std::enable_shared_from_this<SerializedMMDP<TState, TAction>>
     {
     public:
         using state_type = TState;
@@ -97,7 +97,7 @@ namespace sdm
          * @param serialized_state 
          * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
          */
-        std::shared_ptr<DiscreteSpace<SerializedState>> getReachableSerialStates(const TState&, const TAction&) const;
+        const std::vector<TState>& getReachableSerialStates(const TState&, const TAction&) const;
 
         /**
          * @brief Get All the Serialized State Space
@@ -130,8 +130,7 @@ namespace sdm
          * @param serialized_state_next 
          * @return double 
          */
-        double getDynamics(const TState &,const TAction &, const TState &) const;
-
+        double getTransitionProbability(const TState &,const TAction &, const TState &) const;
 
         TState getInternalState() const;
         
@@ -159,6 +158,8 @@ namespace sdm
          * @return a belief MDP
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
+
+        number getNumAgents() const;
   
     protected:
         /**
@@ -176,6 +177,18 @@ namespace sdm
          * @brief Map (serial state, seial action) to Set of reachable seial states
          */
         std::unordered_map<state_type, std::unordered_map<action_type, std::vector<state_type>>> reachable_state_space;
+
+        /**
+         * @brief Initialize "serialized_state_space_"
+         * 
+         */
+        void createInitSerializedStateSpace();
+
+        /**
+         * @brief Initialize "serialized_state_space_"
+         * 
+         */
+        void createInitReachableStateSpace();
 
     };
 } // namespace sdm

@@ -17,11 +17,12 @@ namespace sdm
      * @brief An Serialized MDP is a subclass of MDP where states are serialized states. 
      * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
      * 
-     * @tparam Serial_Occupancy_State refer to the serialized state type
-     * @tparam Serial_Occupancy_Action refer to the number type
+     * @tparam TState refer to the serialized state type
+     * @tparam TAction refer to the number type
      */
-    template <typename Serial_Occupancy_State = SerializedState, typename Serial_Occupancy_Action = number>
-    class SerializedMPOMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<Serial_Occupancy_State>>, MultiDiscreteSpace<Serial_Occupancy_Action>, std::discrete_distribution<number>>
+    template <typename TState = SerializedState, typename TAction = number>
+    class SerializedMPOMDP : public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<TAction>, std::discrete_distribution<number>>,
+                            public SerializedMMDP<SerializedState,number>
     {
     protected:
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
@@ -29,32 +30,22 @@ namespace sdm
         std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
 
     public:
-        using state_type = Serial_Occupancy_State;
-        using action_type = Serial_Occupancy_Action;
+        using state_type = TState;
+        using action_type = TAction;
 
         SerializedMPOMDP();
         SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP>);
         SerializedMPOMDP(std::string);
 
-       /**
-         * @brief Get the Discount for a time step. If it's not the last agent, the discount is 1 
-         * 
-         * @param int decision epoch
-         * @return double 
-         */
-        double getDiscount(int) const;
+    //     bool isSerialized() const;
 
-        void setDiscount(double discount);
+    //     SerializedMPOMDP<TState, TAction> *getUnderlyingProblem();
 
-        bool isSerialized() const;
-
-        SerializedMPOMDP<Serial_Occupancy_State, Serial_Occupancy_Action> *getUnderlyingProblem();
-
-        Serial_Occupancy_State getInitialState();
+    //     TState getInitialState();
         
-        //Serial_Occupancy_State nextState(const Serial_Occupancy_State &Serial_Occupancy_state, const Serial_Occupancy_Action &Serial_Occupancy_action, int t = 0, HSVI<Serial_Occupancy_State, Serial_Occupancy_Action> *hsvi = nullptr) const;
+    //     //TState nextState(const TState &Serial_Occupancy_state, const TAction &Serial_Occupancy_action, int t = 0, HSVI<TState, TAction> *hsvi = nullptr) const;
 
-        //double getExpectedNextValue(ValueFunction<Serial_Occupancy_State, Serial_Occupancy_Action> *value_function, const Serial_Occupancy_State &Serial_Occupancy_state, const Serial_Occupancy_Action &Serial_Occupancy_action, int t = 0) const;
+    //     //double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &Serial_Occupancy_state, const TAction &Serial_Occupancy_action, int t = 0) const;
 
         std::shared_ptr<SerializedMMDP<>> toMDP();
 
@@ -65,49 +56,41 @@ namespace sdm
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
 
-        /**
-         * @brief Get the Hidden State Space of the SerializedSpace
-         * 
-         * @return std::shared_ptr<DiscreteSpace<number>> 
-         */
-        std::shared_ptr<DiscreteSpace<number>> getHiddenStateSpace() const;
 
-        /**
-         * @brief For a precise SerializedState, this function return the next SerializedState possible
-         * 
-         * @param state 
-         * @return std::shared_ptr<DiscreteSpace<typename Serial_Occupancy_State::state_type>> 
-         */
-        std::shared_ptr<DiscreteSpace<typename Serial_Occupancy_State::state_type>> getNextSerializedStateSpace(const typename Serial_Occupancy_State::state_type &state) const;
+        // /**
+        //  * @brief For a precise SerializedState, this function return the next SerializedState possible
+        //  * 
+        //  * @param state 
+        //  * @return std::shared_ptr<DiscreteSpace<typename TState>> 
+        //  */
+        // std::shared_ptr<DiscreteSpace<typename TState>> getNextSerializedStateSpace(const typename TState &state) const;
 
-        /**
-         * @brief For a precise SerializedState, this function return the next SerializedState possible
-         * 
-         * @param state is a serialized state
-         * @param action is an action
-         * @return std::shared_ptr<DiscreteSpace<typename Serial_Occupancy_State::state_type>> 
-         */
-        std::shared_ptr<DiscreteSpace<typename Serial_Occupancy_State::state_type>> getNextSerializedStateSpace(const typename Serial_Occupancy_State::state_type &state, const number &action) const;
+        // /**
+        //  * @brief For a precise SerializedState, this function return the next SerializedState possible
+        //  * 
+        //  * @param state is a serialized state
+        //  * @param action is an action
+        //  * @return std::shared_ptr<DiscreteSpace<typename TState>> 
+        //  */
+        // std::shared_ptr<DiscreteSpace<typename TState>> getNextSerializedStateSpace(const typename TState &state, const number &action) const;
 
-        /**
-         * @brief THis function return all the serializedState possible
-         * 
-         * @return std::shared_ptr<MultiSpace<DiscreteSpace<typename Serial_Occupancy_State::state_type>>> 
-         */
-        std::shared_ptr<MultiSpace<DiscreteSpace<typename Serial_Occupancy_State::state_type>>> getSerializedStateSpace() const; 
+        // /**
+        //  * @brief THis function return all the serializedState possible
+        //  * 
+        //  * @return std::shared_ptr<MultiSpace<DiscreteSpace<typename TState>>> 
+        //  */
+        // std::shared_ptr<MultiSpace<DiscreteSpace<typename TState>>> getSerializedStateSpace() const; 
 
-        /**
-         * @brief Get the Serialized State Space of a precise agent
-         * 
-         * @param ag_id is the identifiant of an agent 
-         * @return std::shared_ptr<DiscreteSpace<typename Serial_Occupancy_State::state_type>> 
-         */
-        std::shared_ptr<DiscreteSpace<typename Serial_Occupancy_State::state_type>> getSerializedStateSpaceAt(number ag_id) const;
+        // /**
+        //  * @brief Get the Serialized State Space of a precise agent
+        //  * 
+        //  * @param ag_id is the identifiant of an agent 
+        //  * @return std::shared_ptr<DiscreteSpace<typename TState>> 
+        //  */
+        // std::shared_ptr<DiscreteSpace<typename TState>> getSerializedStateSpaceAt(number ag_id) const;
 
-        std::shared_ptr<MultiSpace<DiscreteSpace<typename Serial_Occupancy_State::state_type>>> getStateSpace() const; 
-        std::shared_ptr<DiscreteSpace<typename Serial_Occupancy_State::state_type>> getStateSpaceAt(number ag_id) const;
-        //Attention ici, ce ne sont pas vraiment des StateSpace, mais des SerializedState, pour le moment ça garde cette notation
-        // par souci de généralisation
+        // std::shared_ptr<MultiSpace<DiscreteSpace<typename TState>>> getStateSpace() const; 
+        // std::shared_ptr<DiscreteSpace<typename TState>> getStateSpaceAt(number ag_id) const;
 
         /**
          * @brief Get the Obs Space of the SerializedMPOMDP. In this situation, it is the same as the ObsSpace of a Dec-Pomdp
@@ -121,7 +104,7 @@ namespace sdm
          * 
          * @return std::shared_ptr<MultiDiscreteSpace<number>> 
          */
-        std::vector<Joint<number>> getObsSpaceAt(const typename Serial_Occupancy_State::state_type &serialized_state) const;
+        std::vector<Joint<number>> getObsSpaceAt(const typename TState &serialized_state) const;
 
                 /**
          * @brief Get the Obs Space of a precise agent
@@ -131,61 +114,67 @@ namespace sdm
          */
         std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ag_id) const;
 
+        double getObservationProbability(const TAction &action, const Joint<number> joint_obs,const typename TState &s) const;
 
-        /**
-         * @brief Get the Obs Dynamics 
-         * 
-         * @param s is a hidden state
-         * @param joint_action is a specific joint action
-         * @param joint_obs  is a specific joint observation
-         * @param s_ is a hidden state
-         * @return double 
-         */
-        double getObsDynamics(const number &s,const number joint_action,const number joint_obs,const number &s_) const;
+        double getDynamics(const typename TState &s,const TAction action,const Joint<number> joint_obs,const typename TState &s_) const;
 
-        /**
-         * @brief Get the Obs Dynamics. This function is more general because it will do multiple verification 
-         * 
-         * @param s is a serialized State
-         * @param action is a private action 
-         * @param joint_obs is a vector of observation
-         * @param s_ is a serialized State
-         * @return double 
-         */
-        double getObsDynamics(const typename Serial_Occupancy_State::state_type &s,const number action,const Joint<number> joint_obs,const typename Serial_Occupancy_State::state_type &s_) const;
+        std::shared_ptr<DiscreteSpace<SerializedState>> getReachableSerialStates(const TState&, const TAction&) const;
 
-        /**
-         * @brief Get the Action Space of a SerializedMPOMDP. In this situation, it is the same as the ActionSpace of a Dec-Pomdp
-         * 
-         * @return std::shared_ptr<MultiDiscreteSpace<number>> 
-         */
-        std::shared_ptr<MultiDiscreteSpace<number>> getActionSpace()const;
+
+        // /**
+        //  * @brief Get the Obs Dynamics 
+        //  * 
+        //  * @param s is a hidden state
+        //  * @param joint_action is a specific joint action
+        //  * @param joint_obs  is a specific joint observation
+        //  * @param s_ is a hidden state
+        //  * @return double 
+        //  */
+        // double getObsDynamics(const number &s,const number joint_action,const number joint_obs,const number &s_) const;
+
+        // /**
+        //  * @brief Get the Obs Dynamics. This function is more general because it will do multiple verification 
+        //  * 
+        //  * @param s is a serialized State
+        //  * @param action is a private action 
+        //  * @param joint_obs is a vector of observation
+        //  * @param s_ is a serialized State
+        //  * @return double 
+        //  */
+        // double getObsDynamics(const typename TState &s,const number action,const Joint<number> joint_obs,const typename TState &s_) const;
+
+        // /**
+        //  * @brief Get the Action Space of a SerializedMPOMDP. In this situation, it is the same as the ActionSpace of a Dec-Pomdp
+        //  * 
+        //  * @return std::shared_ptr<MultiDiscreteSpace<number>> 
+        //  */
+        // std::shared_ptr<MultiDiscreteSpace<number>> getActionSpace()const;
         
-        /**
-         * @brief Get the Action Space of a precise agent. In this situation, it is the same as the ActionSpaceAt of a Dec-Pomdp
-         * 
-         * @param state 
-         * @return std::shared_ptr<DiscreteSpace<number>> 
-         */
-        std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(number ag_id) ;
+        // /**
+        //  * @brief Get the Action Space of a precise agent. In this situation, it is the same as the ActionSpaceAt of a Dec-Pomdp
+        //  * 
+        //  * @param state 
+        // //  * @return std::shared_ptr<DiscreteSpace<number>> 
+        // //  */
+        // // std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(number ag_id) ;
 
 
-        double getReward(const typename Serial_Occupancy_State::state_type &s,const number &action) const;
-        double getReward(const typename Serial_Occupancy_State::state_type &s,const Joint<number> &action) const;
+        // double getReward(const typename TState &s,const number &action) const;
+        // double getReward(const typename TState &s,const Joint<number> &action) const;
 
 
-        std::shared_ptr<Reward> getReward() const; // A modifier, car pour 
+        // std::shared_ptr<Reward> getReward() const; // A modifier, car pour 
 
-        double getDynamics(const typename Serial_Occupancy_State::state_type &s,const number &action, const typename Serial_Occupancy_State::state_type &s_) const;
+        // double getDynamics(const typename TState &s,const number &action, const typename TState &s_) const;
 
-        number getNumAgents() const;
+        // number getNumAgents() const;
 
-        std::discrete_distribution<number> getStartDistrib() const;
+        // std::discrete_distribution<number> getStartDistrib() const;
 
-        void setPlanningHorizon(number horizon);
+        // void setPlanningHorizon(number horizon);
 
-        //Serial_Occupancy_State getInternalState() const;
-        void setInternalState(const typename Serial_Occupancy_State::state_type  new_i_state);
+        // //TState getInternalState() const;
+        // void setInternalState(const typename TState  new_i_state);
         
     };
 } // namespace sdm
