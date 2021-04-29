@@ -16,7 +16,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize()
     {
-        this->initializer_->init(this);
+        this->initializer_->init(this->getptr());
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
@@ -38,18 +38,6 @@ namespace sdm
     {
         if (t < this->getHorizon())
         {
-            // bool found = false;
-            // auto first = this->representation[t].begin();
-            // auto last = this->representation[t].end();
-
-            // while (first != last && !found)
-            // {
-            //     if (first->first == state)
-            //     {
-            //         found = true;
-            //     }
-            //     ++first;
-            // }
             if ((this->representation[t].find(state) == this->representation[t].end()))
             {
                 if (this->init_function_ != nullptr)
@@ -88,7 +76,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t)
     {
-        this->updateValueAt(state, t, this->getBackupOperator().backup(this, state, t));
+        this->updateValueAt(state, t, this->getBackupOperator().backup(this->getptr(), state, t));
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>

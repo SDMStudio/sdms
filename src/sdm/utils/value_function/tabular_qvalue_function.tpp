@@ -16,7 +16,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     void TabularQValueFunction<TState, TAction, TValue, TMatrix>::initialize()
     {
-        this->initializer_->init(this);
+        this->initializer_->init(this->getptr());
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>

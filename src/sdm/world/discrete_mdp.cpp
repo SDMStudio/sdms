@@ -68,7 +68,7 @@ namespace sdm
         return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward()->getReward(state, action);
     }
 
-    double DiscreteMDP::getExpectedNextValue(ValueFunction<number, number> *value_function, const number &state, const number &action, number t) const
+    double DiscreteMDP::getExpectedNextValue(std::shared_ptr<ValueFunction<number, number>> value_function, const number &state, const number &action, number t) const
     {
         double tmp = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)

@@ -27,7 +27,7 @@ namespace sdm
     {
     protected:
         std::vector<long> dim_ = {};
-        TValue default_value_;
+        MappedVector<TCol, TValue> default_value_;
 
     public:
         using type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::type;
@@ -43,7 +43,8 @@ namespace sdm
         TValue getDefault() const;
         std::vector<long> dim() const;
         MappedMatrix dot(const MappedMatrix &) const;
-        MappedVector<TCol, TValue> at(const TLig &i) const;
+        const MappedVector<TCol, TValue> &at(const TLig &i) const;
+        TValue at(const TLig &i, const TCol &j) const;
 
         std::string str() const;
     };

@@ -82,7 +82,7 @@ namespace sdm
          * 
          * @return double 
          */
-        double getExpectedNextValue(ValueFunction<TState, TAction>*, const TState&, const TAction&, number = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState&, const TAction&, number = 0) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent

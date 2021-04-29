@@ -3,7 +3,7 @@
 namespace sdm
 {
     template <typename TState, typename TAction>
-    ValueIteration<TState,TAction>::ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem,double discount, double error, int horizon) : problem_(problem), error_(error), horizon_(horizon)   
+    ValueIteration<TState,TAction>::ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double error, int horizon) : problem_(problem), error_(error), horizon_(horizon)   
     {
     }
 

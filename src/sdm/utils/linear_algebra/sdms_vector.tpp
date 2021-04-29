@@ -70,13 +70,13 @@ namespace sdm
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::min() const
+    T sdmsVector<I, T, TBaseVector>::min()
     {
         return this->getMin().second;
     }
 
     template <class I, class T, class TBaseVector>
-    I sdmsVector<I, T, TBaseVector>::argmin() const
+    I sdmsVector<I, T, TBaseVector>::argmin()
     {
         return this->getMin().first;
     }
@@ -98,13 +98,13 @@ namespace sdm
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::max() const
+    T sdmsVector<I, T, TBaseVector>::max()
     {
         return this->getMax().second;
     }
 
     template <class I, class T, class TBaseVector>
-    I sdmsVector<I, T, TBaseVector>::argmax() const
+    I sdmsVector<I, T, TBaseVector>::argmax()
     {
         return this->getMax().first;
     }

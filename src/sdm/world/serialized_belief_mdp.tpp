@@ -46,9 +46,9 @@
 //     }
 
 //     template <typename TBelief, typename TAction, typename TObservation>
-//     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const
+//     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &/*obs*/) const
 //     {
-//         std::cout<<"\n ???? Next state 2 ";
+//         std::cout<<"\n; ???? Next state 2 ";
 
 //         TBelief new_belief;
 //         number ag_id = belief.getCurrentAgentId();
@@ -100,7 +100,7 @@
 //     }
 
 //     template <typename TBelief, typename TAction, typename TObservation>
-//     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int t, HSVI<TBelief, TAction> *hsvi) const
+//     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int /*t*/, HSVI<TBelief, TAction> */*hsvi*/) const
 //     {
 //         std::cout<<"\n ???? Next state 1 !!!!! ";
 
@@ -125,8 +125,8 @@
 //             else
 //             {
 //                 // Select o* as in the paper
-//                 number selected_o = 0;
-//                 double max_o = 0, tmp;
+//                 //number selected_o = 0;
+//                 //double max_o = 0, tmp;
 
 //                 std::cout<<"\n ???? Next state 1-2 ";
 
@@ -166,7 +166,7 @@
 //     }//Me paraît bien
 
 //     template <typename TBelief, typename TAction, typename TObservation>
-//     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, int t) const
+//     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, int t) const
 //     {
 //         double exp_next_v = 0;
 //         for (const auto &obs : this->serialized_mpomdp_->getObsSpace()->getAll())

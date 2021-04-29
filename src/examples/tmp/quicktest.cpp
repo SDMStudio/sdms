@@ -13,30 +13,49 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
+	// std::string filename;
 
-	using TState = SerializedState;
-	using TAction = number;
-
-	std::string a("../data/world/dpomdp/tiger.dpomdp");
-
-	auto serialized_mdp = std::make_shared<sdm::SerializedMMDP<TState, TAction>>(a);
-
-	std::cout<<"\n getState "<<serialized_mdp->getUnderlyingProblem()->getStateSpace()->getAll();
-	std::cout<<"\n getAction "<<serialized_mdp->getUnderlyingProblem()->getActionSpace()->getAll();
-
-	// auto serialized_pomdp = std::make_shared<sdm::SerializedMPOMDP<TState, TAction>>(a);
-
-
-	// std::vector<sdm::number> action = {};
-	// sdm::SerializedState s(0,action);
-	
-	// std::vector<number> all_action = {0,0} ;
-	// for(auto s : serialized_pomdp->getReachableObservations(Joint<number>(all_action),s))
+	// if (argc > 1)
 	// {
-	// 	std::cout<<"\n s  :"<<s;
+	// 	filename = argv[1];
 	// }
 
-	//auto serialized_pomdp = std::make_shared<sdm::SerializedMPOMDP<TState, TAction>>(a);
+	// else
+	// {
+	// 	std::cerr << "Error: Require 1 input file." << std::endl;
+	// 	return 1;
+	// }
+
+	// try
+	// {
+	// 	// Construct DecPOMDP using parser
+	// 	std::cout << "#> Parsing file \"" << filename << "\"\n";
+	// 	// auto omdp_world = sdm::parser::parse_file(filename);
+	// 	// auto world = std::make_shared<DiscreteDecPOMDP>(filename);
+	// 	auto omdp_world = std::make_shared<OccupancyMDP<>>(filename);
+	// 	std::cout << "#> omdp_world reference \"" << omdp_world << "\"\n";
+
+	// 	// Test getReachable
+	// 	// world->setupDynamicsGenerator();
+	// 	// auto state_sample = world->getStateSpace()->sample();
+	// 	// std::cout << "state_sample=" << state_sample << std::endl;
+
+	// auto serialized_mdp = std::make_shared<sdm::SerializedMMDP<TState, TAction>>(a);
+
+	// std::cout<<"\n getState "<<serialized_mdp->getUnderlyingProblem()->getStateSpace()->getAll();
+	// std::cout<<"\n getAction "<<serialized_mdp->getUnderlyingProblem()->getActionSpace()->getAll();
+
+	// // auto serialized_pomdp = std::make_shared<sdm::SerializedMPOMDP<TState, TAction>>(a);
+
+
+	// // std::vector<sdm::number> action = {};
+	// // sdm::SerializedState s(0,action);
+	
+	// // std::vector<number> all_action = {0,0} ;
+	// // for(auto s : serialized_pomdp->getReachableObservations(Joint<number>(all_action),s))
+	// // {
+	// // 	std::cout<<"\n s  :"<<s;
+	// // }
 
 	return 0;
 } // END main

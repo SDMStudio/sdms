@@ -56,7 +56,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
     {
-        MappedValueFunction<TState, TAction, TValue>::updateValueAt(state, t, this->getBackupOperator().backup(this, state, t));
+        MappedValueFunction<TState, TAction, TValue>::updateValueAt(state, t, this->getBackupOperator().backup(this->getptr(), state, t));
         this->prune(t);
     }
 

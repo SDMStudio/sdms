@@ -37,7 +37,6 @@ namespace sdm
     class MappedVector : public RecursiveMap<TIndex, T>, public VectorImpl<TIndex, T>
     {
     protected:
-
         T default_value_;
         long size_ = -1;
         double precision = 0.0001;
@@ -47,8 +46,8 @@ namespace sdm
         bool bmin = false, bmax = false;
         std::pair<TIndex, T> pmin, pmax;
 
-        std::pair<TIndex, T> getMin() const;
-        std::pair<TIndex, T> getMax() const;
+        const std::pair<TIndex, T> &getMin();
+        const std::pair<TIndex, T> &getMax();
 
     public:
         using iterator = typename std::unordered_map<TIndex, T>::iterator;
@@ -68,11 +67,11 @@ namespace sdm
         T norm_1() const;
         T norm_2() const;
 
-        T min() const;
-        TIndex argmin() const;
+        T min();
+        TIndex argmin();
 
-        T max() const;
-        TIndex argmax() const;
+        T max();
+        TIndex argmax();
 
         T at(const TIndex &) const;
 
@@ -101,7 +100,7 @@ namespace sdm
         std::vector<TIndex> getIndexes() const;
 
         void setPrecision(double);
-        
+
         std::string str() const;
 
         friend std::ostream &operator<<(std::ostream &os, const MappedVector &vect)

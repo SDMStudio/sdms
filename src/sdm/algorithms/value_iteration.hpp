@@ -42,7 +42,7 @@ namespace sdm
              */
             void do_test();
 
-            ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem,double discount, double error, int horizon);
+            ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double error, int horizon);
 
             std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> getResult();
 

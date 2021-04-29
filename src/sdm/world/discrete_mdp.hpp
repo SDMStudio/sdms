@@ -44,7 +44,7 @@ namespace sdm
         number nextState(const number &, const number &, number = 0, std::shared_ptr<HSVI<number, number>>  = nullptr) const;
         std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(const number &);
         double getReward(const number &, const number &) const;
-        double getExpectedNextValue(ValueFunction<number, number> *, const number &, const number &, number = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<number, number>>, const number &, const number &, number = 0) const;
         DiscreteMDP *getUnderlyingProblem();
         bool isSerialized() const;
 

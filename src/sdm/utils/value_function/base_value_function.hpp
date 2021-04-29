@@ -31,6 +31,7 @@ namespace sdm
      */
     template <typename TState, typename TAction, typename TValue = double>
     class BaseValueFunction
+        : public std::enable_shared_from_this<BaseValueFunction<TState, TAction, TValue>>
     {
     protected:
         /**
@@ -62,7 +63,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual TValue getValueAt(const TState &state, number t = 0) =0;
+        virtual TValue getValueAt(const TState &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-value at a state
@@ -93,6 +94,13 @@ namespace sdm
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() = 0;
+
+        /**
+         * @brief Get a shared pointer on the current object
+         * 
+         * @return the corresponding shared pointer
+         */
+        std::shared_ptr<BaseValueFunction<TState, TAction, TValue>> getptr();
 
         number getHorizon() const;
 

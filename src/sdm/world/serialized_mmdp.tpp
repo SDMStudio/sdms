@@ -58,7 +58,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double SerializedMMDP<TState, TAction>::getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &serialized_state, const TAction &action, number t) const
+    double SerializedMMDP<TState, TAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const TState &serialized_state, const TAction &action, number t) const
     {
         number agent_identifier = serialized_state.getCurrentAgentId();
 
@@ -115,17 +115,6 @@ namespace sdm
     double SerializedMMDP<TState,TAction>::getReward(const TState &s, const TAction &action) const
     {
         return this->serial_mmdp_->getReward(s,action);
-        // if(s.getCurrentAgentId() +1 != this->serial_mmdp_->getNumAgents())
-        // {
-        //     return 0;
-        // }else
-        // {
-        //     std::vector<number> all_action = s.getAction();
-        //     all_action.push_back(action);
-
-            
-        //     return this->serial_mmdp_->getReward(s.getState(),Joint<number>(all_action));
-        // }
     }
 
     template <typename TState, typename TAction>

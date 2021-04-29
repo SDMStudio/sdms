@@ -23,7 +23,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    void MDPInitializer<TState, TAction>::init(ValueFunction<TState, TAction> *vf)
+    void MDPInitializer<TState, TAction>::init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
     {
         // Get relaxed MDP problem and the underlying problem
         auto mdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toMDP();

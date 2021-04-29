@@ -18,7 +18,10 @@ namespace sdm
     }
 
     template <typename TLig, typename TCol, typename TValue>
-    MappedMatrix<TLig, TCol, TValue>::MappedMatrix(const MappedMatrix &copy) : RecursiveMap<TLig, MappedVector<TCol, TValue>>(copy), dim_(copy.dim()), default_value_(copy.getDefault())
+    MappedMatrix<TLig, TCol, TValue>::MappedMatrix(const MappedMatrix &copy)
+        : RecursiveMap<TLig, MappedVector<TCol, TValue>>(copy),
+          dim_(copy.dim()),
+          default_value_(copy.getDefault())
     {
     }
 
@@ -30,7 +33,7 @@ namespace sdm
     template <typename TLig, typename TCol, typename TValue>
     TValue MappedMatrix<TLig, TCol, TValue>::getDefault() const
     {
-        return this->default_value_;
+        return this->default_value_.getDefault();
     }
     template <typename TLig, typename TCol, typename TValue>
     std::vector<long> MappedMatrix<TLig, TCol, TValue>::dim() const
@@ -45,7 +48,7 @@ namespace sdm
     }
 
     template <typename TLig, typename TCol, typename TValue>
-    MappedVector<TCol, TValue> MappedMatrix<TLig, TCol, TValue>::at(const TLig &i) const
+    const MappedVector<TCol, TValue> &MappedMatrix<TLig, TCol, TValue>::at(const TLig &i) const
     {
         if (this->find(i) != this->end())
         {
@@ -55,6 +58,12 @@ namespace sdm
         {
             return this->default_value_;
         }
+    }
+
+    template <typename TLig, typename TCol, typename TValue>
+    TValue MappedMatrix<TLig, TCol, TValue>::at(const TLig &i, const TCol &j) const
+    {
+            return this->at(i).at(j);
     }
 
     template <typename TLig, typename TCol, typename TValue>

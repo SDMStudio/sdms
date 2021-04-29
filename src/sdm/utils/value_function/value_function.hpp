@@ -34,7 +34,10 @@ namespace sdm
      * @tparam TValue Type of the value.
      */
     template <typename TState, typename TAction, typename TValue = double>
-    class ValueFunction : public BaseValueFunction<TState, TAction, TValue>, public BinaryFunction<TState, number, TValue>
+    class ValueFunction
+        : public BaseValueFunction<TState, TAction, TValue>,
+          public BinaryFunction<TState, number, TValue>
+
     {
     protected:
         /**
@@ -96,16 +99,22 @@ namespace sdm
         virtual void updateValueAt(const TState &, number = 0) = 0;
 
         /**
+         * @brief Return the possible indexes of the value function
+         * 
+         * @return std::string 
+         */
+        virtual std::vector<TState> getSupport(number) = 0;
+
+        /**
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() = 0;
 
         /**
-         * @brief 
-         * 
-         * @return std::string 
+         * @brief Get shared pointer on the current QValueFunction
          */
-        virtual std::vector<TState> getSupport(number) = 0;
+        std::shared_ptr<ValueFunction<TState, TAction, TValue>> getptr();
+
 
         TValue operator()(const TState &, const number & = 0);
 
@@ -124,7 +133,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        TValue getQValueAt(const TState &, const TAction &, number );
+        TValue getQValueAt(const TState &, const TAction &, number);
 
         /**
          * @brief Get the best action to do at a state
@@ -141,12 +150,6 @@ namespace sdm
          */
         std::shared_ptr<SolvableByHSVI<TState, TAction>> getWorld();
 
-        // int getHorizon() const;
-
-        // bool isFiniteHorizon() const;
-
-        // bool isInfiniteHorizon() const;
-
         friend std::ostream &operator<<(std::ostream &os, ValueFunction<TState, TAction> &vf)
         {
             os << vf.str();
@@ -159,7 +162,7 @@ namespace sdm
          * @param t the timestep
          * @return double the discount factor
          */
-        double getDiscount(number );
+        double getDiscount(number);
     };
 } // namespace sdm
 #include <sdm/utils/value_function/value_function.tpp>

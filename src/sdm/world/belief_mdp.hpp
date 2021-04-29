@@ -57,7 +57,7 @@ namespace sdm
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
 
         double getReward(const TBelief &belief, const TAction &action) const;
-        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, number t) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, number t) const;
 
         /**
          * @brief Get the Observation Probability p(o | b, a)

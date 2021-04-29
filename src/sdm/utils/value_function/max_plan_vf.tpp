@@ -83,7 +83,7 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number t)
+    void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for bounded_prune().");
     }

@@ -11,14 +11,14 @@ namespace sdm
     public:
         using data_type = TData;
 
-        virtual TData backup(ValueFunction<TState, TAction> *vf, TState s, int t) = 0;
+        virtual TData backup(std::shared_ptr<ValueFunction<TState, TAction>> vf, TState s, int t) = 0;
     };
 
     template <typename TState, typename TAction>
     class ClassicBellmanBackupOperator : public BackupOperator<TState, TAction, double>
     {
     public:
-        double backup(ValueFunction<TState, TAction> *vf, TState s, int t)
+        double backup(std::shared_ptr<ValueFunction<TState, TAction>> vf, TState s, int t)
         {
             return vf->getQValueAt(s, t)->max();
         }
@@ -28,7 +28,7 @@ namespace sdm
     // class ClassicQBackupOperator : public BackupOperator<TState, TAction, double>
     // {
     // public:
-    //     double backup(ValueFunction<TState, TAction> *vf, TState s, int t)
+    //     double backup(std::shared_ptr<ValueFunction<TState, TAction>>vf, TState s, int t)
     //     {
     //         return vf->getQValueAt(s, t)->max();
     //     }

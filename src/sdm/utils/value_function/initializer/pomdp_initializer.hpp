@@ -32,7 +32,7 @@ namespace sdm
 
     public:
         POMDPInitializer(std::string algo_name, double error = 0.01, int trials = 10000);
-        void init(ValueFunction<TState, TAction> *vf);
+        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf);
     };
 } // namespace sdm
 #include <sdm/utils/value_function/initializer/pomdp_initializer.tpp>
