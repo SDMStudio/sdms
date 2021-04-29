@@ -5,7 +5,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer)
-      : MaxPlanValueFunction<TVector, TAction, TValue>(problem, horizon,initializer){}
+      : MaxPlanValueFunction<TVector, TAction, TValue>(problem, horizon,initializer), world_(problem){}
 
   template <typename TVector, typename TAction, typename TValue>
   MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, TValue default_value) : MaxPlanValueFunctionLP(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value)){}
@@ -171,7 +171,7 @@ namespace sdm
       }
     }
     
-    return this->getHyperplanAt(occupancy_state, next_hyperplan, max_decision_rule, t);
+    return this->getHyperplanAt<TVector>(occupancy_state, next_hyperplan, max_decision_rule, t);
   }
 
 

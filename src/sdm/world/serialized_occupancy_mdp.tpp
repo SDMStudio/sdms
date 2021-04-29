@@ -28,15 +28,19 @@ namespace sdm
             jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents());
         }
 
+        this->istate_ = std::make_shared<TState>();
+
         for (const auto s : this->serialized_mpomdp_->getStateSpace(0)->getAll())
         {
             auto x = s.getState();
+
             if (this->serialized_mpomdp_->getStartDistrib().probabilities()[x] > 0) 
             {
-                Pair<typename TState::state_type, typename TState::jhistory_type> p_s_o(s, jhist);
-                this->istate_[p_s_o] = this->serialized_mpomdp_->getStartDistrib().probabilities()[x];
+                auto p_s_o = std::make_pair(s, jhist);
+                this->istate_->setProbabilityAt(p_s_o,this->serialized_mpomdp_->getStartDistrib().probabilities()[x]);
             }
         }
+        std::cout<<"\n init :"<<*this->istate_;
     }
 
     template <typename TState, typename TAction>
@@ -58,12 +62,17 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::getInitialState()
     {
-        return this->istate_;
+        std::cout<<"\n getInit"<<*this->istate_;
+        std::cout<<"\n getInit";
+        return *this->istate_;
     }
 
     template <typename TState, typename TAction>
     std::shared_ptr<DiscreteSpace<TAction>> SerializedOccupancyMDP<TState, TAction>::getActionSpaceAt(const TState &ostate)
     {
+        std::cout<<"\n Action At";
+        std::cout<<"\n Action At";
+
         // Get id of the current agent
         number ag_id = ostate.getCurrentAgentId();
 
@@ -82,6 +91,9 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &indiv_dr, number, std::shared_ptr<HSVI<TState, TAction>>) const
     {
+        std::cout<<"\n next state";
+        std::cout<<"\n next state";
+
         number ag_id = ostate.getCurrentAgentId();
 
         TState new_ostate;
@@ -124,6 +136,9 @@ namespace sdm
     template <typename TState, typename TAction>
     double SerializedOccupancyMDP<TState, TAction>::getReward(const TState &ostate, const TAction &indiv_dr) const
     {
+        std::cout<<"\n getReward";
+        std::cout<<"\n getReward";
+
         double r = 0;
         number ag_id = ostate.getCurrentAgentId();
         
@@ -146,6 +161,9 @@ namespace sdm
     template <typename TState, typename TAction>
     double SerializedOccupancyMDP<TState, TAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const TState &ostate, const TAction &oaction, number t) const
     {
+        std::cout<<"\n getExpectedNextValue";
+        std::cout<<"\n getExpectedNextValue";
+
         TState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);
     }
@@ -154,6 +172,12 @@ namespace sdm
     std::shared_ptr<SerializedMMDP> SerializedOccupancyMDP<TState, TAction>::toMDP()
     {
         return this->serialized_mpomdp_->toMDP();
+    }
+
+    template <typename TState, typename TAction>
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedOccupancyMDP<TState, TAction>::toBeliefMDP()
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
     template <typename TState, typename TAction>

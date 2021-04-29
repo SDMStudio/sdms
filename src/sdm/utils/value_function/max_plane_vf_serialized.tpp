@@ -31,9 +31,9 @@ namespace sdm
 
             value += under_pb->getReward(serial_hidden_state,private_action)*proba; 
 
-            for(const auto &serialized_underlying_next_state: under_pb->getReacheableStates(serial_hidden_state, private_action)) 
+            for(const auto &serialized_underlying_next_state: under_pb->getReachableStates(serial_hidden_state, private_action)) 
             {
-                for(const auto &serial_observation : under_pb->getReacheableObservations(private_action, serialized_underlying_next_state)) 
+                for(const auto &serial_observation : under_pb->getReachableObservations(private_action, serialized_underlying_next_state)) 
                 {
                     auto joint_history_next = joint_history->expand(serial_observation);
                     value += proba*under_pb->getDiscount(t)*hyperplan.at(std::make_pair(serialized_underlying_next_state,history_2_next))*under_pb->getObsDynamics(serial_hidden_state,private_action,serial_observation,serialized_underlying_next_state);
@@ -108,9 +108,9 @@ namespace sdm
 
                 hyperplan[pair_s_o] = under_pb->getReward(serialized_state,private_action);
 
-                for(const auto &serialized_underlying_next_state: under_pb->getReacheableStates(serialized_state, private_action))
+                for(const auto &serialized_underlying_next_state: under_pb->getReachableStates(serialized_state, private_action))
                 {
-                    for(const auto &serial_observation :under_pb->getReacheableObservations(private_action, serialized_state))
+                    for(const auto &serial_observation :under_pb->getReachableObservations(private_action, serialized_state))
                     {
                         auto history_next = history->expand(serial_observation);
                         hyperplan[pair_s_o] += under_pb->getDiscount(t)*plan.at(std::make_pair(serialized_underlying_next_state,history_next))*under_pb->getObsDynamics(s_state,private_action,serial_observation,serialized_underlying_next_state);

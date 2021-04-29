@@ -7,19 +7,18 @@ namespace sdm
     TAction a; 
     number index = 0;
     
-    for(auto iter=occupancy_state.begin(); iter != occupancy_state.end(); ++iter){
+    for(auto iter=occupancy_state.begin(); iter != occupancy_state.end(); ++iter)
+    {
       auto joint_history = occupancy_state.getHistory(iter->first);
-      for(auto u=0; u<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u){
+      for(auto u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
+      {
         index = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,joint_history));
-        a->setJointProbability(joint_history, u, cplex.getValue(var[index]));
+        a.setJointProbability(joint_history, u, cplex.getValue(var[index]));
       }
     }
 
     return a;
   }
-
-
-
 
   template <typename TVector, typename TAction, typename TValue>
   void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloNumVarArray& var, number& index)
@@ -32,7 +31,7 @@ namespace sdm
     {
       auto joint_history = occupancy_state.getHistory(it->first);
 
-      for(auto u=0; u<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
+      for(auto u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
       {
         //< 0.b Build variables a(u|o)
         VarName = this->getVarNameJointHistoryDecisionRule(u,joint_history);
@@ -40,12 +39,12 @@ namespace sdm
         this->setNumber(VarName, index++);
       }
 
-      for(auto ag=0; ag<this->getWorld()->getUnderlyingProblem()->getNumAgents(); ++ag)
+      for(auto ag=0; ag<this->world_->getUnderlyingProblem()->getNumAgents(); ++ag)
       {
         auto ih = joint_history->getIndividualHistory(ag);
         if( ihs[ag].find( ih ) == ihs[ag].end() )
         {
-          for(auto iu=0; iu<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getSpace(ag)->getNumItems(); ++iu)
+          for(auto iu=0; iu<this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(ag)->getNumItems(); ++iu)
           {
             //<! 0.c Build variables a_i(u_i|o_i)
             VarName = this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag);
@@ -66,12 +65,12 @@ namespace sdm
   void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c)
   {
     number recover = 0;
-    number number_agent = this->getWorld()->getUnderlyingProblem()->getNumAgents();
+    number number_agent = this->world_->getUnderlyingProblem()->getNumAgents();
 
     for(auto it=occupancy_state.begin(); it!=occupancy_state.end(); ++it)
     {
       auto jh = occupancy_state.getHistory(it->first);
-      for(auto u=0; u<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
+      for(auto u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
       {
         //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
         con.add(IloRange(env, 1 - number_agent, +IloInfinity));
@@ -83,7 +82,7 @@ namespace sdm
         {
           auto ih = jh->getIndividualHistory(ag);
 
-          auto iu = this->getWorld()->getUnderlyingProblem()->getActionSpace()->getItem(ag,u);
+          auto iu = this->world_->getUnderlyingProblem()->getActionSpace()->getItem(ag,u);
           //<! 3.a.3 get variables a_i(u_i|o_i)
           recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
           //<! 3.a.4 set coefficient of variable a_i(u_i|o_i)
@@ -97,10 +96,10 @@ namespace sdm
     // 3.bis Build decentralized control constraints [ a(u|o) <= a_i(u_i|o_i) ]
     for(auto it=occupancy_state.begin(); it!=occupancy_state.end(); ++it){
       auto jh = occupancy_state.getHistory(it->first);
-      for(action u=0; u<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u){
+      for(action u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u){
         for(agent ag=0; ag<number_agent; ++ag){
           auto ih = jh->getIndividualHistory(ag);
-          auto iu = this->getWorld()->getUnderlyingProblem()->getActionSpace()->getItem(ag,u);
+          auto iu = this->world_->getUnderlyingProblem()->getActionSpace()->getItem(ag,u);
           //<! 3.b set constraint a(u|o) <= a_i(u_i|o_i)
           con.add(IloRange(env, -IloInfinity, 0.0));
           //<! 3.b.1 get variable a(u|o)
@@ -122,7 +121,7 @@ namespace sdm
       for(auto ih : ihs[ag]){
         //<! 4.a set constraint  \sum_{u_i} a_i(u_i|o_i) = 1
         con.add(IloRange(env, 1.0, 1.0));
-        for(action iu=0; iu<this->getWorld()->getUnderlyingProblem()->getActionSpace()->getSpace(ag)->getNumItems(); ++iu){
+        for(action iu=0; iu<this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(ag)->getNumItems(); ++iu){
           recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
           con[c].setLinearCoef(var[recover], +1.0);
         }

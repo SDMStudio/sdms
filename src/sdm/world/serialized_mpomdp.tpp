@@ -9,13 +9,19 @@ namespace sdm
     {
     }
 
-    SerializedMPOMDP::SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_mmdp) : decpomdp_(underlying_mmdp)
+    SerializedMPOMDP::SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_decpomdp) : decpomdp_(underlying_decpomdp)
     {
         this->mmdp_ = this->decpomdp_->toMMDP();
 
         this->setPlanningHorizon(decpomdp_->getPlanningHorizon());
         this->setDiscount(decpomdp_->getDiscount());
         this->setActionSpace(this->mmdp_->getActionSpace());
+
+        std::cout<<"\n decpomdp_->getStartDistrib()"<<decpomdp_->getStartDistrib().probabilities();
+
+
+        this->setStartDistrib(decpomdp_->getStartDistrib());
+        std::cout<<"\n decpomdp_->getStartDistrib()"<<this->getStartDistrib().probabilities();
 
 
         this->createInitSerializedStateSpace();

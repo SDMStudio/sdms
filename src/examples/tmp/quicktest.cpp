@@ -1,40 +1,71 @@
+#include <iostream>
+
+#include <sdm/exception.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/core/space/multi_discrete_space.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/serialized_occupancy_state.hpp>
+#include <sdm/core/action/joint_det_decision_rule.hpp>
+#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/max_plan_vf.hpp>
+#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/algorithms/hsvi.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-	// std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
-	// number horizon(2);
+	std::string filename;
 
-	// auto underlying_problem = std::make_shared<SerializedMPOMDP>(problem_path);
-	// //auto underlying_problem = serial_POMDP->getUnderlyingProblem();
+	if (argc > 1)
+	{
+		filename = argv[1];
+	}
 
-	// std::cout<<"\n getState : "<<underlying_problem->getStateSpace();
+	else
+	{
+		std::cerr << "Error: Require 1 input file." << std::endl;
+		return 1;
+	}
 
-	// int number_test_limit= 5;
-	// int number_test = 0;
-	// do
-	// {
-	// 	number_test ++;
+	try
+	{
+		// Construct OccupancyMDP using parser
+		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-	// 	auto serial_state = underlying_problem->getStateSpace()->sample();
-	// 	number serial_action = underlying_problem->getActionSpace()->sample();
 
-	// 	auto set_next_serial_states = underlying_problem->getReachableSerialStates(serial_state,serial_action);
-	// 	std::cout<<"\n next_serial_state : ";
-	// 	for(auto const &next_serial_state : set_next_serial_states)
-	// 	{
-	// 		std::cout<<next_serial_state<<" ";
-	// 	}
+		using TActionDescriptor = number;
+		using TStateDescriptor = HistoryTree_p<number>;
 
-	// } while (number_test_limit > number_test);
+		using TState = OccupancyState<number, JointHistoryTree_p<number>>;
+		using TAction = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
 
-	std::vector<std::vector<number>> all_item = {{0,2,3},{1,5}};
-	MultiDiscreteSpace<number> space(all_item);
+		number horizon = 3;
+		double discount = 1.0, error = 0.1,trial = 1000;
 
-	std::cout<<"\n "<<space.contains(Joint<number>({0,1}));
-	std::cout<<"\n "<<space.contains(Joint<number>({0,2}));
+		std::shared_ptr<SolvableByHSVI<TState, TAction>>  omdp_world = std::make_shared<OccupancyMDP<TState,TAction>>(filename, horizon);
+		// Set params in the environment
+		omdp_world->getUnderlyingProblem()->setDiscount(discount);
+		omdp_world->getUnderlyingProblem()->setPlanningHorizon(horizon);
+
+		// Instanciate initializers
+		auto lb_init = std::make_shared<MinInitializer<TState, TAction>>();
+		auto ub_init = std::make_shared<MaxInitializer<TState, TAction>>();
+
+		// Instanciate the Max Plan for the lower bound
+		auto lower_bound = std::make_shared<MaxPlanValueFunction<TState, TAction>>(omdp_world, horizon, lb_init);
+
+		// Instanciate the Tabular version for the upper bound
+		auto upper_bound = std::make_shared<MappedValueFunction<TState, TAction>>(omdp_world, horizon, ub_init);
+
+		auto algo = std::make_shared<HSVI<TState, TAction>>(omdp_world, lower_bound, upper_bound, horizon, error,trial,"");
+		
+		algo->do_initialize();
+		algo->do_solve();
+	}
+	catch (exception::Exception &e)
+	{
+		std::cout << "!!! Exception: " << e.what() << std::endl;
+	}
 
 } // END main

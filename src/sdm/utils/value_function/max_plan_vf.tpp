@@ -12,6 +12,8 @@ namespace sdm
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<TValue>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, 0);
+
+        //this->initialize(0,this->isInfiniteHorizon() ? 1 : this->horizon_+1);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -30,7 +32,7 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunction<TVector, TAction, TValue>::initialize()
     {
-        this->initializer_->init(this);
+        this->initializer_->init(this->getptr());
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -105,7 +107,7 @@ namespace sdm
         double value_max = -std::numeric_limits<double>::max(), tmp;
 
         auto all_joint_decision_rules = oMDP->getActionSpaceAt(occupancy_state)->getAll();
-
+        std::cout<<"\n support "<< this->getSupport(t+1);
         // Go other the hyperplanes of decision step t+1
         for (const auto &next_hyperplan : this->getSupport(t+1))
         {
@@ -113,7 +115,6 @@ namespace sdm
             for (const auto &joint_decision_rule : all_joint_decision_rules)
             {
                 TVector v = this->getHyperplanAt<TVector>(occupancy_state, next_hyperplan, joint_decision_rule, t);
-
                 if (value_max < (tmp = occupancy_state^v))
                 {
                     value_max = tmp;
@@ -121,7 +122,6 @@ namespace sdm
                 }
             }
         }
-
         return v_max;
     }
 
@@ -130,25 +130,25 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&occupancy_state, const TVector&next_hyperplan, const TAction&joint_decision_rule, number t)
     {
         TVector new_hyperplan(this->default_values_per_horizon[t]);
-
-        for(auto uncompressed_s_o: occupancy_state.getFullUncompressedOccupancyState())
+        for(const auto uncompressed_s_o: *occupancy_state.getFullyUncompressedOccupancy())
         {
             auto uncompressed_hidden_state = uncompressed_s_o.first.first; 
             auto uncompressed_joint_history = uncompressed_s_o.first.second; 
             auto compressed_joint_history = occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
-            auto action = joint_decision_rule(compressed_joint_history.getIndividualHistories()); 
+            auto action = joint_decision_rule.act(compressed_joint_history->getIndividualHistories()); 
             
-            new_hyperplan[uncompressed_s_o] = this->getWorld()->getUnderlyingProblem()->getReward()->getReward(uncompressed_hidden_state, action);
-            for(auto next_hidden_state : this->getWorld()->getReacheableStates(uncompressed_hidden_state, action))
+            new_hyperplan.addProbabilityAt(uncompressed_s_o.first,this->getWorld()->getUnderlyingProblem()->getReward()->getReward(uncompressed_hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action)));
+
+            for(auto next_hidden_state : this->getWorld()->getUnderlyingProblem()->getReachableStates(uncompressed_hidden_state, action))
             {
-                for(auto next_observation : this->getWorld()->getReacheableObservations(action, next_hidden_state))
+                for(auto next_observation : this->getWorld()->getUnderlyingProblem()->getReachableObservations(uncompressed_hidden_state,action, next_hidden_state))
                 {
                     auto next_joint_history =  compressed_joint_history->expand(next_observation);
-                    new_hyperplan[uncompressed_s_o] += this->getWorld()->getUnderlyingProblem()->getDiscount() * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(uncompressed_hidden_state, action, next_observation, next_hidden_state) * next_hyperplan.at({next_hidden_state,next_joint_history});
+                    new_hyperplan.addProbabilityAt(uncompressed_s_o.first,this->getWorld()->getUnderlyingProblem()->getDiscount() * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(uncompressed_hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state) * next_hyperplan.at({next_hidden_state,next_joint_history}));
                 }
             }
         }
-
+        new_hyperplan.finalize();
         return new_hyperplan;
     }
 
@@ -198,14 +198,14 @@ namespace sdm
 
             auto action = serial_decision_rule.act(history->getIndividualHistory(serial_occupancy_state.getCurrentAgentId()));
 
-            new_hyperplan[pair_s_o] = under_pb->getReward(serial_hidden_state, action);
+            new_hyperplan.addProbabilityAt(pair_s_o,under_pb->getReward(serial_hidden_state, action));
 
-            for (const auto &serial_hidden_next_state : under_pb->getReacheableStates(serial_hidden_state, action))
+            for (const auto &serial_hidden_next_state : under_pb->getReachableSerialStates(serial_hidden_state, action))
             {
-                for (const auto &serial_observation : under_pb->getReacheableObservations(action, serial_hidden_next_state))
+                for (const auto &serial_observation : under_pb->getReachableObservations(serial_hidden_state,action, serial_hidden_next_state))
                 {
                     auto history_next = history->expand(serial_observation);
-                    new_hyperplan[pair_s_o] +=  under_pb->getDiscount(t) *  next_hyperplan.at(std::make_pair(serial_hidden_next_state,history_next)) * under_pb->getObsDynamics(serial_hidden_state, action, serial_observation, serial_hidden_next_state);
+                    new_hyperplan.addProbabilityAt(pair_s_o,under_pb->getDiscount(t) *  next_hyperplan.at(std::make_pair(serial_hidden_next_state,history_next)) * under_pb->getDynamics(serial_hidden_state, action, serial_observation, serial_hidden_next_state));
                 }
             }
         }

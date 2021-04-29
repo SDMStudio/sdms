@@ -27,7 +27,8 @@ namespace sdm
     {
     protected:
         std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
-        TState istate_;
+        std::shared_ptr<TState> istate_;
+        typename TState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
 
     public:
         using state_type = TState;
@@ -57,10 +58,7 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP()
-        {
-            sdm::exception::NotImplementedException();
-        }
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
     };
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>

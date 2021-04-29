@@ -51,6 +51,10 @@ namespace sdm
          * @param number&
          */
         void setDecentralizedConstraints(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&);
+
+    protected : 
+        std::shared_ptr<SolvableByHSVI<TVector, TAction>> world_;
+
     };
 }
 #include <sdm/utils/value_function/decentralized_constraints_with_lp.tpp>
