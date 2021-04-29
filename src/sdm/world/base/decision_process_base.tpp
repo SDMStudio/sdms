@@ -64,7 +64,7 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TDistrib>
-    double DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::getDiscount()
+    double DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::getDiscount(number)
     {
         return this->discount_;
     }
@@ -88,7 +88,7 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TDistrib>
-    std::shared_ptr<TActionSpace> DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::getActionSpace() const
+    std::shared_ptr<TActionSpace> DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>::getActionSpace(number) const
     {
         return this->action_space_;
     }

@@ -22,36 +22,18 @@ namespace sdm
      * @tparam TState refer to the serialized state type
      * @tparam TAction refer to the number type
      */
-    template <typename TState = SerializedState, typename TAction = number>
-    class SerializedMPOMDP : public SerializedMMDPStructure<SerializedState,number>
+    class SerializedMPOMDP : public SerializedMMDPStructure
     {
-    protected:
-        std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
-        std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
-
-        std::unordered_map<Joint<number>, std::unordered_map<TState, std::set<Joint<number>>>> reachable_obs_state_space;
-
-        /**
-         * @brief Initialize Serial Observation Space
-         * 
-         */
-        void createInitSerialObservationSpace();
-
-        /**
-         * @brief Initialize "reachable_obs_state_space"
-         * 
-         */
-        void createInitReachableObsStateSpace();
-
     public:
-        using state_type = TState;
-        using action_type = TAction;
+        using action_type = number;
+        using state_type = SerializedState;
+        using observation_type = Joint<number>;
 
         SerializedMPOMDP();
-        SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP>);
         SerializedMPOMDP(std::string);
+        SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP>);
 
-        const std::set<Joint<number>>& getReachableObservations(const Joint<number>& , const TState& );
+        const std::set<observation_type>& getReachableObservations(state_type, action_type, state_type) const;
 
         std::shared_ptr<SerializedMMDP<>> toMDP();
 
@@ -77,9 +59,35 @@ namespace sdm
          */
         std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ) const;
 
-        double getObservationProbability(const Joint<number>&, const Joint<number> ,const TState &) const;
+        //! \fn       double getObservationProbability(action, observation, state) const
+        //! \param    u a specific joint action
+        //! \param    z a specific joint observation
+        //! \param    x a specific state
+        //! \brief    Returns probability
+        //! \return   value
+        double getObservationProbability(const action_type&, const observation_type&, const state_type&) const;
+
 
         double getDynamics(const TState &,const TAction ,const Joint<number> ,const TState &) const;
+
+    protected:
+        std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
+        std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
+
+        std::unordered_map<Joint<number>, std::unordered_map<TState, std::set<Joint<number>>>> reachable_obs_state_space;
+
+        /**
+         * @brief Initialize Serial Observation Space
+         * 
+         */
+        void createInitSerialObservationSpace();
+
+        /**
+         * @brief Initialize "reachable_obs_state_space"
+         * 
+         */
+        void createInitReachableObsStateSpace();
+
     };
 } // namespace sdm
 #include <sdm/world/serialized_mpomdp.tpp>
