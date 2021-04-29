@@ -149,7 +149,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    double BeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const
+    double BeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TBelief &, const TAction &action, const TObservation &obs, const TBelief &belief) const
     {
         double proba = 0, tmp;
         for (number s = 0; s < this->pomdp_->getStateSpace()->getNumItems(); s++)

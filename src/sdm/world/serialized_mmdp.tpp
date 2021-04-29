@@ -3,31 +3,28 @@
 
 namespace sdm
 {
-    template <typename TState, typename TAction>
-    SerializedMMDP<TState, TAction>::SerializedMMDP()
+    SerializedMMDP::SerializedMMDP()
     {
     }
 
-    template <typename TState, typename TAction>
-    SerializedMMDP<TState, TAction>::SerializedMMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : serial_mmdp_(std::make_shared<SerializedMMDPStructure<TState,number>>(underlying_mmdp))
+    SerializedMMDP::SerializedMMDP(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : serial_mmdp_(std::make_shared<SerializedMMDPStructure>(underlying_mmdp))
     {
     }
 
-    template <typename TState, typename TAction>
-    SerializedMMDP<TState, TAction>::SerializedMMDP(std::string underlying_mmdp) : SerializedMMDP(std::make_shared<DiscreteMMDP>(underlying_mmdp))
+    SerializedMMDP::SerializedMMDP(std::string underlying_mmdp) : SerializedMMDP(std::make_shared<DiscreteMMDP>(underlying_mmdp))
     {
     }
 
-    template <typename TState, typename TAction>
-    TState SerializedMMDP<TState, TAction>::getInitialState()
+    
+    SerializedState SerializedMMDP::getInitialState()
     {
         return this->serial_mmdp_->getInternalState();
     }
 
-    template <typename TState, typename TAction>
-    TState SerializedMMDP<TState, TAction>::nextState(const TState &serialized_state, const TAction &action, number t, std::shared_ptr<HSVI<TState, TAction>> hsvi) const
+    
+    SerializedState SerializedMMDP::nextState(const SerializedState &serialized_state, const number &action, number t, std::shared_ptr<HSVI<SerializedState, number>> hsvi) const
     {
-        TState new_serialized_state;
+        SerializedState new_serialized_state;
 
         number agent_identifier = serialized_state.getCurrentAgentId();
         auto x = serialized_state.getState();
@@ -36,11 +33,11 @@ namespace sdm
         if (agent_identifier +1 != this->serial_mmdp_->getNumAgents())
         {
             u.push_back(action);
-            new_serialized_state = TState(x, u);
+            new_serialized_state = SerializedState(x, u);
         }
         else
         {
-            TState smax = 0;
+            SerializedState smax = 0;
             double max = std::numeric_limits<double>::min();
 
             for (const auto &next_serial_state : this->serial_mmdp_->getReachableSerialStates(serialized_state, action))
@@ -57,8 +54,8 @@ namespace sdm
         return new_serialized_state;
     }
 
-    template <typename TState, typename TAction>
-    double SerializedMMDP<TState, TAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const TState &serialized_state, const TAction &action, number t) const
+    
+    double SerializedMMDP::getExpectedNextValue(std::shared_ptr<ValueFunction<SerializedState, number>> value_function, const SerializedState &serialized_state, const number &action, number t) const
     {
         number agent_identifier = serialized_state.getCurrentAgentId();
 
@@ -68,7 +65,7 @@ namespace sdm
 
         if (agent_identifier + 1 != this->serial_mmdp_->getNumAgents())
         {
-            return value_function->getValueAt(TState(x, u), t + 1);
+            return value_function->getValueAt(SerializedState(x, u), t + 1);
         }
         else
         {
@@ -81,44 +78,44 @@ namespace sdm
         }
     }
 
-    template <typename TState, typename TAction>
-    SerializedMMDPStructure<TState,TAction> *SerializedMMDP<TState, TAction>::getUnderlyingProblem()
+    
+    SerializedMMDPStructure *SerializedMMDP::getUnderlyingProblem()
     {
         return this->serial_mmdp_.get();
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<SerializedMMDP<TState, TAction>> SerializedMMDP<TState, TAction>::getptr()
+    
+    std::shared_ptr<SerializedMMDP> SerializedMMDP::getptr()
     {
-        return SerializedMMDP<TState, TAction>::shared_from_this();
+        return SerializedMMDP::shared_from_this();
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<SerializedMMDP<TState, TAction>> SerializedMMDP<TState, TAction>::toMDP()
+    
+    std::shared_ptr<SerializedMMDP> SerializedMMDP::toMDP()
     {
         return this->getptr();
     }
 
-    template <typename TState, typename TAction>
-    bool SerializedMMDP<TState, TAction>::isSerialized() const
+    
+    bool SerializedMMDP::isSerialized() const
     {
         return true;
     }
     
-    template <typename TState, typename TAction>
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMMDP<TState, TAction>::toBeliefMDP()
+    
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMMDP::toBeliefMDP()
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    template <typename TState, typename TAction>
-    double SerializedMMDP<TState,TAction>::getReward(const TState &s, const TAction &action) const
+    
+    double SerializedMMDP::getReward(const SerializedState &s, const number &action) const
     {
         return this->serial_mmdp_->getReward(s,action);
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<DiscreteSpace<TAction>> SerializedMMDP<TState,TAction>::getActionSpaceAt(const TState &state) 
+    
+    std::shared_ptr<DiscreteSpace<number>> SerializedMMDP::getActionSpaceAt(const SerializedState &state) 
     {
         return this->serial_mmdp_->getActionSpace()->getSpace(state.getCurrentAgentId());
     }

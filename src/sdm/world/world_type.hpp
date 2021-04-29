@@ -18,19 +18,16 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     class SerializedBeliefMDP;
 
-    template <typename oState, typename oAction>
+    template <typename TState, typename TAction>
     class OccupancyMDP;
 
-    template <typename oState, typename oAction>
     class SerializedMMDPStructure;
     
-    template <typename oState, typename oAction>
     class SerializedMMDP;
 
-    template <typename oState, typename oAction>
+    template <typename TState, typename TAction>
     class SerializedOccupancyMDP;
 
-    template <typename oState, typename oAction>
     class SerializedMPOMDP;
 
     /**
@@ -57,7 +54,7 @@ namespace sdm
         getWorldType();
 
         template <bool is_serialized_mdp = std::is_any<TState, SerializedState>::value>
-        static std::enable_if_t<is_serialized_mdp, SerializedMMDP<SerializedState, number>>
+        static std::enable_if_t<is_serialized_mdp, SerializedMMDP>
         getWorldType();
 
         template <bool is_serialized_occupancy_mdp = std::is_any<TState, SerializedOccupancyState<>>::value>
@@ -82,15 +79,11 @@ namespace sdm
         getUnderlyingProblem();
 
         template <bool is_solving_serialized_mmdp = std::is_same<TState, SerializedState>::value>
-        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDPStructure<SerializedState,number>>
-        getUnderlyingProblem();
-
-        template <bool is_solving_serialized_mpomdp = std::is_any<TState,SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>
-        static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP<SerializedState, number>>
+        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDPStructure>
         getUnderlyingProblem();
 
         template <bool is_solving_serialized_pomdp = std::is_any<TState,SerializedBeliefState>::value>
-        static std::enable_if_t<is_solving_serialized_pomdp, SerializedMPOMDP<SerializedBeliefState,number>>
+        static std::enable_if_t<is_solving_serialized_pomdp, SerializedMPOMDP>
         getUnderlyingProblem();
 
         using type = decltype(WorldType<TState, TAction>::getWorldType());

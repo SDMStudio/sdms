@@ -21,7 +21,7 @@ namespace sdm
             BaseObsDynamics();
             // BaseObsDynamics(BaseObsDynamics &copy);
 
-            double getObservationProbability(TAction, TObservation, TState) const;
+            double getObservationProbability(TState, TAction, TObservation, TState) const;
             void setObservationProbability(TAction, TObservation, TState, double);
 
 

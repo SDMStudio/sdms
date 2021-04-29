@@ -4,19 +4,20 @@
 namespace sdm
 {
 
-    template <typename TState, typename TAction>
-    SerializedMPOMDP<TState, TAction>::SerializedMPOMDP()
+    
+    SerializedMPOMDP::SerializedMPOMDP()
     {
     }
 
-    template <typename TState, typename TAction>
-    SerializedMPOMDP<TState, TAction>::SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_mmdp) : decpomdp_(underlying_mmdp)
+    
+    SerializedMPOMDP::SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_mmdp) : decpomdp_(underlying_mmdp)
     {
         this->mmdp_ = this->decpomdp_->toMMDP();
 
         this->setPlanningHorizon(decpomdp_->getPlanningHorizon());
         this->setDiscount(decpomdp_->getDiscount());
         this->setActionSpace(this->mmdp_->getActionSpace());
+
 
         this->createInitSerializedStateSpace();
         this->createInitReachableStateSpace();
@@ -25,14 +26,15 @@ namespace sdm
         this->createInitReachableObsStateSpace();
     }
 
-    template <typename TState, typename TAction>
-    SerializedMPOMDP<TState, TAction>::SerializedMPOMDP(std::string underlying_mmdp) : SerializedMPOMDP(std::make_shared<DiscreteDecPOMDP>(underlying_mmdp))
+    
+    SerializedMPOMDP::SerializedMPOMDP(std::string filename) : SerializedMPOMDP(std::make_shared<DiscreteDecPOMDP>(filename))
     {
     }
 
-    template <typename TState, typename TAction>
-    void SerializedMPOMDP<TState, TAction>::createInitSerialObservationSpace()
+    
+    void SerializedMPOMDP::createInitSerialObservationSpace()
     {
+        std::vector<item> v;
         std::vector<std::shared_ptr<DiscreteSpace<number>>> all_observation_space;
 
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
@@ -40,20 +42,21 @@ namespace sdm
             auto obs = this->decpomdp_->getObsSpace()->getSpace(ag_id)->getAll();
             std::vector<number> observation = obs;
             observation.push_back(obs.size());
+            v.push_back(obs.size());
 
             auto serial_ind_space = std::make_shared<DiscreteSpace<number>>(observation);
-
             all_observation_space.push_back(serial_ind_space);
         }
         this->serialized_observation_space_ = std::make_shared<MultiDiscreteSpace<number>>(all_observation_space);
+        this->empty_serial_observation = Joint<number>(v);
     }
 
-    template <typename TState, typename TAction>
-    void SerializedMPOMDP<TState, TAction>::createInitReachableObsStateSpace()
+    
+    void SerializedMPOMDP::createInitReachableObsStateSpace()
     {
         for (const auto action : this->getActionSpace()->getAll())
         {
-            std::unordered_map<TState, std::set<Joint<number>>> map_serial_state_obs;
+            std::unordered_map<SerializedState, std::set<Joint<number>>> map_serial_state_obs;
 
             for (const auto serialized_state : this->serialized_state_space_->getAll())
             {
@@ -64,7 +67,7 @@ namespace sdm
                     Joint<number> joint_action(action);
                     try
                     {
-                        for (const auto obs : this->decpomdp_->getReachableObservations(joint_action, serialized_state.getState()))
+                        for (const auto obs : this->decpomdp_->getReachableObservations(serialized_state.getState(), joint_action, serialized_state.getState()))
                         {
                             all_obs.insert(obs);
                         }
@@ -79,67 +82,74 @@ namespace sdm
                 }
                 map_serial_state_obs.emplace(serialized_state.getState(), all_obs);
             }
-            this->reachable_obs_state_space.emplace(action, map_serial_state_obs);
+            this->reachable_observation_space.emplace(action, map_serial_state_obs);
         }
     }
 
-    template <typename TState, typename TAction>
-    const std::set<Joint<number>> &SerializedMPOMDP<TState, TAction>::getReachableObservations(const Joint<number> &serial_action, const TState &serial_state)
+    
+    const std::set<Joint<number>> &SerializedMPOMDP::getReachableObservations(const SerializedState &serial_state, const Joint<number> &serial_action, const SerializedState &next_serial_state)
     {
-        return this->reachable_obs_state_space.at(serial_action).at(serial_state);
+        return this->reachable_observation_space.at(serial_state).at(serial_action).at(serial_state);
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<SerializedMMDP<>> SerializedMPOMDP<TState, TAction>::toMDP()
+    
+    std::shared_ptr<SerializedMMDP> SerializedMPOMDP::toMDP()
     {
-        return std::make_shared<SerializedMMDP<>>(this->decpomdp_->toMMDP());
+        return std::make_shared<SerializedMMDP>(this->decpomdp_->toMMDP());
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMPOMDP<TState, TAction>::toBeliefMDP()
+    
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMPOMDP::toBeliefMDP()
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<MultiDiscreteSpace<number>> SerializedMPOMDP<TState, TAction>::getObsSpace() const
+    
+    std::shared_ptr<MultiDiscreteSpace<number>> SerializedMPOMDP::getObsSpace() const
     {
         return this->serialized_observation_space_;
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<DiscreteSpace<number>> SerializedMPOMDP<TState, TAction>::getObsSpaceAt(number ag_id) const
+    
+    std::shared_ptr<DiscreteSpace<number>> SerializedMPOMDP::getObsSpaceAt(number ag_id) const
     {
         return this->decpomdp_->getObsSpace()->getSpace(ag_id);
     }
 
-    template <typename TState, typename TAction>
-    double SerializedMPOMDP<TState, TAction>::getObservationProbability(const Joint<number> &joint_action, const Joint<number> joint_observation, const TState &serialized_state) const
+    
+    double SerializedMPOMDP::getObservationProbability(const SerializedState &serialized_state, const number& action, const Joint<number> joint_observation, const SerializedState &next_serialized_state) const
     {
-        if (serialized_state.getCurrentAgentId() != 0)
+        if (next_serialized_state.getCurrentAgentId() != 0)
         {
-            return 0;
+            std::vector<number> next_action_set = serialized_state.getAction();
+            next_action_set.push_back(action);
+
+            return (this->empty_serial_observation == joint_observation && serialized_state.getState() == serialized_state_next.getState() && next_serialized_state.getAction() == next_action_set) ? 1 : 0;
         }
-        else
+        else if( this->decpomdp_->getObsSpace()->contains(joint_obs) )
         {
-            return this->decpomdp_->getObsDynamics()->getObservationProbability(joint_action, joint_observation, serialized_state.getState());
+            return this->decpomdp_->getObsDynamics()->getObservationProbability(serialized_state.getState(), joint_action, joint_observation, next_serialized_state.getState());
         }
+        return 0;
     }
 
-    template <typename TState, typename TAction>
-    double SerializedMPOMDP<TState, TAction>::getDynamics(const TState &serialized_state, const TAction action, const Joint<number> joint_obs, const TState &serialized_state_next) const
+    
+    double SerializedMPOMDP::getDynamics(const SerializedState &serialized_state, const number& action, const Joint<number> joint_obs, const SerializedState &serialized_state_next) const
     {
-        std::vector<number> all_action = serialized_state.getAction();
-        all_action.push_back(action);
-        if (serialized_state.getCurrentAgentId() != this->getNumAgents() - 1)
+        std::vector<number> next_action_set = serialized_state.getAction();
+        next_action_set.push_back(action);
+        
+        if (next_serialized_state.getCurrentAgentId() != 0)
         {
-            if ((serialized_state.getState() == serialized_state_next.getState()) && (serialized_state_next.getAction() == all_action))
-            {
-                return 1;
-            }
-            return 0;
+            return (this->empty_serial_observation == joint_observation && serialized_state.getState() == serialized_state_next.getState() && serialized_state_next.getAction() == next_action_set) ? 1 : 0;
         }
-        return this->decpomdp_->getObsDynamics()->getDynamics(serialized_state.getState(), this->getActionSpace()->joint2single(Joint<number>(all_action)), this->getObsSpace()->joint2single(joint_obs), serialized_state_next.getState());
+
+        else if( this->decpomdp_->getObsSpace()->contains(joint_obs) )
+        {
+            return this->decpomdp_->getObsDynamics()->getDynamics(serialized_state.getState(), this->getActionSpace()->joint2single(Joint<number>(next_action_set)), this->getObsSpace()->joint2single(joint_obs), serialized_state_next.getState());
+        }
+        
+        return 0;
     }
 
 }
