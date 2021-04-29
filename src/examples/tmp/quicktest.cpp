@@ -1,26 +1,17 @@
 #include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
-	number horizon(2);
+	// std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
+	// number horizon(2);
 
-	auto serial_POMDP = std::make_shared<SerializedMPOMDP>(problem_path);
-	//auto underlying_problem = serial_POMDP->getUnderlyingProblem();
-
-	SerializedState serial_state(0,std::vector<number>({1}));
-	SerializedState next_serial_state(0,std::vector<number>({}));
-	number action = 0;
-
-	for(auto const obs : serial_POMDP->getReachableObservations(serial_state,action,next_serial_state))
-	{
-		std::cout<<"\n obs "<<obs;
-	}
+	// auto underlying_problem = std::make_shared<SerializedMPOMDP>(problem_path);
+	// //auto underlying_problem = serial_POMDP->getUnderlyingProblem();
 
 	// std::cout<<"\n getState : "<<underlying_problem->getStateSpace();
-	// std::cout<<"\n getState : "<<underlying_problem->getSerialStateSpace(); // A enlever
 
 	// int number_test_limit= 5;
 	// int number_test = 0;
@@ -39,5 +30,11 @@ int main(int argc, char **argv)
 	// 	}
 
 	// } while (number_test_limit > number_test);
+
+	std::vector<std::vector<number>> all_item = {{0,2,3},{1,5}};
+	MultiDiscreteSpace<number> space(all_item);
+
+	std::cout<<"\n "<<space.contains(Joint<number>({0,1}));
+	std::cout<<"\n "<<space.contains(Joint<number>({0,2}));
 
 } // END main

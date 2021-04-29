@@ -39,9 +39,9 @@ namespace sdm
     }
   }
 
-  double ObservationDynamics::getObservationProbability(number u, number z, number x) const
+  double ObservationDynamics::getObservationProbability(number, number u, number z, number y) const
   {
-    return this->o_model[u](x, z);
+    return this->o_model[u](y, z);
   }
 
   void ObservationDynamics::setObservationProbability(number u, number z, number x, double prob)

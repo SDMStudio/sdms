@@ -15,11 +15,13 @@ namespace sdm
     {
     }
 
+    
     SerializedState SerializedMMDP::getInitialState()
     {
         return this->serial_mmdp_->getInternalState();
     }
 
+    
     SerializedState SerializedMMDP::nextState(const SerializedState &serialized_state, const number &action, number t, std::shared_ptr<HSVI<SerializedState, number>> hsvi) const
     {
         SerializedState new_serialized_state;
@@ -52,6 +54,7 @@ namespace sdm
         return new_serialized_state;
     }
 
+    
     double SerializedMMDP::getExpectedNextValue(std::shared_ptr<ValueFunction<SerializedState, number>> value_function, const SerializedState &serialized_state, const number &action, number t) const
     {
         number agent_identifier = serialized_state.getCurrentAgentId();
@@ -75,36 +78,43 @@ namespace sdm
         }
     }
 
+    
     SerializedMMDPStructure *SerializedMMDP::getUnderlyingProblem()
     {
         return this->serial_mmdp_.get();
     }
 
+    
     std::shared_ptr<SerializedMMDP> SerializedMMDP::getptr()
     {
         return SerializedMMDP::shared_from_this();
     }
 
+    
     std::shared_ptr<SerializedMMDP> SerializedMMDP::toMDP()
     {
         return this->getptr();
     }
 
+    
     bool SerializedMMDP::isSerialized() const
     {
         return true;
     }
+    
     
     std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMMDP::toBeliefMDP()
     {
         throw sdm::exception::NotImplementedException();
     }
 
+    
     double SerializedMMDP::getReward(const SerializedState &s, const number &action) const
     {
         return this->serial_mmdp_->getReward(s,action);
     }
 
+    
     std::shared_ptr<DiscreteSpace<number>> SerializedMMDP::getActionSpaceAt(const SerializedState &state) 
     {
         return this->serial_mmdp_->getJointActionSpace()->getSpace(state.getCurrentAgentId());

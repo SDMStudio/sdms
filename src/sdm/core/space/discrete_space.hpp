@@ -112,6 +112,14 @@ namespace sdm
          */
         TItem getItem(number index) const;
 
+        /**
+         * @brief Verify is the discrete space contains the TItem;
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool contains(const TItem& ) const;
+
         std::string str() const;
 
         DiscreteSpace &operator=(const DiscreteSpace &sp);

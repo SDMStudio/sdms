@@ -134,7 +134,7 @@ namespace sdm
             auto jaction = joint_idr.act(ostate.getJointLabels(o->getIndividualHistories()));
             for (auto &y : this->dpomdp_->getReachableStates(x, jaction))
             {
-                for (auto &z : this->dpomdp_->getReachableObservations(x,jaction, y))
+                for (auto &z : this->dpomdp_->getReachableObservations(x, jaction, y))
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
                     // Compute the proba of the next couple (state, joint history)
@@ -164,13 +164,6 @@ namespace sdm
             new_compressed_occupancy_state = std::make_shared<oState>(new_one_step_left_compressed_occupancy_state->compress());
             new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
             new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
-
-            // finalizing the construction of the occupancy state
-            // new_compressed_occupancy_state->finalize();
-            // std::cout << *new_compressed_occupancy_state << std::endl;
-            // std::cout << *new_compressed_occupancy_state->getOneStepUncompressedOccupancy() << std::endl;
-            // std::cout << *new_compressed_occupancy_state->getFullyUncompressedOccupancy() << std::endl;
-
             return *new_compressed_occupancy_state;
         }
 

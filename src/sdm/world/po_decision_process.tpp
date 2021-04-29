@@ -109,7 +109,7 @@ namespace sdm
                 this->reachable_observation_space[a].emplace(y, std::set<observation_type>());
                 for (auto &z : this->getObsSpace()->getAll())
                 {
-                    if (this->getObsDynamics()->getObservationProbability(this->getAction(a), this->getObservation(z), y) > 0)
+                    if (this->getObsDynamics()->getObservationProbability(y,this->getAction(a), this->getObservation(z), y) > 0)
                     {
                         this->reachable_observation_space[a][y].insert(z);
                     }

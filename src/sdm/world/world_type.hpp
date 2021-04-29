@@ -21,7 +21,7 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     class SerializedBeliefMDP;
 
-    template <typename oState, typename oAction>
+    template <typename TState, typename TAction>
     class OccupancyMDP;
 
     template <typename oState, typename oAction>

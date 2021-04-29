@@ -39,12 +39,12 @@ namespace sdm
                            public std::enable_shared_from_this<SerializedMMDP>
     {
     public:
-        using state_type = SerializedState;
         using action_type = number;
+        using state_type = SerializedState;
 
         SerializedMMDP();
-        SerializedMMDP(std::shared_ptr<DiscreteMMDP>);
         SerializedMMDP(std::string);
+        SerializedMMDP(std::shared_ptr<DiscreteMMDP>);
 
         /**
          * @brief 
@@ -57,7 +57,7 @@ namespace sdm
         /**
          * @brief Get itself ...
          * 
-         * @return SerializedMMDP<state_type,action_type>* 
+         * @return SerializedMMDP* 
          */
         SerializedMMDPStructure* getUnderlyingProblem();
 
@@ -102,7 +102,7 @@ namespace sdm
         /**
          * @brief Transform the current problem to a MDP. In this situation, it will returr the current problem
          * 
-         * @return std::shared_ptr<SerializedMMDP<state_type, action_type>> 
+         * @return std::shared_ptr<SerializedMMDP
          */
         std::shared_ptr<SerializedMMDP> toMDP();
 

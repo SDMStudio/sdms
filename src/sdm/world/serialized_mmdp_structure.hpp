@@ -17,20 +17,17 @@ namespace sdm
     /**
      * @brief An Serialized MDP is a subclass of MDP where states are serialized states. 
      * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
-     * 
-     * @tparam TState refers to the serialized state type
-     * @tparam TAction refers to the number type
      */
     class SerializedMMDPStructure : public DecisionProcessBase<MultiSpace<DiscreteSpace<SerializedState>>, MultiDiscreteSpace<number>, std::discrete_distribution<number>>,
                            public std::enable_shared_from_this<SerializedMMDPStructure>
     {
     public:
-        using state_type = SerializedState;
         using action_type = number;
+        using state_type = SerializedState;
 
         SerializedMMDPStructure();
-        SerializedMMDPStructure(std::shared_ptr<DiscreteMMDP>);
         SerializedMMDPStructure(std::string);
+        SerializedMMDPStructure(std::shared_ptr<DiscreteMMDP>);
 
         /**
          * @brief Return the Serialized Discount
@@ -46,7 +43,7 @@ namespace sdm
          * @param serialized_state 
          * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
          */
-        const std::set<state_type>& getReachableSerialStates(const state_type&, const action_type&) const;
+        const std::set<SerializedState>& getReachableSerialStates(const SerializedState&, const number&) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
@@ -55,7 +52,7 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const state_type &,const action_type &) const;
+        double getReward(const SerializedState &,const number &) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the Joint<action>
@@ -64,7 +61,7 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const state_type &,const Joint<action_type> &) const;
+        double getReward(const SerializedState &,const Joint<number> &) const;
 
         /**
          * @brief The reward of the simultaneous mmdp. 
@@ -80,9 +77,9 @@ namespace sdm
          * @param serialized_state_next 
          * @return double 
          */
-        double getTransitionProbability(const state_type &,const action_type &, const state_type &) const;
+        double getTransitionProbability(const SerializedState &,const number &, const SerializedState &) const;
         
-        void setInternalState(state_type );
+        void setInternalState(SerializedState );
         
         void setPlanningHorizon(number );      
 
@@ -96,7 +93,7 @@ namespace sdm
         /**
          * @brief Transform the current problem to a MDP. In this situation, it will returr the current problem
          * 
-         * @return std::shared_ptr<SerializedMMDPStructure<TState, TAction>> 
+         * @return std::shared_ptr<SerializedMMDPStructure<SerializedState, number>> 
          */
         std::shared_ptr<SerializedMMDPStructure> toMDP();
 

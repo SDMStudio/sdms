@@ -196,4 +196,10 @@ namespace sdm
         return res.str();
     }
 
+    template <typename TItem>
+    bool MultiDiscreteSpace<TItem>::contains(const std::vector<TItem> &item) const
+    {
+        return std::find(this->list_items_.begin(), this->list_items_.end(),item) !=this->list_items_.end() ? true : false;
+    }
+
 } // namespace sdm

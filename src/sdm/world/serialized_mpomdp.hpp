@@ -19,8 +19,8 @@ namespace sdm
      * @brief An Serialized MDP is a subclass of MDP where states are serialized states. 
      * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
      * 
-     * @tparam TState refer to the serialized state type
-     * @tparam TAction refer to the number type
+     * @tparam state_type refer to the serialized state type
+     * @tparam number refer to the number type
      */
     class SerializedMPOMDP : public SerializedMMDPStructure
     {
@@ -60,21 +60,21 @@ namespace sdm
         std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ) const;
 
         //! \fn       double getObservationProbability(action, observation, state) const
-        //! \param    u a specific joint action
-        //! \param    z a specific joint observation
-        //! \param    x a specific state
+        //! \param    x a specific current state
+        //! \param    u a specific action
+        //! \param    z a specific observation
+        //! \param    y a specific next state
         //! \brief    Returns probability
         //! \return   value
-        double getObservationProbability(const action_type&, const observation_type&, const state_type&) const;
+        double getObservationProbability(const state_type, const action_type, const observation_type, const state_type) const;
 
-
-        double getDynamics(const state_type &,const action_type ,const Joint<number> ,const state_type &) const;
+        double getDynamics(const state_type, const action_type, const observation_type, const state_type) const;
 
     protected:
+        Joint<number> empty_serial_observation;
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
         std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
 
-        //std::unordered_map<Joint<number>, std::unordered_map<state_type, std::set<Joint<number>>>> reachable_obs_state_space;
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<state_type, std::set<observation_type>>>> reachable_obs_state_space;
 
         /**
@@ -84,7 +84,7 @@ namespace sdm
         void createInitSerialObservationSpace();
 
         /**
-         * @brief Initialize "reachable_obs_state_space"
+         * @brief Initialize "reachable_observation_space"
          * 
          */
         void createInitReachableObsStateSpace();

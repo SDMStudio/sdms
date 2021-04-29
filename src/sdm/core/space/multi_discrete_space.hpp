@@ -155,6 +155,14 @@ namespace sdm
 
         MultiDiscreteSpace<TItem> &operator=(const MultiDiscreteSpace<TItem> &);
 
+        /**
+         * @brief Verify is the multi discrete space contains the Joint<TItem>;
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool contains(const std::vector<TItem>& ) const;
+
         friend std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpace<TItem> &sp)
         {
             os << sp.str();

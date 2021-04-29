@@ -11,7 +11,7 @@ namespace sdm
     // }
 
     template <typename TState, typename TAction, typename TObservation>
-    double BaseObsDynamics<TState,TAction,TObservation>::getObservationProbability(TAction u, TObservation z, TState x) const
+    double BaseObsDynamics<TState,TAction,TObservation>::getObservationProbability(TState, TAction u, TObservation z, TState x) const
     {
         return this->o_model(u,x,z);
     }

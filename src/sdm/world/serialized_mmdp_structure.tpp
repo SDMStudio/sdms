@@ -19,10 +19,12 @@ namespace sdm
         this->setStartDistrib(mmdp_->getStartDistrib());
     }
 
-    SerializedMMDPStructure::SerializedMMDPStructure(std::string underlying_mmdp) : SerializedMMDPStructure(std::make_shared<DiscreteMMDP>(underlying_mmdp))
+    
+    SerializedMMDPStructure::SerializedMMDPStructure(std::string filename) : SerializedMMDPStructure(std::make_shared<DiscreteMMDP>(filename))
     {
     }
 
+    
     void SerializedMMDPStructure::createInitSerializedStateSpace()
     {
         std::vector<std::shared_ptr<DiscreteSpace<SerializedState>>> all_serialized_state;
@@ -108,31 +110,37 @@ namespace sdm
         }
     }
 
+    
     double SerializedMMDPStructure::getDiscount(number t) const
     {
         return (t % this->getNumAgents() == this->getNumAgents() - 1) ? this->mmdp_->getDiscount() : 1.0;
     }
 
+    
     std::shared_ptr<SerializedMMDPStructure> SerializedMMDPStructure::getptr()
     {
         return SerializedMMDPStructure::shared_from_this();
     }
 
+    
     std::shared_ptr<SerializedMMDPStructure> SerializedMMDPStructure::toMDP()
     {
         return this->getptr();
     }
+    
     
     std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMMDPStructure::toBeliefMDP()
     {
         throw sdm::exception::NotImplementedException();
     }
 
+    
     const std::set<SerializedState>& SerializedMMDPStructure::getReachableSerialStates(const SerializedState &serialized_state, const number& serial_action) const
     {  
         return this->reachable_state_space.at(serialized_state).at(serial_action);
     }
 
+    
     double SerializedMMDPStructure::getReward(const SerializedState &serialized_state, const number &serial_action) const
     {
         if(serialized_state.getCurrentAgentId() +1 != this->getNumAgents())
@@ -148,6 +156,7 @@ namespace sdm
         }
     }
 
+    
     double SerializedMMDPStructure::getReward(const SerializedState &serialized_state, const Joint<number> &joint_action) const
     {
         if(serialized_state.getAction()!= joint_action)
@@ -160,11 +169,13 @@ namespace sdm
     }
 
 
+    
     std::shared_ptr<Reward> SerializedMMDPStructure::getReward() const
     {
         return this->mmdp_->getReward();
     }
 
+    
     double SerializedMMDPStructure::getTransitionProbability(const SerializedState &s,const number &action, const SerializedState &s_) const
     {
         if(s.getCurrentAgentId() +1 != this->getNumAgents())
@@ -185,6 +196,7 @@ namespace sdm
         }
     }
 
+    
     void SerializedMMDPStructure::setInternalState(SerializedState new_i_state)
     {
         if(new_i_state.getCurrentAgentId() ==0)
@@ -194,12 +206,14 @@ namespace sdm
         }
     }
 
+    
     void SerializedMMDPStructure::setPlanningHorizon(number horizon)
     {
         this->mmdp_->setPlanningHorizon(horizon);
         this->planning_horizon_ = horizon;
     }
 
+    
     number SerializedMMDPStructure::getNumAgents() const
     {
         return this->mmdp_->getActionSpace()->getNumSpaces();
