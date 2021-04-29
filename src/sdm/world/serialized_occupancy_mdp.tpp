@@ -11,11 +11,6 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
-    {
-    }
-
-    template <typename TState, typename TAction>
     SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
     {
         typename TState::jhistory_type jhist;
@@ -40,16 +35,14 @@ namespace sdm
                 this->istate_->setProbabilityAt(p_s_o,this->serialized_mpomdp_->getStartDistrib().probabilities()[x]);
             }
         }
-        std::cout<<"\n init :"<<*this->istate_;
+        std::cout << this->istate_ << std::endl;
+        // std::cout << "End constructor" << std::endl;
+        this->cstate_ = this->istate_;
+        
     }
 
     template <typename TState, typename TAction>
     SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::string underlying_dpomdp, number hist_length) : SerializedOccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp), hist_length)
-    {
-    }
-
-    template <typename TState, typename TAction>
-    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::string underlying_dpomdp) : SerializedOccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp))
     {
     }
 
@@ -62,9 +55,14 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::getInitialState()
     {
+<<<<<<< HEAD
         std::cout<<"\n getInit"<<*this->istate_;
         std::cout<<"\n getInit";
         return *this->istate_;
+=======
+        std::cout << "Pass "<< std::endl;
+        return this->istate_;
+>>>>>>> ae83cbc982e6193a2c87291b4464e647e57f02cb
     }
 
     template <typename TState, typename TAction>

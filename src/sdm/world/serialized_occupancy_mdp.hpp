@@ -27,18 +27,20 @@ namespace sdm
     {
     protected:
         std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
+<<<<<<< HEAD
         std::shared_ptr<TState> istate_;
         typename TState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
+=======
+        TState istate_, cstate_;
+>>>>>>> ae83cbc982e6193a2c87291b4464e647e57f02cb
 
     public:
         using state_type = TState;
         using action_type = TAction;
 
         SerializedOccupancyMDP();
-        SerializedOccupancyMDP(std::string);
-        SerializedOccupancyMDP(std::string, number);
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>);
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number);
+        SerializedOccupancyMDP(std::string, number = -1);
+        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
 
         bool isSerialized() const;
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
@@ -49,7 +51,7 @@ namespace sdm
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
         double getReward(const TState &, const TAction &) const;
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> , const TState &, const TAction &, number = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState &, const TAction &, number = 0) const;
 
         std::shared_ptr<SerializedMMDP> toMDP();
 

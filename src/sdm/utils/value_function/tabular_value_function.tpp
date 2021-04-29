@@ -95,9 +95,16 @@ namespace sdm
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (auto pair_st_val : this->representation[i])
             {
-                res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
-                res << "\t\t\t" << pair_st_val.second << std::endl;
+                // res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
+                // res << "\t\t</state>" << std::endl;
+                std::ostringstream state_str;
+                state_str << pair_st_val.first;
+                res << "\t\t<state>" << std::endl;
+                res << tools::addIndent(state_str.str(), 3) << std::endl;
                 res << "\t\t</state>" << std::endl;
+                res << "\t\t<value>" << std::endl;
+                res << "\t\t\t" << pair_st_val.second << std::endl;
+                res << "\t\t</value>" << std::endl;
             }
             res << "\t</value>" << std::endl;
         }

@@ -39,18 +39,20 @@ namespace sdm
         bool hasExtension(std::string filename, std::string extension);
 
         /**
+         * @brief Add indentation to an output stream
+         */
+        void indentedOutput(std::ostream &outStream, const char *message, int num_indent = 1);
+
+        /**
          * @brief Add indentation to input string
          * 
          * @param s input string
          * @param num_indents the number of indentations
          * @param indent the indentation format used
          */
-        std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
+        // std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
+        std::string addIndent(std::string input_string, int num_indents = 1, std::string indent = "\t");
 
-        /**
-         * @brief Add indentation to an output stream
-         */
-        void indentedOutput(std::ostream &outStream, const char *message);
 
         /**
          * @brief Repeat a string n times.

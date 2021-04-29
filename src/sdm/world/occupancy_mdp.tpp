@@ -120,47 +120,54 @@ namespace sdm
     template <typename oState, typename oAction>
     oState OccupancyMDP<oState, oAction>::nextState(const oState &ostate, const oAction &joint_idr, number, std::shared_ptr<HSVI<oState, oAction>>, bool compression) const
     {
+        // The new compressed occupancy state
         std::shared_ptr<oState> new_compressed_occupancy_state;
+        // The new fully uncompressed occupancy state
         std::shared_ptr<oState> new_fully_uncompressed_occupancy_state = std::make_shared<oState>();
+        // The new one step left occupancy state
         std::shared_ptr<oState> new_one_step_left_compressed_occupancy_state = std::make_shared<oState>();
 
-        // for all element in the support of the occupancy state (fully uncompressed version)
+        // for all element in the support of the fully uncompressed occupancy state
         for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
         {
             auto x = p_x_o.first.first;
             auto o = p_x_o.first.second;
 
-            // Get joint action based on a joint decision rule and a joint history
+            // Get joint action based on a joint decision rule and a joint labels
             auto jaction = joint_idr.act(ostate.getJointLabels(o->getIndividualHistories()));
+
             for (auto &y : this->dpomdp_->getReachableStates(x, jaction))
             {
                 for (auto &z : this->dpomdp_->getReachableObservations(x, jaction, y))
                 {
-                    Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
-                    // Compute the proba of the next couple (state, joint history)
-                    double proba = this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
+                    // Get the probability of the next couple (next_state, next_joint history)
+                    double next_occupancy_measure = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
 
-                    if (p_x_o.second * proba > 0)
+                    // If occupancy measure is greater than zero, we build our occupancy states
+                    if (next_occupancy_measure > 0)
                     {
-                        new_fully_uncompressed_occupancy_state->addProbabilityAt(new_index, p_x_o.second * proba);
+                        // Build fully uncompressed occupancy state
+                        auto joint_history_next = o->expand(z);
+                        new_fully_uncompressed_occupancy_state->addProbabilityAt({y, joint_history_next}, next_occupancy_measure);
 
-                        // 
-                        auto compressed_joint_history = ostate.getCompressedJointHistory(p_x_o.first.second);
-                        auto occupancy_measure = ostate.getProbability(std::make_pair(p_x_o.first.first, compressed_joint_history)) * proba;
-                        if (occupancy_measure > 0)
-                        {
-                            new_one_step_left_compressed_occupancy_state->addProbabilityAt(new_index, occupancy_measure);
-                        }
+                        // Build one step left uncompressed occupancy state
+                        auto compressed_joint_history = ostate.getCompressedJointHistory(o);
+                        auto compressed_joint_history_next = compressed_joint_history->expand(z);
+                        new_one_step_left_compressed_occupancy_state->addProbabilityAt({y, compressed_joint_history_next}, next_occupancy_measure);
+
+                        // Update next history labels
+                        new_one_step_left_compressed_occupancy_state->updateJointLabels(joint_history_next->getIndividualHistories(), compressed_joint_history_next->getIndividualHistories());
                     }
                 }
             }
         }
 
-        // Compress the occupancy state
+        // Finalize the one step left compressed occupancy state
         new_one_step_left_compressed_occupancy_state->finalize();
 
         if (compression)
         {
+            // Compress the occupancy state
             new_compressed_occupancy_state = std::make_shared<oState>(new_one_step_left_compressed_occupancy_state->compress());
             new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
             new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());

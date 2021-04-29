@@ -64,6 +64,10 @@ namespace sdm
      * @brief Get the fully uncompressed occupancy state.
      */
     std::shared_ptr<OccupancyState> getFullyUncompressedOccupancy() const;
+
+    /**
+     * @brief Set the fully uncompressed occupancy state.
+     */
     void setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
     /**
@@ -73,16 +77,27 @@ namespace sdm
     void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
     /**
-     * @brief Get the list of labels that corresponds to the list of ihistories
+     * @brief Get the list of labels that corresponds to the list of ihistories.
      */
     std::vector<ihistory_type> getJointLabels(const std::vector<ihistory_type> &) const;
 
     /**
-     * @brief Get the Compressed Joint History object
+     * @brief Update the label of a specific individual history
+     */
+    void updateLabel(number, const ihistory_type &, const ihistory_type &);
+
+    /**
+     * @brief Update the labels of multiple individual histories
+     */
+    void updateJointLabels(const std::vector<ihistory_type> &, const std::vector<ihistory_type> &);
+
+    /**
+     * @brief Get the Compressed Joint History. 
      */
     TJointHistory_p getCompressedJointHistory(const TJointHistory_p &) const;
 
     std::shared_ptr<OccupancyState<TState, TJointHistory_p>> getptr();
+
 
   protected:
     /** @brief This representation of occupancy states consists of private occupancy states for each agent*/
@@ -92,11 +107,12 @@ namespace sdm
     std::shared_ptr<OccupancyState> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state;
 
     /** @brief Keep relations between all private ihistories and labels */
-    Joint<RecursiveMap<ihistory_type, ihistory_type>> private_ihistory_map_;
+    Joint<RecursiveMap<ihistory_type, std::shared_ptr<ihistory_type>>> private_ihistory_map_;
 
-    /**
-     * @brief 
-     */
+    /** @brief */
+    Joint<RecursiveMap<ihistory_type, std::shared_ptr<ihistory_type>>> map_label_to_pointer;
+
+    /** @brief Keep relation between list of individual histories and joint histories */
     RecursiveMap<std::vector<ihistory_type>, jhistory_type> jhistory_map_;
   };
 } // namespace sdm

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <type_traits>
 
+#include <sdm/types.hpp>
+#include <sdm/tools.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>

@@ -19,7 +19,7 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(const SerializedOccupancyState &v) : OccupancyState<TState, TJointHistory_p>(v)
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(const SerializedOccupancyState &occupancy_state) : OccupancyState<TState, TJointHistory_p>(occupancy_state)
     {
     }
 
@@ -70,6 +70,12 @@ namespace sdm
     std::vector<typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::action_type> SerializedOccupancyState<TState, TJointHistory_p>::getAction(const Pair<state_type, jhistory_type> &state) const
     {
         return state.first.getAction();
+    }
+    
+    template <typename TState, typename TJointHistory_p>
+    std::shared_ptr<SerializedOccupancyState<TState, TJointHistory_p>> SerializedOccupancyState<TState, TJointHistory_p>::getptr()
+    {
+        return std::static_pointer_cast<SerializedOccupancyState<TState, TJointHistory_p>>(this->shared_from_this());
     }
 
 } // namespace sdm

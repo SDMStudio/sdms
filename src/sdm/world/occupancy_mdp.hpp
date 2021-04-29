@@ -19,6 +19,7 @@
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/discrete_mdp.hpp>
 #include <sdm/world/discrete_pomdp.hpp>
+#include <sdm/world/discrete_decpomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
