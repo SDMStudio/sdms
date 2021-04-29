@@ -46,41 +46,48 @@ namespace sdm
 
     void SerializedMPOMDP::createInitReachableObsStateSpace()
     {
-        // for (const auto action : this->getActionSpace()->getAll())
-        // {
-        //     std::unordered_map<SerializedState, std::set<Joint<number>>> map_serial_state_obs;
+       for (const auto serialized_state : this->serialized_state_space_->getAll())
+        { 
+            this->reachable_obs_state_space.emplace(serialized_state,std::unordered_map<number, std::unordered_map<SerializedState, std::set<Joint<number>>>>());
+            std::vector<number> all_action(serialized_state.getAction());
 
-        //     for (const auto serialized_state : this->serialized_state_space_->getAll())
-        //     {
-        //         std::set<Joint<number>> all_obs;
+            for (const auto serial_action : this->getActionSpace(serialized_state.getCurrentAgentId())->getAll())
+            {
+                this->reachable_obs_state_space[serialized_state].emplace(serial_action,std::unordered_map<SerializedState, std::set<Joint<number>>>());
 
-        //         if (serialized_state.getCurrentAgentId() == 0)
-        //         {
-        //             Joint<number> joint_action(action);
-        //             try
-        //             {
-        //                 for (const auto obs : this->decpomdp_->getReachableObservations(joint_action, serialized_state.getState()))
-        //                 {
-        //                     all_obs.insert(obs);
-        //                 }
-        //             }
-        //             catch (const std::exception &e)
-        //             {
-        //             }
-        //         }
-        //         else
-        //         {
-        //             all_obs.insert(this->serialized_observation_space_->single2joint(this->serialized_observation_space_->getNumJointItems() - 1));
-        //         }
-        //         map_serial_state_obs.emplace(serialized_state.getState(), all_obs);
-        //     }
-        //     this->reachable_obs_state_space.emplace(action, map_serial_state_obs);
-        // }
+                for (const auto next_serialized_state : this->serialized_state_space_->getAll())
+                {
+                    std::set<Joint<number>> all_obs;
+
+                    if (next_serialized_state.getCurrentAgentId() == 0 && serialized_state.getCurrentAgentId() == this->getNumAgents()-1)
+                    {
+                        all_action.push_back(serial_action);
+                        Joint<number> joint_action(all_action);
+                        try
+                        {
+                            for (const auto obs : this->decpomdp_->getReachableObservations(serialized_state.getState(),joint_action, next_serialized_state.getState()))
+                            {
+                                all_obs.insert(obs);
+                            }
+                        }
+                        catch (const std::exception &e)
+                        {
+                            all_obs.insert(this->serialized_observation_space_->single2joint(this->serialized_observation_space_->getNumJointItems() - 1));
+                        }
+                    }
+                    else
+                    {
+                        all_obs.insert(this->serialized_observation_space_->single2joint(this->serialized_observation_space_->getNumJointItems() - 1));
+                    }
+                    this->reachable_obs_state_space[serialized_state][serial_action].emplace(next_serialized_state, all_obs);
+                }
+            }
+        }
     }
 
     const std::set<Joint<number>> &SerializedMPOMDP::getReachableObservations(SerializedState serial_state,number serial_action, SerializedState next_serial_state) const
     {
-        //return this->reachable_obs_state_space.at(serial_state).at(serial_action).at(next_serial_state);
+        return this->reachable_obs_state_space.at(serial_state).at(serial_action).at(next_serial_state);
     }
 
     std::shared_ptr<SerializedMMDP> SerializedMPOMDP::toMDP()
@@ -105,14 +112,14 @@ namespace sdm
 
     double SerializedMPOMDP::getObservationProbability(const number &action, const Joint<number> &joint_observation, const SerializedState &serialized_state) const
     {
-        // if (serialized_state.getCurrentAgentId() != 0)
-        // {
-        //     return 0;
-        // }
-        // else
-        // {
-        //     return this->decpomdp_->getObsDynamics()->getObservationProbability(action, joint_observation, serialized_state.getState());
-        // }
+        if (serialized_state.getCurrentAgentId() != 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return this->decpomdp_->getObsDynamics()->getObservationProbability(action, joint_observation, serialized_state.getState());
+        }
     }
 
     double SerializedMPOMDP::getDynamics(const SerializedState &serialized_state, const number action, const Joint<number> joint_obs, const SerializedState &serialized_state_next) const
@@ -127,7 +134,7 @@ namespace sdm
             }
             return 0;
         }
-        return this->decpomdp_->getObsDynamics()->getDynamics(serialized_state.getState(), this->getActionSpace()->joint2single(Joint<number>(all_action)), this->getObsSpace()->joint2single(joint_obs), serialized_state_next.getState());
+        return this->decpomdp_->getObsDynamics()->getDynamics(serialized_state.getState(), this->getJointActionSpace()->joint2single(Joint<number>(all_action)), this->getObsSpace()->joint2single(joint_obs), serialized_state_next.getState());
     }
 
 }

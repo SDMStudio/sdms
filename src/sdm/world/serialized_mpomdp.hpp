@@ -74,7 +74,8 @@ namespace sdm
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
         std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
 
-        std::unordered_map<Joint<number>, std::unordered_map<state_type, std::set<Joint<number>>>> reachable_obs_state_space;
+        //std::unordered_map<Joint<number>, std::unordered_map<state_type, std::set<Joint<number>>>> reachable_obs_state_space;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<state_type, std::set<observation_type>>>> reachable_obs_state_space;
 
         /**
          * @brief Initialize Serial Observation Space

@@ -107,7 +107,27 @@ namespace sdm
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
 
+        /**
+         * @brief Return the number of agent
+         * 
+         * @return number 
+         */
         number getNumAgents() const;
+
+        /**
+         * \brief Getter for the serial action space
+         */
+        std::shared_ptr<DiscreteSpace<action_type>> getActionSpace(number = 0) const;
+
+        /**
+         * \brief Getter for the Joint action space
+         */
+        std::shared_ptr<MultiDiscreteSpace<action_type>> getJointActionSpace() const;
+
+        /**
+         * \brief Getter for the serial action space
+         */
+        std::shared_ptr<DiscreteSpace<state_type>> getStateSpace(number = 0) const;
   
     protected:
         /**

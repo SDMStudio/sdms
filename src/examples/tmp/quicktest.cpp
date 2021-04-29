@@ -4,14 +4,20 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-	// std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
-	// number horizon(2);
+	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
+	number horizon(2);
 
-	// using TState = SerializedState;
-	// using TAction = number;
+	auto serial_POMDP = std::make_shared<SerializedMPOMDP>(problem_path);
+	//auto underlying_problem = serial_POMDP->getUnderlyingProblem();
 
-	// auto serial_MDP = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path, horizon);
-	// auto underlying_problem = serial_MDP->getUnderlyingProblem();
+	SerializedState serial_state(0,std::vector<number>({1}));
+	SerializedState next_serial_state(0,std::vector<number>({}));
+	number action = 0;
+
+	for(auto const obs : serial_POMDP->getReachableObservations(serial_state,action,next_serial_state))
+	{
+		std::cout<<"\n obs "<<obs;
+	}
 
 	// std::cout<<"\n getState : "<<underlying_problem->getStateSpace();
 	// std::cout<<"\n getState : "<<underlying_problem->getSerialStateSpace(); // A enlever

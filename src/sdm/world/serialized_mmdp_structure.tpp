@@ -77,7 +77,7 @@ namespace sdm
 
             std::unordered_map<number,std::set<SerializedState>> map_action_next_serial_state;
 
-            for(auto action : this->getActionSpace()->getSpace(agent_identifier)->getAll())
+            for(auto action : this->getActionSpace(agent_identifier)->getAll())
             {
                 std::vector<number> serial_action(u);
                 serial_action.push_back(action);
@@ -181,7 +181,7 @@ namespace sdm
         {
             std::vector<number> all_action = s.getAction();
             all_action.push_back(action);
-            return this->mmdp_->getStateDynamics()->getTransitionProbability(s.getState(),this->getActionSpace()->joint2single(Joint<number>(all_action)),s_.getState());
+            return this->mmdp_->getStateDynamics()->getTransitionProbability(s.getState(),this->getJointActionSpace()->joint2single(Joint<number>(all_action)),s_.getState());
         }
     }
 
@@ -202,6 +202,22 @@ namespace sdm
 
     number SerializedMMDPStructure::getNumAgents() const
     {
-        return this->getActionSpace()->getNumSpaces();
+        return this->mmdp_->getActionSpace()->getNumSpaces();
     }
+
+    std::shared_ptr<DiscreteSpace<number>> SerializedMMDPStructure::getActionSpace(number t) const
+    {
+        return this->mmdp_->getActionSpace()->getSpace(t % this->getNumAgents());
+    }
+
+    std::shared_ptr<MultiDiscreteSpace<number>> SerializedMMDPStructure::getJointActionSpace() const
+    {
+        return this->mmdp_->getActionSpace();
+    }
+
+    std::shared_ptr<DiscreteSpace<SerializedState>> SerializedMMDPStructure::getStateSpace(number t) const
+    {
+        return this->serialized_state_space_->getSpace(t % this->getNumAgents());
+    }
+
 }

@@ -107,7 +107,7 @@ namespace sdm
 
     std::shared_ptr<DiscreteSpace<number>> SerializedMMDP::getActionSpaceAt(const SerializedState &state) 
     {
-        return this->serial_mmdp_->getActionSpace()->getSpace(state.getCurrentAgentId());
+        return this->serial_mmdp_->getJointActionSpace()->getSpace(state.getCurrentAgentId());
     }
 
 }

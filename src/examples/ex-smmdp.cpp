@@ -7,10 +7,7 @@ int main(int argc, char **argv)
 	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
 	number horizon(2);
 
-	using TState = SerializedState;
-	using TAction = number;
-
-	auto serial_MDP = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path, horizon);
+	auto serial_MDP = std::make_shared<SerializedMMDP>(problem_path, horizon);
 	auto underlying_problem = serial_MDP->getUnderlyingProblem();
 
 	std::cout<<"\n getState : "<<underlying_problem->getStateSpace();
