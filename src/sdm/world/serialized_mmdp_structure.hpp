@@ -12,19 +12,6 @@
 #include <sdm/core/action/det_decision_rule.hpp>
 //#include <sdm/utils/decision_rules/det_decision_rule.hpp>
 
-/*
-De : Jilles 
-A : Qui de droit
-
-    Désolé mais ce code est illisible -- il n'y a aucun commentaire. 
-    Gardez à l'esprit que SDMS va être diffusé à la communauté. 
-    Si moi, j'ai du mal beaucoup n'y arriveront pas commentez vos codes SVP. 
-
-    Je vais etre sincère, ce code est davantage un brouillon qu'autre chose. 
-    Il est à corrigé très rapidement.
-*/
-
-
 namespace sdm
 {
     /**
@@ -54,42 +41,6 @@ namespace sdm
          */
         double getDiscount(number = 0) const;
 
-        // /**
-        //  * @brief 
-        //  *  
-        //  * @return true 
-        //  * @return false 
-        //  */
-        // bool isSerialized() const;
-
-        // /**
-        //  * @brief Get itself ...
-        //  * 
-        //  * @return SerializedMMDPStructure<TState,TAction>* 
-        //  */
-        // SerializedMMDPStructure<TState, TAction>* getUnderlyingProblem();
-
-        // /**
-        //  * @brief Get the initial serial state 
-        //  * @return TState 
-        //  */
-        // TState getInitialState();
-
-        // /**
-        //  * @brief 
-        //  * 
-        //  * @return TState 
-        //  */
-        // TState nextState(const TState&, const TAction&, number = 0, HSVI<TState, TAction>* = nullptr) const;
-        
-
-        // /**
-        //  * @brief Get the Expected Next Value object
-        //  * 
-        //  * @return double 
-        //  */
-        // double getExpectedNextValue(ValueFunction<TState, TAction>*, const TState&, const TAction&, number = 0) const;
-
         /**
          * @brief Get the Next State Space object for a precise serialized state
          * @comment: surcharger la fonction 'getReachableSerialStates(...)'
@@ -97,21 +48,6 @@ namespace sdm
          * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
          */
         const std::set<TState>& getReachableSerialStates(const TState&, const TAction&) const;
-
-        /**
-         * @brief Get All the Serialized State Space
-         * 
-         * @return std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> 
-         */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> getSerialStateSpace() const;
-
-
-        /**
-         * @brief Get the Action Space object
-         * 
-         * @return std::shared_ptr<MultiDiscreteSpace<TAction>> 
-         */
-        std::shared_ptr<MultiDiscreteSpace<TAction>> getSerialActionSpace(number )const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
@@ -123,6 +59,22 @@ namespace sdm
         double getReward(const TState &,const TAction &) const;
 
         /**
+         * @brief Get the Reward for a precise serialized_state and the Joint<action>
+         * 
+         * @param serialized_state 
+         * @param action 
+         * @return double 
+         */
+        double getReward(const TState &,const Joint<TAction> &) const;
+
+        /**
+         * @brief The reward of the simultaneous mmdp. 
+         * 
+         * @return std::shared_ptr<TReward> 
+         */
+        std::shared_ptr<Reward> getReward() const; // Pour le moment, obligé de crée cette variable
+
+        /**
          * @brief Get the probability to be in serialized_state_next giving a precise serialized_state and the action of the last agent. 
          * @param serialized_state 
          * @param action 
@@ -130,8 +82,6 @@ namespace sdm
          * @return double 
          */
         double getTransitionProbability(const TState &,const TAction &, const TState &) const;
-
-        TState getInternalState() const;
         
         void setInternalState(TState );
         
@@ -191,4 +141,4 @@ namespace sdm
 
     };
 } // namespace sdm
-#include <sdm/world/serialized_mmdp structure.tpp>
+#include <sdm/world/serialized_mmdp_structure.tpp>

@@ -1,86 +1,37 @@
-#include <iostream>
-
-#include <sdm/parser/parser.hpp>
-#include <sdm/exception.hpp>
-
-#include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/action/joint_det_decision_rule.hpp>
+#include <sdm/world/serialized_occupancy_mdp.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-	std::string filename;
+	// std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
+	// number horizon(2);
 
-	if (argc > 1)
-	{
-		filename = argv[1];
-	}
+	// using TState = SerializedState;
+	// using TAction = number;
 
-	else
-	{
-		std::cerr << "Error: Require 1 input file." << std::endl;
-		return 1;
-	}
+	// auto serial_MDP = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path, horizon);
+	// auto underlying_problem = serial_MDP->getUnderlyingProblem();
 
-	try
-	{
-		// Construct DecPOMDP using parser
-		std::cout << "#> Parsing file \"" << filename << "\"\n";
-		// auto omdp_world = sdm::parser::parse_file(filename);
-		// auto world = std::make_shared<DiscreteDecPOMDP>(filename);
-		auto omdp_world = std::make_shared<OccupancyMDP<>>(filename);
-		std::cout << "#> omdp_world reference \"" << omdp_world << "\"\n";
+	// std::cout<<"\n getState : "<<underlying_problem->getStateSpace();
+	// std::cout<<"\n getState : "<<underlying_problem->getSerialStateSpace(); // A enlever
 
-		// Test getReachable
-		// world->setupDynamicsGenerator();
-		// auto state_sample = world->getStateSpace()->sample();
-		// std::cout << "state_sample=" << state_sample << std::endl;
+	// int number_test_limit= 5;
+	// int number_test = 0;
+	// do
+	// {
+	// 	number_test ++;
 
-		// auto action_sample = world->getActionSpace()->sample();
-		// std::cout << "action_sample=" << action_sample << std::endl;
+	// 	auto serial_state = underlying_problem->getStateSpace()->sample();
+	// 	number serial_action = underlying_problem->getActionSpace()->sample();
 
-		// for (auto state : world->getReachableStates(state_sample, action_sample))
-		// {
-		// 	std::cout << "S : " << state << std::endl;
-		// }
+	// 	auto set_next_serial_states = underlying_problem->getReachableSerialStates(serial_state,serial_action);
+	// 	std::cout<<"\n next_serial_state : ";
+	// 	for(auto const &next_serial_state : set_next_serial_states)
+	// 	{
+	// 		std::cout<<next_serial_state<<" ";
+	// 	}
 
-		// for (auto obs : world->getReachableObservations(action_sample, state_sample))
-		// {
-		// 	std::cout << "O : " << obs << std::endl;
-		// }
+	// } while (number_test_limit > number_test);
 
-		// We will show how to expand an initial occupancy state and generate next ones
-		int depth = 0, limit = 3;
-		auto ostate = omdp_world->getInitialState();
-		auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-
-		std::cout << "#> Print depth \"" << depth << "\"\n";
-		std::cout << "#> Print occupancy state \n"
-				  << ostate << "\n";
-		std::cout << "#> Print joint decision rule \n"
-				  << oaction << "\n";
-
-		do
-		{
-			depth++;
-			std::cout << "#> Print depth \"" << depth << "\"\n";
-
-			ostate = omdp_world->nextState(ostate, oaction);
-			std::cout << "#> Print occupancy state \n"
-					  << ostate << "\n";
-
-			oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-			std::cout << "#> Print joint decision rule \n"
-					  << oaction << "\n";
-		} while (depth < limit);
-	}
-	catch (exception::Exception &e)
-	{
-		std::cout << "!!! Exception: " << e.what() << std::endl;
-	}
-
-	return 0;
 } // END main

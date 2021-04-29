@@ -11,7 +11,7 @@
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
 
-#include <sdm/world/serialized_mmdp structure.hpp>
+#include <sdm/world/serialized_mmdp_structure.hpp>
 
 namespace sdm
 {

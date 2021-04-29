@@ -11,14 +11,13 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<TState,TAction>>(underlying_dpomdp))
+    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<SerializedState,number>>(underlying_dpomdp))
     {
     }
 
     template <typename TState, typename TAction>
-    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<TState,TAction>>(underlying_dpomdp))
+    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<SerializedState,number>>(underlying_dpomdp))
     {
-
         typename TState::jhistory_type jhist;
         if (hist_length > 0)
         {
@@ -29,7 +28,7 @@ namespace sdm
             jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents());
         }
 
-        for (const auto s : this->serialized_mpomdp_->getSerializedStateSpaceAt(0)->getAll())
+        for (const auto s : this->serialized_mpomdp_->getStateSpace()->getSpace(0)->getAll())
         {
             auto x = s.getState();
             if (this->serialized_mpomdp_->getStartDistrib().probabilities()[x] > 0) 
@@ -38,7 +37,6 @@ namespace sdm
                 this->istate_[p_s_o] = this->serialized_mpomdp_->getStartDistrib().probabilities()[x];
             }
         }
-        //this->cstate_ = this->istate_;
     }
 
     template <typename TState, typename TAction>
@@ -51,14 +49,8 @@ namespace sdm
     {
     }
 
-    // template <typename TState, typename TAction>
-    // TState &SerializedOccupancyMDP<TState, TAction>::getState()
-    // {
-    //     return this->cstate_;
-    // }
-
     template <typename TState, typename TAction>
-    SerializedMPOMDP<TState,TAction> *SerializedOccupancyMDP<TState, TAction>::getUnderlyingProblem()
+    SerializedMPOMDP<SerializedState,number> *SerializedOccupancyMDP<TState, TAction>::getUnderlyingProblem()
     {
         return this->serialized_mpomdp_.get();
     }
@@ -112,12 +104,12 @@ namespace sdm
             }
             else
             {
-                for (const auto y : this->serialized_mpomdp_->getSerializedStateSpaceAt(0)->getAll())
+                for (const auto y : this->serialized_mpomdp_->getStateSpace()->getSpace(0)->getAll())
                 {    
                     for (auto &z : this->serialized_mpomdp_->getObsSpace()->getAll())
                     {  
                         Pair<typename TState::state_type, typename TState::jhistory_type> new_index(y, o->expand(z));
-                        double proba = p_s_o.second * this->serialized_mpomdp_->getObsDynamics(pair_s_o.first, indiv_dr.act(p_ihist), z, y);
+                        double proba = p_s_o.second * this->serialized_mpomdp_->getDynamics(pair_s_o.first, indiv_dr.act(p_ihist), z, y);
                         if (proba > 0)
                         {
                             new_ostate[new_index] = new_ostate.at(new_index) + proba;
@@ -159,13 +151,6 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double SerializedOccupancyMDP<TState, TAction>::getDiscount(number t) const
-    {
-        return this->serialized_mpomdp_->getDiscount(t);
-    }
-
-
-    template <typename TState, typename TAction>
     std::shared_ptr<SerializedMMDP<>> SerializedOccupancyMDP<TState, TAction>::toMDP()
     {
         return this->serialized_mpomdp_->toMDP();
@@ -174,7 +159,7 @@ namespace sdm
     template <typename TState, typename TAction>
     bool SerializedOccupancyMDP<TState, TAction>::isSerialized() const
     {
-        return this->serialized_mpomdp_->isSerialized();
+        return true;
     }
     
 } // namespace sdm

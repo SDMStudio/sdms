@@ -121,8 +121,7 @@ namespace sdm
             {
                 horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
             }
-
-            return std::make_shared<ValueIteration<TState, TAction>>(problem,discount, error,horizon);
+            return std::make_shared<ValueIteration<TState, TAction>>(problem, error,horizon);
         }
 
 
@@ -180,13 +179,13 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
-                    // using TState = SerializedState; //<number, number>;
-                    // using TAction = number;
+                    using TState = SerializedState; //<number, number>;
+                    using TAction = number;
 
-                    // auto serialized_mdp = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path);
-                    // serialized_mdp->getUnderlyingProblem()->setInternalState(0);
+                    auto serialized_mdp = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path);
+                    serialized_mdp->getUnderlyingProblem()->setInternalState(SerializedState(0,std::vector<number>()));
 
-                    //p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                    p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
                 else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
                 {
@@ -200,12 +199,12 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
-                    // using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
-                    // using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+                    using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
+                    using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-                    //auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
+                    auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
 
-                    //return makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
+                    return makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
                 }
             }
             else

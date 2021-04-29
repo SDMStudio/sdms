@@ -11,7 +11,7 @@
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
 
-#include <sdm/world/serialized_mmdp structure.hpp>
+#include <sdm/world/serialized_mmdp_structure.hpp>
 
 /*
 De : Jilles 
@@ -69,13 +69,13 @@ namespace sdm
         TState getInitialState();
 
         /**
-         * @brief 
+         * @brief Get the next state.
          * 
          * @return TState 
          */
         TState nextState(const TState&, const TAction&, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &serialized_state) ;        
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &) ;        
 
         /**
          * @brief Get the Expected Next Value object

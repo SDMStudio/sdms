@@ -14,7 +14,6 @@
 
 namespace sdm
 {
-
     /**
      * @brief An Serialized occupancy MDP is a subclass of continuous state MDP where states are seriliazed occupancy states and the resolution is serialized. 
      * In the general case, a Serialized occupancy state refers to the knowledge that a central planner can have access to take decisions at a precise agent. 
@@ -27,14 +26,12 @@ namespace sdm
     class SerializedOccupancyMDP : public SolvableByHSVI<TState, TAction>
     {
     protected:
-        std::shared_ptr<SerializedMPOMDP<TState,TAction>> serialized_mpomdp_;
+        std::shared_ptr<SerializedMPOMDP<SerializedState,number>> serialized_mpomdp_;
         TState istate_;
-        //TState cstate_;
 
     public:
         using state_type = TState;
         using action_type = TAction;
-        // using observation_type = oObservation;
 
         SerializedOccupancyMDP();
         SerializedOccupancyMDP(std::string);
@@ -42,18 +39,13 @@ namespace sdm
         SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>);
         SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number);
 
-        //TState &getState();
-        double getDiscount(number t) const;
+        bool isSerialized() const;
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
 
-        bool isSerialized() const; // A enlever à terme car déjà écrit dans SerializedMPOMDP
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &); // A enlever à terme car déjà écrit dans SerializedMPOMDP
-
-
-        SerializedMPOMDP<TState,TAction> *getUnderlyingProblem();
+        SerializedMPOMDP<SerializedState,number> *getUnderlyingProblem();
 
         TState getInitialState();
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
-
 
         double getReward(const TState &, const TAction &) const;
         double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> , const TState &, const TAction &, number = 0) const;

@@ -84,7 +84,7 @@ namespace sdm
     template <typename TState, typename TAction>
     SerializedMMDPStructure<TState,TAction> *SerializedMMDP<TState, TAction>::getUnderlyingProblem()
     {
-        return this->serial_mmdp_;
+        return this->serial_mmdp_.get();
     }
 
     template <typename TState, typename TAction>
@@ -115,17 +115,6 @@ namespace sdm
     double SerializedMMDP<TState,TAction>::getReward(const TState &s, const TAction &action) const
     {
         return this->serial_mmdp_->getReward(s,action);
-        // if(s.getCurrentAgentId() +1 != this->serial_mmdp_->getNumAgents())
-        // {
-        //     return 0;
-        // }else
-        // {
-        //     std::vector<number> all_action = s.getAction();
-        //     all_action.push_back(action);
-
-            
-        //     return this->serial_mmdp_->getReward(s.getState(),Joint<number>(all_action));
-        // }
     }
 
     template <typename TState, typename TAction>
