@@ -74,7 +74,6 @@ namespace sdm
          */
         state_type nextState(const state_type&, const action_type&, number = 0, std::shared_ptr<HSVI<state_type, action_type>> = nullptr) const;
 
-
         std::shared_ptr<DiscreteSpace<action_type>> getActionSpaceAt(const state_type &) ;        
 
         /**

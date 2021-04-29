@@ -11,12 +11,12 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<SerializedState,number>>(underlying_dpomdp))
+    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
     {
     }
 
     template <typename TState, typename TAction>
-    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP<SerializedState,number>>(underlying_dpomdp))
+    SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
     {
         typename TState::jhistory_type jhist;
         if (hist_length > 0)
@@ -50,7 +50,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    SerializedMPOMDP<SerializedState,number> *SerializedOccupancyMDP<TState, TAction>::getUnderlyingProblem()
+    SerializedMPOMDP *SerializedOccupancyMDP<TState, TAction>::getUnderlyingProblem()
     {
         return this->serialized_mpomdp_.get();
     }
@@ -151,7 +151,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<SerializedMMDP<>> SerializedOccupancyMDP<TState, TAction>::toMDP()
+    std::shared_ptr<SerializedMMDP> SerializedOccupancyMDP<TState, TAction>::toMDP()
     {
         return this->serialized_mpomdp_->toMDP();
     }

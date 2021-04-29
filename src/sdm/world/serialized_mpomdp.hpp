@@ -68,7 +68,6 @@ namespace sdm
         //! \return   value
         double getObservationProbability(const state_type&, const action_type&, const observation_type&, const state_type&) const;
 
-
         double getDynamics(const state_type&, const action_type&, const observation_type&, const state_type&) const;
 
     protected:

@@ -28,10 +28,10 @@ namespace sdm
         }
 
         template <bool is_serialized_mdp>
-        static std::enable_if_t<is_serialized_mdp, SerializedMMDP<SerializedState, number>>
+        static std::enable_if_t<is_serialized_mdp, SerializedMMDP>
         getWorldType()
         {
-            return SerializedMMDP<>();
+            return SerializedMMDP();
         }
 
         template <bool is_serialized_occupancy_mdp>
@@ -99,13 +99,6 @@ namespace sdm
 
         template <bool is_solving_serialized_mpomdp>
         static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP>
-        getAssociatedProblem()
-        {
-            return SerializedMPOMDP();
-        }
-
-        template <bool is_solving_serialized_pomdp>
-        static std::enable_if_t<is_solving_serialized_pomdp, SerializedMPOMDP>
         getAssociatedProblem()
         {
             return SerializedMPOMDP();

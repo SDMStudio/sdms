@@ -3,13 +3,20 @@
 
 namespace sdm
 {
+<<<<<<< HEAD
     
+=======
+>>>>>>> 01e62d6b25a55e3932a4bd4e5ad118ed3b293995
     SerializedMMDPStructure::SerializedMMDPStructure()
     {
     }
 
+<<<<<<< HEAD
     
     SerializedMMDPStructure::SerializedMMDPStructure(std::shared_ptr<DiscreteMMDP> mmdp) : mmdp_(mmdp)
+=======
+    SerializedMMDPStructure::SerializedMMDPStructure(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : mmdp_(underlying_mmdp)
+>>>>>>> 01e62d6b25a55e3932a4bd4e5ad118ed3b293995
     {
         this->setPlanningHorizon(mmdp_->getPlanningHorizon());
         this->setDiscount(mmdp_->getDiscount());
@@ -21,12 +28,19 @@ namespace sdm
         this->setStartDistrib(mmdp_->getStartDistrib());
     }
 
+<<<<<<< HEAD
     
     SerializedMMDPStructure::SerializedMMDPStructure(std::string filename) : SerializedMMDPStructure(std::make_shared<DiscreteMMDP>(filename))
     {
     }
 
     
+=======
+    SerializedMMDPStructure::SerializedMMDPStructure(std::string underlying_mmdp) : SerializedMMDPStructure(std::make_shared<DiscreteMMDP>(underlying_mmdp))
+    {
+    }
+
+>>>>>>> 01e62d6b25a55e3932a4bd4e5ad118ed3b293995
     void SerializedMMDPStructure::createInitSerializedStateSpace()
     {
         std::vector<std::shared_ptr<DiscreteSpace<SerializedState>>> all_serialized_state;
@@ -71,7 +85,10 @@ namespace sdm
         this->setStateSpace(this->serialized_state_space_);
     }
 
+<<<<<<< HEAD
     
+=======
+>>>>>>> 01e62d6b25a55e3932a4bd4e5ad118ed3b293995
     void SerializedMMDPStructure::createInitReachableStateSpace()
     {
         for(const auto serialized_state : this->serialized_state_space_->getAll())

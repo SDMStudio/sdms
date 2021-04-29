@@ -182,7 +182,7 @@ namespace sdm
                     using TState = SerializedState; //<number, number>;
                     using TAction = number;
 
-                    auto serialized_mdp = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path);
+                    auto serialized_mdp = std::make_shared<SerializedMMDP>(problem_path);
                     serialized_mdp->getUnderlyingProblem()->setInternalState(SerializedState(0,std::vector<number>()));
 
                     p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);

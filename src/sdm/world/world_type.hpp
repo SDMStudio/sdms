@@ -11,6 +11,9 @@ namespace sdm
     class DiscreteMMDP;
     class DiscretePOMDP;
     class DiscreteDecPOMDP;
+    class SerializedMMDPStructure;
+    class SerializedMMDP;
+    class SerializedMPOMDP;
 
     template <typename TBelief, typename TAction, typename TObservation>
     class BeliefMDP;
@@ -21,14 +24,8 @@ namespace sdm
     template <typename TState, typename TAction>
     class OccupancyMDP;
 
-    class SerializedMMDPStructure;
-    
-    class SerializedMMDP;
-
-    template <typename TState, typename TAction>
+    template <typename oState, typename oAction>
     class SerializedOccupancyMDP;
-
-    class SerializedMPOMDP;
 
     /**
      * @brief Allows developers to get access to the type of underlying problem that is solved when dealing with a kind of state and action in HSVI.
@@ -82,8 +79,8 @@ namespace sdm
         static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDPStructure>
         getUnderlyingProblem();
 
-        template <bool is_solving_serialized_pomdp = std::is_any<TState,SerializedBeliefState>::value>
-        static std::enable_if_t<is_solving_serialized_pomdp, SerializedMPOMDP>
+        template <bool is_solving_serialized_mpomdp = std::is_any<TState,SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,SerializedBeliefState>::value>
+        static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP>
         getUnderlyingProblem();
 
         using type = decltype(WorldType<TState, TAction>::getWorldType());
