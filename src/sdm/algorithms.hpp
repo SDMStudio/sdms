@@ -187,7 +187,7 @@ namespace sdm
                     auto serialized_mdp = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path);
                     serialized_mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    //p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                    p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
                 else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
                 {

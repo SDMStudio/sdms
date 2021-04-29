@@ -22,6 +22,9 @@ namespace sdm
     class OccupancyMDP;
 
     template <typename oState, typename oAction>
+    class SerializedMMDPStructure;
+    
+    template <typename oState, typename oAction>
     class SerializedMMDP;
 
     template <typename oState, typename oAction>
@@ -79,7 +82,7 @@ namespace sdm
         getUnderlyingProblem();
 
         template <bool is_solving_serialized_mmdp = std::is_same<TState, SerializedState>::value>
-        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDP<SerializedState,number>>
+        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDPStructure<SerializedState,number>>
         getUnderlyingProblem();
 
         template <bool is_solving_serialized_mpomdp = std::is_any<TState,SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>

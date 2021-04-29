@@ -91,10 +91,10 @@ namespace sdm
         }
 
         template <bool is_solving_serialized_mmdp>
-        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDP>
+        static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDPStructure>
         getAssociatedProblem()
         {
-            return SerializedMMDP();
+            return SerializedMMDPStructure();
         }
 
         template <bool is_solving_serialized_mpomdp>
