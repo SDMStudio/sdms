@@ -4,6 +4,7 @@
 namespace sdm
 {
 
+    
     SerializedMPOMDP::SerializedMPOMDP()
     {
     }
@@ -24,11 +25,9 @@ namespace sdm
         this->createInitReachableObsStateSpace();
     }
 
-    
     SerializedMPOMDP::SerializedMPOMDP(std::string filename) : SerializedMPOMDP(std::make_shared<DiscreteDecPOMDP>(filename))
     {
     }
-
     
     void SerializedMPOMDP::createInitSerialObservationSpace()
     {
@@ -47,7 +46,6 @@ namespace sdm
         }
         this->serialized_observation_space_ = std::make_shared<MultiDiscreteSpace<number>>(all_observation_space);
         this->empty_serial_observation = Joint<number>(v);
-        std::cout<<"\n empty serial obs "<<this->empty_serial_observation;
     }
 
     
@@ -91,13 +89,11 @@ namespace sdm
             }
         }
     }
-
     
     const std::set<Joint<number>> &SerializedMPOMDP::getReachableObservations(const SerializedState serial_state, const number serial_action, const SerializedState next_serial_state) const
     {
         return this->reachable_obs_state_space.at(serial_state).at(serial_action).at(next_serial_state);
     }
-
     
     std::shared_ptr<SerializedMMDP> SerializedMPOMDP::toMDP()
     {
@@ -118,7 +114,6 @@ namespace sdm
     {
         return this->decpomdp_->getObsSpace()->getSpace(ag_id);
     }
-
     
     double SerializedMPOMDP::getObservationProbability(const SerializedState serialized_state, const number action, const Joint<number> joint_obs, const SerializedState serialized_state_next) const
     {
@@ -135,7 +130,6 @@ namespace sdm
         }
         return 0;
     }
-
     
     double SerializedMPOMDP::getDynamics(const SerializedState serialized_state, const number action, const Joint<number> joint_obs, const SerializedState serialized_state_next) const
     {

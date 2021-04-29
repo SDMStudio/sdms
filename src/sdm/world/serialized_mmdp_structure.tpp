@@ -3,6 +3,7 @@
 
 namespace sdm
 {
+    
     SerializedMMDPStructure::SerializedMMDPStructure()
     {
     }
@@ -69,6 +70,7 @@ namespace sdm
         this->setStateSpace(this->serialized_state_space_);
     }
 
+    
     void SerializedMMDPStructure::createInitReachableStateSpace()
     {
         for(const auto serialized_state : this->serialized_state_space_->getAll())
