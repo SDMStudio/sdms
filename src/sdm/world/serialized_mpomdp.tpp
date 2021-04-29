@@ -4,18 +4,12 @@
 namespace sdm
 {
 
-<<<<<<< HEAD
     
-=======
->>>>>>> 01e62d6b25a55e3932a4bd4e5ad118ed3b293995
     SerializedMPOMDP::SerializedMPOMDP()
     {
     }
 
-<<<<<<< HEAD
     
-=======
->>>>>>> 01e62d6b25a55e3932a4bd4e5ad118ed3b293995
     SerializedMPOMDP::SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_mmdp) : decpomdp_(underlying_mmdp)
     {
         this->mmdp_ = this->decpomdp_->toMMDP();
@@ -32,19 +26,12 @@ namespace sdm
         this->createInitReachableObsStateSpace();
     }
 
-<<<<<<< HEAD
     
     SerializedMPOMDP::SerializedMPOMDP(std::string filename) : SerializedMPOMDP(std::make_shared<DiscreteDecPOMDP>(filename))
     {
     }
 
     
-=======
-    SerializedMPOMDP::SerializedMPOMDP(std::string underlying_mmdp) : SerializedMPOMDP(std::make_shared<DiscreteDecPOMDP>(underlying_mmdp))
-    {
-    }
-
->>>>>>> 01e62d6b25a55e3932a4bd4e5ad118ed3b293995
     void SerializedMPOMDP::createInitSerialObservationSpace()
     {
         std::vector<item> v;
