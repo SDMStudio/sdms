@@ -48,7 +48,7 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const
     {
-        std::cout<<"\n ???? Next state 2 ";
+        std::cout<<"\n; ???? Next state 2 ";
 
         TBelief new_belief;
         number ag_id = belief.getCurrentAgentId();

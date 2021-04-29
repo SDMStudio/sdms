@@ -20,42 +20,43 @@ namespace sdm
      * In the general case, a Serialized occupancy state refers to the knowledge that a central planner can have access to take decisions at a precise agent. 
      * But in this implementation we call serialized occupancy state a distribution over serialized state and joint histories .
      * 
-     * @tparam oState refers to an serialized occupancy state type 
-     * @tparam oAction refers to a occupancy action type 
+     * @tparam TState refers to an serialized occupancy state type 
+     * @tparam TAction refers to a occupancy action type 
      */
-    template <typename oState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,
-              typename oAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
-    class SerializedOccupancyMDP : public SolvableByHSVI<oState, oAction> 
+    template <typename TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>, typename TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
+    class SerializedOccupancyMDP : public SolvableByHSVI<TState, TAction>
     {
     protected:
-        std::shared_ptr<SerializedMPOMDP<oState,oAction>> serialized_mpomdp_;
-        oState istate_;
+        std::shared_ptr<SerializedMPOMDP<TState,TAction>> serialized_mpomdp_;
+        TState istate_;
+        //TState cstate_;
 
     public:
-        using state_type = oState;
-        using action_type = oAction;
+        using state_type = TState;
+        using action_type = TAction;
+        // using observation_type = oObservation;
 
         SerializedOccupancyMDP();
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length);
-        SerializedOccupancyMDP(std::string underlying_dpomdp);
-        SerializedOccupancyMDP(std::string underlying_dpomdp, number hist_length);
+        SerializedOccupancyMDP(std::string);
+        SerializedOccupancyMDP(std::string, number);
+        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>);
+        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number);
 
-        //oState &getState();
-        double getDiscount(int t) const;
+        //TState &getState();
+        double getDiscount(number t) const;
 
         bool isSerialized() const; // A enlever à terme car déjà écrit dans SerializedMPOMDP
-        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &); // A enlever à terme car déjà écrit dans SerializedMPOMDP
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &); // A enlever à terme car déjà écrit dans SerializedMPOMDP
 
 
-        SerializedMPOMDP<oState,oAction> *getUnderlyingProblem();
+        SerializedMPOMDP<TState,TAction> *getUnderlyingProblem();
 
-        oState getInitialState();
-        oState nextState(const oState &ostate, const oAction &oaction, int t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+        TState getInitialState();
+        TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
 
-        double getReward(const oState &ostate, const oAction &oaction) const;
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<oState, oAction>> value_function, const oState &ostate, const oAction &oaction, int t = 0) const;
+        double getReward(const TState &, const TAction &) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> , const TState &, const TAction &, number = 0) const;
 
         std::shared_ptr<SerializedMMDP<>> toMDP();
 
