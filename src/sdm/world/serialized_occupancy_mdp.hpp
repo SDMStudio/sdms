@@ -27,12 +27,7 @@ namespace sdm
     {
     protected:
         std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
-<<<<<<< HEAD
-        std::shared_ptr<TState> istate_;
-        typename TState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
-=======
         TState istate_, cstate_;
->>>>>>> ae83cbc982e6193a2c87291b4464e647e57f02cb
 
     public:
         using state_type = TState;

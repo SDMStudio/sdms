@@ -55,14 +55,8 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::getInitialState()
     {
-<<<<<<< HEAD
-        std::cout<<"\n getInit"<<*this->istate_;
-        std::cout<<"\n getInit";
-        return *this->istate_;
-=======
         std::cout << "Pass "<< std::endl;
         return this->istate_;
->>>>>>> ae83cbc982e6193a2c87291b4464e647e57f02cb
     }
 
     template <typename TState, typename TAction>
