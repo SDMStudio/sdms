@@ -50,21 +50,6 @@ namespace sdm
         const std::set<TState>& getReachableSerialStates(const TState&, const TAction&) const;
 
         /**
-         * @brief Get All the Serialized State Space
-         * 
-         * @return std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> 
-         */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> getSerialStateSpace() const;
-
-
-        /**
-         * @brief Get the Action Space object
-         * 
-         * @return std::shared_ptr<MultiDiscreteSpace<TAction>> 
-         */
-        std::shared_ptr<MultiDiscreteSpace<TAction>> getSerialActionSpace(number )const;
-
-        /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
          * 
          * @param serialized_state 

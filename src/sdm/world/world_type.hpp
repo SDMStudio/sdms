@@ -86,7 +86,7 @@ namespace sdm
         getUnderlyingProblem();
 
         template <bool is_solving_serialized_mpomdp = std::is_any<TState,SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>>::value>
-        static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP<SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,DeterministicDecisionRule<HistoryTree_p<number>, number>>>
+        static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP<SerializedState, number>>
         getUnderlyingProblem();
 
         template <bool is_solving_serialized_pomdp = std::is_any<TState,SerializedBeliefState>::value>

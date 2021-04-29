@@ -1,61 +1,37 @@
-#include <iostream>
+#include <sdm/world/serialized_occupancy_mdp.hpp>
 
-#include <sdm/parser/parser.hpp>
-#include <sdm/exception.hpp>
-
-#include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/action/joint_det_decision_rule.hpp>
-
-#include <sdm/world/serialized_mmdp.hpp>
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-	// std::string filename;
+	// std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
+	// number horizon(2);
 
-	// if (argc > 1)
+	// using TState = SerializedState;
+	// using TAction = number;
+
+	// auto serial_MDP = std::make_shared<SerializedMMDP<TState, TAction>>(problem_path, horizon);
+	// auto underlying_problem = serial_MDP->getUnderlyingProblem();
+
+	// std::cout<<"\n getState : "<<underlying_problem->getStateSpace();
+	// std::cout<<"\n getState : "<<underlying_problem->getSerialStateSpace(); // A enlever
+
+	// int number_test_limit= 5;
+	// int number_test = 0;
+	// do
 	// {
-	// 	filename = argv[1];
-	// }
+	// 	number_test ++;
 
-	// else
-	// {
-	// 	std::cerr << "Error: Require 1 input file." << std::endl;
-	// 	return 1;
-	// }
+	// 	auto serial_state = underlying_problem->getStateSpace()->sample();
+	// 	number serial_action = underlying_problem->getActionSpace()->sample();
 
-	// try
-	// {
-	// 	// Construct DecPOMDP using parser
-	// 	std::cout << "#> Parsing file \"" << filename << "\"\n";
-	// 	// auto omdp_world = sdm::parser::parse_file(filename);
-	// 	// auto world = std::make_shared<DiscreteDecPOMDP>(filename);
-	// 	auto omdp_world = std::make_shared<OccupancyMDP<>>(filename);
-	// 	std::cout << "#> omdp_world reference \"" << omdp_world << "\"\n";
+	// 	auto set_next_serial_states = underlying_problem->getReachableSerialStates(serial_state,serial_action);
+	// 	std::cout<<"\n next_serial_state : ";
+	// 	for(auto const &next_serial_state : set_next_serial_states)
+	// 	{
+	// 		std::cout<<next_serial_state<<" ";
+	// 	}
 
-	// 	// Test getReachable
-	// 	// world->setupDynamicsGenerator();
-	// 	// auto state_sample = world->getStateSpace()->sample();
-	// 	// std::cout << "state_sample=" << state_sample << std::endl;
+	// } while (number_test_limit > number_test);
 
-	// auto serialized_mdp = std::make_shared<sdm::SerializedMMDP<TState, TAction>>(a);
-
-	// std::cout<<"\n getState "<<serialized_mdp->getUnderlyingProblem()->getStateSpace()->getAll();
-	// std::cout<<"\n getAction "<<serialized_mdp->getUnderlyingProblem()->getActionSpace()->getAll();
-
-	// // auto serialized_pomdp = std::make_shared<sdm::SerializedMPOMDP<TState, TAction>>(a);
-
-
-	// // std::vector<sdm::number> action = {};
-	// // sdm::SerializedState s(0,action);
-	
-	// // std::vector<number> all_action = {0,0} ;
-	// // for(auto s : serialized_pomdp->getReachableObservations(Joint<number>(all_action),s))
-	// // {
-	// // 	std::cout<<"\n s  :"<<s;
-	// // }
-
-	return 0;
 } // END main

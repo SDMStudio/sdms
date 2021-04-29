@@ -26,7 +26,7 @@ namespace sdm
     class SerializedOccupancyMDP : public SolvableByHSVI<TState, TAction>
     {
     protected:
-        std::shared_ptr<SerializedMPOMDP<TState,TAction>> serialized_mpomdp_;
+        std::shared_ptr<SerializedMPOMDP<SerializedState,number>> serialized_mpomdp_;
         TState istate_;
 
     public:
@@ -42,7 +42,7 @@ namespace sdm
         bool isSerialized() const;
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
 
-        SerializedMPOMDP<TState,TAction> *getUnderlyingProblem();
+        SerializedMPOMDP<SerializedState,number> *getUnderlyingProblem();
 
         TState getInitialState();
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
