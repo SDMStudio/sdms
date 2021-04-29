@@ -34,6 +34,7 @@ namespace sdm
 
     typename state_type::state_type getHiddenState(const Pair<state_type, jhistory_type> &state) const;
     std::vector<typename state_type::action_type> getAction(const Pair<state_type, jhistory_type> &state) const;
+    std::shared_ptr<SerializedOccupancyState<TState, TJointHistory_p>> getptr();
   };
 } // namespace sdm
 #include <sdm/core/state/serialized_occupancy_state.tpp>

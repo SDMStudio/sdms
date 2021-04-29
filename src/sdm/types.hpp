@@ -5,8 +5,8 @@
 
 #include <cstddef>
 #include <iostream>
-#include <unordered_map>
 #include <boost/bimap.hpp>
+
 
 //!
 //! \file     types.hpp
@@ -89,10 +89,10 @@ namespace sdm
   };
 
   class World;
-  class DiscreteMDP;
-  class DiscreteMMDP;
-  class DiscretePOMDP;
-  class DiscreteDecPOMDP;
+  // class DiscreteMDP;
+  // class DiscreteMMDP;
+  // class DiscretePOMDP;
+  // class DiscreteDecPOMDP;
 
   template <typename TState, typename TAction>
   class SolvableByHSVI;

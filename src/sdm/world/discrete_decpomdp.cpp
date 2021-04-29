@@ -78,11 +78,6 @@ namespace sdm
         return std::make_shared<DiscreteMMDP>(this->getStateSpace(), this->getActionSpace(), this->getStateDynamics(), this->getReward(), this->getStartDistrib(), this->getPlanningHorizon(), this->getDiscount(), this->getCriterion());
     }
 
-    std::shared_ptr<DiscreteDecPOMDP::occupancy_mdp> DiscreteDecPOMDP::toOccupancyMDP()
-    {
-        return std::make_shared<DiscreteDecPOMDP::occupancy_mdp>(this->getptr());
-    }
-
     std::string DiscreteDecPOMDP::toStdFormat()
     {
 

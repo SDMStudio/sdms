@@ -12,16 +12,16 @@
 
 #include <sdm/types.hpp>
 #include <sdm/world/po_decision_process.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
-
-#include <sdm/core/state/occupancy_state.hpp>
+// #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/history.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
 
-#include <sdm/core/action/det_decision_rule.hpp>
+// #include <sdm/core/action/det_decision_rule.hpp>
 
 namespace sdm
 {
@@ -36,7 +36,7 @@ namespace sdm
 
     {
     public:
-        using occupancy_mdp = OccupancyMDP<OccupancyState<number, JointHistoryTree_p<number>>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>;
+        // using occupancy_mdp = OccupancyMDP<OccupancyState<number, JointHistoryTree_p<number>>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>;
 
         DiscreteDecPOMDP();
         DiscreteDecPOMDP(std::string &);
@@ -73,12 +73,6 @@ namespace sdm
          */
         std::shared_ptr<DiscreteMMDP> toMMDP();
 
-        /**
-         * @brief Get the corresponding Occupancy Markov Decision Process. It corresponds to the reformulation of the original DecPOMP in MDP where the state space is the space of occupancy simplex and the action space is a set of separable joint deterministic decision rules. 
-         * 
-         * @return an occupancy state MDP
-         */
-        std::shared_ptr<occupancy_mdp> toOccupancyMDP();
 
         // std::shared_ptr<SerializedOccupancyMDP> toSerializedOccupancyMDP();
 

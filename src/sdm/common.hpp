@@ -1,7 +1,6 @@
 #pragma once
 
 #include <random>
-
 #include <sdm/types.hpp>
 
 namespace sdm

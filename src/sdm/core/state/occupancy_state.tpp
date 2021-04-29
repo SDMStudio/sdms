@@ -23,6 +23,7 @@ namespace sdm
         {
             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
             this->private_ihistory_map_.push_back({});
+            this->map_label_to_pointer.push_back({});
         }
     }
 
@@ -33,6 +34,7 @@ namespace sdm
           fully_uncompressed_occupancy_state(occupancy_state.getFullyUncompressedOccupancy()),
           one_step_left_compressed_occupancy_state(occupancy_state.getOneStepUncompressedOccupancy()),
           private_ihistory_map_(occupancy_state.private_ihistory_map_),
+          map_label_to_pointer(occupancy_state.map_label_to_pointer),
           jhistory_map_(occupancy_state.jhistory_map_)
     {
     }
@@ -65,7 +67,6 @@ namespace sdm
     std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> OccupancyState<TState, TJointHistory_p>::getJointLabels(const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_ihistories) const
     {
         std::vector<ihistory_type> new_list_ihistories;
-        // std::cout << "!!! private_ihistory_map_=" << this->private_ihistory_map_ << std::endl;
         for (int agent = 0; agent < this->num_agents; ++agent)
         {
             if (this->private_ihistory_map_.at(agent).find(list_ihistories.at(agent)) == this->private_ihistory_map_.at(agent).end())
@@ -76,10 +77,48 @@ namespace sdm
             else
             {
                 // if the ihistory was compressed
-                new_list_ihistories.push_back(this->private_ihistory_map_.at(agent).at(list_ihistories.at(agent)));
+                new_list_ihistories.push_back(*this->private_ihistory_map_.at(agent).at(list_ihistories.at(agent)));
             }
         }
         return new_list_ihistories;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void OccupancyState<TState, TJointHistory_p>::updateLabel(number agent_id, const typename OccupancyState<TState, TJointHistory_p>::ihistory_type &ihistory, const typename OccupancyState<TState, TJointHistory_p>::ihistory_type &label)
+    {
+        using ihistory_type = typename OccupancyState<TState, TJointHistory_p>::ihistory_type;
+        // if there is a label for ihistory
+        if (this->private_ihistory_map_[agent_id].find(ihistory) != this->private_ihistory_map_[agent_id].end())
+        {
+            // Get the old label
+            auto old_label = this->private_ihistory_map_[agent_id].at(ihistory);
+            // Change every labels of ihistories that have old_label as label
+            *old_label = label;
+        }
+        else
+        {
+            // Check if the label is already used for another indiv history
+            if (this->map_label_to_pointer[agent_id].find(label) != this->map_label_to_pointer[agent_id].end())
+            {
+                this->private_ihistory_map_[agent_id][ihistory] = this->map_label_to_pointer[agent_id].at(label);
+            }
+            else
+            {
+                // If no such label is already used, create a pointer on it and store it
+                auto new_ptr_on_label = std::make_shared<ihistory_type>(label);
+                this->map_label_to_pointer[agent_id][label] = new_ptr_on_label;
+                this->private_ihistory_map_[agent_id][ihistory] = new_ptr_on_label;
+            }
+        }
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void OccupancyState<TState, TJointHistory_p>::updateJointLabels(const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_ihistories, const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_labels)
+    {
+        for (number agent_id = 0; agent_id < this->num_agents; ++agent_id)
+        {
+            this->updateLabel(agent_id, list_ihistories.at(agent_id), list_labels.at(agent_id));
+        }
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -98,8 +137,6 @@ namespace sdm
     TJointHistory_p OccupancyState<TState, TJointHistory_p>::getCompressedJointHistory(const TJointHistory_p &joint_history) const
     {
         auto labels = this->getJointLabels(joint_history->getIndividualHistories());
-        // std::cout << "labels=" << labels << std::endl;
-        // std::cout << "jhistory_map_=" << this->jhistory_map_ << std::endl;
         return this->jhistory_map_.at(labels);
     }
 
@@ -114,7 +151,6 @@ namespace sdm
     {
         OccupancyState<TState, TJointHistory_p> current_compact_ostate;
         OccupancyState<TState, TJointHistory_p> previous_compact_ostate = *this;
-
         for (int agent_id = 0; agent_id < this->num_agents; ++agent_id)
         {
             // Get support (a set of individual histories for agent i)
@@ -126,26 +162,26 @@ namespace sdm
 
             for (auto iter_first = support.begin(); iter_first != support.end();)
             {
-                auto ihistory_first = *iter_first;      // Get the ihistory "label"
+                auto ihistory_label = *iter_first;      // Get the ihistory "label"
                 iter_first = support.erase(iter_first); // Erase the ihistory "label" from the support
 
                 // Set probability of labels
-                for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_first))
+                for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_label))
                 {
                     current_compact_ostate.setProbabilityAt(pair_s_o_prob.first, pair_s_o_prob.second);
                 }
                 for (auto iter_second = iter_first; iter_second != support.end();)
                 {
-                    auto ihistory_second = *iter_second; // Get the ihistory we want check the equivalence
-                    if (this->areIndividualHistoryLPE(ihistory_first, ihistory_second, agent_id))
+                    auto ihistory_one_step_left = *iter_second; // Get the ihistory we want check the equivalence
+                    if (this->areIndividualHistoryLPE(ihistory_label, ihistory_one_step_left, agent_id))
                     {
-                        this->private_ihistory_map_[agent_id][ihistory_second] = ihistory_first; // Store label 
-                        iter_second = support.erase(iter_second);                                // Erase unecessary equivalent individual history
+                        this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label); // Store new label
+                        iter_second = support.erase(iter_second);                            // Erase unecessary equivalent individual history
 
-                        for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second))
+                        for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_one_step_left))
                         {
-                            auto partial_jhist = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_second)->getPartialJointHistory(pair_s_o_prob.first.second);
-                            auto joint_history = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_first)->getJointHistory(partial_jhist);
+                            auto partial_jhist = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getPartialJointHistory(pair_s_o_prob.first.second);
+                            auto joint_history = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_label)->getJointHistory(partial_jhist);
                             current_compact_ostate.addProbabilityAt(std::make_pair(pair_s_o_prob.first.first, joint_history), pair_s_o_prob.second);
                         }
                     }
@@ -157,7 +193,7 @@ namespace sdm
             }
 
             previous_compact_ostate = current_compact_ostate;
-            previous_compact_ostate.private_ihistory_map_ = this->private_ihistory_map_; 
+            previous_compact_ostate.private_ihistory_map_ = this->private_ihistory_map_;
             previous_compact_ostate.finalize();
             current_compact_ostate.clear();
         }
