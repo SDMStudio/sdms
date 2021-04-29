@@ -52,11 +52,11 @@ namespace sdm
         SerializedMPOMDP<TState,TAction> *getUnderlyingProblem();
 
         TState getInitialState();
-        TState nextState(const TState &TState, const TAction &TAction, int t = 0, HSVI<TState, TAction> *hsvi = nullptr) const;
+        TState nextState(const TState &, const TAction &, int = 0, HSVI<TState, TAction> * = nullptr) const;
 
 
-        double getReward(const TState &TState, const TAction &TAction) const;
-        double getExpectedNextValue(ValueFunction<TState, TAction> *value_function, const TState &TState, const TAction &TAction, int t = 0) const;
+        double getReward(const TState &, const TAction &) const;
+        double getExpectedNextValue(ValueFunction<TState, TAction> *, const TState &, const TAction &, int = 0) const;
 
         std::shared_ptr<SerializedMMDP<>> toMDP();
 

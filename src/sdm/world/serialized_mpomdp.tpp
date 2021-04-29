@@ -112,14 +112,14 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double SerializedMPOMDP<TState,TAction>::getObservationProbability(const Joint<number> &joint_action, const Joint<number> joint_obs,const TState &serialized_state) const
+    double SerializedMPOMDP<TState,TAction>::getObservationProbability(const Joint<number> &joint_action, const Joint<number> joint_observation,const TState &serialized_state) const
     {
         if(serialized_state.getCurrentAgentId() != 0 )
         {
             return 0;
         }else
         {
-            return this->decpomdp_->getObsDynamics()->getObservationProbability(joint_action, joint_action, serialized_state.getState());
+            return this->decpomdp_->getObsDynamics()->getObservationProbability(joint_action, joint_obs, serialized_state.getState());
         }
     }
 
