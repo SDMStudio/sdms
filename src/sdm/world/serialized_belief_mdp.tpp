@@ -46,7 +46,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const
+    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &/*obs*/) const
     {
         std::cout<<"\n; ???? Next state 2 ";
 
@@ -100,7 +100,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int t, HSVI<TBelief, TAction> *hsvi) const
+    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, int /*t*/, HSVI<TBelief, TAction> */*hsvi*/) const
     {
         std::cout<<"\n ???? Next state 1 !!!!! ";
 
@@ -125,8 +125,8 @@ namespace sdm
             else
             {
                 // Select o* as in the paper
-                number selected_o = 0;
-                double max_o = 0, tmp;
+                //number selected_o = 0;
+                //double max_o = 0, tmp;
 
                 std::cout<<"\n ???? Next state 1-2 ";
 
