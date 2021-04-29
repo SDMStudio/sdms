@@ -135,7 +135,7 @@ namespace sdm
         return this->agent_space_.getNumItems();
     }
 
-    const MultiDiscreteSpace<number> &NDPOMDP::getActionSpace() const
+    const MultiDiscreteSpace<number> &NDPOMDP::getActionSpace(number) const
     {
         return this->act_space_;
     }

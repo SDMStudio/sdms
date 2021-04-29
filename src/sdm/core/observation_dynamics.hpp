@@ -58,12 +58,13 @@ namespace sdm
         void initDynamics(number, number, number);
 
         //! \fn       double getObservationProbability(action, observation, state) const
+        //! \param    x a specific state
         //! \param    u a specific joint action
         //! \param    z a specific joint observation
-        //! \param    x a specific state
+        //! \param    y a specific state
         //! \brief    Returns probability
         //! \return   value
-        double getObservationProbability(number, number, number) const;
+        double getObservationProbability(number, number, number, number) const;
 
         //! \fn       double setObservationProbability(action, observation, state, double)
         //! \param    u a specific joint action

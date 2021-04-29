@@ -14,7 +14,6 @@
 
 namespace sdm
 {
-
     /**
      * @brief An Serialized occupancy MDP is a subclass of continuous state MDP where states are seriliazed occupancy states and the resolution is serialized. 
      * In the general case, a Serialized occupancy state refers to the knowledge that a central planner can have access to take decisions at a precise agent. 
@@ -27,38 +26,29 @@ namespace sdm
     class SerializedOccupancyMDP : public SolvableByHSVI<TState, TAction>
     {
     protected:
-        std::shared_ptr<SerializedMPOMDP<TState,TAction>> serialized_mpomdp_;
-        TState istate_;
-        //TState cstate_;
+        std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
+        TState istate_, cstate_;
 
     public:
         using state_type = TState;
         using action_type = TAction;
-        // using observation_type = oObservation;
 
         SerializedOccupancyMDP();
-        SerializedOccupancyMDP(std::string);
-        SerializedOccupancyMDP(std::string, number);
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>);
-        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number);
+        SerializedOccupancyMDP(std::string, number = -1);
+        SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
 
-        //TState &getState();
-        double getDiscount(number t) const;
+        bool isSerialized() const;
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
 
-        bool isSerialized() const; // A enlever à terme car déjà écrit dans SerializedMPOMDP
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &); // A enlever à terme car déjà écrit dans SerializedMPOMDP
-
-
-        SerializedMPOMDP<TState,TAction> *getUnderlyingProblem();
+        SerializedMPOMDP *getUnderlyingProblem();
 
         TState getInitialState();
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
-
         double getReward(const TState &, const TAction &) const;
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> , const TState &, const TAction &, number = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState &, const TAction &, number = 0) const;
 
-        std::shared_ptr<SerializedMMDP<>> toMDP();
+        std::shared_ptr<SerializedMMDP> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. It corresponds to the reformulation of the original POMP in a MDP where the state space is the space of beliefs. 

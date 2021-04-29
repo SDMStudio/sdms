@@ -136,7 +136,7 @@ namespace sdm
                     {
                         res << jz[agent] << " ";
                     }
-                    res << ": " << this->getObsDynamics()->getObservationProbability(u, z, y) << std::endl;
+                    res << ": " << this->getObsDynamics()->getObservationProbability(y,u, z, y) << std::endl;
                 }
             }
         }

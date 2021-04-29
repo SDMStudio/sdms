@@ -30,9 +30,9 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     OccupancyState<TState, TJointHistory_p>::OccupancyState(const OccupancyState &occupancy_state)
         : BaseOccupancyState<TState, TJointHistory_p>(occupancy_state),
-          tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.getPrivateOccupancyStates()),
-          fully_uncompressed_occupancy_state(occupancy_state.getFullyUncompressedOccupancy()),
-          one_step_left_compressed_occupancy_state(occupancy_state.getOneStepUncompressedOccupancy()),
+          tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.tuple_of_maps_from_histories_to_private_occupancy_states_),
+          fully_uncompressed_occupancy_state(occupancy_state.fully_uncompressed_occupancy_state),
+          one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
           private_ihistory_map_(occupancy_state.private_ihistory_map_),
           map_label_to_pointer(occupancy_state.map_label_to_pointer),
           jhistory_map_(occupancy_state.jhistory_map_)

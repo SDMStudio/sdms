@@ -21,15 +21,12 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(const BaseOccupancyState &v)
         : MappedVector<Pair<TState, TJointHistory_p>, double>(v),
-          list_states(v.getStates()),
-          list_jhistories(v.getJointHistories()),
-          all_list_ihistories(v.getAllIndividualHistories()),
+          list_states(v.list_states),
+          list_jhistories(v.list_jhistories),
+          list_jhistory_states(v.list_jhistory_states),
+          all_list_ihistories(v.all_list_ihistories),
           num_agents(v.num_agents)
     {
-        for (const auto &pair_s_o : v)
-        {
-            list_jhistory_states[pair_s_o.first.second] = v.getStatesAt(pair_s_o.first.second);
-        }
     }
 
     template <typename TState, typename TJointHistory_p>

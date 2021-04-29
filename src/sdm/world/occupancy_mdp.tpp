@@ -138,7 +138,7 @@ namespace sdm
 
             for (auto &y : this->dpomdp_->getReachableStates(x, jaction))
             {
-                for (auto &z : this->dpomdp_->getReachableObservations(jaction, y))
+                for (auto &z : this->dpomdp_->getReachableObservations(x, jaction, y))
                 {
                     // Get the probability of the next couple (next_state, next_joint history)
                     double next_occupancy_measure = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
@@ -171,7 +171,6 @@ namespace sdm
             new_compressed_occupancy_state = std::make_shared<oState>(new_one_step_left_compressed_occupancy_state->compress());
             new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
             new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
-
             return *new_compressed_occupancy_state;
         }
 

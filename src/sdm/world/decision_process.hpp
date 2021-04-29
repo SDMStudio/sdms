@@ -110,7 +110,7 @@ namespace sdm
          * @return const std::set<state_type>& 
          */
         const std::set<state_type>& getReachableStates(state_type, action_type) const;
-        const std::set<observation_type>& getReachableObservations(action_type, state_type) const;
+        const std::set<observation_type>& getReachableObservations(state_type, action_type, state_type) const;
 
         template <bool TBool = is_fully_obs>
         std::enable_if_t<TBool, observation_type> updateState_getObs(action_type);
@@ -120,12 +120,6 @@ namespace sdm
 
         template <bool TBool = is_fully_obs>
         std::enable_if_t<!TBool> setupDynamicsGenerator();
-
-
-        // template <bool TBool = std::is_same<TDistrib, std::discrete_distribution<number>>::value>
-        // std::enable_if_t<!TBool> setupDynamicsGenerator();
-
-        std::shared_ptr<TActionSpace> getActionSpace() const;
 
         template <bool TBool = std::is_base_of<MultiSpace<DiscreteSpace<number>>, TActionSpace>::value>
         std::enable_if_t<TBool, number> getNumAgents();

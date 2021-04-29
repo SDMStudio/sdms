@@ -81,7 +81,7 @@ namespace sdm
          * 
          * @return the discount factor used
          */
-        double getDiscount();
+        double getDiscount(number = 0);
 
         /**
          * @brief Set the discount factor
@@ -103,7 +103,7 @@ namespace sdm
         /**
          * \brief Getter for the action space
          */
-        std::shared_ptr<TActionSpace> getActionSpace() const;
+        std::shared_ptr<TActionSpace> getActionSpace(number = 0) const;
 
         /**
          * @brief Set the action space

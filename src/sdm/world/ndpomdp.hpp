@@ -139,7 +139,7 @@ namespace sdm
         /**
          * \brief Getter for the action spaces
          */
-        const MultiDiscreteSpace<number> &getActionSpace() const;
+        const MultiDiscreteSpace<number> &getActionSpace(number = 0) const;
 
         /**
          * \brief Get the number of joint observations

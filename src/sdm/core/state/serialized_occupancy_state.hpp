@@ -25,8 +25,8 @@ namespace sdm
     SerializedOccupancyState();
     SerializedOccupancyState(double default_value);
     SerializedOccupancyState(std::size_t size, double default_value);
-    SerializedOccupancyState(const SerializedOccupancyState &v);
-    SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &v);
+    SerializedOccupancyState(const SerializedOccupancyState &);
+    // SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &v);
 
     number getCurrentAgentId() const;
     std::set<typename state_type::state_type> getHiddenStates() const;

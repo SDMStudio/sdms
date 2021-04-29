@@ -132,4 +132,10 @@ namespace sdm
         return !(operator==(sp));
     }
 
+    template <typename TItem>
+    bool DiscreteSpace<TItem>::contains(const TItem &item) const
+    {
+        return std::find(this->list_items_.begin(), this->list_items_.end(),item) !=this->list_items_.end() ? true : false;
+    }
+
 } // namespace sdm

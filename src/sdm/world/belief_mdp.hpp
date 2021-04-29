@@ -62,7 +62,7 @@ namespace sdm
         /**
          * @brief Get the Observation Probability p(o | b, a)
          */
-        double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
+        double getObservationProbability(const TBelief &, const TAction &action, const TObservation &obs, const TBelief &belief) const;
 
         /**
          * @brief Get the corresponding Markov Decision Process. It corresponds to the reformulation of the Belief MDP in a MDP where the blief state space is the state space. 
