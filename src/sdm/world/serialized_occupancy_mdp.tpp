@@ -28,7 +28,7 @@ namespace sdm
             jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents());
         }
 
-        for (const auto s : this->serialized_mpomdp_->getSerialStateSpace()->getSpace(0)->getAll())
+        for (const auto s : this->serialized_mpomdp_->getStateSpace()->getSpace(0)->getAll())
         {
             auto x = s.getState();
             if (this->serialized_mpomdp_->getStartDistrib().probabilities()[x] > 0) 
@@ -104,7 +104,7 @@ namespace sdm
             }
             else
             {
-                for (const auto y : this->serialized_mpomdp_->getSerialStateSpace()->getSpace(0)->getAll())
+                for (const auto y : this->serialized_mpomdp_->getStateSpace()->getSpace(0)->getAll())
                 {    
                     for (auto &z : this->serialized_mpomdp_->getObsSpace()->getAll())
                     {  
