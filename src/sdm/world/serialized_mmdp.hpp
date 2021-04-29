@@ -32,16 +32,15 @@ namespace sdm
      * @brief An Serialized MDP is a subclass of MDP where states are serialized states. 
      * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
      * 
-     * @tparam TState refers to the serialized state type
-     * @tparam TAction refers to the number type
+     * @tparam state_type refers to the serialized state type
+     * @tparam action_type refers to the number type
      */
-    template <typename TState = SerializedState, typename TAction = number>
-    class SerializedMMDP : public SolvableByHSVI<TState, TAction>,
-                           public std::enable_shared_from_this<SerializedMMDP<TState, TAction>>
+    class SerializedMMDP : public SolvableByHSVI<SerializedState, number>,
+                           public std::enable_shared_from_this<SerializedMMDP>
     {
     public:
-        using state_type = TState;
-        using action_type = TAction;
+        using state_type = SerializedState;
+        using action_type = number;
 
         SerializedMMDP();
         SerializedMMDP(std::shared_ptr<DiscreteMMDP>);
@@ -58,31 +57,31 @@ namespace sdm
         /**
          * @brief Get itself ...
          * 
-         * @return SerializedMMDP<TState,TAction>* 
+         * @return SerializedMMDP<state_type,action_type>* 
          */
-        SerializedMMDPStructure<TState, TAction>* getUnderlyingProblem();
+        SerializedMMDPStructure* getUnderlyingProblem();
 
         /**
          * @brief Get the initial serial state 
-         * @return TState 
+         * @return state_type 
          */
-        TState getInitialState();
+        state_type getInitialState();
 
         /**
          * @brief Get the next state.
          * 
-         * @return TState 
+         * @return state_type 
          */
-        TState nextState(const TState&, const TAction&, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
+        state_type nextState(const state_type&, const action_type&, number = 0, std::shared_ptr<HSVI<state_type, action_type>> = nullptr) const;
 
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &) ;        
+        std::shared_ptr<DiscreteSpace<action_type>> getActionSpaceAt(const state_type &) ;        
 
         /**
          * @brief Get the Expected Next Value object
          * 
          * @return double 
          */
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState&, const TAction&, number = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<state_type, action_type>>, const state_type&, const action_type&, number = 0) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
@@ -91,7 +90,7 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const TState &,const TAction &) const;
+        double getReward(const state_type &,const action_type &) const;
 
         /**
          * @brief Return the current problem
@@ -103,9 +102,9 @@ namespace sdm
         /**
          * @brief Transform the current problem to a MDP. In this situation, it will returr the current problem
          * 
-         * @return std::shared_ptr<SerializedMMDP<TState, TAction>> 
+         * @return std::shared_ptr<SerializedMMDP<state_type, action_type>> 
          */
-        std::shared_ptr<SerializedMMDP<TState, TAction>> toMDP();
+        std::shared_ptr<SerializedMMDP> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a Serialized MMDP to a belief MDP  
@@ -119,7 +118,7 @@ namespace sdm
         /**
          * @brief the simultaneous multi-agent Markov decision process
          */
-        std::shared_ptr<SerializedMMDPStructure<TState,number>> serial_mmdp_;
+        std::shared_ptr<SerializedMMDPStructure> serial_mmdp_;
 
     };
 } // namespace sdm

@@ -35,7 +35,7 @@ namespace sdm
 
         const std::set<observation_type>& getReachableObservations(state_type, action_type, state_type) const;
 
-        std::shared_ptr<SerializedMMDP<>> toMDP();
+        std::shared_ptr<SerializedMMDP> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
@@ -68,13 +68,13 @@ namespace sdm
         double getObservationProbability(const action_type&, const observation_type&, const state_type&) const;
 
 
-        double getDynamics(const TState &,const TAction ,const Joint<number> ,const TState &) const;
+        double getDynamics(const state_type &,const action_type ,const Joint<number> ,const state_type &) const;
 
     protected:
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
         std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
 
-        std::unordered_map<Joint<number>, std::unordered_map<TState, std::set<Joint<number>>>> reachable_obs_state_space;
+        std::unordered_map<Joint<number>, std::unordered_map<state_type, std::set<Joint<number>>>> reachable_obs_state_space;
 
         /**
          * @brief Initialize Serial Observation Space

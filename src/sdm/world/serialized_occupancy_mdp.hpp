@@ -26,7 +26,7 @@ namespace sdm
     class SerializedOccupancyMDP : public SolvableByHSVI<TState, TAction>
     {
     protected:
-        std::shared_ptr<SerializedMPOMDP<SerializedState,number>> serialized_mpomdp_;
+        std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
         TState istate_;
 
     public:
@@ -42,7 +42,7 @@ namespace sdm
         bool isSerialized() const;
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
 
-        SerializedMPOMDP<SerializedState,number> *getUnderlyingProblem();
+        SerializedMPOMDP *getUnderlyingProblem();
 
         TState getInitialState();
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
@@ -50,7 +50,7 @@ namespace sdm
         double getReward(const TState &, const TAction &) const;
         double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> , const TState &, const TAction &, number = 0) const;
 
-        std::shared_ptr<SerializedMMDP<>> toMDP();
+        std::shared_ptr<SerializedMMDP> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. It corresponds to the reformulation of the original POMP in a MDP where the state space is the space of beliefs. 

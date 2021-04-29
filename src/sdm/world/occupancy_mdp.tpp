@@ -134,7 +134,7 @@ namespace sdm
             auto jaction = joint_idr.act(ostate.getJointLabels(o->getIndividualHistories()));
             for (auto &y : this->dpomdp_->getReachableStates(x, jaction))
             {
-                for (auto &z : this->dpomdp_->getReachableObservations(jaction, y))
+                for (auto &z : this->dpomdp_->getReachableObservations(x,jaction, y))
                 {
                     Pair<typename oState::state_type, typename oState::jhistory_type> new_index(y, o->expand(z));
                     // Compute the proba of the next couple (state, joint history)

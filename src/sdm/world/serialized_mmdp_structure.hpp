@@ -21,13 +21,12 @@ namespace sdm
      * @tparam TState refers to the serialized state type
      * @tparam TAction refers to the number type
      */
-    template <typename TState = SerializedState, typename TAction = number>
-    class SerializedMMDPStructure : public DecisionProcessBase<MultiSpace<DiscreteSpace<TState>>, MultiDiscreteSpace<TAction>, std::discrete_distribution<number>>,
-                           public std::enable_shared_from_this<SerializedMMDPStructure<TState, TAction>>
+    class SerializedMMDPStructure : public DecisionProcessBase<MultiSpace<DiscreteSpace<SerializedState>>, MultiDiscreteSpace<number>, std::discrete_distribution<number>>,
+                           public std::enable_shared_from_this<SerializedMMDPStructure>
     {
     public:
-        using state_type = TState;
-        using action_type = TAction;
+        using state_type = SerializedState;
+        using action_type = number;
 
         SerializedMMDPStructure();
         SerializedMMDPStructure(std::shared_ptr<DiscreteMMDP>);
@@ -47,7 +46,7 @@ namespace sdm
          * @param serialized_state 
          * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
          */
-        const std::set<TState>& getReachableSerialStates(const TState&, const TAction&) const;
+        const std::set<state_type>& getReachableSerialStates(const state_type&, const action_type&) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
@@ -56,7 +55,7 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const TState &,const TAction &) const;
+        double getReward(const state_type &,const action_type &) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the Joint<action>
@@ -65,7 +64,7 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const TState &,const Joint<TAction> &) const;
+        double getReward(const state_type &,const Joint<action_type> &) const;
 
         /**
          * @brief The reward of the simultaneous mmdp. 
@@ -81,9 +80,9 @@ namespace sdm
          * @param serialized_state_next 
          * @return double 
          */
-        double getTransitionProbability(const TState &,const TAction &, const TState &) const;
+        double getTransitionProbability(const state_type &,const action_type &, const state_type &) const;
         
-        void setInternalState(TState );
+        void setInternalState(state_type );
         
         void setPlanningHorizon(number );      
 
@@ -99,7 +98,7 @@ namespace sdm
          * 
          * @return std::shared_ptr<SerializedMMDPStructure<TState, TAction>> 
          */
-        std::shared_ptr<SerializedMMDPStructure<TState, TAction>> toMDP();
+        std::shared_ptr<SerializedMMDPStructure> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a Serialized MMDP to a belief MDP  
@@ -120,7 +119,7 @@ namespace sdm
          * @brief Refer to the Serialized State Space
          * 
          */
-        std::shared_ptr<MultiSpace<DiscreteSpace<SerializedState>>> serialized_state_space_;
+        std::shared_ptr<MultiSpace<DiscreteSpace<state_type>>> serialized_state_space_;
 
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states
