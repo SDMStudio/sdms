@@ -84,7 +84,7 @@ namespace sdm
     template <typename TState, typename TAction>
     SerializedMMDPStructure<TState,TAction> *SerializedMMDP<TState, TAction>::getUnderlyingProblem()
     {
-        return this->serial_mmdp;
+        return this->serial_mmdp_;
     }
 
     template <typename TState, typename TAction>
