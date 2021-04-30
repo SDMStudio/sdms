@@ -113,6 +113,47 @@ namespace sdm
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
 
+
+        /**
+         * @brief Get the specific discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getDiscount(number = 0);
+
+        
+        /**
+         * @brief Get the specific weighted discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getWeightedDiscount(number);
+
+
+        /**
+         * @brief 
+         * 
+         * @param double incumbent 
+         * @param double lb 
+         * @param double ub 
+         * @param double cost_so_far 
+         * @param double error 
+         * @param number horizon 
+         * @return double 
+         */
+        double do_excess(double, double, double, double, double, number);
+
+
+        /**
+         * @brief 
+         * 
+         * @param const std::shared_ptr<ValueFunction<state_type, action_type>>& lb 
+         * @param const std::shared_ptr<ValueFunction<state_type, action_type>>& ub 
+         * @param const state_type & s 
+         * @param number h 
+         * @return action_type 
+         */
+        action_type selectNextAction(const std::shared_ptr<ValueFunction<state_type, action_type>>& lb, const std::shared_ptr<ValueFunction<state_type, action_type>>& ub, const state_type &s, number h);
   
     protected:
         /**

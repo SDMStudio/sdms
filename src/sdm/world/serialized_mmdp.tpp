@@ -120,4 +120,24 @@ namespace sdm
         return this->serial_mmdp_->getJointActionSpace()->getSpace(state.getCurrentAgentId());
     }
 
+    double SerializedMMDP::getDiscount(number horizon)
+    {
+        return this->serial_mmdp_->getDiscount(horizon);
+    }
+
+    double SerializedMMDP::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->getDiscount(), horizon / this->serial_mmdp_->getNumAgents());
+    }
+
+    double SerializedMMDP::do_excess(double, double lb, double ub, double , double error, number horizon)
+    {
+        return (ub - lb) - error / this->getWeightedDiscount(horizon);
+    }
+
+    number SerializedMMDP::selectNextAction(const std::shared_ptr<ValueFunction<SerializedState, number>>&, const std::shared_ptr<ValueFunction<SerializedState, number>>& ub, const SerializedState &s, number h)
+    {
+        return ub->getBestAction(s, h);
+    }
+
 }

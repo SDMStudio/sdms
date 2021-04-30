@@ -59,65 +59,72 @@ namespace sdm
         TState start_state = this->world_->getInitialState();
         this->trial = 0;
 
-        std::cout << start_state << std::endl;
         clock_t t_begin = clock();
         do
         {
             // Logging (save data and print algorithms variables)
-            this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-            this->do_explore(start_state, 0);
+            //---------------------------------//
+            auto lb = this->lower_bound_->getValueAt(start_state, h);
+            auto ub = this->upper_bound_->getValueAt(start_state, h);
+            auto incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
+            this->logger_->log(this->trial, this->world_->do_excess(incumbent, lb, ub, this->error_, start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            //---------------------------------//
+
+            this->do_explore(start_state, 0, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0));
+        } while (!this->do_stop(start_state, 0, 0));
 
         std::cout << "----------------------------------------------------" << std::endl;
-        this->logger_->log(this->trial, this->do_excess(start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        //---------------------------------//
+        auto lb = this->lower_bound_->getValueAt(start_state, h);
+        auto ub = this->upper_bound_->getValueAt(start_state, h);
+        auto incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
+        this->logger_->log(this->trial, this->do_excess(incumbent, lb, ub, this->error_, start_state, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         std::cout << "Final LB : \n"
                   << this->lower_bound_->str() << "Final UB : \n"
                   << this->upper_bound_->str() << std::endl;
+        //---------------------------------//
     }
 
     template <typename TState, typename TAction>
-    double HSVI<TState, TAction>::do_excess(const TState &s, number h)
+    bool HSVI<TState, TAction>::do_stop(const TState &s, double cost_so_far, number h)
     {
-        number realTime = h;
-        if (this->world_->isSerialized())
-        {
-            // Compute the real time for serialized problem
-            realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
-        }
-        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, h) - this->error_) / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
+        auto lb = this->lower_bound_->getValueAt(s, h);
+        auto ub = this->upper_bound_->getValueAt(s, h);
+        auto incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
+        return ((this->world_->do_excess(incumbent, lb, ub, cost_so_far, this->error_, h) <= 0) || (this->trial > this->MAX_TRIALS));
     }
 
     template <typename TState, typename TAction>
-    bool HSVI<TState, TAction>::do_stop(const TState &s, number h)
+    void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
     {
-        return ((this->do_excess(s, h) <= 0) || (this->trial > this->MAX_TRIALS));
-    }
+        //<DEBUG>
+        std::cout << s << std::endl;
 
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_explore(const TState &s, number h)
-    {
-        if (!this->do_stop(s, h))
+        if (!this->do_stop(s, cost_so_far, h))
         {
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
          
             // Select next action and state following search process
-            TAction a = this->selectNextAction(s, h);
+            TAction a = this->world_->selectNextAction(s, h);
          
             TState s_ = this->world_->nextState(s, a, h, this->getptr());
 
             // std::cout << "EXPLORE -- s " << s_ << " -- a " << a << std::endl;
             // Recursive explore
-            this->do_explore(s_, h + 1);
+            this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s,a), h + 1);
 
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
+
+            //</DEBUG>
             // std::cout << "LOWER BOUND = " << *this->lower_bound_ << std::endl;
             // std::cout << "UPPER BOUND = " << *this->upper_bound_ << std::endl;
         }
+        
     }
 
     template <typename TState, typename TAction>
@@ -141,12 +148,6 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    TAction HSVI<TState, TAction>::selectNextAction(const TState &s, number h)
-    {
-        return this->upper_bound_->getBestAction(s, h); // argmax_{a} q_value(s, a)
-    }
-
-    template <typename TState, typename TAction>
     std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::getLowerBound() const
     {
         return this->lower_bound_;
@@ -163,56 +164,4 @@ namespace sdm
     {
         return this->trial;
     }
-
-    // ****************************** Avec Gt ********************
-
-    template <typename TState, typename TAction>
-    double HSVI<TState, TAction>::do_excess_2(const TState &s, number h, double gt)
-    {
-        number realTime = h;
-
-        if (this->world_->isSerialized())
-        {
-            // Compute the real time for serialized problem
-            realTime = realTime / this->world_->getUnderlyingProblem()->getNumAgents();
-        }
-        return (this->upper_bound_->getValueAt(s, h) - this->lower_bound_->getValueAt(s, 0) - this->error_ + gt) / std::pow(this->world_->getUnderlyingProblem()->getDiscount(), realTime);
-    }
-
-    template <typename TState, typename TAction>
-    bool HSVI<TState, TAction>::do_stop(const TState &s, number h, double gt)
-    {
-        return ((this->do_excess(s, h) <= 0) || (this->trial > this->MAX_TRIALS) || (this->do_excess_2(s, h, gt) <= 0));
-    }
-
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_explore(const TState &s, number h, double gt)
-    {
-        if (!this->do_stop(s, h, gt))
-        {
-            // Update bounds
-            this->lower_bound_->updateValueAt(s, h);
-            this->upper_bound_->updateValueAt(s, h);
-
-            // Select next action and state following search process
-            TAction a = this->selectNextAction(s, h);
-
-            TState s_ = this->world_->nextState(s, a, h, this->getptr());
-
-            // Recursive explore
-            //this->do_explore(s_, h + 1);
-            this->do_explore(s_, h + 1, gt + this->world_->getReward(s, a));
-
-            // Update bounds
-            this->lower_bound_->updateValueAt(s, h);
-            this->upper_bound_->updateValueAt(s, h);
-        }
-    }
-
-    template <typename TState, typename TAction>
-    double HSVI<TState, TAction>::getResultOpti()
-    {
-        return this->lower_bound_->getValueAt(this->world_->getInitialState());
-    }
-
 } // namespace sdm

@@ -148,6 +148,7 @@ namespace sdm
         return exp_next_v;
     }
 
+
     template <typename TBelief, typename TAction, typename TObservation>
     double BeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TBelief &, const TAction &action, const TObservation &obs, const TBelief &belief) const
     {
@@ -164,9 +165,39 @@ namespace sdm
         return proba;
     }
 
+
     template <typename TBelief, typename TAction, typename TObservation>
     std::shared_ptr<DiscreteMDP> BeliefMDP<TBelief, TAction, TObservation>::toMDP()
     {
         return this->pomdp_->toMDP();
     }
+
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    double BeliefMDP<TBelief, TAction, TObservation>::getDiscount(number)
+    {
+        return this->pomdp_->getDiscount();
+    }
+
+    
+    template <typename TBelief, typename TAction, typename TObservation>
+    double BeliefMDP<TBelief, TAction, TObservation>::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->pomdp_->getDiscount(), horizon);
+    }
+
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    double BeliefMDP<TBelief, TAction, TObservation>::do_excess(double, double lb, double ub, double , double error, number horizon)
+    {
+        return (ub - lb) - error / this->getWeightedDiscount(horizon);
+    }
+
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    TAction BeliefMDP<TBelief, TAction, TObservation>::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>&, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h)
+    {
+        return ub->getBestAction(s, h);
+    }
+
 } // namespace sdm

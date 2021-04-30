@@ -14,6 +14,7 @@ namespace sdm
     SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
     {
         typename TState::jhistory_type jhist;
+        
         if (hist_length > 0)
         {
             jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), hist_length);
@@ -23,8 +24,6 @@ namespace sdm
             jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents());
         }
 
-        this->istate_ = std::make_shared<TState>();
-
         for (const auto s : this->serialized_mpomdp_->getStateSpace(0)->getAll())
         {
             auto x = s.getState();
@@ -32,13 +31,11 @@ namespace sdm
             if (this->serialized_mpomdp_->getStartDistrib().probabilities()[x] > 0) 
             {
                 auto p_s_o = std::make_pair(s, jhist);
-                this->istate_->setProbabilityAt(p_s_o,this->serialized_mpomdp_->getStartDistrib().probabilities()[x]);
+                this->istate_.setProbabilityAt(p_s_o, this->serialized_mpomdp_->getStartDistrib().probabilities()[x]);
             }
         }
-        std::cout << this->istate_ << std::endl;
-        // std::cout << "End constructor" << std::endl;
+
         this->cstate_ = this->istate_;
-        
     }
 
     template <typename TState, typename TAction>
@@ -55,7 +52,6 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::getInitialState()
     {
-        std::cout << "Pass "<< std::endl;
         return this->istate_;
     }
 
@@ -177,5 +173,29 @@ namespace sdm
     {
         return true;
     }
-    
+
+    template <typename TState, typename TAction>
+    double SerializedOccupancyMDP<TState, TAction>::getDiscount(number horizon)
+    {
+        return this->serialized_mpomdp_->getDiscount(horizon);
+    }
+
+    template <typename TState, typename TAction>
+    double SerializedOccupancyMDP<TState, TAction>::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->getDiscount(), horizon / this->serialized_mpomdp_->getNumAgents());
+    }
+
+    template <typename TState, typename TAction>
+    double SerializedOccupancyMDP<TState, TAction>::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
+    {
+        return std::min(ub - lb, cost_so_far + this->serialized_mpomdp_->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
+    }
+
+    template <typename TState, typename TAction>
+    number SerializedOccupancyMDP<TState, TAction>::selectNextAction(const std::shared_ptr<ValueFunction<SerializedState, number>>&, const std::shared_ptr<ValueFunction<SerializedState, number>>& ub, const SerializedState &s, number h)
+    {
+        return ub->getBestAction(s, h);
+    }
+
 } // namespace sdm

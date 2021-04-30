@@ -48,6 +48,48 @@ namespace sdm
         DiscreteMDP *getUnderlyingProblem();
         bool isSerialized() const;
 
+
+        /**
+         * @brief Get the specific discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getOnlineDiscount(number = 0);
+
+        
+        /**
+         * @brief Get the specific weighted discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getWeightedDiscount(number);
+
+
+        /**
+         * @brief 
+         * 
+         * @param double incumbent 
+         * @param double lb 
+         * @param double ub 
+         * @param double cost_so_far 
+         * @param double error 
+         * @param number horizon 
+         * @return double 
+         */
+        double do_excess(double, double, double, double, double, number);
+
+
+        /**
+         * @brief 
+         * 
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& lb 
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& ub 
+         * @param const TState & s 
+         * @param number h 
+         * @return TAction 
+         */
+        TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>& lb, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h);
+
         // Problem conversion
         std::shared_ptr<DiscreteMDP> toMDP();
 

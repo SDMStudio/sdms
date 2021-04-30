@@ -22,7 +22,7 @@ namespace sdm
      * @tparam TAction The action type
      */
     template <typename TState, typename TAction>
-    class SolvableByHSVI
+    class SolvableByHSVI 
     {
     public:
         virtual ~SolvableByHSVI() {}
@@ -31,6 +31,49 @@ namespace sdm
          * @brief Get the initial state
          */
         virtual TState getInitialState() = 0;
+
+
+        /**
+         * @brief Get the specific discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        virtual double getDiscount(number = 0) = 0;
+
+        
+        /**
+         * @brief Get the specific weighted discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        virtual double getWeightedDiscount(number) = 0;
+
+
+        /**
+         * @brief 
+         * 
+         * @param double incumbent 
+         * @param double lb 
+         * @param double ub 
+         * @param double cost_so_far 
+         * @param double error 
+         * @param number horizon 
+         * @return double 
+         */
+        virtual double do_excess(double, double, double, double, double, number) = 0;
+
+
+        /**
+         * @brief 
+         * 
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& lb 
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& ub 
+         * @param const TState & s 
+         * @param number h 
+         * @return TAction 
+         */
+        virtual  TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>& lb, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h) = 0;
+
 
         /**
          * @brief Get the next occupancy state.

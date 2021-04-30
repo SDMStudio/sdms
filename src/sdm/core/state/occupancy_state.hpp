@@ -28,8 +28,7 @@ namespace sdm
    * @tparam TJointHistory_p refers to a joint histories
    */
   template <typename TState = number, typename TJointHistory_p = JointHistoryTree_p<number>>
-  class OccupancyState
-      : public BaseOccupancyState<TState, TJointHistory_p>
+  class OccupancyState : public BaseOccupancyState<TState, TJointHistory_p>
   {
   public:
     using jhistory_type = typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type;

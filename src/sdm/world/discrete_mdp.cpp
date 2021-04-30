@@ -103,4 +103,23 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
+    double DiscreteMDP::getDiscount(number)
+    {
+        return this->discount;
+    }
+
+    double DiscreteMDP::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->getDiscount(), horizon);
+    }
+
+    double DiscreteMDP::do_excess(double, double lb, double ub, double , double error, number horizon)
+    {
+        return (ub - lb) - error / this->getWeightedDiscount(horizon);
+    }
+
+    TAction DiscreteMDP::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>&, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h)
+    {
+        return ub->getBestAction(s, h);
+    }
 }

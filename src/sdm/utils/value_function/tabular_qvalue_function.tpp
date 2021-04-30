@@ -5,7 +5,7 @@ namespace sdm
     TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer)
         : QValueFunction<TState, TAction, TValue>(horizon), learning_rate_(learning_rate), initializer_(initializer)
     {
-        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_, Container());
+        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, Container());
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
@@ -22,64 +22,33 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     void TabularQValueFunction<TState, TAction, TValue, TMatrix>::initialize(TValue default_value, number t)
     {
-        if (this->isInfiniteHorizon())
-        {
-            this->representation[0] = Container(default_value);
-        }
-        else
-        {
-            assert(t < this->getHorizon());
-            this->representation[t] = Container(default_value);
-        }
+        this->representation[this->isInfiniteHorizon()?0:t] = Container(default_value);
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     std::shared_ptr<VectorImpl<TAction, TValue>> TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(const TState &state, number t)
     {
         using v_type = typename TMatrix<TState, TAction, TValue>::value_type::second_type;
-        if (this->isInfiniteHorizon())
-        {
-            return std::make_shared<v_type>(this->representation[0].at(state));
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? std::make_shared<v_type>(0) : std::make_shared<v_type>(this->representation[t].at(state));
-        }
+
+        return std::make_shared<v_type>(this->representation[this->isInfiniteHorizon()?0:t].at(state));
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     TValue TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(const TState &state, const TAction &action, number t)
     {
-        if (this->isInfiniteHorizon())
-        {
-            return this->representation[0].at(state).at(action);
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? 0 : this->representation[t].at(state).at(action);
-        }
+        return this->representation[this->isInfiniteHorizon()? 0 : t ].at(state).at(action)
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(const TState &state, const TAction &action, number t, TValue target)
     {
-        // To be modified
-        if (this->isInfiniteHorizon())
-        {
-            this->representation[0][state][action] = this->representation[0].at(state).at(action) + this->learning_rate_ * target;
-        }
-        else
-        {
-            assert(t < this->horizon_);
-            this->representation[t][state][action] = this->representation[t].at(state).at(action) + this->learning_rate_ * target;
-        }
+        auto h = this->isInfiniteHorizon()? 0 : t ;
+        this->representation[h][state][action] = this->representation[h].at(state).at(action) + this->learning_rate_ * target;
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
     void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(const TState &, const TAction &, number)
     {
-        // To be modified
-        // this->updateQValueAt(state, t, this->getBackupOperator().backup(this, state, t));
         throw sdm::exception::NotImplementedException();
     }
 
