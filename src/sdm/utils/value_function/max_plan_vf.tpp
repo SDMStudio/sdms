@@ -12,8 +12,6 @@ namespace sdm
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<TValue>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, 0);
-
-        //this->initialize(0,this->isInfiniteHorizon() ? 1 : this->horizon_+1);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -64,6 +62,7 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
     {
+        //std::cout<<"\n support ::::::"<<this->representation;
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
 
         if(std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
@@ -101,13 +100,12 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &occupancy_state, number t)
     {
         auto oMDP = std::static_pointer_cast<OccupancyMDP<>>(this->getWorld());
-        auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;
 
         auto all_joint_decision_rules = oMDP->getActionSpaceAt(occupancy_state)->getAll();
-        std::cout<<"\n support "<< this->getSupport(t+1);
+        
         // Go other the hyperplanes of decision step t+1
         for (const auto &next_hyperplan : this->getSupport(t+1))
         {
@@ -158,7 +156,7 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &serial_occupancy_state, number t)
     {
         auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
-        auto under_pb = this->getWorld()->getUnderlyingProblem();
+        
 
         TVector v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;

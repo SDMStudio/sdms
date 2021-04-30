@@ -48,6 +48,50 @@ namespace sdm
         DiscreteMDP *getUnderlyingProblem();
         bool isSerialized() const;
 
+
+        /**
+         * @brief Get the specific discount factor for the problem at hand
+         * 
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getDiscount(number = 0);
+
+        
+        /**
+         * @brief Get the specific weighted discount factor for the problem at hand
+         * 
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getWeightedDiscount(number);
+
+
+        /**
+         * @brief  Compute the excess of the HSVI paper. It refers to the termination condition.
+         * 
+         * @param double : incumbent 
+         * @param double : lb value
+         * @param double : ub value
+         * @param double : cost_so_far 
+         * @param double : error 
+         * @param number : horizon 
+         * @return double 
+         */
+        double do_excess(double, double, double, double, double, number);
+
+
+        /**
+         * @brief  Select the next action
+         * 
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the lower bound
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the upper bound
+         * @param const TState & s : current state
+         * @param number h : horizon
+         * @return TAction 
+         */
+        number selectNextAction(const std::shared_ptr<ValueFunction<number, number>>& , const std::shared_ptr<ValueFunction<number, number>>& , const number &, number );
+
         // Problem conversion
         std::shared_ptr<DiscreteMDP> toMDP();
 

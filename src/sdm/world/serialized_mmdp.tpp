@@ -42,7 +42,7 @@ namespace sdm
 
             for (const auto &next_serial_state : this->serial_mmdp_->getReachableSerialStates(serialized_state, action))
             {
-                double tmp = this->serial_mmdp_->getTransitionProbability(serialized_state, action, next_serial_state) * hsvi->do_excess(next_serial_state, t + 1);
+                double tmp = this->serial_mmdp_->getTransitionProbability(serialized_state, action, next_serial_state) * hsvi->do_excess(next_serial_state, 0,t + 1);
                 if (tmp > max)
                 {
                     max = tmp;
@@ -118,6 +118,26 @@ namespace sdm
     std::shared_ptr<DiscreteSpace<number>> SerializedMMDP::getActionSpaceAt(const SerializedState &state) 
     {
         return this->serial_mmdp_->getJointActionSpace()->getSpace(state.getCurrentAgentId());
+    }
+
+    double SerializedMMDP::getDiscount(number horizon)
+    {
+        return this->serial_mmdp_->getDiscount(horizon);
+    }
+
+    double SerializedMMDP::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->getDiscount(), horizon / this->serial_mmdp_->getNumAgents());
+    }
+
+    double SerializedMMDP::do_excess(double, double lb, double ub, double , double error, number horizon)
+    {
+        return (ub - lb) - error / this->getWeightedDiscount(horizon);
+    }
+
+    number SerializedMMDP::selectNextAction(const std::shared_ptr<ValueFunction<SerializedState, number>>&, const std::shared_ptr<ValueFunction<SerializedState, number>>& ub, const SerializedState &s, number h)
+    {
+        return ub->getBestAction(s, h);
     }
 
 }

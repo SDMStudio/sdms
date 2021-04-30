@@ -14,6 +14,7 @@ namespace sdm
     SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
     {
         typename TState::jhistory_type jhist;
+        
         if (hist_length > 0)
         {
             jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), hist_length);
@@ -230,4 +231,29 @@ namespace sdm
     {
         return true;
     }
+
+    template <typename TState, typename TAction>
+    double SerializedOccupancyMDP<TState, TAction>::getDiscount(number horizon)
+    {
+        return this->serialized_mpomdp_->getDiscount(horizon);
+    }
+
+    template <typename TState, typename TAction>
+    double SerializedOccupancyMDP<TState, TAction>::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->getDiscount(), horizon / this->serialized_mpomdp_->getNumAgents());
+    }
+
+    template <typename TState, typename TAction>
+    double SerializedOccupancyMDP<TState, TAction>::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
+    {
+        return std::min(ub - lb, cost_so_far + this->serialized_mpomdp_->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
+    }
+
+    template <typename TState, typename TAction>
+    TAction SerializedOccupancyMDP<TState, TAction>::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>&, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h)
+    {
+        return ub->getBestAction(s, h);
+    }
+
 } // namespace sdm

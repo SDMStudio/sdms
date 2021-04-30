@@ -44,7 +44,7 @@ namespace sdm
         number amax = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
         {
-            double tmp = this->getStateDynamics()->getTransitionProbability(state, action, state_) * hsvi->do_excess(state_, t + 1);
+            double tmp = this->getStateDynamics()->getTransitionProbability(state, action, state_) * hsvi->do_excess(state_,0 ,t + 1);
             if (tmp > max)
             {
                 max = tmp;
@@ -103,4 +103,23 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
+    double DiscreteMDP::getDiscount(number)
+    {
+        return this->discount_;
+    }
+
+    double DiscreteMDP::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->getDiscount(), horizon);
+    }
+
+    double DiscreteMDP::do_excess(double, double lb, double ub, double , double error, number horizon)
+    {
+        return (ub - lb) - error / this->getWeightedDiscount(horizon);
+    }
+
+    number DiscreteMDP::selectNextAction(const std::shared_ptr<ValueFunction<number, number>>&, const std::shared_ptr<ValueFunction<number, number>>& ub, const number &s, number h)
+    {
+        return ub->getBestAction(s, h);
+    }
 }

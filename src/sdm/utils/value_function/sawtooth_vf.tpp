@@ -26,11 +26,6 @@ namespace sdm
         }
         else
         {
-            if (t >= this->getHorizon())
-            {
-                return 0;
-            }
-
             bool already_exist = false;
             for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
             {  
@@ -41,15 +36,6 @@ namespace sdm
             }
 
             return (already_exist) ?this->representation[t].at(state) : this->getMaxAt(state, t).first;
-            // if (*std::find(this->getSupport(t).begin(),this->getSupport(t).end(),state) == state)
-            // {
-            //     //return this->representation[t].at(state);
-            // }else
-            // {
-            //     return this->getMaxAt(state, t).first; 
-            // }
-            //return 0;
-            //return (t >= this->getHorizon()) ? 0 : this->getMaxAt(state, t).first;
         }
     }
 

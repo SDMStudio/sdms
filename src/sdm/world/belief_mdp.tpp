@@ -108,7 +108,7 @@ namespace sdm
         {
             tmp = this->getObservationProbability(belief,action, o, belief);
             auto tau = this->nextState(belief, action, o);
-            tmp *= hsvi->do_excess(tau, t + 1);
+            tmp *= hsvi->do_excess(tau, 0,t + 1);
             if (tmp > max_o)
             {
                 max_o = tmp;
@@ -143,10 +143,11 @@ namespace sdm
         for (TObservation obs : this->pomdp_->getObsSpace()->getAll())
         {
             auto next_belief = this->nextState(belief, action, obs);
-            exp_next_v += this->getObservationProbability(belief,action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
+            exp_next_v += this->getObservationProbability(belief,action, obs, belief) * value_function->getValueAt(next_belief,t + 1);
         }
         return exp_next_v;
     }
+
 
     template <typename TBelief, typename TAction, typename TObservation>
     double BeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TBelief &, const TAction &action, const TObservation &obs, const TBelief &belief) const
@@ -164,6 +165,7 @@ namespace sdm
         return proba;
     }
 
+
     template <typename TBelief, typename TAction, typename TObservation>
     std::shared_ptr<DiscreteMDP> BeliefMDP<TBelief, TAction, TObservation>::toMDP()
     {
@@ -174,6 +176,33 @@ namespace sdm
     std::shared_ptr<BeliefMDP<BeliefState, number, number>> BeliefMDP<TBelief, TAction, TObservation>::toBeliefMDP()
     {
         throw sdm::exception::NotImplementedException();
+    }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    double BeliefMDP<TBelief, TAction, TObservation>::getDiscount(number)
+    {
+        return this->pomdp_->getDiscount();
+    }
+
+    
+    template <typename TBelief, typename TAction, typename TObservation>
+    double BeliefMDP<TBelief, TAction, TObservation>::getWeightedDiscount(number horizon)
+    {
+        return std::pow(this->pomdp_->getDiscount(), horizon);
+    }
+
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    double BeliefMDP<TBelief, TAction, TObservation>::do_excess(double, double lb, double ub, double , double error, number horizon)
+    {
+        return (ub - lb) - error / this->getWeightedDiscount(horizon);
+    }
+
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    TAction BeliefMDP<TBelief, TAction, TObservation>::selectNextAction(const std::shared_ptr<ValueFunction<TBelief, TAction>>&, const std::shared_ptr<ValueFunction<TBelief, TAction>>& ub, const TBelief &s, number h)
+    {
+        return ub->getBestAction(s, h);
     }
 
 } // namespace sdm
