@@ -18,10 +18,10 @@ namespace sdm
             proba = this->pomdp_->getStartDistrib().probabilities()[s];
             if (proba > 0)
             {
-                this->istate_[s] = proba;
+                this->initial_state_[s] = proba;
             }
         }
-        this->cstate_ = this->istate_;
+        this->current_state_ = this->initial_state_;
     }
 
     template <typename TState, typename TAction, typename TObservation>
@@ -32,23 +32,23 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief BeliefMDP<TBelief, TAction, TObservation>::reset()
     {
-        this->cstate_ = this->istate_;
+        this->current_state_ = this->initial_state_;
         this->pomdp_->reset();
-        return this->cstate_;
+        return this->current_state_;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief &BeliefMDP<TBelief, TAction, TObservation>::getState()
     {
-        return this->cstate_;
+        return this->current_state_;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
     std::tuple<TBelief, std::vector<double>, bool> BeliefMDP<TBelief, TAction, TObservation>::step(TAction action)
     {
         auto [next_obs, rewards, done] = this->pomdp_->step(action);
-        this->cstate_ = this->nextState(this->cstate_, action, next_obs);
-        return std::make_tuple(this->cstate_, rewards, done);
+        this->current_state_ = this->nextState(this->current_state_, action, next_obs);
+        return std::make_tuple(this->current_state_, rewards, done);
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -66,7 +66,7 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     TBelief BeliefMDP<TBelief, TAction, TObservation>::getInitialState()
     {
-        return this->istate_;
+        return this->initial_state_;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -169,4 +169,11 @@ namespace sdm
     {
         return this->pomdp_->toMDP();
     }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> BeliefMDP<TBelief, TAction, TObservation>::toBeliefMDP()
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
 } // namespace sdm

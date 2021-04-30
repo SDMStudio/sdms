@@ -17,7 +17,7 @@
 //             proba = this->serialized_mpomdp_->getStartDistrib().probabilities()[s.getState()];
 //             if (proba > 0)
 //             {
-//                 this->istate_[s] = proba;
+//                 this->initial_state_[s] = proba;
 //             }
 //         }
 //     }
@@ -42,7 +42,7 @@
 //     template <typename TBelief, typename TAction, typename TObservation>
 //     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::getInitialState()
 //     {
-//         return this->istate_;
+//         return this->initial_state_;
 //     }
 
 //     template <typename TBelief, typename TAction, typename TObservation>

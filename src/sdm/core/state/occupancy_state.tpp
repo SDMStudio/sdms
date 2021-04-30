@@ -64,21 +64,28 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    typename OccupancyState<TState, TJointHistory_p>::ihistory_type OccupancyState<TState, TJointHistory_p>::getLabel(const typename OccupancyState<TState, TJointHistory_p>::ihistory_type &ihistory, number agent_id) const
+    {
+        if (this->private_ihistory_map_.at(agent_id).find(ihistory) == this->private_ihistory_map_.at(agent_id).end())
+        {
+            // if the ihistory was never compressed
+            return ihistory;
+        }
+        else
+        {
+            // if the ihistory was compressed
+            return *this->private_ihistory_map_.at(agent_id).at(ihistory);
+        }
+    }
+
+    template <typename TState, typename TJointHistory_p>
     std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> OccupancyState<TState, TJointHistory_p>::getJointLabels(const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_ihistories) const
     {
         std::vector<ihistory_type> new_list_ihistories;
-        for (int agent = 0; agent < this->num_agents; ++agent)
+        for (int agent_id = 0; agent_id < this->num_agents; ++agent_id)
         {
-            if (this->private_ihistory_map_.at(agent).find(list_ihistories.at(agent)) == this->private_ihistory_map_.at(agent).end())
-            {
-                // if the ihistory was never compressed
-                new_list_ihistories.push_back(list_ihistories.at(agent));
-            }
-            else
-            {
-                // if the ihistory was compressed
-                new_list_ihistories.push_back(*this->private_ihistory_map_.at(agent).at(list_ihistories.at(agent)));
-            }
+            // if the ihistory was never compressed
+            new_list_ihistories.push_back(this->getLabel(list_ihistories.at(agent_id), agent_id));
         }
         return new_list_ihistories;
     }

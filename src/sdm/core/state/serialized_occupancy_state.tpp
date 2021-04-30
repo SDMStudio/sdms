@@ -23,10 +23,10 @@ namespace sdm
     {
     }
 
-    // template <typename TState, typename TJointHistory_p>
-    // SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &v) : OccupancyState<TState, TJointHistory_p>(v)
-    // {
-    // }
+    template <typename TState, typename TJointHistory_p>
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &occupancy_state) : OccupancyState<TState, TJointHistory_p>(occupancy_state)
+    {
+    }
 
     template <typename TState, typename TJointHistory_p>
     number SerializedOccupancyState<TState, TJointHistory_p>::getCurrentAgentId() const

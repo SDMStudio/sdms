@@ -1,14 +1,13 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/world/discrete_mdp.hpp>
-#include <sdm/world/belief_mdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
 
-#include <sdm/core/space/discrete_space.hpp>
-#include <sdm/core/state/serialized_occupancy_state.hpp>
 #include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serialized_occupancy_state.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
+
+#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/serialized_mpomdp.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
 
@@ -27,7 +26,8 @@ namespace sdm
     {
     protected:
         std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
-        TState istate_, cstate_;
+        std::shared_ptr<TState> initial_state_, current_state_;
+        typename TState::jhistory_type initial_history_ = nullptr, current_history_ = nullptr;
 
     public:
         using state_type = TState;
@@ -43,6 +43,7 @@ namespace sdm
         SerializedMPOMDP *getUnderlyingProblem();
 
         TState getInitialState();
+        TState nextState(const TState &, const TAction &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const;
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
         double getReward(const TState &, const TAction &) const;

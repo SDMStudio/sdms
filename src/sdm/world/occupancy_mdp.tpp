@@ -23,21 +23,21 @@ namespace sdm
             jhist = std::make_shared<typename oState::jhistory_type::element_type>(this->dpomdp_->getNumAgents());
         }
 
-        this->ihistory_ = jhist;
-        this->istate_ = std::make_shared<oState>();
+        this->initial_history_ = jhist;
+        this->initial_state_ = std::make_shared<oState>();
 
         for (typename oState::state_type s : this->dpomdp_->getStateSpace()->getAll())
         {
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
             {
                 auto p_x_h = std::make_pair(s, jhist);
-                this->istate_->setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
+                this->initial_state_->setProbabilityAt(p_x_h, this->dpomdp_->getStartDistrib().probabilities()[s]);
             }
         }
-        this->istate_->finalize();
-        this->istate_->setFullyUncompressedOccupancy(this->istate_->getptr());
-        this->istate_->setOneStepUncompressedOccupancy(this->istate_->getptr());
-        this->cstate_ = this->istate_;
+        this->initial_state_->finalize();
+        this->initial_state_->setFullyUncompressedOccupancy(this->initial_state_->getptr());
+        this->initial_state_->setOneStepUncompressedOccupancy(this->initial_state_->getptr());
+        this->current_state_ = this->initial_state_;
     }
 
     template <typename oState, typename oAction>
@@ -48,26 +48,26 @@ namespace sdm
     template <typename oState, typename oAction>
     oState &OccupancyMDP<oState, oAction>::getState()
     {
-        return *this->cstate_;
+        return *this->current_state_;
     }
 
     template <typename oState, typename oAction>
     oState OccupancyMDP<oState, oAction>::reset()
     {
-        this->chistory_ = this->ihistory_;
-        this->cstate_ = this->istate_;
+        this->current_history_ = this->initial_history_;
+        this->current_state_ = this->initial_state_;
         this->dpomdp_->reset();
-        return *this->cstate_;
+        return *this->current_state_;
     }
 
     template <typename oState, typename oAction>
     std::tuple<oState, std::vector<double>, bool> OccupancyMDP<oState, oAction>::step(oAction joint_idr)
     {
-        auto jaction = joint_idr.act(this->chistory_->getIndividualHistories()); // Select action based on joint separable decision rule
+        auto jaction = joint_idr.act(this->current_history_->getIndividualHistories()); // Select action based on joint separable decision rule
         auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);           // Do step and get next observation and rewards
-        this->chistory_ = this->chistory_->expand(next_obs);                     // Update the history based on the observation
-        *this->cstate_ = this->nextState(*this->cstate_, joint_idr);             // Update the occupancy state
-        return std::make_tuple(*this->cstate_, rewards, done);                   // return the new occupancy state and the perceived rewards
+        this->current_history_ = this->current_history_->expand(next_obs);                     // Update the history based on the observation
+        *this->current_state_ = this->nextState(*this->current_state_, joint_idr);             // Update the occupancy state
+        return std::make_tuple(*this->current_state_, rewards, done);                   // return the new occupancy state and the perceived rewards
     }
 
     template <typename oState, typename oAction>
@@ -85,7 +85,7 @@ namespace sdm
     template <typename oState, typename oAction>
     oState OccupancyMDP<oState, oAction>::getInitialState()
     {
-        return *this->istate_;
+        return *this->initial_state_;
     }
 
     template <typename oState, typename oAction>
