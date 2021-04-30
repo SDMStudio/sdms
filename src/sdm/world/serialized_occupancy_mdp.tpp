@@ -23,7 +23,7 @@ namespace sdm
             jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents());
         }
 
-        this->istate_ = std::make_shared<TState>();
+        //this->istate_;
 
         for (const auto s : this->serialized_mpomdp_->getStateSpace(0)->getAll())
         {
@@ -32,7 +32,7 @@ namespace sdm
             if (this->serialized_mpomdp_->getStartDistrib().probabilities()[x] > 0) 
             {
                 auto p_s_o = std::make_pair(s, jhist);
-                this->istate_->setProbabilityAt(p_s_o,this->serialized_mpomdp_->getStartDistrib().probabilities()[x]);
+                this->istate_.setProbabilityAt(p_s_o,this->serialized_mpomdp_->getStartDistrib().probabilities()[x]);
             }
         }
         std::cout << this->istate_ << std::endl;

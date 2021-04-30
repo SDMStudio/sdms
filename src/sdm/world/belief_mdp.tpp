@@ -169,4 +169,11 @@ namespace sdm
     {
         return this->pomdp_->toMDP();
     }
+
+    template <typename TBelief, typename TAction, typename TObservation>
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> BeliefMDP<TBelief, TAction, TObservation>::toBeliefMDP()
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
 } // namespace sdm

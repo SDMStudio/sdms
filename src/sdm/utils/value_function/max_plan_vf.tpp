@@ -64,6 +64,7 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
     {
+        std::cout<<"\n support ::::::"<<this->representation;
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
 
         if(std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
