@@ -33,7 +33,6 @@ namespace sdm
     std::enable_if_t<is_mdp, double>
     State2OccupancyValueFunction<TState, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
     {
-        std::cout<<"\n state :"<<ostate;
         return this->mdp_vf_->operator()(ostate, tau);
     }
 

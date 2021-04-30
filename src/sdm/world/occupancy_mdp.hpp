@@ -36,21 +36,21 @@ namespace sdm
      * @brief An occupancy MDP is a subclass of continuous state MDP where states are occupancy states. 
      * In the general case, an occupancy state refers to the whole knowledge that a central planner can have access to take decisions. But in this implementation we call occupancy state are distribution over state and joint histories .
      * 
-     * @tparam oState the occupancy state type 
-     * @tparam oAction the occupancy action type 
+     * @tparam TState the occupancy state type 
+     * @tparam TAction the occupancy action type 
      */
-    template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, typename oAction = JointDeterministicDecisionRule<HistoryTree_p<number>, number>>
-    class OccupancyMDP : public SolvableByHSVI<oState, oAction>,
-                         public GymInterface<oState, oAction>
+    template <typename TState = OccupancyState<number, JointHistoryTree_p<number>>, typename TAction = JointDeterministicDecisionRule<HistoryTree_p<number>, number>>
+    class OccupancyMDP : public SolvableByHSVI<TState, TAction>,
+                         public GymInterface<TState, TAction>
     {
     protected:
-        std::shared_ptr<oState> istate_, cstate_;
+        std::shared_ptr<TState> istate_, cstate_;
         std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
-        typename oState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
+        typename TState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
 
     public:
-        using state_type = oState;
-        using action_type = oAction;
+        using state_type = TState;
+        using action_type = TAction;
         // using observation_type = oObservation;
 
         OccupancyMDP();
@@ -72,22 +72,22 @@ namespace sdm
         OccupancyMDP(std::string, number = -1);
 
         // ---------- RL GymInterface -------------
-        oState reset();
-        oState &getState();
-        std::tuple<oState, std::vector<double>, bool> step(oAction);
+        TState reset();
+        TState &getState();
+        std::tuple<TState, std::vector<double>, bool> step(TAction);
 
         // ---------- HSVI exact interface -------------
         bool isSerialized() const;
         DiscreteDecPOMDP *getUnderlyingProblem();
 
-        oState getInitialState();
-        oState nextState(const oState &, const oAction &, number, std::shared_ptr<HSVI<oState, oAction>>, bool) const;
-        oState nextState(const oState &, const oAction &, number = 0, std::shared_ptr<HSVI<oState, oAction>> = nullptr) const;
+        TState getInitialState();
+        TState nextState(const TState &, const TAction &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const;
+        TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
-        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
 
-        double getReward(const oState &, const oAction &) const;
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<oState, oAction>>, const oState &, const oAction &, number = 0) const;
+        double getReward(const TState &, const TAction &) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState &, const TAction &, number = 0) const;
 
         // ---------- Other -------------
         /**
@@ -103,6 +103,48 @@ namespace sdm
          * @return a belief MDP
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
-    };
+
+
+        /**
+         * @brief Get the specific discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getDiscount(number = 0);
+
+        
+        /**
+         * @brief Get the specific weighted discount factor for the problem at hand
+         * @param number decision epoch or any other parameter 
+         * @return double discount factor
+         */
+        double getWeightedDiscount(number);
+
+
+        /**
+         * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
+         * 
+         * @param double : incumbent 
+         * @param double : lb value
+         * @param double : ub value
+         * @param double : cost_so_far 
+         * @param double : error 
+         * @param number : horizon 
+         * @return double 
+         */
+        double do_excess(double, double, double, double, double, number);
+
+
+        /**
+         * @brief Select the next action
+         * 
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the lower bound
+         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the upper bound
+         * @param const TState & s : current state
+         * @param number h : horizon
+         * @return TAction 
+         */
+        TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>& lb, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h);
+     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

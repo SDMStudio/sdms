@@ -105,15 +105,6 @@ namespace sdm
     void do_test();
 
     /**
-     * @brief Computes the error between bounds (or excess).
-     * 
-     * @param s the state
-     * @param t the timestep
-     * @return the error
-     */
-    double do_excess(const TState &, number);
-
-    /**
      * @brief Check the end of HSVI algo
      * 
      * @param s the current state
@@ -121,7 +112,7 @@ namespace sdm
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
      * @return false elsewhere
      */
-    bool do_stop(const TState &, number);
+    bool do_stop(const TState &, double /*cost_so_far*/, number);
 
     /**
      * @brief Explore a state.
@@ -129,30 +120,17 @@ namespace sdm
      * @param s the state to explore
      * @param h the timestep of the exploration
      */
-    void do_explore(const TState &s, number h);
-
-    //Pour le moment, je supprime pas les autres pour tester avec le gt
-    void do_explore(const TState &, number, double);
-    bool do_stop(const TState &, number, double);
-    double do_excess_2(const TState &, number , double);
-    /**
-     * @brief Select the next action
-     * 
-     * @param s the current state
-     * @param h the current timestep
-     * @return TAction 
-     */
-    TAction selectNextAction(const TState &, number );
+    void do_explore(const TState &s, double /*cost_so_far*/, number h);
 
     /**
-     * @brief Select the next state to explore 
+     * @brief Computes the error between bounds (or excess).
      * 
-     * @param s the current state
-     * @param a the current action
-     * @param h the current timestep
-     * @return the next state
+     * @param const TState & : the state
+     * @param double : cost so far
+     * @param number : the timestep
+     * @return the error
      */
-    TState selectNextState(const TState &, const TAction &, number);
+    double do_excess(const TState &,double , number);
 
     /**
      * @brief Get the lower bound value function 
@@ -165,8 +143,6 @@ namespace sdm
     std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
 
     int getTrial();
-
-    double getResultOpti();
   };
 } // namespace sdm
 #include <sdm/algorithms/hsvi.tpp>
