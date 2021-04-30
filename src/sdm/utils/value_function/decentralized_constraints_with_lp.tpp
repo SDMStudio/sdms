@@ -20,9 +20,8 @@ namespace sdm
       actions.push_back({});
     }
 
-    for(auto joint_history : occupancy_state.getJointHistories())
+    for(const auto joint_history : occupancy_state.getJointHistories())
     {
-      //auto joint_history = occupancy_state.getHistory(iter->first);
       for(auto u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
       {
         index = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,joint_history));
@@ -48,10 +47,8 @@ namespace sdm
     std::string VarName;
 
     //<! 0.a Build variables a(u|o), a_i(u_i|o_i)
-    for(auto it=occupancy_state.begin(); it!=occupancy_state.end(); ++it)
+    for(const auto joint_history :occupancy_state.getJointHistories())
     {
-      auto joint_history = occupancy_state.getHistory(it->first);
-
       for(auto u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
       {
         //< 0.b Build variables a(u|o)
@@ -85,26 +82,22 @@ namespace sdm
     number recover = 0;
     number number_agent = this->world_->getUnderlyingProblem()->getNumAgents();
 
-    for(auto it=occupancy_state.begin(); it!=occupancy_state.end(); ++it)
+    for(const auto jh :occupancy_state.getJointHistories())
     {
-      auto jh = occupancy_state.getHistory(it->first);
       for(auto u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u)
       {
         //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
         con.add(IloRange(env, 1 - number_agent, +IloInfinity));
         //<! 3.a.1 get variable a(u|o)
-
         recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,jh));
         //<! 3.a.2 set coefficient of variable a(u|o)
         con[c].setLinearCoef(var[recover], +1.0);
         for(number ag=0; ag<number_agent; ++ag)
         {
-
           auto ih = jh->getIndividualHistory(ag);
           auto iu = this->world_->getUnderlyingProblem()->getActionSpace()->getJointItem(u)[ag];
           //<! 3.a.3 get variables a_i(u_i|o_i)
           recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
-
           //<! 3.a.4 set coefficient of variable a_i(u_i|o_i)
           con[c].setLinearCoef(var[recover], -1.0);
         } // for all agent
@@ -114,8 +107,7 @@ namespace sdm
     } // for all o    
 
     // 3.bis Build decentralized control constraints [ a(u|o) <= a_i(u_i|o_i) ]
-    for(auto it=occupancy_state.begin(); it!=occupancy_state.end(); ++it){
-      auto jh = occupancy_state.getHistory(it->first);
+    for(const auto jh :occupancy_state.getJointHistories()){
       for(action u=0; u<this->world_->getUnderlyingProblem()->getActionSpace()->getNumItems(); ++u){
         for(agent ag=0; ag<number_agent; ++ag){
           auto ih = jh->getIndividualHistory(ag);
@@ -153,7 +145,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-  TAction DecentralizedConstraintsLP<TVector, TAction, TValue>::getDecentralizedVariables(const IloCplex& cplex, const IloNumVarArray& var, const TVector& occupancy_state)
+  TAction DecentralizedConstraintsLP<TVector, TAction, TValue>::getDecentralizedVariables(const IloCplex& , const IloNumVarArray& , const TVector& )
   {
     throw sdm::exception::NotImplementedException();
 
@@ -176,7 +168,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloNumVarArray& var, number& index)
+  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector& , std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& , IloEnv& , IloNumVarArray& , number& )
   {
     throw sdm::exception::NotImplementedException();
 
@@ -216,7 +208,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c)
+  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& , IloEnv& , IloRangeArray& , IloNumVarArray& , number& )
   {
     throw sdm::exception::NotImplementedException();
 

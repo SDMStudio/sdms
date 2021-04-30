@@ -76,6 +76,11 @@ namespace sdm
     void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
     /**
+     * @brief Get the label that corresponds to the ihistory.
+     */
+    ihistory_type getLabel(const ihistory_type &ihistory, number agent_id) const;
+
+    /**
      * @brief Get the list of labels that corresponds to the list of ihistories.
      */
     std::vector<ihistory_type> getJointLabels(const std::vector<ihistory_type> &) const;

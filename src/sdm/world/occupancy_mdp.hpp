@@ -45,9 +45,9 @@ namespace sdm
                          public GymInterface<TState, TAction>
     {
     protected:
-        std::shared_ptr<TState> istate_, cstate_;
         std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
-        typename TState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
+        std::shared_ptr<TState> initial_state_, current_state_;
+        typename TState::jhistory_type initial_history_ = nullptr, current_history_ = nullptr;
 
     public:
         using state_type = TState;
@@ -59,18 +59,18 @@ namespace sdm
         /**
          * @brief Construct a new Occupancy MDP  
          * 
-         * @param underlying_dpomdp the underlying DecPOMDP 
-         * @param hist_length the maximum length of the history
-         */
-        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
-
-        /**
-         * @brief Construct a new Occupancy MDP  
-         * 
          * @param underlying_dpomdp the underlying DecPOMDP (as a filename)
          * @param hist_length the maximum length of the history
          */
         OccupancyMDP(std::string, number = -1);
+
+        /**
+         * @brief Construct a new Occupancy MDP  
+         * 
+         * @param underlying_dpomdp the underlying DecPOMDP 
+         * @param hist_length the maximum length of the history
+         */
+        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
 
         // ---------- RL GymInterface -------------
         TState reset();

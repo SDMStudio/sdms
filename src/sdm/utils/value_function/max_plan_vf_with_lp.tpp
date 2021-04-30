@@ -151,7 +151,7 @@ namespace sdm
   {
     TVector next_hyperplan;
     TAction max_decision_rule, joint_decision_rule;
-    double max = -std::numeric_limits<double>::max(), value, cvalue;
+    double max = -std::numeric_limits<double>::max(), value;
 
     for(const auto& hyperplan : this->getSupport(t+1)) 
     {
@@ -179,7 +179,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-  void MaxPlanValueFunctionLP<TVector, TAction, TValue>::setGreedyObjective(const TVector& occupancy_state, IloNumVarArray& var, IloObjective& obj, const TVector& hyperplan, number t)
+  void MaxPlanValueFunctionLP<TVector, TAction, TValue>::setGreedyObjective(const TVector&, IloNumVarArray& , IloObjective& , const TVector& , number )
   {
     throw sdm::exception::NotImplementedException();
   }

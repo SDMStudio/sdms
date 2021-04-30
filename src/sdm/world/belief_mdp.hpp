@@ -31,8 +31,8 @@ namespace sdm
     {
     protected:
         std::shared_ptr<DiscretePOMDP> pomdp_;
-        TBelief istate_;
-        TBelief cstate_;
+        TBelief initial_state_;
+        TBelief current_state_;
 
     public:
         using state_type = TBelief;

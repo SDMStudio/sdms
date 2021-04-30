@@ -39,6 +39,35 @@ ${CPLEX_LIBRARIES}
 lib_world
 )
 
+
+
+# Build documentation
+if(DAVID)
+    message(STATUS "Build David quicktest.")
+	#### This section can be uncommented and rewrite in order to compile only a part of sdms (quicktest.cpp file)
+	file(
+		GLOB_RECURSE
+		lib_david
+		${INCLUDE_DIR}/*
+		# ${INCLUDE_DIR}/utils/struct/*
+		# ${INCLUDE_DIR}/core/*
+		# ${INCLUDE_DIR}/common.cpp
+		# ${INCLUDE_DIR}/tools.cpp
+	)
+	add_library(lib_david SHARED ${lib_david})
+	include_directories(${SDMS_INCLUDE_DIRS})
+
+	add_executable(quicktest_david tmp/quicktest_david.cpp)
+	target_link_libraries(quicktest_david
+		fmt
+		dl
+		${Boost_LIBRARIES}
+		${TORCH_LIBRARIES}
+		${CPLEX_LIBRARIES}
+		lib_david
+	)
+endif()
+
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest
     DESTINATION bin/
 )

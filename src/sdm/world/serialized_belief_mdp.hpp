@@ -26,7 +26,7 @@
 //     {
 //     protected:
 //         std::shared_ptr<SerializedMPOMDP<TBelief,TAction>> serialized_mpomdp_;
-//         TBelief istate_;
+//         TBelief initial_state_;
 
 //         //std::shared_ptr<DiscretePOMDP> mpomdp_;
 

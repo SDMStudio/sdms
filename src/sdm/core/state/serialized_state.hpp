@@ -26,7 +26,7 @@ namespace sdm
 
     /**
      * @brief Get the hidden vector of action that were already decided
-     * 
+     * p
      * @return std::vector<number> 
      */
     std::vector<number> getAction() const;

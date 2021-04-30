@@ -5,7 +5,7 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
-	number horizon(2);
+	//number horizon(2);
 
 	auto serial_MPOMDP = std::make_shared<SerializedMPOMDP>(problem_path);
 

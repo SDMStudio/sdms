@@ -19,7 +19,7 @@ namespace sdm
      * In the general case, a serialized state refers to the whole knowledge that a central planner can have access to take decisions at the time step of an precise agent. 
      */
     class SerializedMMDPStructure : public DecisionProcessBase<MultiSpace<DiscreteSpace<SerializedState>>, MultiDiscreteSpace<number>, std::discrete_distribution<number>>,
-                           public std::enable_shared_from_this<SerializedMMDPStructure>
+                                    public std::enable_shared_from_this<SerializedMMDPStructure>
     {
     public:
         using action_type = number;
