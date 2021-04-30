@@ -238,7 +238,7 @@ namespace sdm
     template <typename TState, typename TAction>
     double OccupancyMDP<TState, TAction>::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
     {
-        return std::min(ub - lb, cost_so_far + this->dpomdp_->getDiscount() * ub - incumbent) - error / this->getWeightedDiscount(horizon);
+        return std::min(ub - lb ,cost_so_far + this->dpomdp_->getDiscount() * ub - incumbent) - error / this->getWeightedDiscount(horizon);
     }
 
 

@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 		// Instanciate the max-plan representation of the lower bound
 		//auto lower_bound_maxplan = std::make_shared<MaxPlanValueFunction<TState, TAction>>(omdp_world, horizon, lb_init); //
 		auto lower_bound_tabular = std::make_shared<MappedValueFunction<TState, TAction>>(omdp_world, horizon, lb_init);
-
+ 
 		// Instanciate the Tabular version for the upper bound
 		auto upper_bound = std::make_shared<MappedValueFunction<TState, TAction>>(omdp_world, horizon, ub_init);
 
