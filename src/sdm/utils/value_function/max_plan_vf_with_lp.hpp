@@ -43,21 +43,37 @@ namespace sdm
         * @param const TVector& : hyperplan to use
         * @param double& : the reference of the value to be returned
         * @param double  : precision
+        * @param number : time step
         * 
         * @return TAction 
         */
-        TAction greedyMaxPlane(const TVector&, const TVector&, double&, double);
+        TAction greedyMaxPlane(const TVector&, const TVector&, double&, double, number);
 
         /**
-         * @brief Set coefficient of variable a(u|o)  for all u and o i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_)  ]
+         * @brief Set coefficient of variable a(u|o)  for all u and o i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_)  ] 
          * 
          * @param const TVector& : current occupancy state
          * @param IloNumVarArray&
          * @param IloObjective&
          * @param const TVector& : hyperplan to use
+         * @param number : time steps
          * 
          */
-        void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&);
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&, number );
+
+        /**
+         * @brief Set coefficient of variable a(u|o)  for all u and o i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_)  ]
+         * 
+         * @param const TVector& : current serial occupancy state
+         * @param IloNumVarArray&
+         * @param IloObjective&
+         * @param const TVector& : hyperplan to use
+         * @param number : time steps
+         * 
+         */
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&, number );
 
         /**
          * @brief Set the variable used in greedyMaxPlane

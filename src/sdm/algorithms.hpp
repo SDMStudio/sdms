@@ -19,7 +19,7 @@
 #include <sdm/utils/value_function/sawtooth_vf.hpp>
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
-//#include <sdm/utils/value_function/max_plan_vf_with_lp.hpp>
+#include <sdm/utils/value_function/max_plan_vf_with_lp.hpp>
 
 #include <sdm/utils/rl/exploration.hpp>
 
@@ -78,7 +78,7 @@ namespace sdm
             }
             else if (lower_bound_name == "maxplan_lp")
             {
-                //lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
+                lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
             }
             else
             {

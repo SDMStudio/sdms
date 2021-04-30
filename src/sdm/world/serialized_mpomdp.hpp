@@ -76,6 +76,8 @@ namespace sdm
         std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
 
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<state_type, std::set<observation_type>>>> reachable_obs_state_space;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> dynamics;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> observation_probability;
 
         /**
          * @brief Initialize Serial Observation Space

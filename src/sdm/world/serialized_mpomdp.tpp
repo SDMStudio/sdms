@@ -52,6 +52,46 @@ namespace sdm
         }
         this->serialized_observation_space_ = std::make_shared<MultiDiscreteSpace<number>>(all_observation_space);
         this->empty_serial_observation = Joint<number>(v);
+
+        for (const auto serialized_state : this->serialized_state_space_->getAll())
+        { 
+            this->dynamics.emplace(serialized_state,std::unordered_map<number, std::unordered_map<Joint<number>, std::unordered_map<SerializedState,double>>>());
+            this->observation_probability.emplace(serialized_state,std::unordered_map<number, std::unordered_map<Joint<number>, std::unordered_map<SerializedState,double>>>());
+
+            for (const auto serial_action : this->getActionSpace(serialized_state.getCurrentAgentId())->getAll())
+            {
+                this->dynamics[serialized_state].emplace(serial_action,std::unordered_map<Joint<number>, std::unordered_map<SerializedState,double>>());
+                this->observation_probability[serialized_state].emplace(serial_action,std::unordered_map<Joint<number>, std::unordered_map<SerializedState,double>>());
+
+                for(const auto joint_obs: this->serialized_observation_space_->getAll())
+                {                    
+                    this->dynamics[serialized_state][serial_action].emplace(joint_obs,std::unordered_map<SerializedState,double>());
+                    this->observation_probability[serialized_state][serial_action].emplace(joint_obs,std::unordered_map<SerializedState,double>());
+
+                    for (const auto next_serialized_state : this->serialized_state_space_->getAll())
+                    {
+                        std::vector<number> all_action(serialized_state.getAction());
+                        all_action.push_back(serial_action);
+
+                        double proba_dynamics =0, proba_observation_probability = 0;
+                        if (next_serialized_state.getCurrentAgentId() != 0)
+                        {
+                            proba_dynamics = (this->empty_serial_observation == joint_obs && serialized_state.getState() == next_serialized_state.getState() && next_serialized_state.getAction() == all_action) ? 1 : 0;
+                            proba_observation_probability = proba_dynamics;
+                        }
+                        else if( this->decpomdp_->getObsSpace()->contains(joint_obs) && all_action.size() == this->getNumAgents())
+                        {
+                            proba_dynamics = this->decpomdp_->getObsDynamics()->getDynamics(serialized_state.getState(), this->decpomdp_->getActionSpace()->joint2single(Joint<number>(all_action)), this->decpomdp_->getObsSpace()->joint2single(joint_obs), next_serialized_state.getState());
+                            proba_observation_probability = this->decpomdp_->getObsDynamics()->getObservationProbability(serialized_state.getState(), this->decpomdp_->getActionSpace()->joint2single(Joint<number>(all_action)), this->decpomdp_->getObsSpace()->joint2single(joint_obs), next_serialized_state.getState());
+                        }
+                        this->dynamics[serialized_state][serial_action][joint_obs].emplace(next_serialized_state,proba_dynamics);
+                        this->observation_probability[serialized_state][serial_action][joint_obs].emplace(next_serialized_state,proba_observation_probability);
+
+                    }
+                }
+            }
+        }
+
     }
 
     
@@ -123,36 +163,12 @@ namespace sdm
     
     double SerializedMPOMDP::getObservationProbability(const SerializedState serialized_state, const number action, const Joint<number> joint_obs, const SerializedState serialized_state_next) const
     {
-        std::vector<number> next_action_set = serialized_state.getAction();
-        next_action_set.push_back(action);
-
-        if (serialized_state_next.getCurrentAgentId() != 0)
-        {
-            return (this->empty_serial_observation == joint_obs && serialized_state.getState() == serialized_state_next.getState() && serialized_state_next.getAction() == next_action_set) ? 1 : 0;
-        }
-        else if( this->decpomdp_->getObsSpace()->contains(joint_obs) )
-        {
-            return this->decpomdp_->getObsDynamics()->getObservationProbability(serialized_state.getState(), this->getJointActionSpace()->joint2single(Joint<number>(next_action_set)), this->getObsSpace()->joint2single(joint_obs), serialized_state_next.getState());
-        }
-        return 0;
+       return this->observation_probability.at(serialized_state).at(action).at(joint_obs).at(serialized_state_next);
     }
     
     double SerializedMPOMDP::getDynamics(const SerializedState serialized_state, const number action, const Joint<number> joint_obs, const SerializedState serialized_state_next) const
     {
-        std::vector<number> next_action_set = serialized_state.getAction();
-        next_action_set.push_back(action);
-        
-        if (serialized_state_next.getCurrentAgentId() != 0)
-        {
-            return (this->empty_serial_observation == joint_obs && serialized_state.getState() == serialized_state_next.getState() && serialized_state_next.getAction() == next_action_set) ? 1 : 0;
-        }
-
-        else if( this->decpomdp_->getObsSpace()->contains(joint_obs) )
-        {
-            return this->decpomdp_->getObsDynamics()->getDynamics(serialized_state.getState(), this->getJointActionSpace()->joint2single(Joint<number>(next_action_set)), this->getObsSpace()->joint2single(joint_obs), serialized_state_next.getState());
-        }
-        
-        return 0;
+        return this->dynamics.at(serialized_state).at(action).at(joint_obs).at(serialized_state_next);
     }
 
 }

@@ -26,6 +26,12 @@ namespace sdm
     {
         return this->at(s);
     }
+
+    template <typename TState, typename TAction>
+    void DeterministicDecisionRule<TState, TAction>:: setProbability(const TState& state , const TAction& action)
+    {
+        (*this)[state] = action;
+    }
     
 } // namespace sdm
 
