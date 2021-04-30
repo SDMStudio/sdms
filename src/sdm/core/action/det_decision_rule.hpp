@@ -58,6 +58,15 @@ namespace sdm
       os << "<decision-rule/>" << std::endl;
       return os;
     }
+
+    /**
+     * @brief Add probability 
+     * 
+     * @param const TState&
+     * @param const TAction&
+     * 
+     */
+    void setProbability(const TState& , const TAction&);
   };
 
   template <typename TState, typename TAction>

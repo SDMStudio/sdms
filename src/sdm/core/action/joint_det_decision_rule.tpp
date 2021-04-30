@@ -39,6 +39,11 @@ namespace sdm
         return this->act(s);
     }
 
+    template <typename TState, typename TAction>
+    void JointDeterministicDecisionRule<TState, TAction>::setProbability(const std::vector<TState>& acc_states , const std::vector<TAction>& actions)
+    {
+        this->push_back(DeterministicDecisionRule<TState, TAction>(acc_states, actions));
+    }
 }
 
 

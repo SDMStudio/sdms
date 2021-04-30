@@ -20,6 +20,8 @@ namespace sdm
           public Function<Joint<TState>, Joint<TAction>>
     {
     public:
+        using input_type = TState;
+        using output = TAction;
         using output_type = typename Function<Joint<TState>, Joint<TAction>>::output_type;
 
         JointDeterministicDecisionRule();
@@ -39,6 +41,16 @@ namespace sdm
             os << "<joint-decision-rule/>" << std::endl;
             return os;
         }
+
+    /**
+     * @brief Add probability 
+     * 
+     * @param const TState&
+     * @param const TAction&
+     * 
+     */
+    void setProbability(const std::vector<TState>& , const std::vector<TAction>&);
+
     };
 
     template <typename TState, typename TAction>

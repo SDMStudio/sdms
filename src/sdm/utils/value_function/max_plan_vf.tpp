@@ -156,7 +156,6 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &serial_occupancy_state, number t)
     {
         auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
-        
 
         TVector v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;

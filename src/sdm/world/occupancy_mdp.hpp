@@ -39,7 +39,8 @@ namespace sdm
      * @tparam TState the occupancy state type 
      * @tparam TAction the occupancy action type 
      */
-    template <typename TState = OccupancyState<number, JointHistoryTree_p<number>>, typename TAction = JointDeterministicDecisionRule<HistoryTree_p<number>, number>>
+    template <typename TState = OccupancyState<number, JointHistoryTree_p<number>>,
+                typename TAction = JointDeterministicDecisionRule<HistoryTree_p<number>, number>>
     class OccupancyMDP : public SolvableByHSVI<TState, TAction>,
                          public GymInterface<TState, TAction>
     {

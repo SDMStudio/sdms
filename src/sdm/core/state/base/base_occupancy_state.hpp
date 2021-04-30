@@ -117,13 +117,6 @@ namespace sdm
       return os;
     }
 
-    /**
-     * @brief Return the horizon of this occupancy state
-     * 
-     * @return number 
-     */
-    number getHorizon() const;
-
   protected:
     /**
      * @brief space of all reachable states, those in the support of the occupancy state
