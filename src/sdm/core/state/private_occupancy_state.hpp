@@ -24,13 +24,14 @@ namespace sdm
    * @brief A private state of occupancy refers to a 
    * 
    * @tparam TState refers to a number
-   * @tparam TJointHistory_p refers to a joint histories
+   * @tparam TJointJointHistory_p refers to a joint histories
    */
-  template <typename TState = number, typename TJointHistory_p = JointHistoryTree_p<number>>
-  class PrivateOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>
+  template <typename TState = number, typename TJointJointHistory_p = Joint<JointHistoryTree_p<number>>>
+  class PrivateOccupancyState : public MappedVector<Pair<TState, TJointJointHistory_p>, double>
   {
   public:
-    using jhistory_type = TJointHistory_p;
+    using jjhistory_type = TJointJointHistory_p;
+    using jhistory_type = JointHistoryTree_p<number>;
     using state_type = TState;
 
     PrivateOccupancyState();
@@ -40,9 +41,9 @@ namespace sdm
 
     std::set<state_type> getStates() const;
 
-    std::set<jhistory_type> getHistories() const;
-    std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> getAllIndividualHistories() const;
-    std::set<typename jhistory_type::element_type::ihistory_type> getIndividualHistories(number ag_id) const;
+    std::set<jjhistory_type> getJointJointHistories() const;
+    std::vector<std::set<jhistory_type>> getAllIndividualJointHistories() const;
+    std::set<jhistory_type> getIndividualJointHistories(number ag_id) const;
 
     /**
      * @brief Return the hidden state of a precise occupancy state
@@ -50,7 +51,7 @@ namespace sdm
      * @param pair_state_hist refers to a precise occupancy state
      * @return TState refers to the hidden state returned
      */
-    TState getState(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
+    TState getState(const Pair<TState, TJointJointHistory_p> &pair_state_hist) const;
 
     /**
      * @brief Get the Hidden State of a precise occupancy state. For this situation, the hidden state is the current State
@@ -58,15 +59,15 @@ namespace sdm
      * @param pair_state_hist 
      * @return TState 
      */
-    TState getHiddenState(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
+    TState getHiddenState(const Pair<TState, TJointJointHistory_p> &pair_state_hist) const;
 
     /**
      * @brief Return the hidden  history of a precise occupancy state
      * 
      * @param pair_state_hist refers to a precise occupancy state
-     * @return TJointHistory_p refers to the hidden  history returned
+     * @return TJointJointHistory_p refers to the hidden  history returned
      */
-    TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &pair_state_hist) const;
+    TJointJointHistory_p getHistory(const Pair<TState, TJointJointHistory_p> &pair_state_hist) const;
 
     /**
      * @brief Return the probability of a precise occupancy state
@@ -74,7 +75,7 @@ namespace sdm
      * @param pair_state_hist refers to a precise occupancy state
      * @return double refers to the probability returned
      */
-    double getProbability(const Pair<TState, TJointHistory_p> &pair_state_hist);
+    double getProbability(const Pair<TState, TJointJointHistory_p> &pair_state_hist);
 
   };
 } // namespace sdm

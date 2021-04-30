@@ -7,6 +7,7 @@
 #include <sdm/worlds.hpp>
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/algorithms/q_learning.hpp>
+#include <sdm/algorithms/q_learning_baris.hpp>
 #include <sdm/public/algorithm.hpp>
 #include <sdm/core/states.hpp>
 #include <sdm/utils/decision_rules/det_decision_rule.hpp>
@@ -171,6 +172,34 @@ namespace sdm
             );
         }
 
+        template <typename TObservation, typename TAction>
+        std::shared_ptr<sdm::QLearningBaris<TObservation, TAction>> makeQLearningBaris(std::shared_ptr<JointHistoryPrivateOccupancyMDP<TObservation, TAction>> problem,
+                                                                             std::string qvalue_name,
+                                                                             std::string initializer_name,
+                                                                             number horizon = 0,
+                                                                             double discount_factor = 0.9,
+                                                                             double lr = 0.01,
+                                                                             double batch_size = 1,
+                                                                             unsigned long num_max_steps = 100000,
+                                                                             std::string name = "qlearning")
+        {
+            assert(((discount_factor < 1) || (horizon > 0)));
+
+            // Instanciate initializers and qvalue functions
+            auto initializer = std::make_shared<sdm::ZeroInitializer<TObservation, Joint<number>>>();
+            auto qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, Joint<number>>>(horizon, lr, initializer);
+
+            auto initializer_target = std::make_shared<sdm::ZeroInitializer<TObservation, Joint<number>>>();
+            auto target_qvalue = std::make_shared<sdm::MappedQValueFunction<TObservation, Joint<number>>>(horizon, lr, initializer_target);
+
+            // Instanciate exploration process
+            auto exploration_process = std::make_shared<sdm::EpsGreedy<TObservation, TAction>>();
+
+            return std::make_shared<QLearningBaris<TObservation, TAction>>(
+                problem, qvalue, target_qvalue, exploration_process, horizon, discount_factor, lr, batch_size, num_max_steps, name
+            );
+        }
+
         /**
          * @brief Build an algorithm given his name and the configurations required. 
          * 
@@ -258,24 +287,54 @@ namespace sdm
                     );
                 }
                 else if ((formalism == "privateoccupancymdp") || (formalism == "PrivateOccupancyMDP") || (formalism == "poMDP"))
-                {
-                    using TObservation = Joint<number>;
+                {   
+                    using TObservation = number;
                     using TState = number;
 
                     using TActionDescriptor = number;
-                    using TStateDescriptor = HistoryTree_p<TObservation>;
+                    using TStateDescriptor = JointHistoryTree_p<TObservation>;
 
-                    using TActionPrescriptor = Pair<Joint<DeterministicDecisionRule<Pair<TStateDescriptor, Joint<TActionDescriptor>>, TActionDescriptor>>, 
+                    using TActionPrescriptor = Pair<Joint<DeterministicDecisionRule<Pair<TStateDescriptor, 
+                                                                                         Joint<TActionDescriptor>>, 
+                                                          TActionDescriptor>>, 
                                                     TActionDescriptor>;
-                    using TStatePrescriptor = PrivateOccupancyState<TState, JointHistoryTree_p<TObservation>>;
+                    using TStatePrescriptor = PrivateOccupancyState<TState, Joint<JointHistoryTree_p<TObservation>>>;
 
                     using env_type = PrivateOccupancyMDP<TStatePrescriptor, TActionPrescriptor>;
+
                     auto problem = std::make_shared<env_type>(problem_path, horizon);
 
                     problem->getUnderlyingProblem()->setDiscount(discount_factor);
                     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
                     problem->getUnderlyingProblem()->setupDynamicsGenerator();
                     return makeQLearning<env_type::observation_type, env_type::action_type>(
+                        problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name
+                    );
+                }
+                else if ((formalism == "jointhistoryprivateoccupancymdp") || (formalism == "JointHistoryPrivateOccupancyMDP") || (formalism == "jhpoMDP"))
+                {   
+                    
+
+                    using TObservation = Joint<number>;
+                    using TState = number;
+
+                    using TActionDescriptor = number;
+                    using TStateDescriptor = HistoryTree_p<TObservation>;
+
+                    using TActionPrescriptor = Pair<Joint<DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, 
+                                                                                         Joint<number>>, number>>, 
+                                                    number>;
+                    using TStatePrescriptor = Pair<PrivateOccupancyState<number, Joint<JointHistoryTree_p<number>>>, 
+                                                   Joint<JointHistoryTree_p<number>>>;
+
+                    using env_type = JointHistoryPrivateOccupancyMDP<TStatePrescriptor, TActionPrescriptor>;
+                    auto problem = std::make_shared<env_type>(problem_path, horizon);
+
+                    problem->getUnderlyingProblem()->setDiscount(discount_factor);
+                    problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
+                    problem->getUnderlyingProblem()->setupDynamicsGenerator();
+
+                    return makeQLearningBaris<env_type::observation_type, env_type::action_type>(
                         problem, qvalue_name, initializer_name, horizon, discount_factor, lr, batch_size, num_max_steps, name
                     );
                 }

@@ -48,6 +48,13 @@ namespace sdm
             return PrivateOccupancyMDP<>();
         }
 
+        template <bool is_joint_history_private_occupancy_mdp>
+        static std::enable_if_t<is_joint_history_private_occupancy_mdp, JointHistoryPrivateOccupancyMDP<>>
+        getWorldType()
+        {
+            return JointHistoryPrivateOccupancyMDP<>();
+        }
+
         template <bool is_multi_agent>
         static std::enable_if_t<is_multi_agent, DiscreteDecPOMDP>
         getWorldType()

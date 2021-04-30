@@ -133,6 +133,26 @@ namespace sdm
             // }
             return os;
         }
+
+        bool operator ==(const Tree<T> &tree){
+            if (this->isOrigin() && tree.isOrigin()){
+                return true;
+            } else if (this->isOrigin() || tree.isOrigin())
+            {
+                return false;
+            } else
+            {   
+                if (this->getData() != tree.getData()){
+                    return false;
+                } else{
+                    return (this->getParent() == tree.getParent());   
+                }
+            }
+        }
+
+        bool operator !=(const Tree<T> &tree){
+            return !(*this == tree);
+        }
     };
 
 } // namespace sdm

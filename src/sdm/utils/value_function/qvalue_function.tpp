@@ -27,19 +27,21 @@ namespace sdm
     }
 
     // template <typename TState, typename TAction, typename TValue>
-    // Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, TAction>> QValueFunction<TState, TAction, TValue>::getBestAction_his(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t)
+    // Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<Joint<number>>, Joint<number>>, number>>, number> QValueFunction<TState, TAction, TValue>::getBestActionBaris(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t)
     // {   
     //     PrivateOccupancyState<number, JointHistoryTree_p<number>> s2 = state.first;
     //     // JointHistoryTree_p<number> o = state.second;
-    //     HistoryTree_p<number> o2 = state.second->getIndividualHistory(1);
-    //     std::vector<Pair<HistoryTree_p<number>, Joint<number>>> acc_states;
-    //     std::vector<number> n_actions;
-    //     for (auto &o1: s2.getIndividualHistories(1)){
-    //         for (number u2; u2 < env->getUnderlyingProblem()->getNumActions(1); u2++){
+    //     HistoryTree_p<Joint<number>> o2 = state.second->getIndividualHistory(1);
+    //     std::vector<Pair<HistoryTree_p<Joint<number>>, Joint<number>>> acc_states;
+    //     std::vector<Joint<number>> n_actions;
+    //     for (auto &o1: s2.getIndividualHistories(0)){
+    //         for (const auto & u2: this->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
     //             Joint<typename TAction::first_type::value_type::output_type> actions;
     //             actions.push_back(u2);
-    //             std::vector<HistoryTree_p<number>> histories = {o1, o2};
-    //             JointHistoryTree_p<number> o = std::make_shared<typename TState::second_type>(JointHistoryTree(histories));
+    //             std::vector<HistoryTree_p<Joint<number>>> histories;
+    //             histories.push_back(o1);
+    //             histories.push_back(o2);
+    //             JointHistoryTree_p<Joint<number>> o = std::make_shared<typename TState::second_type>(JointHistoryTree(histories));
     //             auto acc_state = std::make_tuple(o, actions);
     //             acc_states.push_back(acc_state);
     //             auto qvalues = this->getQValueAt(acc_state, t);
@@ -54,24 +56,24 @@ namespace sdm
     //             n_actions.push_back(best_u1);
     //         }
     //     }
-    //     DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number> a1(acc_states, n_actions);
+    //     DeterministicDecisionRule<Pair<HistoryTree_p<Joint<number>>, Joint<number>>, number> a1(acc_states, n_actions);
         
     //     // this is just to get a vector, cuz idk how to initialize it
     //     auto qvalues = this->getQValueAt(state, t);
-    //     for(number i; env->getUnderlyingProblem()->getNumActions(); i++){
-    //         qvalues.at[i] = std::numeric_limits<double>::lowest();
+    //     for(const auto & u: this->dpomdp_->getActionSpace()->getSpace()->getAll()){
+    //         qvalues.at[u] = std::numeric_limits<double>::lowest();
     //     }
     //     // ^ and this too
-    //     for(number u2; u2 < env->getUnderlyingProblem()->getNumActions(0); u2++){
+    //     for(const auto & u2: this->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
     //         qvalues.at[u2] = 0;
     //         Joint<typename TAction::first_type::value_type::output_type> actions;
     //         Joint<typename TAction::first_type::value_type::output_type> jactions;
     //         actions.push_back(u2);
     //         // o only has o1 btw, not o2
     //         for(auto &x_o__prob: s2){
-    //             HistoryTree_p<number> o1 = x_o__prob.first.second->getIndividualHistory(0);
-    //             std::vector<HistoryTree_p<number>> histories = {o1, o2};
-    //             JointHistoryTree_p<number> o = std::make_shared<typename TState::second_type>(JointHistoryTree(histories));
+    //             HistoryTree_p<Joint<number>> o1 = x_o__prob.first.second->getIndividualHistory(0);
+    //             std::vector<HistoryTree_p<Joint<number>>> histories = {o1, o2};
+    //             JointHistoryTree_p<Joint<number>> o = std::make_shared<typename TState::second_type>(JointHistoryTree(histories));
     //             TState acc_state = std::make_tuple(o, actions);
     //             number u1 = a1(acc_state);
     //             jactions.push_back(u1);
@@ -83,14 +85,13 @@ namespace sdm
     //     number best_u2 = qvalues->argmax();
         
 
-    //     Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>> jddr;
+    //     Joint<DeterministicDecisionRule<Pair<HistoryTree_p<Joint<number>>, Joint<number>>, number>> jddr;
     //     jddr.push_back(a1);
     //     // Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>> oaction = std::make_pair(jddr, best_u2);
         
     //     return std::make_pair(jddr, best_u2);
 
-    //     // auto qvalues = this->getQValueAt(state, t);
-    //     // return qvalues->argmax();
+
     // }
 
 

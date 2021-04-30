@@ -12,6 +12,7 @@ namespace sdm
     Tree<T>::Tree(number max_depth) : depth_(0), max_depth_(max_depth)
     {
         this->is_origin = true;
+        // std::cout << "MY DATA: " << this->data_ << std::endl;
     }
 
     template <typename T>

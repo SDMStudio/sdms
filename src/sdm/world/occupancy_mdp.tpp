@@ -69,6 +69,12 @@ namespace sdm
             auto p_ihist = this->chistory_->getIndividualHistory(i);
             auto idr = joint_idr.at(i);
             jaction.push_back(idr(p_ihist));
+            // std::cout << "p_ihist " << p_ihist << std::endl;
+            // std::cout << "p_ihist->getDepth() " << p_ihist->getDepth() << std::endl;
+            // std::cout << "p_ihist->getData() " << p_ihist->getData() << std::endl;
+            // std::cout << "p_ihist->isOrigin() " << p_ihist->isOrigin() << std::endl;
+            // std::cout << "idr " << idr << std::endl;
+            // std::exit;
         }
         auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);
         this->chistory_ = this->chistory_->expand(next_obs);
@@ -106,6 +112,12 @@ namespace sdm
                 vect_i_hist[ag_id].begin(), 
                 vect_i_hist[ag_id].end()
             );
+            // for (auto &v_input: v_inputs){
+            //     std::cout << "v_input " << v_input << std::endl;
+            //     std::cout << "v_input->getDepth() " << v_input->getDepth() << std::endl;
+            //     std::cout << "v_input->getData() " << v_input->getData() << std::endl;
+            //     std::cout << "v_input->isOrigin() " << v_input->isOrigin() << std::endl;
+            // }
             FunctionSpace<typename oAction::value_type> f_indiv_dr_space(
                 v_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll()
             );

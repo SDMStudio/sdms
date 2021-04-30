@@ -46,9 +46,12 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> OccupancyState<TState, TJointHistory_p>::getAllIndividualHistories() const
+    std::vector<std::set<typename OccupancyState<TState, 
+        TJointHistory_p>::jhistory_type::element_type::ihistory_type>> OccupancyState<TState, 
+            TJointHistory_p>::getAllIndividualHistories() const
     {
-        std::vector<std::set<typename OccupancyState<TState, TJointHistory_p>::jhistory_type::element_type::ihistory_type>> possible_ihistories;
+        std::vector<std::set<typename OccupancyState<TState, 
+                                                     TJointHistory_p>::jhistory_type::element_type::ihistory_type>> possible_ihistories;
         bool first_passage = true;
         for (const auto &jhist : this->getJointHistories())
         {

@@ -17,6 +17,7 @@
 #include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 #include <sdm/world/gym_interface.hpp>
+#include <sdm/utils/decision_rules/det_decision_rule.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -87,7 +88,7 @@ namespace sdm
 
         TAction getBestAction(const TState &state, number t = 0);
 
-        // Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>> getBestAction_his(std::shared_ptr<GymInterface<TState, TAction>> env, const TState &state, number t = 0);
+        // Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<Joint<number>>, Joint<number>>, number>>, number> getBestActionBaris(std::shared_ptr<GymInterface<TState, TAction>>, const TState &state, number t = 0);
 
         /**
          * @brief Update the value at a given state

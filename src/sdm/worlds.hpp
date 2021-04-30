@@ -10,6 +10,7 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/private_occupancy_mdp.hpp>
+#include <sdm/world/joint_history_private_occupancy_mdp.hpp>
 #include <sdm/world/serialized_mdp.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 

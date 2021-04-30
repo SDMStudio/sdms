@@ -41,12 +41,14 @@ namespace sdm
 
     template <typename TObservation, typename TAction>
     void QLearning<TObservation, TAction>::do_initialize()
-    {
+    {   
         this->initLogger();
         
         // std::cout << typeid(this->q_value_).name() << std::endl;
         this->q_value_->initialize();
+
         this->q_target_->initialize();
+
     }
 
     // std::shared_ptr<GymInterface> env, long nb_timesteps, number planning_horizon, number test_freq, number save_freq, std::string save_folder, number verbose, long timestep_init, std::string log_file
@@ -121,8 +123,10 @@ namespace sdm
     {   
         // Action selection following policy and exploration process
         auto current_action = this->select_action(this->current_obs);
+
         // One step in env and get next observation and rewards
         auto [next_obs, rewards, done] = this->env_->step(current_action);
+
         // Store experience in the associated buffer
         // this->experience->store_experience(this->current_obs, action, rewards, next_obs, done);
         this->last_obs = this->current_obs;
@@ -171,7 +175,8 @@ namespace sdm
         }
         else
         {
-            return this->q_value_->getBestAction(obs, this->step);
+            // return this->q_value_->getBestAction(obs, this->step);
+            return this->env_->getActionSpaceAt(obs)->sample();
         }
         // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(current_obs)
     }

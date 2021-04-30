@@ -39,6 +39,9 @@ namespace sdm
     template <typename T>
     using JointHistoryTree_p = std::shared_ptr<JointHistoryTree<T>>;
 
+    template <typename T>
+    using JointJointHistoryTree_p = std::shared_ptr<Joint<std::shared_ptr<JointHistoryTree<T>>>>;
+
     template <typename obs_t>
     using ObsHistoryTree_p = HistoryTree_p<obs_t>;
 
