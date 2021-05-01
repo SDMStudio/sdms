@@ -5,17 +5,15 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
-	//number horizon(2);
-
 	auto serial_MPOMDP = std::make_shared<SerializedMPOMDP>(problem_path);
 
 	std::cout<<"\n getState : "<<serial_MPOMDP->getStateSpace();
 
-	int number_test_limit= 5;
-	int number_test = 0;
+	int test_limit= 5;
+	int test = 0;
 	do
 	{
-		number_test ++;
+		test ++;
 
 		auto serial_state = serial_MPOMDP->getStateSpace()->sample();
 		auto serial_state_next = serial_MPOMDP->getStateSpace()->sample();
@@ -44,6 +42,6 @@ int main(int argc, char **argv)
 		}
 
 
-	} while (number_test_limit > number_test);
+	} while (test_limit > test);
 
 } // END main
