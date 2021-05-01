@@ -81,11 +81,12 @@ namespace sdm
         std::shared_ptr<JointHistoryTree<T>> expand(const Joint<T> &data, bool backup = true);
 
         std::shared_ptr<HistoryTree<T>> getIndividualHistory(number ag_id) const;
+
         std::vector<std::shared_ptr<HistoryTree<T>>> getIndividualHistories() const;
 
         friend std::ostream &operator<<(std::ostream &os, JointHistoryTree &j_hist)
         {
-            os << j_hist.str();
+            os << j_hist.short_str();
             return os;
         }
     };

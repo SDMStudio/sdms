@@ -80,6 +80,8 @@ namespace sdm
 
         std::string str();
 
+        std::string short_str();
+
         friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
         {
             os << i_hist.str();

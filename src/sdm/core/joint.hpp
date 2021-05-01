@@ -51,7 +51,7 @@ namespace sdm
         {
           std::ostringstream res;
           res << j[ag] << ", ";
-          sdm::tools::indentedOutput(os, res.str().c_str());
+          sdm::tools::indentedOutput(os, res.str().c_str(), 0);
         }
         os << j[ag];
       }

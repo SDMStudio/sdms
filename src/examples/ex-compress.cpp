@@ -50,8 +50,7 @@ int main(int argc, char **argv)
 
             // Sample a decision rule
 			oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-			std::cout << "#> Print joint decision rule \n"
-					  << oaction << "\n";
+			std::cout << "#> Print joint decision rule \n" << oaction << "\n";
 		} while (depth < limit);
 	}
 	catch (exception::Exception &e)

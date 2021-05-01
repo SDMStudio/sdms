@@ -34,11 +34,9 @@ namespace sdm
         if (backup && (this->getDepth() >= this->getMaxDepth()))
         {
             return this->truncatedExpand<output>(data, backup);
-            // return this->template base_truncated_expand<output>(item, backup);
         }
         if (backup)
         {
-            // this->addChild(data);
             this->children_.emplace(data, std::make_shared<output>(std::static_pointer_cast<output>(this->shared_from_this()), data));
             return std::static_pointer_cast<output>(this->getChild(data));
         }
@@ -61,28 +59,22 @@ namespace sdm
         }
 
         //<! iteratively expands the base_graph
-        // auto trace = std::static_cast<HistoryTree<T> *>(this->origin_);
         auto trace = std::static_pointer_cast<HistoryTree<T>>(parent->getOrigin());
 
         for (auto it = items.begin(); it != items.end(); ++it)
         {
             trace = trace->template expand<output>(*it, backup);
-            // trace = trace->template base_expand<output>(*it, backup);
         }
-
-        // if (backup)
-        //     this->children.emplace(item, trace); //<! TODO WARNING this line might cause troubles!!!
 
         return std::static_pointer_cast<output>(trace);
     }
 
     template <typename T>
-    std::string HistoryTree<T>::str()
+    std::string HistoryTree<T>::short_str()
     {
         std::ostringstream res;
         std::list<T> items;
         std::shared_ptr<Tree<T>> chistory = this->shared_from_this(), origin = this->getOrigin();
-        res << "<history id=\"" << chistory << "\"  horizon=\"" << this->getDepth() << "\" value=\"";
         while (chistory != origin)
         {
             items.push_front(chistory->getData());
@@ -90,9 +82,16 @@ namespace sdm
         }
         for (auto item : items)
         {
-            res << item << " ";
+            res << item << "";
         }
-        res << "\"/>" << std::endl;
+        return res.str();
+    }
+
+    template <typename T>
+    std::string HistoryTree<T>::str()
+    {
+        std::ostringstream res;
+        res << "<history id=\"" << this->shared_from_this() << "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str() << "\"/>\n";
         return res.str();
     }
 
