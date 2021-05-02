@@ -128,7 +128,7 @@ namespace sdm
                 {
                     ratio = current_value / other_value;
                 }
-                else if (ratio - (current_value / other_value) > this->precision)
+                else if (std::abs(ratio - current_value / other_value) > this->precision)
                 {
                     return false;
                 }

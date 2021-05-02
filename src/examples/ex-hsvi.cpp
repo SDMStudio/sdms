@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 		// Construct OccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
+
 		using TActionDescriptor = number;
 		using TStateDescriptor = HistoryTree_p<number>;
 

@@ -20,13 +20,13 @@ namespace sdm
 
     template <typename TState, typename TJointHistory_p>
     BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(const BaseOccupancyState &v)
-        : MappedVector<Pair<TState, TJointHistory_p>, double>(v),
-          list_states(v.list_states),
-          list_jhistories(v.list_jhistories),
-          list_jhistory_states(v.list_jhistory_states),
-          all_list_ihistories(v.all_list_ihistories),
-          num_agents(v.num_agents)
+        : MappedVector<Pair<TState, TJointHistory_p>, double>(v)
     {
+        this->list_states = v.list_states;
+        this->list_jhistories = v.list_jhistories;
+        this->list_jhistory_states = v.list_jhistory_states;
+        this->all_list_ihistories = v.all_list_ihistories;
+        this->num_agents = v.num_agents;       
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -191,29 +191,20 @@ namespace sdm
             map[pair_x_o_p.first.second].second[pair_x_o_p.first.first] = pair_x_o_p.second;
         }
 
+        for (const auto &pair_x_o_p : *this)
+        {
+            map[pair_x_o_p.first.second].second[pair_x_o_p.first.first] /= map[pair_x_o_p.first.second].first;
+        }
+
+
         res << "<occupancy-state size=\"" << map.size() << "\" horizon=\"" << horizon << "\">" << std::endl;
         for (const auto pair_o_pair_proba_belief : map)
         {
             auto joint_hist = pair_o_pair_proba_belief.first;
-            res << "\t<joint-history id=\"" << joint_hist << "\" proba=" << pair_o_pair_proba_belief.second.first << " belief=" << pair_o_pair_proba_belief.second.second << "/>" << std::endl;
-
-            // res << tools::addIndent(pair_x_o_p.first.second->str(), 2);
-            // res << "\t\t" << pair_x_o_p.second << std::endl;
-            // res << "\t<joint-history>" << std::endl;
+            res << "\t<joint-history value=\"" << *joint_hist << "\" proba=" << pair_o_pair_proba_belief.second.first << " belief=" << pair_o_pair_proba_belief.second.second << "/>" << std::endl;
         }
         res << "</occupancy-state>" << std::endl;
-        // res << "<occupancy-state>" << std::endl;
-        // for (const auto pair_x_o_p : *this)
-        // {
-        //     auto joint_hist = pair_x_o_p.first.second;
-
-        //     res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
-        //     res << tools::addIndent(pair_x_o_p.first.second->str(), 2);
-        //     res << "\t\t" << pair_x_o_p.second << std::endl;
-        //     res << "\t<probability>" << std::endl;
-        // }
-        // res << "</occupancy-state>" << std::endl;
-
+ 
         return res.str();
     }
 

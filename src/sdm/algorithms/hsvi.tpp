@@ -67,9 +67,7 @@ namespace sdm
         std::cout << "----------------------------------------------------" << std::endl;
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0,0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-        std::cout << "Final LB : \n"
-                  << this->lower_bound_->str() << "Final UB : \n"
-                  << this->upper_bound_->str() << std::endl;
+        //std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
 
@@ -82,6 +80,10 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
     {
+        //std::cout << "----------------------------------------------------" << std::endl;
+        //std::cout << "#> Print compressed occupancy state \n" << s << "\n";
+        //std::cout << "#> h=" << h << "\tvalue: " << "lb = " << this->lower_bound_->getValueAt(s, h) << "\tub = " << this->upper_bound_->getValueAt(s, h)<< "\n";
+        //std::cout << "#> Print one step left occupancy state \n" << *s.getOneStepUncompressedOccupancy() << "\n";
 
         if (!this->do_stop(s, cost_so_far, h))
         {
@@ -101,6 +103,7 @@ namespace sdm
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
         }
+        //std::cout << "#> h=" << h << "\tvalue: " << "lb = " << this->lower_bound_->getValueAt(s, h) << "\tub = " << this->upper_bound_->getValueAt(s, h)<< "\n";
     }
 
     template <typename TState, typename TAction>

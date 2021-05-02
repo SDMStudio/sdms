@@ -204,7 +204,6 @@ namespace sdm
             previous_compact_ostate.finalize();
             current_compact_ostate.clear();
         }
-
         return previous_compact_ostate;
     }
 
