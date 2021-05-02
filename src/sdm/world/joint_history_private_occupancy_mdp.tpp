@@ -150,34 +150,34 @@ namespace sdm
     template <typename oState, typename oAction>
     std::tuple<oState, std::vector<double>, bool> JointHistoryPrivateOccupancyMDP<oState, oAction>::step(oAction oaction)
     {   
-        std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
+        // std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
         std::vector<typename oAction::first_type::value_type::output_type> jaction;
         Joint<typename oAction::first_type::value_type::output_type> actions;
         actions.push_back(oaction.second);
-        std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
+        // std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
 
         for (int agent = this->dpomdp_->getNumAgents() - 2; agent >= 0; agent--)
         {   
             // std::cout << "agent " << agent << std::endl;
             auto p_ihist = this->cstate_.second.at(agent);
             auto idr = oaction.first.at(agent);
-            std::cout << "p_ihist " << p_ihist << std::endl;
-            std::cout << "p_ihist->getDepth() " << p_ihist->getDepth() << std::endl;
-            std::cout << "p_ihist->getData() " << p_ihist->getData() << std::endl;
-            std::cout << "p_ihist->isOrigin() " << p_ihist->isOrigin() << std::endl;
-            std::cout << "idr " << idr << std::endl;
+            // std::cout << "p_ihist " << p_ihist << std::endl;
+            // std::cout << "p_ihist->getDepth() " << p_ihist->getDepth() << std::endl;
+            // std::cout << "p_ihist->getData() " << p_ihist->getData() << std::endl;
+            // std::cout << "p_ihist->isOrigin() " << p_ihist->isOrigin() << std::endl;
+            // std::cout << "idr " << idr << std::endl;
             actions.push_back(idr(std::make_pair(p_ihist, actions)));
         }
-        std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
+        // std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
 
         for (number agent = 0; agent < this->dpomdp_->getNumAgents(); agent++)
         {
             jaction.push_back(actions[agent]);
         }
-        std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
+        // std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
 
         auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);
-        std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
+        // std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
 
         std::vector<Joint<number>> next_obs_vector(this->dpomdp_->getNumAgents());
         // For all agents from 0 to n-1 (1 to n)
@@ -188,12 +188,12 @@ namespace sdm
             }
         }
         this->cstate_ = this->nextState(this->cstate_, oaction);
-        std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
+        // std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
 
         for (number agent = 0; agent < this->dpomdp_->getNumAgents(); agent++){
             this->cstate_.second.at(agent) = this->cstate_.second.at(agent)->expand(next_obs_vector[agent]);
         }
-        std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
+        // std::cout << "aaaaaaaaaaaaaaaaa" << std::endl;
 
         return std::make_tuple(this->cstate_, rewards, done);
     }
@@ -219,10 +219,10 @@ namespace sdm
     template <typename oState, typename oAction>
     std::shared_ptr<DiscreteSpace<oAction>> JointHistoryPrivateOccupancyMDP<oState, oAction>::getActionSpaceAt(const oState &ostate)
     {   
-        std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
+        // std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
         auto vect_ij_hist = ostate.first.getAllIndividualJointHistories();
         std::vector<std::vector<typename oAction::first_type::value_type>> vect_idr = {};
-        std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
+        // std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
         for (number ag_id = 0; ag_id < this->dpomdp_->getNumAgents() - 1; ag_id++)
         {
             // Generate all individual decision rules for agent 'ag_id'
@@ -233,7 +233,7 @@ namespace sdm
             std::vector<Pair<typename oState::first_type::jhistory_type, Joint<number>>> v_inputs_;
             for (auto &v_input: v_inputs){
                 for (const auto & u2: this->dpomdp_->getActionSpace()->getSpace(this->dpomdp_->getNumAgents() - 1)->getAll()){
-                    std::cout << "u2 " << u2 << std::endl;
+                    // std::cout << "u2 " << u2 << std::endl;
                     Joint<typename oAction::first_type::value_type::output_type> actions;
                     actions.push_back(u2); /////// this only works for N=2 btw
                     v_inputs_.push_back(make_pair(v_input, actions));
@@ -248,19 +248,19 @@ namespace sdm
             );
             vect_idr.push_back(f_indiv_dr_space.getAll());
         }
-        std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
+        // std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
         std::vector<oAction> v_oaction;
-        std::cout << "b" << std::endl;
+        // std::cout << "b" << std::endl;
         // For all joint decision rules of other agents (except N)
         for (const auto&jdr : MultiDiscreteSpace<typename oAction::first_type::output_type>(vect_idr).getAll()){
-            std::cout << "jdr " << jdr << std::endl;
+            // std::cout << "jdr " << jdr << std::endl;
             // For all actions of player N
             for (const auto & action_n: this->dpomdp_->getActionSpace()->getSpace(this->dpomdp_->getNumAgents() - 1)->getAll()){
-                    std::cout << "action_n " << action_n << std::endl;
+                    // std::cout << "action_n " << action_n << std::endl;
                     v_oaction.push_back(std::make_pair(jdr, action_n));
             }
         }  
-        std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
+        // std::cout << "bbbbbbbbbbbbbbbbbbbb" << std::endl;
         // Now we can return a discrete space of all joint decision rules
         return std::make_shared<DiscreteSpace<oAction>>(v_oaction);
     }
