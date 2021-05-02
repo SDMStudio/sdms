@@ -69,17 +69,13 @@ int learn(int argv, char **args)
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm_name) != av_algos.end())
         {   
-            // std::cout << "sss" << std::endl;
             auto a = sdm::algo::make(
                 algorithm_name, problem_path, formalism, qvalue_type, q_init_method, horizon, discount_factor, lr,  1, nb_timesteps, name
             );
-            // std::cout << "sss" << std::endl;
 
             a->do_initialize();
-            // std::cout << "sss" << std::endl;
 
             a->do_solve();
-            // std::cout << "sss" << std::endl;
 
             if (vm.count("test"))
             {

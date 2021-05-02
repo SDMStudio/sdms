@@ -103,9 +103,7 @@ namespace sdm
         unsigned long stop_cond = this->global_step + this->planning_horizon_;
         while (this->global_step < stop_cond)
         {   
-            // std::cout << "hey\n";
             this->do_step();
-            // std::cout << "heey\n";
             //Save the model
             this->do_save = (this->global_step % this->save_freq == 0);
             this->do_log = (this->global_step % this->log_freq == 0);
@@ -122,18 +120,12 @@ namespace sdm
     void QLearningBaris<TObservation, TAction>::do_step()
     {   
         // Action selection following policy and exploration process
-        // std::cout << "ooooo\n";
         auto current_action = this->select_action(this->current_obs);
         // One step in env and get next observation and rewards
-        // std::cout << "ooooo\n";
         auto [next_obs, rewards, done] = this->env_->step(current_action);
-        // std::cout << "ooooo\n";
         // Store experience in the associated buffer
         // this->experience->store_experience(this->current_obs, action, rewards, next_obs, done);
         this->last_obs = this->current_obs;
-        // std::cout << "ooooo\n";
-
-
 
         this->is_done = done;
 
@@ -151,7 +143,6 @@ namespace sdm
         double targetval = rewards[0];
         double target = targetval + expectval - cval;
         this->q_value_->updateQValueAt(this->last_obs, jaction, this->step, target);
-        // std::cout << "ooooo\n";
         this->step++;
         this->global_step++;
     }
@@ -180,15 +171,11 @@ namespace sdm
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
         if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
         {   
-            // std::cout << "random\n";
             return this->env_->getActionSpaceAt(obs)->sample();
-            // return this->select_greedy_action(obs);
         }
         else
         {
-            // std::cout << "greedy\n";
             return this->select_greedy_action(obs);
-            // return this->env_->getActionSpaceAt(obs)->sample();
 
 
         }
@@ -198,44 +185,16 @@ namespace sdm
     template <typename TObservation, typename TAction>
     TAction QLearningBaris<TObservation, TAction>::select_greedy_action(const TObservation &obs)
     {
-        // std::cout << "lllllllllllllllllllll" << std::endl;
         PrivateOccupancyState<number, Joint<JointHistoryTree_p<number>>> s2 = obs.first;
-        // JointHistoryTree_p<number> o = obs.second;
         // Joint but it only has its own obs
         JointHistoryTree_p<number> o2 = obs.second.at(1);
         std::vector<Pair<JointHistoryTree_p<number>, Joint<number>>> acc_states;
         std::vector<number> n_actions;
-        // std::cout << "lllllllllllllllllllll" << std::endl;
         for (auto &o1: s2.getIndividualJointHistories(0)){
-            // std::cout << "o1 " << o1 << std::endl;
-            // std::cout << "o1->getDepth() " << o1->getDepth() << std::endl;
-            // std::cout << "o1->getData() " << o1->getData() << std::endl;
-            // std::cout << "o1->isOrigin() " << o1->isOrigin() << std::endl;
             Joint<JointHistoryTree_p<number>> o;
             o.push_back(o1);
             o.push_back(o2);
-            // std::cout << "o1 " << o1 << std::endl;
-            // std::cout << "o1->getIndividualHistory(1) " << o1->getIndividualHistory(1) << std::endl;
-            // std::cout << "o2->getIndividualHistory(0) " << o2->getIndividualHistory(0) << std::endl;
-            // std::cout << "o1->getIndividualHistory(1)->getDepth() " << o1->getIndividualHistory(1)->getDepth() << std::endl;
-            // std::cout << "o2->getIndividualHistory(0)->getDepth() " << o2->getIndividualHistory(0)->getDepth() << std::endl;
-            // std::cout << "o1->getIndividualHistory(1)->getData() " << o1->getIndividualHistory(1)->getData() << std::endl;
-            // std::cout << "o2->getIndividualHistory(0)->getData() " << o2->getIndividualHistory(0)->getData() << std::endl;
-            // std::cout << "o1->getIndividualHistory(1)->isOrigin() " << o1->getIndividualHistory(1)->isOrigin() << std::endl;
-            // std::cout << "o2->getIndividualHistory(0)->isOrigin() " << o2->getIndividualHistory(0)->isOrigin() << std::endl;
-            // std::cout << "*o1->getIndividualHistory(1).get() " << std::endl << *o1->getIndividualHistory(1).get() << std::endl;
-            // std::cout << "*o2->getIndividualHistory(0).get() " << std::endl << *o2->getIndividualHistory(0).get() << std::endl;
-            // if (o1->getIndividualHistory(1) != o2->getIndividualHistory(0)){
-            //     continue;
-            // }
-            // std::cout << "good "<< std::endl;
-            // if (o1->getIndividualHistory(1) != o2->getIndividualHistory(0)){
-            //     // std::cout << "nope " < std::endl;
-            //     continue;
-            // }
-            // std::cout << "YEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES" << std::endl;
             for (const auto & u2: this->env_->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
-                // std::cout << "u2 " << u2 << std::endl;
                 Joint<typename TAction::first_type::value_type::output_type> actions;
                 actions.push_back(u2);                
                 auto acc_state = std::make_pair(o1, actions);
@@ -244,9 +203,7 @@ namespace sdm
                 auto qvalues = this->q_value_->getQValueAt(state_q_func, this->step);
                 std::map<Joint<typename TAction::first_type::value_type::output_type>, double> q_values_u;
                 for(const auto & u1_: this->env_->dpomdp_->getActionSpace()->getSpace(0)->getAll()){
-                    // std::cout << "u1_ " << u1_ << std::endl;
                     for(const auto & u2_: this->env_->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
-                        // std::cout << "u2_ " << u2_ << std::endl;
                         Joint<typename TAction::first_type::value_type::output_type> u;
                         u.push_back(u1_);
                         u.push_back(u2_);
@@ -270,50 +227,14 @@ namespace sdm
                 );
                 Joint<number> greedy_u = greedy_u_it->first;
                 number greedy_u1 = greedy_u.at(0);
-                // std::cout << "greedy_u1 " << greedy_u1 << std::endl;
                 n_actions.push_back(greedy_u1);
             }
         }
-        // std::cout << "lllllllllllllllllllll" << std::endl;
-        // std::cout << "acc_states.size() " << acc_states.size() << std::endl;
-        // std::cout << "n_actions.size() " << n_actions.size() << std::endl;
         DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, Joint<number>>, number> a1(acc_states, n_actions);
 
-        auto cont = a1.container_;
-
-        std::vector<Pair<JointHistoryTree_p<number>, Joint<number>>> key;
-        std::vector<number> value;
-        // std::cout << "lol" << std::endl;
-        for(auto it = cont.begin(); it != cont.end(); ++it) {
-            // std::cout << "wow" << std::endl;
-            key.push_back(it->first);
-            value.push_back(it->second);
-            // std::cout << "Key: " << it->first << std::endl();
-            // std::cout << "Value: " << it->second << std::endl();
-        }
-        // std::cout << "heh" << std::endl;
-        // auto o2_ = o2->getIndividualHistory(0);
-        // std::cout << "o2_->getDepth() " << o2_->getDepth() << std::endl;
-        // std::cout << "o2_->getData() " << o2_->getData() << std::endl;
-        // std::cout << "o2_->isOrigin() " << o2_->isOrigin() << std::endl;
-        // std::cout << "*o2_.get() " << std::endl << *o2_.get() << std::endl;
-        // o2_ = o2_->expand(3);
-        // std::cout << "o2_->getDepth() " << o2_->getDepth() << std::endl;
-        // std::cout << "o2_->getData() " << o2_->getData() << std::endl;
-        // std::cout << "*o2_.get() " << std::endl << *o2_.get() << std::endl;
-        // std::cout << "o2_->isOrigin() " << o2_->isOrigin() << std::endl;
-        // std::cout << "QQQQQQQQQQQQQQQQQQQQQQQ" << std::endl;
-        // if (*tree.get() == *tree2.get()){
-        //     std::cout << "TRUE" << std::endl;
-        // } else {
-        //     std::cout << "FALSE" << std::endl;
-        // }
-        // std::cout << "QQQQQQQQQQQQQQQQQQQQQQQ" << std::endl;
         std::map<typename TAction::first_type::value_type::output_type, double> q_values_u2;
         for(const auto & u2: this->env_->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
-            // std::cout << "u2 " << u2 << std::endl;
             q_values_u2[u2] = 0;
-            // std::cout << "xxx" << std::endl;
             Joint<typename TAction::first_type::value_type::output_type> actions;
             actions.push_back(u2);
             // o only has o1 btw, not o2. o2 is public from the start.
@@ -322,29 +243,18 @@ namespace sdm
                 if (o1->getIndividualHistory(1) != o2->getIndividualHistory(0)){
                     continue;
                 }
-                // std::cout << "vv" << std::endl;
-                // std::cout << "o1 " << o1 << std::endl;
-                // std::cout << "o1->getDepth() " << o1->getDepth() << std::endl;
-                // std::cout << "o1->getData() " << o1->getData() << std::endl;
-                // std::cout << "o1->isOrigin() " << o1->isOrigin() << std::endl;
                 Joint<JointHistoryTree_p<number>> o;
                 o.push_back(o1);
                 o.push_back(o2);
                 auto acc_state = std::make_pair(o1, actions);
-                // std::cout << "vv" << std::endl;
-                // std::cout << a1 << std::endl;
                 number u1 = a1(acc_state);
-                // std::cout << "vv" << std::endl;
                 Joint<typename TAction::first_type::value_type::output_type> jactions;
                 jactions.push_back(u1);
                 jactions.push_back(u2);
                 auto state_q_func = std::make_pair(s2, o);
-                // std::cout << "xxx" << std::endl;
                 q_values_u2[u2] += x_o__prob.second * this->q_value_->getQValueAt(state_q_func, jactions, this->step);
-                // std::cout << "xxx" << std::endl;
             }
         }
-        // std::cout << "lllllllllllllllllllll" << std::endl;
         // number best_u2 = qvalues->argmax();
         auto greedy_u2_it  = std::max_element(
             q_values_u2.begin(), 
@@ -357,12 +267,9 @@ namespace sdm
                }
         );
         number greedy_u2 = greedy_u2_it->first;
-        // std::cout << "lllllllllllllllllllll" << std::endl;
 
         Joint<DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, Joint<number>>, number>> jddr;
         jddr.push_back(a1);
-        // Pair<Joint<DeterministicDecisionRule<Pair<HistoryTree_p<number>, Joint<number>>, number>>, number>> oaction = std::make_pair(jddr, best_u2);
-        // std::cout << "lllllllllllllllllllll" << std::endl;
         return std::make_pair(jddr, greedy_u2);
     }
 

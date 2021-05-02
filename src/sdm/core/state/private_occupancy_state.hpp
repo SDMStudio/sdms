@@ -31,8 +31,8 @@ namespace sdm
   {
   public:
     using jjhistory_type = TJointJointHistory_p;
-    using jhistory_type = JointHistoryTree_p<number>;
-    using history_type = HistoryTree_p<number>;
+    using jhistory_type = typename TJointJointHistory_p::value_type;
+    using history_type = typename TJointJointHistory_p::value_type::element_type::ihistory_type;
     using state_type = TState;
 
     PrivateOccupancyState();
