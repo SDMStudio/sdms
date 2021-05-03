@@ -130,10 +130,16 @@ namespace sdm
                 auto u_agent_i = indiv_dr.act(ostate.getLabel(o->getIndividualHistory(ag_id), ag_id));
                 u.push_back(u_agent_i);
 
-                for (const auto &y : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
+                std::cout<<"\n serial state "<<serialized_state<<", u"<<u;
+                std::cout<<"\n this->serialized_mpomdp_->getStateSpace()->getAll()"<<this->serialized_mpomdp_->getStateSpace()->getAll();
+                for (const auto &y : this->serialized_mpomdp_->getStateSpace()->getAll())
                 {
-                    for (const auto &z : this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
+                    std::cout<<"\n y "<<y;
+                    std::cout<<"\n this->serialized_mpomdp_->getObsSpace()->getAll()"<<this->serialized_mpomdp_->getObsSpace()->getAll();
+                    for (const auto &z : this->serialized_mpomdp_->getObsSpace()->getAll())
                     {
+                        std::cout<<"\n z "<<z;
+
                         // Get the probability of the next couple (next_serialized_state, next_joint history)
                         double prob = p_x_o.second * this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y);
 

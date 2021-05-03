@@ -42,9 +42,12 @@ namespace sdm
             v.push_back(obs.size());
 
             auto serial_ind_space = std::make_shared<DiscreteSpace<number>>(observation);
+            std::cout<<"\n observation"<<observation;
             all_observation_space.push_back(serial_ind_space);
         }
         this->serialized_observation_space_ = std::make_shared<MultiDiscreteSpace<number>>(all_observation_space);
+
+        std::cout<<"\n this->serialized_observation_space_"<<this->serialized_observation_space_->getAll();
         this->empty_serial_observation = Joint<number>(v);
 
         for (const auto serialized_state : this->serialized_state_space_->getAll())
@@ -81,6 +84,10 @@ namespace sdm
                         this->dynamics[serialized_state][serial_action][joint_obs].emplace(next_serialized_state,proba_dynamics);
                         this->observation_probability[serialized_state][serial_action][joint_obs].emplace(next_serialized_state,proba_observation_probability);
 
+
+                        // std::cout<<"\n serialized_state"<<serialized_state<<", serial_action"<<serial_action<<", joint_obs"<<joint_obs<<", next_serialized_state"<<next_serialized_state;
+                        // std::cout<<"\n proba_dynamics"<<proba_dynamics;
+                        // std::cout<<"\n proba_observation_probability"<<proba_observation_probability;
                     }
                 }
             }

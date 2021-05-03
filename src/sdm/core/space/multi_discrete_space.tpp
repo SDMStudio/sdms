@@ -12,21 +12,21 @@ namespace sdm
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<DiscreteSpace<TItem>> &spaces)
     {
         this->setSpaces(spaces);
-        this->generateJointItems();
+        //this->generateJointItems();
     }
 
     template <typename TItem>
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces)
     {
         this->setSpaces(spaces);
-        this->generateJointItems();
+        //this->generateJointItems();
     }
 
     template <typename TItem>
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::vector<TItem>> &values)
     {
         this->setSpaces(values);
-        this->generateJointItems();
+        //this->generateJointItems();
     }
 
     template <typename TItem>
@@ -37,7 +37,7 @@ namespace sdm
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::enable_if_t<TBool, std::vector<TItem>> &num_items)
     {
         this->setSpaces(num_items);
-        this->generateJointItems();
+        //this->generateJointItems();
     }
 
     template <typename TItem>
