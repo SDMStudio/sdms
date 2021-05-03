@@ -98,6 +98,8 @@ namespace sdm
          * @return a belief MDP
          */
         std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+
+        std::vector<std::vector<typename oAction::first_type::value_type::input_type::second_type>> get_vec_vec_prev_actions_rev(number agent);
     };
 } // namespace sdm
 #include <sdm/world/joint_history_private_occupancy_mdp.tpp>

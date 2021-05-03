@@ -94,9 +94,9 @@ namespace sdm
             auto idr = oaction.first.at(agent);
             actions.push_back(idr(std::make_pair(p_ihist, actions)));
         }
-        for (number agent = 0; agent < this->dpomdp_->getNumAgents(); agent++)
+        for (int i = actions.size() - 1; i >= 0; i--)
         {
-            jaction.push_back(actions[agent]);
+            jaction.push_back(actions[i]);
         }
         auto [next_obs, rewards, done] = this->dpomdp_->step(jaction);
         std::vector<Joint<number>> next_obs_vector(this->dpomdp_->getNumAgents());
@@ -148,42 +148,15 @@ namespace sdm
                              typename oAction::first_type::value_type::input_type::second_type
                             >> v_inputs;
 
-            int n_actions = 1;
-            std::vector<std::vector<typename oAction::first_type::value_type::input_type::second_type>> vec_vec_jactions(
-                this->dpomdp_->getNumAgents() - 1 - agent
-            );
-            for (int agent_ = this->dpomdp_->getNumAgents() - 1; agent_ > agent; agent_--){
-                number num_actions_agent_ = 0;
-                for (const auto & action_agent_: this->dpomdp_->getActionSpace()->getSpace(agent_)->getAll()){
-                    num_actions_agent_++;
-                }
-                n_actions = n_actions * num_actions_agent_;
-                std::vector<typename oAction::first_type::value_type::input_type::second_type> vec_jactions(n_actions);
-                vec_vec_jactions.push_back(vec_jactions);
-            }
-            // First we need to do it for agent_ N.
-            for (const auto & u_n: this->dpomdp_->getActionSpace()->getSpace(this->dpomdp_->getNumAgents() - 1)->getAll()){
-                typename oAction::first_type::value_type::input_type::second_type jaction;
-                jaction.push_back(u_n);
-                vec_vec_jactions[0].push_back(jaction);
-            }
-            int i = 0;
-            // Then other agent_s, starting with agent_ N-1 until the last agent_ before agent.
-            for (int agent_ = this->dpomdp_->getNumAgents() - 2; agent_ > agent; agent_--){
-                i++;
-                std::vector<typename oAction::first_type::value_type::input_type::second_type> vec_jactions;
-                for(const auto & jaction_prev: vec_vec_jactions[i - 1]){
-                    for(const auto & u_agent_: this->dpomdp_->getActionSpace()->getSpace(agent_)->getAll()){
-                        typename oAction::first_type::value_type::input_type::second_type jaction = jaction_prev;
-                        jaction.push_back(u_agent_);
-                        vec_vec_jactions[i].push_back(jaction);
-                    }
-                }
-            }
+            
+            std::vector<
+                std::vector<
+                    typename oAction::first_type::value_type::input_type::second_type>> vec_vec_prev_actions_rev = get_vec_vec_prev_actions_rev(agent);
+            
             
             for (auto &ij_hist: v_ij_hists){
-                for(const auto & jaction: vec_vec_jactions[i]){
-                    v_inputs.push_back(make_pair(ij_hist, jaction));
+                for(const auto & prev_actions_rev: vec_vec_prev_actions_rev[agent]){
+                    v_inputs.push_back(make_pair(ij_hist, prev_actions_rev));
                 }
             }
 
@@ -238,19 +211,19 @@ namespace sdm
 
                     Pair<typename oState::first_type::state_type, typename oState::first_type::jjhistory_type> new_index(y, new_o);
                     std::vector<typename oAction::first_type::value_type::input_type::second_type::value_type> jaction;
-                    typename oAction::first_type::value_type::input_type::second_type actions;
-                    actions.push_back(oaction.second);
+                    typename oAction::first_type::value_type::input_type::second_type actions_rev;
+                    actions_rev.push_back(oaction.second);
 
                     for (int agent = this->dpomdp_->getNumAgents() - 2; agent >= 0; agent--)
                     {
                         auto p_ihist = o.at(agent);
                         auto idr = oaction.first.at(agent);
-                        actions.push_back(idr(std::make_pair(p_ihist, actions)));
+                        actions_rev.push_back(idr(std::make_pair(p_ihist, actions_rev)));
                     }
 
-                    for (number agent = 0; agent < this->dpomdp_->getNumAgents(); agent++)
+                    for (int i = actions_rev.size() - 1; i >= 0; i--)
                     {
-                        jaction.push_back(actions[agent]);
+                        jaction.push_back(actions_rev[i]);
                     }
 
                     double proba = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(
@@ -281,16 +254,16 @@ namespace sdm
             auto state = p_x_o.first.first;
             auto jjhistory = p_x_o.first.second;
             std::vector<typename oAction::first_type::value_type::input_type::second_type::value_type> jaction;
-            typename oAction::first_type::value_type::input_type::second_type actions;
-            actions.push_back(oaction.second);
+            typename oAction::first_type::value_type::input_type::second_type actions_rev;
+            actions_rev.push_back(oaction.second);
             for (int agent = this->dpomdp_->getNumAgents() - 2; agent >= 0; agent--)
             {
                 auto idr = oaction.first.at(agent);
-                actions.push_back(idr(std::make_pair(jjhistory.at(agent), actions)));
+                actions_rev.push_back(idr(std::make_pair(jjhistory.at(agent), actions_rev)));
             }
-            for (number agent = 0; agent < this->dpomdp_->getNumAgents(); agent++)
+            for (int i = actions_rev.size() - 1; i >= 0; i--)
             {
-                jaction.push_back(actions[agent]);
+                jaction.push_back(actions_rev[i]);
             }
             r += p_x_o.second * this->dpomdp_->getReward()->getReward(state, this->dpomdp_->getActionSpace()->joint2single(jaction));
         }
@@ -316,6 +289,47 @@ namespace sdm
     std::shared_ptr<BeliefMDP<BeliefState, number, number>> JointHistoryPrivateOccupancyMDP<oState, oAction>::toBeliefMDP()
     {
         return this->dpomdp_->toBeliefMDP();
+    }
+
+    template <typename oState, typename oAction>
+    std::vector<std::vector<typename oAction::first_type::value_type::input_type::second_type>> JointHistoryPrivateOccupancyMDP<
+        oState, oAction>::get_vec_vec_prev_actions_rev(number agent){
+        // We shall record number of permutations of actions as we go.
+        int n_actions = 1;
+        // All posible jactions will be added from action of agent N until N-I where I is the index of the vector.
+        std::vector<std::vector<typename oAction::first_type::value_type::input_type::second_type>> vec_vec_prev_actions_rev(
+            this->dpomdp_->getNumAgents() - 1 - agent
+        );
+        for (int agent_ = this->dpomdp_->getNumAgents() - 1; agent_ > agent; agent_--){
+            number num_actions_agent_ = 0;
+            for (const auto & action_agent_: this->dpomdp_->getActionSpace()->getSpace(agent_)->getAll()){
+                num_actions_agent_++;
+            }
+            n_actions = n_actions * num_actions_agent_;
+            std::vector<typename oAction::first_type::value_type::input_type::second_type> vec_jactions(n_actions);
+            vec_vec_prev_actions_rev.push_back(vec_jactions);
+        }
+        // First we need to do it for agent_ N.
+        for (const auto & uN: this->dpomdp_->getActionSpace()->getSpace(this->dpomdp_->getNumAgents() - 1)->getAll()){
+            typename oAction::first_type::value_type::input_type::second_type prev_actions_rev;
+            prev_actions_rev.push_back(uN);
+            vec_vec_prev_actions_rev[0].push_back(prev_actions_rev);
+        }
+        // This will be the index+1 for vec_vec_prev_actions_rev below.
+        int i = 0;
+        // Then other agent_s, starting with agent_ N-1 until the last agent_ before agent.
+        for (int agent_ = this->dpomdp_->getNumAgents() - 2; agent_ > agent; agent_--){
+            i++;
+            std::vector<typename oAction::first_type::value_type::input_type::second_type> vec_jactions;
+            for(const auto & prev_actions_rev: vec_vec_prev_actions_rev[i - 1]){
+                for(const auto & uAgent_: this->dpomdp_->getActionSpace()->getSpace(agent_)->getAll()){
+                    typename oAction::first_type::value_type::input_type::second_type actions = prev_actions_rev;
+                    actions.push_back(uAgent_);
+                    vec_vec_prev_actions_rev[i].push_back(actions);
+                }
+            }
+        }
+        return vec_vec_prev_actions_rev;
     }
 
 } // namespace sdm

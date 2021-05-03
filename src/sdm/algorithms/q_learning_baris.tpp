@@ -131,12 +131,20 @@ namespace sdm
 
         // Update the model
         // this->update_model();
-        // i need to turn the current action to a joint action
+        // We turn current_action which is a TAction to Joint<number>.
         Joint<number> jaction;
-        Joint<number> actions;
-        actions.push_back(current_action.second);
-        jaction.push_back(current_action.first.at(0)(std::make_pair(this->current_obs.second.at(0), actions)));
-        jaction.push_back(current_action.second);
+        Joint<number> actions_rev;
+        actions_rev.push_back(current_action.second);
+        for (int agent = this->env_->dpomdp_->getNumAgents() - 2; agent >= 0; agent--)
+        {   
+            auto p_ihist = this->current_obs.second.at(agent);
+            auto idr = current_action.first.at(agent);
+            actions_rev.push_back(idr(std::make_pair(p_ihist, actions_rev)));
+        }
+        for (int i = actions_rev.size() - 1; i >= 0; i--)
+        {
+            jaction.push_back(actions_rev[i]);
+        }
         double cval = this->q_value_->getQValueAt(this->last_obs, jaction, this->step);
         this->current_obs = next_obs;
         double expectval = this->discount_ * this->q_value_->getQValueAt(this->current_obs, this->step + 1)->max();
@@ -184,81 +192,185 @@ namespace sdm
 
     template <typename TObservation, typename TAction>
     TAction QLearningBaris<TObservation, TAction>::select_greedy_action(const TObservation &obs)
-    {
-        PrivateOccupancyState<number, Joint<JointHistoryTree_p<number>>> s2 = obs.first;
-        // Joint but it only has its own obs
-        JointHistoryTree_p<number> o2 = obs.second.at(1);
-        std::vector<Pair<JointHistoryTree_p<number>, Joint<number>>> acc_states;
-        std::vector<number> n_actions;
-        for (auto &o1: s2.getIndividualJointHistories(0)){
-            Joint<JointHistoryTree_p<number>> o;
-            o.push_back(o1);
-            o.push_back(o2);
-            for (const auto & u2: this->env_->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
-                Joint<typename TAction::first_type::value_type::output_type> actions;
-                actions.push_back(u2);                
-                auto acc_state = std::make_pair(o1, actions);
-                acc_states.push_back(acc_state);
-                auto state_q_func = std::make_pair(s2, o);
-                auto qvalues = this->q_value_->getQValueAt(state_q_func, this->step);
-                std::map<Joint<typename TAction::first_type::value_type::output_type>, double> q_values_u;
-                for(const auto & u1_: this->env_->dpomdp_->getActionSpace()->getSpace(0)->getAll()){
-                    for(const auto & u2_: this->env_->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
-                        Joint<typename TAction::first_type::value_type::output_type> u;
-                        u.push_back(u1_);
-                        u.push_back(u2_);
-                        if (u2 != u2_){
-                            q_values_u[u] = std::numeric_limits<double>::lowest();
-                        } else {
-                            q_values_u[u] = qvalues->at(u);
+    {   
+        // Number of agents.
+        number N = this->env_->dpomdp_->getNumAgents();
+        // This has all histories from 0 to N-1, so all except N, and probability for each ofc.
+        PrivateOccupancyState<number, Joint<JointHistoryTree_p<number>>> sN = obs.first;
+        // Joint but it only has its own obsrvations since it's history of agent N, the one that sees none of the other agents.
+        JointHistoryTree_p<number> oN = obs.second.at(N - 1);
+        // Ddr for all agents except N.
+        Joint<DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, Joint<number>>, number>> jddr;
+
+        // For all agents starting with 0 to N-2 (1 to N-1), we need to calculate their ddr.
+        for (number agent = 0; agent < N - 1; agent++){
+            // The last element, which will be at index agent, will be the vector of all possible jactions of previous agents.
+            std::vector<
+                std::vector<
+                    typename TAction::first_type::value_type::input_type::second_type>> vec_vec_prev_actions_rev = this->env_
+                        ->get_vec_vec_prev_actions_rev(agent);
+            // Accessible states for the idr of agent.
+            std::vector<Pair<JointHistoryTree_p<number>, Joint<number>>> acc_states;
+            // Actions for each of these for agent (idk why it's called like that, using the same name as the constructor of ddr.)
+            std::vector<number> n_actions;
+            // For each possible histories for agent:
+            for (auto &oAgent: sN.getIndividualJointHistories(agent)){
+                // For each possible previous actions:
+                for (const auto & prev_actions_rev: vec_vec_prev_actions_rev[agent]){
+                    // State for idr of agent.
+                    auto acc_state = std::make_pair(oAgent, prev_actions_rev);
+                    // Push it.
+                    acc_states.push_back(acc_state);
+                    // Q values for actions of Agent.
+                    std::map<typename TAction::first_type::value_type::output_type, double> q_values_uAgent;
+                    // For each possible uAgent:
+                    for(const auto & uAgent: this->env_->dpomdp_->getActionSpace()->getSpace(agent)->getAll()){
+                        // Initialize it to 0.
+                        q_values_uAgent[uAgent] = 0;
+                        // For each support (?) of sN:
+                        for(auto &x_o__prob: sN){
+                            // actions_rev is initialized with actions of agents N, N-1, ..., Agent - 1.
+                            Joint<typename TAction::first_type::value_type::output_type> actions_rev = prev_actions_rev;
+                            // Add action of Agent.
+                            actions_rev.push_back(uAgent);
+                            // Is this support (?) compatible with the public history?
+                            bool compatible = true;
+                            // Initialize Joint History.
+                            Joint<JointHistoryTree_p<number>> o;
+                            // For agent_s from 0 to Agent - 1 (in other words agent_s who are not visible for agent):
+                            for (number agent_ = 0; agent_ < agent - 1; agent_++){
+                                // Get history of agent_.
+                                JointHistoryTree_p<number> oAgent_ = x_o__prob.first.second.at(agent_);
+                                // If this isn't the case that this support (?) isn't compatible.
+                                if (oAgent_->getIndividualHistory(N - 1 - agent_) != oN->getIndividualHistory(0)){
+                                    compatible = false;
+                                }
+                                // Push history of agent_ to the Joint History.
+                                o.push_back(oAgent_);
+                            }
+                            // If this support (?) isn't compatible then we skip to the next one.
+                            if (!(compatible)){
+                                continue;
+                            }
+                            // For each agent_ who is visible for agent (that is agent_s between [agent+1 and N-1 (N)]):
+                            for (number agent_ = agent; agent_ < N; agent_++){
+                                // Get its history from the true history.
+                                JointHistoryTree_p<number> oAgent_ = obs.second.at(agent);
+                                // Push it to the Joint History.
+                                o.push_back(oAgent_);
+                            }
+                            // Construct the key to the Q table.
+                            auto key = std::make_pair(sN, o);
+                            // For each agent_ between [agent - 1 and 0], that is agent_s that agent cannot observe:
+                            for (int agent_ = agent - 1; agent_ >= 0; agent_--){
+                                // Get a possible history for the agent_.
+                                JointHistoryTree_p<number> oAgent_ = x_o__prob.first.second.at(agent_);
+                                // Cretate the entry to the idr of agent_.
+                                auto acc_state_ = std::make_pair(oAgent_, actions_rev);
+                                // Get agent_'s idr.
+                                auto aAgent_ = jddr.at(agent_);
+                                // Get uAgent_ given aAgent_ and acc_state_.
+                                number uAgent_ = aAgent_(acc_state_);
+                                // Push uAgent_ to actions_rev.
+                                actions_rev.push_back(uAgent_);
+                            }
+                            // Initialize the Joint Action.
+                            Joint<typename TAction::first_type::value_type::output_type> jaction;
+                            // Correctly push the actions to it.
+                            for (int i = actions_rev.size() - 1; i >= 0; i--){
+                                jaction.push_back(actions_rev[i]);
+                            }
+                            // Increase uAgent's Q value given all that and probability of this support (?).
+                            q_values_uAgent[uAgent] += x_o__prob.second * this->q_value_->getQValueAt(key, jaction, this->step);
                         }
                     }
+                    // number greedy_uAgent = q_values_uAgent->argmax();
+                    auto greedy_uAgent_it  = std::max_element(
+                        q_values_uAgent.begin(), 
+                        q_values_uAgent.end(),
+                        [](const std::pair<typename TAction::first_type::value_type::output_type, double>& p1, 
+                        const std::pair<typename TAction::first_type::value_type::output_type, double>& p2
+                        )
+                        {
+                            return p1.second < p2.second; 
+                        }
+                    );
+                    number greedy_uAgent = greedy_uAgent_it->first;
+                    // We have found the greedy_uAgent for this key, so we push it here.
+                    n_actions.push_back(greedy_uAgent);
                 }
-                // auto greedy_u = q_values_u->argmax();
-                auto greedy_u_it  = std::max_element(
-                    q_values_u.begin(), 
-                    q_values_u.end(),
-                    [](const std::pair<Joint<typename TAction::first_type::value_type::output_type>, double>& p1, 
-                       const std::pair<Joint<typename TAction::first_type::value_type::output_type>, double>& p2
-                      )
-                       {
-                        return p1.second < p2.second; 
-                       }
-                );
-                Joint<number> greedy_u = greedy_u_it->first;
-                number greedy_u1 = greedy_u.at(0);
-                n_actions.push_back(greedy_u1);
             }
-        }
-        DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, Joint<number>>, number> a1(acc_states, n_actions);
+            // Initialize idr for Agent.
+            DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, Joint<number>>, number> aAgent(acc_states, n_actions);
+            // Push it to the jddr.
+            jddr.push_back(aAgent);
+        }        
 
-        std::map<typename TAction::first_type::value_type::output_type, double> q_values_u2;
-        for(const auto & u2: this->env_->dpomdp_->getActionSpace()->getSpace(1)->getAll()){
-            q_values_u2[u2] = 0;
-            Joint<typename TAction::first_type::value_type::output_type> actions;
-            actions.push_back(u2);
-            // o only has o1 btw, not o2. o2 is public from the start.
-            for(auto &x_o__prob: s2){
-                JointHistoryTree_p<number> o1 = x_o__prob.first.second.at(0);
-                if (o1->getIndividualHistory(1) != o2->getIndividualHistory(0)){
+        // Q values for actions of Agent N.
+        std::map<typename TAction::first_type::value_type::output_type, double> q_values_uN;
+        // For each possible uN:
+        for(const auto & uN: this->env_->dpomdp_->getActionSpace()->getSpace(N - 1)->getAll()){
+            // Initialize it to 0.
+            q_values_uN[uN] = 0;
+            // For each support (?) of sN:
+            for(auto &x_o__prob: sN){
+                // This will contain all actions of agents starting with Agent N until Agent 0.
+                Joint<typename TAction::first_type::value_type::output_type> actions_rev;
+                // Push uN.
+                actions_rev.push_back(uN);
+                // Is this support (?) compatible with the public history?
+                bool compatible = true;
+                // Initialize Joint History.
+                Joint<JointHistoryTree_p<number>> o;
+                // For agents from 0 to N-2 (1 to N-1)
+                for (number agent_ = 0; agent_ < N - 1; agent_++){
+                    // Get history of agent_.
+                    JointHistoryTree_p<number> oAgent_ = x_o__prob.first.second.at(agent_);
+                    // If this isn't the case that this support (?) isn't compatible.
+                    if (oAgent_->getIndividualHistory(N - 1 - agent_) != oN->getIndividualHistory(0)){
+                        compatible = false;
+                    }
+                    // Push history of agent_ to the Joint History.
+                    o.push_back(oAgent_);
+                }
+                // If this support (?) isn't compatible then we skip to the next one.
+                if (!(compatible)){
                     continue;
                 }
-                Joint<JointHistoryTree_p<number>> o;
-                o.push_back(o1);
-                o.push_back(o2);
-                auto acc_state = std::make_pair(o1, actions);
-                number u1 = a1(acc_state);
-                Joint<typename TAction::first_type::value_type::output_type> jactions;
-                jactions.push_back(u1);
-                jactions.push_back(u2);
-                auto state_q_func = std::make_pair(s2, o);
-                q_values_u2[u2] += x_o__prob.second * this->q_value_->getQValueAt(state_q_func, jactions, this->step);
+                // Push oN (all the others were already pushed.).
+                o.push_back(oN);
+                // Construct the key to the Q table.
+                auto key = std::make_pair(sN, o);
+                // For each agent_ between [N - 1 and 0], that is agent_s that agent N cannot observe: (same thing as above...)
+                for (int agent_ = N - 2; agent_ >= 0; agent_--){
+                    // Get a possible history for the agent_.
+                    JointHistoryTree_p<number> oAgent_ = x_o__prob.first.second.at(agent_);
+                    // Cretate the entry to the idr of agent_.
+                    auto acc_state_ = std::make_pair(oAgent_, actions_rev);
+                    // Get agent_'s idr.
+                    auto aAgent_ = jddr.at(agent_);
+                    // Get uAgent_ given aAgent_ and acc_state_.
+                    number uAgent_ = aAgent_(acc_state_);
+                    // Push uAgent_ to actions_rev.
+                    actions_rev.push_back(uAgent_);
+                }
+                // Push uN (all the others were already pushed.).
+                actions_rev.push_back(uN);
+                // Initialize the Joint Action.
+                Joint<typename TAction::first_type::value_type::output_type> jaction;
+                // Correctly push the actions to it.
+                for (int i = actions_rev.size() - 1; i >= 0; i--){
+                    jaction.push_back(actions_rev[i]);
+                }
+                // Increase uN's Q value given all that and probability of this support (?).
+                q_values_uN[uN] += x_o__prob.second * this->q_value_->getQValueAt(key, jaction, this->step);
             }
         }
-        // number best_u2 = qvalues->argmax();
-        auto greedy_u2_it  = std::max_element(
-            q_values_u2.begin(), 
-            q_values_u2.end(),
+
+        // number greedy_uN = q_values_uN->argmax();
+        auto greedy_uN_it  = std::max_element(
+            q_values_uN.begin(), 
+            q_values_uN.end(),
             [](const std::pair<typename TAction::first_type::value_type::output_type, double>& p1, 
                const std::pair<typename TAction::first_type::value_type::output_type, double>& p2
               )
@@ -266,11 +378,9 @@ namespace sdm
                   return p1.second < p2.second; 
                }
         );
-        number greedy_u2 = greedy_u2_it->first;
-
-        Joint<DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, Joint<number>>, number>> jddr;
-        jddr.push_back(a1);
-        return std::make_pair(jddr, greedy_u2);
+        number greedy_uN = greedy_uN_it->first;
+        // Return the Pair<Joint<DeterministicDecisionRule<Pair<JointHistoryTree_p<number>, Joint<number>>, number>>, number> object.
+        return std::make_pair(jddr, greedy_uN);
     }
 
 } // namespace sdm
