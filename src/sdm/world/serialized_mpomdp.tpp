@@ -29,6 +29,7 @@ namespace sdm
     {
     }
 
+    // setObsSpace()
     void SerializedMPOMDP::createInitSerialObservationSpace()
     {
         std::vector<number> v;
@@ -88,6 +89,7 @@ namespace sdm
 
     }
 
+    // setReachableObsSpace()
     void SerializedMPOMDP::createInitReachableObsStateSpace()
     {
         for (const auto serialized_state : this->serialized_state_space_->getAll())

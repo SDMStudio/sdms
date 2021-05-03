@@ -96,6 +96,7 @@ namespace sdm
         }
 
         new_compressed_occupancy_state->finalize();
+        new_compressed_occupancy_state->setAgent(ag_id+1);
         new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_compressed_occupancy_state->getptr());
         new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_compressed_occupancy_state->getptr());
         return *new_compressed_occupancy_state;
@@ -130,13 +131,14 @@ namespace sdm
                 auto u_agent_i = indiv_dr.act(ostate.getLabel(o->getIndividualHistory(ag_id), ag_id));
                 u.push_back(u_agent_i);
 
-                for (const auto &y : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
+                for ( const auto &y : this->serialized_mpomdp_->getStateSpace()->getAll() ) //this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
                 {
-                    for (const auto &z : this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
+                    for ( const auto &z : this->serialized_mpomdp_->getObsSpace()->getAll() ) //this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
                     {
                         // Get the probability of the next couple (next_serialized_state, next_joint history)
                         double prob = p_x_o.second * this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y);
 
+                        std::cout << "x=" << serialized_state << "\tu=" << u_agent_i << "\tz=" << z << "\ty=" << y << "\tprob=" << this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y) << std::endl;
                         // If occupancy measure is greater than zero, we build our occupancy states
                         if (prob > 0)
                         {

@@ -18,6 +18,9 @@ namespace sdm
   template <typename TState = SerializedState, typename TJointHistory_p = JointHistoryTree_p<number>>
   class SerializedOccupancyState : public OccupancyState<TState, TJointHistory_p>
   {
+  protected:
+    number agent;
+
   public:
     using jhistory_type = typename OccupancyState<TState, TJointHistory_p>::jhistory_type;
     using state_type = typename OccupancyState<TState, TJointHistory_p>::state_type;
@@ -28,7 +31,11 @@ namespace sdm
     SerializedOccupancyState(const SerializedOccupancyState &);
     SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &);
 
+    std::string str() const;
+
     number getCurrentAgentId() const;
+    void setAgent(number);
+
     std::set<typename state_type::state_type> getHiddenStates() const;
     std::set<typename state_type::action_type> getActions() const;
 
