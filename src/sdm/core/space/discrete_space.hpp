@@ -100,7 +100,7 @@ namespace sdm
         /**
          * @brief Get all possible items in the space
          */
-        const std::vector<TItem>& getAll() const;
+        std::vector<TItem> getAll() const;
 
         /**
          * @brief Get the index of an item

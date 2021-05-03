@@ -71,6 +71,62 @@ namespace sdm
         return std::make_shared<DiscreteSpace<TAction>>(f_indiv_dr_space.getAll());
     }
 
+
+    template <typename TState, typename TAction>
+    TState SerializedOccupancyMDP<TState, TAction>::nextStateSerialStep(const TState &ostate, const TAction &indiv_dr) const
+    {
+        // Get agent identifier 
+        number ag_id = ostate.getCurrentAgentId();
+
+        // Init new compressed and fully uncompressed occupancy states, we omit one-step uncompressed occupancy state
+        auto new_compressed_occupancy_state = std::make_shared<TState>();
+        auto new_fully_uncompressed_occupancy_state = std::make_shared<TState>();
+
+        // Go over serial states and joint histories of fully uncompressed occupancy state
+        for (const auto &pair_s_o_proba : *ostate.getFullyUncompressedOccupancy())
+        {
+            // Get entries probability, joint history, and hidden state 
+            auto prob = pair_s_o_proba.second;
+            auto jhistory = ostate.getHistory(pair_s_o_proba.first);
+            auto hidden_state = ostate.getHiddenState(pair_s_o_proba.first);
+
+            // Update list of actions
+            auto actions_list = ostate.getAction(pair_s_o_proba.first);
+
+            // Get joint label of current joint history 
+            auto compressed_jhistory = ostate.getCompressedJointHistory(jhistory);
+
+            actions_list.push_back(indiv_dr.act(compressed_jhistory->getIndividualHistory(ag_id)));
+
+            // Build next serialized state
+            typename TState::state_type new_serialized_state(hidden_state, actions_list);
+
+            // Update next serial occupancy state value at pair {new_serialized_state, jhistory}
+            new_fully_uncompressed_occupancy_state->setProbabilityAt({new_serialized_state, jhistory}, prob);
+
+            // Add probability mass to pair {new_serialized_state, compressed_joint_history}
+            new_compressed_occupancy_state->addProbabilityAt({new_serialized_state, compressed_jhistory}, prob);
+            
+            // Update next history labels
+            new_compressed_occupancy_state->updateJointLabels(jhistory->getIndividualHistories(), compressed_jhistory->getIndividualHistories());
+        }
+
+        // Set underlying strautures for fast getters 
+        new_compressed_occupancy_state->finalize();
+
+        // Set agent identifier 
+        new_compressed_occupancy_state->setAgent(ag_id+1);
+        new_fully_uncompressed_occupancy_state->setAgent(ag_id+1);
+
+        // Set fully uncompressed occupancy state 
+        new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state);
+        // Set one-step uncompressed occupancy state 
+        new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_compressed_occupancy_state->getptr());
+
+        return *new_compressed_occupancy_state;
+    }
+
+
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &indiv_dr, number, std::shared_ptr<HSVI<TState, TAction>>, bool compression) const
     {
@@ -82,24 +138,7 @@ namespace sdm
         // If this is not the last agent. Same fully uncompressed and one step left uncompressed occ state than before
         if (ag_id != this->serialized_mpomdp_->getNumAgents() - 1)
         {
-            new_compressed_occupancy_state = std::make_shared<TState>();
-            for (const auto &pair_s_o_proba : ostate)
-            {
-                auto o = pair_s_o_proba.first.second;
-                auto x = pair_s_o_proba.first.first.first;
-                // Update list of actions
-                auto u = pair_s_o_proba.first.first.second;
-                u.push_back(indiv_dr.act(o->getIndividualHistory(ag_id)));
-                // Build next serialized state
-                typename TState::state_type new_serialized_state(x, u);
-                std::cout << new_serialized_state << std::endl;
-                // Set next occupancy measure
-                new_compressed_occupancy_state->setProbabilityAt({new_serialized_state, o}, pair_s_o_proba.second);
-                new_compressed_occupancy_state->finalize();
-                new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_compressed_occupancy_state->getptr());
-                new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_compressed_occupancy_state->getptr());
-            }
-            return *new_compressed_occupancy_state;
+            return this->nextStateSerialStep(ostate, indiv_dr);
         }
         else
         {
@@ -110,51 +149,36 @@ namespace sdm
 
             for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
             {
-                // std::cout << p_x_o << std::endl;
                 auto o = ostate.getHistory(p_x_o.first);
                 auto serialized_state = ostate.getState(p_x_o.first);
-                // std::cout << "serialized_state="<< serialized_state << std::endl;
-                auto u = serialized_state.second;
+                auto u = ostate.getAction(p_x_o.first);
                 auto u_agent_i = indiv_dr.act(ostate.getLabel(o->getIndividualHistory(ag_id), ag_id));
                 u.push_back(u_agent_i);
-                // std::cout << "1" << std::endl;
-                // std::cout << "serialized_state="<< serialized_state << std::endl;
 
-                for (const auto &y : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
+                for ( const auto &y : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i) ) //this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
                 {
-                    // std::cout << "2 : y = " << y << std::endl;
-                    for (const auto &z : this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
+                    for ( const auto &z : this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y) ) //this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
                     {
-                        // std::cout << "3 : z = " << z << std::endl;
-                        // std::cout << "x="<<serialized_state <<  " u="<<u_agent_i <<" z="<<  z<< " y=" <<  y << std::endl;
                         // Get the probability of the next couple (next_serialized_state, next_joint history)
-                        double next_occupancy_measure = p_x_o.second * this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y);
+                        double prob = p_x_o.second * this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y);
 
-                        // std::cout << "4 : next_occupancy_measure = " << next_occupancy_measure << std::endl;
                         // If occupancy measure is greater than zero, we build our occupancy states
-                        if (next_occupancy_measure > 0)
+                        if (prob > 0)
                         {
-                            // Build fully uncompressed occupancy state
-                            // std::cout << "4.b" << std::endl;
                             auto joint_history_next = o->expand(z);
-                            // std::cout << "y=" << y << " history = " << joint_history_next << std::endl;
-                            new_fully_uncompressed_occupancy_state->addProbabilityAt({y, joint_history_next}, next_occupancy_measure);
-                            // std::cout << "5" << std::endl;
 
-                            // Build one step left uncompressed occupancy state
+                            new_fully_uncompressed_occupancy_state->addProbabilityAt({y, joint_history_next}, prob);
+
                             auto compressed_joint_history = ostate.getCompressedJointHistory(o);
                             auto compressed_joint_history_next = compressed_joint_history->expand(z);
-                            new_one_step_left_compressed_occupancy_state->addProbabilityAt({y, compressed_joint_history_next}, next_occupancy_measure);
-                            // std::cout << "6" << std::endl;
+                            new_one_step_left_compressed_occupancy_state->addProbabilityAt({y, compressed_joint_history_next}, prob);
 
                             // Update next history labels
                             new_one_step_left_compressed_occupancy_state->updateJointLabels(joint_history_next->getIndividualHistories(), compressed_joint_history_next->getIndividualHistories());
                         }
                     }
                 }
-                // std::cout << "Pass" << std::endl;
             }
-            // std::cout << "8" << std::endl;
 
             // Finalize the one step left compressed occupancy state
             new_one_step_left_compressed_occupancy_state->finalize();

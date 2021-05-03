@@ -13,19 +13,6 @@
 
 #include <sdm/world/serialized_mmdp_structure.hpp>
 
-/*
-De : Jilles 
-A : Qui de droit
-
-    Désolé mais ce code est illisible -- il n'y a aucun commentaire. 
-    Gardez à l'esprit que SDMS va être diffusé à la communauté. 
-    Si moi, j'ai du mal beaucoup n'y arriveront pas commentez vos codes SVP. 
-
-    Je vais etre sincère, ce code est davantage un brouillon qu'autre chose. 
-    Il est à corrigé très rapidement.
-*/
-
-
 namespace sdm
 {
     /**

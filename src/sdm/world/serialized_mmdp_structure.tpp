@@ -70,7 +70,7 @@ namespace sdm
         this->setStateSpace(this->serialized_state_space_);
     }
 
-    
+    // setReachableStateSpace()
     void SerializedMMDPStructure::createInitReachableStateSpace()
     {
         for(const auto serialized_state : this->serialized_state_space_->getAll())
@@ -91,6 +91,7 @@ namespace sdm
                 if(agent_identifier +1 == this->getNumAgents())
                 {
                     Joint<number> joint_action(serial_action);
+                    
                     try
                     {
                         for(const auto next_state : this->mmdp_->getReachableStates(x, joint_action))
@@ -103,7 +104,6 @@ namespace sdm
                     }
                 }else
                 {
-
                     all_next_serial_state.insert(SerializedState(x,u));
                 }
                 map_action_next_serial_state.emplace(action,all_next_serial_state);

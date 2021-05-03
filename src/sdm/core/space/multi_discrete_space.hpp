@@ -57,7 +57,7 @@ namespace sdm
          * @brief Instantiate a default discrete space (MultiDiscreteSpace class)
          */
         MultiDiscreteSpace();
-
+        
         /**
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
          * 
@@ -94,14 +94,14 @@ namespace sdm
          * @param  jitem the joint item as a list of single items
          * @return the same joint item (as a single index to refer it)
          */
-        number joint2single(const Joint<TItem> &jitem) const;
+        number joint2single(const std::vector<TItem> &jitem) const;
 
         /**
          * @brief Transform single item to joint one
          * @param  sitem the index of a specific joint item
          * @return the same joint item (as a list of single items)
          */
-        Joint<TItem> single2joint(number sitem) const;
+        std::vector<TItem> single2joint(number sitem) const;
 
         /**
          * @brief Get the number of joint items
@@ -130,6 +130,7 @@ namespace sdm
         void setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces);
         void setSpaces(const std::vector<DiscreteSpace<TItem>> &spaces);
 
+
         /*!
          * @brief Transform joint item to its index in the list of all joint items.
          * @param jitem the joint item we want to get the index
@@ -148,13 +149,11 @@ namespace sdm
          * 
          * @return the list of all possible joint items
          */
-        const std::vector<Joint<TItem>> &getAll() const;
+        std::vector<Joint<TItem>> getAll() const;
 
         std::string str() const;
 
         MultiDiscreteSpace<TItem> &operator=(const MultiDiscreteSpace<TItem> &);
-        bool operator==(const MultiDiscreteSpace<TItem> &) const;
-        bool operator!=(const MultiDiscreteSpace<TItem> &) const;
 
         /**
          * @brief Verify is the multi discrete space contains the Joint<TItem>;
@@ -162,7 +161,7 @@ namespace sdm
          * @return true 
          * @return false 
          */
-        bool contains(const Joint<TItem> &) const;
+        bool contains(const std::vector<TItem>& ) const;
 
         friend std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpace<TItem> &sp)
         {

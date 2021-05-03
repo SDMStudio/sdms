@@ -52,7 +52,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    const std::vector<TItem> &DiscreteSpace<TItem>::getAll() const
+    std::vector<TItem> DiscreteSpace<TItem>::getAll() const
     {
         return this->list_items_;
     }

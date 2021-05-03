@@ -83,13 +83,13 @@ namespace sdm
          * @brief Initialize Serial Observation Space
          * 
          */
-        void createInitSerialObservationSpace();
+        void setObsSpace();
 
         /**
          * @brief Initialize "reachable_observation_space"
          * 
          */
-        void createInitReachableObsStateSpace();
+        void setReachableObsSpace();
 
     };
 } // namespace sdm
