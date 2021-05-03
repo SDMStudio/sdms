@@ -15,14 +15,7 @@ namespace sdm
     {
         typename TState::jhistory_type jhist;
         
-        if (hist_length > 0)
-        {
-            jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), hist_length);
-        }
-        else
-        {
-            jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents());
-        }
+        jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), (hist_length > 0)?hist_length:-1);
 
         this->initial_history_ = jhist;
         this->initial_state_ = std::make_shared<TState>();

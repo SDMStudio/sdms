@@ -1,16 +1,9 @@
 #include <iostream>
 
-#include <memory>
 #include <sdm/exception.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/state/serialized_occupancy_state.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
-#include <sdm/utils/value_function/max_plan_vf.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/algorithms/hsvi.hpp>
 
 using namespace sdm;
 
@@ -31,43 +24,42 @@ int main(int argc, char **argv)
 
 	try
 	{
-		// Construct OccupancyMDP using parser
+		using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
+        using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+
+		// Construct Serial OccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
+		auto somdp_world = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, 3);
 
-		using TActionDescriptor = number;
-		using TStateDescriptor = HistoryTree_p<number>;
+		// We will show how to expand an initial occupancy state and generate next ones using compression
+		int depth = 0, limit = 3;
+		auto ostate = somdp_world->getInitialState();
+		auto oaction = somdp_world->getActionSpaceAt(ostate)->sample();
 
-		using TState = OccupancyState<number, JointHistoryTree_p<number>>;
-		using TAction = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
+		std::cout << "#> Print depth \"" << depth << "\"\n";
+		std::cout << "#> Print occupancy state \n" << ostate << "\n";
+		std::cout << "#> Print joint decision rule \n" << oaction << "\n";
 
-		number horizon = 3;
-		double discount = 1.0, error = 0.1, trial = 1000;
+		do
+		{
+			depth++;
+			std::cout << "#> Print depth \"" << depth << "\"\n";
 
-		std::shared_ptr<SolvableByHSVI<TState, TAction>>  omdp_world = std::make_shared<OccupancyMDP<TState,TAction>>(filename, horizon);
-		
-		// Set params in the environment
-		omdp_world->getUnderlyingProblem()->setDiscount(discount);
-		omdp_world->getUnderlyingProblem()->setPlanningHorizon(horizon);
+        // Compute the next compressed occupancy state
+			ostate = somdp_world->nextState(ostate, oaction);
+			std::cout << "#> Print compressed occupancy state \n" << ostate << "\n";
+			std::cout << "#> Print one step left occupancy state \n" << *ostate.getOneStepUncompressedOccupancy() << "\n";
+			std::cout << "#> Print fully uncompressed occupancy state \n" << *ostate.getFullyUncompressedOccupancy() << "\n";
 
-		// Instanciate initializers
-		auto lb_init = std::make_shared<MinInitializer<TState, TAction>>();
-		auto ub_init = std::make_shared<MaxInitializer<TState, TAction>>();
-
-		// Instanciate the max-plan representation of the lower bound
-		//auto lower_bound = std::make_shared<MaxPlanValueFunction<TState, TAction>>(omdp_world, horizon, lb_init); //
-		auto lower_bound = std::make_shared<MappedValueFunction<TState, TAction>>(omdp_world, horizon, lb_init);
-
-		// Instanciate the Tabular version for the upper bound
-		auto upper_bound = std::make_shared<MappedValueFunction<TState, TAction>>(omdp_world, horizon, ub_init);
-
-		auto algo = std::make_shared<HSVI<TState, TAction>>(omdp_world, lower_bound, upper_bound, horizon, error,trial,"");
-		
-		algo->do_initialize();
-		algo->do_solve();
+        // Sample a decision rule
+			oaction = somdp_world->getActionSpaceAt(ostate)->sample();
+			std::cout << "#> Print joint decision rule \n" << oaction << "\n";
+		} while (depth < limit);
 	}
 	catch (exception::Exception &e)
 	{
 		std::cout << "!!! Exception: " << e.what() << std::endl;
 	}
 
+	return 0;
 } // END main
