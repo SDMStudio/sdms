@@ -75,8 +75,6 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::nextStateSerialStep(const TState &ostate, const TAction &indiv_dr) const
     {
-        std::cout<<"\n test 0 ";
-
         // Get agent identifier 
         number ag_id = ostate.getCurrentAgentId();
 
@@ -89,21 +87,22 @@ namespace sdm
         {
             // Get entries probability, joint history, and hidden state 
             auto prob = pair_s_o_proba.second;
-            auto jhistory = pair_s_o_proba.first.second;
-            auto hidden_state = pair_s_o_proba.first.first.first;
+            auto jhistory = ostate.getHistory(pair_s_o_proba.first);
+            auto hidden_state = ostate.getHiddenState(pair_s_o_proba.first);
 
             // Update list of actions
-            auto actions_list = pair_s_o_proba.first.first.second;
-            actions_list.push_back(indiv_dr.act(jhistory->getIndividualHistory(ag_id)));
+            auto actions_list = ostate.getAction(pair_s_o_proba.first);
+
+            // Get joint label of current joint history 
+            auto compressed_jhistory = ostate.getCompressedJointHistory(jhistory);
+
+            actions_list.push_back(indiv_dr.act(compressed_jhistory->getIndividualHistory(ag_id)));
 
             // Build next serialized state
             typename TState::state_type new_serialized_state(hidden_state, actions_list);
 
             // Update next serial occupancy state value at pair {new_serialized_state, jhistory}
             new_fully_uncompressed_occupancy_state->setProbabilityAt({new_serialized_state, jhistory}, prob);
-
-            // Get joint label of current joint history 
-            auto compressed_jhistory = ostate.getCompressedJointHistory(jhistory);
 
             // Add probability mass to pair {new_serialized_state, compressed_joint_history}
             new_compressed_occupancy_state->addProbabilityAt({new_serialized_state, compressed_jhistory}, prob);
@@ -152,13 +151,13 @@ namespace sdm
             {
                 auto o = ostate.getHistory(p_x_o.first);
                 auto serialized_state = ostate.getState(p_x_o.first);
-                auto u = serialized_state.second;   
+                auto u = ostate.getAction(p_x_o.first);
                 auto u_agent_i = indiv_dr.act(ostate.getLabel(o->getIndividualHistory(ag_id), ag_id));
                 u.push_back(u_agent_i);
 
-                for ( const auto &y : this->serialized_mpomdp_->getStateSpace()->getAll() ) //this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
+                for ( const auto &y : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i) ) //this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
                 {
-                    for ( const auto &z : this->serialized_mpomdp_->getObsSpace()->getAll() ) //this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
+                    for ( const auto &z : this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y) ) //this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
                     {
                         // Get the probability of the next couple (next_serialized_state, next_joint history)
                         double prob = p_x_o.second * this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y);
