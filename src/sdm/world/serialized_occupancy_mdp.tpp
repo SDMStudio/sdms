@@ -85,23 +85,26 @@ namespace sdm
         // Go over serial states and joint histories of fully uncompressed occupancy state
         for (const auto &pair_s_o_proba : *ostate.getFullyUncompressedOccupancy())
         {
+
             // Get entries probability, joint history, and hidden state 
             auto prob = pair_s_o_proba.second;
             auto jhistory = pair_s_o_proba.first.second;
             auto hidden_state = pair_s_o_proba.first.first.first;
+            std::cout << "jhistory=" << *jhistory << "\tserial-state=" << pair_s_o_proba.first.first << std::endl;
 
             // Update list of actions
             auto actions_list = pair_s_o_proba.first.first.second;
-            actions_list.push_back(indiv_dr.act(jhistory->getIndividualHistory(ag_id)));
+
+            // Get joint label of current joint history 
+            auto compressed_jhistory = ostate.getCompressedJointHistory(jhistory);
+
+            actions_list.push_back(indiv_dr.act(compressed_jhistory->getIndividualHistory(ag_id)));
 
             // Build next serialized state
             typename TState::state_type new_serialized_state(hidden_state, actions_list);
 
             // Update next serial occupancy state value at pair {new_serialized_state, jhistory}
             new_fully_uncompressed_occupancy_state->setProbabilityAt({new_serialized_state, jhistory}, prob);
-
-            // Get joint label of current joint history 
-            auto compressed_jhistory = ostate.getCompressedJointHistory(jhistory);
 
             // Add probability mass to pair {new_serialized_state, compressed_joint_history}
             new_compressed_occupancy_state->addProbabilityAt({new_serialized_state, compressed_jhistory}, prob);
