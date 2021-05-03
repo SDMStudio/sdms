@@ -75,6 +75,8 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::nextStateSerialStep(const TState &ostate, const TAction &indiv_dr) const
     {
+        number ag_id = ostate.getCurrentAgentId();
+
         auto new_compressed_occupancy_state = std::make_shared<TState>();
         for (const auto &pair_s_o_proba : ostate)
         {
@@ -84,7 +86,7 @@ namespace sdm
 
             // Update list of actions
             auto actions_list = pair_s_o_proba.first.first.second;
-            actions_list.push_back(indiv_dr.act(o->getIndividualHistory(ag_id)));
+            actions_list.push_back(indiv_dr.act(jhistory->getIndividualHistory(ag_id)));
 
             // Build next serialized state
             typename TState::state_type new_serialized_state(hidden_state, actions_list);
@@ -124,7 +126,7 @@ namespace sdm
             {
                 auto o = ostate.getHistory(p_x_o.first);
                 auto serialized_state = ostate.getState(p_x_o.first);
-                auto u = serialized_state.second;
+                auto u = serialized_state.second;   
                 auto u_agent_i = indiv_dr.act(ostate.getLabel(o->getIndividualHistory(ag_id), ag_id));
                 u.push_back(u_agent_i);
 
