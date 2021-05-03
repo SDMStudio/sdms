@@ -90,7 +90,6 @@ namespace sdm
             auto prob = pair_s_o_proba.second;
             auto jhistory = pair_s_o_proba.first.second;
             auto hidden_state = pair_s_o_proba.first.first.first;
-            std::cout << "jhistory=" << *jhistory << "\tserial-state=" << pair_s_o_proba.first.first << std::endl;
 
             // Update list of actions
             auto actions_list = pair_s_o_proba.first.first.second;
@@ -155,9 +154,9 @@ namespace sdm
                 auto u_agent_i = indiv_dr.act(ostate.getLabel(o->getIndividualHistory(ag_id), ag_id));
                 u.push_back(u_agent_i);
 
-                for ( const auto &z : this->serialized_mpomdp_->getObsSpace()->getAll() ) //this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
+                for ( const auto &y : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i)) ) //
                 {
-                    for ( const auto &y : this->serialized_mpomdp_->getStateSpace()->getAll() ) //this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
+                    for ( const auto &z : this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y)) ) //
                     {
                         // Get the probability of the next couple (next_serialized_state, next_joint history)
                         double prob = p_x_o.second * this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y);
