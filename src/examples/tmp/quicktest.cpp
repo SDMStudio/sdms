@@ -4,6 +4,7 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
+#include <sdm/world/serialized_occupancy_mdp.hpp>
 
 using namespace sdm;
 
