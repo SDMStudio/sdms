@@ -175,8 +175,7 @@ namespace sdm
         }
         else
         {
-            // return this->q_value_->getBestAction(obs, this->step);
-            return this->env_->getActionSpaceAt(obs)->sample();
+            return this->q_value_->getBestAction(obs, this->step);
         }
         // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(current_obs)
     }
