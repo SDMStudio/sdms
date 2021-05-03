@@ -85,11 +85,8 @@ namespace sdm
         //std::cout << "#> h=" << h << "\tvalue: " << "lb = " << this->lower_bound_->getValueAt(s, h) << "\tub = " << this->upper_bound_->getValueAt(s, h)<< "\n";
         //std::cout << "#> Print one step left occupancy state \n" << *s.getOneStepUncompressedOccupancy() << "\n";
 
-        std::cout << s << " - " << h << std::endl;
         if (!this->do_stop(s, cost_so_far, h))
         {
-            std::cout << "1" << std::endl;
-            std::cout << *this->lower_bound_ << std::endl;
             /* @warning -- Update bounds : updating forward is usefull only in infinite horizons */
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);

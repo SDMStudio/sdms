@@ -44,7 +44,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
     {
-        std::cout << state << " -- " << t << " -- " << target << std::endl;
         this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
     }
 
