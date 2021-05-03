@@ -7,8 +7,6 @@
 #include <sdm/core/action/joint_det_decision_rule.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 
-#include <sdm/algorithms.hpp>
-
 using namespace sdm;
 
 int main(int argc, char **argv)
@@ -28,23 +26,6 @@ int main(int argc, char **argv)
 
 	try
 	{
-		// using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
-		// using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
-
-		// auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, 3);
-
-		// auto p_algo = sdm::algo::makeHSVI<TState, TAction>(serialized_oMDP, "", "", "MaxInitializer", "MinInitializer", 1, 0, 3, 100, ("name" == "") ? "tab_ext_ohsvi" : "name");
-
-		// p_algo->do_initialize();
-
-		// std::cout<<"\n Lower_bound :"<<p_algo->getLowerBound()->str();
-		// std::cout<<"\n Upper_bound :"<<p_algo->getUpperBound()->str();
-
-		// p_algo->do_solve();	
-
-		// std::cout<<"\n Lower_bound :"<<p_algo->getLowerBound()->str();
-		// std::cout<<"\n Upper_bound :"<<p_algo->getUpperBound()->str();
-
 		using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
         using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
@@ -53,7 +34,7 @@ int main(int argc, char **argv)
 		auto somdp_world = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, 3);
 
 		// We will show how to expand an initial occupancy state and generate next ones using compression
-		int depth = 0, limit = 3;
+		int depth = 0, limit = 12;
 		auto ostate = somdp_world->getInitialState();
 		auto oaction = somdp_world->getActionSpaceAt(ostate)->sample();
 
@@ -63,8 +44,8 @@ int main(int argc, char **argv)
 
 		do
 		{
-			depth++;
-			std::cout << "#> Print depth \"" << depth << "\"\n";
+		 	depth++;
+		 	std::cout << "#> Print depth \"" << depth << "\"\n";
 
 			// Compute the next compressed occupancy state
 			ostate = somdp_world->nextState(ostate, oaction);
