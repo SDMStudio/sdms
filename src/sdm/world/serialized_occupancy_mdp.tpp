@@ -75,11 +75,17 @@ namespace sdm
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::nextStateSerialStep(const TState &ostate, const TAction &indiv_dr) const
     {
+        // Get agent identifier 
         number ag_id = ostate.getCurrentAgentId();
 
+        // Init new compressed and fully uncompressed occupancy states, we omit one-step uncompressed occupancy state
         auto new_compressed_occupancy_state = std::make_shared<TState>();
-        for (const auto &pair_s_o_proba : ostate)
+        auto new_fully_uncompressed_occupancy_state = std::make_shared<TState>();
+
+        // Go over serial states and joint histories of fully uncompressed occupancy state
+        for (const auto &pair_s_o_proba : *ostate.getFullyUncompressedOccupancy())
         {
+            // Get entries probability, joint history, and hidden state 
             auto prob = pair_s_o_proba.second;
             auto jhistory = pair_s_o_proba.first.second;
             auto hidden_state = pair_s_o_proba.first.first.first;
@@ -92,13 +98,28 @@ namespace sdm
             typename TState::state_type new_serialized_state(hidden_state, actions_list);
 
             // Update next serial occupancy state value at pair {new_serialized_state, jhistory}
-            new_compressed_occupancy_state->setProbabilityAt({new_serialized_state, jhistory}, prob);
+            new_fully_uncompressed_occupancy_state->setProbabilityAt({new_serialized_state, jhistory}, prob);
+
+            // Get joint label of current joint history 
+            auto compressed_jhistory = ostate.getCompressedJointHistory(jhistory);
+
+            // Add probability mass to pair {new_serialized_state, compressed_joint_history}
+            new_compressed_occupancy_state->addProbabilityAt({new_serialized_state, compressed_jhistory}, prob);
+            
+            // Update next history labels
+            new_compressed_occupancy_state->updateJointLabels(jhistory->getIndividualHistories(), compressed_jhistory->getIndividualHistories());
         }
 
+        // Set underlying strautures for fast getters 
         new_compressed_occupancy_state->finalize();
+        // Set agent identifier 
         new_compressed_occupancy_state->setAgent(ag_id+1);
-        new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_compressed_occupancy_state->getptr());
+        new_fully_uncompressed_occupancy_state->setAgent(ag_id+1);
+        // Set fully uncompressed occupancy state 
+        new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state);
+        // Set one-step uncompressed occupancy state 
         new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_compressed_occupancy_state->getptr());
+
         return *new_compressed_occupancy_state;
     }
 
@@ -131,14 +152,13 @@ namespace sdm
                 auto u_agent_i = indiv_dr.act(ostate.getLabel(o->getIndividualHistory(ag_id), ag_id));
                 u.push_back(u_agent_i);
 
-                for ( const auto &y : this->serialized_mpomdp_->getStateSpace()->getAll() ) //this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
+                for ( const auto &z : this->serialized_mpomdp_->getObsSpace()->getAll() ) //this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
                 {
-                    for ( const auto &z : this->serialized_mpomdp_->getObsSpace()->getAll() ) //this->serialized_mpomdp_->getReachableObservations(serialized_state, u_agent_i, y))
+                    for ( const auto &y : this->serialized_mpomdp_->getStateSpace()->getAll() ) //this->serialized_mpomdp_->getReachableSerialStates(serialized_state, u_agent_i))
                     {
                         // Get the probability of the next couple (next_serialized_state, next_joint history)
                         double prob = p_x_o.second * this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y);
 
-                        std::cout << "x=" << serialized_state << "\tu=" << u_agent_i << "\tz=" << z << "\ty=" << y << "\tprob=" << this->serialized_mpomdp_->getDynamics(serialized_state, u_agent_i, z, y) << std::endl;
                         // If occupancy measure is greater than zero, we build our occupancy states
                         if (prob > 0)
                         {
