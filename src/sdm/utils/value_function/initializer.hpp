@@ -149,7 +149,6 @@ namespace sdm
                 vf->initialize(tot, vf->getHorizon());
                 for (number t = vf->getHorizon(); t > 0; t--)
                 {
-                    std::cout<<"\n getValue "<<this->getValue(vf,t);
                     tot = this->getValue(vf,t) + under_pb->getDiscount(t) * tot;
                     vf->initialize(tot, t - 1);
                 }

@@ -48,6 +48,8 @@ namespace sdm
 
   typedef typename bimap::value_type name2index;
 
+  const number DEFAULT_OBSERVATION = std::numeric_limits<number>::max();
+
   /**
   * Enumerator for the types of statistics that can be plotted.
   */

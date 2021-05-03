@@ -1,8 +1,6 @@
 #include <iostream>
 
 #include <sdm/exception.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
@@ -13,7 +11,13 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
+    // ************** Exemple Next State in Serialized Occupancy MDP
+
 	std::string filename;
+    number horizon = 3;
+    number discount = 1;
+    double error = 0.00001;
+    number trials = 1000;
 
 	if (argc > 1)
 	{
@@ -33,7 +37,7 @@ int main(int argc, char **argv)
 
 		// Construct Serial OccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
-		auto somdp_world = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, 3);
+		auto somdp_world = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, horizon);
 
 		// We will show how to expand an initial occupancy state and generate next ones using compression
 		int depth = 0, limit = 3;
@@ -59,11 +63,10 @@ int main(int argc, char **argv)
 			oaction = somdp_world->getActionSpaceAt(ostate)->sample();
 			std::cout << "#> Print joint decision rule \n" << oaction << "\n";
 		} while (depth < limit);
+
 	}
 	catch (exception::Exception &e)
 	{
 		std::cout << "!!! Exception: " << e.what() << std::endl;
 	}
-
-	return 0;
-} // END main
+}

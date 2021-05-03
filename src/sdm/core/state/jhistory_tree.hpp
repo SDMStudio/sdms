@@ -13,6 +13,7 @@
 
 #include <sdm/core/state/history_tree.hpp>
 #include <sdm/core/joint.hpp>
+#include <sdm/types.hpp>
 
 namespace sdm
 {
@@ -29,6 +30,9 @@ namespace sdm
     {
     protected:
         void addIndivHist(std::shared_ptr<HistoryTree<T>> ihist);
+
+        void setDefaultObs(number);
+        Joint<T> default_value;
 
     public:
         using ihistory_type = std::shared_ptr<HistoryTree<T>>;

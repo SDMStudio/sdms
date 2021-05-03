@@ -16,6 +16,8 @@ namespace sdm
         {
             this->indiv_hist.push_back(std::make_shared<HistoryTree<T>>());
         }
+
+        this->setDefaultObs(n_agents);
     }
 
     template <typename T>
@@ -25,6 +27,7 @@ namespace sdm
         {
             this->indiv_hist.push_back(std::make_shared<HistoryTree<T>>(max_depth));
         }
+        this->setDefaultObs(n_agents);
     }
 
     template <typename T>
@@ -47,15 +50,20 @@ namespace sdm
     template <typename T>
     std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::expand(const Joint<T> &data, bool backup)
     {
-        std::shared_ptr<JointHistoryTree<T>> h_joint = HistoryTree<Joint<T>>::template expand<JointHistoryTree<T>>(data, backup);
+        //std::cout<<"\n default value "<<this->default_value;
 
-        if (h_joint->getIndividualHistories().size() == 0)
+        std::shared_ptr<JointHistoryTree<T>> h_joint = HistoryTree<Joint<T>>::template expand<JointHistoryTree<T>>(data, backup);
+        if( data != this->default_value)
         {
-            for (number i = 0; i < this->indiv_hist.getNumAgents(); i++)
+            if (h_joint->getIndividualHistories().size() == 0)
             {
-                h_joint->addIndivHist(this->getIndividualHistory(i)->expand(data[i], backup));
+                for (number i = 0; i < this->indiv_hist.getNumAgents(); i++)
+                {
+                    h_joint->addIndivHist(this->getIndividualHistory(i)->expand(data[i], backup));
+                }
             }
         }
+
         return h_joint;
     }
 
@@ -70,6 +78,17 @@ namespace sdm
     std::vector<std::shared_ptr<HistoryTree<T>>> JointHistoryTree<T>::getIndividualHistories() const
     {
         return this->indiv_hist;
+    }
+
+    template <typename T>
+    void JointHistoryTree<T>::setDefaultObs(number n_agents)
+    {
+        std::vector<T> default_vector;
+        for (number i = 0; i < n_agents; i++)
+        {
+            default_vector.push_back(sdm::DEFAULT_OBSERVATION);
+        }
+        this->default_value = Joint<T>(default_vector);
     }
 
 } // namespace sdm

@@ -40,7 +40,7 @@ namespace sdm
             auto obs = this->decpomdp_->getObsSpace()->getSpace(ag_id)->getAll();
             std::vector<number> observation = obs;
             observation.push_back(obs.size());
-            v.push_back(obs.size());
+            v.push_back(sdm::DEFAULT_OBSERVATION);
 
             auto serial_ind_space = std::make_shared<DiscreteSpace<number>>(observation);
             all_observation_space.push_back(serial_ind_space);
