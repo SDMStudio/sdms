@@ -185,6 +185,7 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&serial_occupancy_state, const TVector&next_hyperplan, const TAction&serial_decision_rule, number t)
     {
         number ag_id = serial_occupancy_state.getCurrentAgentId();
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector new_hyperplan(this->default_values_per_horizon[t]);
         for(const auto uncompressed_s_o: *serial_occupancy_state.getFullyUncompressedOccupancy())
@@ -195,43 +196,20 @@ namespace sdm
             auto compressed_joint_history = serial_occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
             auto serial_action = serial_decision_rule.act(compressed_joint_history->getIndividualHistory(ag_id)); 
             
-            new_hyperplan.addProbabilityAt(uncompressed_s_o.first,this->getWorld()->getUnderlyingProblem()->getReward(uncompressed_hidden_serial_state, serial_action));
-
-            for(auto next_hidden_serial_state : this->getWorld()->getUnderlyingProblem()->getReachableSerialStates(uncompressed_hidden_serial_state, serial_action))
+            new_hyperplan.addProbabilityAt(uncompressed_s_o.first,under_pb->getReward(uncompressed_hidden_serial_state, serial_action));
+            
+            for(auto next_hidden_serial_state : under_pb->getReachableSerialStates(uncompressed_hidden_serial_state, serial_action))
             {
-                for(auto next_serial_observation : this->getWorld()->getUnderlyingProblem()->getReachableObservations(uncompressed_hidden_serial_state,serial_action, next_hidden_serial_state))
+                for(auto next_serial_observation : under_pb->getReachableObservations(uncompressed_hidden_serial_state,serial_action, next_hidden_serial_state))
                 {
                     auto next_joint_history =  compressed_joint_history->expand(next_serial_observation);
-                    new_hyperplan.addProbabilityAt(uncompressed_s_o.first,this->getWorld()->getUnderlyingProblem()->getDiscount(t) * this->getWorld()->getUnderlyingProblem()->getDynamics(uncompressed_hidden_serial_state, serial_action, next_serial_observation, next_hidden_serial_state) * next_hyperplan.at({next_hidden_serial_state,next_joint_history}));
+
+                    new_hyperplan.addProbabilityAt(uncompressed_s_o.first,under_pb->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_serial_state, serial_action, next_serial_observation, next_hidden_serial_state) * next_hyperplan.at({next_hidden_serial_state,next_joint_history}));
                 }
             }
         }
         new_hyperplan.finalize();
         return new_hyperplan;
-
-        // TVector new_hyperplan(this->default_values_per_horizon[t]);
-        // auto under_pb = this->getWorld()->getUnderlyingProblem();
-
-        // for (const auto &pair_s_o_p : serial_occupancy_state)
-        // {
-        //     auto pair_s_o = pair_s_o_p.first;
-        //     auto serial_hidden_state = serial_occupancy_state.getState(pair_s_o);
-        //     auto history = serial_occupancy_state.getHistory(pair_s_o);
-
-        //     auto action = serial_decision_rule.act(history->getIndividualHistory(serial_occupancy_state.getCurrentAgentId()));
-
-        //     new_hyperplan.addProbabilityAt(pair_s_o,under_pb->getReward(serial_hidden_state, action));
-
-        //     for (const auto &serial_hidden_next_state : under_pb->getReachableSerialStates(serial_hidden_state, action))
-        //     {
-        //         for (const auto &serial_observation : under_pb->getReachableObservations(serial_hidden_state,action, serial_hidden_next_state))
-        //         {
-        //             auto history_next = history->expand(serial_observation);
-        //             new_hyperplan.addProbabilityAt(pair_s_o,under_pb->getDiscount(t) *  next_hyperplan.at(std::make_pair(serial_hidden_next_state,history_next)) * under_pb->getDynamics(serial_hidden_state, action, serial_observation, serial_hidden_next_state));
-        //         }
-        //     }
-        // }
-        // return new_hyperplan;
     }
 
     

@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
 	auto serial_MPOMDP = std::make_shared<SerializedMPOMDP>(problem_path);
 
-	std::cout<<"\n getState : "<<serial_MPOMDP->getStateSpace();
+	std::cout<<"\n getState : "<<serial_MPOMDP->getStateSpace()->str();
 
 	int test_limit= 5;
 	int test = 0;
@@ -34,12 +34,9 @@ int main(int argc, char **argv)
 			std::cout<<next_obs<<" ";
 		}
 
-		if(serial_MPOMDP->getObservationProbability(serial_state,serial_action,joint_obs,serial_state_next)>0 && serial_MPOMDP->getDynamics(serial_state,serial_action,joint_obs,serial_state_next)>0)
-		{
-			std::cout<<"\n serialized_state : "<<serial_state<<", serial_action : "<<serial_action<<", joint_obs : "<<joint_obs<<", next_serialized_state : "<<serial_state_next;
-			std::cout<<"\n ObsProbability : "<<serial_MPOMDP->getObservationProbability(serial_state,serial_action,joint_obs,serial_state_next);
-			std::cout<<"\n Dynamics : "<<serial_MPOMDP->getDynamics(serial_state,serial_action,joint_obs,serial_state_next);
-		}
+		std::cout<<"\n serialized_state : "<<serial_state<<", serial_action : "<<serial_action<<", joint_obs : "<<joint_obs<<", next_serialized_state : "<<serial_state_next;
+		std::cout<<"\n ObsProbability : "<<serial_MPOMDP->getObservationProbability(serial_state,serial_action,joint_obs,serial_state_next);
+		std::cout<<"\n Dynamics : "<<serial_MPOMDP->getDynamics(serial_state,serial_action,joint_obs,serial_state_next);
 
 
 	} while (test_limit > test);

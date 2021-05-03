@@ -43,7 +43,7 @@ namespace sdm
         {
             std::ostringstream res;
             res << "<maxplan_value_function_serialized horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-            for (int i = 0; i < this->representation.size(); i++)
+            for (number i = 0; i < this->representation.size(); i++)
             {
                 res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
                 for (auto plan : this->representation[i])
@@ -69,7 +69,7 @@ namespace sdm
          * @param number : time step 
          * @return double 
          */
-        double getValueAt(const TVector&, const TVector& ,const number ,const typename TVector::jhistory_type::element_type::ihistory_type& ,number = 0)
+        double getMaxPlanValueAt(const TVector&, const TVector& ,const number ,const typename TVector::jhistory_type::element_type::ihistory_type& ,number = 0);
 
         /**
          * @brief Greedy will determine the best pair <decision rule, value> for a precice serialized occupancy state
@@ -78,7 +78,7 @@ namespace sdm
          * @param t 
          * @return Pair<TAction,double> 
          */
-        Pair<TAction,double> greedyMaxPlane(const TVector &,number =0);
+        Pair<TAction,double> greedyMaxPlaneSerial(const TVector &,number =0);
 
         /**
          * @brief backup operator for the serial occupancy state -- type of the state -- 

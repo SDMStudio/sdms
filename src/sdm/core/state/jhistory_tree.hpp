@@ -88,6 +88,8 @@ namespace sdm
 
         std::vector<std::shared_ptr<HistoryTree<T>>> getIndividualHistories() const;
 
+        std::shared_ptr<JointHistoryTree<T>> getptr();
+
         friend std::ostream &operator<<(std::ostream &os, JointHistoryTree &j_hist)
         {
             os << j_hist.short_str();

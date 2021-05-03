@@ -95,4 +95,10 @@ namespace sdm
         return res.str();
     }
 
+    template <typename T>
+    std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getptr()
+    {
+        return std::static_pointer_cast<HistoryTree<T>>(this->shared_from_this());
+    }
+
 } // namespace sdm
