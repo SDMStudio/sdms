@@ -29,6 +29,14 @@ namespace sdm
         std::shared_ptr<TState> initial_state_, current_state_;
         typename TState::jhistory_type initial_history_ = nullptr, current_history_ = nullptr;
 
+        /**
+         * @brief Compute the next serial occupancy state for a non-terminal agent, i.e., expanding by the last action every entry.
+         * @param const TState & serial occupancy state
+         * @param const TAction & individual decision rule 
+         * @return TState 
+         */
+        TState nextStateSerialStep(const TState &, const TAction &) const;
+
     public:
         using state_type = TState;
         using action_type = TAction;
