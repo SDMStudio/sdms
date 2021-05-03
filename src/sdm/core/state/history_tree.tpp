@@ -73,17 +73,24 @@ namespace sdm
     std::string HistoryTree<T>::short_str()
     {
         std::ostringstream res;
-        std::list<T> items;
+        std::list<T> list_items;
         std::shared_ptr<Tree<T>> chistory = this->shared_from_this(), origin = this->getOrigin();
         while (chistory != origin)
         {
-            items.push_front(chistory->getData());
+            list_items.push_front(chistory->getData());
             chistory = chistory->getParent();
         }
-        for (auto item : items)
+        res << '(';
+        for (auto item_it = list_items.begin(); item_it != list_items.end();)
         {
-            res << item << "";
+            res << *item_it;
+            item_it++;
+            if (item_it != list_items.end())
+            {
+                res << ", ";
+            }
         }
+        res << ')';
         return res.str();
     }
 
@@ -91,7 +98,7 @@ namespace sdm
     std::string HistoryTree<T>::str()
     {
         std::ostringstream res;
-        res << "<history id=\"" << this->shared_from_this() << "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str() << "\"/>\n";
+        res << "<history id=\"" << this->shared_from_this() << "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str() << "\"/>";
         return res.str();
     }
 

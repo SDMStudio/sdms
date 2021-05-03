@@ -62,14 +62,14 @@ namespace sdm
         DiscreteSpace(const std::vector<TItem> &items);
 
         /**
-         * @brief Copy constructor
-         */
-        DiscreteSpace(const DiscreteSpace<TItem> &copy);
-
-        /**
          * @brief Construct a new Discrete Space object from a list initializer
          */
         DiscreteSpace(std::initializer_list<TItem> vals);
+
+        /**
+         * @brief Copy constructor
+         */
+        DiscreteSpace(const DiscreteSpace<TItem> &copy);
 
         /**
          * @brief Construct a new Discrete Space Base object
@@ -93,14 +93,14 @@ namespace sdm
         std::vector<number> getDim() const;
 
         /**
-         * @brief Get the Nummber of Items in the space
+         * @brief Get the number of items in the space
          */
         number getNumItems() const;
 
         /**
-         * @brief Get all items in the space
+         * @brief Get all possible items in the space
          */
-        std::vector<TItem> getAll();
+        const std::vector<TItem>& getAll() const;
 
         /**
          * @brief Get the index of an item
@@ -121,8 +121,6 @@ namespace sdm
         bool contains(const TItem& ) const;
 
         std::string str() const;
-
-        DiscreteSpace &operator=(const DiscreteSpace &sp);
 
         bool operator==(const DiscreteSpace &sp) const;
         bool operator!=(const DiscreteSpace &sp) const;

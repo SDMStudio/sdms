@@ -14,7 +14,7 @@ namespace sdm
 
     SerializedBeliefState();
     SerializedBeliefState(double default_value);
-    SerializedBeliefState(std::size_t size, double default_value);
+    // SerializedBeliefState(std::size_t size, double default_value);
     SerializedBeliefState(const SerializedBeliefState &v);
 
     number getCurrentAgentId() const;

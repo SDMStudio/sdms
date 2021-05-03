@@ -37,13 +37,22 @@ namespace sdm
      * @return number 
      */
     number getCurrentAgentId() const;
+
+    /**
+     *  @brief  Returns an ostream instance
+     */
+    friend std::ostream &operator<<(std::ostream &os, SerializedState &state)
+    {
+      os << "<serial-state agent_id=\"" << state.getCurrentAgentId() << "\" x=\"" << state.getState() << "\" actions=\"" << state.getAction() << "\"/>";
+      return os;
+    }
   };
 
 } // namespace sdm
 
 namespace std
 {
-  template<>
+  template <>
   struct hash<sdm::SerializedState>
   {
     typedef sdm::SerializedState argument_type;

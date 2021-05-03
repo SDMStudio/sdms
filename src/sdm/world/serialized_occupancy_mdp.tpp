@@ -14,8 +14,8 @@ namespace sdm
     SerializedOccupancyMDP<TState, TAction>::SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
     {
         typename TState::jhistory_type jhist;
-        
-        jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), (hist_length > 0)?hist_length:-1);
+
+        jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), (hist_length > 0) ? hist_length : -1);
 
         this->initial_history_ = jhist;
         this->initial_state_ = std::make_shared<TState>();
@@ -137,6 +137,7 @@ namespace sdm
                             // Build fully uncompressed occupancy state
                             // std::cout << "4.b" << std::endl;
                             auto joint_history_next = o->expand(z);
+                            // std::cout << "y=" << y << " history = " << joint_history_next << std::endl;
                             new_fully_uncompressed_occupancy_state->addProbabilityAt({y, joint_history_next}, next_occupancy_measure);
                             // std::cout << "5" << std::endl;
 
@@ -244,7 +245,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    TAction SerializedOccupancyMDP<TState, TAction>::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>&, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h)
+    TAction SerializedOccupancyMDP<TState, TAction>::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h)
     {
         return ub->getBestAction(s, h);
     }

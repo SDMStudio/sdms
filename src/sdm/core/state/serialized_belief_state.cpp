@@ -11,9 +11,9 @@ namespace sdm
     {
     }
 
-    SerializedBeliefState::SerializedBeliefState(std::size_t size, double default_value) : BaseBeliefState<SerializedState>(size, default_value)
-    {
-    }
+    // SerializedBeliefState::SerializedBeliefState(std::size_t size, double default_value) : BaseBeliefState<SerializedState>(size, default_value)
+    // {
+    // }
 
     SerializedBeliefState::SerializedBeliefState(const SerializedBeliefState &v) : BaseBeliefState<SerializedState>(v)
     {

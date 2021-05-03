@@ -14,34 +14,40 @@ namespace sdm
    * 
    * @tparam The type of item.
    */
-  template <typename item>
-  class Joint : public std::vector<item>, public Function<number, item>
+  template <typename T>
+  class Joint : public std::vector<T>, public Function<number, T>
   {
-  protected:
-    //! \brief the number of agents
-    number num_agents_ = 0;
-
   public:
-    using value_type = item;
+    using value_type = T;
 
-    Joint() : std::vector<item>() {}
-    Joint(const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
-    Joint(const std::vector<number> &, const std::vector<item> &joint_item) : std::vector<item>(joint_item), num_agents_(joint_item.size()) {}
-    virtual ~Joint() {}
+    Joint();
+    Joint(const std::vector<T> &joint_item);
+    Joint(const std::vector<number> &, const std::vector<T> &joint_item);
+    Joint(std::initializer_list<T> list_values);
+    virtual ~Joint();
 
-    number getNumAgents() const
-    {
-      return this->size();
-    }
+    /**
+     * @brief Get the number of agents (i.e. the size of the joint element)
+     */
+    number getNumAgents() const;
 
-    /*!
-      * \fn std::ostream& operator<<(std::ostream&, const joint<item, instance>&)
-      * \brief print the joint item
-      * \param std::ostream&
-      * \param const joint<item, instance>& joint item to be printed
-      * \return std::ostream&
+    /**
+     * @brief Get the element for agent i
+     */
+    const T &get(const number &) const;
+
+    /**
+     * @brief Get the element for agent i
+     */
+    T operator()(const number &);
+
+    /**
+      * @brief print the joint item
+      * @param std::ostream&
+      * @param const joint<item, instance>& joint item to be printed
+      * @return std::ostream&
       */
-    friend std::ostream &operator<<(std::ostream &os, const Joint<item> &j)
+    friend std::ostream &operator<<(std::ostream &os, const Joint<T> &j)
     {
       os << "(";
       if (j.size() > 0)
@@ -58,11 +64,6 @@ namespace sdm
       os << ")";
       return os;
     }
-
-    item operator()(const number &i)
-    {
-      return (*this)[i];
-    }
   };
 
   template class Joint<number>;
@@ -70,21 +71,4 @@ namespace sdm
   typedef Joint<number> JointItem;
 } // namespace sdm
 
-namespace std
-{
-  template <typename T>
-  struct hash<sdm::Joint<T>>
-  {
-    typedef sdm::Joint<T> argument_type;
-    typedef std::size_t result_type;
-    result_type operator()(argument_type const &in) const
-    {
-      size_t size = in.size();
-      size_t seed = 0;
-      for (size_t i = 0; i < size; i++)
-        //Combine the hash of the current vector with the hashes of the previous ones
-        sdm::hash_combine(seed, in[i]);
-      return seed;
-    }
-  };
-}
+#include <sdm/core/joint.tpp>

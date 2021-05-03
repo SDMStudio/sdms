@@ -5,16 +5,16 @@ namespace sdm
 {
 
     template <typename T>
-    JointHistoryTree<T>::JointHistoryTree() : HistoryTree<Joint<T>>()
+    JointHistoryTree<T>::JointHistoryTree()
     {
     }
 
     template <typename T>
-    JointHistoryTree<T>::JointHistoryTree(number n_agents) : HistoryTree<Joint<T>>()
+    JointHistoryTree<T>::JointHistoryTree(number n_agents)
     {
         for (number i = 0; i < n_agents; i++)
         {
-            this->indiv_hist.push_back(std::make_shared<HistoryTree<T>>());
+            this->addIndividualHistory(std::make_shared<HistoryTree<T>>());
         }
     }
 
@@ -23,7 +23,7 @@ namespace sdm
     {
         for (number i = 0; i < n_agents; i++)
         {
-            this->indiv_hist.push_back(std::make_shared<HistoryTree<T>>(max_depth));
+            this->addIndividualHistory(std::make_shared<HistoryTree<T>>(max_depth));
         }
     }
 
@@ -33,15 +33,14 @@ namespace sdm
     }
 
     template <typename T>
-    JointHistoryTree<T>::JointHistoryTree(const Joint<std::shared_ptr<HistoryTree<T>>> &ihistories) : HistoryTree<Joint<T>>(), indiv_hist(ihistories)
+    JointHistoryTree<T>::JointHistoryTree(const Joint<std::shared_ptr<HistoryTree<T>>> &ihistories) : HistoryTree<Joint<T>>(), Joint<std::shared_ptr<HistoryTree<T>>>(ihistories)
     {
-        
     }
 
     template <typename T>
-    void JointHistoryTree<T>::addIndivHist(std::shared_ptr<HistoryTree<T>> ihist)
+    void JointHistoryTree<T>::addIndividualHistory(std::shared_ptr<HistoryTree<T>> ihist)
     {
-        this->indiv_hist.push_back(ihist);
+        this->push_back(ihist);
     }
 
     template <typename T>
@@ -49,11 +48,11 @@ namespace sdm
     {
         std::shared_ptr<JointHistoryTree<T>> h_joint = HistoryTree<Joint<T>>::template expand<JointHistoryTree<T>>(data, backup);
 
-        if (h_joint->getIndividualHistories().size() == 0)
+        if (h_joint->getNumAgents() == 0)
         {
-            for (number i = 0; i < this->indiv_hist.getNumAgents(); i++)
+            for (number i = 0; i < this->getNumAgents(); i++)
             {
-                h_joint->addIndivHist(this->getIndividualHistory(i)->expand(data[i], backup));
+                h_joint->addIndividualHistory(this->getIndividualHistory(i)->expand(data[i], backup));
             }
         }
         return h_joint;
@@ -62,14 +61,20 @@ namespace sdm
     template <typename T>
     std::shared_ptr<HistoryTree<T>> JointHistoryTree<T>::getIndividualHistory(number ag_id) const
     {
-        assert((ag_id < this->indiv_hist.getNumAgents()) && (ag_id >= 0));
-        return this->indiv_hist.at(ag_id);
+        assert((ag_id < this->getNumAgents()) && (ag_id >= 0));
+        return this->get(ag_id);
     }
 
     template <typename T>
-    std::vector<std::shared_ptr<HistoryTree<T>>> JointHistoryTree<T>::getIndividualHistories() const
+    Joint<std::shared_ptr<HistoryTree<T>>> JointHistoryTree<T>::getIndividualHistories() const
     {
-        return this->indiv_hist;
+        return *this;
+    }
+
+    template <typename T>
+    std::string JointHistoryTree<T>::str()
+    {
+        return HistoryTree<Joint<T>>::str();
     }
 
 } // namespace sdm

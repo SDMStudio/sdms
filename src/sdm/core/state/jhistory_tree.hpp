@@ -1,5 +1,5 @@
 /**
- * @file history_tree.hpp
+ * @file jhistory_tree.hpp
  * @author Jilles S. Dibangoye
  * @author David Albert
  * @brief History Tree data structure
@@ -25,14 +25,13 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class JointHistoryTree : public HistoryTree<Joint<T>>
+    class JointHistoryTree : public HistoryTree<Joint<T>>, public Joint<std::shared_ptr<HistoryTree<T>>>
     {
     protected:
-        void addIndivHist(std::shared_ptr<HistoryTree<T>> ihist);
+        void addIndividualHistory(std::shared_ptr<HistoryTree<T>> ihist);
 
     public:
         using ihistory_type = std::shared_ptr<HistoryTree<T>>;
-        Joint<std::shared_ptr<HistoryTree<T>>> indiv_hist;
 
         /*!
          *  @fn     JointHistoryTree()
@@ -44,31 +43,34 @@ namespace sdm
         /**
          * @brief Construct a new joint history tree object (the origin)
          * 
-         * @param n_agents the number of agent
+         * @param n_agents the number of agents
          */
         JointHistoryTree(number n_agents);
 
+        /**
+         * @brief Construct a new truncated joint history tree object (the origin)
+         * 
+         * @param n_agents the number of agents
+         * @param max_depth the maximal depth of the truncated history  
+         */
         JointHistoryTree(number n_agents, number max_depth);
 
-        /*!
-         *  @fn     JointHistoryTree(std::shared_ptr<JointHistoryTree>, const T&, bool = true)
-         *  @brief  constructor
+        /**
+         *  @brief  This constructor build a child node given its parent's node and a new joint item.
          *  @param  parent   the parent tree
          *  @param  item     the item
-         *  @param  backup wheter the node is marked or not
-         *  This constructor builds a tree with a given parent and item.
          */
         JointHistoryTree(std::shared_ptr<JointHistoryTree<T>> parent, const Joint<T> &item);
 
         /**
          * @brief Construct a new joint history based on individual histories
+         * @warning This will build a well defined Joint<std::shared_ptr<HistoryTree<T>>> structure but wrong HistoryTree<Joint<T>> !!
          * 
          * @param ihistories the list of individual histories
          */
         JointHistoryTree(const Joint<std::shared_ptr<HistoryTree<T>>> &ihistories);
 
         /*!
-         *  @fn     HistoryTree<T> *expand(const T &data);
          *  @brief  Expands the tree
          *  @param  data the data of the expanded node
          *  @return the expanded tree
@@ -80,13 +82,26 @@ namespace sdm
          */
         std::shared_ptr<JointHistoryTree<T>> expand(const Joint<T> &data, bool backup = true);
 
-        std::shared_ptr<HistoryTree<T>> getIndividualHistory(number ag_id) const;
+        /**
+         * @brief Get the address of the individual history of agent 'agent_id' 
+         * 
+         * @param agent_id the agent id  
+         * @return the address of the individual history of agent 'agent_id' 
+         */
+        std::shared_ptr<HistoryTree<T>> getIndividualHistory(number agent_id) const;
 
-        std::vector<std::shared_ptr<HistoryTree<T>>> getIndividualHistories() const;
+        /**
+         * @brief Get the address of the individual histories of all agents
+         * 
+         * @return a vector that contains all individual histories
+         */
+        Joint<std::shared_ptr<HistoryTree<T>>> getIndividualHistories() const;
+
+        std::string str();
 
         friend std::ostream &operator<<(std::ostream &os, JointHistoryTree &j_hist)
         {
-            os << j_hist.short_str();
+            os << j_hist.str();
             return os;
         }
     };

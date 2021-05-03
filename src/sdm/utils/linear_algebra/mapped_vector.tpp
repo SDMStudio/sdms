@@ -34,7 +34,7 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals)
+    MappedVector<TIndex, T>::MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals), default_value_(0), size_(-1)
     {
     }
 
