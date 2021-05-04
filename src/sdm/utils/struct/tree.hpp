@@ -119,6 +119,8 @@ namespace sdm
 
         std::string str();
 
+        std::shared_ptr<Tree<T>> getptr();
+
         friend std::ostream &operator<<(std::ostream &os, Tree<T> &tree)
         {
             os << tree.str();

@@ -16,6 +16,8 @@ namespace sdm
         {
             this->addIndividualHistory(std::make_shared<HistoryTree<T>>());
         }
+
+        this->setDefaultObs(n_agents);
     }
 
     template <typename T>
@@ -25,16 +27,19 @@ namespace sdm
         {
             this->addIndividualHistory(std::make_shared<HistoryTree<T>>(max_depth));
         }
+        this->setDefaultObs(n_agents);
     }
 
     template <typename T>
     JointHistoryTree<T>::JointHistoryTree(std::shared_ptr<JointHistoryTree<T>> parent, const Joint<T> &item) : HistoryTree<Joint<T>>(parent, item)
     {
+        this->setDefaultObs(item.size());
     }
 
     template <typename T>
     JointHistoryTree<T>::JointHistoryTree(const Joint<std::shared_ptr<HistoryTree<T>>> &ihistories) : HistoryTree<Joint<T>>(), Joint<std::shared_ptr<HistoryTree<T>>>(ihistories)
     {
+        this->setDefaultObs(ihistories.size());
     }
 
     template <typename T>
@@ -46,15 +51,24 @@ namespace sdm
     template <typename T>
     std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::expand(const Joint<T> &data, bool backup)
     {
-        std::shared_ptr<JointHistoryTree<T>> h_joint = HistoryTree<Joint<T>>::template expand<JointHistoryTree<T>>(data, backup);
+        std::shared_ptr<JointHistoryTree<T>> h_joint;
 
-        if (h_joint->getNumAgents() == 0)
+        if (data != this->default_value)
         {
-            for (number i = 0; i < this->getNumAgents(); i++)
+            h_joint = HistoryTree<Joint<T>>::template expand<JointHistoryTree<T>>(data, backup);
+            if (h_joint->getIndividualHistories().size() == 0)
             {
-                h_joint->addIndividualHistory(this->getIndividualHistory(i)->expand(data[i], backup));
+                for (number i = 0; i < this->getNumAgents(); i++)
+                {
+                    h_joint->addIndividualHistory(this->getIndividualHistory(i)->expand(data[i], backup));
+                }
             }
         }
+        else
+        {
+            h_joint = this->getptr();
+        }
+
         return h_joint;
     }
 
@@ -75,6 +89,23 @@ namespace sdm
     std::string JointHistoryTree<T>::str()
     {
         return HistoryTree<Joint<T>>::str();
+    }
+
+    template <typename T>
+    void JointHistoryTree<T>::setDefaultObs(number n_agents)
+    {
+        std::vector<T> default_vector;
+        for (number i = 0; i < n_agents; i++)
+        {
+            default_vector.push_back(sdm::DEFAULT_OBSERVATION);
+        }
+        this->default_value = Joint<T>(default_vector);
+    }
+
+    template <typename T>
+    std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::getptr()
+    {
+        return std::static_pointer_cast<JointHistoryTree<T>>(this->shared_from_this());
     }
 
 } // namespace sdm

@@ -82,6 +82,9 @@ namespace sdm
         std::string str();
         std::string short_str();
 
+        std::shared_ptr<HistoryTree<T>> getptr();
+
+
         friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
         {
             os << i_hist.str();

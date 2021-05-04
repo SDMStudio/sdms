@@ -184,28 +184,31 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&serial_occupancy_state, const TVector&next_hyperplan, const TAction&serial_decision_rule, number t)
     {
-        TVector new_hyperplan(this->default_values_per_horizon[t]);
+        number ag_id = serial_occupancy_state.getCurrentAgentId();
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-        for (const auto &pair_s_o_p : serial_occupancy_state)
+        TVector new_hyperplan(this->default_values_per_horizon[t]);
+        for(const auto uncompressed_s_o: *serial_occupancy_state.getFullyUncompressedOccupancy())
         {
-            auto pair_s_o = pair_s_o_p.first;
-            auto serial_hidden_state = serial_occupancy_state.getState(pair_s_o);
-            auto history = serial_occupancy_state.getHistory(pair_s_o);
+            auto uncompressed_hidden_serial_state = serial_occupancy_state.getState(uncompressed_s_o.first); 
+            auto uncompressed_joint_history = serial_occupancy_state.getHistory(uncompressed_s_o.first);
 
-            auto action = serial_decision_rule.act(history->getIndividualHistory(serial_occupancy_state.getCurrentAgentId()));
-
-            new_hyperplan.addProbabilityAt(pair_s_o,under_pb->getReward(serial_hidden_state, action));
-
-            for (const auto &serial_hidden_next_state : under_pb->getReachableSerialStates(serial_hidden_state, action))
+            auto compressed_joint_history = serial_occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
+            auto serial_action = serial_decision_rule.act(compressed_joint_history->getIndividualHistory(ag_id)); 
+            
+            new_hyperplan.addProbabilityAt(uncompressed_s_o.first,under_pb->getReward(uncompressed_hidden_serial_state, serial_action));
+            
+            for(auto next_hidden_serial_state : under_pb->getReachableSerialStates(uncompressed_hidden_serial_state, serial_action))
             {
-                for (const auto &serial_observation : under_pb->getReachableObservations(serial_hidden_state,action, serial_hidden_next_state))
+                for(auto next_serial_observation : under_pb->getReachableObservations(uncompressed_hidden_serial_state,serial_action, next_hidden_serial_state))
                 {
-                    auto history_next = history->expand(serial_observation);
-                    new_hyperplan.addProbabilityAt(pair_s_o,under_pb->getDiscount(t) *  next_hyperplan.at(std::make_pair(serial_hidden_next_state,history_next)) * under_pb->getDynamics(serial_hidden_state, action, serial_observation, serial_hidden_next_state));
+                    auto next_joint_history =  compressed_joint_history->expand(next_serial_observation);
+
+                    new_hyperplan.addProbabilityAt(uncompressed_s_o.first,under_pb->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_serial_state, serial_action, next_serial_observation, next_hidden_serial_state) * next_hyperplan.at({next_hidden_serial_state,next_joint_history}));
                 }
             }
         }
+        new_hyperplan.finalize();
         return new_hyperplan;
     }
 

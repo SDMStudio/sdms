@@ -135,4 +135,10 @@ namespace sdm
         res << "</tree>" << std::endl;
         return res.str();
     }
+
+    template <typename T>
+    std::shared_ptr<Tree<T>> Tree<T>::getptr()
+    {
+        return this->shared_from_this();
+    }
 } // namespace sdm

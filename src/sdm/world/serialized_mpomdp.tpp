@@ -39,8 +39,8 @@ namespace sdm
         {
             auto obs = this->decpomdp_->getObsSpace()->getSpace(ag_id)->getAll();
             std::vector<number> observation = obs;
-            observation.push_back(obs.size());
-            v.push_back(obs.size());
+            observation.push_back(sdm::DEFAULT_OBSERVATION);
+            v.push_back(sdm::DEFAULT_OBSERVATION);
 
             auto serial_ind_space = std::make_shared<DiscreteSpace<number>>(observation);
             all_observation_space.push_back(serial_ind_space);
@@ -122,7 +122,6 @@ namespace sdm
                 // Go over joint_obs 
                for (const auto next_serialized_state : this->serialized_state_space_->getAll())
                 {
-
                     //Update action
                     std::vector<number> all_action(serialized_state.getAction());
                     all_action.push_back(serial_action);

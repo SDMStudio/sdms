@@ -1,18 +1,18 @@
 #include <iostream>
 
 #include <sdm/exception.hpp>
+#include <sdm/core/action/joint_det_decision_rule.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/core/action/joint_det_decision_rule.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
 
 #include<sdm/algorithms.hpp>
+#include <sdm/algorithms/hsvi.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
+
 	std::string filename;
     number horizon = 3;
     number discount = 1;
@@ -79,5 +79,4 @@ int main(int argc, char **argv)
 		std::cout << "!!! Exception: " << e.what() << std::endl;
 	}
 
-	return 0;
-} // END main
+}

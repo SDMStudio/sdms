@@ -79,7 +79,7 @@ namespace sdm
             auto u = serialized_state.getAction();
             number agent_identifier = serialized_state.getCurrentAgentId();
 
-            std::unordered_map<number,std::set<SerializedState>> map_action_next_serial_state;
+            this->reachable_state_space.emplace(serialized_state,std::unordered_map<number,std::set<SerializedState>>());
 
             for(auto action : this->getActionSpace(agent_identifier)->getAll())
             {
@@ -104,11 +104,10 @@ namespace sdm
                     }
                 }else
                 {
-                    all_next_serial_state.insert(SerializedState(x,u));
+                    all_next_serial_state.insert(SerializedState(x,serial_action));
                 }
-                map_action_next_serial_state.emplace(action,all_next_serial_state);
+                this->reachable_state_space[serialized_state].emplace(action,all_next_serial_state);
             }
-            this->reachable_state_space.emplace(serialized_state,map_action_next_serial_state);
         }
     }
 

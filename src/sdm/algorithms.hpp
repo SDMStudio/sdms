@@ -20,6 +20,7 @@
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/utils/value_function/max_plan_vf_with_lp.hpp>
+#include <sdm/utils/value_function/max_plane_vf_serialized.hpp>
 
 #include <sdm/utils/rl/exploration.hpp>
 
@@ -72,9 +73,9 @@ namespace sdm
             {
                 lower_bound = std::make_shared<sdm::MaxPlanValueFunction<TState, TAction>>(problem, horizon, lb_init);
             }
-            else if (lower_bound_name == "maxplan2")
+            else if (lower_bound_name == "maxplan_serial")
             {
-                //lower_bound = std::make_shared<sdm::MaxPlanValueFunction2<TState, TAction>>(problem, horizon, lb_init);
+                lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized<TState, TAction>>(problem, horizon, lb_init);
             }
             else if (lower_bound_name == "maxplan_lp")
             {
