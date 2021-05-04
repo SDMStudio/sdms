@@ -208,6 +208,41 @@ namespace sdm
         return res.str();
     }
 
+    // template <typename TState, typename TJointHistory_p>
+    // std::string BaseOccupancyState<TState, TJointHistory_p>::str_hyperplan() const
+    // {
+
+    //     std::ostringstream res, tmp;
+    //     number horizon;
+    //     std::unordered_map<TJointHistory_p, std::pair<double, MappedVector<TState, double>>> map;
+    //     for (const auto &pair_x_o_p : *this)
+    //     {
+    //         if (map.find(pair_x_o_p.first.second) == map.end())
+    //         {
+    //             map.emplace(pair_x_o_p.first.second, std::make_pair(0, MappedVector<TState, double>()));
+    //             horizon = pair_x_o_p.first.second->getDepth();
+    //         }
+    //         map[pair_x_o_p.first.second].first += pair_x_o_p.second;
+    //         map[pair_x_o_p.first.second].second[pair_x_o_p.first.first] = pair_x_o_p.second;
+    //     }
+
+    //     for (const auto &pair_x_o_p : *this)
+    //     {
+    //         map[pair_x_o_p.first.second].second[pair_x_o_p.first.first] /= map[pair_x_o_p.first.second].first;
+    //     }
+
+
+    //     res << "<hyperplan size=\"" << map.size() << "\" horizon=\"" << horizon << "\">" << std::endl;
+    //     for (const auto pair_o_pair_proba_belief : map)
+    //     {
+    //         auto joint_hist = pair_o_pair_proba_belief.first;
+    //         res << "\t<joint-history name=\"" << *joint_hist.short_str() << "\" vector ="<< MappedVector<Pair<TState, TJointHistory_p>, double>::str()<< "/>" << std::endl;
+    //     }
+    //     res << "</occupancy-state>" << std::endl;
+ 
+    //     return res.str();
+    // }
+
 } // namespace sdm
 
 namespace std

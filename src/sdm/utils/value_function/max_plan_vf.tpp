@@ -186,7 +186,6 @@ namespace sdm
                 }
             }
         }
-        //std::cout<<"\n v_max"<<v_max;
         return v_max;
     }
 
