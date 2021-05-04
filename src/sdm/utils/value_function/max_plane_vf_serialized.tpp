@@ -129,17 +129,20 @@ namespace sdm
                 }
             }
         }
-        std::cout<<"\n new_hyperplan "<<new_hyperplan;
+        std::cout<<"\n new_hyperplan "<<new_hyperplan.str_hyperplan();
         return new_hyperplan;
     }
 
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
     {
+        std::cout<<"\n size hyperplan t "<<this->representation[t].size();
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
 
         if(std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
             this->representation[t].push_back(new_hyperplan);
+
+        std::cout<<"\n size hyperplan t "<<this->representation[t].size();
     }
 
 } // namespace sdm
