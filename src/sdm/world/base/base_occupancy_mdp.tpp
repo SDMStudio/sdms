@@ -6,12 +6,12 @@ namespace sdm
 {
 
     template <typename TState, typename TAction>
-    OccupancyMDP<TState, TAction>::OccupancyMDP()
+    BaseOccupancyMDP<TState, TAction>::BaseOccupancyMDP()
     {
     }
 
     template <typename TState, typename TAction>
-    OccupancyMDP<TState, TAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
+    BaseOccupancyMDP<TState, TAction>::BaseOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length) : dpomdp_(underlying_dpomdp)
     {
         typename TState::jhistory_type jhist;
         jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->dpomdp_->getNumAgents(), (hist_length > 0) ? hist_length : -1);
@@ -34,18 +34,18 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    OccupancyMDP<TState, TAction>::OccupancyMDP(std::string underlying_dpomdp, number hist_length) : OccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp), hist_length)
+    BaseOccupancyMDP<TState, TAction>::BaseOccupancyMDP(std::string underlying_dpomdp, number hist_length) : BaseOccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp), hist_length)
     {
     }
 
     template <typename TState, typename TAction>
-    TState &OccupancyMDP<TState, TAction>::getState()
+    TState &BaseOccupancyMDP<TState, TAction>::getState()
     {
         return *this->current_state_;
     }
 
     template <typename TState, typename TAction>
-    TState OccupancyMDP<TState, TAction>::reset()
+    TState BaseOccupancyMDP<TState, TAction>::reset()
     {
         // Reset the joint history to initial value
         this->current_history_ = this->initial_history_;
@@ -56,12 +56,12 @@ namespace sdm
         // Reset the underlying DecPOMDP
         this->dpomdp_->reset();
         
-        // Return the occupancy (which is the observation in OccupancyMDP formalism)
+        // Return the occupancy (which is the observation in BaseOccupancyMDP formalism)
         return *this->current_state_;
     }
 
     template <typename TState, typename TAction>
-    std::tuple<TState, std::vector<double>, bool> OccupancyMDP<TState, TAction>::step(TAction joint_idr)
+    std::tuple<TState, std::vector<double>, bool> BaseOccupancyMDP<TState, TAction>::step(TAction joint_idr)
     {
         // Select joint action 
         auto jaction = joint_idr.act(this->current_state_->getJointLabels(this->current_history_->getIndividualHistories())); 
@@ -80,25 +80,25 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    bool OccupancyMDP<TState, TAction>::isSerialized() const
+    bool BaseOccupancyMDP<TState, TAction>::isSerialized() const
     {
         return false;
     }
 
     template <typename TState, typename TAction>
-    DiscreteDecPOMDP *OccupancyMDP<TState, TAction>::getUnderlyingProblem()
+    DiscreteDecPOMDP *BaseOccupancyMDP<TState, TAction>::getUnderlyingProblem()
     {
         return this->dpomdp_.get();
     }
 
     template <typename TState, typename TAction>
-    TState OccupancyMDP<TState, TAction>::getInitialState()
+    TState BaseOccupancyMDP<TState, TAction>::getInitialState()
     {
         return *this->initial_state_;
     }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<DiscreteSpace<TAction>> OccupancyMDP<TState, TAction>::getActionSpaceAt(const TState &ostate)
+    std::shared_ptr<DiscreteSpace<TAction>> BaseOccupancyMDP<TState, TAction>::getActionSpaceAt(const TState &ostate)
     {
         using decision_rule_t = typename TAction::value_type;
 
@@ -127,7 +127,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    TState OccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &joint_idr, number, std::shared_ptr<HSVI<TState, TAction>>, bool compression) const
+    TState BaseOccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &joint_idr, number, std::shared_ptr<HSVI<TState, TAction>>, bool compression) const
     {
         // The new compressed occupancy state
         std::shared_ptr<TState> new_compressed_occupancy_state;
@@ -189,13 +189,13 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    TState OccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &joint_idr, number h, std::shared_ptr<HSVI<TState, TAction>> hsvi) const
+    TState BaseOccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &joint_idr, number h, std::shared_ptr<HSVI<TState, TAction>> hsvi) const
     {
         return this->nextState(ostate, joint_idr, h, hsvi, true);
     }
 
     template <typename TState, typename TAction>
-    double OccupancyMDP<TState, TAction>::getReward(const TState &ostate, const TAction &joint_idr) const
+    double BaseOccupancyMDP<TState, TAction>::getReward(const TState &ostate, const TAction &joint_idr) const
     {
         double r = 0;
         for (auto &p_x_o : ostate)
@@ -212,44 +212,44 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double OccupancyMDP<TState, TAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const TState &ostate, const TAction &oaction, number t) const
+    double BaseOccupancyMDP<TState, TAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const TState &ostate, const TAction &oaction, number t) const
     {
         TState ost = this->nextState(ostate, oaction);
         return value_function->getValueAt(ost, t + 1);
     }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<DiscreteMDP> OccupancyMDP<TState, TAction>::toMDP()
+    std::shared_ptr<DiscreteMDP> BaseOccupancyMDP<TState, TAction>::toMDP()
     {
         return this->dpomdp_->toMDP();
     }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> OccupancyMDP<TState, TAction>::toBeliefMDP()
+    std::shared_ptr<BeliefMDP<BeliefState, number, number>> BaseOccupancyMDP<TState, TAction>::toBeliefMDP()
     {
         return this->dpomdp_->toBeliefMDP();
     }
 
     template <typename TState, typename TAction>
-    double OccupancyMDP<TState, TAction>::getDiscount(number)
+    double BaseOccupancyMDP<TState, TAction>::getDiscount(number)
     {
         return this->dpomdp_->getDiscount();
     }
 
     template <typename TState, typename TAction>
-    double OccupancyMDP<TState, TAction>::getWeightedDiscount(number horizon)
+    double BaseOccupancyMDP<TState, TAction>::getWeightedDiscount(number horizon)
     {
         return std::pow(this->dpomdp_->getDiscount(), horizon);
     }
 
     template <typename TState, typename TAction>
-    double OccupancyMDP<TState, TAction>::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
+    double BaseOccupancyMDP<TState, TAction>::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
     {
         return std::min(ub - lb, cost_so_far + this->dpomdp_->getDiscount() * ub - incumbent) - error / this->getWeightedDiscount(horizon);
     }
 
     template <typename TState, typename TAction>
-    TAction OccupancyMDP<TState, TAction>::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h)
+    TAction BaseOccupancyMDP<TState, TAction>::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h)
     {
         return ub->getBestAction(s, h);
     }

@@ -10,24 +10,32 @@ namespace sdm
 
     template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
-        double default_value) : BaseOccupancyState<TState, TJointHistory_p>(default_value)
+        double default_value) : OccupancyState<TState, TJointHistory_p>(default_value)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(number ag_id, double default_value) : BaseOccupancyState<TState, TJointHistory_p>(default_value), agent_id_(ag_id)
+    PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(number ag_id, double default_value) : OccupancyState<TState, TJointHistory_p>(default_value), agent_id_(ag_id)
     {
     }
+
+    // template <typename TState, typename TJointHistory_p>
+    // PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
+    //     std::size_t size, double default_value) : OccupancyState<TState, TJointHistory_p>(size, default_value)
+    // {
+    // }
 
     template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
-        std::size_t size, double default_value) : BaseOccupancyState<TState, TJointHistory_p>(size, default_value)
+        const PrivateOccupancyState &v) : OccupancyState<TState, TJointHistory_p>(v), agent_id_(v.getAgentId()), bimap_jhist_partial_jhist(v.bimap_jhist_partial_jhist)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
-        const PrivateOccupancyState &v) : BaseOccupancyState<TState, TJointHistory_p>(v), agent_id_(v.getAgentId()), bimap_jhist_partial_jhist(v.bimap_jhist_partial_jhist)
+    PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(const OccupancyState<TState, TJointHistory_p> &occupancy_state)
+        : OccupancyState<TState, TJointHistory_p>(occupancy_state),
+          agent_id_(0),
+          bimap_jhist_partial_jhist()
     {
     }
 
@@ -37,27 +45,27 @@ namespace sdm
         return this->agent_id_;
     }
 
-    template <typename TState, typename TJointHistory_p>
-    std::string PrivateOccupancyState<TState, TJointHistory_p>::str() const
-    {
-        std::ostringstream res, tmp;
-        res << "<private-occupancy-state horizon='?'>" << std::endl;
-        for (const auto &pair_x_o_p : *this)
-        {
-            auto joint_hist = pair_x_o_p.first.second;
+    // template <typename TState, typename TJointHistory_p>
+    // std::string PrivateOccupancyState<TState, TJointHistory_p>::str() const
+    // {
+    //     std::ostringstream res, tmp;
+    //     res << "<private-occupancy-state horizon='?'>" << std::endl;
+    //     for (const auto &pair_x_o_p : *this)
+    //     {
+    //         auto joint_hist = pair_x_o_p.first.second;
 
-            res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
-            for (auto ihist : pair_x_o_p.first.second->getIndividualHistories())
-            {
-                res << tools::addIndent(ihist->str(), 2);
-            }
-            res << "\t\t" << pair_x_o_p.second << std::endl;
-            res << "\t<probability>" << std::endl;
-        }
-        res << "</private-occupancy-state>" << std::endl;
+    //         res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
+    //         for (auto ihist : pair_x_o_p.first.second->getIndividualHistories())
+    //         {
+    //             res << tools::addIndent(ihist->str(), 2);
+    //         }
+    //         res << "\t\t" << pair_x_o_p.second << std::endl;
+    //         res << "\t<probability>" << std::endl;
+    //     }
+    //     res << "</private-occupancy-state>" << std::endl;
 
-        return res.str();
-    }
+    //     return res.str();
+    // }
 
     template <typename TState, typename TJointHistory_p>
     std::vector<typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type> PrivateOccupancyState<TState, TJointHistory_p>::getPartialJointHistory(const std::vector<typename PrivateOccupancyState<TState, TJointHistory_p>::ihistory_type> &joint_history) const
@@ -80,9 +88,16 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    void PrivateOccupancyState<TState, TJointHistory_p>::finalize()
+    void PrivateOccupancyState<TState, TJointHistory_p>::finalize(bool do_compression)
     {
-        BaseOccupancyState<TState, TJointHistory_p>::finalize();
+        if (do_compression)
+        {
+            OccupancyState<TState, TJointHistory_p>::finalize();
+        }
+        else
+        {
+            BaseOccupancyState<TState, TJointHistory_p>::finalize();
+        }
 
         // Add elements in bimap jhistory <--> jhistory^{-i}
         for (const auto &pair_state_hist_prob : *this)
@@ -148,7 +163,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            return std::hash<sdm::BaseOccupancyState<S, V>>()(in);
+            return std::hash<sdm::OccupancyState<S, V>>()(in);
         }
     };
 }
