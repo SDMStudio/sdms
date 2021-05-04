@@ -12,21 +12,18 @@ namespace sdm
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<DiscreteSpace<TItem>> &spaces)
     {
         this->setSpaces(spaces);
-        //this->generateJointItems();
     }
 
     template <typename TItem>
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces)
     {
         this->setSpaces(spaces);
-        //this->generateJointItems();
     }
 
     template <typename TItem>
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::vector<TItem>> &values)
     {
         this->setSpaces(values);
-        //this->generateJointItems();
     }
 
     template <typename TItem>
@@ -37,7 +34,6 @@ namespace sdm
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::enable_if_t<TBool, std::vector<TItem>> &num_items)
     {
         this->setSpaces(num_items);
-        //this->generateJointItems();
     }
 
     template <typename TItem>
@@ -178,9 +174,20 @@ namespace sdm
     template <typename TItem>
     MultiDiscreteSpace<TItem> &MultiDiscreteSpace<TItem>::operator=(const MultiDiscreteSpace<TItem> &sp)
     {
-        this->all_items_.clear();
         this->setSpaces(sp.getSpaces());
         return *this;
+    }
+
+    template <typename TItem>
+    bool MultiDiscreteSpace<TItem>::operator==(const MultiDiscreteSpace<TItem> &other) const
+    {
+        return DiscreteSpace<Joint<TItem>>::operator==(other);
+    }
+
+    template <typename TItem>
+    bool MultiDiscreteSpace<TItem>::operator!=(const MultiDiscreteSpace<TItem> &other) const
+    {
+        return this->operator!=(other);
     }
 
     template <typename TItem>

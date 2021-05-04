@@ -15,10 +15,7 @@
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
-<<<<<<< HEAD
-=======
 #include <sdm/core/action/joint_det_decision_rule.hpp>
->>>>>>> 7f1522b53d81de814d011a500ac5fc287b60efd0
 
 using namespace sdm;
 

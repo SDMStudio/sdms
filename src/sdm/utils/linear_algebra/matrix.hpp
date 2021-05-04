@@ -29,12 +29,13 @@ Copyright (c) 2016 Jilles Steeve Dibangoye, Olivier Buffet, Charles Bessonet
 //! \namespace  sdm
 //!
 //! Namespace grouping all tools required for sequential decision making.
-namespace sdm{
+namespace sdm
+{
 
-  template<typename mtype, typename vtype, typename value>
-  class matrix {
+  template <typename mtype, typename vtype, typename value>
+  class matrix
+  {
   public:
-
     //! \fn matrix()
     //! \brief This constructor allocates an uninitialized matrix that holds zero elements.
     matrix();
@@ -63,7 +64,7 @@ namespace sdm{
     //! \param  size_t
     //! \param  size_t
     //! \return value&
-    value& operator()(size_t, size_t);
+    value &operator()(size_t, size_t);
 
     //! \fn value operator()(std::size_t, std::size_t) const
     //! \brief Returns a value of the \@param1-th element in the \@param2-th row.
@@ -91,8 +92,8 @@ namespace sdm{
     //! \brief Compress the matrix if possible.
     void compress();
 
-
-    friend std::ostream& operator<<(std::ostream& os, const matrix& arg){
+    friend std::ostream &operator<<(std::ostream &os, const matrix &arg)
+    {
       return os << arg.container;
     }
 
@@ -101,7 +102,8 @@ namespace sdm{
     //! \param matrix&
     //! \param matrix&
     //! \return matrix
-    friend const matrix& operator+=(matrix& arg1, const matrix& arg2){
+    friend const matrix &operator+=(matrix &arg1, const matrix &arg2)
+    {
       arg1.container += arg2.container;
       return arg1;
     }
@@ -116,51 +118,43 @@ namespace sdm{
   //! \param  const matrix<mtype, vtype, value>&
   //! \param  const vector<vtype, value>&
   //! \return vector<vtype, value>
-  template<typename mtype, typename vtype, typename value>
-  vector<vtype, value> operator*(const matrix<mtype, vtype, value>&, const vector<vtype, value>&);
+  template <typename mtype, typename vtype, typename value>
+  vector<vtype, value> operator*(const matrix<mtype, vtype, value> &, const vector<vtype, value> &);
 
   //! \fn  matrix<mtype, vtype, value> operator*(const matrix<mtype, vtype, value>&, const matrix<mtype, vtype, value>&)
   //! \brief Returns the product of two matrices.
   //! \param  const matrix<mtype, vtype, value>&
   //! \param  const matrix<mtype, vtype, value>&
   //! \return matrix<mtype, vtype, value>
-  template<typename mtype, typename vtype, typename value>
-  matrix<mtype, vtype, value> operator*(const matrix<mtype, vtype, value>&, const matrix<mtype, vtype, value>&);
+  template <typename mtype, typename vtype, typename value>
+  matrix<mtype, vtype, value> operator*(const matrix<mtype, vtype, value> &, const matrix<mtype, vtype, value> &);
 
   //! \fn  bool operator==(const matrix<mtype, vtype, value>&, const matrix<mtype, vtype, value>&)
   //! \brief Returns true if the two matrices are equals and false otherwise.
   //! \param  const matrix<mtype, vtype, value>&
   //! \param  const matrix<mtype, vtype, value>&
   //! \return bool
-  template<typename mtype, typename vtype, typename value>
-  bool operator==(const matrix<mtype, vtype, value>&, const matrix<mtype, vtype, value>&);
-
+  template <typename mtype, typename vtype, typename value>
+  bool operator==(const matrix<mtype, vtype, value> &, const matrix<mtype, vtype, value> &);
 
   //! \fn  matrix<mtype, vtype, value> operator^(const vector<vtype, value>&, const matrix<mtype, vtype, value>&)
   //! \brief Returns a matrix that results from the point-to-point product of a vector with a matrix.
   //! \param  const vector<vtype, value>&
   //! \param  const matrix<mtype, vtype, value>&
   //! \return matrix<mtype, vtype, value>
-  template<typename mtype, typename vtype, typename value>
-  matrix<mtype, vtype, value> operator^(const vector<vtype, value>&, const matrix<mtype, vtype, value>&);
+  template <typename mtype, typename vtype, typename value>
+  matrix<mtype, vtype, value> operator^(const vector<vtype, value> &, const matrix<mtype, vtype, value> &);
 
+  using DenseMatrix = class matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>;
+  using SparseMatrix = class matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>;
 
-  #ifdef EIGEN
-    #ifdef DENSE
-      using Matrix = class matrix<Eigen::MatrixXd, Eigen::VectorXd, double>;
-    #endif
-    #ifdef SPARSE
-      using Matrix = class matrix<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::SparseVector<double>, double>;
-    #endif
-  #endif
-
-  #ifdef BOOST
-    #ifdef DENSE
-      using Matrix = class matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>;
-    #endif
-    #ifdef SPARSE
-      using Matrix = class matrix<boost::numeric::ublas::mapped_matrix<double>, boost::numeric::ublas::vector<double>, double>;
-    #endif
-  #endif
+#ifdef BOOST
+#ifdef DENSE
+  using Matrix = class matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>;
+#endif
+#ifdef SPARSE
+  using Matrix = class matrix<boost::numeric::ublas::mapped_matrix<double>, boost::numeric::ublas::vector<double>, double>;
+#endif
+#endif
 
 }

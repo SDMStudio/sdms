@@ -15,6 +15,11 @@ namespace sdm
     sdmsVector<I, T, TBaseVector>::sdmsVector(const sdmsVector &v) : TBaseVector(v) {}
 
     template <class I, class T, class TBaseVector>
+    sdmsVector<I, T, TBaseVector>::sdmsVector(const std::vector<T> &std_vector) : TBaseVector(&std_vector[0])
+    {
+    }
+
+    template <class I, class T, class TBaseVector>
     T sdmsVector<I, T, TBaseVector>::sum()
     {
         T sum = 0;
@@ -28,7 +33,7 @@ namespace sdm
     template <class I, class T, class TBaseVector>
     T sdmsVector<I, T, TBaseVector>::at(const I &i) const
     {
-        return TBaseVector::at(i);
+        return TBaseVector::operator[](i);
     }
 
     template <class I, class T, class TBaseVector>

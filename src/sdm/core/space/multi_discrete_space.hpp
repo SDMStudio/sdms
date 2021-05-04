@@ -57,7 +57,7 @@ namespace sdm
          * @brief Instantiate a default discrete space (MultiDiscreteSpace class)
          */
         MultiDiscreteSpace();
-        
+
         /**
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
          * 
@@ -130,7 +130,6 @@ namespace sdm
         void setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces);
         void setSpaces(const std::vector<DiscreteSpace<TItem>> &spaces);
 
-
         /*!
          * @brief Transform joint item to its index in the list of all joint items.
          * @param jitem the joint item we want to get the index
@@ -154,6 +153,8 @@ namespace sdm
         std::string str() const;
 
         MultiDiscreteSpace<TItem> &operator=(const MultiDiscreteSpace<TItem> &);
+        bool operator==(const MultiDiscreteSpace &other) const;
+        bool operator!=(const MultiDiscreteSpace &other) const;
 
         /**
          * @brief Verify is the multi discrete space contains the Joint<TItem>;
@@ -161,7 +162,7 @@ namespace sdm
          * @return true 
          * @return false 
          */
-        bool contains(const std::vector<TItem>& ) const;
+        bool contains(const std::vector<TItem> &) const;
 
         friend std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpace<TItem> &sp)
         {

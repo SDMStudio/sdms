@@ -9,6 +9,8 @@
  * 
  */
 #pragma once
+
+#include <vector>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
@@ -37,6 +39,7 @@ namespace sdm
     sdmsVector(I);
     sdmsVector(I, T);
     sdmsVector(const sdmsVector &);
+    sdmsVector(const std::vector<T> &);
 
     void init(T);
     T at(const I &) const;

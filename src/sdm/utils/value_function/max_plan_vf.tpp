@@ -1,5 +1,5 @@
-#include <sdm/utils/value_function/value_function.hpp>
 
+#include <sdm/utils/value_function/value_function.hpp>
 namespace sdm
 {
 
