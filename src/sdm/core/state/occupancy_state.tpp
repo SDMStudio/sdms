@@ -35,7 +35,8 @@ namespace sdm
           one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
           private_ihistory_map_(occupancy_state.private_ihistory_map_),
           map_label_to_pointer(occupancy_state.map_label_to_pointer),
-          jhistory_map_(occupancy_state.jhistory_map_)
+          jhistory_map_(occupancy_state.jhistory_map_),
+          probability_ihistories(occupancy_state.probability_ihistories)
     {
     }
 
@@ -240,12 +241,37 @@ namespace sdm
                 pair_ihist_private_occupancy_state.second->finalize(false);
             }
         }
+
+        this->setProbabilityOverIndividualHistories();
     }
 
     template <typename TState, typename TJointHistory_p>
     std::shared_ptr<OccupancyState<TState, TJointHistory_p>> OccupancyState<TState, TJointHistory_p>::getptr()
     {
         return std::static_pointer_cast<OccupancyState<TState, TJointHistory_p>>(this->shared_from_this());
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const double &OccupancyState<TState, TJointHistory_p>::getProbabilityOverIndividualHistories(number agent,typename jhistory_type::element_type::ihistory_type ihistory) const
+    {
+        return this->probability_ihistories.at(agent).at(ihistory);
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void OccupancyState<TState, TJointHistory_p>::setProbabilityOverIndividualHistories()
+    {
+        for(number ag_id = 0; ag_id < this->num_agents; ag_id++)
+        {
+            for(const auto &ihistory : this->getIndividualHistories(ag_id))
+            {
+                double prob = 0;
+                for (const auto &pair_hidden_state_history_proba : *this->getPrivateOccupancyState(ag_id, ihistory)) 
+                {
+                    prob += pair_hidden_state_history_proba.second;    
+                }  
+                this->probability_ihistories[ag_id][ihistory] = prob;
+            }
+        }           
     }
 
 } // namespace sdm

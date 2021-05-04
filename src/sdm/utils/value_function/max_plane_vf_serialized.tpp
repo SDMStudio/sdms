@@ -20,26 +20,37 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     double MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::getMaxPlanValueAt(const TVector &serial_occupancy_state,const TVector& hyperplan,const number private_action ,const typename TVector::jhistory_type::element_type::ihistory_type& private_history,number t)
     {
-        double value =0;
+        double value = 0;
+        auto agent = serial_occupancy_state.getCurrentAgentId();
         auto under_pb = this->getWorld()->getUnderlyingProblem();
         
-        for (const auto &pair_hidden_state_history_proba : *serial_occupancy_state.getPrivateOccupancyState(serial_occupancy_state.getCurrentAgentId(),private_history)) 
+        for (const auto &pair_hidden_state_history_proba : *serial_occupancy_state.getPrivateOccupancyState(agent,private_history)) 
         {
+            // Get information from private occupancy state
             auto pair_hidden_state_history = pair_hidden_state_history_proba.first;
-            auto serial_hidden_state = serial_occupancy_state.getState(pair_hidden_state_history);
-            auto joint_history = serial_occupancy_state.getHistory(pair_hidden_state_history);
-            auto proba = pair_hidden_state_history_proba.second;
+            auto serial_hidden_serial_state = serial_occupancy_state.getState(pair_hidden_state_history);
+            auto uncompressed_joint_history = serial_occupancy_state.getHistory(pair_hidden_state_history);
+            auto compressed_joint_history = serial_occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
 
-            value += under_pb->getReward(serial_hidden_state,private_action)*proba; 
+            double proba = pair_hidden_state_history_proba.second;
 
-            for(const auto &serialized_underlying_next_state: under_pb->getReachableSerialStates(serial_hidden_state, private_action)) 
+            // Determine the reward 
+            double immediate_reward = under_pb->getReward(serial_hidden_serial_state, private_action);
+
+            // Compute the next value
+            double next_value = 0;
+
+            // Go over all Reachable Serial State
+            for(const auto &serialized_underlying_next_state: under_pb->getReachableSerialStates(serial_hidden_serial_state, private_action)) 
             {
-                for(const auto &serial_observation : under_pb->getReachableObservations(serial_hidden_state,private_action, serialized_underlying_next_state)) 
+                // Go over all Reachable Observation
+                for(const auto &serial_observation : under_pb->getReachableObservations(serial_hidden_serial_state,private_action, serialized_underlying_next_state)) 
                 {
-                    auto joint_history_next = joint_history->expand(serial_observation);
-                    value += proba*under_pb->getDiscount(t)*hyperplan.at(std::make_pair(serialized_underlying_next_state,joint_history_next))*under_pb->getDynamics(serial_hidden_state,private_action,serial_observation,serialized_underlying_next_state);
+                    auto joint_history_next = compressed_joint_history->expand(serial_observation);
+                    next_value += hyperplan.at(std::make_pair(serialized_underlying_next_state,joint_history_next))*under_pb->getDynamics(serial_hidden_serial_state,private_action,serial_observation,serialized_underlying_next_state);
                 }
             }
+            value += proba * (immediate_reward + under_pb->getDiscount(t) *next_value);
         }
         return value;
     }
@@ -47,38 +58,42 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     Pair<TAction,double> MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::greedyMaxPlaneSerial(const TVector &serial_occupancy_state,number t)
     {
-        auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
-        auto under_pb = this->getWorld()->getUnderlyingProblem();
-
-        double argmax_global = -std::numeric_limits<double>::max();  
         TAction decision_max;
 
-        auto getActionSpace = under_pb->getActionSpace(serial_occupancy_state.getCurrentAgentId())->getAll();
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
+        auto agent = serial_occupancy_state.getCurrentAgentId();
 
+        // Definie local Variable
+        double argmax_global = -std::numeric_limits<double>::max();  
+        double decision_rule_value;
+
+        // Go other the hyperplanes of decision step t+1
         for(const auto &hyperplan : this->getSupport(t+1))
         {
-            double decision_rule_value = 0;  
+            decision_rule_value = 0;  
             TAction decision_;
 
-            for (const auto &pair_s_o_p : *serial_occupancy_state.getFullyUncompressedOccupancy())
+            // Go over all Individual Histories in Serial Occupancy State
+            for (const auto &private_history : serial_occupancy_state.getIndividualHistories(agent))
             {
                 double argmax_local = -std::numeric_limits<double>::max(); 
-
-                auto private_history = serial_occupancy_state.getHistory(pair_s_o_p.first)->getIndividualHistory(serial_occupancy_state.getCurrentAgentId());
-
-                for (const auto &private_action : getActionSpace)
+                
+                // Go over all action possible for the current agent
+                for (const auto &private_action : under_pb->getActionSpace(agent)->getAll())
                 {
-                    double action_value = this->getMaxPlanValueAt(serial_occupancy_state,hyperplan,private_action,private_history,t);
-
-                    if(argmax_local< action_value)
+                    double action_value = this->getMaxPlanValueAt(serial_occupancy_state, hyperplan, private_action, private_history, t);
+                    
+                    // Take the best deterministic decision rule "decision_" for a precise hyperplan
+                    if(argmax_local < action_value)
                     {
                         argmax_local = action_value;
                         decision_[private_history] = private_action;
                     }
                 }
-                decision_rule_value += argmax_local;
+                decision_rule_value += serial_occupancy_state.getProbabilityOverIndividualHistories(agent,private_history) * argmax_local;
             }
-            if(argmax_global<decision_rule_value)
+            // Take the best deterministic decision rule
+            if(argmax_global < decision_rule_value)
             {
                 argmax_global = decision_rule_value;
                 decision_max = decision_;
@@ -87,44 +102,112 @@ namespace sdm
         return std::make_pair(decision_max,argmax_global);
     }   
 
+
+    template <typename TVector, typename TAction, typename TValue>
+    TVector MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::setHyperplan(const TVector &serial_occupancy_state, const TAction& indiv_dr, const TVector& next_step_hyperplan, number t)
+    {
+        TVector new_hyperplan(this->default_values_per_horizon[t]);
+        new_hyperplan.setAgent(serial_occupancy_state.getCurrentAgentId());
+
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
+
+        // Go over all uncompressed serial occupancy state 
+        for (const auto &uncompressed_s_o : *serial_occupancy_state.getFullyUncompressedOccupancy())
+        {
+            // Get information uncompressed serial occupancy state 
+            auto pair_s_o = uncompressed_s_o.first;
+            auto uncompressed_hidden_serial_state = serial_occupancy_state.getState(pair_s_o);
+            auto uncompressed_joint_history = serial_occupancy_state.getHistory(pair_s_o);
+            auto compressed_joint_history = serial_occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
+
+            // Determine serial action
+            auto serial_action = indiv_dr.act(compressed_joint_history->getIndividualHistory(serial_occupancy_state.getCurrentAgentId()));
+
+            // Determine the reward 
+            double immediate_reward = under_pb->getReward(uncompressed_hidden_serial_state, serial_action);
+
+            // Compute the next value
+            double next_value = 0;
+
+            // Go over all Reachable Serial State
+            for(const auto &serialized_underlying_next_state: under_pb->getReachableSerialStates(uncompressed_hidden_serial_state, serial_action))
+            {
+                // Go over all Reachable Observation
+                for(const auto &serial_observation :under_pb->getReachableObservations(uncompressed_hidden_serial_state, serial_action, serialized_underlying_next_state))
+                {
+                    auto history_next = compressed_joint_history->expand(serial_observation);
+                    next_value += next_step_hyperplan.at(std::make_pair(serialized_underlying_next_state, history_next)) * under_pb->getDynamics(uncompressed_hidden_serial_state,serial_action,serial_observation,serialized_underlying_next_state);
+                }
+            }
+            new_hyperplan.setProbabilityAt(pair_s_o,immediate_reward +under_pb->getDiscount(t)*next_value);
+        }
+        return new_hyperplan;
+    }
+
+
+    template <typename TVector, typename TAction, typename TValue>
+    double MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::getMaxPlanValueAt(const TVector &serial_occupancy_state, const TAction& indiv_dr, const TVector& next_step_hyperplan, number t)
+    {
+        double value = 0;
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
+        number agent = serial_occupancy_state.getCurrentAgentId();
+
+        // Go over all compressed serial occupancy state 
+        for (const auto &compressed_s_o_prob : serial_occupancy_state)
+        {
+            // Get information uncompressed serial occupancy state 
+            auto prob = compressed_s_o_prob.second;
+            auto pair_s_o = compressed_s_o_prob.first;
+            auto compressed_hidden_serial_state = serial_occupancy_state.getState(pair_s_o);
+            auto compressed_joint_history = serial_occupancy_state.getHistory(pair_s_o);
+            auto serial_action = indiv_dr.act(compressed_joint_history->getIndividualHistory(agent));
+            
+            // Determine the reward 
+            double immediate_reward = under_pb->getReward(compressed_hidden_serial_state, serial_action);
+
+            // Compute the next value
+            double next_value = 0;
+
+            // Go over all Reachable Serial State
+            for(const auto &serialized_underlying_next_state: under_pb->getReachableSerialStates(compressed_hidden_serial_state, serial_action))
+            {
+                // Go over all Reachable Observation
+                for(const auto &serial_observation :under_pb->getReachableObservations(compressed_hidden_serial_state, serial_action, serialized_underlying_next_state))
+                {
+                    auto history_next = compressed_joint_history->expand(serial_observation);
+                    next_value += prob*under_pb->getDiscount(t) * next_step_hyperplan.at(std::make_pair(serialized_underlying_next_state, history_next)) * under_pb->getDynamics(compressed_hidden_serial_state,serial_action,serial_observation,serialized_underlying_next_state);
+                }
+            }
+            value += prob * (immediate_reward+ prob * under_pb->getDiscount(t) * next_value);
+        }
+        return value;
+    }
+
+  
+
     // For SerializedOccupancyMDP (i.e. SerializedOccupancyState as vector type)
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     TVector MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::backup_operator(const TVector &serial_occupancy_state, number t)
     {
+        double max = -std::numeric_limits<double>::max(), value; 
+
+        //Determine the determinitic decision rule
         auto pair_action_value = this->greedyMaxPlaneSerial(serial_occupancy_state,t);
 
-        TVector hyperplan(this->default_values_per_horizon[t]);
+        TVector max_next_step_hyperplan;
 
-        auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
-        auto under_pb = this->getWorld()->getUnderlyingProblem();
-
-        for(const auto &plan : this->getSupport(t+1))
+        // Go other the hyperplanes of decision step t+1
+        for(const auto &hyperplan : this->getSupport(t+1))
         {
-            for (const auto &pair_s_o_p : *serial_occupancy_state.getFullyUncompressedOccupancy())
+            // Determine the max next hyperplan
+            if(max < (value = this->getMaxPlanValueAt(serial_occupancy_state, pair_action_value.first, hyperplan, t)))
             {
-                auto pair_s_o = pair_s_o_p.first;
-                auto serialized_state = serial_occupancy_state.getState(pair_s_o);
-                auto uncompressed_joint_history = serial_occupancy_state.getHistory(pair_s_o);
-
-                auto compressed_joint_history = serial_occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
-
-                auto private_action = pair_action_value.first.act(compressed_joint_history->getIndividualHistory(serial_occupancy_state.getCurrentAgentId()));
-
-                hyperplan[pair_s_o] = under_pb->getReward(serialized_state,private_action);
-
-                for(const auto &serialized_underlying_next_state: under_pb->getReachableSerialStates(serialized_state, private_action))
-                {
-                    for(const auto &serial_observation :under_pb->getReachableObservations(serialized_state,private_action, serialized_state))
-                    {
-                        auto history_next = compressed_joint_history->expand(serial_observation);
-                        hyperplan[pair_s_o] += under_pb->getDiscount(t)*plan.at(std::make_pair(serialized_underlying_next_state,history_next))*under_pb->getDynamics(serialized_state,private_action,serial_observation,serialized_underlying_next_state);
-                    }
-                }
+                max = value;
+                max_next_step_hyperplan = hyperplan;
             }
         }
-        hyperplan.finalize();
-        return hyperplan;
+        return this->setHyperplan(serial_occupancy_state, pair_action_value.first, max_next_step_hyperplan, t);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -133,7 +216,9 @@ namespace sdm
         auto new_hyperplan = this->backup_operator<TVector>(state, t);
 
         if(std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
+        {
             this->representation[t].push_back(new_hyperplan);
+        }
     }
 
 } // namespace sdm

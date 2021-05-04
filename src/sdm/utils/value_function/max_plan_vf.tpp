@@ -128,17 +128,25 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector&occupancy_state, const TVector&next_hyperplan, const TAction&joint_decision_rule, number t)
     {
         TVector new_hyperplan(this->default_values_per_horizon[t]);
+
+        // Go over all occupancy state 
         for(const auto uncompressed_s_o: *occupancy_state.getFullyUncompressedOccupancy())
         {
+            //Get information from uncompressed_s_o
             auto uncompressed_hidden_state = uncompressed_s_o.first.first; 
             auto uncompressed_joint_history = uncompressed_s_o.first.second; 
             auto compressed_joint_history = occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
+
+            // Get the serial action from the serial_decision_rule
             auto action = joint_decision_rule.act(compressed_joint_history->getIndividualHistories()); 
             
+            // Add the reward of the hyperplan
             new_hyperplan.addProbabilityAt(uncompressed_s_o.first,this->getWorld()->getUnderlyingProblem()->getReward()->getReward(uncompressed_hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action)));
 
+            //Go ober all Reachable State
             for(auto next_hidden_state : this->getWorld()->getUnderlyingProblem()->getReachableStates(uncompressed_hidden_state, action))
             {
+                //Go ober all Reachable Observation
                 for(auto next_observation : this->getWorld()->getUnderlyingProblem()->getReachableObservations(uncompressed_hidden_state,action, next_hidden_state))
                 {
                     auto next_joint_history =  compressed_joint_history->expand(next_observation);
@@ -146,7 +154,6 @@ namespace sdm
                 }
             }
         }
-        new_hyperplan.finalize();
         return new_hyperplan;
     }
 
@@ -162,12 +169,16 @@ namespace sdm
 
         auto getAll_actionspace = soMDP->getActionSpaceAt(serial_occupancy_state)->getAll();
 
+        // Go other the hyperplanes of decision step t+1
         for (const auto &next_hyperplan : this->getSupport(t+1))
         {
             // Go over all joint decision rules at serial_occupancy_state 
             for (const auto &serial_decision_rule : getAll_actionspace)
             {
+                //Use the function getHyperplanAt 
                 TVector v = this->getHyperplanAt<TVector>(serial_occupancy_state, next_hyperplan, serial_decision_rule, t);
+                
+                // Choice the best hyperplan
                 if (value_max < (tmp = serial_occupancy_state^v))
                 {
                     value_max = tmp;
@@ -175,7 +186,6 @@ namespace sdm
                 }
             }
         }
-
         return v_max;
     }
 
@@ -188,27 +198,33 @@ namespace sdm
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector new_hyperplan(this->default_values_per_horizon[t]);
+        new_hyperplan.setAgent(ag_id);
+        
+        // Go over all serial occupancy state 
         for(const auto uncompressed_s_o: *serial_occupancy_state.getFullyUncompressedOccupancy())
         {
+            //Get information from uncompressed_s_o
             auto uncompressed_hidden_serial_state = serial_occupancy_state.getState(uncompressed_s_o.first); 
             auto uncompressed_joint_history = serial_occupancy_state.getHistory(uncompressed_s_o.first);
-
             auto compressed_joint_history = serial_occupancy_state.getCompressedJointHistory(uncompressed_joint_history); 
+
+            // Get the serial action from the serial_decision_rule
             auto serial_action = serial_decision_rule.act(compressed_joint_history->getIndividualHistory(ag_id)); 
-            
+
+            // Add the reward of the hyperplan
             new_hyperplan.addProbabilityAt(uncompressed_s_o.first,under_pb->getReward(uncompressed_hidden_serial_state, serial_action));
             
+            //Go ober all Reachable Serial State
             for(auto next_hidden_serial_state : under_pb->getReachableSerialStates(uncompressed_hidden_serial_state, serial_action))
             {
+                //Go ober all Reachable Observation
                 for(auto next_serial_observation : under_pb->getReachableObservations(uncompressed_hidden_serial_state,serial_action, next_hidden_serial_state))
                 {
                     auto next_joint_history =  compressed_joint_history->expand(next_serial_observation);
-
                     new_hyperplan.addProbabilityAt(uncompressed_s_o.first,under_pb->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_serial_state, serial_action, next_serial_observation, next_hidden_serial_state) * next_hyperplan.at({next_hidden_serial_state,next_joint_history}));
                 }
             }
         }
-        new_hyperplan.finalize();
         return new_hyperplan;
     }
 

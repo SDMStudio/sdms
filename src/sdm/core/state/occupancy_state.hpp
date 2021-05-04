@@ -107,6 +107,15 @@ namespace sdm
 
     std::shared_ptr<OccupancyState<TState, TJointHistory_p>> getptr();
 
+    /**
+     * @brief Get the probability over individual histories and precise agent
+     * 
+     * @param number Agent Id
+     * @param typename jhistory_type::element_type::ihistory_type : Individual History
+     */
+    const double &getProbabilityOverIndividualHistories(number,typename jhistory_type::element_type::ihistory_type) const;
+    void setProbabilityOverIndividualHistories();
+
 
   protected:
     /** @brief This representation of occupancy states consists of private occupancy states for each agent*/
@@ -123,6 +132,10 @@ namespace sdm
 
     /** @brief Keep relation between list of individual histories and joint histories */
     RecursiveMap<std::vector<ihistory_type>, jhistory_type> jhistory_map_;
+
+    /** @brief probability of a private history space for a precise agent */
+    std::unordered_map<number, std::unordered_map<ihistory_type, double>> probability_ihistories;
+
   };
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

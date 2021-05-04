@@ -12,8 +12,8 @@ namespace sdm
     {
         this->mmdp_ = this->decpomdp_->toMMDP();
 
-        this->setPlanningHorizon(decpomdp_->getPlanningHorizon());
-        this->setDiscount(decpomdp_->getDiscount());
+        this->setPlanningHorizon(this->mmdp_->getPlanningHorizon());
+        this->setDiscount(this->mmdp_->getDiscount());
         this->setActionSpace(this->mmdp_->getActionSpace());
 
         this->setStartDistrib(decpomdp_->getStartDistrib());
@@ -161,7 +161,7 @@ namespace sdm
 
     std::shared_ptr<SerializedMMDP> SerializedMPOMDP::toMDP()
     {
-        return std::make_shared<SerializedMMDP>(this->decpomdp_->toMMDP());
+        return std::make_shared<SerializedMMDP>(this->mmdp_);
     }
 
     std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMPOMDP::toBeliefMDP()

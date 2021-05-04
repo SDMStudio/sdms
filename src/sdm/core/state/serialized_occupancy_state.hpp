@@ -32,6 +32,8 @@ namespace sdm
     SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &);
 
     std::string str() const;
+    std::string str_hyperplan() const;
+
 
     number getCurrentAgentId() const;
     void setAgent(number);
