@@ -90,6 +90,29 @@ namespace sdm
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         TVector backup_operator(const TVector &, number  = 0);
 
+        /**
+         * @brief Get the Value At occupancy state, decision rule, and next-step hyperplane
+         * 
+         * @param serial_occupancy_state 
+         * @param indiv_dr 
+         * @param next_step_hyperplan 
+         * @param t 
+         * @return double 
+         */
+        double getMaxPlanValueAt(const TVector &, const TAction& , const TVector& , number);
+
+        /**
+         * @brief Set the Hyperplan occupancy state, decision rule, and next-step hyperplane
+         * 
+         * @param serial_occupancy_state 
+         * @param indiv_dr 
+         * @param next_step_hyperplan 
+         * @param t 
+         * @return TVector 
+         */
+        TVector setHyperplan(const TVector &, const TAction& , const TVector& , number );
+
+
         void updateValueAt(const TVector &, number );
 
     };
