@@ -120,7 +120,6 @@ namespace sdm
                 }
             }
         }
-        std::cout<<"\n v_max "<<v_max.str_hyperplan();
         return v_max;
     }
 
@@ -187,7 +186,6 @@ namespace sdm
                 }
             }
         }
-        std::cout<<"\n v_max "<<v_max.str_hyperplan();
         return v_max;
     }
 
