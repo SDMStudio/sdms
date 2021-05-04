@@ -211,7 +211,7 @@ namespace sdm
     void OccupancyState<TState, TJointHistory_p>::finalize()
     {
         BaseOccupancyState<TState, TJointHistory_p>::finalize();
-
+       
         for (const auto &pair_state_jhist : *this)
         {
             auto jhist = this->getHistory(pair_state_jhist.first);
@@ -220,9 +220,11 @@ namespace sdm
             // Store relation between joint history and list of individual histories
             this->jhistory_map_.emplace(jhist->getIndividualHistories(), jhist);
 
+            // For each agent we update its private occupancy state
             for (number agent_id = 0; agent_id < this->num_agents; agent_id++)
             {
-                // Instanciation empty private occupancy state associated to ihitory and agent i if not exists
+                // std::cout << "agent_id=" << agent_id << std::endl;
+                // Instanciation empty private occupancy state associated to ihistory and agent i if not exists
                 if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
                 {
                     this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState<TState, TJointHistory_p>>(agent_id, this->default_value_));
@@ -235,7 +237,7 @@ namespace sdm
         {
             for (const auto &pair_ihist_private_occupancy_state : this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id])
             {
-                pair_ihist_private_occupancy_state.second->finalize();
+                pair_ihist_private_occupancy_state.second->finalize(false);
             }
         }
     }

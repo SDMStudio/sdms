@@ -5,7 +5,7 @@ namespace sdm
     TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer)
         : ValueFunction<TState, TAction, TValue>(problem, horizon), initializer_(initializer)
     {
-        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_+1, Container());
+        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
@@ -22,7 +22,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize(TValue default_value, number t)
     {
-        this->representation[this->isInfiniteHorizon()?0:t] = Container(default_value);
+        this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
@@ -38,13 +38,13 @@ namespace sdm
             }
         }
 
-        return this->representation[this->isInfiniteHorizon()?0:t].at(state);
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
     {
-        this->representation[this->isInfiniteHorizon()?0:t][state] = target;
+        this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
@@ -90,7 +90,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     std::vector<TState> TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getSupport(number t)
     {
-        return this->representation[this->isInfiniteHorizon()?0:t].getIndexes();
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
     }
 
 } // namespace sdm

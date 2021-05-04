@@ -16,10 +16,11 @@
 #include <sdm/core/joint.hpp>
 #include <sdm/core/state/history.hpp>
 #include <sdm/core/state/base/base_occupancy_state.hpp>
-#include <sdm/core/state/private_occupancy_state.hpp>
 
 namespace sdm
 {
+  template <typename TState, typename TJointHistory_p>
+  class PrivateOccupancyState;
 
   /**
    * @brief An occupancy state refers to the whole knowledge that a central planner can have access to take decisions.

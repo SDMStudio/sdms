@@ -28,7 +28,6 @@ namespace sdm
     {
     protected:
         /*!
-         *  @fn     HistoryTree<T> *truncatedExpand(const T &data, bool backup);
          *  @brief  Expands the tree using truncated expand method
          *  @param  data the data of the expanded node
          *  @param  backup wheter the node is marked or not
@@ -39,21 +38,19 @@ namespace sdm
 
     public:
         /*!
-         *  @fn     HistoryTree()
          *  @brief  Default constructor.
          *  This constructor builds a default and empty tree.
          */
         HistoryTree();
 
         /**
-         * @brief Construct a new Tree object (the origin)
+         * @brief Construct a new truncated tree object
          * 
          * @param data the value of the origin 
          */
         HistoryTree(number max_depth);
 
         /*!
-         *  @fn     HistoryTree(std::shared_ptr<HistoryTree>, const T&, bool = true)
          *  @brief  constructor
          *  @param  parent   the parent tree
          *  @param  item     the item
@@ -63,7 +60,6 @@ namespace sdm
         HistoryTree(std::shared_ptr<HistoryTree<T>> parent, const T &item);
 
         /*!
-         *  @fn     HistoryTree<T> *expand(const T &data);
          *  @brief  Expands the tree
          *  @param  data the data of the expanded node
          *  @return the expanded tree
@@ -76,10 +72,14 @@ namespace sdm
         template <typename output = HistoryTree<T>>
         std::shared_ptr<output> expand(const T &data, bool backup = true);
 
+        /**
+         * @brief Get the horizon
+         * 
+         * @return number 
+         */
         number getHorizon() const;
 
         std::string str();
-
         std::string short_str();
 
         std::shared_ptr<HistoryTree<T>> getptr();

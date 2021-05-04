@@ -15,7 +15,10 @@
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+<<<<<<< HEAD
+=======
 #include <sdm/core/action/joint_det_decision_rule.hpp>
+>>>>>>> 7f1522b53d81de814d011a500ac5fc287b60efd0
 
 using namespace sdm;
 
@@ -45,14 +48,14 @@ int main(int argc, char **argv)
         //--------
         //-------- PARAMETERS
         //--------
-
         // !!! ATTENTION : faire les tests pour de petits horizons (BeliedMDP horizon <= 5 et OccupancyMDP horizon <= 3) pour 
         // BeliefMDP et OccupancyMDP sinon la complexité mémoire explose
         number horizon = 2;
         
         // Pour de petits horizons, on laisse discount = 1.0
-        auto max_step = 100000;
         double discount = 1.0, lr = 0.1;
+        long max_step = 100000;
+
 
         //--------
         //-------- Ex 1) QLEARNING POUR LA RESOLUTION EXACTE DES DecPOMDPs (as OccupancyMDP)
@@ -60,11 +63,13 @@ int main(int argc, char **argv)
         auto env = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);
         env->getUnderlyingProblem()->setDiscount(discount);
         env->getUnderlyingProblem()->setPlanningHorizon(horizon);
-        std::cout << "--------- Begin setupDynamicsGenerator() ---------" << std::endl;
-        env->getUnderlyingProblem()->setupDynamicsGenerator();
+        // env->getUnderlyingProblem()->setupDynamicsGenerator();
 
-        std::cout << "--------- Begin makeQLearning() ---------" << std::endl;
-        auto algo = sdm::algo::makeQLearning<TStatePrescriptor, TActionPrescriptor>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_omdp");
+        auto algo = sdm::algo::makeQLearning<TStatePrescriptor, TActionPrescriptor>(
+            env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_omdp"
+        );
+
+
         algo->do_initialize();
         algo->do_solve();
 
@@ -94,6 +99,10 @@ int main(int argc, char **argv)
         // auto algo = sdm::algo::makeQLearning<number, number>(env, "qvalue_name", "initializer_name", horizon, discount, lr, 1, max_step, "test_qlearn");
         // algo->do_initialize();
         // algo->do_solve();
+
+
+        
+
     }
     catch (sdm::exception::Exception &e)
     {

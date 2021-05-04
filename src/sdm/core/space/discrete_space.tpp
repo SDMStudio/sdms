@@ -16,13 +16,15 @@ namespace sdm
     }
 
     template <typename TItem>
-    DiscreteSpace<TItem>::DiscreteSpace(const DiscreteSpace<TItem> &copy)
-    {
-        *this = copy;
-    }
-
-    template <typename TItem>
     DiscreteSpace<TItem>::DiscreteSpace(std::initializer_list<TItem> vals) : DiscreteSpace(std::vector<TItem>(vals))
+    {
+    }
+    
+    template <typename TItem>
+    DiscreteSpace<TItem>::DiscreteSpace(const DiscreteSpace<TItem> &copy)
+        : num_items_(copy.num_items_),
+          all_items_(copy.all_items_),
+          list_items_(copy.list_items_)
     {
     }
 
@@ -50,7 +52,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    std::vector<TItem> DiscreteSpace<TItem>::getAll()
+    std::vector<TItem> DiscreteSpace<TItem>::getAll() const
     {
         return this->list_items_;
     }
@@ -84,26 +86,8 @@ namespace sdm
     {
         std::ostringstream res;
         res << "DiscreteSpace(" << this->getNumItems() << ")";
-        res << "[";
-        for (number i = 0; i < this->getNumItems(); i++)
-        {
-            res << "" << this->getItem(i) << " ";
-        }
-        res << "]";
+        res << this->list_items_;
         return res.str();
-    }
-
-    template <typename TItem>
-    DiscreteSpace<TItem> &DiscreteSpace<TItem>::operator=(const DiscreteSpace<TItem> &sp)
-    {
-        this->all_items_.clear();
-        this->num_items_ = sp.getNumItems();
-        for (number idx = 0; idx < this->num_items_; ++idx)
-        {
-            this->all_items_.insert(items_bimap_value(idx, sp.getItem(idx)));
-            this->list_items_.push_back(sp.getItem(idx));
-        }
-        return *this;
     }
 
     template <typename TItem>
@@ -135,7 +119,7 @@ namespace sdm
     template <typename TItem>
     bool DiscreteSpace<TItem>::contains(const TItem &item) const
     {
-        return std::find(this->list_items_.begin(), this->list_items_.end(),item) !=this->list_items_.end() ? true : false;
+        return std::find(this->list_items_.begin(), this->list_items_.end(), item) != this->list_items_.end() ? true : false;
     }
 
 } // namespace sdm

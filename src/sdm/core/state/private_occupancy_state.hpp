@@ -17,10 +17,10 @@
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/history.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 namespace sdm
 {
-
   /**
    * @brief A private state of occupancy refers to a 
    * 
@@ -28,29 +28,35 @@ namespace sdm
    * @tparam TJointHistory_p refers to a joint histories
    */
   template <typename TState = number, typename TJointHistory_p = JointHistoryTree_p<number>>
-  class PrivateOccupancyState : public BaseOccupancyState<TState, TJointHistory_p>
+  class PrivateOccupancyState : public OccupancyState<TState, TJointHistory_p>
   {
   public:
-    using jhistory_type = typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type;
+    using jhistory_type = typename OccupancyState<TState, TJointHistory_p>::jhistory_type;
     using ihistory_type = typename jhistory_type::element_type::ihistory_type;
-    using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
+    using state_type = typename OccupancyState<TState, TJointHistory_p>::state_type;
 
     PrivateOccupancyState();
     PrivateOccupancyState(double);
     PrivateOccupancyState(number, double);
-    PrivateOccupancyState(std::size_t, double);
     PrivateOccupancyState(const PrivateOccupancyState &);
+    PrivateOccupancyState(const OccupancyState<TState, TJointHistory_p> &);
 
     number getAgentId() const;
-    std::string str() const;
+    // std::string str() const;
     const std::vector<ihistory_type> &getPartialJointHistory(const TJointHistory_p &) const;
     TJointHistory_p getJointHistory(const std::vector<ihistory_type> &) const;
 
-    void finalize();
+    void finalize(bool = true);
+
     bool operator==(const PrivateOccupancyState &) const;
 
   protected:
     std::vector<ihistory_type> getPartialJointHistory(const std::vector<ihistory_type> &) const;
+
+    /**
+     * @brief The agent's identifier 
+     */
+    number agent_id_;
 
     typedef boost::bimaps::bimap<TJointHistory_p, Joint<ihistory_type>> bimap_type;
     typedef typename bimap_type::value_type bimap_value;
@@ -59,11 +65,6 @@ namespace sdm
      * @brief Bimap that map joint histories and hash of o^{-i} 
      */
     bimap_type bimap_jhist_partial_jhist;
-
-    /**
-     * @brief The agent's identifier 
-     */
-    number agent_id_;
   };
 } // namespace sdm
 #include <sdm/core/state/private_occupancy_state.tpp>

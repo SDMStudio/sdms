@@ -23,13 +23,24 @@ namespace sdm
   {
   public:
     using state_type = number;
+    using value_type = typename MappedVector<TState, double>::value_type;
 
     BaseBeliefState();
     BaseBeliefState(double);
-    BaseBeliefState(std::size_t, double );
+    BaseBeliefState(std::size_t, double);
     BaseBeliefState(const BaseBeliefState &);
+    BaseBeliefState(std::initializer_list<value_type>);
+
+    void setProbabilityAt(const TState &, double);
+    void addProbabilityAt(const TState &, double);
 
     static TState getState(const TState &);
+
+    friend std::ostream &operator<<(std::ostream &os, BaseBeliefState &state)
+    {
+      os << "<belief " << state.str() << "/>";
+      return os;
+    }
   };
 
   using BeliefState = BaseBeliefState<number>;

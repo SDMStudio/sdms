@@ -57,7 +57,7 @@ namespace sdm
         {
             // Logging (save data and print algorithms variables)
             //---------------------------------//
-            this->logger_->log(this->trial, this->do_excess(start_state, 0,0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             //---------------------------------//
 
             this->do_explore(start_state, 0, 0);
@@ -66,7 +66,7 @@ namespace sdm
 
         std::cout << "----------------------------------------------------" << std::endl;
         //---------------------------------//
-        this->logger_->log(this->trial, this->do_excess(start_state, 0,0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         //std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
@@ -93,11 +93,11 @@ namespace sdm
 
             // Select next action and state following search process
             TAction a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
-         
+
             TState s_ = this->world_->nextState(s, a, h, this->getptr());
 
             // Recursive explore
-            this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s,a), h + 1);
+            this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
 
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
@@ -107,7 +107,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    double HSVI<TState, TAction>::do_excess(const TState &s,double cost_so_far,number h)
+    double HSVI<TState, TAction>::do_excess(const TState &s, double cost_so_far, number h)
     {
         auto lb = this->lower_bound_->getValueAt(s, h);
         auto ub = this->upper_bound_->getValueAt(s, h);

@@ -63,12 +63,12 @@ namespace sdm
     }
 
     template <typename TSpace>
-    std::vector<typename TSpace::value_type> MultiSpace<TSpace>::getAll()
+    std::vector<typename TSpace::value_type> MultiSpace<TSpace>::getAll() const
     {
         std::vector<typename TSpace::value_type> all_states;
-        for(const auto &space : this->getSpaces())
+        for (const auto &space : this->getSpaces())
         {
-            for(const auto &s : space->getAll())
+            for (const auto &s : space->getAll())
             {
                 all_states.push_back(s);
             }
@@ -117,6 +117,7 @@ namespace sdm
             return true;
         }
     }
+
     template <typename TSpace>
     bool MultiSpace<TSpace>::operator!=(const MultiSpace<TSpace> &sp) const
     {

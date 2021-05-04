@@ -149,7 +149,7 @@ namespace sdm
          * 
          * @return the list of all possible joint items
          */
-        std::vector<Joint<TItem>> getAll();
+        std::vector<Joint<TItem>> getAll() const;
 
         std::string str() const;
 

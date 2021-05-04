@@ -138,6 +138,7 @@ namespace sdm
     void MultiDiscreteSpace<TItem>::generateJointItems()
     {
         this->all_items_.clear();
+        this->list_items_.clear();
         // Build a vector of vector of items to fit with Variation construct
         std::vector<std::vector<TItem>> v_possible_items;
         for (auto sp : this->getSpaces())
@@ -157,7 +158,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    std::vector<Joint<TItem>> MultiDiscreteSpace<TItem>::getAll()
+    std::vector<Joint<TItem>> MultiDiscreteSpace<TItem>::getAll() const
     {
         return this->list_items_;
     }

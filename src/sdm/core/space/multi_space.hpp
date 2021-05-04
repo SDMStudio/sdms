@@ -71,7 +71,7 @@ namespace sdm
          * 
          * @return std::vector<value_type> 
          */
-        std::vector<value_type> getAll();
+        std::vector<value_type> getAll() const;
 
         /**
          * @brief Change the list of spaces. You may prefer build a new MultiSpace instead of changing values of existing one.
