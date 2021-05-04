@@ -120,6 +120,7 @@ namespace sdm
                 }
             }
         }
+        std::cout<<"\n v_max "<<v_max.str_hyperplan();
         return v_max;
     }
 
@@ -186,6 +187,7 @@ namespace sdm
                 }
             }
         }
+        std::cout<<"\n v_max "<<v_max.str_hyperplan();
         return v_max;
     }
 
@@ -198,6 +200,7 @@ namespace sdm
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         TVector new_hyperplan(this->default_values_per_horizon[t]);
+        new_hyperplan.setAgent(ag_id);
         
         // Go over all serial occupancy state 
         for(const auto uncompressed_s_o: *serial_occupancy_state.getFullyUncompressedOccupancy())

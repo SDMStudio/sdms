@@ -99,6 +99,7 @@ namespace sdm
         auto pair_action_value = this->greedyMaxPlaneSerial(serial_occupancy_state,t);
 
         TVector new_hyperplan(this->default_values_per_horizon[t]);
+        new_hyperplan.setAgent(serial_occupancy_state.getCurrentAgentId());
 
         auto soMDP = std::static_pointer_cast<SerializedOccupancyMDP<TVector,TAction>>(this->getWorld());
         auto under_pb = this->getWorld()->getUnderlyingProblem();
@@ -128,6 +129,7 @@ namespace sdm
                 }
             }
         }
+        std::cout<<"\n new_hyperplan "<<new_hyperplan;
         return new_hyperplan;
     }
 

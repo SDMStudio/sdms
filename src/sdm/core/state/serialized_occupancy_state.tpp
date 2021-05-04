@@ -132,6 +132,29 @@ namespace sdm
         return res.str();
     }
 
+    template <typename TState, typename TJointHistory_p>
+    std::string SerializedOccupancyState<TState, TJointHistory_p>::str_hyperplan() const
+    {
+
+        std::ostringstream res, tmp;
+        number horizon;
+        std::unordered_set<TJointHistory_p> set;
+        for (const auto &pair_x_o_p : *this)
+        {
+            set.emplace(pair_x_o_p.first.second);
+            horizon = pair_x_o_p.first.second->getDepth();
+        }
+
+        res << "<serial-hyperplan size=\"" << set.size() <<"\" agent=\""<< this->agent<< "\" horizon=\"" << horizon << "\">" << std::endl;
+        for (const auto joint_hist : set)
+        {
+            res << "\t<joint-history name=\"" << joint_hist->short_str() << "\" vector ="<< MappedVector<Pair<TState, TJointHistory_p>, double>::str()<< "/>" << std::endl;
+        }
+        res << "</serial-hyperplan>" << std::endl;
+ 
+        return res.str();
+    }
+
 } // namespace sdm
 
 namespace std

@@ -107,6 +107,7 @@ namespace sdm
     std::shared_ptr<BaseOccupancyState<TState, TJointHistory_p>> getptr();
 
     std::string str() const;
+    std::string str_hyperplan() const;
 
     /**
      *  @brief  Returns an ostream instance
