@@ -95,10 +95,12 @@ namespace sdm
     void JointHistoryTree<T>::setDefaultObs(number n_agents)
     {
         std::vector<T> default_vector;
+        
         for (number i = 0; i < n_agents; i++)
         {
             default_vector.push_back(sdm::DEFAULT_OBSERVATION);
         }
+
         this->default_value = Joint<T>(default_vector);
     }
 

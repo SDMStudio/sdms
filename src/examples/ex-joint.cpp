@@ -3,7 +3,7 @@
 
 using namespace sdm;
 
-int main(int argc, char **argv)
+int main(int, char **)
 {
     std::cout << "----- Usage : class Joint ( sdm/core/joint.hpp ) ---------" << std::endl << std::endl;
 

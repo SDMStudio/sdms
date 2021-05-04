@@ -87,9 +87,12 @@ namespace sdm
 
         if (!this->do_stop(s, cost_so_far, h))
         {
-            /* @warning -- Update bounds : updating forward is usefull only in infinite horizons */
-            this->lower_bound_->updateValueAt(s, h);
-            this->upper_bound_->updateValueAt(s, h);
+            /* @warning -- Update bounds : updating forward is useful only in infinite horizons */
+            if( this->lower_bound_->isInfiniteHorizon() )
+            {
+                this->lower_bound_->updateValueAt(s, h);
+                this->upper_bound_->updateValueAt(s, h);
+            }
 
             // Select next action and state following search process
             TAction a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);

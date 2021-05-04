@@ -14,10 +14,10 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string filename;
-    number horizon = 3;
+    number horizon = 1;
     number discount = 1;
     double error = 0.00001;
-    number trials = 1000;
+    number trials = 10;
 
 	if (argc > 1)
 	{
@@ -36,16 +36,12 @@ int main(int argc, char **argv)
 		using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
         using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-		// Construct SerialOccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
+		// Construct serial occupancy MDP using parser
 		std::shared_ptr<SolvableByHSVI<TState, TAction>>  oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, horizon);
 
-		// Creation of HSVI with maxplan 
-		//auto p_algo =  sdm::algo::makeHSVI<TState, TAction>(oMDP, "", "maxplan_serial", "MaxInitializer", "MinInitialize", discount, error, horizon, trials, "Example-MaxPlan-OccupancyMDP");
-
 		// other method to create HSVI with Maxplan
-		// ***
 		oMDP->getUnderlyingProblem()->setDiscount(discount);
 		oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
@@ -66,7 +62,6 @@ int main(int argc, char **argv)
 		auto upper_bound = std::make_shared<MappedValueFunction<TState, TAction>>(oMDP, horizon, ub_init);
 
 		auto p_algo = std::make_shared<HSVI<TState, TAction>>(oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-MaxPlan-OccupancyMDP");
-		// *** 
 
 		//Initialization of HSVI
 		p_algo->do_initialize();
