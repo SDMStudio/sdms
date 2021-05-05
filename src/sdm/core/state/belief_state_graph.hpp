@@ -1,3 +1,13 @@
+/**
+ * @file belief_state_graph.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief 
+ * @version 1.0
+ * @date 05/05/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <sdm/utils/struct/graph.hpp>
@@ -18,7 +28,7 @@ namespace sdm
     public:
         BeliefStateGraph();
 
-        BeliefStateGraph(const std::shared_ptr<TBeliefState> &data);
+        BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<Matrix>> &dynamics);
 
         /**
          * @brief Construct a new belief 
@@ -26,24 +36,66 @@ namespace sdm
          * @param predecessor 
          * @param belief 
          */
-        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const std::shared_ptr<TBeliefState> &belief);
-
-        void setDynamics(std::vector<std::vector<Matrix>> dynamics);
-        std::shared_ptr<TBeliefState> nextBelief(const TAction &action, const TObservation &observation);
+        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const TBeliefState &belief);
 
         /**
-         * @brief  Expands the graph
+         * @brief Initialize the graph of belief.
+         */
+        void initialize();
+
+        /**
+         * @brief Get the node associated to a given belief.
+         * 
+         * @param belief a specific belief
+         * @return the address of the node 
+         */
+        std::shared_ptr<BeliefStateGraph> getNode(const TBeliefState &belief);
+
+        /**
+         * @brief Set the dynamics that is used to compute the next belief.
+         * 
+         * @param dynamics the matrix of state transition for each (action, observation) pair. 
+         */
+        void setDynamics(std::vector<std::vector<Matrix>> dynamics);
+
+        /**
+         * @brief Get the probability of associated belief.
+         * 
+         * @param action 
+         * @param observation 
+         * @param belief 
+         * @return the corresponding probability 
+         */
+        double getProbability(const TAction &action, const TObservation &observation) const;
+
+        /**
+         * @brief Return the successor node. Given an action and an observation, this function will return the next belief.
          * 
          * @param action the action
          * @param observation the observation
-         * @param backup 
+         * @return the next belief state 
+         */
+        std::pair<TBeliefState, double> computeNextBelief(const TAction &action, const TObservation &observation);
+
+        /**
+         * @brief Expands the graph
+         * 
+         * @param action the action
+         * @param observation the observation
+         * @param backup if true, we store the expanded belief in the graph.
          * @return the next belief
          */
         template <typename output = BeliefStateGraph<TBeliefState, TAction, TObservation>>
         std::shared_ptr<output> expand(const TAction &action, const TObservation &observation, bool backup = true);
 
+        /**
+         * @brief Return a 
+         */
         std::string str();
 
+        /**
+         * @brief Return a the pointer on this object
+         */
         std::shared_ptr<BeliefStateGraph<TBeliefState, TAction, TObservation>> getptr();
 
         friend std::ostream &operator<<(std::ostream &os, BeliefStateGraph &belief_state_graph)
@@ -54,14 +106,19 @@ namespace sdm
 
     protected:
         /**
-         * @brief The belief mdp problem. 
+         * @brief The dynamics of states. 
          */
         std::shared_ptr<std::vector<std::vector<Matrix>>> dynamics_;
 
         /**
-         * @brief A pointer on the bag containing all nodes 
+         * @brief A pointer on the bag containing all nodes.
          */
-        std::shared_ptr<std::unordered_map<std::shared_ptr<TBeliefState>, std::shared_ptr<BeliefStateGraph>>> belief_space;
+        std::shared_ptr<std::unordered_map<TBeliefState, std::shared_ptr<BeliefStateGraph>>> belief_space;
+
+        /**
+         * @brief A pointer on the bag containing all nodes.
+         */
+        RecursiveMap<TAction, TObservation, double> belief_proba;
     };
 
 } // namespace sdm

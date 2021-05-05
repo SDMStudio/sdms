@@ -1,4 +1,3 @@
-#include <sdm/core/state/belief_state.hpp>
 
 namespace sdm
 {

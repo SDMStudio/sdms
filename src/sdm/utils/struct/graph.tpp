@@ -8,14 +8,14 @@ namespace sdm
     }
 
     template <typename TNode, typename TEdge>
-    Graph<TNode, TEdge>::Graph(const std::shared_ptr<TNode> &data) : data_(data)
+    Graph<TNode, TEdge>::Graph(const TNode &data) : data_(data)
     {
     }
 
     template <typename TNode, typename TEdge>
-    Graph<TNode, TEdge>::Graph(std::shared_ptr<Graph<TNode, TEdge>> predecessor, const std::shared_ptr<TNode> &data) : Graph(data)
+    Graph<TNode, TEdge>::Graph(std::shared_ptr<Graph<TNode, TEdge>> predecessor, const TNode &data) : Graph(data)
     {
-        this->predecessors.push_back(predecessor);
+        this->predecessors.insert(predecessor);
     }
 
     template <typename TNode, typename TEdge>
@@ -24,13 +24,13 @@ namespace sdm
     }
 
     template <typename TNode, typename TEdge>
-    std::shared_ptr<TNode> Graph<TNode, TEdge>::getData() const
+    const TNode &Graph<TNode, TEdge>::getData() const
     {
         return this->data_;
     }
 
     template <typename TNode, typename TEdge>
-    void Graph<TNode, TEdge>::setData(const std::shared_ptr<TNode> &data)
+    void Graph<TNode, TEdge>::setData(const TNode &data)
     {
         this->data_ = data;
     }
@@ -48,19 +48,19 @@ namespace sdm
     }
 
     template <typename TNode, typename TEdge>
-    std::shared_ptr<Graph<TNode, TEdge>> Graph<TNode, TEdge>::getSuccessor(const TEdge &edge) const
+    const std::shared_ptr<Graph<TNode, TEdge>> &Graph<TNode, TEdge>::getSuccessor(const TEdge &edge) const
     {
         return this->successors.at(edge);
     }
 
     template <typename TNode, typename TEdge>
-    std::vector<std::shared_ptr<Graph<TNode, TEdge>>> Graph<TNode, TEdge>::getPredecessors() const
+    const std::set<std::shared_ptr<Graph<TNode, TEdge>>> &Graph<TNode, TEdge>::getPredecessors() const
     {
         return this->predecessors;
     }
 
     template <typename TNode, typename TEdge>
-    void Graph<TNode, TEdge>::addSuccessor(const TEdge &edge, const std::shared_ptr<TNode> &node)
+    void Graph<TNode, TEdge>::addSuccessor(const TEdge &edge, const TNode &node)
     {
         if (this->successors.find(edge) == this->successors.end())
         {
@@ -78,7 +78,7 @@ namespace sdm
     std::string Graph<TNode, TEdge>::str()
     {
         std::ostringstream str_result;
-        str_result << "<graph data=\"" << *this->getData() << "\" num_succ=" << this->getNumSuccessors() << "\" num_pred=\"" << this->getNumPredecessors() << "\"/>";
+        str_result << "<graph data=\"" << this->getData() << "\" address=\"" << this->getptr() << "\" num_succ=" << this->getNumSuccessors() << "\" num_pred=\"" << this->getNumPredecessors() << "\"/>";
         return str_result.str();
     }
 }
