@@ -74,6 +74,10 @@ namespace sdm
      * @brief Get the one step uncompressed occupancy state. 
      */
     std::shared_ptr<OccupancyState> getOneStepUncompressedOccupancy() const;
+
+    /**
+     * @brief Set the one step uncompressed occupancy state
+     */
     void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
     /**

@@ -44,6 +44,7 @@ namespace sdm
   };
 
   using BeliefState = BaseBeliefState<number>;
+  using BeliefOfBeliefState = BaseBeliefState<BeliefState>;
 } // namespace sdm
 
 #include <sdm/core/state/belief_state.tpp>
