@@ -7,6 +7,7 @@
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/tabular_value_function.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.

@@ -57,7 +57,7 @@ namespace sdm
         TState argmin_ = state;
         for (const TState &ostate : this->getSupport(t))
         {
-            double v_kappa = this->getValueAt(ostate, t); // Problème boucle infinie 
+            double v_kappa = this->getValueAt(ostate, t);
             double v_ub_kappa = this->getInitFunction()->operator()(ostate, t);
             double phi = std::numeric_limits<double>::max();
             for (auto &x : ostate)
@@ -72,7 +72,7 @@ namespace sdm
             if (min_int < min_ext)
             {
                 min_ext = min_int;
-                argmin_ = ostate; // to verify
+                argmin_ = ostate; 
             }
         }
         return std::make_pair(v_ub_state + min_ext, argmin_);

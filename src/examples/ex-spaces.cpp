@@ -25,7 +25,7 @@ int main(int, char **)
               << multi_space << std::endl;
     std::cout << "#> Copy \n"
               << copy << std::endl;
-    std::cout << "#> Are Equal ? " << (copy == multi_space) << std::endl;
+    // std::cout << "#> Are Equal ? " << (copy == multi_space) << std::endl;
     std::cout << "#> List all items = " << multi_space.getAll() << std::endl;
     std::cout << "#> Sample = " << multi_space.sample() << std::endl;
 
@@ -42,7 +42,7 @@ int main(int, char **)
               << multi_space_2 << std::endl;
     std::cout << "#> Copy \n"
               << copy << std::endl;
-    std::cout << "#> Are Equal ? " << (copy == multi_space_2) << std::endl;
+    // std::cout << "#> Are Equal ? " << (copy == multi_space_2) << std::endl;
     std::cout << "#> List all items = " << multi_space_2.getAll() << std::endl;
     std::cout << "#> Sample = " << multi_space_2.sample() << std::endl;
 

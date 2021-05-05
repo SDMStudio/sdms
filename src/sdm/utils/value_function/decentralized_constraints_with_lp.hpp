@@ -4,6 +4,8 @@
 #include <ilcplex/ilocplex.h>
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/value_function/variable_naming.hpp>
+#include <sdm/core/states.hpp>
+#include <sdm/exception.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
