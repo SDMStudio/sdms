@@ -8,6 +8,8 @@
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 
 #include<sdm/algorithms.hpp>
+#include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
+
 
 using namespace sdm;
 
@@ -32,35 +34,34 @@ int main(int argc, char **argv)
 
 	try
 	{
-		using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
-        using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+
+		using TObservation = number;
+		using TState = number;
+
+		using TActionDescriptor = number;
+		using TStateDescriptor = HistoryTree_p<TObservation>;
+
+		using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
+		using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-		// Construct serial occupancy MDP using parser
-		std::shared_ptr<SolvableByHSVI<TState, TAction>>  oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, horizon);
+		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>>  oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);        
 
-		// other method to create HSVI with Maxplan
 		oMDP->getUnderlyingProblem()->setDiscount(discount);
 		oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
-		if (oMDP->isSerialized())
-		{
-			horizon = horizon * oMDP->getUnderlyingProblem()->getNumAgents();
-		}
+		// Instanciate initializers 
+		auto lb_init = std::make_shared<MinInitializer<TStatePrescriptor, TActionPrescriptor>>();
+		auto ub_init = sdm::makeInitializer<TStatePrescriptor, TActionPrescriptor>("MdpHsviInitializer");
 
-		// Instanciate initializers
-		auto lb_init = std::make_shared<MinInitializer<TState, TAction>>();
-		auto ub_init = std::make_shared<MaxInitializer<TState, TAction>>();
+		// Instanciate the Tabular version for the lower bound
+		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, lb_init); 
 
-		// Instanciate the max-plan serial representation of the lower bound
-		//auto lower_bound = std::make_shared<MaxPlanValueFunction<TState, TAction>>(omdp_world, horizon, lb_init); //
-		auto lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized<TState, TAction>>(oMDP, horizon, lb_init);
+		// Instanciate the Sawtooth version for the upper bound 
+		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<SawtoothValueFunctionLP<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, ub_init);
 
-		// Instanciate the Tabular version for the upper bound
-		auto upper_bound = std::make_shared<MappedValueFunction<TState, TAction>>(oMDP, horizon, ub_init);
-
-		auto p_algo = std::make_shared<HSVI<TState, TAction>>(oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-MaxPlan-OccupancyMDP");
+		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-MaxPlan-OccupancyMDP");
 
 		//Initialization of HSVI
 		p_algo->do_initialize();

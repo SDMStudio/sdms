@@ -34,12 +34,37 @@ namespace sdm
         std::string getVarNameWeight(number);
 
         /**
+         * @brief Get the name of a free variable  
+         * @param number identifier of a variable 
+         * @return std::string  name 
+         */
+        std::string getVarNameWeight(const TVector &);
+
+        /**
          * @brief Get the name associated with a pair of action and joint history 
          * @param action 
          * @param typename TVector::jhistory_type
          * @return std::string name 
          */
-        std::string getVarNameJointHistoryDecisionRule(action, typename TVector::jhistory_type );
+        std::string getVarNameJointHistoryDecisionRule(int, typename TVector::jhistory_type );
+        
+        /**
+         * @brief Get the name associated with a pair of action and joint history 
+         * @param action 
+         * @param typename TVector::jhistory_type
+         * @return std::string name 
+         */
+        std::string getVarNameJointHistoryDecisionRule(typename TAction::output_type, typename TVector::jhistory_type );
+        
+
+        /**
+         * @brief Get the name associated with a pair of action and individual history 
+         * @param action 
+         * @param typename TVector::jhistory_type::element_type::ihistory_type
+         * @param agent
+         * @return std::string name 
+         */
+        std::string getVarNameIndividualHistoryDecisionRule(int, typename TVector::jhistory_type::element_type::ihistory_type , agent );
         
         /**
          * @brief Get the name associated with a pair of action and individual history 
@@ -48,14 +73,17 @@ namespace sdm
          * @param agent
          * @return std::string name 
          */
-        std::string getVarNameIndividualHistoryDecisionRule(action, typename TVector::jhistory_type::element_type::ihistory_type , agent );
-        
+        std::string getVarNameIndividualHistoryDecisionRule(typename TAction::output_type, typename TVector::jhistory_type::element_type::ihistory_type , agent );
+
         /**
          * @brief Get the identifier associated with a given name 
          * @param const std::string& name
          * @return number  identifier
          */
         number getNumber( const std::string& );
+
+        std::string getVarNameWeightedStateJointHistory(const TVector& , typename TVector::state_type , typename TVector::jhistory_type );
+
     
     protected:
 
