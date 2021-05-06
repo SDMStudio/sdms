@@ -8,7 +8,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
-
     }
 
     template <typename TState, typename TAction, typename TValue>

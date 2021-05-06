@@ -20,19 +20,14 @@ namespace sdm
         std::enable_if_t<is_mdp, double>
         operator()(const TOccupancyState &ostate, const number &tau);
 
-        // template <bool is_serial_mdp = std::is_any<typename WorldType<TOccupancyState>::type, SerializedMMDP>::value>
-        // std::enable_if_t<is_serial_mdp, double>
-        // getValue(const TOccupancyState &ostate, const number &tau);
-
-        // template <bool is_serial_mdp = std::is_any<typename WorldType<TOccupancyState>::type, SerializedMMDP>::value>
-        // std::enable_if_t<!is_serial_mdp, double>
-        // getValue(const TOccupancyState &ostate, const number &tau);
-
         template <bool is_mdp = std::is_any<typename WorldType<TOccupancyState>::type, DiscreteMDP,SerializedMMDP>::value>
         std::enable_if_t<!is_mdp, double>
         operator()(const TOccupancyState &ostate, const number &tau);
         
         double operator()(const TOccupancyState &ostate, const number &tau);
+        
+        double getValue(const TState &state, const number &tau);
+
     };
 } // namespace sdm
 
