@@ -30,10 +30,6 @@ namespace sdm
   template <class I, class T, class TBaseVector>
   class sdmsVector : public TBaseVector, public VectorImpl<I, T>
   {
-  protected:
-    std::pair<I, T> getMin() const;
-    std::pair<I, T> getMax() const;
-
   public:
     sdmsVector();
     sdmsVector(I);
@@ -61,6 +57,12 @@ namespace sdm
     bool operator!=(const sdmsVector &) const;
 
     std::string str() const;
+
+  protected:
+    // std::unordered_map<I, sdm::size_t> map_item_to_index;
+
+    std::pair<I, T> getMin() const;
+    std::pair<I, T> getMax() const;
   };
 
   /**

@@ -15,6 +15,7 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/linear_algebra/vector.hpp>
 
 namespace sdm
 {

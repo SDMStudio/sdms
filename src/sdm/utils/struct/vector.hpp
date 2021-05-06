@@ -25,8 +25,6 @@ namespace sdm
     }
 }
 
-
-
 namespace std
 {
   template <typename T>

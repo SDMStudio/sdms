@@ -123,12 +123,7 @@ namespace sdm
     template <class I, class T, class TBaseVector>
     T sdmsVector<I, T, TBaseVector>::dot(const sdmsVector &v2) const
     {
-        T product = 0;
-        for (auto pos = this->begin(); pos != this->end(); ++pos)
-        {
-            product += (*this)(pos.index()) * v2(pos.index());
-        }
-        return product;
+        return boost::numeric::ublas::inner_prod(*this, v2);
     }
 
     template <class I, class T, class TBaseVector>

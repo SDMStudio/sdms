@@ -25,7 +25,6 @@ namespace sdm
    */
   template <typename TState, typename TJointHistory_p>
   class BaseOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>,
-                            //  public MappedMatrix<TJointHistory_p, TState, double>,
                              public std::enable_shared_from_this<BaseOccupancyState<TState, TJointHistory_p>>
   {
   public:

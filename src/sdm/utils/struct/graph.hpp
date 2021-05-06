@@ -34,7 +34,7 @@ namespace sdm
          */
         Graph();
 
-        Graph(const std::shared_ptr<TNode> &data);
+        Graph(const TNode &data);
 
         /**
          * @brief Construct a new Graph object
@@ -43,7 +43,7 @@ namespace sdm
          * @param data the value of the node
          * @param backup if true, save the new tree as a child for its parent
          */
-        Graph(std::shared_ptr<Graph> predecessor, const std::shared_ptr<TNode> &data);
+        Graph(std::shared_ptr<Graph> predecessor, const TNode &data);
 
         /*!
          *  @fn     ~Tree()
@@ -58,9 +58,9 @@ namespace sdm
          * 
          * @return the address of the value
          */
-        std::shared_ptr<TNode> getData() const;
+        const TNode &getData() const;
 
-        void setData(const std::shared_ptr<TNode> &data);
+        void setData(const TNode &data);
 
         /**
          * @brief Get the number of successors.
@@ -78,10 +78,10 @@ namespace sdm
          * @param edge a specific edge
          * @return the address of the successor's node
          */
-        std::shared_ptr<Graph<TNode, TEdge>> getSuccessor(const TEdge &edge) const;
-        std::vector<std::shared_ptr<Graph<TNode, TEdge>>> getPredecessors() const;
+        const std::shared_ptr<Graph<TNode, TEdge>> &getSuccessor(const TEdge &edge) const;
+        const std::set<std::shared_ptr<Graph<TNode, TEdge>>> &getPredecessors() const;
 
-        void addSuccessor(const TEdge &edge, const std::shared_ptr<TNode> &node);
+        void addSuccessor(const TEdge &edge, const TNode &node);
 
         std::string str();
 
@@ -94,8 +94,8 @@ namespace sdm
         }
 
     protected:
-        //! @brief data of the current node
-        std::shared_ptr<TNode> data_;
+        /** @brief data of the current node */
+        TNode data_;
 
         /**
          * @brief The map from edge value to successor
@@ -105,7 +105,7 @@ namespace sdm
         /**
          * @brief List of predecessors 
          */
-        std::vector<std::shared_ptr<Graph>> predecessors;
+        std::set<std::shared_ptr<Graph>> predecessors;
     };
 
 } // namespace sdm
