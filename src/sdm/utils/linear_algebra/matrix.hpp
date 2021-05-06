@@ -145,9 +145,6 @@ namespace sdm
   template <typename mtype, typename vtype, typename value>
   matrix<mtype, vtype, value> operator^(const vector<vtype, value> &, const matrix<mtype, vtype, value> &);
 
-  using DenseMatrix = class matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>;
-  using SparseMatrix = class matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>;
-
 #ifdef BOOST
 #ifdef DENSE
   using Matrix = class matrix<boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double>, double>;

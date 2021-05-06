@@ -69,15 +69,6 @@ namespace sdm
         double getProbability(const TAction &action, const TObservation &observation) const;
 
         /**
-         * @brief Return the successor node. Given an action and an observation, this function will return the next belief.
-         * 
-         * @param action the action
-         * @param observation the observation
-         * @return the next belief state 
-         */
-        std::pair<TBeliefState, double> computeNextBelief(const TAction &action, const TObservation &observation);
-
-        /**
          * @brief Expands the graph
          * 
          * @param action the action
@@ -105,6 +96,15 @@ namespace sdm
         }
 
     protected:
+        /**
+         * @brief Return the successor node. Given an action and an observation, this function will return the next belief.
+         * 
+         * @param action the action
+         * @param observation the observation
+         * @return the next belief state 
+         */
+        std::pair<TBeliefState, double> computeNextBelief(const TAction &action, const TObservation &observation);
+
         /**
          * @brief The dynamics of states. 
          */
