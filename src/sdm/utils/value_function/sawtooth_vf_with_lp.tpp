@@ -182,7 +182,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueAt(const TState& compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, typename TState::state_type next_hidden_state, typename TState::observation_type next_observation, const TState& next_one_step_uncompressed_occupancy_state, double difference, number t)
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRealistic(const TState& compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, typename TState::state_type next_hidden_state, typename TState::observation_type next_observation, const TState& next_one_step_uncompressed_occupancy_state, double difference, number t)
     {
         auto upper_bound = this->getQValueRelaxation(compressed_occupancy_state, joint_history, action, t);
         
@@ -193,9 +193,9 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& occupancy_state,IloModel& model ,IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& occupancy_state, IloModel& model, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
     {
-        //<!  Build sawtooth constraints v - \sum_{o,u} a(u|o) * Q(k, s,o,u,y,z, diff, t  ) + \omega_k(x',o')*M <= M,  \forall k, y,<o,z>
+        //<!  Build sawtooth constraints v - \sum_{o,u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(x',o')*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = \sum_x s(x,o) Q_MDP(x,u) + (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
 
         assert(this->getInitFunction() != nullptr); 
@@ -229,7 +229,7 @@ namespace sdm
                 for(const auto & action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
                 {
                     //<! 1.c.4 get variable a(u|o) and set constant 
-                    expr -= this->getQValueAt(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference, t) * var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))];
+                    expr -= this->getQValueRealistic(*occupancy_state.getOneStepUncompressedOccupancy(), joint_history, action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference, t) * var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))];
                 } 
 
                 // <! get variable \omega_k(x',o')
@@ -259,9 +259,8 @@ namespace sdm
         {
             weight +=  compressed_occupancy_state.at(std::make_pair(x,joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type,TState>>(this->getInitFunction())->getQValueAt(x,this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action),t);
         }
-        return weight;
 
-        //return this->getInitFunction()->operator()(compressed_occupancy_state, t);
+        return weight;
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -281,7 +280,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::updateValueAt(const TState &occupancy_state, number t)
     {
-        double cub,clb;
+        double cub = 0, clb = 0;
         auto action = this->greedySawtooth(occupancy_state, clb, cub, t);
 
         MappedValueFunction<TState,TAction,TValue>::updateValueAt(occupancy_state, t, cub);
@@ -289,19 +288,19 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyUpperbound(const TState& occupancy_state, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyUpperbound(const TState& , IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number ) 
     {
         throw sdm::exception::NotImplementedException();
     }
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& occupancy_state, IloModel&, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& , IloModel&, IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number ) 
     {
     }
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    double SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothMinimumRatio(const TState& occupancy_state, typename TState::jhistory_type jh, typename TAction::output_type u, typename TState::state_type x_, typename TState::jhistory_type jh_, const TState& s_k)
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , const TState& )
     {}
 }
