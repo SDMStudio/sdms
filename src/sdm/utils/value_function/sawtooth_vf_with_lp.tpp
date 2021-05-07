@@ -97,7 +97,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloNumVarArray& var, double clb, double cub, number t)
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloNumVarArray& var, double /*clb*/, double /*cub*/, number t)
     {
         //<! tracking variable ids
         number index = 0;
@@ -109,32 +109,31 @@ namespace sdm
 
         //<! 0.b Build variables v_0 = objective variable!
         VarName = this->getVarNameWeight(0);
-        var.add(IloNumVar(env, -IloInfinity, +IloInfinity, VarName.c_str())); //-IloInfinity, +IloInfinity
+        var.add(IloNumVar(env, -IloInfinity, +IloInfinity, VarName.c_str())); 
         this->setNumber(VarName, index++);
 
-        //<! \omega_k(x',o')
+        //<! Define variables \omega_k(x',o')
 
         // Go over all Point Set in t+1 
-        for(auto k : this->representation[t+1])
+        for(auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
         {
-            auto s_k =  k.first.getOneStepUncompressedOccupancy();
 
+            auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
+            auto one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
+           
             // Go over all Joint History Next
-            for(const auto& joint_history_next : s_k->getJointHistories())
+            for(const auto& hidden_state_AND_joint_history_AND_probability : *one_step_uncompressed_occupancy_state)
             {
-                // Go over all next State
-                for(auto x_ : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
-                {
-                    if( s_k->at(std::make_pair(x_,joint_history_next))>0)
-                    {
-                        // <! \omega_k(x',o')
-                        VarName = this->getVarNameWeightedStateJointHistory(k.first,x_, joint_history_next);
-                        var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
-                        this->setNumber(VarName, index++);
-                    }
-                }
-            }
+                auto hidden_state = hidden_state_AND_joint_history_AND_probability.first.first;
+                auto joint_history = hidden_state_AND_joint_history_AND_probability.first.second;
+
+                // <! \omega_k(x',o')
+                VarName = this->getVarNameWeightedStateJointHistory(one_step_uncompressed_occupancy_state, hidden_state, joint_history);
+                var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
+                this->setNumber(VarName, index++);
+           }
         }
+
         this->template setDecentralizedVariables<TState>(occupancy_state, ihs, env, var, index);
     }
 
@@ -162,19 +161,20 @@ namespace sdm
         //<! 1.c.2 set coefficient of variable v
         con[c].setLinearCoef(var[recover], +1.0);
 
-        //<! Build mdp constraints v <= \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u)
+        //<! Build mdp constraints " v - \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) <=  0 " -- should initializer. 
 
         // Go over all joint history
         for(const auto &joint_history : occupancy_state.getJointHistories())
         {
             // Go over all action 
-            for(const auto & u : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+            for(const auto & action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
             {
                 //<! 1.c.4 get variable a(u|o)
-                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,joint_history));
+                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
                 //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
-                auto weight = this->getQValueRelaxation(occupancy_state,joint_history,u,t);
+                auto weight = this->getQValueRelaxation(occupancy_state, joint_history, action, t);
+
                 con[c].setLinearCoef(var[recover], - weight);
             }
         }
@@ -182,144 +182,103 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueAt(const TState& compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, typename TState::state_type next_hidden_state, typename TState::observation_type next_observation, const TState& next_one_step_uncompressed_occupancy_state, double difference, number t)
+    {
+        auto upper_bound = this->getQValueRelaxation(compressed_occupancy_state, joint_history, action, t);
+        
+        upper_bound += difference * this->getSawtoothMinimumRatio(*compressed_occupancy_state.getOneStepUncompressedOccupancy(), joint_history, action, next_hidden_state, next_observation, next_one_step_uncompressed_occupancy_state);
+        
+        return upper_bound;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& occupancy_state, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
     {
-        //<!  Build sawtooth constraints v <= \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) + \sum_{o,u} a(u|o) (v_k - V_k) \frac{\sum_{x,z_} s(x,o)*p(x,u,z_,x_)}}{s_k(x_,o_)} ,\forall k, x_,o_,u_
+        //<!  Build sawtooth constraints v - \sum_{o,u} a(u|o) * Q(k, s,o,u,y,z, diff, t  ) + \omega_k(x',o')*M <= M,  \forall k, y,<o,z>
+        //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = \sum_x s(x,o) Q_MDP(x,u) + (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
 
         assert(this->getInitFunction() != nullptr); 
 
         number recover = 0;
 
-        // Go over all Point Set in t+1 
-        for(const auto k : this->representation[t+1])
+        // Go over all points in the point set at t+1 
+        for(const auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
         {
-            con.add(IloRange(env, -IloInfinity, 0.0));
-            //<! 1.c.1 get variable v
-            recover = this->getNumber(this->getVarNameWeight(0));
-            //<! 1.c.2 set coefficient of variable v
-            con[c].setLinearCoef(var[recover], +1.0);
-
-            auto tot=0;
-
-            //<! set v_k, V_k, s_k
-            auto s_k = k.first.getOneStepUncompressedOccupancy();
-            auto v_k = this->getValueAt(k.first, t+1);
-            auto V_k = this->getInitFunction()->operator()(*s_k, t+1);
-
-            // set (v_k - V_k) 
-            auto difference_v_k = v_k - V_k; 
+            auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
+            auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
+            auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
+            auto one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
+            auto difference = upper_bound - initial_upper_bound; 
 
             auto bigM = 10;
 
-            // Go over all joint history 
-            for(const auto &joint_history : occupancy_state.getJointHistories())
+            // Go over all joint histories in over the support of one_step_uncompressed_occupancy_state
+            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *one_step_uncompressed_occupancy_state)
             {
-                // Go over all action
-                for(const auto & u : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+                //<!  ax + b <= 0 
+                con.add(IloRange(env, -IloInfinity, bigM));
+
+                //<! 1.c.1 get variable v
+                recover = this->getNumber(this->getVarNameWeight(0));
+
+                //<! 1.c.2 set coefficient of variable v
+                con[c].setLinearCoef(var[recover], +1.0);
+
+                auto hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
+                auto joint_history_next = pair_hidden_state_AND_joint_history_AND_probability.first.second;
+                
+                auto joint_history = joint_history_next->getParent();
+                auto next_observation = joint_history_next->getData();
+
+                // Go over all actions
+                for(const auto & action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
                 {
                     //<! 1.c.4 get variable a(u|o)
-                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u,joint_history));
-
-                    // ***** First part of the equation 
-
-                    //<! set \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u)
-                    double first_part = this->getQValueRelaxation(occupancy_state,joint_history,u,t);
-                    // con[c].setLinearCoef(var[recover], - weight);
-
-                    // ***** Second part of the equation 
-
-                    //<! 3.a Set \sum_{o,u} a(u|o) \sum_{o,u} a(u|o) (v_k - V_k) \frac{\sum_{x,z_} s(x,o)*p(x,u,z_,x_)}}{s_k(x_,o_)} ,\forall k, x_,o_,u_
-                    double second_part=0;
-                    for(const auto &joint_history_next : s_k->getJointHistories())
-                    {
-                        for(auto x_ : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
-                        {
-                            if( s_k->at(std::make_pair(x_,joint_history_next))>0)
-                            {
-                                second_part += difference_v_k * this->template getSawtoothMinimumRatio<TState>(occupancy_state, joint_history, u, x_, joint_history_next, *s_k);
-                            }
-                        }
-                    }
-
-                    // Il faut ajouter faire \sum_{o,u}  a(u|o) * (first_part + second_part)
+                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
                     con[c].setLinearCoef(var[recover], -(first_part + second_part));
-
-                    c++;
-
                 } 
-            }
 
-            // Third part of the equation
+                // <! get variable \omega_k(x',o')
+                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(one_step_uncompressed_occupancy_state, hidden_state, joint_history_next));
+                con[c].setLinearCoef(var[recover], bigM);
 
-            //<! set (1 - \omega_k(x',o'))*M
-            for(const auto& joint_history : s_k->getJointHistories())
-            {
-                for(auto x : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
-                {
-                    if( s_k->at(std::make_pair(x,joint_history))>0)
-                    {
-                        // <! get variable \omega_k(x',o')
-                        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(k.first, x, joint_history));
-
-                        // Il faut faire (1-\omega_k(x',o'))*M
-                        //double third_part = (1-var[recover])*bigM;
-
-                        //con[c].setLinearCoef(var[recover], third_part);
-
-                    }
-                }
+                c++;
             }
 
             // Build constraint \sum{x',o'} \omega_k(x',o') = 1
-
-            // Go over all joint history next
             con.add(IloRange(env, 1.0, 1.0));
-            for(const auto& joint_history_next : s_k->getJointHistories())
+            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *one_step_uncompressed_occupancy_state)
             {
-                // Go over all next State
-                for(auto x_ : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
-                {
-                    if( s_k->at(std::make_pair(x_,joint_history_next))>0)
-                    {
-                        // <! \omega_k(x',o')
-                        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(k.first, x_, joint_history_next));
-                        con[c].setLinearCoef(var[recover], +1.0);
-                        c++;
-                    }
-                }
+                auto hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
+                auto joint_history_next = pair_hidden_state_AND_joint_history_AND_probability.first.second;
+                // <! \omega_k(x',o')
+                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(one_step_uncompressed_occupancy_state, hidden_state, joint_history_next));
+                con[c].setLinearCoef(var[recover], +1.0);
             }
+            c++;
         }
     }
 
     template <typename TState, typename TAction, typename TValue>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState& occupancy_state,typename TState::jhistory_type joint_history, typename TAction::output_type u, number t) 
     {
-        // auto weight = 0.0;
-        // for(auto x : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
-        // {
-        //     weight +=  occupancy_state.at(std::make_pair(x,joint_history)); // * this->getQValueAt(x,u,t)
-        // }
-        auto weight = this->getInitFunction()->operator()(occupancy_state, t);
-        return weight;
+        return this->getInitFunction()->operator()(occupancy_state, t);
     }
 
+    //\frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)}
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    double SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothMinimumRatio(const TState& occupancy_state, typename TState::jhistory_type jh, typename TAction::output_type u, typename TState::state_type x_, typename TState::jhistory_type jh_, const TState& s_k)
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothMinimumRatio(const TState& one_step_uncompressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, typename TState::state_type next_hidden_state, typename TState::observation_type next_observation, const TState& next_one_step_uncompressed_occupancy_state)
     {
-        auto ratio = 0.0, factor = 0.0;
+        auto factor = 0.0;
 
-        for(const auto x : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
+        for(const auto& hidden_state : one_step_uncompressed_occupancy_state.getStatesAt(joint_history))
         {
-            factor = 0.0;
-            for(const auto z_ : this->getWorld()->getUnderlyingProblem()->getObsSpace()->getAll())
-            {
-                factor +=  jh_ == jh->expand(z_) ? this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(x,this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(u),this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(z_),x_) : 0.0;
-            }
-            ratio += factor * occupancy_state.at(std::make_pair(x, jh));
+            factor += one_step_uncompressed_occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
         }
-        return ratio / s_k.at(std::make_pair(x_,jh_));
+
+        return factor / next_one_step_uncompressed_occupancy_state.at(std::make_pair(next_hidden_state, joint_history->expand(next_observation)));
     }
 
     template <typename TState, typename TAction, typename TValue>

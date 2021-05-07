@@ -82,6 +82,11 @@ namespace sdm
          */
         number getNumber( const std::string& );
 
+        /**
+         * @brief Get the Var Name Weighted State Joint History object
+         * @warning const TVector& should be something like const std::shared_ptr<TVector>& or  const TVector*&
+         * @return std::string 
+         */
         std::string getVarNameWeightedStateJointHistory(const TVector& , typename TVector::state_type , typename TVector::jhistory_type );
 
     
