@@ -254,12 +254,12 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState& compressed_occupancy_state,typename TState::jhistory_type joint_history, typename TAction::output_type action, number t) 
     {
-        // auto weight = 0.0;
-        // for(auto x : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
-        // {
-        //     weight +=  compressed_occupancy_state.at(std::make_pair(x,joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type,TState>>(this->getInitFunction())->getQValueAt(x,action,t);
-        // }
-        // return weight;
+        auto weight = 0.0;
+        for(auto x : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
+        {
+            weight +=  compressed_occupancy_state.at(std::make_pair(x,joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type,TState>>(this->getInitFunction())->getQValueAt(x,this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action),t);
+        }
+        return weight;
 
         //return this->getInitFunction()->operator()(compressed_occupancy_state, t);
     }
