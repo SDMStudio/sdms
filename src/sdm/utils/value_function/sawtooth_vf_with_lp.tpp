@@ -6,7 +6,7 @@ namespace sdm
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP() {}
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer), DecentralizedConstraintsLP<TState, TAction, TValue>(problem)
+    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : DecentralizedConstraintsLP<TState, TAction, TValue>(problem),SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
     }
 
@@ -229,7 +229,7 @@ namespace sdm
                 for(const auto & action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
                 {
                     //<! 1.c.4 get variable a(u|o) and set constant 
-                    expr -= this->getQValueAt(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference, t) * var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))];
+                    expr -= this->getQValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), joint_history, action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference, t) * var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))];
                 } 
 
                 // <! get variable \omega_k(x',o')

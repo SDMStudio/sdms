@@ -64,7 +64,15 @@ int main(int argc, char **argv)
 			std::cout << "#> Expanded joint history --> " << *jhistory << std::endl;
 		}
 
-		std::cout<<"\n Get Parent of Joint History "<<*jhistory->getParent()<<std::endl;
+		std::cout<<"\n get Last Observation "<<jhistory->getData()<<std::endl;
+
+		std::cout<<"\n Get Parent of Joint History "<<*jhistory->getOrigin()<<std::endl;
+		
+		std::cout<<"\n jhistory->getChildren().size()"<<jhistory->getChildren().size()<<std::endl;
+		for(const auto &jh : jhistory->getChildren())
+		{
+			std::cout<<"\n Get Children of Joint History "<<*jh<<std::endl;
+		}
 
 		// How to access individual histories and expand them
 		std::cout << "\n--- 3) Access individual histories" << std::endl;

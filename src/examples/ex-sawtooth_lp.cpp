@@ -6,6 +6,7 @@
 #include <sdm/core/action/joint_det_decision_rule.hpp>
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 
+#include<sdm/algorithms.hpp>
 #include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
 
 

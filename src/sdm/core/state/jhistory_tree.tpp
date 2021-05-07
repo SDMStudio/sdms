@@ -125,7 +125,12 @@ namespace sdm
     template <typename T>
     std::vector<std::shared_ptr<JointHistoryTree<T>>> JointHistoryTree<T>::getChildren() const
     {
-        return std::static_pointer_cast<JointHistoryTree<T>>(HistoryTree<Joint<T>>::getChildren());
+        std::vector<std::shared_ptr<JointHistoryTree<T>>> vector;
+        for(const auto& children : HistoryTree<Joint<T>>::getChildren())
+        {
+            vector.push_back(std::static_pointer_cast<JointHistoryTree<T>>(children));
+        }
+        return vector;
     }
 
     template <typename T>

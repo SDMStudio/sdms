@@ -123,7 +123,13 @@ namespace sdm
     template <typename T>
     std::vector<std::shared_ptr<HistoryTree<T>>> HistoryTree<T>::getChildren() const
     {
-        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getChildren());
+        std::vector<std::shared_ptr<HistoryTree<T>>> vector;
+        for(const auto& children : Tree<T>::getChildren())
+        {
+            std::cout<<"\n children "<<*children<<std::endl;
+            vector.push_back(std::static_pointer_cast<HistoryTree<T>>(children));
+        }
+        return vector;
     }
 
     template <typename T>
