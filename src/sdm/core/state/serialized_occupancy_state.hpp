@@ -22,8 +22,8 @@ namespace sdm
     number agent;
 
   public:
-    using jhistory_type = typename OccupancyState<TState, TJointHistory_p>::jhistory_type;
     using state_type = typename OccupancyState<TState, TJointHistory_p>::state_type;
+    using jhistory_type = typename OccupancyState<TState, TJointHistory_p>::jhistory_type;
 
     SerializedOccupancyState();
     SerializedOccupancyState(double default_value);

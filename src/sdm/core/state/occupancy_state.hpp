@@ -32,9 +32,9 @@ namespace sdm
   class OccupancyState : public BaseOccupancyState<TState, TJointHistory_p>
   {
   public:
+    using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
     using jhistory_type = typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type;
     using ihistory_type = typename jhistory_type::element_type::ihistory_type;
-    using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
     using private_ostate_type = PrivateOccupancyState<TState, jhistory_type>;
 
     OccupancyState();
@@ -43,6 +43,16 @@ namespace sdm
     OccupancyState(const OccupancyState &);
 
     auto compress();
+
+    /**
+     * @brief Compression for occupancy states based on belief state representation. 
+     * To be in this representation, the type 'TState' have to be a derivation of the interface BeliefState.  
+     * 
+     * @return the compressed occupancy state 
+     */
+    // template <std::enable_if_t<std::is_base_of<BeliefState, TState>::value, int> = 0>
+    // auto compress();
+
     bool areIndividualHistoryLPE(const typename TJointHistory_p::element_type::ihistory_type &, const typename TJointHistory_p::element_type::ihistory_type &, number);
     void finalize();
 
@@ -113,9 +123,8 @@ namespace sdm
      * @param number Agent Id
      * @param typename jhistory_type::element_type::ihistory_type : Individual History
      */
-    const double &getProbabilityOverIndividualHistories(number,typename jhistory_type::element_type::ihistory_type) const;
+    const double &getProbabilityOverIndividualHistories(number, typename jhistory_type::element_type::ihistory_type) const;
     void setProbabilityOverIndividualHistories();
-
 
   protected:
     /** @brief This representation of occupancy states consists of private occupancy states for each agent*/
@@ -135,7 +144,9 @@ namespace sdm
 
     /** @brief probability of a private history space for a precise agent */
     std::unordered_map<number, std::unordered_map<ihistory_type, double>> probability_ihistories;
-
   };
+
+  // using BeliefOccupancyState = OccupancyState<>;
+
 } // namespace sdm
 #include <sdm/core/state/occupancy_state.tpp>

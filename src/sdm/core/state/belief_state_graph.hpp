@@ -11,7 +11,7 @@
 #pragma once
 
 #include <sdm/utils/struct/graph.hpp>
-#include <sdm/world/belief_mdp.hpp>
+#include <sdm/utils/linear_algebra/matrix.hpp>
 
 namespace sdm
 {

@@ -11,9 +11,6 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/utils/linear_algebra/sdms_vector.hpp>
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/core/state/serialized_state.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -21,7 +18,5 @@
  */
 namespace sdm
 {
-  // using BeliefState = MappedVector<number, double>;
-  
 
 } // namespace sdm

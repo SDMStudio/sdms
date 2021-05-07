@@ -40,7 +40,7 @@ namespace sdm
 
     number DiscreteMDP::nextState(const number &state, const number &action, number t, std::shared_ptr<HSVI<number, number>> hsvi) const
     {
-        double max = std::numeric_limits<double>::min();
+        double max = -std::numeric_limits<double>::max();
         number amax = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
         {

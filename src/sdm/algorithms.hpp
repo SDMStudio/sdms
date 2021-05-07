@@ -28,14 +28,12 @@
 
 #include <sdm/utils/rl/exploration.hpp>
 
-
 /**
  * @brief 
  * @comment: Ce ficher est trop sale pour moi. Pour moi, il faut eviter d'utiliser des chaines de caracteres pour les algorithmes, les problemes, etc. 
  *           Il faut utiliser des enum ... Pour moi, il faudrait autant de fichier qu'il y'a de type d'algorithmes, de problemes, etc.
  *           Par ailleurs, pardon pas de code dans le hpp -- c'est vraiment une tres mauvaise pratique.
  */
-
 
 namespace sdm
 {
@@ -130,9 +128,8 @@ namespace sdm
             {
                 horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
             }
-            return std::make_shared<ValueIteration<TState, TAction>>(problem, error,horizon);
+            return std::make_shared<ValueIteration<TState, TAction>>(problem, error, horizon);
         }
-
 
         /**
          * @brief Build an algorithm given his name and the configurations required. 
@@ -169,7 +166,7 @@ namespace sdm
                     auto pomdp = std::make_shared<DiscretePOMDP>(problem_path);
                     auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(pomdp);
 
-                    p_algo =  makeHSVI<TState, TAction>(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
+                    p_algo = makeHSVI<TState, TAction>(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
@@ -181,10 +178,11 @@ namespace sdm
 
                     // using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
                     using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
-                    using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+                    using TStatePrescriptor = OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
+                    // using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
-                    p_algo =  makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                    p_algo = makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
@@ -192,7 +190,7 @@ namespace sdm
                     using TAction = number;
 
                     auto serialized_mdp = std::make_shared<SerializedMMDP>(problem_path);
-                    serialized_mdp->getUnderlyingProblem()->setInternalState(SerializedState(0,std::vector<number>()));
+                    serialized_mdp->getUnderlyingProblem()->setInternalState(SerializedState(0, std::vector<number>()));
 
                     p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
                 }
@@ -295,7 +293,7 @@ namespace sdm
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
                     problem->setupDynamicsGenerator();
-                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo = makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "beliefmdp") || (formalism == "BeliefMDP"))
                 {
@@ -304,7 +302,7 @@ namespace sdm
                     problem->getUnderlyingProblem()->setDiscount(discount);
                     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
                     problem->getUnderlyingProblem()->setupDynamicsGenerator();
-                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo = makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
@@ -313,7 +311,7 @@ namespace sdm
                     problem->setDiscount(discount);
                     problem->setPlanningHorizon(horizon);
                     problem->setupDynamicsGenerator();
-                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo = makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
                 else if ((formalism == "occupancymdp") || (formalism == "OccupancyMDP"))
                 {
@@ -332,7 +330,7 @@ namespace sdm
                     problem->getUnderlyingProblem()->setDiscount(discount);
                     problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
                     problem->getUnderlyingProblem()->setupDynamicsGenerator();
-                    p_algo =  makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
+                    p_algo = makeQLearning<env_type::observation_type, env_type::action_type>(problem, qvalue_name, initializer_name, horizon, discount, lr, batch_size, num_max_steps, name);
                 }
             }
             else

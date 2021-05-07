@@ -13,9 +13,9 @@ namespace sdm
     // std::enable_if_t<is_serial_mdp, double>
     // State2OccupancyValueFunction<TState, TOccupancyState>::getValue(const TOccupancyState &ostate, const number &tau)
     // {
-    //     // Il me manque la division de tau par le nombre d'agent 
+    //     // Il me manque la division de tau par le nombre d'agent
     //     std::cout<<"\n TAu :"<<tau;
-        
+
     //     //std::cout<<"\n Agent : "<<tau/number_agent_;
     //     return this->mdp_vf_->operator()(ostate.first, tau);
     // }
@@ -56,5 +56,43 @@ namespace sdm
     {
         return this->operator()<>(ostate, tau);
     }
+
+    // template <typename TState, typename TActionDescriptor, typename TObservation, typename TActionPrescriptor>
+    // State2OccupancyValueFunction<TState, TActionDescriptor, TObservation, TActionPrescriptor>::State2OccupancyValueFunction(std::shared_ptr<BinaryFunction<TState, number, double>> vf) : mdp_vf_(vf)
+    // {
+    // }
+
+    // template <typename TState, typename TActionDescriptor, typename TObservation, typename TActionPrescriptor>
+    // template <bool is_mdp>
+    // std::enable_if_t<is_mdp, double>
+    // State2OccupancyValueFunction<TState, TActionDescriptor, TObservation, TActionPrescriptor>::operator()(const OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>> &ostate, const number &tau)
+    // {
+    //     return this->mdp_vf_->operator()(ostate, tau);
+    // }
+
+    // template <typename TState, typename TActionDescriptor, typename TObservation, typename TActionPrescriptor>
+    // template <bool is_mdp>
+    // std::enable_if_t<!is_mdp, double>
+    // State2OccupancyValueFunction<TState, TActionDescriptor, TObservation, TActionPrescriptor>::operator()(const OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>> &ostate, const number &tau)
+    // {
+    //     double value = 0;
+    //     for (auto &ost : ostate)
+    //     {
+    //         auto belief = ostate.getState(ost.first);
+    //         auto proba = ost.second;
+    //         for (const auto & : )
+    //         {
+
+    //         }
+    //         value += proba * this->mdp_vf_->operator()(state, tau);
+    //     }
+    //     return value;
+    // }
+
+    // template <typename TState, typename TActionDescriptor, typename TObservation, typename TActionPrescriptor>
+    // double State2OccupancyValueFunction<TState, TActionDescriptor, TObservation, TActionPrescriptor>::operator()(const OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>> &ostate, const number &tau)
+    // {
+    //     return this->operator()<>(ostate, tau);
+    // }
 
 } // namespace sdm

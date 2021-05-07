@@ -183,9 +183,11 @@ namespace sdm
                     auto ihistory_one_step_left = *iter_second; // Get the ihistory we want check the equivalence
                     if (this->areIndividualHistoryLPE(ihistory_label, ihistory_one_step_left, agent_id))
                     {
-                        this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label); // Store new label
-                        iter_second = support.erase(iter_second);                            // Erase unecessary equivalent individual history
+                        // Store new label
+                        this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label);
 
+                        // Erase unecessary equivalent individual history
+                        iter_second = support.erase(iter_second);
                         for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_one_step_left))
                         {
                             auto partial_jhist = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getPartialJointHistory(pair_s_o_prob.first.second);
@@ -212,7 +214,7 @@ namespace sdm
     void OccupancyState<TState, TJointHistory_p>::finalize()
     {
         BaseOccupancyState<TState, TJointHistory_p>::finalize();
-       
+
         for (const auto &pair_state_jhist : *this)
         {
             auto jhist = this->getHistory(pair_state_jhist.first);
@@ -252,7 +254,7 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    const double &OccupancyState<TState, TJointHistory_p>::getProbabilityOverIndividualHistories(number agent,typename jhistory_type::element_type::ihistory_type ihistory) const
+    const double &OccupancyState<TState, TJointHistory_p>::getProbabilityOverIndividualHistories(number agent, typename jhistory_type::element_type::ihistory_type ihistory) const
     {
         return this->probability_ihistories.at(agent).at(ihistory);
     }
@@ -260,18 +262,18 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void OccupancyState<TState, TJointHistory_p>::setProbabilityOverIndividualHistories()
     {
-        for(number ag_id = 0; ag_id < this->num_agents; ag_id++)
+        for (number ag_id = 0; ag_id < this->num_agents; ag_id++)
         {
-            for(const auto &ihistory : this->getIndividualHistories(ag_id))
+            for (const auto &ihistory : this->getIndividualHistories(ag_id))
             {
                 double prob = 0;
-                for (const auto &pair_hidden_state_history_proba : *this->getPrivateOccupancyState(ag_id, ihistory)) 
+                for (const auto &pair_hidden_state_history_proba : *this->getPrivateOccupancyState(ag_id, ihistory))
                 {
-                    prob += pair_hidden_state_history_proba.second;    
-                }  
+                    prob += pair_hidden_state_history_proba.second;
+                }
                 this->probability_ihistories[ag_id][ihistory] = prob;
             }
-        }           
+        }
     }
 
 } // namespace sdm
