@@ -110,4 +110,28 @@ namespace sdm
         return std::static_pointer_cast<JointHistoryTree<T>>(this->shared_from_this());
     }
 
+    template <typename T>
+    std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::getParent() const
+    {
+        return std::static_pointer_cast<JointHistoryTree<T>>(HistoryTree<Joint<T>>::getParent());
+    }
+
+    template <typename T>
+    std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::getOrigin()
+    {
+        return std::static_pointer_cast<JointHistoryTree<T>>(HistoryTree<Joint<T>>::getOrigin());
+    }
+
+    template <typename T>
+    std::vector<std::shared_ptr<JointHistoryTree<T>>> JointHistoryTree<T>::getChildren() const
+    {
+        return std::static_pointer_cast<JointHistoryTree<T>>(HistoryTree<Joint<T>>::getChildren());
+    }
+
+    template <typename T>
+    std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::getChild(const T &child_item) const
+    {
+        return std::static_pointer_cast<JointHistoryTree<T>>(HistoryTree<Joint<T>>::getChild(child_item));
+    }
+
 } // namespace sdm

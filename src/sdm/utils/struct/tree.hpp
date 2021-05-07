@@ -63,6 +63,7 @@ namespace sdm
         bool is_origin = false;
 
     public:
+        using value_type = T;
         /**
          * @brief Default constructor object
          * 

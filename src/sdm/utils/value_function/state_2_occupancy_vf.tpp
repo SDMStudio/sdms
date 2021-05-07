@@ -4,7 +4,7 @@ namespace sdm
 {
 
     template <typename TState, typename TOccupancyState>
-    State2OccupancyValueFunction<TState, TOccupancyState>::State2OccupancyValueFunction(std::shared_ptr<BinaryFunction<TState, number, double>> vf) : mdp_vf_(vf)
+    State2OccupancyValueFunction<TState, TOccupancyState>::State2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, number>> vf) : mdp_vf_(vf)
     {
     }
 
@@ -38,10 +38,8 @@ namespace sdm
     }
 
     template <typename TState, typename TOccupancyState>
-    double State2OccupancyValueFunction<TState, TOccupancyState>::getValue(const TState &state, const number &tau)
+    double State2OccupancyValueFunction<TState, TOccupancyState>::getQValueAt(const TState &state,const number &action, const number &tau)
     {
-        return this->mdp_vf_->operator()(state, tau);
+        return this->mdp_vf_->getQValueAt(state,action,tau);
     }
-
-
 } // namespace sdm

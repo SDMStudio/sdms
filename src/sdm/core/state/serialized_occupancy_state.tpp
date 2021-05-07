@@ -91,6 +91,18 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    std::shared_ptr<SerializedOccupancyState<TState, TJointHistory_p>> SerializedOccupancyState<TState, TJointHistory_p>::getOneStepUncompressedOccupancy() const
+    {
+        return std::static_pointer_cast<SerializedOccupancyState<TState, TJointHistory_p>>(OccupancyState<TState, TJointHistory_p>::getOneStepUncompressedOccupancy());
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    std::shared_ptr<SerializedOccupancyState<TState, TJointHistory_p>> SerializedOccupancyState<TState, TJointHistory_p>::getFullyUncompressedOccupancy() const
+    {
+        return std::static_pointer_cast<SerializedOccupancyState<TState, TJointHistory_p>>(OccupancyState<TState, TJointHistory_p>::getFullyUncompressedOccupancy());
+    }
+
+    template <typename TState, typename TJointHistory_p>
     std::string SerializedOccupancyState<TState, TJointHistory_p>::str() const
     {
 

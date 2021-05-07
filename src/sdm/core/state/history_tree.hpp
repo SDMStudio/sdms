@@ -37,6 +37,7 @@ namespace sdm
         std::shared_ptr<output> truncatedExpand(const T &data, bool backup);
 
     public:
+        using value_type = typename Tree<T>::value_type;
         /*!
          *  @brief  Default constructor.
          *  This constructor builds a default and empty tree.
@@ -83,6 +84,12 @@ namespace sdm
         std::string short_str();
 
         std::shared_ptr<HistoryTree<T>> getptr();
+
+        std::shared_ptr<HistoryTree<T>> getParent() const;
+        std::shared_ptr<HistoryTree<T>> getOrigin();
+        std::vector<std::shared_ptr<HistoryTree<T>>> getChildren() const;
+        std::shared_ptr<HistoryTree<T>> getChild(const T &child_item) const;
+
 
 
         friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)

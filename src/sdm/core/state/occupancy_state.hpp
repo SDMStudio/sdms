@@ -36,6 +36,7 @@ namespace sdm
     using ihistory_type = typename jhistory_type::element_type::ihistory_type;
     using state_type = typename BaseOccupancyState<TState, TJointHistory_p>::state_type;
     using private_ostate_type = PrivateOccupancyState<TState, jhistory_type>;
+    using observation_type = typename jhistory_type::element_type::value_type;
 
     OccupancyState();
     OccupancyState(double);
