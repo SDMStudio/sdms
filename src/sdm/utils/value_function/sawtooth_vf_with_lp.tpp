@@ -208,62 +208,57 @@ namespace sdm
             auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
             auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
             auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
-            auto one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
+            auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
             auto difference = upper_bound - initial_upper_bound; 
 
-            auto bigM = 10;
-
-            // Go over all joint histories in over the support of one_step_uncompressed_occupancy_state
-            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *one_step_uncompressed_occupancy_state)
+            // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
+            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
             {
-                //<!  ax + b <= 0 
-                con.add(IloRange(env, -IloInfinity, bigM));
+                //<! Initialize expression
+                IloExpr expr(env);
 
-                //<! 1.c.1 get variable v
-                recover = this->getNumber(this->getVarNameWeight(0));
+                //<! 1.c.1 get variable v and set coefficient of variable v
+                expr = var[this->getNumber(this->getVarNameWeight(0))];
 
-                //<! 1.c.2 set coefficient of variable v
-                con[c].setLinearCoef(var[recover], +1.0);
-
-                auto hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
-                auto joint_history_next = pair_hidden_state_AND_joint_history_AND_probability.first.second;
+                auto next_hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
+                auto next_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first.second;
                 
-                auto joint_history = joint_history_next->getParent();
-                auto next_observation = joint_history_next->getData();
+                auto joint_history = next_joint_history->getParent();
+                auto next_observation = next_joint_history->getData();
 
                 // Go over all actions
                 for(const auto & action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
                 {
-                    //<! 1.c.4 get variable a(u|o)
-                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
-                    con[c].setLinearCoef(var[recover], -(first_part + second_part));
+                    //<! 1.c.4 get variable a(u|o) and set constant 
+                    expr -= this->getQValueAt(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, next_one_step_uncompressed_occupancy_state, difference, t) * var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))];
                 } 
 
                 // <! get variable \omega_k(x',o')
-                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(one_step_uncompressed_occupancy_state, hidden_state, joint_history_next));
-                con[c].setLinearCoef(var[recover], bigM);
-
+                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
+                con.add(IloIfThen(env, var[recover] > 0, expr <= 0 ) );
+                
                 c++;
             }
 
             // Build constraint \sum{x',o'} \omega_k(x',o') = 1
             con.add(IloRange(env, 1.0, 1.0));
-            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *one_step_uncompressed_occupancy_state)
+            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
             {
-                auto hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
-                auto joint_history_next = pair_hidden_state_AND_joint_history_AND_probability.first.second;
+                auto next_hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
+                auto next_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first.second;
                 // <! \omega_k(x',o')
-                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(one_step_uncompressed_occupancy_state, hidden_state, joint_history_next));
+                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
                 con[c].setLinearCoef(var[recover], +1.0);
             }
             c++;
         }
     }
 
+    //TODO
     template <typename TState, typename TAction, typename TValue>
-    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState& occupancy_state,typename TState::jhistory_type joint_history, typename TAction::output_type u, number t) 
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState& compressed_occupancy_state,typename TState::jhistory_type joint_history, typename TAction::output_type u, number t) 
     {
-        return this->getInitFunction()->operator()(occupancy_state, t);
+        return this->getInitFunction()->operator()(compressed_occupancy_state, t);
     }
 
     //\frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)}
@@ -287,7 +282,7 @@ namespace sdm
         double cub,clb;
         auto action = this->greedySawtooth(occupancy_state, clb, cub, t);
 
-        MappedValueFunction<TState,TAction,TValue>::updateValueAt(occupancy_state,t, cub);
+        MappedValueFunction<TState,TAction,TValue>::updateValueAt(occupancy_state, t, cub);
     }
 
     template <typename TState, typename TAction, typename TValue>
