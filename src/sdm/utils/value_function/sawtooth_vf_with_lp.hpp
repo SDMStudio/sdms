@@ -67,7 +67,7 @@ namespace sdm{
          * @param number : time step 
          * @return double 
          */
-        double getQValueAt(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, const TState&, double, number );
+        double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, const TState&, double, number );
 
 
     public:
