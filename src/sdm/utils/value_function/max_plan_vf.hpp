@@ -70,6 +70,23 @@ namespace sdm
         TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
 
         /**
+         * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
+         * 
+         * @tparam T 
+         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
+         * 
+         * @param const TVector& : occupancy state
+         * @param const TVector& : hyperplan
+         * @param const TAction& : joint decision rule
+         * @param number : time step
+         * 
+         * 
+         * @return TVector 
+         */
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
+
+        /**
          * @brief Compute the next hyperplan for a precise serialized_occupancy_state, hyperplan and a joint decision rule
          * 
          * @tparam T 
@@ -182,13 +199,24 @@ namespace sdm
         TVector backup_operator(const TVector &, number = 0);
 
         /**
-         * @brief backup operator for the occupancy state -- type of the state -- 
+         * @brief backup operator for the occupancy state with belief representation -- type of the state -- 
          * @param const TVector & occupancy state 
          * @param number horizon
          * @tparam T 
          * @return TVector 
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        TVector backup_operator(const TVector &, number = 0);
+
+
+        /**
+         * @brief backup operator for the occupancy state -- type of the state -- 
+         * @param const TVector & occupancy state 
+         * @param number horizon
+         * @tparam T 
+         * @return TVector 
+         */
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
         TVector backup_operator(const TVector &, number = 0);
 
         /**

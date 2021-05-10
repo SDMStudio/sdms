@@ -78,10 +78,10 @@ namespace sdm
             else if (lower_bound_name == "maxplan_serial")
             {
                 lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized<TState, TAction>>(problem, horizon, lb_init);
-            }
-            else if (lower_bound_name == "maxplan_lp")
-            {
-                lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
+            // else if (lower_bound_name == "maxplan_lp")
+            // {
+            //     lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
+            // }
             }
             else
             {
@@ -92,10 +92,10 @@ namespace sdm
             if (upper_bound_name == "sawtooth")
             {
                 upper_bound = std::make_shared<sdm::SawtoothValueFunction<TState, TAction>>(problem, horizon, ub_init);
-            }
-            else if (upper_bound_name == "sawtooth_lp")
-            {
-                upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
+            // else if (upper_bound_name == "sawtooth_lp")
+            // {
+            //     upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
+            // }
             }
             else
             {
