@@ -25,6 +25,12 @@ namespace sdm{
 
     protected:
 
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        void testFunction(const TState& , TAction, number  );
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        void testFunction(const TState& , TAction, number  );
+
         /**
          * @brief Get the Sawtooth Minimum Ratio  i.e. \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)}
          * 
