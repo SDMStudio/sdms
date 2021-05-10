@@ -38,10 +38,10 @@ namespace sdm{
          * @return double : Ratio
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , const TState& next_one_step_uncompressed_occupancy_state) ;
+        double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , const TState& ) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , const TState& ) ;
+        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , const TState& ) ;
 
         /**
          * @brief Return the \sum_x s(x,o) Q_MDP(x,u)
@@ -74,6 +74,8 @@ namespace sdm{
         SawtoothValueFunctionLP();
         SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>> );
         SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0.);
+
+        TAction getBestAction(const TState &occupancy_state, number t);
 
        /**
         * @brief Returns the greedy decision rule for the current occupancy state

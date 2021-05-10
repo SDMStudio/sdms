@@ -106,6 +106,9 @@ namespace sdm
 
         std::shared_ptr<JointHistoryTree<T>> getptr();
 
+        Joint<T> getDefaultObs();
+
+
         std::shared_ptr<JointHistoryTree<T>> getParent() const;
         std::shared_ptr<JointHistoryTree<T>> getOrigin();
         std::vector<std::shared_ptr<JointHistoryTree<T>>> getChildren() const;
