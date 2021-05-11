@@ -88,6 +88,18 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    TState_t TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getTStateType()
+    {
+        return this->ctype;
+    }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::setTStateType(const TState_t& ctype)
+    {
+        this->ctype = ctype;
+    }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     std::vector<TState> TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getSupport(number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
