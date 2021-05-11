@@ -139,6 +139,19 @@ namespace sdm
     void OccupancyState<TState, TJointHistory_p>::setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState<TState, TJointHistory_p>> &one_step_uncompress_ostate)
     {
         this->one_step_left_compressed_occupancy_state = one_step_uncompress_ostate;
+        one_step_uncompress_ostate->setCompressedOccupancy(this->getptr());
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    std::shared_ptr<OccupancyState<TState, TJointHistory_p>> OccupancyState<TState, TJointHistory_p>::getCompressedOccupancy() const
+    {
+        return this->compressed_occupancy_state;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    void OccupancyState<TState, TJointHistory_p>::setCompressedOccupancy(const std::shared_ptr<OccupancyState<TState, TJointHistory_p>> &compress_ostate)
+    {
+        this->compressed_occupancy_state = compress_ostate;
     }
 
     template <typename TState, typename TJointHistory_p>
