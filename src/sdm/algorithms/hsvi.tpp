@@ -1,3 +1,5 @@
+#include <sdm/exception.hpp>
+
 #include <sdm/algorithms/hsvi.hpp>
 
 namespace sdm
@@ -64,7 +66,6 @@ namespace sdm
             this->trial++;
         } while (!this->do_stop(start_state, 0, 0));
 
-        std::cout << "----------------------------------------------------" << std::endl;
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         //std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
@@ -80,14 +81,8 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
     {
-        //std::cout << "----------------------------------------------------" << std::endl;
-        //std::cout << "#> Print compressed occupancy state \n" << s << "\n";
-        //std::cout << "#> h=" << h << "\tvalue: " << "lb = " << this->lower_bound_->getValueAt(s, h) << "\tub = " << this->upper_bound_->getValueAt(s, h)<< "\n";
-        //std::cout << "#> Print one step left occupancy state \n" << *s.getOneStepUncompressedOccupancy() << "\n";
-
         if (!this->do_stop(s, cost_so_far, h))
         {
-            /* @warning -- Update bounds : updating forward is useful only in infinite horizons */
             if( this->lower_bound_->isInfiniteHorizon() )
             {
                 this->lower_bound_->updateValueAt(s, h);
@@ -105,8 +100,15 @@ namespace sdm
             // Update bounds
             this->lower_bound_->updateValueAt(s, h);
             this->upper_bound_->updateValueAt(s, h);
+
+            //---------------DEBUG-----------------//
+            //std::cout << "\t\th:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ") \t->\t cV_ub("<< (this->world_->getReward(s, a) +  this->world_->getDiscount(h) * this->upper_bound_->getValueAt(s_, h+1)) <<") " << std::endl; 
+            //-----------------DEBUG----------------//
         }
-        //std::cout << "#> h=" << h << "\tvalue: " << "lb = " << this->lower_bound_->getValueAt(s, h) << "\tub = " << this->upper_bound_->getValueAt(s, h)<< "\n";
+
+        //---------------DEBUG-----------------//
+        //else std::cout << "\t\th:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl; 
+        //-----------------DEBUG----------------//
     }
 
     template <typename TState, typename TAction>

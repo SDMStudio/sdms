@@ -38,10 +38,10 @@ namespace sdm{
          * @return double : Ratio
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , const TState& next_one_step_uncompressed_occupancy_state) ;
+        double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , double) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , const TState& ) ;
+        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , double ) ;
 
         /**
          * @brief Return the \sum_x s(x,o) Q_MDP(x,u)
@@ -52,10 +52,14 @@ namespace sdm{
          * @param number : time step
          * @return double 
          */
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        double getQValueRelaxation(const TState& ,typename TState::jhistory_type , typename TAction::output_type , number ) ;
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         double getQValueRelaxation(const TState& ,typename TState::jhistory_type , typename TAction::output_type , number ) ;
 
         /**
-         * @brief Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = \sum_x s(x,o) Q_MDP(x,u) + (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
+         * @brief Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
          * 
          * @param const TState& : current compressed occupacy state
          * @param typename TState::jhistory_type : joint_history 
@@ -64,16 +68,26 @@ namespace sdm{
          * @param typename TState::observation_type : next_observation 
          * @param const TState : next_one_step_uncompressed_occupancy_state 
          * @param double : difference i.e. (v_k - V_k)
-         * @param number : time step 
          * @return double 
          */
-        double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, const TState&, double, number );
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double );
 
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double );
 
     public:
         SawtoothValueFunctionLP();
         SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>> );
         SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0.);
+
+        /**
+         * @brief Get the best action to do at a state
+         * 
+         * @param state the state
+         * @return the best action
+         */
+        TAction getBestAction(const TState &, number = 0);
 
        /**
         * @brief Returns the greedy decision rule for the current occupancy state
@@ -89,20 +103,13 @@ namespace sdm{
 
         void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray&, double , double, number  ) ;
 
-        void setGreedyObjective(IloObjective& , IloNumVarArray& , number) ;
+        void setGreedyObjective(const TState&, IloObjective& , IloNumVarArray& , number) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         void setGreedySawtooth(const TState&, IloModel&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&, number  ) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         void setGreedySawtooth(const TState&, IloModel&, IloEnv&, IloRangeArray&, IloNumVarArray& , number&, number  ) ;
-
-
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        void setGreedyUpperbound(const TState&, IloEnv& , IloRangeArray&, IloNumVarArray& , number& , number) ;
-
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void setGreedyUpperbound(const TState&, IloEnv& , IloRangeArray&, IloNumVarArray& , number& , number) ;
 
         void updateValueAt(const TState &, number );
     };
