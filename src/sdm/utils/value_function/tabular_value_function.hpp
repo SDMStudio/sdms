@@ -50,7 +50,6 @@ namespace sdm
         using backup_operator_type = TBackupOperator<TState, TAction>;
 
         //@David : Please check this attribute and corresponding getter and setter, is there a better place for them?
-        enum TState_t { COMPRESSED, ONE_STEP_UNCOMPRESSED, FULLY_UNCOMPRESSED };
 
         TState_t ctype = COMPRESSED;
 
