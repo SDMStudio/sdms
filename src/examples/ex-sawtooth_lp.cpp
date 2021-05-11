@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 
 #include <sdm/exception.hpp>
@@ -15,14 +16,15 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string filename;
-    number horizon = 1;
+    number horizon;
     number discount = 1;
     double error = 0.00001;
-    number trials = 10;
+    number trials = 100;
 
-	if (argc > 1)
+	if (argc > 2)
 	{
 		filename = argv[1];
+		horizon = std::atoi( argv[2] );
 	}
 
 	else
