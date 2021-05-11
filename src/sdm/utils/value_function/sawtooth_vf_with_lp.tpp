@@ -3,11 +3,15 @@ namespace sdm
 {
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP() {}
+    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP() 
+    {
+        this->setTStateType( ONE_STEP_UNCOMPRESSED );
+    }
 
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : DecentralizedConstraintsLP<TState, TAction, TValue>(problem),SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
+        this->setTStateType( ONE_STEP_UNCOMPRESSED );
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -83,28 +87,15 @@ namespace sdm
             {
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
-                if( std::abs(cub - this->getQValueAt(occupancy_state, a, t)) > 0.01 )
+                
+                auto vub_0  = this->getQValueAt(occupancy_state, a, t);
+                auto vub_1  = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(this->getWorld()->nextState(occupancy_state, a), t+1);
+                auto vub_2  = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t+1);
+                if( std::abs(cub - vub_0) > 0.01 )
                 {
                     std::cout << "------------------------------------------------------------------------" << std::endl;    
-                    // throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
-                    // for(const auto& pair_ostate_upperbound : this->representation[t+1])
-                    // {
-                    //     std::cout << "---- occupancy state in representation :" << std::endl;    
-                    //     std::cout << "> occupancy state in representation :" << std::endl;    
-                    //     std::cout << pair_ostate_upperbound.first  << std::endl;    
-                    //     std::cout << "> one-step left occupancy state in representation :" << std::endl;    
-                    //     std::cout << *pair_ostate_upperbound.first.getOneStepUncompressedOccupancy()  << std::endl;    
-                    //     std::cout << "> value :" << std::endl;    
-                    //     std::cout << pair_ostate_upperbound.second  << std::endl;    
 
-                    //     std::cout << "> compact occupancy state to extrapolate  :" << std::endl;    
-                    //     std::cout << this->getWorld()->nextState(occupancy_state, a)  << std::endl;    
-                    //     std::cout << "> one-step left occupancy state to extrapolate  :" << std::endl;    
-                    //     std::cout << *this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy()  << std::endl;    
-                    // }
-                    this->template testFunction<TState>(occupancy_state,a,t);  
-
-                    throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
+                    throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) +  ")\t vub_1(" + std::to_string(vub_1) +  ")\t vub_2(" + std::to_string(vub_2) +  ")");
                 }
             }
         }catch(IloException& e)
@@ -122,17 +113,6 @@ namespace sdm
 
         return a;
     }
-
-    template <typename TState, typename TAction, typename TValue>
-    template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::testFunction(const TState& , TAction , number )
-    {
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::testFunction(const TState& , TAction , number )
-    {}
 
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloNumVarArray& var, double /*clb*/, double /*cub*/, number t)
@@ -351,29 +331,29 @@ namespace sdm
 
         this->greedySawtooth(occupancy_state, clb, cub, t);
 
-        MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);
+        switch( this->ctype )
+        {
+            case FULLY_UNCOMPRESSED : MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getFullyUncompressed(), t, cub);  break;
+            case ONE_STEP_UNCOMPRESSED : MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);  break;
+            default : MappedValueFunction<TState,TAction,TValue>::updateValueAt(occupancy_state, t, cub);  break;
+        }
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getValueAt(const TState &state, number t)
+    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getValueAt(const TState &occupancy_state, number t)
     {
-        return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*state.getOneStepUncompressedOccupancy(),t);
+        switch( this->ctype )
+        {
+            case FULLY_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getFullyUncompressed(), t);
+            case ONE_STEP_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t); 
+            default : return MappedValueFunction<TState,TAction,TValue>::getValueAt(occupancy_state, t);  
+        }
     }
-
-    template <typename TState, typename TAction, typename TValue>
-    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueAt(const TState &state,const TAction &action, number t)
-    {
-        return SawtoothValueFunction<TState, TAction, TValue>::getQValueAt(*state.getOneStepUncompressedOccupancy(),action,t);
-    }
-
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& , IloModel& , IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number ) 
     {
-
-        // assert(this->getInitFunction() != nullptr); 
-
         // number recover = 0;
         // number agent_id = serial_occupancy_state.getCurrentAgentId();  
 
@@ -440,7 +420,9 @@ namespace sdm
         //     }
         //     c++;
         // }
-    }
+  
+        // assert(this->getInitFunction() != nullptr); 
+  }
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
