@@ -25,6 +25,11 @@ namespace sdm
     class SawtoothValueFunction : public MappedValueFunction<TState, TAction, TValue>
     {
     protected:
+        TState_t ctype = COMPRESSED;
+
+        TState_t getTStateType();
+        void setTStateType(const TState_t &);
+
     public:
         SawtoothValueFunction();
         SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
@@ -51,12 +56,10 @@ namespace sdm
         bool is_dominated(const TState &ostate, double value, number t);
     };
 
-
     template <class TAction, class TValue>
     class SawtoothValueFunction<number, TAction, TValue> : public MappedValueFunction<number, TAction, TValue>
     {
     public:
-
         SawtoothValueFunction()
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
@@ -101,11 +104,10 @@ namespace sdm
         }
     };
 
-    template <class TAction, class TValue >
+    template <class TAction, class TValue>
     class SawtoothValueFunction<SerializedState, TAction, TValue> : public MappedValueFunction<SerializedState, TAction, TValue>
     {
     public:
-
         SawtoothValueFunction()
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
@@ -115,7 +117,7 @@ namespace sdm
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
 
-        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, int horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer) :MappedValueFunction<SerializedState, TAction, TValue>(problem, horizon, initializer)
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, int horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer) : MappedValueFunction<SerializedState, TAction, TValue>(problem, horizon, initializer)
         {
             throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
         }
