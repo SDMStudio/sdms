@@ -24,32 +24,62 @@ namespace sdm{
     {
 
     protected:
-        // //<! this stores default hyperplan
-        // std::shared_ptr<mdp_value_function> mdp_vf;
 
-        double getUpperBound(const TState& , number ) ;
+        /**
+         * @brief Get the Sawtooth Minimum Ratio 
+         * @warning : Should be much clearer what this method does. To be redefined.
+         * 
+         * @param const TState& : current occupancy state
+         * @param typename TState::jhistory_type : joint history
+         * @param typename TAction::output_type : action 
+         * @param typename TState::state_type : next state
+         * @param typename TState::jhistory_type : joint history next
+         * @param const TState& : one occupancy state in the point set at t+1
+         * 
+         * 
+         * @return double : Ratio
+         */
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , const TState& ) ;
 
-        // double getSawtoothValueAt(const TState& , const TState&) const;
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , const TState& ) ;
 
-        double getSawtoothUpperBound(const TState& , typename TState::jhistory_type , TAction , number );
+        /**
+         * @brief Return the \sum_x s(x,o) Q_MDP(x,u)
+         * @warning : should depend on the initializer used, ie the relaxation. 
+         * @param const TState& 
+         * @param typename TState::jhistory_type  : joint history
+         * @param typename typename TAction::output_type  : action 
+         * @param number : time step
+         * @return double 
+         */
+        double getQValueRelaxation(const TState& ,typename TState::jhistory_type , typename TAction::output_type , number ) ;
 
-        // double getSawtoothValueAt(const TState&, double , const TState& , double ) const;
-
-        // double getSawtoothMinimumRatio(const std::shared_ptr<occupancy_map<jhistory>>&, jhistory*, action, state, jhistory*, const std::shared_ptr<occupancy_map<jhistory>>&) const;
-
-        void setGreedySawtoothConstraints(const TState& , const TState& , IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number , state , typename TState::jhistory_type, double , bool ) ;
 
     public:
         SawtoothValueFunctionLP();
         SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>> );
         SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0.);
 
+       /**
+        * @brief Returns the greedy decision rule for the current occupancy state
+        * 
+        * @param const TState& : current occupancy state
+        * @param double& : the reference of the value to be returned
+        * @param double  : ?
+        * @param number : time step
+        * 
+        * @return TAction 
+        */
         TAction greedySawtooth(const TState&, double , double&, number);
+
+        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray&, double , double, number  ) ;
 
         void setGreedyObjective(IloObjective& , IloNumVarArray& , number) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        void setGreedySawtooth(const TState&, IloEnv&, IloRangeArray&, IloNumVarArray& , number&, number  ) ;
+        void setGreedySawtooth(const TState&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&, number  ) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         void setGreedySawtooth(const TState&, IloEnv&, IloRangeArray&, IloNumVarArray& , number&, number  ) ;
@@ -60,8 +90,6 @@ namespace sdm{
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         void setGreedyUpperbound(const TState&, IloEnv& , IloRangeArray&, IloNumVarArray& , number& , number) ;
-
-        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray&, double , double, number  ) ;
 
         void updateValueAt(const TState &, number );
     };

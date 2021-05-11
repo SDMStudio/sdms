@@ -1,3 +1,4 @@
+#include <memory>
 namespace sdm
 {
   template <typename TVector, typename TAction, typename TValue>
@@ -72,6 +73,9 @@ namespace sdm
     return this->variables.at( name );
   }
 
+  /**
+   * @warning : deprecated !!!
+   */
   template <typename TVector, typename TAction, typename TValue>
   std::string VarNaming<TVector, TAction, TValue>::getVarNameWeightedStateJointHistory(const TVector& i, typename TVector::state_type s, typename TVector::jhistory_type jh)
   {
@@ -80,4 +84,11 @@ namespace sdm
     return oss.str();
   }
 
+  template <typename TVector, typename TAction, typename TValue>
+  std::string VarNaming<TVector, TAction, TValue>::getVarNameWeightedStateJointHistory(const std::shared_ptr<TVector>& i, typename TVector::state_type s, typename TVector::jhistory_type jh)
+  {
+    std::ostringstream oss;
+    oss << "wsh" << "." << i  << "." << s << "." << jh;
+    return oss.str();
+  }
 }

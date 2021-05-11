@@ -25,6 +25,9 @@ namespace sdm
         operator()(const TOccupancyState &ostate, const number &tau);
 
         double operator()(const TOccupancyState &ostate, const number &tau);
+        
+        double getValue(const TState &state, const number &tau);
+
     };
 
     template <typename TState, typename TAction, typename TObservation>

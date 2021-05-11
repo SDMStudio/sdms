@@ -8,26 +8,6 @@ namespace sdm
     {
     }
 
-    // template <typename TState, typename TOccupancyState>
-    // template <bool is_serial_mdp>
-    // std::enable_if_t<is_serial_mdp, double>
-    // State2OccupancyValueFunction<TState, TOccupancyState>::getValue(const TOccupancyState &ostate, const number &tau)
-    // {
-    //     // Il me manque la division de tau par le nombre d'agent
-    //     std::cout<<"\n TAu :"<<tau;
-
-    //     //std::cout<<"\n Agent : "<<tau/number_agent_;
-    //     return this->mdp_vf_->operator()(ostate.first, tau);
-    // }
-
-    // template <typename TState, typename TOccupancyState>
-    // template <bool is_serial_mdp>
-    // std::enable_if_t<!is_serial_mdp, double>
-    // State2OccupancyValueFunction<TState, TOccupancyState>::getValue(const TOccupancyState &ostate, const number &tau)
-    // {
-    //     return this->mdp_vf_->operator()(ostate, tau);
-    // }
-
     template <typename TState, typename TOccupancyState>
     template <bool is_mdp>
     std::enable_if_t<is_mdp, double>
@@ -55,6 +35,12 @@ namespace sdm
     double State2OccupancyValueFunction<TState, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
     {
         return this->operator()<>(ostate, tau);
+    }
+
+    template <typename TState, typename TOccupancyState>
+    double State2OccupancyValueFunction<TState, TOccupancyState>::getValue(const TState &state, const number &tau)
+    {
+        return this->mdp_vf_->operator()(state, tau);
     }
 
     template <typename TState, typename TAction, typename TObservation>
