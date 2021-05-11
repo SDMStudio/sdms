@@ -105,6 +105,12 @@ namespace sdm
     }
 
     template <typename T>
+    Joint<T> JointHistoryTree<T>::getDefaultObs()
+    {
+        return this->default_value;
+    }
+
+    template <typename T>
     std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::getptr()
     {
         return std::static_pointer_cast<JointHistoryTree<T>>(this->shared_from_this());

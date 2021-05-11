@@ -45,13 +45,13 @@ namespace sdm
       ///////  BEGIN CORE CPLEX Code  ///////
 
       // 0. Build variables a(u|o), a_i(u_i|o_i)
-      this->setGreedyVariables(occupancy_state, ihs, env, var); 
+      this->setGreedyVariables(occupancy_state, ihs, env, var,t); 
 
       // 1. Build objective function \sum_{o,u} A(u|o) \sum_x s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \hyperplan_i(x_,o_) ]
       this->setGreedyObjective<TVector>(occupancy_state, var, obj, hyperplan,t);
 
       // 3. Build decentralized control constraints [  a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n ] ---- and ---- [ a(u|o) <= a_i(u_i|o_i) ]
-      this->template setDecentralizedConstraints<TVector>(occupancy_state, ihs, env, con, var, c);
+      this->template setDecentralizedConstraints<TVector>(occupancy_state, ihs, env, con, var, c, t);
 
       ///////  END CORE  CPLEX Code ///////
       model.add(obj);
@@ -69,7 +69,7 @@ namespace sdm
       }
       else {
           value = cplex.getObjValue();
-          a = this->template getDecentralizedVariables<TVector>(cplex, var, occupancy_state);
+          a = this->template getDecentralizedVariables<TVector>(cplex, var, occupancy_state, t);
       }
     }catch(IloException& e){
         //"Concert exception caught: " << e << std::endl;
@@ -84,7 +84,7 @@ namespace sdm
   }
 
   template <typename TVector, typename TAction, typename TValue >
-  void MaxPlanValueFunctionLP<TVector, TAction, TValue>::setGreedyVariables(const TVector& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloNumVarArray& var)
+  void MaxPlanValueFunctionLP<TVector, TAction, TValue>::setGreedyVariables(const TVector& occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& ihs, IloEnv& env, IloNumVarArray& var, number t)
   {
     //<! counter for constraints
     number index = 0;
@@ -101,7 +101,7 @@ namespace sdm
     this->setNumber(VarName, index++);
 
     //<! set decentralized decision rule variables 
-    this->template setDecentralizedVariables<TVector>(occupancy_state, ihs, env, var, index);
+    this->template setDecentralizedVariables<TVector>(occupancy_state, ihs, env, var, index, t);
   }
 
   template <typename TVector, typename TAction, typename TValue>

@@ -83,7 +83,7 @@ namespace sdm
          * @param IloEnv& 
          * @param IloNumVarArray&
          */
-        void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&); 
+        void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&,number); 
 
         /**
          * @brief Update the max plan representation by adding a new hyperplan 
