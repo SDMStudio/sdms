@@ -50,23 +50,27 @@ namespace sdm
     {
         assert(this->getInitFunction() != nullptr); 
 
-        double v_ub_state =this->getInitFunction()->operator()(state, t);
         double min_ext = 0;
+        double v_ub_state =this->getInitFunction()->operator()(state, t);
 
         TState argmin_ = state;
-        for (const TState &ostate : this->getSupport(t))
+        
+        for (const auto &pair_ostate_value : this->representation[t])
         {
-            double v_kappa = this->getValueAt(ostate, t);
+            auto ostate = pair_ostate_value.first;
+            double v_kappa = pair_ostate_value.second;
             double v_ub_kappa = this->getInitFunction()->operator()(ostate, t);
-            double phi = std::numeric_limits<double>::max();
-            for (auto &x : ostate)
+            
+            double phi = 1.0;
+            for (auto &pair_hidden_state_AND_joint_history_AND_probability : ostate)
             {
-                double v_int = (state.at(x.first) / x.second);
+                double v_int = (state.at(pair_hidden_state_AND_joint_history_AND_probability.first) / pair_hidden_state_AND_joint_history_AND_probability.second);
                 if (v_int < phi)
                 {
                     phi = v_int;
                 }
             }
+            
             double min_int = phi * (v_kappa - v_ub_kappa);
             if (min_int < min_ext)
             {
