@@ -82,9 +82,11 @@ namespace sdm
             else
             {
                 cub = cplex.getObjValue();
-                a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state);
+                a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
                 if( std::abs(cub - this->getQValueAt(occupancy_state, a, t)) > 0.01 )
                 {
+                    std::cout << "------------------------------------------------------------------------" << std::endl;    
+                    std::cout << this->representation[t+1] << std::endl;    
                     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
                 }
             }
@@ -425,7 +427,7 @@ namespace sdm
                     for(const auto & serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
                     {
                         //<! 1.c.4 get variable a(u|o) and set constant 
-                        expr -=  this->getQValueRealistic(serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference, t)  * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
+                        // expr -=  this->template getQValueRealistic<TState>(serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference)  * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
                     } 
                 }   
                 // <! get variable \omega_k(x',o')
