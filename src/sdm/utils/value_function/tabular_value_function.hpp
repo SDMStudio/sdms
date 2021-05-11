@@ -49,15 +49,6 @@ namespace sdm
         using Container = TStruct<TState, TValue>;
         using backup_operator_type = TBackupOperator<TState, TAction>;
 
-        //@David : Please check this attribute and corresponding getter and setter, is there a better place for them?
-
-        TState_t ctype = COMPRESSED;
-
-        TState_t getTStateType();
-
-        void setTStateType(const TState_t&);
-        // End here
-
         /**
          * @brief The value function represention.
          * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
