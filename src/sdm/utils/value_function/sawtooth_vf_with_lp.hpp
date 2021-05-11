@@ -121,8 +121,6 @@ namespace sdm{
 
         void updateValueAt(const TState &, number );
 
-        TValue getQValueAt(const TState &, const TAction &, number );
-
     };
 
 

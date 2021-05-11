@@ -2,6 +2,7 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
+#include <sdm/utils/struct/recursive_map.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -97,7 +98,7 @@ namespace sdm
         /**
          * @brief mapping from variable names to variable identifiers 
          */
-        std::unordered_map<std::string, number> variables;
+        RecursiveMap<std::string, number> variables;
 
     };
 }

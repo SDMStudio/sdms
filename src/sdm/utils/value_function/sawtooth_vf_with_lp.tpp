@@ -88,9 +88,10 @@ namespace sdm
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
                 
+                std::cout<<"\n test"<<std::endl;
                 auto vub_0  = this->getQValueAt(occupancy_state, a, t);
                 auto vub_1  = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(this->getWorld()->nextState(occupancy_state, a), t+1);
-                auto vub_2  = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t+1);
+                auto vub_2  = 0;//this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t+1);
                 if( std::abs(cub - vub_0) > 0.01 )
                 {
                     std::cout << "------------------------------------------------------------------------" << std::endl;    
@@ -145,6 +146,8 @@ namespace sdm
                 auto hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
                 auto joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
 
+                std::cout<<"\n creation";
+                std::cout<<"\n joint_history"<<*joint_history<<", hidden_state"<<hidden_state<<std::endl;
                 // <! \omega_k(x',o')
                 VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, hidden_state, joint_history);
                 var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
@@ -202,7 +205,7 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRealistic(const TState& compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, typename TState::state_type next_hidden_state, typename TState::observation_type next_observation, double denominator, double difference)
     {
-        return difference * this->template getSawtoothMinimumRatio<TState>(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, denominator);
+        return difference * this->template getSawtoothMinimumRatio<TState>(*compressed_occupancy_state.getOneStepUncompressedOccupancy(), joint_history, action, next_hidden_state, next_observation, denominator);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -223,6 +226,8 @@ namespace sdm
         assert(this->getInitFunction() != nullptr); 
         number recover = 0;
         number bigM = 1;
+
+        std::cout<<"\n this variables "<<this->variables<<std::endl;
 
         // Go over all points in the point set at t+1 
         for(const auto next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t+1])
@@ -258,6 +263,9 @@ namespace sdm
                         con[c].setLinearCoef(var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))], - this->template getQValueRealistic<TState>(occupancy_state, joint_history, action, next_hidden_state, next_observation, probability, difference) );
                     } 
                 } 
+
+                std::cout<<"\n value";
+                std::cout<<"\n joint_history"<<*joint_history<<", hidden_state"<<hidden_state<<std::endl;
 
                 con[c].setLinearCoef(var[this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history))], bigM);
 
@@ -344,9 +352,9 @@ namespace sdm
     {
         switch( this->ctype )
         {
-            case TState_t::FULLY_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t);
-            case TState_t::ONE_STEP_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t); 
-            default : return MappedValueFunction<TState,TAction,TValue>::getValueAt(occupancy_state, t);  
+            case TState_t::FULLY_UNCOMPRESSED : return SawtoothValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t);
+            case TState_t::ONE_STEP_UNCOMPRESSED : return SawtoothValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t); 
+            default : return SawtoothValueFunction<TState,TAction,TValue>::getValueAt(occupancy_state, t);  
         }
     }
 
