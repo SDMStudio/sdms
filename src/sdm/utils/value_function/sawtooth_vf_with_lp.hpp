@@ -25,6 +25,8 @@ namespace sdm{
 
     protected:
 
+        TValue getValueAt(const TState &, number );
+
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         void testFunction(const TState& , TAction, number  );
 

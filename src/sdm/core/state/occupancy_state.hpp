@@ -79,6 +79,16 @@ namespace sdm
     /**
      * @brief Set the one step uncompressed occupancy state
      */
+    void setCompressedOccupancy(const std::shared_ptr<OccupancyState> &);
+
+    /**
+     * @brief Get the one step uncompressed occupancy state. 
+     */
+    std::shared_ptr<OccupancyState> getCompressedOccupancy() const;
+
+    /**
+     * @brief Set the one step uncompressed occupancy state
+     */
     void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyState> &);
 
     /**
@@ -123,7 +133,7 @@ namespace sdm
     Joint<RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>>> tuple_of_maps_from_histories_to_private_occupancy_states_;
 
     /** @brief Keep in memory the uncompressed occupancy states */
-    std::shared_ptr<OccupancyState> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state;
+    std::shared_ptr<OccupancyState> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state, compressed_occupancy_state;
 
     /** @brief Keep relations between all private ihistories and labels */
     Joint<RecursiveMap<ihistory_type, std::shared_ptr<ihistory_type>>> private_ihistory_map_;

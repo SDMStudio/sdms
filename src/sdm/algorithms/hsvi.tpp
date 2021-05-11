@@ -102,7 +102,7 @@ namespace sdm
             this->upper_bound_->updateValueAt(s, h);
 
             //---------------DEBUG-----------------//
-            //std::cout << "\t\th:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ") \t->\t cV_ub("<< (this->world_->getReward(s, a) +  this->world_->getDiscount(h) * this->upper_bound_->getValueAt(s_, h+1)) <<") " << std::endl; 
+            // std::cout << "\t\th:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ") \t->\t cV_ub("<< (this->world_->getReward(s, a) +  this->world_->getDiscount(h) * this->upper_bound_->getValueAt(s_, h+1)) <<") " << std::endl; 
             //-----------------DEBUG----------------//
         }
 

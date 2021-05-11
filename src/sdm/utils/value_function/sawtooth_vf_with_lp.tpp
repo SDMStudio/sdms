@@ -86,24 +86,24 @@ namespace sdm
                 if( std::abs(cub - this->getQValueAt(occupancy_state, a, t)) > 0.01 )
                 {
                     std::cout << "------------------------------------------------------------------------" << std::endl;    
-                    std::cout << this->representation[t+1] << std::endl;  
-                    this->template testFunction<TState>(occupancy_state,a,t);  
                     // throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
-                    for(const auto& pair_ostate_upperbound : this->representation[t+1])
-                    {
-                        std::cout << "---- occupancy state in representation :" << std::endl;    
-                        std::cout << "> occupancy state in representation :" << std::endl;    
-                        std::cout << pair_ostate_upperbound.first  << std::endl;    
-                        std::cout << "> one-step left occupancy state in representation :" << std::endl;    
-                        std::cout << *pair_ostate_upperbound.first.getOneStepUncompressedOccupancy()  << std::endl;    
-                        std::cout << "> value :" << std::endl;    
-                        std::cout << pair_ostate_upperbound.second  << std::endl;    
+                    // for(const auto& pair_ostate_upperbound : this->representation[t+1])
+                    // {
+                    //     std::cout << "---- occupancy state in representation :" << std::endl;    
+                    //     std::cout << "> occupancy state in representation :" << std::endl;    
+                    //     std::cout << pair_ostate_upperbound.first  << std::endl;    
+                    //     std::cout << "> one-step left occupancy state in representation :" << std::endl;    
+                    //     std::cout << *pair_ostate_upperbound.first.getOneStepUncompressedOccupancy()  << std::endl;    
+                    //     std::cout << "> value :" << std::endl;    
+                    //     std::cout << pair_ostate_upperbound.second  << std::endl;    
 
-                        std::cout << "> compact occupancy state to extrapolate  :" << std::endl;    
-                        std::cout << this->getWorld()->nextState(occupancy_state, a)  << std::endl;    
-                        std::cout << "> one-step left occupancy state to extrapolate  :" << std::endl;    
-                        std::cout << *this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy()  << std::endl;    
-                    }
+                    //     std::cout << "> compact occupancy state to extrapolate  :" << std::endl;    
+                    //     std::cout << this->getWorld()->nextState(occupancy_state, a)  << std::endl;    
+                    //     std::cout << "> one-step left occupancy state to extrapolate  :" << std::endl;    
+                    //     std::cout << *this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy()  << std::endl;    
+                    // }
+                    this->template testFunction<TState>(occupancy_state,a,t);  
+
                     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
                 }
             }
@@ -125,67 +125,67 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::testFunction(const TState& occupancy_state, TAction det_action, number t)
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::testFunction(const TState& , TAction , number )
     {
-        for(const auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
-        {
-            auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
-            auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
-            auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
-            auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
-            auto difference = upper_bound - initial_upper_bound; 
+        // for(const auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
+        // {
+        //     auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
+        //     auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
+        //     auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
+        //     auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
+        //     auto difference = upper_bound - initial_upper_bound; 
 
-            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : compressed_occupancy_state)
-            {
-                auto next_hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
-                auto next_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first.second;
+        //     for(const auto &pair_hidden_state_AND_joint_history_AND_probability : compressed_occupancy_state)
+        //     {
+        //         auto next_hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
+        //         auto next_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first.second;
                 
-                auto joint_history = next_joint_history->getParent();
-                auto next_observation = next_joint_history->getData();
+        //         auto joint_history = next_joint_history->getParent();
+        //         auto next_observation = next_joint_history->getData();
 
-                if(occupancy_state.getJointHistories().find(joint_history) != occupancy_state.getJointHistories().end())
-                {
+        //         if(occupancy_state.getJointHistories().find(joint_history) != occupancy_state.getJointHistories().end())
+        //         {
 
-                    auto one_step_uncompressed_occupancy_state = *occupancy_state.getOneStepUncompressedOccupancy();
+        //             auto one_step_uncompressed_occupancy_state = *occupancy_state.getOneStepUncompressedOccupancy();
 
-                    auto action = det_action.act(joint_history->getIndividualHistories());            
+        //             auto action = det_action.act(joint_history->getIndividualHistories());            
 
-                    auto factor_one_step = 0.0;
+        //             auto factor_one_step = 0.0;
 
-                    for(const auto& hidden_state : one_step_uncompressed_occupancy_state.getStatesAt(joint_history))
-                    {
-                        factor_one_step += one_step_uncompressed_occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
-                    }
-                    auto denominator = pair_hidden_state_AND_joint_history_AND_probability.second;
-                    auto resultat =  difference * factor_one_step / denominator;                
+        //             for(const auto& hidden_state : one_step_uncompressed_occupancy_state.getStatesAt(joint_history))
+        //             {
+        //                 factor_one_step += one_step_uncompressed_occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
+        //             }
+        //             auto denominator = pair_hidden_state_AND_joint_history_AND_probability.second;
+        //             auto resultat =  difference * factor_one_step / denominator;                
 
-                    auto factor_occupancy = 0.0;
+        //             auto factor_occupancy = 0.0;
 
-                    for(const auto& hidden_state : occupancy_state.getStatesAt(joint_history))
-                    {
-                        factor_occupancy += occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
-                    }
-                    resultat =  difference * factor_occupancy / denominator;                
+        //             for(const auto& hidden_state : occupancy_state.getStatesAt(joint_history))
+        //             {
+        //                 factor_occupancy += occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
+        //             }
+        //             resultat =  difference * factor_occupancy / denominator;                
                     
-                    if( std::abs(factor_occupancy - factor_one_step) > 0.01 )
-                    {
-                        std::cout << "------------------------------------------------------------------------" << std::endl;    
+        //             if( std::abs(factor_occupancy - factor_one_step) > 0.01 )
+        //             {
+        //                 std::cout << "------------------------------------------------------------------------" << std::endl;    
                         
-                        std::cout<<"\n action "<<action<<std::endl;
-                        std::cout<<"\n joint_history "<<*joint_history<<std::endl;
-                        std::cout<<"\n next_hidden_state "<<next_hidden_state<<std::endl;
-                        std::cout<<"\n next_observation "<<next_observation<<std::endl;
-                        std::cout<<"\n one_step_uncompressed_occupancy_state "<<one_step_uncompressed_occupancy_state;    
-                        std::cout<<"\n occupancy_state "<<occupancy_state;    
+        //                 std::cout<<"\n action "<<action<<std::endl;
+        //                 std::cout<<"\n joint_history "<<*joint_history<<std::endl;
+        //                 std::cout<<"\n next_hidden_state "<<next_hidden_state<<std::endl;
+        //                 std::cout<<"\n next_observation "<<next_observation<<std::endl;
+        //                 std::cout<<"\n one_step_uncompressed_occupancy_state "<<one_step_uncompressed_occupancy_state;    
+        //                 std::cout<<"\n occupancy_state "<<occupancy_state;    
    
-                        throw sdm::exception::Exception("Unexpected factor difference : factor_one_step_uncompressed (" + std::to_string(factor_one_step) + ")\t factor_occupancy_state(" + std::to_string(factor_occupancy) +  ")");
-                    }else
-                    {
-                        std::cout<<"\n pas de problème de factor"<<std::endl;
-                    }
-                }
-            }
-        }
+        //                 throw sdm::exception::Exception("Unexpected factor difference : factor_one_step_uncompressed (" + std::to_string(factor_one_step) + ")\t factor_occupancy_state(" + std::to_string(factor_occupancy) +  ")");
+        //             }else
+        //             {
+        //                 std::cout<<"\n pas de problème de factor"<<std::endl;
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -212,21 +212,20 @@ namespace sdm
         //<! Define variables \omega_k(x',o')
 
         // Go over all Point Set in t+1 
-        for(auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
+        for(auto next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t+1])
         {
-            auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
-            auto one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
+            auto next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
            
             // Go over all Joint History Next
-            for(const auto& hidden_state_AND_joint_history_AND_probability : *one_step_uncompressed_occupancy_state)
+            for(const auto& hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
             {
                 auto hidden_state_AND_joint_history = hidden_state_AND_joint_history_AND_probability.first;
                 
-                auto hidden_state = one_step_uncompressed_occupancy_state->getState(hidden_state_AND_joint_history);
-                auto joint_history = one_step_uncompressed_occupancy_state->getHistory(hidden_state_AND_joint_history);
+                auto hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
+                auto joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
 
                 // <! \omega_k(x',o')
-                VarName = this->getVarNameWeightedStateJointHistory(one_step_uncompressed_occupancy_state, hidden_state, joint_history);
+                VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, hidden_state, joint_history);
                 var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
                 this->setNumber(VarName, index++);
            }
@@ -305,26 +304,39 @@ namespace sdm
         number bigM = 1;
 
         // Go over all points in the point set at t+1 
-        for(const auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
+        for(const auto next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t+1])
         {
-            auto current_upper_bound = compressed_occupancy_state_AND_upper_bound.second;
-            auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
-            auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
-            auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
+            auto current_upper_bound = next_one_step_uncompressed_occupancy_state_AND_upper_bound.second;
+            auto next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
+
+            std::cout<<"\n est ce que ça fonctionne ?"<<next_one_step_uncompressed_occupancy_state<<std::endl;
+
+            // auto compressed_occupancy_state = *next_one_step_uncompressed_occupancy_state.getCompressedOccupancy();
+
+            // std::cout<<"\n oui"<<compressed_occupancy_state<<std::endl;
+
+
+            auto initial_upper_bound = this->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t+1);
+
             auto difference = current_upper_bound - initial_upper_bound; 
 
             // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
+            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
             {
                 con.add(IloRange(env, -IloInfinity, bigM));
                 con[c].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
                 auto probability = pair_hidden_state_AND_joint_history_AND_probability.second;
-                auto next_hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
-                auto next_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first.second;
+                auto hidden_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
+
+                auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
+                auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
                 
                 auto joint_history = next_joint_history->getParent();
                 auto next_observation = next_joint_history->getData();
+
+                std::cout<<"\n joint_history "<<*joint_history<<std::endl;
+                // std::cout<<"\n occupancy_state.getJointHistories()"<<occupancy_state.getJointHistories()<<std::endl;
 
                 if(occupancy_state.getJointHistories().find(joint_history) != occupancy_state.getJointHistories().end())
                 {
@@ -371,10 +383,12 @@ namespace sdm
 
             // Build constraint \sum{x',o'} \omega_k(x',o') = 1
             con.add(IloRange(env, 1.0, 1.0));
-            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
+            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
             {
-                auto next_hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
-                auto next_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first.second;
+                auto hidden_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
+
+                auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
+                auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
 
                 // <! \omega_k(x',o')
                 recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
@@ -406,83 +420,89 @@ namespace sdm
 
         this->greedySawtooth(occupancy_state, clb, cub, t);
 
-        MappedValueFunction<TState,TAction,TValue>::updateValueAt(occupancy_state, t, cub);
+        MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getValueAt(const TState &state, number t)
+    {
+        return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*state.getOneStepUncompressedOccupancy(),t);
     }
 
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& serial_occupancy_state, IloModel& model, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& , IloModel& , IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number ) 
     {
 
-        assert(this->getInitFunction() != nullptr); 
+        // assert(this->getInitFunction() != nullptr); 
 
-        number recover = 0;
-        number agent_id = serial_occupancy_state.getCurrentAgentId();  
+        // number recover = 0;
+        // number agent_id = serial_occupancy_state.getCurrentAgentId();  
 
-        // Go over all points in the point set at t+1 
-        for(const auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
-        {
+        // // Go over all points in the point set at t+1 
+        // for(const auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
+        // {
 
-            // auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
-            auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
-            // auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
-            auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
-            // auto difference = upper_bound - initial_upper_bound; 
+        //     // auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
+        //     auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
+        //     // auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
+        //     auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
+        //     // auto difference = upper_bound - initial_upper_bound; 
 
-            // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-            for(const auto &pair_hidden_serial_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
-            {
-                //<! Initialize expression
-                IloExpr expr(env);
+        //     // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
+        //     for(const auto &pair_hidden_serial_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
+        //     {
+        //         //<! Initialize expression
+        //         IloExpr expr(env);
 
-                //<! 1.c.1 get variable v and set coefficient of variable v
-                expr = var[this->getNumber(this->getVarNameWeight(0))];
+        //         //<! 1.c.1 get variable v and set coefficient of variable v
+        //         expr = var[this->getNumber(this->getVarNameWeight(0))];
 
-                auto pair_hidden_serial_state_AND_joint_history = pair_hidden_serial_state_AND_joint_history_AND_probability.first;
+        //         auto pair_hidden_serial_state_AND_joint_history = pair_hidden_serial_state_AND_joint_history_AND_probability.first;
 
-                auto next_hidden_state = next_one_step_uncompressed_occupancy_state->getState(pair_hidden_serial_state_AND_joint_history);
-                auto next_joint_history = next_one_step_uncompressed_occupancy_state->getHistory(pair_hidden_serial_state_AND_joint_history);
+        //         auto next_hidden_state = next_one_step_uncompressed_occupancy_state->getState(pair_hidden_serial_state_AND_joint_history);
+        //         auto next_joint_history = next_one_step_uncompressed_occupancy_state->getHistory(pair_hidden_serial_state_AND_joint_history);
                 
-                auto indiv_history = next_joint_history->getIndividualHistory(agent_id);
+        //         auto indiv_history = next_joint_history->getIndividualHistory(agent_id);
 
-                auto joint_history = next_joint_history;
-                auto next_observation = next_joint_history->getDefaultObs();
+        //         auto joint_history = next_joint_history;
+        //         auto next_observation = next_joint_history->getDefaultObs();
 
-                if(agent_id == 0)
-                {
-                    joint_history = next_joint_history->getParent();
-                    next_observation = next_joint_history->getData();
-                }
+        //         if(agent_id == 0)
+        //         {
+        //             joint_history = next_joint_history->getParent();
+        //             next_observation = next_joint_history->getData();
+        //         }
 
-                if(serial_occupancy_state.getJointHistories().find(joint_history) != serial_occupancy_state.getJointHistories().end())
-                {
-                    // Go over all actions
-                    // for(const auto & serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
-                    // {
-                    //     //<! 1.c.4 get variable a(u|o) and set constant 
-                    //     // expr -=  this->template getQValueRealistic<TState>(serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference)  * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
-                    // } 
-                }   
-                // <! get variable \omega_k(x',o')
-                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
-                model.add(IloIfThen(env, var[recover] > 0, expr <= 0 ) );      
-            }
+        //         if(serial_occupancy_state.getJointHistories().find(joint_history) != serial_occupancy_state.getJointHistories().end())
+        //         {
+        //             // Go over all actions
+        //             // for(const auto & serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
+        //             // {
+        //             //     //<! 1.c.4 get variable a(u|o) and set constant 
+        //             //     // expr -=  this->template getQValueRealistic<TState>(serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference)  * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
+        //             // } 
+        //         }   
+        //         // <! get variable \omega_k(x',o')
+        //         recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
+        //         model.add(IloIfThen(env, var[recover] > 0, expr <= 0 ) );      
+        //     }
 
-            // Build constraint \sum{x',o'} \omega_k(x',o') = 1
-            con.add(IloRange(env, 1.0, 1.0));
-            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
-            {
-                auto pair_hidden_serial_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
-                auto next_hidden_state = next_one_step_uncompressed_occupancy_state->getState(pair_hidden_serial_state_AND_joint_history);
-                auto next_joint_history = next_one_step_uncompressed_occupancy_state->getHistory(pair_hidden_serial_state_AND_joint_history);
+        //     // Build constraint \sum{x',o'} \omega_k(x',o') = 1
+        //     con.add(IloRange(env, 1.0, 1.0));
+        //     for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
+        //     {
+        //         auto pair_hidden_serial_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
+        //         auto next_hidden_state = next_one_step_uncompressed_occupancy_state->getState(pair_hidden_serial_state_AND_joint_history);
+        //         auto next_joint_history = next_one_step_uncompressed_occupancy_state->getHistory(pair_hidden_serial_state_AND_joint_history);
 
-                // <! \omega_k(x',o')
-                recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
-                con[c].setLinearCoef(var[recover], +1.0);
-            }
-            c++;
-        }
+        //         // <! \omega_k(x',o')
+        //         recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
+        //         con[c].setLinearCoef(var[recover], +1.0);
+        //     }
+        //     c++;
+        // }
     }
 
     template <typename TState, typename TAction, typename TValue>
