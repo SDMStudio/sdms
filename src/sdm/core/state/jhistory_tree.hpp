@@ -36,6 +36,7 @@ namespace sdm
 
     public:
         using ihistory_type = std::shared_ptr<HistoryTree<T>>;
+        using value_type = typename HistoryTree<Joint<T>>::value_type;
 
         /*!
          *  @fn     JointHistoryTree()
@@ -104,6 +105,14 @@ namespace sdm
         std::string str();
 
         std::shared_ptr<JointHistoryTree<T>> getptr();
+
+        Joint<T> getDefaultObs();
+
+
+        std::shared_ptr<JointHistoryTree<T>> getParent() const;
+        std::shared_ptr<JointHistoryTree<T>> getOrigin();
+        std::vector<std::shared_ptr<JointHistoryTree<T>>> getChildren() const;
+        std::shared_ptr<JointHistoryTree<T>> getChild(const T &child_item) const;
 
         friend std::ostream &operator<<(std::ostream &os, JointHistoryTree &j_hist)
         {

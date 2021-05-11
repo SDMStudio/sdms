@@ -25,6 +25,11 @@ namespace sdm
   class DeterministicDecisionRule : public std::map<TState, TAction>, public Function<TState, TAction>
   {
   public:
+    using input_type = TState;
+    using output = TAction;
+    using output_type = typename Function<TState,TAction>::output_type;
+
+
     DeterministicDecisionRule();
     DeterministicDecisionRule(std::vector<TState> acc_states, std::vector<TAction> n_actions);
 

@@ -36,6 +36,10 @@ int main(int, char **)
         std::cout << "#> Expanded joint history --> " << *jhistory << std::endl;
     }
 
+    std::cout<<"\n get Last Observation "<<jhistory->getData()<<std::endl;
+
+    std::cout<<"\n Get Parent of Joint History "<<*jhistory->getOrigin()<<std::endl;
+
     // How to access individual histories and expand them
     std::cout << "\n--- 3) Access individual histories" << std::endl;
 

@@ -78,10 +78,10 @@ namespace sdm
             else if (lower_bound_name == "maxplan_serial")
             {
                 lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized<TState, TAction>>(problem, horizon, lb_init);
-            // else if (lower_bound_name == "maxplan_lp")
-            // {
-            //     lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
-            // }
+            }
+            else if (lower_bound_name == "maxplan_lp")
+            {
+                lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
             }
             else
             {
@@ -92,10 +92,10 @@ namespace sdm
             if (upper_bound_name == "sawtooth")
             {
                 upper_bound = std::make_shared<sdm::SawtoothValueFunction<TState, TAction>>(problem, horizon, ub_init);
-            // else if (upper_bound_name == "sawtooth_lp")
-            // {
-            //     upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
-            // }
+                // else if (upper_bound_name == "sawtooth_lp")
+                // {
+                //     upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
+                // }
             }
             else
             {
@@ -168,7 +168,7 @@ namespace sdm
 
                     p_algo = makeHSVI<TState, TAction>(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
                 }
-                else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
+                else if ((formalism == "decpomdp_b") || (formalism == "DecPOMDP_b") || (formalism == "dpomdp_b") || (formalism == "DPOMDP_b"))
                 {
                     using TObservation = number;
                     using TState = number;
@@ -180,6 +180,22 @@ namespace sdm
                     using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
                     using TStatePrescriptor = OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
                     // using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+
+                    auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
+                    p_algo = makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                }
+                else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
+                {
+                    using TObservation = number;
+                    using TState = number;
+
+                    using TActionDescriptor = number;
+                    using TStateDescriptor = HistoryTree_p<TObservation>;
+
+                    // using TActionPrescriptor = Joint<DeterministicDecisionRule<TStateDescriptor, TActionDescriptor>>;
+                    using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
+                    // using TStatePrescriptor = OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
+                    using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, horizon);
                     p_algo = makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);

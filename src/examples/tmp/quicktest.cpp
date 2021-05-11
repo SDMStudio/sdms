@@ -35,39 +35,56 @@ int main(int argc, char **argv)
 	try
 	{
 
+		std::cout << "----- Usage : class Joint ( sdm/core/state/jhistory_tree.hpp ) ---------" << std::endl
+				<< std::endl;
+
 		using TObservation = number;
-		using TState = number;
 
-		using TActionDescriptor = number;
-		using TStateDescriptor = HistoryTree_p<TObservation>;
+		number num_agents = 2, max_depth = 3;
 
-		using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
-		using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+		JointHistoryTree_p<TObservation> jhistory(new JointHistoryTree<TObservation>(num_agents, max_depth));
 
-		std::cout << "#> Parsing file \"" << filename << "\"\n";
+		// Get basic elements of joint histories
+		std::cout << "\n--- 1) Basic access" << std::endl;
 
-		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>>  oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);        
+		std::cout << "\n#> Number of agents = " << jhistory->getNumAgents() << std::endl;
+		std::cout << "#> Horizon = " << jhistory->getHorizon() << std::endl; // equivalent to jhistory->getDepth()
+		std::cout << "#> MaxDepth = " << jhistory->getMaxDepth() << std::endl;
+		std::cout << "#> Initial Joint history : " << *jhistory << std::endl;
 
-		oMDP->getUnderlyingProblem()->setDiscount(discount);
-		oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
+		// How to expand a joint history
+		std::cout << "\n--- 2) Instanciate and expand a joint history" << std::endl;
 
-		// Instanciate initializers 
-		auto lb_init = std::make_shared<MinInitializer<TStatePrescriptor, TActionPrescriptor>>();
-		auto ub_init = sdm::makeInitializer<TStatePrescriptor, TActionPrescriptor>("MdpHsviInitializer");
+		// List of joint observation for the example
+		std::vector<Joint<TObservation>> list_joint_obs = {{1, 0}, {0, 0}, {2, 2}, {2, 1}};
+		for (const auto &joint_obs : list_joint_obs)
+		{
+			std::cout << "\n#> Expand with observation " << joint_obs << std::endl;
+			jhistory = jhistory->expand(joint_obs);
+			std::cout << "#> Expanded joint history --> " << *jhistory << std::endl;
+		}
 
-		// Instanciate the Tabular version for the lower bound
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, lb_init); 
+		std::cout<<"\n get Last Observation "<<jhistory->getData()<<std::endl;
 
-		// Instanciate the Sawtooth version for the upper bound 
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<SawtoothValueFunctionLP<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, ub_init);
+		std::cout<<"\n Get Parent of Joint History "<<*jhistory->getOrigin()<<std::endl;
+		
+		std::cout<<"\n jhistory->getChildren().size()"<<jhistory->getChildren().size()<<std::endl;
+		for(const auto &jh : jhistory->getChildren())
+		{
+			std::cout<<"\n Get Children of Joint History "<<*jh<<std::endl;
+		}
 
-		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-MaxPlan-OccupancyMDP");
+		// How to access individual histories and expand them
+		std::cout << "\n--- 3) Access individual histories" << std::endl;
 
-		//Initialization of HSVI
-		p_algo->do_initialize();
+		std::cout << "\n#> List of pointer on individual histories = " << jhistory->getIndividualHistories() << std::endl;
 
-		//Resolution of HSVI
-		p_algo->do_solve();
+		for (number agent_id = 0; agent_id < jhistory->getNumAgents(); ++agent_id)
+		{
+			std::cout << "#> IndividualHistory(" << agent_id << ") = " << *jhistory->getIndividualHistory(agent_id) << std::endl; // equivalent to jhistory->get(agent_id)
+		}
+
+
 	}
 	catch (exception::Exception &e)
 	{

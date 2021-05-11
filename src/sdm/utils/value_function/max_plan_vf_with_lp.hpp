@@ -62,6 +62,20 @@ namespace sdm
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&, number );
 
+
+        /**
+         * @brief Set coefficient of variable a(u|o)  for all u and o i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_)  ] 
+         * 
+         * @param const TVector& : current occupancy state
+         * @param IloNumVarArray&
+         * @param IloObjective&
+         * @param const TVector& : hyperplan to use
+         * @param number : time steps
+         * 
+         */
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        void setGreedyObjective(const TVector&, IloNumVarArray&, IloObjective&, const TVector&, number );
+
         /**
          * @brief Set coefficient of variable a(u|o)  for all u and o i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \alpha_i(x_,o_)  ]
          * 
@@ -83,7 +97,7 @@ namespace sdm
          * @param IloEnv& 
          * @param IloNumVarArray&
          */
-        void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&); 
+        void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&,number); 
 
         /**
          * @brief Update the max plan representation by adding a new hyperplan 

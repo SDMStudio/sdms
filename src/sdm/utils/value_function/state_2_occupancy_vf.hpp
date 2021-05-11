@@ -11,10 +11,10 @@ namespace sdm
     class State2OccupancyValueFunction : public BinaryFunction<TOccupancyState, number, double>
     {
     protected:
-        std::shared_ptr<BinaryFunction<TState, number, double>> mdp_vf_;
+        std::shared_ptr<ValueFunction<TState, number>> mdp_vf_;
 
     public:
-        State2OccupancyValueFunction(std::shared_ptr<BinaryFunction<TState, number, double>> vf);
+        State2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, number>> vf);
 
         template <bool is_mdp = std::is_any<typename WorldType<TOccupancyState>::type, DiscreteMDP, SerializedMMDP>::value>
         std::enable_if_t<is_mdp, double>
@@ -25,9 +25,8 @@ namespace sdm
         operator()(const TOccupancyState &ostate, const number &tau);
 
         double operator()(const TOccupancyState &ostate, const number &tau);
-        
-        double getValue(const TState &state, const number &tau);
 
+        double getQValueAt(const TState &state, const number& ,const number &tau);
     };
 
     template <typename TState, typename TAction, typename TObservation>

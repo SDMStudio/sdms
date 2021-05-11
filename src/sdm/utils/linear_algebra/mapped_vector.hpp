@@ -39,7 +39,7 @@ namespace sdm
     protected:
         T default_value_;
         long size_ = -1;
-        double precision = 0.000001;
+        double precision = 0.00001;
 
         std::vector<TIndex> v_indexes;
 
