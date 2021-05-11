@@ -17,19 +17,22 @@
 //! \namespace  sdm
 //!
 //! Namespace grouping all tools required for sequential decision making.
-namespace sdm{
-    
+namespace sdm
+{
+
     template <typename TState, typename TAction, typename TValue = double>
-    class SawtoothValueFunctionLP : public DecentralizedConstraintsLP<TState,TAction,TValue>, public SawtoothValueFunction<TState,TAction,TValue>
+    class SawtoothValueFunctionLP : public DecentralizedConstraintsLP<TState, TAction, TValue>, public SawtoothValueFunction<TState, TAction, TValue>
     {
 
     protected:
-
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        void testFunction(const TState& , TAction, number  );
+        void testFunction(const TState &, TAction, number);
+
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        void testFunction(const TState &, TAction, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void testFunction(const TState& , TAction, number  );
+        void testFunction(const TState &, TAction, number);
 
         /**
          * @brief Get the Sawtooth Minimum Ratio  i.e. \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)}
@@ -44,10 +47,13 @@ namespace sdm{
          * @return double : Ratio
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , double) ;
+        double getSawtoothMinimumRatio(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double);
+
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        double getSawtoothMinimumRatio(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , double ) ;
+        double getSawtoothMinimumRatio(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::jhistory_type, double);
 
         /**
          * @brief Return the \sum_x s(x,o) Q_MDP(x,u)
@@ -59,10 +65,13 @@ namespace sdm{
          * @return double 
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        double getQValueRelaxation(const TState& ,typename TState::jhistory_type , typename TAction::output_type , number ) ;
+        double getQValueRelaxation(const TState &, typename TState::jhistory_type, typename TAction::output_type, number);
+
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        double getQValueRelaxation(const TState &, typename TState::jhistory_type, typename TAction::output_type, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        double getQValueRelaxation(const TState& ,typename TState::jhistory_type , typename TAction::output_type , number ) ;
+        double getQValueRelaxation(const TState &, typename TState::jhistory_type, typename TAction::output_type, number);
 
         /**
          * @brief Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
@@ -77,15 +86,18 @@ namespace sdm{
          * @return double 
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double );
+        double getQValueRealistic(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double);
+
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        double getQValueRealistic(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double );
+        double getQValueRealistic(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double);
 
     public:
         SawtoothValueFunctionLP();
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>> );
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0.);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number, std::shared_ptr<Initializer<TState, TAction>>);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0.);
 
         /**
          * @brief Get the best action to do at a state
@@ -95,7 +107,7 @@ namespace sdm{
          */
         TAction getBestAction(const TState &, number = 0);
 
-       /**
+        /**
         * @brief Returns the greedy decision rule for the current occupancy state
         * 
         * @param const TState& : current occupancy state
@@ -105,27 +117,28 @@ namespace sdm{
         * 
         * @return TAction 
         */
-        TAction greedySawtooth(const TState&, double , double&, number);
+        TAction greedySawtooth(const TState &, double, double &, number);
 
-        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray&, double , double, number  ) ;
+        void setGreedyVariables(const TState &, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &, IloEnv &, IloNumVarArray &, double, double, number);
 
-        void setGreedyObjective(const TState&, IloObjective& , IloNumVarArray& , number) ;
+        void setGreedyObjective(const TState &, IloObjective &, IloNumVarArray &, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        void setGreedySawtooth(const TState&, IloModel&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&, number  ) ;
+        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
+
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void setGreedySawtooth(const TState&, IloModel&, IloEnv&, IloRangeArray&, IloNumVarArray& , number&, number  ) ;
+        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
 
-        void updateValueAt(const TState &, number );
+        void updateValueAt(const TState &, number);
     };
-
 
     template <class TAction, class TValue>
     class SawtoothValueFunctionLP<number, TAction, TValue> : public SawtoothValueFunction<number, TAction, TValue>
     {
     public:
-
         SawtoothValueFunctionLP()
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = number.");
@@ -170,11 +183,10 @@ namespace sdm{
         }
     };
 
-    template <class TAction, class TValue >
+    template <class TAction, class TValue>
     class SawtoothValueFunctionLP<SerializedState, TAction, TValue> : public SawtoothValueFunction<SerializedState, TAction, TValue>
     {
     public:
-
         SawtoothValueFunctionLP()
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedState.");
@@ -184,7 +196,7 @@ namespace sdm{
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedState.");
         }
 
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, number horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer) :SawtoothValueFunction<SerializedState, TAction, TValue>(problem, horizon, initializer)
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, number horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer) : SawtoothValueFunction<SerializedState, TAction, TValue>(problem, horizon, initializer)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedState.");
         }
@@ -219,11 +231,10 @@ namespace sdm{
         }
     };
 
-    template <class TAction, class TValue >
+    template <class TAction, class TValue>
     class SawtoothValueFunctionLP<BeliefState, TAction, TValue> : public SawtoothValueFunction<BeliefState, TAction, TValue>
     {
     public:
-
         SawtoothValueFunctionLP()
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
@@ -233,7 +244,7 @@ namespace sdm{
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
         }
 
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState, TAction>> problem, number horizon, std::shared_ptr<Initializer<BeliefState, TAction>> initializer) :SawtoothValueFunction<BeliefState, TAction, TValue>(problem, horizon, initializer)
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState, TAction>> problem, number horizon, std::shared_ptr<Initializer<BeliefState, TAction>> initializer) : SawtoothValueFunction<BeliefState, TAction, TValue>(problem, horizon, initializer)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
         }

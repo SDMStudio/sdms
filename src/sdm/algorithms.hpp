@@ -92,10 +92,10 @@ namespace sdm
             if (upper_bound_name == "sawtooth")
             {
                 upper_bound = std::make_shared<sdm::SawtoothValueFunction<TState, TAction>>(problem, horizon, ub_init);
-                // else if (upper_bound_name == "sawtooth_lp")
-                // {
-                //     upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
-                // }
+            }
+            else if (upper_bound_name == "sawtooth_lp")
+            {
+                upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
             }
             else
             {
