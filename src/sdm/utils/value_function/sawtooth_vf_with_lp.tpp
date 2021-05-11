@@ -309,6 +309,8 @@ namespace sdm
                 auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
                 auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
 
+                std::cout<<"\n value 2 ";
+                std::cout<<"\n joint_history"<<*joint_history<<", hidden_state"<<hidden_state<<std::endl;
                 // <! \omega_k(x',o')
                 recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
                 con[c].setLinearCoef(var[recover], +1.0);
