@@ -218,6 +218,12 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
+    T MappedVector<TIndex, T>::operator*(const MappedVector &v2) const
+    {
+        return this->dot(v2);
+    }
+
+    template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::operator^(const MappedVector &v2) const
     {
         return this->dot(v2);

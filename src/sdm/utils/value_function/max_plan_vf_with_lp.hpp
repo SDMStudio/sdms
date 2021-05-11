@@ -1,6 +1,7 @@
 
 #pragma once
 #include <set>
+#include <ilcplex/ilocplex.h>
 
 #include <sdm/core/state/serialized_state.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
@@ -9,7 +10,6 @@
 
 #include <sdm/utils/value_function/decentralized_constraints_with_lp.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
-#include <ilcplex/ilocplex.h>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm

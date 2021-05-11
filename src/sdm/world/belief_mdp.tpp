@@ -95,6 +95,8 @@ namespace sdm
             nextBelief[pair_s_p.first] = pair_s_p.second / sum;
         }
         return nextBelief;
+
+        // return belief->expand(action, observation);
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -150,6 +152,8 @@ namespace sdm
             r += belief.at(s) * this->pomdp_->getReward()->getReward(s, action);
         }
         return r;
+
+        // return (belief->getData() ^ this->pomdp_->getReward()->getReward(action));
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -162,6 +166,14 @@ namespace sdm
             exp_next_v += this->getObservationProbability(belief, action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
         }
         return exp_next_v;
+
+        // double exp_next_v = 0;
+        // for (TObservation observation : this->pomdp_->getObsSpace()->getAll())
+        // {
+        //     auto next_belief = belief->expand(action, observation)
+        //     exp_next_v += this->getObservationProbability(next_belief , action, observation, next_belief) * value_function->getValueAt(next_belief, t + 1);
+        // }
+        // return exp_next_v;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -178,6 +190,8 @@ namespace sdm
             proba += tmp * belief.at(s);
         }
         return proba;
+
+        // return belief->getProbability(action, observation);
     }
 
     template <typename TBelief, typename TAction, typename TObservation>

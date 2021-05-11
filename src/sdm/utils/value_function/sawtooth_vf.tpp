@@ -8,13 +8,11 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
-
     }
 
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value) : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
     {
-
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -28,14 +26,14 @@ namespace sdm
         {
             bool already_exist = false;
             for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
-            {  
-                if(iter->first == state)
+            {
+                if (iter->first == state)
                 {
                     already_exist = true;
                 }
             }
 
-            return (already_exist) ?this->representation[t].at(state) : this->getMaxAt(state, t).first;
+            return (already_exist) ? this->representation[t].at(state) : this->getMaxAt(state, t).first;
         }
     }
 
@@ -49,9 +47,9 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     std::pair<TValue, TState> SawtoothValueFunction<TState, TAction, TValue>::getMaxAt(const TState &state, number t)
     {
-        assert(this->getInitFunction() != nullptr); 
+        assert(this->getInitFunction() != nullptr);
 
-        double v_ub_state =this->getInitFunction()->operator()(state, t);
+        double v_ub_state = this->getInitFunction()->operator()(state, t);
         double min_ext = 0;
 
         TState argmin_ = state;
@@ -72,7 +70,7 @@ namespace sdm
             if (min_int < min_ext)
             {
                 min_ext = min_int;
-                argmin_ = ostate; 
+                argmin_ = ostate;
             }
         }
         return std::make_pair(v_ub_state + min_ext, argmin_);
@@ -82,16 +80,16 @@ namespace sdm
     void SawtoothValueFunction<TState, TAction, TValue>::prune(number t)
     {
         std::vector<TState> to_delete;
-        
+
         for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
-        {          
+        {
             if (this->is_dominated(iter->first, iter->second, t))
             {
                 to_delete.push_back(iter->first);
             }
         }
 
-        for(const auto &i : to_delete)
+        for (const auto &i : to_delete)
         {
             this->representation[t].erase(i);
         }
@@ -110,5 +108,17 @@ namespace sdm
         {
             return (pair_witness_ostate.first <= value);
         }
+    }
+
+    template <>
+    std::pair<double, number> SawtoothValueFunction<number, number, double>::getMaxAt(const number &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
+    }
+
+    template <>
+    std::pair<double, SerializedState> SawtoothValueFunction<SerializedState, number, double>::getMaxAt(const SerializedState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
     }
 }

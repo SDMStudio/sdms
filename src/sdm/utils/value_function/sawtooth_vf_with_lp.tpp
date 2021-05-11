@@ -289,7 +289,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothConstraints(const TState& o, const TState& s_k, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number k, state x_, typename TState::jhistory_type jh_, double bigM, bool lower_or_equal) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothConstraints(const TState&, const TState&, IloEnv&, IloRangeArray& , IloNumVarArray& , number& , number , state , typename TState::jhistory_type , double , bool ) 
     {
         std::cout<<"\n setGreedySawtoothConstraints"<<std::endl;
 
@@ -392,7 +392,7 @@ namespace sdm
     // }
 
     template <typename TState, typename TAction, typename TValue>
-    double SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothUpperBound(const TState& s, typename TState::jhistory_type jh, TAction u, number t)
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothUpperBound(const TState& s, typename TState::jhistory_type, TAction u, number t)
     {
         // auto weight = 0.0;
         // for(auto x : this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
@@ -431,14 +431,14 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyUpperbound(const TState& occupancy_state, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyUpperbound(const TState& , IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number ) 
     {
         throw sdm::exception::NotImplementedException();
     }
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& occupancy_state, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState&, IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number ) 
     {
     }
 }

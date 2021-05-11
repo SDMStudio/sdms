@@ -101,6 +101,45 @@ namespace sdm
         // The new one step left occupancy state
         std::shared_ptr<TState> new_one_step_left_compressed_occupancy_state = std::make_shared<TState>();
 
+        // Go over all pair in the fully uncompressed occupancy state
+        // for (const auto &pair_index_proba : *occupancy_state.getFullyUncompressedOccupancy())
+        // {
+        //     auto state = occupancy_state.getState(pair_index_proba);                 // x ou b
+        //     auto history = occupancy_state.getHistory(pair_index_proba);             // o
+        //     auto proba_occupancy_state = occupancy_state.getProba(pair_index_proba); // p(x,o) ou p(b,o)
+
+        //     auto action = joint_idr.act(occupancy_state.getJointLabels(history->getIndividualHistories())); // u
+
+        //     // Go over all possible next state and proba
+        //     for (auto const &pair_next_state_proba : state->expand(action))
+        //     {
+        //         auto next_state = pair_next_state_proba.first;        // x' ou b'
+        //         auto proba_next_state = pair_next_state_proba.second; // p(x, u, x') ou p(b, u, b')
+
+        //         double probability = proba_occupancy_state * proba_next_state;
+
+        //         for (auto &observation : this->dpomdp_->getObsSpace()->getAll())
+        //         {
+        //             auto next_history = history->expand(action, observation); // o'
+
+        //             // If occupancy measure is greater than zero, we build our occupancy states
+        //             if (probability > 0)
+        //             {
+        //                 // Build fully uncompressed occupancy state
+        //                 new_fully_uncompressed_occupancy_state->addProbabilityAt({next_state, next_history}, probability);
+
+        //                 // Build one step left uncompressed occupancy state
+        //                 auto compressed_joint_history = ostate.getCompressedJointHistory(history);
+        //                 auto compressed_joint_history_next = compressed_joint_history->expand(action, observation);
+        //                 new_one_step_left_compressed_occupancy_state->addProbabilityAt({next_state, compressed_joint_history_next}, probability);
+
+        //                 // Update next history labels
+        //                 new_one_step_left_compressed_occupancy_state->updateJointLabels(joint_history_next->getIndividualHistories(), compressed_joint_history_next->getIndividualHistories());
+        //             }
+        //         }
+        //     }
+        // }
+
         // for all element in the support of the fully uncompressed occupancy state
         for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
         {
@@ -303,7 +342,7 @@ namespace sdm
                 number index_joint_observation = this->dpomdp_->getObsSpace()->joint2single(joint_observation);
                 // b' = M_z_u * b
                 auto next_belief_graph = belief_graph->expand(index_joint_action, index_joint_observation);
-                
+
                 // p(o') = p(o) * p(z | b, a)
                 double proba_next_history = pair_belief_history_proba.second * belief_graph->getProbability(index_joint_action, index_joint_observation);
 
