@@ -120,6 +120,9 @@ namespace sdm{
         void setGreedySawtooth(const TState&, IloModel&, IloEnv&, IloRangeArray&, IloNumVarArray& , number&, number  ) ;
 
         void updateValueAt(const TState &, number );
+
+        TValue getQValueAt(const TState &, const TAction &, number );
+
     };
 
 
