@@ -89,6 +89,22 @@ namespace sdm
                     std::cout << this->representation[t+1] << std::endl;  
                     this->template testFunction<TState>(occupancy_state,a,t);  
                     // throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
+                    for(const auto& pair_ostate_upperbound : this->representation[t+1])
+                    {
+                        std::cout << "---- occupancy state in representation :" << std::endl;    
+                        std::cout << "> occupancy state in representation :" << std::endl;    
+                        std::cout << pair_ostate_upperbound.first  << std::endl;    
+                        std::cout << "> one-step left occupancy state in representation :" << std::endl;    
+                        std::cout << *pair_ostate_upperbound.first.getOneStepUncompressedOccupancy()  << std::endl;    
+                        std::cout << "> value :" << std::endl;    
+                        std::cout << pair_ostate_upperbound.second  << std::endl;    
+
+                        std::cout << "> compact occupancy state to extrapolate  :" << std::endl;    
+                        std::cout << this->getWorld()->nextState(occupancy_state, a)  << std::endl;    
+                        std::cout << "> one-step left occupancy state to extrapolate  :" << std::endl;    
+                        std::cout << *this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy()  << std::endl;    
+                    }
+                    throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
                 }
             }
         }catch(IloException& e)
