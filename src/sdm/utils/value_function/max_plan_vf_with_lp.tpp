@@ -111,34 +111,32 @@ namespace sdm
     number recover = 0;
     double weight = 0.0, factor = 0.0;
 
-    for(auto hidden_state_AND_joint_history_AND_probability : occupancy_state)
+    for(auto joint_history : occupancy_state.getJointHistories())
     {
-      auto hidden_state_AND_joint_history = hidden_state_AND_joint_history_AND_probability.first;
-                
-      auto hidden_state = occupancy_state.getState(hidden_state_AND_joint_history);
-      auto joint_history = occupancy_state.getHistory(hidden_state_AND_joint_history);
-      auto proba = hidden_state_AND_joint_history_AND_probability.second;
 
       for(auto action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
       {
         weight = 0.0;
 
-        //<! 1.a compute factor
-        factor = this->getWorld()->getUnderlyingProblem()->getReward()->getReward(hidden_state,this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action));
-
-        if( t < this->getWorld()->getUnderlyingProblem()->getPlanningHorizon() - 1 )
+        for(auto hidden_state: this->getWorld()->getUnderlyingProblem()->getStateSpace()->getAll())
         {
-          for(auto next_hidden_state : this->getWorld()->getUnderlyingProblem()->getReachableStates(hidden_state,action))
+          //<! 1.a compute factor
+          factor = this->getWorld()->getUnderlyingProblem()->getReward()->getReward(hidden_state,this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action));
+
+          if( t < this->getWorld()->getUnderlyingProblem()->getPlanningHorizon() - 1 )
           {
-            for(auto next_observation : this->getWorld()->getUnderlyingProblem()->getReachableObservations(hidden_state,action,next_hidden_state))
+            for(auto next_hidden_state : this->getWorld()->getUnderlyingProblem()->getReachableStates(hidden_state,action))
             {
-              auto joint_history_next = joint_history->expand(next_observation);
-              factor += this->getWorld()->getDiscount(t) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state,this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action),this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation),next_hidden_state) * hyperplan.at(std::make_pair(next_hidden_state,joint_history_next));
+              for(auto next_observation : this->getWorld()->getUnderlyingProblem()->getReachableObservations(hidden_state,action,next_hidden_state))
+              {
+                auto joint_history_next = joint_history->expand(next_observation);
+                factor += this->getWorld()->getDiscount(t) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state,this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action),this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation),next_hidden_state) * hyperplan.at(std::make_pair(next_hidden_state,joint_history_next));
+              }
             }
           }
-        }
 
-        weight += proba * factor;
+          weight += occupancy_state.at(std::make_pair(hidden_state,joint_history)) * factor;
+        }
 
       //<! 1.b get variable a(u|o)
       recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
@@ -159,8 +157,7 @@ namespace sdm
     {
 
       joint_decision_rule = this->greedyMaxPlane(occupancy_state, hyperplan, value, 0,t);
-      std::cout<<"\n decision rule "<<joint_decision_rule<<std::endl;
-      std::cout<<"\n value ; "<<value<<std::endl;
+
       if( value > max )
       {
         max_decision_rule = joint_decision_rule;

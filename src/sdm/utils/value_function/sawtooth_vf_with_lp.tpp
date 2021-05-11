@@ -86,8 +86,9 @@ namespace sdm
                 if( std::abs(cub - this->getQValueAt(occupancy_state, a, t)) > 0.01 )
                 {
                     std::cout << "------------------------------------------------------------------------" << std::endl;    
-                    std::cout << this->representation[t+1] << std::endl;    
-                    throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
+                    std::cout << this->representation[t+1] << std::endl;  
+                    this->template testFunction<TState>(occupancy_state,a,t);  
+                    // throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub(" + std::to_string(this->getQValueAt(occupancy_state, a, t)) +  ")");
                 }
             }
         }catch(IloException& e)
@@ -118,8 +119,7 @@ namespace sdm
             auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
             auto difference = upper_bound - initial_upper_bound; 
 
-            // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
+            for(const auto &pair_hidden_state_AND_joint_history_AND_probability : compressed_occupancy_state)
             {
                 auto next_hidden_state = pair_hidden_state_AND_joint_history_AND_probability.first.first;
                 auto next_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first.second;
@@ -129,26 +129,44 @@ namespace sdm
 
                 if(occupancy_state.getJointHistories().find(joint_history) != occupancy_state.getJointHistories().end())
                 {
-                    auto action = det_action.act(joint_history->getIndividualHistories());
 
-                    std::cout<<"\n action "<<action<<std::endl;
+                    auto one_step_uncompressed_occupancy_state = *occupancy_state.getOneStepUncompressedOccupancy();
 
-                    std::cout<<"\n compressed_occupancy_state.getOneStepUncompressedOccupancy()"<<compressed_occupancy_state.getOneStepUncompressedOccupancy()<<std::endl;
-                    std::cout<<"\n joint_history "<<joint_history<<std::endl;
-                    std::cout<<"\n next_hidden_state "<<next_hidden_state<<std::endl;
-                    std::cout<<"\n next_observation "<<next_observation<<std::endl;
-                    std::cout<<"\n next_one_step_uncompressed_occupancy_state"<<next_one_step_uncompressed_occupancy_state<<std::endl;
-                    
-                    auto factor = 0.0;
+                    auto action = det_action.act(joint_history->getIndividualHistories());            
 
-                    for(const auto& hidden_state : next_one_step_uncompressed_occupancy_state->getStatesAt(joint_history))
+                    auto factor_one_step = 0.0;
+
+                    for(const auto& hidden_state : one_step_uncompressed_occupancy_state.getStatesAt(joint_history))
                     {
-                        factor += next_one_step_uncompressed_occupancy_state->at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
+                        factor_one_step += one_step_uncompressed_occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
                     }
-                    auto denominator = next_one_step_uncompressed_occupancy_state->at(std::make_pair(next_hidden_state, joint_history->expand(next_observation)));
-                    auto resultat =  difference * factor / denominator;                
+                    auto denominator = pair_hidden_state_AND_joint_history_AND_probability.second;
+                    auto resultat =  difference * factor_one_step / denominator;                
+
+                    auto factor_occupancy = 0.0;
+
+                    for(const auto& hidden_state : occupancy_state.getStatesAt(joint_history))
+                    {
+                        factor_occupancy += occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
+                    }
+                    resultat =  difference * factor_occupancy / denominator;                
                     
-                    std::cout<<"\n factor "<<factor<<", denominator "<<denominator<<", difference "<<difference<<", resultat "<<resultat<<std::endl;
+                    if( std::abs(factor_occupancy - factor_one_step) > 0.01 )
+                    {
+                        std::cout << "------------------------------------------------------------------------" << std::endl;    
+                        
+                        std::cout<<"\n action "<<action<<std::endl;
+                        std::cout<<"\n joint_history "<<*joint_history<<std::endl;
+                        std::cout<<"\n next_hidden_state "<<next_hidden_state<<std::endl;
+                        std::cout<<"\n next_observation "<<next_observation<<std::endl;
+                        std::cout<<"\n one_step_uncompressed_occupancy_state "<<one_step_uncompressed_occupancy_state;    
+                        std::cout<<"\n occupancy_state "<<occupancy_state;    
+   
+                        throw sdm::exception::Exception("Unexpected factor difference : factor_one_step_uncompressed (" + std::to_string(factor_one_step) + ")\t factor_occupancy_state(" + std::to_string(factor_occupancy) +  ")");
+                    }else
+                    {
+                        std::cout<<"\n pas de problème de factor"<<std::endl;
+                    }
                 }
             }
         }
@@ -261,7 +279,7 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& occupancy_state, IloModel& model, IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& occupancy_state, IloModel& , IloEnv& env, IloRangeArray& con, IloNumVarArray& var, number& c, number t) 
     {
         //<!  Build sawtooth constraints v - \sum_{u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(y,<o,z>)*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
@@ -390,11 +408,11 @@ namespace sdm
         for(const auto compressed_occupancy_state_AND_upper_bound : this->representation[t+1])
         {
 
-            auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
+            // auto upper_bound = compressed_occupancy_state_AND_upper_bound.second;
             auto compressed_occupancy_state = compressed_occupancy_state_AND_upper_bound.first;
-            auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
+            // auto initial_upper_bound = this->getInitFunction()->operator()(compressed_occupancy_state, t+1);
             auto next_one_step_uncompressed_occupancy_state = compressed_occupancy_state.getOneStepUncompressedOccupancy();
-            auto difference = upper_bound - initial_upper_bound; 
+            // auto difference = upper_bound - initial_upper_bound; 
 
             // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
             for(const auto &pair_hidden_serial_state_AND_joint_history_AND_probability : *next_one_step_uncompressed_occupancy_state)
@@ -424,11 +442,11 @@ namespace sdm
                 if(serial_occupancy_state.getJointHistories().find(joint_history) != serial_occupancy_state.getJointHistories().end())
                 {
                     // Go over all actions
-                    for(const auto & serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
-                    {
-                        //<! 1.c.4 get variable a(u|o) and set constant 
-                        // expr -=  this->template getQValueRealistic<TState>(serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference)  * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
-                    } 
+                    // for(const auto & serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
+                    // {
+                    //     //<! 1.c.4 get variable a(u|o) and set constant 
+                    //     // expr -=  this->template getQValueRealistic<TState>(serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, *next_one_step_uncompressed_occupancy_state, difference)  * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
+                    // } 
                 }   
                 // <! get variable \omega_k(x',o')
                 recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
