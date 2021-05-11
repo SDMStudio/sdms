@@ -360,9 +360,6 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState& , IloModel& , IloEnv& , IloRangeArray& , IloNumVarArray& , number& , number ) 
     {
-
-        // assert(this->getInitFunction() != nullptr); 
-
         // number recover = 0;
         // number agent_id = serial_occupancy_state.getCurrentAgentId();  
 
@@ -429,7 +426,9 @@ namespace sdm
         //     }
         //     c++;
         // }
-    }
+  
+        // assert(this->getInitFunction() != nullptr); 
+  }
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
