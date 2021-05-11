@@ -7,7 +7,6 @@
 #include <iostream>
 #include <boost/bimap.hpp>
 
-
 //!
 //! \file     types.hpp
 //! \author   Jilles S. Dibangoye
@@ -49,6 +48,13 @@ namespace sdm
   typedef typename bimap::value_type name2index;
 
   const number DEFAULT_OBSERVATION = std::numeric_limits<number>::max();
+
+  enum TState_t
+  {
+    COMPRESSED,
+    ONE_STEP_UNCOMPRESSED,
+    FULLY_UNCOMPRESSED
+  };
 
   /**
   * Enumerator for the types of statistics that can be plotted.

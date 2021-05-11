@@ -5,13 +5,13 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP() 
     {
-        this->setTStateType( ONE_STEP_UNCOMPRESSED );
+        this->setTStateType( TState_t::ONE_STEP_UNCOMPRESSED );
     }
 
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : DecentralizedConstraintsLP<TState, TAction, TValue>(problem),SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
-        this->setTStateType( ONE_STEP_UNCOMPRESSED );
+        this->setTStateType( TState_t::ONE_STEP_UNCOMPRESSED );
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -90,7 +90,7 @@ namespace sdm
                 
                 auto vub_0  = this->getQValueAt(occupancy_state, a, t);
                 auto vub_1  = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(this->getWorld()->nextState(occupancy_state, a), t+1);
-                auto vub_2  = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t+1);
+                auto vub_2  = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * this->getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t+1);
                 if( std::abs(cub - vub_0) > 0.01 )
                 {
                     std::cout << "------------------------------------------------------------------------" << std::endl;    
@@ -333,8 +333,8 @@ namespace sdm
 
         switch( this->ctype )
         {
-            case FULLY_UNCOMPRESSED : MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getFullyUncompressed(), t, cub);  break;
-            case ONE_STEP_UNCOMPRESSED : MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);  break;
+            case TState_t::FULLY_UNCOMPRESSED : MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t, cub);  break;
+            case TState_t::ONE_STEP_UNCOMPRESSED : MappedValueFunction<TState,TAction,TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);  break;
             default : MappedValueFunction<TState,TAction,TValue>::updateValueAt(occupancy_state, t, cub);  break;
         }
     }
@@ -344,8 +344,8 @@ namespace sdm
     {
         switch( this->ctype )
         {
-            case FULLY_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getFullyUncompressed(), t);
-            case ONE_STEP_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t); 
+            case TState_t::FULLY_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t);
+            case TState_t::ONE_STEP_UNCOMPRESSED : return MappedValueFunction<TState,TAction,TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t); 
             default : return MappedValueFunction<TState,TAction,TValue>::getValueAt(occupancy_state, t);  
         }
     }
