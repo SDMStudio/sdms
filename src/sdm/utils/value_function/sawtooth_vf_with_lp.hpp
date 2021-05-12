@@ -27,12 +27,6 @@ namespace sdm{
 
         TValue getValueAt(const TState &, number );
 
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        void testFunction(const TState& , TAction, number  );
-
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void testFunction(const TState& , TAction, number  );
-
         /**
          * @brief Get the Sawtooth Minimum Ratio  i.e. \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)}
          * 
@@ -102,14 +96,13 @@ namespace sdm{
         * 
         * @param const TState& : current occupancy state
         * @param double& : the reference of the value to be returned
-        * @param double  : ?
         * @param number : time step
         * 
         * @return TAction 
         */
-        TAction greedySawtooth(const TState&, double , double&, number);
+        TAction greedySawtooth(const TState& , double&, number);
 
-        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray&, double , double, number  ) ;
+        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray& , double, number  ) ;
 
         void setGreedyObjective(const TState&, IloObjective& , IloNumVarArray& , number) ;
 

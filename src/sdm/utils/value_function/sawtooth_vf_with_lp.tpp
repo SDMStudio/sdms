@@ -25,15 +25,13 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     TAction SawtoothValueFunctionLP<TState, TAction, TValue>::getBestAction(const TState &compressed_occupancy_state, number t)
     {
-        std::cout << "-------------- SawtoothValueFunctionLP::getBestAction --------------" << std::endl;
-        double clb = 0, cub = 0;
-        return this->greedySawtooth(compressed_occupancy_state, clb, cub, t);
+        double cub = 0;
+        return this->greedySawtooth(compressed_occupancy_state, cub, t);
     }
 
     template <typename TState, typename TAction, typename TValue>
-    TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedySawtooth(const TState &occupancy_state, double clb, double &cub, number t)
+    TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedySawtooth(const TState &occupancy_state, double &cub, number t)
     {
-        std::cout << "-------------- SawtoothValueFunctionLP::greedySawtooth --------------" << std::endl;
         number c = 0;
 
         //<! tracking variables
@@ -63,7 +61,7 @@ namespace sdm
             ///////  BEGIN CORE CPLEX Code  ///////
 
             // 0. Build variables a(u|o), a_i(u_i|o_i), v
-            this->setGreedyVariables(occupancy_state, ihs, env, var, clb, cub, t);
+            this->setGreedyVariables(occupancy_state, ihs, env, var, cub, t);
 
             // 1. Build objective function \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v
             this->setGreedyObjective(occupancy_state, obj, var, t);
@@ -101,7 +99,7 @@ namespace sdm
                 if (std::abs(cub - vub_0) > 0.01)
                 {
                     std::cout << "------------------------------------------------------------------------" << std::endl;
-
+                    std::cout<<"\n occupancy "<<occupancy_state;
                     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
                 }
             }
@@ -124,9 +122,8 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, double /*clb*/, double /*cub*/, number t)
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, double /*cub*/, number t)
     {
-        std::cout << "-------------- SawtoothValueFunctionLP::setGreedyVariables --------------" << std::endl;
         //<! tracking variable ids
         number index = 0;
 
@@ -169,7 +166,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyObjective(const TState &compressed_occupancy_state, IloObjective &obj, IloNumVarArray &var, number t)
     {
-        std::cout << "-------------- SawtoothValueFunctionLP::setGreedyObjective --------------" << std::endl;
         // <! 1.a get variable v
         auto recover = this->getNumber(this->getVarNameWeight(0));
 
@@ -215,7 +211,7 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRealistic(const TState &compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, typename TState::state_type next_hidden_state, typename TState::observation_type next_observation, double denominator, double difference)
     {
-        return difference * this->template getSawtoothMinimumRatio<TState>(*compressed_occupancy_state.getOneStepUncompressedOccupancy(), joint_history, action, next_hidden_state, next_observation, denominator);
+        return difference * this->template getSawtoothMinimumRatio<TState>(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, denominator);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -229,7 +225,6 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState &occupancy_state, IloModel &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &c, number t)
     {
-        std::cout << "-------------- SawtoothValueFunctionLP::setGreedySawtooth --------------" << std::endl;
         //<!  Build sawtooth constraints v - \sum_{u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(y,<o,z>)*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
 
@@ -317,12 +312,9 @@ namespace sdm
                 auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
                 auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
 
-                std::cout<<"\n value 2 ";
-                std::cout<<"\n joint_history"<<*joint_history<<", hidden_state"<<hidden_state<<std::endl;
                 // <! \omega_k(x',o')
-                // std::cout << "\n (recup) joint_history=" << *next_joint_history << " hidden_state=" << next_hidden_state;
                 auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
-                // std::cout << " name=" << VarName << std::endl;
+
                 recover = this->getNumber(VarName);
                 con[c].setLinearCoef(var[recover], +1.0);
             }
@@ -347,9 +339,9 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::updateValueAt(const TState &occupancy_state, number t)
     {
-        double cub = 0, clb = 0;
+        double cub = 0;
 
-        this->greedySawtooth(occupancy_state, clb, cub, t);
+        this->greedySawtooth(occupancy_state, cub, t);
 
         switch (this->ctype)
         {
