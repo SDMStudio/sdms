@@ -39,13 +39,45 @@ namespace sdm
         return this->act(s);
     }
 
+    // Get probabilities of decision a(u | o)
     template <typename TState, typename TAction>
-    void JointDeterministicDecisionRule<TState, TAction>::setProbability(const std::vector<TState>& acc_states , const std::vector<TAction>& actions)
+    double JointDeterministicDecisionRule<TState, TAction>::getProbability(const Joint<TState> &states, const Joint<TAction> &actions)
     {
-        this->push_back(DeterministicDecisionRule<TState, TAction>(acc_states, actions));
+        assert((this->size() == states.size()) && (this->size() == actions.size()));
+
+        double probability = 1.;
+        for (number agent_id = 0; agent_id < this->size(); agent_id++)
+        {
+            probability *= this->at(agent_id).getProbability(states.at(agent_id), actions.at(agent_id));
+        }
+        return probability;
+    }
+
+    template <typename TState, typename TAction>
+    double JointDeterministicDecisionRule<TState, TAction>::getProbability(const number &agent_id, const TState &state, const TAction &action)
+    {
+        assert(agent_id < this->size());
+        return this->at(agent_id).getProbability(state, action);
+    }
+
+    template <typename TState, typename TAction>
+    void JointDeterministicDecisionRule<TState, TAction>::setProbability(const Joint<TState> &states, const Joint<TAction> &actions, double)
+    {
+        if (this->size() == 0)
+        {
+            assert(states.size() == actions.size());
+            for (number agent_id = 0; agent_id < states.size(); agent_id++)
+            {
+                this->push_back(DeterministicDecisionRule<TState, TAction>());
+            }
+        }
+        assert((this->size() == states.size()) && (this->size() == actions.size()));
+        for (number agent_id = 0; agent_id < this->size(); agent_id++)
+        {
+            (*this)[agent_id].setProbability(states.at(agent_id), actions.at(agent_id));
+        }
     }
 }
-
 
 namespace std
 {

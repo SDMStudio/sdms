@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include <sdm/core/function.hpp>
+#include <sdm/core/action/decision_rule.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/tools.hpp>
@@ -22,13 +22,12 @@ namespace sdm
    * @tparam TAction the action type
    */
   template <typename TState, typename TAction>
-  class DeterministicDecisionRule : public std::map<TState, TAction>, public Function<TState, TAction>
+  class DeterministicDecisionRule : public DecisionRule<TState, TAction>, public std::map<TState, TAction>
   {
   public:
-    using input_type = TState;
+    using input_type = typename DecisionRule<TState, TAction>::input_type;
+    using output_type = typename DecisionRule<TState, TAction>::output_type;
     using output = TAction;
-    using output_type = typename Function<TState,TAction>::output_type;
-
 
     DeterministicDecisionRule();
     DeterministicDecisionRule(std::vector<TState> acc_states, std::vector<TAction> n_actions);
@@ -49,20 +48,7 @@ namespace sdm
      */
     TAction operator()(const TState &s);
 
-    friend std::ostream &operator<<(std::ostream &os, const DeterministicDecisionRule<TState, TAction> &dr)
-    {
-      os << "<decision-rule type=\"deterministic\">" << std::endl;
-      for (const auto &pair_s_a : dr)
-      {
-        os << "\t<decision state=\"" << pair_s_a.first << "\">" << std::endl;
-        std::ostringstream res;
-        res << "\t\t" << pair_s_a.second << std::endl;
-        sdm::tools::indentedOutput(os, res.str().c_str());
-        os << "\t<decision/>" << std::endl;
-      }
-      os << "<decision-rule/>" << std::endl;
-      return os;
-    }
+    double getProbability(const TState &state, const TAction &action);
 
     /**
      * @brief Add probability 
@@ -71,7 +57,18 @@ namespace sdm
      * @param const TAction&
      * 
      */
-    void setProbability(const TState& , const TAction&);
+    void setProbability(const TState &, const TAction &, double = 0);
+
+    friend std::ostream &operator<<(std::ostream &os, const DeterministicDecisionRule<TState, TAction> &dr)
+    {
+      os << "<decision-rule type=\"deterministic\">" << std::endl;
+      for (const auto &pair_s_a : dr)
+      {
+        os << "\t<decision state=\"" << pair_s_a.first << "\" action=\"" << pair_s_a.second << "\"/>" << std::endl;
+      }
+      os << "<decision-rule/>" << std::endl;
+      return os;
+    }
   };
 
   template <typename TState, typename TAction>
