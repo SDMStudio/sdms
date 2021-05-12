@@ -38,13 +38,13 @@ namespace sdm
     }
 
     template <typename TState, typename TOccupancyState>
-    double State2OccupancyValueFunction<TState, TOccupancyState>::getQValueAt(const TState &state,const number &action, const number &tau)
+    double State2OccupancyValueFunction<TState, TOccupancyState>::getQValueAt(const TState &state, const number &action, const number &tau)
     {
-        return this->mdp_vf_->getQValueAt(state,action,tau);
+        return this->mdp_vf_->getQValueAt(state, action, tau);
     }
 
     template <typename TState, typename TAction, typename TObservation>
-    State2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::State2OccupancyValueFunction(std::shared_ptr<BinaryFunction<TState, number, double>> vf) : mdp_vf_(vf)
+    State2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::State2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf) : mdp_vf_(vf)
     {
     }
 
@@ -62,6 +62,12 @@ namespace sdm
             }
         }
         return value;
+    }
+
+    template <typename TState, typename TAction, typename TObservation>
+    double State2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::getQValueAt(const TState &state, const TAction &action, const number &tau)
+    {
+        return this->mdp_vf_->getQValueAt(state, action, tau);
     }
 
 } // namespace sdm

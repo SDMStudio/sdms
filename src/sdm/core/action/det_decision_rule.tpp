@@ -28,11 +28,18 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    void DeterministicDecisionRule<TState, TAction>:: setProbability(const TState& state , const TAction& action)
+    double DeterministicDecisionRule<TState, TAction>::getProbability(const TState &state, const TAction &action)
     {
+        return ((this->find(state) != this->end()) && (this->at(state) == action)) ? 1 : 0;
+    }
+
+    template <typename TState, typename TAction>
+    void DeterministicDecisionRule<TState, TAction>::setProbability(const TState &state, const TAction &action, double proba)
+    {
+        assert(((proba == 0) || (proba == 1)));
         (*this)[state] = action;
     }
-    
+
 } // namespace sdm
 
 namespace std

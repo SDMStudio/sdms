@@ -23,10 +23,45 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue = double>
     class SawtoothValueFunctionLP : public DecentralizedConstraintsLP<TState, TAction, TValue>, public SawtoothValueFunction<TState, TAction, TValue>
     {
+    public:
+        SawtoothValueFunctionLP();
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number, std::shared_ptr<Initializer<TState, TAction>>);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0.);
+
+        /**
+         * @brief Get the best action to do at a state
+         * 
+         * @param state the state
+         * @return the best action
+         */
+        TAction getBestAction(const TState &, number = 0);
+
+        /**
+        * @brief Returns the greedy decision rule for the current occupancy state
+        * 
+        * @param const TState& : current occupancy state
+        * @param double& : the reference of the value to be returned
+        * @param double  : ?
+        * @param number : time step
+        * 
+        * @return TAction 
+        */
+        TAction greedySawtooth(const TState &, double, double &, number);
+
+        void setGreedyVariables(const TState &, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &, IloEnv &, IloNumVarArray &, double, double, number);
+
+        void setGreedyObjective(const TState &, IloObjective &, IloNumVarArray &, number);
+
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
+        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
+
+        void updateValueAt(const TState &, number);
 
     protected:
-
-        TValue getValueAt(const TState &, number );
+        TValue getValueAt(const TState &, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         void testFunction(const TState &, TAction, number);
@@ -96,46 +131,6 @@ namespace sdm
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         double getQValueRealistic(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double);
-
-    public:
-        SawtoothValueFunctionLP();
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number, std::shared_ptr<Initializer<TState, TAction>>);
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0.);
-
-        /**
-         * @brief Get the best action to do at a state
-         * 
-         * @param state the state
-         * @return the best action
-         */
-        TAction getBestAction(const TState &, number = 0);
-
-        /**
-        * @brief Returns the greedy decision rule for the current occupancy state
-        * 
-        * @param const TState& : current occupancy state
-        * @param double& : the reference of the value to be returned
-        * @param double  : ?
-        * @param number : time step
-        * 
-        * @return TAction 
-        */
-        TAction greedySawtooth(const TState &, double, double &, number);
-
-        void setGreedyVariables(const TState &, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &, IloEnv &, IloNumVarArray &, double, double, number);
-
-        void setGreedyObjective(const TState &, IloObjective &, IloNumVarArray &, number);
-
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
-
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
-        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
-
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
-
-        void updateValueAt(const TState &, number);
     };
 
     template <class TAction, class TValue>

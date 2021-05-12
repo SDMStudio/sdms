@@ -34,11 +34,12 @@ namespace sdm
         : public BinaryFunction<OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>, number, double>
     {
     protected:
-        std::shared_ptr<BinaryFunction<TState, number, double>> mdp_vf_;
+        std::shared_ptr<ValueFunction<TState, TAction>> mdp_vf_;
 
     public:
-        State2OccupancyValueFunction(std::shared_ptr<BinaryFunction<TState, number, double>> vf);
+        State2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf);
         double operator()(const OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>> &ostate, const number &tau);
+        double getQValueAt(const TState &state, const TAction&action ,const number &tau);
     };
 } // namespace sdm
 

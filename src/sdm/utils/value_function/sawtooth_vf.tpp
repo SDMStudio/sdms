@@ -6,12 +6,14 @@ namespace sdm
     SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction() {}
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer) : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer)
+        : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value) : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value)
+        : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
     {
     }
 
@@ -50,16 +52,16 @@ namespace sdm
         assert(this->getInitFunction() != nullptr);
 
         double min_ext = 0;
-        double v_ub_state =this->getInitFunction()->operator()(state, t);
+        double v_ub_state = this->getInitFunction()->operator()(state, t);
 
         TState argmin_ = state;
-        
+
         for (const auto &pair_ostate_value : this->representation[t])
         {
             auto ostate = pair_ostate_value.first;
             double v_kappa = pair_ostate_value.second;
             double v_ub_kappa = this->getInitFunction()->operator()(ostate, t);
-            
+
             double phi = 1.0;
             for (auto &pair_hidden_state_AND_joint_history_AND_probability : ostate)
             {
@@ -69,7 +71,7 @@ namespace sdm
                     phi = v_int;
                 }
             }
-            
+
             double min_int = phi * (v_kappa - v_ub_kappa);
             if (min_int < min_ext)
             {
@@ -124,5 +126,17 @@ namespace sdm
     std::pair<double, SerializedState> SawtoothValueFunction<SerializedState, number, double>::getMaxAt(const SerializedState &, number)
     {
         throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TState_t SawtoothValueFunction<TState, TAction, TValue>::getTStateType()
+    {
+        return this->ctype;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunction<TState, TAction, TValue>::setTStateType(const TState_t &ctype)
+    {
+        this->ctype = ctype;
     }
 }

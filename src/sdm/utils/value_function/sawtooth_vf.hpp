@@ -25,6 +25,11 @@ namespace sdm
     class SawtoothValueFunction : public MappedValueFunction<TState, TAction, TValue>
     {
     protected:
+        TState_t ctype = COMPRESSED;
+
+        TState_t getTStateType();
+        void setTStateType(const TState_t &);
+
     public:
         SawtoothValueFunction();
         SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);

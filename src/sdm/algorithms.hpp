@@ -171,7 +171,6 @@ namespace sdm
                 else if ((formalism == "decpomdp_b") || (formalism == "DecPOMDP_b") || (formalism == "dpomdp_b") || (formalism == "DPOMDP_b"))
                 {
                     using TObservation = number;
-                    using TState = number;
 
                     using TActionDescriptor = number;
                     using TStateDescriptor = HistoryTree_p<TObservation>;

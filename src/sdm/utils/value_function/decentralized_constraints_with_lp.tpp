@@ -15,6 +15,12 @@ namespace sdm
     std::vector<std::vector<typename TAction::input_type>> joint_histories;
     std::vector<std::vector<typename TAction::output>> actions;
 
+    for (number ag_id = 0; ag_id < this->world_->getUnderlyingProblem()->getNumAgents(); ag_id++)
+    {
+      joint_histories.push_back({});
+      actions.push_back({});
+    }
+
     for (const auto &joint_history : occupancy_state.getJointHistories())
     {
       for (const auto &u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
@@ -42,9 +48,9 @@ namespace sdm
     std::string VarName;
 
     //<! 0.a Build variables a(u|o), a_i(u_i|o_i)
-    for (const auto &joint_history : occupancy_state.getJointHistories())
+    for (const auto joint_history : occupancy_state.getJointHistories())
     {
-      for (const auto &u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
+      for (auto u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
       {
         //< 0.b Build variables a(u|o)
         VarName = this->getVarNameJointHistoryDecisionRule(u, joint_history);
@@ -52,7 +58,7 @@ namespace sdm
         this->setNumber(VarName, index++);
       }
 
-      for (number ag = 0; ag < this->world_->getUnderlyingProblem()->getNumAgents(); ++ag)
+      for (auto ag = 0; ag < this->world_->getUnderlyingProblem()->getNumAgents(); ++ag)
       {
         auto ih = joint_history->getIndividualHistory(ag);
         if (ihs[ag].find(ih) == ihs[ag].end())
@@ -77,7 +83,7 @@ namespace sdm
     number recover = 0;
     number number_agent = this->world_->getUnderlyingProblem()->getNumAgents();
 
-    for (const auto &jh : occupancy_state.getJointHistories())
+    for (const auto jh : occupancy_state.getJointHistories())
     {
       for (auto u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
       {
@@ -102,9 +108,9 @@ namespace sdm
     }   // for all o
 
     // 3.bis Build decentralized control constraints [ a(u|o) <= a_i(u_i|o_i) ]
-    for (const auto &jh : occupancy_state.getJointHistories())
+    for (const auto jh : occupancy_state.getJointHistories())
     {
-      for (const auto &u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
+      for (const auto u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
       {
         for (agent ag = 0; ag < number_agent; ++ag)
         {
@@ -199,7 +205,7 @@ namespace sdm
     number agent_id = serial_occupancy_state.getCurrentAgentId();
 
     // 4. Build deterministic policy constraints
-    for (const auto &indiv_history : serial_occupancy_state.getIndividualHistories(agent_id))
+    for (const auto indiv_history : serial_occupancy_state.getIndividualHistories(agent_id))
     {
       //<! 4.a set constraint  \sum_{u_i} a_i(u_i|o_i) = 1
       con.add(IloRange(env, 1.0, 1.0));
