@@ -34,8 +34,8 @@ namespace sdm
         };
 
         SawtoothValueFunctionLP();
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, TypeOfResolution = TypeOfResolution::BigM, number =10 );
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., TypeOfResolution = TypeOfResolution::BigM, number = 10 );
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, TypeOfResolution = TypeOfResolution::BigM, number =100);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100 );
 
         /**
          * @brief Get the best action to do at a state
@@ -95,7 +95,23 @@ namespace sdm
          * @param number : index creation variable
          */
         void setGreedySawtoothBigM(const TState &,typename TState::jhistory_type&, typename TState::state_type& ,typename TState::observation_type&, typename TState::jhistory_type&,const TState&  ,double , double , IloEnv &, IloRangeArray &, IloNumVarArray &, number &);
-        void setGreedySawtoothIfoIfThen();
+        
+        /**
+         * @brief Set the Greedy Sawtooth Ifo If Then object
+         * 
+         * @param const TState & : compressed_occupancy_state 
+         * @param typename TState::jhistory_type& : joint_history 
+         * @param typename TState::state_type& : next_hidden_state 
+         * @param typename TState::observation_type& : next_observation 
+         * @param typename TState::jhistory_type& : next_joint_history 
+         * @param const TState & : next_one_step_uncompressed_occupancy_state 
+         * @param double : probability 
+         * @param double difference 
+         * @param IloEnv & : env
+         * @param IloModel & : model 
+         * @param IloNumVarArray & : var  
+         */
+        void setGreedySawtoothIfoIfThen(const TState &,typename TState::jhistory_type&, typename TState::state_type&,typename TState::observation_type&, typename TState::jhistory_type& ,const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var);
 
 
         TValue getValueAt(const TState &, number );
