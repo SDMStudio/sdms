@@ -25,6 +25,37 @@ namespace sdm{
 
     protected:
 
+        // Enumeration of all different type of resolution method
+        enum TypeOfResolution 
+        { 
+            BigM,
+            IloIfThenResolution
+        };
+
+        TypeOfResolution current_type_of_resolution_;
+
+        number bigM_value_;
+
+        /**
+         * @brief Set the Greedy Sawtooth Big M object
+         * 
+         * @param const TState & : compressed_occupancy_state 
+         * @param typename TState::jhistory_type& : joint_history 
+         * @param typename TState::state_type& : next_hidden_state 
+         * @param typename TState::observation_type& : next_observation 
+         * @param typename TState::jhistory_type& : next_joint_history
+         * @param const TState & : next_one_step_uncompressed_occupancy_state
+         * @param double :probability 
+         * @param double : difference 
+         * @param IloEnv &env 
+         * @param IloRangeArray &con  
+         * @param IloNumVarArray &var 
+         * @param number : index creation variable
+         */
+        void setGreedySawtoothBigM(const TState &,typename TState::jhistory_type&, typename TState::state_type& ,typename TState::observation_type&, typename TState::jhistory_type&,const TState&  ,double , double , IloEnv &, IloRangeArray &, IloNumVarArray &, number &);
+        void setGreedySawtoothIfoIfThen();
+
+
         TValue getValueAt(const TState &, number );
 
         /**
@@ -43,7 +74,7 @@ namespace sdm{
         double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , double) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        double getSawtoothMinimumRatio(const TState& , typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::jhistory_type , double ) ;
+        double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , double ) ;
 
         /**
          * @brief Return the \sum_x s(x,o) Q_MDP(x,u)
@@ -72,16 +103,12 @@ namespace sdm{
          * @param double : difference i.e. (v_k - V_k)
          * @return double 
          */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double );
-
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         double getQValueRealistic(const TState&, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double );
 
     public:
         SawtoothValueFunctionLP();
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>> );
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0.);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, TypeOfResolution = TypeOfResolution::BigM, number =10 );
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., TypeOfResolution = TypeOfResolution::BigM, number = 10 );
 
         /**
          * @brief Get the best action to do at a state
@@ -104,6 +131,10 @@ namespace sdm{
 
         void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray& , double, number  ) ;
 
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        void setGreedyObjective(const TState&, IloObjective& , IloNumVarArray& , number) ;
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         void setGreedyObjective(const TState&, IloObjective& , IloNumVarArray& , number) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
