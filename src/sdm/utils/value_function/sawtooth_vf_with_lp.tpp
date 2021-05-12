@@ -5,7 +5,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP()
     {
-        this->setTStateType(TState_t::ONE_STEP_UNCOMPRESSED);
+        this->setTStateType(ONE_STEP_UNCOMPRESSED);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -13,7 +13,7 @@ namespace sdm
         : DecentralizedConstraintsLP<TState, TAction, TValue>(problem),
           SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
     {
-        this->setTStateType(TState_t::ONE_STEP_UNCOMPRESSED);
+        this->setTStateType(ONE_STEP_UNCOMPRESSED);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -229,7 +229,7 @@ namespace sdm
 
         assert(this->getInitFunction() != nullptr);
         number recover = 0;
-        number bigM = 1;
+        number bigM = 20;
 
         // Go over all points in the point set at t+1
         for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t + 1])

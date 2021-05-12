@@ -22,7 +22,7 @@ namespace sdm
     public:
         using input_type = TState;
         using output = TAction;
-        using output_type = typename Function<Joint<TState>, Joint<TAction>>::output_type;
+        using output_type = typename DecisionRule<Joint<TState>, Joint<TAction>>::output_type;
 
         JointDeterministicDecisionRule();
         JointDeterministicDecisionRule(const std::vector<DeterministicDecisionRule<TState, TAction>> &individual_decision_rules);
