@@ -201,7 +201,7 @@ namespace sdm
         for (const auto pair_o_pair_proba_belief : map)
         {
             auto joint_hist = pair_o_pair_proba_belief.first;
-            res << "\t<joint-history value=\"" << *joint_hist << "\" proba=" << pair_o_pair_proba_belief.second.first << " belief=" << pair_o_pair_proba_belief.second.second << "/>" << std::endl;
+            res << "\t<joint-history value=\"" << joint_hist->short_str() << "\" proba=" << pair_o_pair_proba_belief.second.first << " belief=" << pair_o_pair_proba_belief.second.second << "/>" << std::endl;
         }
         res << "</occupancy-state>" << std::endl;
  
