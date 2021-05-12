@@ -32,60 +32,6 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue = double>
     class MaxPlanValueFunction : public ValueFunction<TVector, TAction, TValue>
     {
-    protected:
-        using HyperplanSet = std::vector<TVector>;
-
-        /**
-         * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
-         */
-        std::vector<HyperplanSet> representation;
-
-        /**
-         * @brief The initializer to use for this value function. 
-         * 
-         */
-        std::shared_ptr<Initializer<TVector, TAction>> initializer_;
-
-        /**
-         * @brief the default values, one for each decision epoch.
-         */
-        std::vector<TValue> default_values_per_horizon;
-
-        /**
-         * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
-         * 
-         * @tparam T 
-         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
-         * 
-         * @param const TVector& : occupancy state
-         * @param const TVector& : hyperplan
-         * @param const TAction& : joint decision rule
-         * @param number : time step
-         * 
-         * 
-         * @return TVector 
-         */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
-
-        /**
-         * @brief Compute the next hyperplan for a precise serialized_occupancy_state, hyperplan and a joint decision rule
-         * 
-         * @tparam T 
-         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
-         * 
-         * @param const TVector& : serialized_occupancy_state
-         * @param const TVector& : hyperplan
-         * @param const TAction& : joint decision rule
-         * @param number : time step
-         * 
-         * 
-         * @return TVector 
-         */
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        TVector getHyperplanAt(const TVector&, const TVector&, const TAction&, number = 0);
-
     public:
         MaxPlanValueFunction();
         MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number, std::shared_ptr<Initializer<TVector, TAction>>);
@@ -95,7 +41,7 @@ namespace sdm
         void initialize(TValue, number = 0);
 
         /**
-         * @brief Get the Value at state x 
+         * @brief Get the Value at state x.
          * 
          * @param state the state 
          * @return TValue 
@@ -144,6 +90,15 @@ namespace sdm
         void bounded_prune(number = 0);
 
         /**
+         * @brief backup operator for the occupancy state with belief representation -- type of the state -- 
+         * @param const TVector & occupancy state 
+         * @param number horizon
+         * @tparam T 
+         * @return TVector 
+         */
+        TVector backup_operator(const TVector &, number = 0);
+
+        /**
          * @brief Get the number of hyperplans 
          * 
          * @return number 
@@ -154,7 +109,7 @@ namespace sdm
         {
             std::ostringstream res;
             res << "<maxplan_value_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-            
+
             for (number i = 0; i < this->representation.size(); i++)
             {
                 res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
@@ -171,122 +126,85 @@ namespace sdm
             return res.str();
         }
 
-        /**
-         * @brief backup operator for the belief state -- type of the state -- 
-         * @param const TVector & belief state 
-         * @param number horizon
-         * @tparam T 
-         * @return TVector 
-         */
-        template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int> = 0>
-        TVector backup_operator(const TVector &, number = 0);
+    protected:
+        using HyperplanSet = std::vector<TVector>;
 
         /**
-         * @brief backup operator for the occupancy state -- type of the state -- 
-         * @param const TVector & occupancy state 
-         * @param number horizon
+         * @brief The value function represention.
+         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
+         */
+        std::vector<HyperplanSet> representation;
+
+        /**
+         * @brief The initializer to use for this value function. 
+         * 
+         */
+        std::shared_ptr<Initializer<TVector, TAction>> initializer_;
+
+        /**
+         * @brief the default values, one for each decision epoch.
+         */
+        std::vector<TValue> default_values_per_horizon;
+
+        template <typename T, std::enable_if_t<std::is_same_v<number, T>, int> = 0>
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedState, T>, int> = 0>
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+
+        template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int> = 0>
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+
+        /**
+         * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
+         * 
          * @tparam T 
+         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
+         * 
+         * @param const TVector& : occupancy state
+         * @param const TVector& : hyperplan
+         * @param const TAction& : joint decision rule
+         * @param number : time step
+         * 
+         * 
          * @return TVector 
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        TVector backup_operator(const TVector &, number = 0);
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
 
         /**
-         * @brief backup operator for the serial occupancy state -- type of the state -- 
-         * @param const TVector & serial occupancy state 
-         * @param number horizon
+         * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
+         * 
          * @tparam T 
+         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
+         * 
+         * @param const TVector& : occupancy state
+         * @param const TVector& : hyperplan
+         * @param const TAction& : joint decision rule
+         * @param number : time step
+         * 
+         * 
+         * @return TVector 
+         */
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+
+        /**
+         * @brief Compute the next hyperplan for a precise serialized_occupancy_state, hyperplan and a joint decision rule
+         * 
+         * @tparam T 
+         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
+         * 
+         * @param const TVector& : serialized_occupancy_state
+         * @param const TVector& : hyperplan
+         * @param const TAction& : joint decision rule
+         * @param number : time step
+         * 
+         * 
          * @return TVector 
          */
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        TVector backup_operator(const TVector &, number = 0);
-    };
-
-    template <class TAction, class TValue>
-    class MaxPlanValueFunction<number, TAction, TValue> : public ValueFunction<number, TAction, TValue>
-    {
-    public:
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<number, TAction>>, number, std::shared_ptr<Initializer<number, TAction>>)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-        }
-        MaxPlanValueFunction()
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-        }
-
-        void initialize()
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-        }
-        void initialize(TValue, number = 0)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-        }
-
-        TValue getValueAt(const number &, number = 0)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-        }
-
-        void updateValueAt(const number &, number = 0)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-        }
-
-        std::vector<number> getSupport(number)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-        }
-
-        std::string str()
-        {
-            return "MaxPlanVF";
-        }
-    };
-
-    template <class TAction, class TValue>
-    class MaxPlanValueFunction<SerializedState, TAction, TValue> : public ValueFunction<SerializedState, TAction, TValue>
-    {
-    public:
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>>, number, std::shared_ptr<Initializer<SerializedState, TAction>>)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
-        }
-
-        MaxPlanValueFunction()
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
-        }
-
-        void initialize()
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
-        }
-        void initialize(TValue, number = 0)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
-        }
-
-        TValue getValueAt(const SerializedState &, number = 0)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
-        }
-
-        void updateValueAt(const SerializedState &, number = 0)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
-        }
-
-        std::vector<SerializedState> getSupport(number)
-        {
-            throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
-        }
-
-        std::string str()
-        {
-            return "MaxPlanVF";
-        }
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
     };
 
 } // namespace sdm

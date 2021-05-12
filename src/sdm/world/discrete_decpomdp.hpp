@@ -15,8 +15,6 @@
 #include <sdm/world/discrete_mdp.hpp>
 #include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
-// #include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/state/history.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>

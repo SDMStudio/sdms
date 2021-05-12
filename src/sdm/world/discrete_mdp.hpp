@@ -14,7 +14,6 @@
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/decision_process.hpp>
 #include <sdm/world/belief_mdp.hpp>
-
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>

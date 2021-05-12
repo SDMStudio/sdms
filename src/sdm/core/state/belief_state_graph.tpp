@@ -51,7 +51,7 @@ namespace sdm
     std::pair<TBeliefState, double> BeliefStateGraph<TBeliefState, TAction, TObservation>::computeNextBelief(const TAction &action, const TObservation &observation)
     {
         // Compute next coef belief (non normailized)
-        auto weighted_next_belief = (this->dynamics_->at(action).at(observation) * this->getData());
+        auto weighted_next_belief = (this->dynamics_->at(action).at(observation).transpose() * this->getData());
 
         // Compute the coefficient of normalization (eta)
         double eta = weighted_next_belief.norm_1();
@@ -84,7 +84,7 @@ namespace sdm
             {
                 // Create a successor node
                 node_ptr = std::make_shared<output>(std::static_pointer_cast<output>(this->getptr()), next_belief);
-                
+
                 // Add the belief in the space of beliefs
                 this->belief_space->emplace(next_belief, node_ptr);
             }

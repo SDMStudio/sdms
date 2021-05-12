@@ -40,17 +40,27 @@ namespace sdm
 
     number DiscreteMDP::nextState(const number &state, const number &action, number t, std::shared_ptr<HSVI<number, number>> hsvi) const
     {
-        double max = std::numeric_limits<double>::min();
+        double max = -std::numeric_limits<double>::max();
         number amax = 0;
         for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
         {
-            double tmp = this->getStateDynamics()->getTransitionProbability(state, action, state_) * hsvi->do_excess(state_,0 ,t + 1);
+            double tmp = this->getStateDynamics()->getTransitionProbability(state, action, state_) * hsvi->do_excess(state_, 0, t + 1);
             if (tmp > max)
             {
                 max = tmp;
                 amax = state_;
             }
         }
+
+        // for (const auto &pair_state_proba : state->expand(action))
+        // {
+        //     double tmp = pair_state_proba.second * hsvi->do_excess(pair_state_proba.first, 0, t + 1);
+        //     if (tmp > max)
+        //     {
+        //         max = tmp;
+        //         amax = state_;
+        //     }
+        // }
         return amax;
     }
 
@@ -113,12 +123,12 @@ namespace sdm
         return std::pow(this->getDiscount(), horizon);
     }
 
-    double DiscreteMDP::do_excess(double, double lb, double ub, double , double error, number horizon)
+    double DiscreteMDP::do_excess(double, double lb, double ub, double, double error, number horizon)
     {
         return (ub - lb) - error / this->getWeightedDiscount(horizon);
     }
 
-    number DiscreteMDP::selectNextAction(const std::shared_ptr<ValueFunction<number, number>>&, const std::shared_ptr<ValueFunction<number, number>>& ub, const number &s, number h)
+    number DiscreteMDP::selectNextAction(const std::shared_ptr<ValueFunction<number, number>> &, const std::shared_ptr<ValueFunction<number, number>> &ub, const number &s, number h)
     {
         return ub->getBestAction(s, h);
     }

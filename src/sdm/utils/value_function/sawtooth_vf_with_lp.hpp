@@ -58,14 +58,15 @@ namespace sdm
 
         void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray& , double, number  ) ;
 
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
         void setGreedyObjective(const TState&, IloObjective& , IloNumVarArray& , number) ;
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         void setGreedyObjective(const TState&, IloObjective& , IloNumVarArray& , number) ;
 
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        void setGreedySawtooth(const TState&, IloModel&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&, number  ) ;
+       
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
+        void setGreedySawtooth(const TState &, IloModel &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         void setGreedySawtooth(const TState&, IloModel&, IloEnv&, IloRangeArray&, IloNumVarArray& , number&, number  ) ;
@@ -131,6 +132,9 @@ namespace sdm
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
         double getSawtoothMinimumRatio(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double);
 
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        double getSawtoothMinimumRatio(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double);
+
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         double getSawtoothMinimumRatio(const TState&, typename TState::jhistory_type , typename TAction::output_type , typename TState::state_type , typename TState::observation_type , double ) ;
 
@@ -144,6 +148,9 @@ namespace sdm
          * @return double 
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        double getQValueRelaxation(const TState &, typename TState::jhistory_type, typename TAction::output_type, number);
+
+        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
         double getQValueRelaxation(const TState &, typename TState::jhistory_type, typename TAction::output_type, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>

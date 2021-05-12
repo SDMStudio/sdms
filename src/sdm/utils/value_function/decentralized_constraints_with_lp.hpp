@@ -33,7 +33,7 @@ namespace sdm
          * @param number : time step
          * @return TAction 
          */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
         TAction getDecentralizedVariables(const IloCplex&, const IloNumVarArray&, const TVector&, number );
 
         /**
@@ -45,7 +45,7 @@ namespace sdm
          * @param const number&
          * @param number : time step
          */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
         void setDecentralizedVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&, number&, number );
 
         /**
@@ -58,7 +58,7 @@ namespace sdm
          * @param number&
          * @param number : time step
          */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
         void setDecentralizedConstraints(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&, number);
 
         /**

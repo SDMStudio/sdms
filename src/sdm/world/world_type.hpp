@@ -65,10 +65,13 @@ namespace sdm
         static std::enable_if_t<is_occupancy_mdp, OccupancyMDP<OccupancyState<>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>>
         getWorldType();
 
+        template <bool is_belief_occupancy_mdp = std::is_same<TState, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value>
+        static std::enable_if_t<is_belief_occupancy_mdp, OccupancyMDP<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>>
+        getWorldType();
+
         template <bool is_private_occupancy_mdp = std::is_same<TState, PrivateOccupancyState<>>::value>
         static std::enable_if_t<is_private_occupancy_mdp, PrivateOccupancyMDP<PrivateOccupancyState<>, PrivateJointDeterministicDecisionRule<HistoryTree_p<number>, number>>>
         getWorldType();
-
         // Return an instance of the underlying problem that corresponds to the problems solved
         template <bool is_solving_mdp = std::is_same<TState, number>::value>
         static std::enable_if_t<is_solving_mdp, DiscreteMDP>
@@ -78,7 +81,7 @@ namespace sdm
         static std::enable_if_t<is_solving_pomdp, DiscretePOMDP>
         getUnderlyingProblem();
         
-        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<>, PrivateOccupancyState<>>::value>
+        template <bool is_solving_decpomdp = std::is_any<TState, OccupancyState<>, PrivateOccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value>
         static std::enable_if_t<is_solving_decpomdp, DiscreteDecPOMDP>
         getUnderlyingProblem();
 

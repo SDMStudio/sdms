@@ -30,7 +30,7 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::initLogger()
     {
-        std::string format = "#> Trial : {}\tError : {}\t\tV_lb({}) / V_ub({})\n";
+        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
@@ -51,6 +51,10 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_solve()
     {
+        std::cout << "\n\n###############################################################\n";
+        std::cout << "#############    Start HSVI \"" << this->name_ << "\"    ####################\n";
+        std::cout << "###############################################################\n\n";
+
         TState start_state = this->world_->getInitialState();
         this->trial = 0;
 
@@ -83,7 +87,7 @@ namespace sdm
     {
         if (!this->do_stop(s, cost_so_far, h))
         {
-            if( this->lower_bound_->isInfiniteHorizon() )
+            if (this->lower_bound_->isInfiniteHorizon())
             {
                 this->lower_bound_->updateValueAt(s, h);
                 this->upper_bound_->updateValueAt(s, h);
@@ -102,12 +106,12 @@ namespace sdm
             this->upper_bound_->updateValueAt(s, h);
 
             //---------------DEBUG-----------------//
-            // std::cout << "\t\th:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ") \t->\t cV_ub("<< (this->world_->getReward(s, a) +  this->world_->getDiscount(h) * this->upper_bound_->getValueAt(s_, h+1)) <<") " << std::endl; 
+            std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ") \t->\t cV_ub(" << (this->world_->getReward(s, a) + this->world_->getDiscount(h) * this->upper_bound_->getValueAt(s_, h + 1)) << ") " << std::endl;
             //-----------------DEBUG----------------//
         }
 
         //---------------DEBUG-----------------//
-        //else std::cout << "\t\th:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl; 
+        // else std::cout << "\t\th:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
         //-----------------DEBUG----------------//
     }
 

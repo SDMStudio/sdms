@@ -275,5 +275,44 @@ namespace sdm
         }
     };
 
+    template <class TAction, class TValue>
+    class MaxPlanValueFunctionSerialized<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, TAction, TValue> : public MaxPlanValueFunction<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, TAction, TValue>
+    {
+    public:
+        MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, TAction>> , int , std::shared_ptr<Initializer<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, TAction>> )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>.");
+        }
+
+        void initialize()
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>.");
+        }
+        void initialize(TValue , number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>.");
+        }
+
+        TValue getValueAt(const OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>> &, number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>.");
+        }
+
+        void updateValueAt(const OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>> &, number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>.");
+        }
+
+        std::vector<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>> getSupport(number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>.");
+        }
+
+        std::string str()
+        {
+            return "MaxPlanVFSerialized";
+        }
+    };
+
 } // namespace sdm
 #include <sdm/utils/value_function/max_plane_vf_serialized.tpp>

@@ -15,7 +15,7 @@ int solve(int argv, char **args)
     try
     {
         std::string problem, algorithm, formalism, name, upper_bound, lower_bound, ub_init, lb_init;
-        int trials;
+        int trials, truncation;
         number horizon;
         double error, discount;
 
@@ -33,6 +33,7 @@ int solve(int argv, char **args)
         ("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon")
         ("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials")
+        ("truncation", po::value<int>(&truncation)->default_value(-1), "the truncation parameter (for history)")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
@@ -69,7 +70,7 @@ int solve(int argv, char **args)
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
         {
-            auto algo = sdm::algo::make(algorithm, problem, formalism, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, name);
+            auto algo = sdm::algo::make(algorithm, problem, formalism, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, truncation, name);
             algo->do_initialize();
             algo->do_solve();
 

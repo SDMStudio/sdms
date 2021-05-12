@@ -13,6 +13,8 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/core/state/beliefs.hpp>
+#include <sdm/core/state/history.hpp>
 
 namespace sdm
 {
@@ -28,8 +30,8 @@ namespace sdm
                              public std::enable_shared_from_this<BaseOccupancyState<TState, TJointHistory_p>>
   {
   public:
-    using jhistory_type = TJointHistory_p;
     using state_type = TState;
+    using jhistory_type = TJointHistory_p;
 
     BaseOccupancyState();
     BaseOccupancyState(double);
@@ -108,7 +110,6 @@ namespace sdm
     std::string str() const;
     std::string str_hyperplan() const;
 
-
     /**
      *  @brief  Returns an ostream instance
      */
@@ -119,7 +120,6 @@ namespace sdm
     }
 
   protected:
-
     /**
      * @brief the number of agents 
      */
@@ -145,7 +145,21 @@ namespace sdm
      * @brief tuple of private history spaces, one private history space per agent
      */
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
-
   };
+
 } // namespace sdm
 #include <sdm/core/state/base/base_occupancy_state.tpp>
+
+namespace std
+{
+  template <typename S, typename V>
+  struct hash<sdm::BaseOccupancyState<S, V>>
+  {
+    typedef sdm::BaseOccupancyState<S, V> argument_type;
+    typedef std::size_t result_type;
+    inline result_type operator()(const argument_type &in) const
+    {
+      return std::hash<sdm::MappedVector<sdm::Pair<S, V>, double>>()(in);
+    }
+  };
+}

@@ -26,7 +26,7 @@ namespace sdm
         this->list_jhistories = v.list_jhistories;
         this->list_jhistory_states = v.list_jhistory_states;
         this->all_list_ihistories = v.all_list_ihistories;
-        this->num_agents = v.num_agents;       
+        this->num_agents = v.num_agents;
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -196,7 +196,6 @@ namespace sdm
             map[pair_x_o_p.first.second].second[pair_x_o_p.first.first] /= map[pair_x_o_p.first.second].first;
         }
 
-
         res << "<occupancy-state size=\"" << map.size() << "\" horizon=\"" << horizon << "\">" << std::endl;
         for (const auto pair_o_pair_proba_belief : map)
         {
@@ -204,9 +203,24 @@ namespace sdm
             res << "\t<joint-history value=\"" << joint_hist->short_str() << "\" proba=" << pair_o_pair_proba_belief.second.first << " belief=" << pair_o_pair_proba_belief.second.second << "/>" << std::endl;
         }
         res << "</occupancy-state>" << std::endl;
- 
+
         return res.str();
     }
+
+    // template <>
+    // std::string BaseOccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>::str() const
+    // {
+    //     std::ostringstream res, tmp;
+    //     res << "<occupancy-state size=\"" << this->size() << "\" horizon=\"" << "\">" << std::endl;
+    //     for (const auto &pair_belief_history_proba : *this)
+    //     {
+    //         auto joint_hist = pair_belief_history_proba.first.second;
+    //         res << "\t<joint-history value=\"" << joint_hist->short_str() << "\" proba=" << pair_belief_history_proba.second << " belief=" << pair_belief_history_proba.first.first->getData() << "/>" << std::endl;
+    //     }
+    //     res << "</occupancy-state>" << std::endl;
+
+    //     return res.str();
+    // }
 
     template <typename TState, typename TJointHistory_p>
     std::string BaseOccupancyState<TState, TJointHistory_p>::str_hyperplan() const
@@ -225,25 +239,11 @@ namespace sdm
         res << "<simulataneous-hyperplan size=\"" << set.size() << "\" horizon=\"" << horizon << "\">" << std::endl;
         for (const auto joint_hist : set)
         {
-            res << "\t<joint-history name=\"" << joint_hist->short_str() << "\" vector ="<< MappedVector<Pair<TState, TJointHistory_p>, double>::str()<< "/>" << std::endl;
+            res << "\t<joint-history name=\"" << joint_hist->short_str() << "\" vector =" << MappedVector<Pair<TState, TJointHistory_p>, double>::str() << "/>" << std::endl;
         }
         res << "</simulataneous-hyperplan>" << std::endl;
- 
+
         return res.str();
     }
 
 } // namespace sdm
-
-namespace std
-{
-    template <typename S, typename V>
-    struct hash<sdm::BaseOccupancyState<S, V>>
-    {
-        typedef sdm::BaseOccupancyState<S, V> argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            return std::hash<sdm::MappedVector<sdm::Pair<S, V>, double>>()(in);
-        }
-    };
-}
