@@ -5,7 +5,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP()
     {
-        this->setTStateType(TState_t::ONE_STEP_UNCOMPRESSED);
+        this->setTStateType(ONE_STEP_UNCOMPRESSED);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -15,7 +15,7 @@ namespace sdm
           current_type_of_resolution_(current_type_of_resolution),
           bigM_value_(bigM_value)
     {
-        this->setTStateType(TState_t::ONE_STEP_UNCOMPRESSED);
+        this->setTStateType(ONE_STEP_UNCOMPRESSED);
     }
 
     template <typename TState, typename TAction, typename TValue>

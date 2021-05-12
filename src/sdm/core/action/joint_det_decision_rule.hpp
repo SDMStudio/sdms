@@ -17,40 +17,59 @@ namespace sdm
     template <typename TState, typename TAction>
     class JointDeterministicDecisionRule
         : public Joint<DeterministicDecisionRule<TState, TAction>>,
-          public Function<Joint<TState>, Joint<TAction>>
+          public DecisionRule<Joint<TState>, Joint<TAction>>
     {
     public:
         using input_type = TState;
         using output = TAction;
-        using output_type = typename Function<Joint<TState>, Joint<TAction>>::output_type;
+        using output_type = typename DecisionRule<Joint<TState>, Joint<TAction>>::output_type;
 
         JointDeterministicDecisionRule();
-        JointDeterministicDecisionRule(const std::vector<DeterministicDecisionRule<TState, TAction>> &idr_list);
+        JointDeterministicDecisionRule(const std::vector<DeterministicDecisionRule<TState, TAction>> &individual_decision_rules);
         JointDeterministicDecisionRule(std::vector<std::vector<TState>> acc_states, std::vector<std::vector<TAction>> actions);
 
-        Joint<TAction> act(const Joint<TState> &jobserv) const;
+        Joint<TAction> act(const Joint<TState> &joint_state) const;
+
         Joint<TAction> operator()(const Joint<TState> &s);
+
+        /**
+         * @brief Get the probability of joint action 'action' in joint state 'state'
+         * 
+         * @param state the joint state
+         * @param action the joint action
+         * @param proba the probability
+         */
+        double getProbability(const Joint<TState> &state, const Joint<TAction> &action);
+
+        /**
+         * @brief Get the probability of action 'action' in state 'state' for agent id 
+         * 
+         * @param agent_id the agent identifier
+         * @param state the state 
+         * @param action the action
+         * @return the probability selecting action 'action' in state 'state' 
+         */
+        double getProbability(const number &agent_id, const TState &state, const TAction &action);
+
+        /**
+         * @brief Sets the probability of selecting action a when observing state s.
+         * 
+         * @param state the joint state
+         * @param action the joint action
+         * @param proba the probability
+         */
+        void setProbability(const Joint<TState> &state, const Joint<TAction> &action, double = 0);
 
         friend std::ostream &operator<<(std::ostream &os, const JointDeterministicDecisionRule<TState, TAction> &dr)
         {
             os << "<joint-decision-rule>" << std::endl;
-            for (auto idr : dr)
+            for (const auto &idr : dr)
             {
                 os << idr << std::endl;
             }
             os << "<joint-decision-rule/>" << std::endl;
             return os;
         }
-
-    /**
-     * @brief Add probability 
-     * 
-     * @param const TState&
-     * @param const TAction&
-     * 
-     */
-    void setProbability(const std::vector<TState>& , const std::vector<TAction>&);
-
     };
 
     template <typename TState, typename TAction>
