@@ -11,13 +11,12 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/world/po_decision_process.hpp>
-#include <sdm/world/belief_mdp.hpp>
 
+#include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/po_decision_process.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
-#include <sdm/core/state/state.hpp>
 
 namespace sdm
 {

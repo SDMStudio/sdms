@@ -14,6 +14,7 @@
 #include <sdm/core/joint.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/state/beliefs.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 
 #include <sdm/world/solvable_by_hsvi.hpp>
@@ -21,6 +22,7 @@
 #include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/discrete_decpomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/base/base_occupancy_mdp.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
@@ -40,112 +42,57 @@ namespace sdm
      * @tparam TAction the occupancy action type 
      */
     template <typename TState = OccupancyState<number, JointHistoryTree_p<number>>,
-                typename TAction = JointDeterministicDecisionRule<HistoryTree_p<number>, number>>
-    class OccupancyMDP : public SolvableByHSVI<TState, TAction>,
-                         public GymInterface<TState, TAction>
+              typename TAction = JointDeterministicDecisionRule<HistoryTree_p<number>, number>>
+    class OccupancyMDP : public BaseOccupancyMDP<TState, TAction>
     {
-    protected:
-        std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
-        std::shared_ptr<TState> initial_state_, current_state_;
-        typename TState::jhistory_type initial_history_ = nullptr, current_history_ = nullptr;
-
     public:
         using state_type = TState;
         using action_type = TAction;
-        // using observation_type = oObservation;
+        // using observation_type = TObservation;
 
         OccupancyMDP();
+        OccupancyMDP(std::string dpomdp_name, number max_history_length = -1);
+        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> dpomdp, number max_history_length = -1);
 
-        /**
-         * @brief Construct a new Occupancy MDP  
-         * 
-         * @param underlying_dpomdp the underlying DecPOMDP (as a filename)
-         * @param hist_length the maximum length of the history
-         */
-        OccupancyMDP(std::string, number = -1);
-
-        /**
-         * @brief Construct a new Occupancy MDP  
-         * 
-         * @param underlying_dpomdp the underlying DecPOMDP 
-         * @param hist_length the maximum length of the history
-         */
-        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
-
-        // ---------- RL GymInterface -------------
-        TState reset();
-        TState &getState();
-        std::tuple<TState, std::vector<double>, bool> step(TAction);
-
-        // ---------- HSVI exact interface -------------
-        bool isSerialized() const;
-        DiscreteDecPOMDP *getUnderlyingProblem();
-
-        TState getInitialState();
+        void initialize(number history_length);
+        std::tuple<TState, std::vector<double>, bool> step(TAction decision_rule);
+        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &occupancy_state);
         TState nextState(const TState &, const TAction &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const;
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
+        double getReward(const TState &occupancy_state, const TAction &decision_rule) const;
+    };
 
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
+    // ##############################################################################################################################
+    // ############################ SPECIALISATION FOR BeliefOccupancyState Structure ###############################################
+    // ##############################################################################################################################
 
-        double getReward(const TState &, const TAction &) const;
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState &, const TAction &, number = 0) const;
+    /**
+     * @brief Specialisation of occupancy mdp in the case of occupancy states. 
+     * 
+     * @tparam TActionDescriptor the action type
+     * @tparam TObservation the observation type
+     * @tparam TActionPrescriptor the action type (controller's one)
+     */
+    template <typename TActionDescriptor, typename TObservation, typename TActionPrescriptor>
+    class OccupancyMDP<OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>, TActionPrescriptor>
+        : public BaseOccupancyMDP<OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>, TActionPrescriptor>
+    {
+    public:
+        using state_type = OccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
+        using action_type = TActionPrescriptor;
+        using observation_type = TObservation;
 
-        // ---------- Other -------------
-        /**
-         * @brief Get the corresponding Markov Decision Process. 
-         * 
-         * @return std::shared_ptr<DiscreteMDP> 
-         */
-        std::shared_ptr<DiscreteMDP> toMDP();
+        OccupancyMDP();
+        OccupancyMDP(std::string dpomdp_name, number max_history_length = -1);
+        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> dpomdp, number max_history_length = -1);
 
-        /**
-         * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
-         * @warning The above comment is wrong!!!
-         * @return a belief MDP
-         */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+        void initialize(number history_length);
+        std::tuple<state_type, std::vector<double>, bool> step(action_type decision_rule);
 
-
-        /**
-         * @brief Get the specific discount factor for the problem at hand
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getDiscount(number = 0);
-
-        
-        /**
-         * @brief Get the specific weighted discount factor for the problem at hand
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getWeightedDiscount(number);
-
-
-        /**
-         * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
-         * 
-         * @param double : incumbent 
-         * @param double : lb value
-         * @param double : ub value
-         * @param double : cost_so_far 
-         * @param double : error 
-         * @param number : horizon 
-         * @return double 
-         */
-        double do_excess(double, double, double, double, double, number);
-
-
-        /**
-         * @brief Select the next action
-         * 
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the lower bound
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the upper bound
-         * @param const TState & s : current state
-         * @param number h : horizon
-         * @return TAction 
-         */
-        TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>& lb, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h);
-     };
+        std::shared_ptr<DiscreteSpace<action_type>> getActionSpaceAt(const state_type &occupancy_state);
+        state_type nextState(const state_type &, const action_type &, number, std::shared_ptr<HSVI<state_type, action_type>>, bool) const;
+        state_type nextState(const state_type &, const action_type &, number = 0, std::shared_ptr<HSVI<state_type, action_type>> = nullptr) const;
+        double getReward(const state_type &occupancy_state, const action_type &decision_rule) const;
+    };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>

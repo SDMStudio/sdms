@@ -81,6 +81,7 @@ namespace sdm
          * @return T 
          */
         T operator^(const MappedVector &) const;
+        T operator*(const MappedVector &) const;
 
         bool operator==(const MappedVector &) const;
         bool operator!=(const MappedVector &) const;

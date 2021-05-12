@@ -7,7 +7,7 @@ namespace sdm
   }
 
   template <typename TVector, typename TAction, typename TValue>
-  template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
+  template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int>>
   TAction DecentralizedConstraintsLP<TVector, TAction, TValue>::getDecentralizedVariables(const IloCplex &cplex, const IloNumVarArray &var, const TVector &occupancy_state, number)
   {
     number index = 0;
@@ -21,9 +21,9 @@ namespace sdm
       actions.push_back({});
     }
 
-    for (const auto joint_history : occupancy_state.getJointHistories())
+    for (const auto &joint_history : occupancy_state.getJointHistories())
     {
-      for (auto u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
+      for (const auto &u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
       {
         index = this->getNumber(this->getVarNameJointHistoryDecisionRule(u, joint_history));
 
@@ -31,7 +31,7 @@ namespace sdm
         {
           for (number ag_id = 0; ag_id < this->world_->getUnderlyingProblem()->getNumAgents(); ag_id++)
           {
-            joint_histories[ag_id].push_back(joint_history->getIndividualHistories()[ag_id]);
+            joint_histories[ag_id].push_back(joint_history->getIndividualHistory(ag_id));
             actions[ag_id].push_back(u.get(ag_id));
           }
         }
@@ -41,7 +41,7 @@ namespace sdm
   }
 
   template <typename TVector, typename TAction, typename TValue>
-  template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
+  template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int>>
   void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, number &index, number)
   {
     //<! tracking variables
@@ -77,7 +77,7 @@ namespace sdm
   }
 
   template <typename TVector, typename TAction, typename TValue>
-  template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
+  template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int>>
   void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &c, number)
   {
     number recover = 0;

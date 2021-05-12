@@ -116,6 +116,18 @@ namespace sdm
         }
     }
 
+    template <>
+    std::pair<double, number> SawtoothValueFunction<number, number, double>::getMaxAt(const number &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
+    }
+
+    template <>
+    std::pair<double, SerializedState> SawtoothValueFunction<SerializedState, number, double>::getMaxAt(const SerializedState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
+    }
+
     template <typename TState, typename TAction, typename TValue>
     TState_t SawtoothValueFunction<TState, TAction, TValue>::getTStateType()
     {
