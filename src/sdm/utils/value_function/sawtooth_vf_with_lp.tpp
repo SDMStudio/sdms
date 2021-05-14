@@ -138,17 +138,15 @@ namespace sdm
             {
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
-
                 // auto vub_0 = this->getQValueAt(occupancy_state, a, t);
-                // // auto vub_0 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
                 // auto vub_1 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
-                // auto vub_2 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * MappedValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t + 1);
+                // auto vub_2 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t + 1);
 
                 // if (std::abs(cub - vub_0) > 0.01)
                 // {
                 //     std::cout << "------------------------------------------------------------------------" << std::endl;
                 //     std::cout << "horizon:" << t << "\tcompressed occupancy state:" << occupancy_state << std::endl;
-                //     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2("+std::to_string(vub_2)+")");
+                //     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
                 // }
             }
         }
@@ -172,41 +170,49 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, double /*cub*/, number t)
     {
-        //<! tracking variable ids
-        number index = 0;
+        try{
+            //<! tracking variable ids
+            number index = 0;
 
-        //<! tracking variables
-        std::string VarName;
+            //<! tracking variables
+            std::string VarName;
 
-        this->variables.clear();
+            this->variables.clear();
 
-        //<! 0.b Build variables v_0 = objective variable!
-        VarName = this->getVarNameWeight(0);
-        var.add(IloNumVar(env, -IloInfinity, 0.0, VarName.c_str()));
-        this->setNumber(VarName, index++);
+            //<! 0.b Build variables v_0 = objective variable!
+            VarName = this->getVarNameWeight(0);
+            var.add(IloNumVar(env, -IloInfinity, 0.0, VarName.c_str()));
+            this->setNumber(VarName, index++);
 
-        //<! Define variables \omega_k(x',o')
+            //<! Define variables \omega_k(x',o')
 
-        // Go over all Point Set in t+1
-        for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t + 1])
-        {
-            const auto &next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
-
-            // Go over all Joint History Next
-            for (const auto &hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
+            // Go over all Point Set in t+1
+            for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t + 1])
             {
-                auto hidden_state_AND_joint_history = hidden_state_AND_joint_history_AND_probability.first;
+                const auto &next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
 
-                auto hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
-                auto joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
+                // Go over all Joint History Next
+                for (const auto &hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
+                {
+                    auto hidden_state_AND_joint_history = hidden_state_AND_joint_history_AND_probability.first;
 
-                // <! \omega_k(x',o')
-                VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, hidden_state, joint_history);
-                var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
-                this->setNumber(VarName, index++);
+                    auto hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
+                    auto joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
+
+                    // <! \omega_k(x',o')
+                    VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, hidden_state, joint_history);
+                    var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
+                    this->setNumber(VarName, index++);
+                }
             }
+            this->template setDecentralizedVariables<TState>(occupancy_state, ihs, env, var, index, t);
         }
-        this->template setDecentralizedVariables<TState>(occupancy_state, ihs, env, var, index, t);
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -219,24 +225,32 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyObjective(const TState &compressed_occupancy_state, IloObjective &obj, IloNumVarArray &var, number t)
     {
-        // <! 1.a get variable v
-        auto recover = this->getNumber(this->getVarNameWeight(0));
+        try{
+            // <! 1.a get variable v
+            auto recover = this->getNumber(this->getVarNameWeight(0));
 
-        //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v0"
-        obj.setLinearCoef(var[recover], this->getWorld()->getUnderlyingProblem()->getDiscount(t));
+            //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v0"
+            obj.setLinearCoef(var[recover], this->getWorld()->getUnderlyingProblem()->getDiscount(t));
 
-        // Go over all joint history
-        for (const auto &joint_history : compressed_occupancy_state.getJointHistories())
-        {
-            // Go over all action
-            for (const auto &action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+            // Go over all joint history
+            for (const auto &joint_history : compressed_occupancy_state.getJointHistories())
             {
-                //<! 1.c.4 get variable a(u|o)
-                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
+                // Go over all action
+                for (const auto &action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+                {
+                    //<! 1.c.4 get variable a(u|o)
+                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
-                //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
-                obj.setLinearCoef(var[recover], this->template getQValueRelaxation<TState>(compressed_occupancy_state, joint_history, action, t));
+                    //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
+                    obj.setLinearCoef(var[recover], this->template getQValueRelaxation<TState>(compressed_occupancy_state, joint_history, action, t));
+                }
             }
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyObjective(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
         }
     }
 
@@ -245,11 +259,19 @@ namespace sdm
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, number t)
     {
         auto weight = 0.0;
-        // Go over all state conditionning a joint history
-        for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
+        try{
+            // Go over all state conditionning a joint history
+            for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
+            {
+                // \sum_{x} s(x,o) * Q_MDP(x,u)
+                weight += compressed_occupancy_state.at(std::make_pair(x, joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->getQValueAt(x, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), t);
+            }
+        }
+        catch (const std::exception &exc)
         {
-            // \sum_{x} s(x,o) * Q_MDP(x,u)
-            weight += compressed_occupancy_state.at(std::make_pair(x, joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->getQValueAt(x, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), t);
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
         }
         return weight;
     }
@@ -264,58 +286,66 @@ namespace sdm
         assert(this->getInitFunction() != nullptr);
         number recover = 0;
 
-        // Go over all points in the point set at t+1
-        for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t + 1])
-        {
-            const auto &next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
-            auto current_upper_bound = next_one_step_uncompressed_occupancy_state_AND_upper_bound.second;
-
-            // Compute the difference i.e. (v_k - V_k)
-            auto initial_upper_bound = this->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
-            auto difference = current_upper_bound - initial_upper_bound;
-
-            // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-            for (const auto &pair_hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
+       try{
+            // Go over all points in the point set at t+1
+            for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t + 1])
             {
-                // Takes all the necessary variables for computation
-                auto probability = pair_hidden_state_AND_joint_history_AND_probability.second;
-                auto hidden_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
+                const auto &next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
+                auto current_upper_bound = next_one_step_uncompressed_occupancy_state_AND_upper_bound.second;
 
-                auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
-                auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
+                // Compute the difference i.e. (v_k - V_k)
+                auto initial_upper_bound = this->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
+                auto difference = current_upper_bound - initial_upper_bound;
 
-                auto joint_history = next_joint_history->getParent();
-                auto next_observation = next_joint_history->getData();
-
-                // Build the sawtooth constraint depending on the type of resolution choiced
-                switch (this->current_type_of_resolution_)
+                // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
+                for (const auto &pair_hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
                 {
-                case TypeOfResolution::BigM:
-                    this->template setGreedySawtoothBigM<TState>(compressed_occupancy_state,joint_history,next_hidden_state,next_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,con,var,index, t);
-                    break;
-                case TypeOfResolution::IloIfThenResolution:
-                    this->template setGreedySawtoothIloIfThen<TState>(compressed_occupancy_state,joint_history,next_hidden_state,next_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,model,var, t);
-                    break;
+                    // Takes all the necessary variables for computation
+                    auto probability = pair_hidden_state_AND_joint_history_AND_probability.second;
+                    auto hidden_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
+
+                    auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
+                    auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
+
+                    auto joint_history = next_joint_history->getParent();
+                    auto next_observation = next_joint_history->getData();
+
+                    // Build the sawtooth constraint depending on the type of resolution choiced
+                    switch (this->current_type_of_resolution_)
+                    {
+                    case TypeOfResolution::BigM:
+                        this->template setGreedySawtoothBigM<TState>(compressed_occupancy_state,joint_history,next_hidden_state,next_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,con,var,index, t);
+                        break;
+                    case TypeOfResolution::IloIfThenResolution:
+                        this->template setGreedySawtoothIloIfThen<TState>(compressed_occupancy_state,joint_history,next_hidden_state,next_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,model,var, t);
+                        break;
+                    }
+
                 }
 
+                // Build constraint \sum{x',o'} \omega_k(x',o') = 1
+                con.add(IloRange(env, 1.0, 1.0));
+                for (const auto &pair_hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
+                {
+                    auto hidden_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
+
+                    auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
+                    auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
+
+                    // <! \omega_k(x',o')
+                    auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
+
+                    recover = this->getNumber(VarName);
+                    con[index].setLinearCoef(var[recover], +1.0);
+                }
+                index++;
             }
-
-            // Build constraint \sum{x',o'} \omega_k(x',o') = 1
-            con.add(IloRange(env, 1.0, 1.0));
-            for (const auto &pair_hidden_state_AND_joint_history_AND_probability : next_one_step_uncompressed_occupancy_state)
-            {
-                auto hidden_state_AND_joint_history = pair_hidden_state_AND_joint_history_AND_probability.first;
-
-                auto next_hidden_state = next_one_step_uncompressed_occupancy_state.getState(hidden_state_AND_joint_history);
-                auto next_joint_history = next_one_step_uncompressed_occupancy_state.getHistory(hidden_state_AND_joint_history);
-
-                // <! \omega_k(x',o')
-                auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
-
-                recover = this->getNumber(VarName);
-                con[index].setLinearCoef(var[recover], +1.0);
-            }
-            index++;
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
         }
     }
 
@@ -323,24 +353,32 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothBigM(const TState &compressed_occupancy_state, typename TState::jhistory_type &joint_history, typename TState::state_type &next_hidden_state, typename TState::observation_type &next_observation, typename TState::jhistory_type &next_joint_history, const TState &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number )
     {
-        con.add(IloRange(env, -IloInfinity, this->bigM_value_));
-        con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
+       try{
+            con.add(IloRange(env, -IloInfinity, this->bigM_value_));
+            con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
-        if (compressed_occupancy_state.getJointHistories().find(joint_history) != compressed_occupancy_state.getJointHistories().end())
-        {
-            // Go over all actions
-            for (const auto &action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+            if (compressed_occupancy_state.getJointHistories().find(joint_history) != compressed_occupancy_state.getJointHistories().end())
             {
-                //<! 1.c.4 get variable a(u|o) and set constant
-                con[index].setLinearCoef(var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))], -this->getQValueRealistic(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, probability, difference));
+                // Go over all actions
+                for (const auto &action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+                {
+                    //<! 1.c.4 get variable a(u|o) and set constant
+                    con[index].setLinearCoef(var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))], -this->getQValueRealistic(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, probability, difference));
+                }
             }
-        }
 
         // <! \omega_k(x',o') * BigM
         auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
         con[index].setLinearCoef(var[this->getNumber(VarName)], this->bigM_value_);
 
-        index++;
+            index++;
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothBigM(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -349,23 +387,31 @@ namespace sdm
     {
         number recover = 0;
 
-        IloExpr expr(env);
-        //<! 1.c.1 get variable v and set coefficient of variable v
-        expr = var[this->getNumber(this->getVarNameWeight(0))];
+       try{
+            IloExpr expr(env);
+            //<! 1.c.1 get variable v and set coefficient of variable v
+            expr = var[this->getNumber(this->getVarNameWeight(0))];
 
-        if(compressed_occupancy_state.getJointHistories().find(joint_history) != compressed_occupancy_state.getJointHistories().end())
-        {
-            // Go over all actions
-            for(const auto & action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+            if(compressed_occupancy_state.getJointHistories().find(joint_history) != compressed_occupancy_state.getJointHistories().end())
             {
-                //<! 1.c.4 get variable a(u|o) and set constant 
-                expr -= this->getQValueRealistic(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, probability, difference) * var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))];
-            } 
-        }               
+                // Go over all actions
+                for(const auto & action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+                {
+                    //<! 1.c.4 get variable a(u|o) and set constant 
+                    expr -= this->getQValueRealistic(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, probability, difference) * var[this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history))];
+                } 
+            }               
 
-        // <! get variable \omega_k(x',o')
-        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
-        model.add( IloIfThen(env, var[recover] > 0, expr <= 0) );
+            // <! get variable \omega_k(x',o')
+            recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
+            model.add( IloIfThen(env, var[recover] > 0, expr <= 0) );
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothIloIfThen(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -374,11 +420,19 @@ namespace sdm
     {
         auto factor = 0.0;
 
-        // Go over all state conditionning to a joint history
-        for (const auto &hidden_state : compressed_occupancy_state.getStatesAt(joint_history))
+        try{
+            // Go over all state conditionning to a joint history
+            for (const auto &hidden_state : compressed_occupancy_state.getStatesAt(joint_history))
+            {
+                // \sum_{x} s(x,o) * p_{x,u,z',x'}
+                factor += compressed_occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
+            }
+        }
+        catch (const std::exception &exc)
         {
-            // \sum_{x} s(x,o) * p_{x,u,z',x'}
-            factor += compressed_occupancy_state.at(std::make_pair(hidden_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getObsDynamics()->getDynamics(hidden_state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), this->getWorld()->getUnderlyingProblem()->getObsSpace()->joint2single(next_observation), next_hidden_state);
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothMinimumRatio(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
         }
 
         return factor / denominator;
