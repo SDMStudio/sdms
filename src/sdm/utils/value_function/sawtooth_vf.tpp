@@ -20,7 +20,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     TValue SawtoothValueFunction<TState, TAction, TValue>::getValueAt(const TState &state, number t)
     {
-
         TState state_ = state;
         // switch (this->ctype)
         // {
@@ -28,7 +27,7 @@ namespace sdm
         //         state_ = *state.getFullyUncompressedOccupancy();
         //     case TState_t::ONE_STEP_UNCOMPRESSED:
         //         state_ = *state.getOneStepUncompressedOccupancy();
-        //     default :
+        //     default:
         //         state_ = state;
         // }
 
@@ -51,12 +50,67 @@ namespace sdm
         }
     }
 
+    template <>
+    double SawtoothValueFunction<number, number, double>::getValueAt(const number &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
+    }
+
+    template <>
+    double SawtoothValueFunction<SerializedState, number, double>::getValueAt(const SerializedState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
+    }
+
+    template <>
+    double SawtoothValueFunction<BeliefState, number, double>::getValueAt(const BeliefState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
+    }
+
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
     {
-        MappedValueFunction<TState, TAction, TValue>::updateValueAt(state, t, this->getBackupOperator().backup(this->getptr(), state, t));
+
+        TState state_;
+        switch (this->ctype)
+        {
+            case TState_t::FULLY_UNCOMPRESSED:
+                state_ = *state.getFullyUncompressedOccupancy();
+            case TState_t::ONE_STEP_UNCOMPRESSED:
+                state_ = *state.getOneStepUncompressedOccupancy();
+            default:
+                state_ = state;
+        }
+
+        MappedValueFunction<TState, TAction, TValue>::updateValueAt(state_, t, this->getBackup(state, t));
         // this->prune(t);
     }
+
+    template <>
+    void SawtoothValueFunction<number, number, double>::updateValueAt(const number &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
+    }
+
+    template <>
+    void SawtoothValueFunction<SerializedState, number, double>::updateValueAt(const SerializedState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
+    }
+
+    template <>
+    void SawtoothValueFunction<BeliefState, number, double>::updateValueAt(const BeliefState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TValue SawtoothValueFunction<TState, TAction, TValue>::getBackup(const TState &state, number t)
+    {
+        return this->getBackupOperator().backup(this->getptr(), state, t);
+    }
+
 
     template <typename TState, typename TAction, typename TValue>
     std::pair<TValue, TState> SawtoothValueFunction<TState, TAction, TValue>::getMaxAt(const TState &state, number t)

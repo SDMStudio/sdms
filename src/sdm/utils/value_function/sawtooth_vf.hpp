@@ -45,6 +45,9 @@ namespace sdm
 
         void updateValueAt(const TState &state, number t);
 
+        TValue getBackup(const TState &state, number t);
+
+
         std::pair<TValue, TState> getMaxAt(const TState &state, number t);
 
         /**

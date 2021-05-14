@@ -96,6 +96,12 @@ namespace sdm
     REW_MAX
   };
 
+  enum TypeOfResolution 
+  { 
+      BigM,
+      IloIfThenResolution
+  };
+
   class World;
   class DiscreteMDP;
   class DiscreteMMDP;

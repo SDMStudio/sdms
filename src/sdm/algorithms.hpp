@@ -18,6 +18,8 @@
 
 #include <sdm/utils/value_function/sawtooth_vf.hpp>
 #include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
+#include <sdm/utils/value_function/sawtooth_vf_with_lp_relaxed.hpp>
+
 
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -96,6 +98,10 @@ namespace sdm
             else if (upper_bound_name == "sawtooth_lp")
             {
                 upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
+            }
+            else if (upper_bound_name == "sawtooth_lp_relaxed")
+            {
+                upper_bound = std::make_shared<sdm::SawtoothValueFunctionLPRelaxed<TState, TAction>>(problem, horizon, ub_init);
             }
             else
             {

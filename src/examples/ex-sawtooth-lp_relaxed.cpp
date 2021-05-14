@@ -8,7 +8,7 @@
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 
 #include<sdm/algorithms.hpp>
-#include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
+#include <sdm/utils/value_function/sawtooth_vf_with_lp_relaxed.hpp>
 
 
 using namespace sdm;
@@ -20,9 +20,6 @@ int main(int argc, char **argv)
     number discount = 1;
     double error = 0.00001;
     number trials = 100;
-
-	TypeOfResolution type_of_resolution = TypeOfResolution::BigM;
-	auto ValueBigM = 100;
 
 	if (argc > 2)
 	{
@@ -63,7 +60,7 @@ int main(int argc, char **argv)
 		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, lb_init); 
 
 		// Instanciate the Sawtooth version for the upper bound 
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<SawtoothValueFunctionLP<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, ub_init,type_of_resolution,ValueBigM);
+		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<SawtoothValueFunctionLPRelaxed<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, ub_init);
 
 		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-SawtoothLP-OccupancyMDP");
 

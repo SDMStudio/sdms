@@ -25,11 +25,55 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
+    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getBackup(const TState &compressed_occupancy_state, number t)
+    {
+        double cub = 0;
+        this->greedySawtooth(compressed_occupancy_state, cub, t);
+        return cub;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
     TAction SawtoothValueFunctionLP<TState, TAction, TValue>::getBestAction(const TState &compressed_occupancy_state, number t)
     {
         double cub = 0;
         return this->greedySawtooth(compressed_occupancy_state, cub, t);
     }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::updateValueAt(const TState &occupancy_state, number t)
+    {
+        double cub = 0;
+
+        this->greedySawtooth(occupancy_state, cub, t);
+
+        switch (this->ctype)
+        {
+            case TState_t::FULLY_UNCOMPRESSED:
+                MappedValueFunction<TState, TAction, TValue>::updateValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t, cub);
+                break;
+            case TState_t::ONE_STEP_UNCOMPRESSED:
+                MappedValueFunction<TState, TAction, TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);
+                break;
+            default:
+                MappedValueFunction<TState, TAction, TValue>::updateValueAt(occupancy_state, t, cub);
+                break;
+        }
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getValueAt(const TState &occupancy_state, number t)
+    {
+        switch (this->ctype)
+        {
+        case TState_t::FULLY_UNCOMPRESSED:
+            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t);
+        case TState_t::ONE_STEP_UNCOMPRESSED:
+            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t);
+        default:
+            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(occupancy_state, t);
+        }
+    }
+
 
     template <typename TState, typename TAction, typename TValue>
     TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedySawtooth(const TState &occupancy_state, double &cub, number t)
@@ -95,17 +139,17 @@ namespace sdm
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
 
-                auto vub_0 = this->getQValueAt(occupancy_state, a, t);
-                // auto vub_0 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
-                auto vub_1 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
-                auto vub_2 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t + 1);
+                // auto vub_0 = this->getQValueAt(occupancy_state, a, t);
+                // // auto vub_0 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
+                // auto vub_1 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
+                // auto vub_2 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * MappedValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t + 1);
 
-                if (std::abs(cub - vub_0) > 0.01)
-                {
-                    std::cout << "------------------------------------------------------------------------" << std::endl;
-                    std::cout << "horizon:" << t << "\tcompressed occupancy state:" << occupancy_state << std::endl;
-                    throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
-                }
+                // if (std::abs(cub - vub_0) > 0.01)
+                // {
+                //     std::cout << "------------------------------------------------------------------------" << std::endl;
+                //     std::cout << "horizon:" << t << "\tcompressed occupancy state:" << occupancy_state << std::endl;
+                //     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2("+std::to_string(vub_2)+")");
+                // }
             }
         }
         catch (IloException &e)
@@ -292,6 +336,7 @@ namespace sdm
             }
         }
 
+        // <! \omega_k(x',o') * BigM
         auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
         con[index].setLinearCoef(var[this->getNumber(VarName)], this->bigM_value_);
 
@@ -338,42 +383,7 @@ namespace sdm
 
         return factor / denominator;
     }
-
-    template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::updateValueAt(const TState &occupancy_state, number t)
-    {
-        double cub = 0;
-
-        this->greedySawtooth(occupancy_state, cub, t);
-
-        switch (this->ctype)
-        {
-        case TState_t::FULLY_UNCOMPRESSED:
-            MappedValueFunction<TState, TAction, TValue>::updateValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t, cub);
-            break;
-        case TState_t::ONE_STEP_UNCOMPRESSED:
-            MappedValueFunction<TState, TAction, TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);
-            break;
-        default:
-            MappedValueFunction<TState, TAction, TValue>::updateValueAt(occupancy_state, t, cub);
-            break;
-        }
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getValueAt(const TState &occupancy_state, number t)
-    {
-        switch (this->ctype)
-        {
-        case TState_t::FULLY_UNCOMPRESSED:
-            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t);
-        case TState_t::ONE_STEP_UNCOMPRESSED:
-            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t);
-        default:
-            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(occupancy_state, t);
-        }
-    }
-
+    
     // --------------------------------------------------------------------------
     // -------------  SerializedOccupancyState<TState, JointHistory>  ----------------
     // --------------------------------------------------------------------------
@@ -442,7 +452,7 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothMinimumRatio(const TState &compressed_serial_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, typename TState::state_type next_hidden_serial_state, typename TState::observation_type next_observation, double denominator)
     {
-        auto factor = 0.0;
+        double factor = 0.0;
 
         // Go over all hidden serial state  conditional to a joint_history
         for (const auto &hidden_serial_state : compressed_serial_occupancy_state.getStatesAt(joint_history))
@@ -490,7 +500,7 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
 
                 double res = 0;
-                for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistoryOverIndividualHistories(agent_id,indiv_history))
+                for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistories())
                 {
                     if(joint_history->getIndividualHistory(agent_id) == indiv_history)
                     {
@@ -524,7 +534,7 @@ namespace sdm
                 con[index].setLinearCoef(var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))], -this->getQValueRealistic(compressed_serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, probability, difference));
             }
         }
-
+        // <! \omega_k(x',o') * BigM
         auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_serial_occupancy_state, next_hidden_state, next_joint_history);
         con[index].setLinearCoef(var[this->getNumber(VarName)], this->bigM_value_);
 
@@ -538,7 +548,6 @@ namespace sdm
         number agent_id = compressed_serial_occupancy_state.getCurrentAgentId();
         // Gets the current individual history conditional on the current joint history
         auto indiv_history = joint_history->getIndividualHistory(agent_id);
-
 
         number recover = 0;
 
