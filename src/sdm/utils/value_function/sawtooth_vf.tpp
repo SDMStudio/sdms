@@ -20,22 +20,34 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     TValue SawtoothValueFunction<TState, TAction, TValue>::getValueAt(const TState &state, number t)
     {
+
+        TState state_ = state;
+        // switch (this->ctype)
+        // {
+        //     case TState_t::FULLY_UNCOMPRESSED:
+        //         state_ = *state.getFullyUncompressedOccupancy();
+        //     case TState_t::ONE_STEP_UNCOMPRESSED:
+        //         state_ = *state.getOneStepUncompressedOccupancy();
+        //     default :
+        //         state_ = state;
+        // }
+
         if (this->isInfiniteHorizon())
         {
-            return this->getMaxAt(state, 0).first;
+            return this->getMaxAt(state_, 0).first;
         }
         else
         {
             bool already_exist = false;
             for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
             {
-                if (iter->first == state)
+                if (iter->first == state_)
                 {
                     already_exist = true;
                 }
             }
 
-            return (already_exist) ? this->representation[t].at(state) : this->getMaxAt(state, t).first;
+            return (already_exist) ? this->representation[t].at(state_) : this->getMaxAt(state_, t).first;
         }
     }
 

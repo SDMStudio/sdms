@@ -36,33 +36,32 @@ int main(int argc, char **argv)
 	try
 	{
 
-		using TObservation = number;
-		using TState = number;
-
-		using TActionDescriptor = number;
-		using TStateDescriptor = HistoryTree_p<TObservation>;
-
-		using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
-		using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+		using TActionPrescriptor = DeterministicDecisionRule<HistoryTree_p<number>, number>;
+		using TStatePrescriptor = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;;
 
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>>  oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);        
+		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>>  soMDP = std::make_shared<SerializedOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);        
 
-		oMDP->getUnderlyingProblem()->setDiscount(discount);
-		oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
+		soMDP->getUnderlyingProblem()->setDiscount(discount);
+		soMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
+
+		if (soMDP->isSerialized())
+		{
+			horizon = horizon * soMDP->getUnderlyingProblem()->getNumAgents();
+		}
 
 		// Instanciate initializers 
 		auto lb_init = std::make_shared<MinInitializer<TStatePrescriptor, TActionPrescriptor>>();
 		auto ub_init = sdm::makeInitializer<TStatePrescriptor, TActionPrescriptor>("MdpHsviInitializer");
 
 		// Instanciate the Tabular version for the lower bound
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, lb_init); 
+		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(soMDP, horizon, lb_init); 
 
 		// Instanciate the Sawtooth version for the upper bound 
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<SawtoothValueFunctionLP<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, ub_init);
+		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<SawtoothValueFunctionLP<TStatePrescriptor, TActionPrescriptor>>(soMDP, horizon, ub_init);
 
-		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-SawtoothLP-OccupancyMDP");
+		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(soMDP, lower_bound, upper_bound, horizon, error, trials, "Example-SawtoothLP-SerialOccupancyMDP");
 
 		//Initialization of HSVI
 		p_algo->do_initialize();
