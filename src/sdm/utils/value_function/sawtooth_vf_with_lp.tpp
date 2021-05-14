@@ -94,18 +94,17 @@ namespace sdm
             {
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
+                // auto vub_0 = this->getQValueAt(occupancy_state, a, t);
+                // // auto vub_0 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
+                // auto vub_1 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
+                // auto vub_2 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t + 1);
 
-                auto vub_0 = this->getQValueAt(occupancy_state, a, t);
-                // auto vub_0 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
-                auto vub_1 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
-                auto vub_2 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t + 1);
-
-                if (std::abs(cub - vub_0) > 0.01)
-                {
-                    std::cout << "------------------------------------------------------------------------" << std::endl;
-                    std::cout << "horizon:" << t << "\tcompressed occupancy state:" << occupancy_state << std::endl;
-                    throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
-                }
+                // if (std::abs(cub - vub_0) > 0.01)
+                // {
+                //     std::cout << "------------------------------------------------------------------------" << std::endl;
+                //     std::cout << "horizon:" << t << "\tcompressed occupancy state:" << occupancy_state << std::endl;
+                //     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
+                // }
             }
         }
         catch (IloException &e)
