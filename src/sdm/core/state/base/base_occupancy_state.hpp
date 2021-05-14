@@ -103,6 +103,15 @@ namespace sdm
     double getProbability(const Pair<TState, TJointHistory_p> &) const;
 
     /**
+     * @brief Get all Joint History associated with a precise agent and an individual history
+     * 
+     * @param number :Agent Id
+     * @param typename jhistory_type::element_type::ihistory_type : Individual History
+     */
+    const std::unordered_set<jhistory_type> &getJointHistoryOverIndividualHistories(number, typename jhistory_type::element_type::ihistory_type) const;
+    void setJointHistoryOverIndividualHistories();
+
+    /**
      * @brief Return a shared pointer on current object
      */
     std::shared_ptr<BaseOccupancyState<TState, TJointHistory_p>> getptr();
@@ -145,6 +154,10 @@ namespace sdm
      * @brief tuple of private history spaces, one private history space per agent
      */
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
+
+
+    std::unordered_map<number, std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<jhistory_type>>> ihistories_to_jhistory;
+
   };
 
 } // namespace sdm

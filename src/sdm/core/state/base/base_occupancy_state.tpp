@@ -27,6 +27,7 @@ namespace sdm
         this->list_jhistory_states = v.list_jhistory_states;
         this->all_list_ihistories = v.all_list_ihistories;
         this->num_agents = v.num_agents;
+        this->ihistories_to_jhistory = v.ihistories_to_jhistory;
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -160,11 +161,39 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    const std::unordered_set<typename BaseOccupancyState<TState, TJointHistory_p>::jhistory_type> &BaseOccupancyState<TState, TJointHistory_p>::getJointHistoryOverIndividualHistories(number agent_id, typename jhistory_type::element_type::ihistory_type indiv_history) const
+    {
+        return this->ihistories_to_jhistory.at(agent_id).at(indiv_history);
+    }
+    
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::setJointHistoryOverIndividualHistories()
+    {
+        for (number ag_id = 0; ag_id < this->num_agents; ag_id++)
+        {
+            this->ihistories_to_jhistory.emplace(ag_id,std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<jhistory_type>>());
+
+            for (const auto &ihistory : this->getIndividualHistories(ag_id))
+            {
+                this->ihistories_to_jhistory.at(ag_id).emplace(ihistory, std::unordered_set<jhistory_type>());
+                for(const auto &joint_history : this->getJointHistories())
+                {
+                    if(joint_history->getIndividualHistory(ag_id) == ihistory)
+                    {
+                        this->ihistories_to_jhistory.at(ag_id).at(ihistory).insert(joint_history);
+                    }
+                }
+            }
+        }
+    }
+
+    template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::finalize()
     {
         this->setStates();
         this->setJointHistories();
         this->setAllIndividualHistories();
+        this->setJointHistoryOverIndividualHistories();
     }
 
     template <typename TState, typename TJointHistory_p>
