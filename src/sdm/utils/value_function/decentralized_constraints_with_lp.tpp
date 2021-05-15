@@ -11,11 +11,31 @@ namespace sdm
   TAction DecentralizedConstraintsLP<TVector, TAction, TValue>::getDecentralizedVariables(const IloCplex &cplex, const IloNumVarArray &var, const TVector &occupancy_state, number)
   {
     number index = 0;
-
-    std::vector<std::vector<typename TAction::input_type>> joint_histories;
     std::vector<std::vector<typename TAction::output>> actions;
+    std::vector<std::vector<typename TAction::input_type>> joint_histories;
 
-    for (number ag_id = 0; ag_id < this->world_->getUnderlyingProblem()->getNumAgents(); ag_id++)
+    for (number agent = 0; agent < this->world_->getUnderlyingProblem()->getNumAgents(); agent++)
+    {
+      actions.push_back({});
+      joint_histories.push_back({});
+
+      for(const auto& ihistory : occupancy_state.getIndividualHistories(agent))
+      {
+        joint_histories[agent].push_back(ihistory);
+        for(const auto& action : this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(agent)->getAll())
+        {
+          index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent));
+
+          //<! https://stackoverflow.com/questions/35904947/problems-to-parse-from-iloboolvararray-to-bool-in-cplex 
+          if( cplex.getValue(var[index]) + .5 >= 1 )
+          {
+            actions[agent].push_back(action);
+          }
+        }
+      }
+    }
+
+  /*  for (number ag_id = 0; ag_id < this->world_->getUnderlyingProblem()->getNumAgents(); ag_id++)
     {
       joint_histories.push_back({});
       actions.push_back({});
@@ -36,13 +56,14 @@ namespace sdm
           }
         }
       }
-    }
+    }*/
+
     return TAction(joint_histories, actions);
   }
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int>>
-  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, number &index, number)
+  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector &occupancy_state, IloEnv &env, IloNumVarArray &var, number &index, number)
   {
     //<! tracking variables
     std::string VarName;
@@ -50,27 +71,25 @@ namespace sdm
     //<! 0.a Build variables a(u|o), a_i(u_i|o_i)
     for (const auto joint_history : occupancy_state.getJointHistories())
     {
-      for (auto u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
+      for (auto action : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
       {
         //< 0.b Build variables a(u|o)
-        VarName = this->getVarNameJointHistoryDecisionRule(u, joint_history);
+        VarName = this->getVarNameJointHistoryDecisionRule(action, joint_history);
         var.add(IloNumVar(env, 0.0, +IloInfinity, VarName.c_str()));
         this->setNumber(VarName, index++);
       }
+    }
 
-      for (auto ag = 0; ag < this->world_->getUnderlyingProblem()->getNumAgents(); ++ag)
+    for (auto agent = 0; agent < this->world_->getUnderlyingProblem()->getNumAgents(); ++agent)
+    {
+      for(const auto& ihistory : occupancy_state.getIndividualHistories(agent))
       {
-        auto ih = joint_history->getIndividualHistory(ag);
-        if (ihs[ag].find(ih) == ihs[ag].end())
+        for (auto action : this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(agent)->getAll())
         {
-          for (auto iu : this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(ag)->getAll())
-          {
-            //<! 0.c Build variables a_i(u_i|o_i)
-            VarName = this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag);
-            var.add(IloBoolVar(env, 0.0, 1.0, VarName.c_str()));
-            this->setNumber(VarName, index++);
-          }
-          ihs[ag].insert(ih);
+          //<! 0.c Build variables a_i(u_i|o_i)
+          VarName = this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent);
+          var.add(IloBoolVar(env, VarName.c_str()));
+          this->setNumber(VarName, index++);
         }
       }
     }
@@ -78,27 +97,24 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int>>
-  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &c, number)
+  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector &occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &c, number)
   {
-    number recover = 0;
-    number number_agent = this->world_->getUnderlyingProblem()->getNumAgents();
+    number recover;
 
-    for (const auto jh : occupancy_state.getJointHistories())
+    for (const auto& jhistory : occupancy_state.getJointHistories())
     {
-      for (auto u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
+      for (const auto& action : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
       {
         //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
-        con.add(IloRange(env, 1 - number_agent, +IloInfinity));
+        con.add(IloRange(env, 1 - this->world_->getUnderlyingProblem()->getNumAgents(), +IloInfinity));
         //<! 3.a.1 get variable a(u|o)
-        recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u, jh));
+        recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, jhistory));
         //<! 3.a.2 set coefficient of variable a(u|o)
         con[c].setLinearCoef(var[recover], +1.0);
-        for (number ag = 0; ag < number_agent; ++ag)
+        for (number agent = 0; agent < this->world_->getUnderlyingProblem()->getNumAgents(); ++agent)
         {
-          auto ih = jh->getIndividualHistory(ag);
-          auto iu = u.get(ag);
           //<! 3.a.3 get variables a_i(u_i|o_i)
-          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action.get(agent), jhistory->getIndividualHistory(agent), agent));
           //<! 3.a.4 set coefficient of variable a_i(u_i|o_i)
           con[c].setLinearCoef(var[recover], -1.0);
         } // for all agent
@@ -108,22 +124,20 @@ namespace sdm
     }   // for all o
 
     // 3.bis Build decentralized control constraints [ a(u|o) <= a_i(u_i|o_i) ]
-    for (const auto jh : occupancy_state.getJointHistories())
+    for (const auto& jhistory : occupancy_state.getJointHistories())
     {
-      for (const auto u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
+      for (const auto& action : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
       {
-        for (agent ag = 0; ag < number_agent; ++ag)
+        for (number agent = 0; agent < this->world_->getUnderlyingProblem()->getNumAgents(); ++agent)
         {
-          auto ih = jh->getIndividualHistory(ag);
-          auto iu = u.get(ag);
           //<! 3.b set constraint a(u|o) <= a_i(u_i|o_i)
           con.add(IloRange(env, -IloInfinity, 0.0));
           //<! 3.b.1 get variable a(u|o)
-          recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(u, jh));
+          recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, jhistory));
           //<! 3.b.2 set coefficient of variable a(u|o)
           con[c].setLinearCoef(var[recover], +1.0);
           //<! 3.b.3 get variable a_i(u_i|o_i)
-          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action.get(agent), jhistory->getIndividualHistory(agent), agent));
           //<! 3.b.4 set coefficient of variable a_i(u_i|o_i)
           con[c].setLinearCoef(var[recover], -1.0);
           //<! increment constraints
@@ -133,15 +147,15 @@ namespace sdm
     }     // for all o
 
     // 4. Build deterministic policy constraints
-    for (agent ag = 0; ag < number_agent; ++ag)
+    for (number agent = 0; agent < this->world_->getUnderlyingProblem()->getNumAgents(); ++agent)
     {
-      for (auto ih : ihs[ag])
+      for(const auto& ihistory : occupancy_state.getIndividualHistories(agent))
       {
         //<! 4.a set constraint  \sum_{u_i} a_i(u_i|o_i) = 1
         con.add(IloRange(env, 1.0, 1.0));
-        for (action iu : this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(ag)->getAll())
+        for (const auto& iaction : this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(agent)->getAll())
         {
-          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iu, ih, ag));
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iaction, ihistory, agent));
           con[c].setLinearCoef(var[recover], +1.0);
         }
         //<! increment constraints
@@ -166,7 +180,8 @@ namespace sdm
       {
         index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
 
-        if (cplex.getValue(var[index]) == 1)
+        //<! https://stackoverflow.com/questions/35904947/problems-to-parse-from-iloboolvararray-to-bool-in-cplex 
+        if (cplex.getValue(var[index]) + .5 >= 1)
         {
           indiv_histories.push_back(indiv_history);
           actions.push_back(serial_action);
@@ -178,7 +193,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector &serial_occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>> &, IloEnv &env, IloNumVarArray &var, number &index, number t)
+  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedVariables(const TVector &serial_occupancy_state, IloEnv &env, IloNumVarArray &var, number &index, number t)
   {
     //<! tracking variables
     std::string VarName;
@@ -191,7 +206,7 @@ namespace sdm
       {
         //<! 0.c Build variables a_i(u_i|o_i)
         VarName = this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id);
-        var.add(IloBoolVar(env, 0.0, 1.0, VarName.c_str()));
+        var.add(IloBoolVar(env, VarName.c_str()));
         this->setNumber(VarName, index++);
       }
     }
@@ -199,7 +214,7 @@ namespace sdm
 
   template <typename TVector, typename TAction, typename TValue>
   template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector &serial_occupancy_state, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>> &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &c, number t)
+  void DecentralizedConstraintsLP<TVector, TAction, TValue>::setDecentralizedConstraints(const TVector &serial_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &c, number t)
   {
     number recover = 0;
     number agent_id = serial_occupancy_state.getCurrentAgentId();

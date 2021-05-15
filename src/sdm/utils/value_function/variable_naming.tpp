@@ -2,20 +2,20 @@
 namespace sdm
 {
   template <typename TVector, typename TAction, typename TValue>
-  std::string VarNaming<TVector, TAction, TValue>::getVarNameJointHistoryDecisionRule(int a, const typename TVector::jhistory_type &joint_history)
+  std::string VarNaming<TVector, TAction, TValue>::getVarNameJointHistoryDecisionRule(int action, const typename TVector::jhistory_type &joint_history)
   {
     std::ostringstream oss;
     oss << "jdr"
-        << "." << a << "." << joint_history;
+        << "." << action << "." << joint_history->short_str();
     return oss.str();
   }
 
   template <typename TVector, typename TAction, typename TValue>
-  std::string VarNaming<TVector, TAction, TValue>::getVarNameJointHistoryDecisionRule(typename TAction::output_type a, const typename TVector::jhistory_type &joint_history)
+  std::string VarNaming<TVector, TAction, TValue>::getVarNameJointHistoryDecisionRule(typename TAction::output_type action, const typename TVector::jhistory_type &joint_history)
   {
     std::ostringstream oss;
     oss << "jdr"
-        << "." << a << "." << joint_history;
+        << "." << action << "." << joint_history->short_str();
     return oss.str();
   }
 
@@ -51,20 +51,20 @@ namespace sdm
   }
 
   template <typename TVector, typename TAction, typename TValue>
-  std::string VarNaming<TVector, TAction, TValue>::getVarNameIndividualHistoryDecisionRule(int a, const typename TVector::jhistory_type::element_type::ihistory_type &individual_history, const number &agent_id)
+  std::string VarNaming<TVector, TAction, TValue>::getVarNameIndividualHistoryDecisionRule(int action, const typename TVector::jhistory_type::element_type::ihistory_type &individual_history, const number &agent_id)
   {
     std::ostringstream oss;
     oss << "idr"
-        << "." << a << "." << individual_history << "." << agent_id;
+        << "." << action << "." << individual_history->short_str() << "." << agent_id;
     return oss.str();
   }
 
   template <typename TVector, typename TAction, typename TValue>
-  std::string VarNaming<TVector, TAction, TValue>::getVarNameIndividualHistoryDecisionRule(typename TAction::output_type a, const typename TVector::jhistory_type::element_type::ihistory_type &individual_history, const number &agent_id)
+  std::string VarNaming<TVector, TAction, TValue>::getVarNameIndividualHistoryDecisionRule(typename TAction::output_type action, const typename TVector::jhistory_type::element_type::ihistory_type &individual_history, const number &agent_id)
   {
     std::ostringstream oss;
     oss << "idr"
-        << "." << a << "." << individual_history << "." << agent_id;
+        << "." << action << "." << individual_history->short_str() << "." << agent_id;
     return oss.str();
   }
 
@@ -88,7 +88,7 @@ namespace sdm
   {
     std::ostringstream oss;
     oss << "wsh"
-        << "." << &i << "." << s << "." << jh;
+        << "." << &i << "." << s << "." << jh->short_str();
     return oss.str();
   }
 
@@ -97,7 +97,7 @@ namespace sdm
   {
     std::ostringstream oss;
     oss << "wsh"
-        << "." << i << "." << s << "." << jh;
+        << "." << i << "." << s << "." << jh->short_str();
     return oss.str();
   }
 }

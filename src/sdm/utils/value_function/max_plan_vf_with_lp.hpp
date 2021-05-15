@@ -93,11 +93,10 @@ namespace sdm
          * @brief Set the variable used in greedyMaxPlane
          * 
          * @param const TVector&
-         * @param std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>& : A map with for each agent, a set of Individual history
          * @param IloEnv& 
          * @param IloNumVarArray&
          */
-        void setGreedyVariables(const TVector&, std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>>&, IloEnv&, IloNumVarArray&,number); 
+        void setGreedyVariables(const TVector&, IloEnv&, IloNumVarArray&,number); 
 
         /**
          * @brief Update the max plan representation by adding a new hyperplan 
