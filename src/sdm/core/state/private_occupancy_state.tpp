@@ -10,20 +10,14 @@ namespace sdm
 
     template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
-        double default_value) : OccupancyState<TState, TJointHistory_p>(default_value)
+        number num_agents, double default_value) : OccupancyState<TState, TJointHistory_p>(num_agents, default_value)
     {
     }
 
     template <typename TState, typename TJointHistory_p>
-    PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(number ag_id, double default_value) : OccupancyState<TState, TJointHistory_p>(default_value), agent_id_(ag_id)
+    PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(number agent_id, number num_agents, double default_value) : OccupancyState<TState, TJointHistory_p>(num_agents, default_value), agent_id_(agent_id)
     {
     }
-
-    // template <typename TState, typename TJointHistory_p>
-    // PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(
-    //     std::size_t size, double default_value) : OccupancyState<TState, TJointHistory_p>(size, default_value)
-    // {
-    // }
 
     template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState(

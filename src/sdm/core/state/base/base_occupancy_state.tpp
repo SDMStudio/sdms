@@ -4,17 +4,7 @@ namespace sdm
 {
 
     template <typename TState, typename TJointHistory_p>
-    BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState() : MappedVector<Pair<TState, TJointHistory_p>, double>(0, 0)
-    {
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(default_value)
-    {
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(std::size_t size, double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(size, default_value)
+    BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(number num_agents, double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(default_value), num_agents_(num_agents)
     {
     }
 
@@ -26,7 +16,7 @@ namespace sdm
         this->list_jhistories = v.list_jhistories;
         this->list_jhistory_states = v.list_jhistory_states;
         this->all_list_ihistories = v.all_list_ihistories;
-        this->num_agents = v.num_agents;
+        this->num_agents_ = v.num_agents_;
         this->ihistories_to_jhistory = v.ihistories_to_jhistory;
     }
 
@@ -169,7 +159,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::setJointHistoryOverIndividualHistories()
     {
-        for (number ag_id = 0; ag_id < this->num_agents; ag_id++)
+        for (number ag_id = 0; ag_id < this->num_agents_; ag_id++)
         {
             this->ihistories_to_jhistory.emplace(ag_id,std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<jhistory_type>>());
 

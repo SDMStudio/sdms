@@ -10,7 +10,7 @@ namespace sdm
 
     DiscretePOMDP::DiscretePOMDP(std::string &filename)
     {
-        *this = *(parser::parse_file(filename.c_str())->toPOMDP());
+        *this = *(parser::parse_file(filename)->toPOMDP());
     }
 
     DiscretePOMDP::DiscretePOMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::shared_ptr<DiscreteSpace<number>> obs_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<ObservationDynamics> obs_dyn, std::shared_ptr<Reward> rew_f, std::discrete_distribution<number> start_distrib, number planning_horizon, double discount, Criterion criterion)

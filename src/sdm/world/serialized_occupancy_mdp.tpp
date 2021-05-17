@@ -18,7 +18,7 @@ namespace sdm
         jhist = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), (hist_length > 0) ? hist_length : -1);
 
         this->initial_history_ = jhist;
-        this->initial_state_ = std::make_shared<TState>();
+        this->initial_state_ = std::make_shared<TState>(this->serialized_mpomdp_->getNumAgents());
 
         for (const auto s : this->serialized_mpomdp_->getStateSpace(0)->getAll())
         {
@@ -79,8 +79,8 @@ namespace sdm
         number ag_id = ostate.getCurrentAgentId();
 
         // Init new compressed and fully uncompressed occupancy states, we omit one-step uncompressed occupancy state
-        auto new_compressed_occupancy_state = std::make_shared<TState>();
-        auto new_fully_uncompressed_occupancy_state = std::make_shared<TState>();
+        auto new_compressed_occupancy_state = std::make_shared<TState>(this->serialized_mpomdp_->getNumAgents());
+        auto new_fully_uncompressed_occupancy_state = std::make_shared<TState>(this->serialized_mpomdp_->getNumAgents());
 
         // Go over serial states and joint histories of fully uncompressed occupancy state
         for (const auto &pair_s_o_proba : *ostate.getFullyUncompressedOccupancy())
@@ -143,9 +143,9 @@ namespace sdm
         else
         {
             // The new fully uncompressed occupancy state
-            std::shared_ptr<TState> new_fully_uncompressed_occupancy_state = std::make_shared<TState>();
+            std::shared_ptr<TState> new_fully_uncompressed_occupancy_state = std::make_shared<TState>(this->serialized_mpomdp_->getNumAgents());
             // The new one step left occupancy state
-            std::shared_ptr<TState> new_one_step_left_compressed_occupancy_state = std::make_shared<TState>();
+            std::shared_ptr<TState> new_one_step_left_compressed_occupancy_state = std::make_shared<TState>(this->serialized_mpomdp_->getNumAgents());
 
             for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
             {

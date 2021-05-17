@@ -8,12 +8,14 @@ namespace sdm
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::DecisionProcess()
     {
+        this->state_dynamics_ = std::make_shared<TStateDynamics>();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
     DecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TReward, TDistrib, is_fully_obs>::DecisionProcess(std::shared_ptr<TStateSpace> state_sp, std::shared_ptr<TActionSpace> action_sp)
         : DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>(state_sp, action_sp)
     {
+        this->state_dynamics_ = std::make_shared<TStateDynamics>();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>
@@ -21,6 +23,7 @@ namespace sdm
         : DecisionProcessBase<TStateSpace, TActionSpace, TDistrib>(state_sp, action_sp, start_distrib)
     //   GymInterface<TObsSpace, TActionSpace, std::is_same<typename TReward::value_type, std::vector<double>>::value>(state_sp, action_sp)
     {
+        this->state_dynamics_ = std::make_shared<TStateDynamics>();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TReward, typename TDistrib, bool is_fully_obs>

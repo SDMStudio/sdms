@@ -3,20 +3,14 @@
 namespace sdm
 {
 
-    template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState() : OccupancyState<TState, TJointHistory_p>()
-    {
-        this->agent = 0;
-    }
+    // template <typename TState, typename TJointHistory_p>
+    // SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState() : OccupancyState<TState, TJointHistory_p>()
+    // {
+    //     this->agent = 0;
+    // }
 
     template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(double default_value) : OccupancyState<TState, TJointHistory_p>(default_value)
-    {
-        this->agent = 0;
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(std::size_t size, double default_value) : OccupancyState<TState, TJointHistory_p>(size, default_value)
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(number num_agents, double default_value) : OccupancyState<TState, TJointHistory_p>(num_agents, default_value)
     {
         this->agent = 0;
     }
@@ -31,7 +25,7 @@ namespace sdm
     SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &occupancy_state) : OccupancyState<TState, TJointHistory_p>(occupancy_state)
     {
         this->agent = 0;
-    }    
+    }
 
     template <typename TState, typename TJointHistory_p>
     number SerializedOccupancyState<TState, TJointHistory_p>::getCurrentAgentId() const
@@ -44,7 +38,6 @@ namespace sdm
     {
         this->agent = agent;
     }
-
 
     template <typename TState, typename TJointHistory_p>
     std::set<typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::state_type> SerializedOccupancyState<TState, TJointHistory_p>::getHiddenStates() const
@@ -83,7 +76,7 @@ namespace sdm
     {
         return state.first.getAction();
     }
-    
+
     template <typename TState, typename TJointHistory_p>
     std::shared_ptr<SerializedOccupancyState<TState, TJointHistory_p>> SerializedOccupancyState<TState, TJointHistory_p>::getptr()
     {
@@ -109,19 +102,19 @@ namespace sdm
         number horizon;
         std::ostringstream res, tmp;
         std::unordered_map<TJointHistory_p, std::pair<double, MappedVector<TState, double>>> map;
-        
+
         for (const auto &pair_s_o_proba : *this)
         {
             auto prob = pair_s_o_proba.second;
             auto jhistory = pair_s_o_proba.first.second;
             auto serial_hidden_state = pair_s_o_proba.first.first;
- 
+
             if (map.find(jhistory) == map.end())
             {
                 map.emplace(jhistory, std::make_pair(0, MappedVector<TState, double>()));
                 horizon = jhistory->getDepth();
             }
- 
+
             map[jhistory].first += prob;
             map[jhistory].second[serial_hidden_state] = prob;
         }
@@ -133,14 +126,14 @@ namespace sdm
             map[jhistory].second[serial_hidden_state] /= map[jhistory].first;
         }
 
-        res << "<serial-occupancy-state size=\"" << map.size() << "\" agent=\""<< this->agent <<"\" horizon=\"" << horizon << "\">" << std::endl;
+        res << "<serial-occupancy-state size=\"" << map.size() << "\" agent=\"" << this->agent << "\" horizon=\"" << horizon << "\">" << std::endl;
         for (const auto pair_o_pair_proba_belief : map)
         {
             auto joint_hist = pair_o_pair_proba_belief.first;
             res << "\t<joint-history value=\"" << *joint_hist << "\" proba=" << pair_o_pair_proba_belief.second.first << " belief=" << pair_o_pair_proba_belief.second.second << "/>" << std::endl;
         }
         res << "</serial-occupancy-state>" << std::endl;
- 
+
         return res.str();
     }
 
@@ -157,13 +150,13 @@ namespace sdm
             horizon = pair_x_o_p.first.second->getDepth();
         }
 
-        res << "<serial-hyperplan size=\"" << set.size() <<"\" agent=\""<< this->agent<< "\" horizon=\"" << horizon << "\">" << std::endl;
+        res << "<serial-hyperplan size=\"" << set.size() << "\" agent=\"" << this->agent << "\" horizon=\"" << horizon << "\">" << std::endl;
         for (const auto joint_hist : set)
         {
-            res << "\t<joint-history name=\"" << joint_hist->short_str() << "\" vector ="<< MappedVector<Pair<TState, TJointHistory_p>, double>::str()<< "/>" << std::endl;
+            res << "\t<joint-history name=\"" << joint_hist->short_str() << "\" vector =" << MappedVector<Pair<TState, TJointHistory_p>, double>::str() << "/>" << std::endl;
         }
         res << "</serial-hyperplan>" << std::endl;
- 
+
         return res.str();
     }
 

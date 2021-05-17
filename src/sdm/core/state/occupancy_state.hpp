@@ -38,9 +38,7 @@ namespace sdm
     using private_ostate_type = PrivateOccupancyState<TState, jhistory_type>;
     using observation_type = typename jhistory_type::element_type::value_type;
 
-    OccupancyState();
-    OccupancyState(double);
-    OccupancyState(std::size_t, double);
+    OccupancyState(number num_agents = 2, double default_value = 0.);
     OccupancyState(const OccupancyState &);
 
     auto compress();

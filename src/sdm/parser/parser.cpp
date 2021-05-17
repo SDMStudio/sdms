@@ -15,6 +15,7 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 #include <boost/fusion/include/io.hpp>
 #include <boost/config/warning_disable.hpp>
 
+#include <regex>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -79,7 +80,14 @@ namespace sdm
 
     std::shared_ptr<sdm::DiscreteDecPOMDP> parse_file(std::string filename)
     {
-      return parse_file(filename.c_str());
+      if (regex_match(filename, std::regex(".*\\.ndpomdp$")) || regex_match(filename, std::regex(".*\\.NDPOMDP$")))
+      {
+        return std::make_shared<NetworkedDistributedPOMDP>(filename);
+      }
+      else
+      {
+        return parse_file(filename.c_str());
+      }
     }
 
   } // namespace parser

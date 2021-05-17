@@ -25,15 +25,12 @@ namespace sdm
     using state_type = typename OccupancyState<TState, TJointHistory_p>::state_type;
     using jhistory_type = typename OccupancyState<TState, TJointHistory_p>::jhistory_type;
 
-    SerializedOccupancyState();
-    SerializedOccupancyState(double default_value);
-    SerializedOccupancyState(std::size_t size, double default_value);
+    SerializedOccupancyState(number num_agents = 2, double default_value = 0.);
     SerializedOccupancyState(const SerializedOccupancyState &);
     SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &);
 
     std::string str() const;
     std::string str_hyperplan() const;
-
 
     number getCurrentAgentId() const;
     void setAgent(number);
@@ -43,13 +40,11 @@ namespace sdm
 
     typename state_type::state_type getHiddenState(const Pair<state_type, jhistory_type> &state) const;
     std::vector<typename state_type::action_type> getAction(const Pair<state_type, jhistory_type> &state) const;
-    
+
     std::shared_ptr<SerializedOccupancyState<TState, TJointHistory_p>> getptr();
 
     std::shared_ptr<SerializedOccupancyState> getOneStepUncompressedOccupancy() const;
     std::shared_ptr<SerializedOccupancyState> getFullyUncompressedOccupancy() const;
-
-
   };
 } // namespace sdm
 #include <sdm/core/state/serialized_occupancy_state.tpp>

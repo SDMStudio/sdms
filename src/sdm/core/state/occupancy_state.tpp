@@ -3,23 +3,10 @@
 
 namespace sdm
 {
-
     template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState() : OccupancyState<TState, TJointHistory_p>(0, 0)
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(number num_agents, double default_value) : BaseOccupancyState<TState, TJointHistory_p>(num_agents, default_value)
     {
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(double default_value) : OccupancyState<TState, TJointHistory_p>(0, default_value)
-    {
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    OccupancyState<TState, TJointHistory_p>::OccupancyState(std::size_t size, double default_value)
-        : BaseOccupancyState<TState, TJointHistory_p>(size, default_value)
-    {
-        // Build the private occupancy map
-        for (number agent_id = 0; agent_id < this->num_agents; agent_id++)
+        for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
             this->private_ihistory_map_.push_back({});
@@ -83,7 +70,7 @@ namespace sdm
     std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> OccupancyState<TState, TJointHistory_p>::getJointLabels(const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_ihistories) const
     {
         std::vector<ihistory_type> new_list_ihistories;
-        for (int agent_id = 0; agent_id < this->num_agents; ++agent_id)
+        for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
         {
             // if the ihistory was never compressed
             new_list_ihistories.push_back(this->getLabel(list_ihistories.at(agent_id), agent_id));
@@ -123,7 +110,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void OccupancyState<TState, TJointHistory_p>::updateJointLabels(const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_ihistories, const std::vector<typename OccupancyState<TState, TJointHistory_p>::ihistory_type> &list_labels)
     {
-        for (number agent_id = 0; agent_id < this->num_agents; ++agent_id)
+        for (number agent_id = 0; agent_id < this->num_agents_; ++agent_id)
         {
             this->updateLabel(agent_id, list_ihistories.at(agent_id), list_labels.at(agent_id));
         }
@@ -170,9 +157,9 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     auto OccupancyState<TState, TJointHistory_p>::compress()
     {
-        OccupancyState<TState, TJointHistory_p> current_compact_ostate;
+        OccupancyState<TState, TJointHistory_p> current_compact_ostate(this->num_agents_);
         OccupancyState<TState, TJointHistory_p> previous_compact_ostate = *this;
-        for (int agent_id = 0; agent_id < this->num_agents; ++agent_id)
+        for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
         {
             // Get support (a set of individual histories for agent i)
             auto support_set = this->getIndividualHistories(agent_id);
@@ -237,19 +224,19 @@ namespace sdm
             this->jhistory_map_.emplace(jhist->getIndividualHistories(), jhist);
 
             // For each agent we update its private occupancy state
-            for (number agent_id = 0; agent_id < this->num_agents; agent_id++)
+            for (number agent_id = 0; agent_id < this->num_agents_; agent_id++)
             {
                 // std::cout << "agent_id=" << agent_id << std::endl;
                 // Instanciation empty private occupancy state associated to ihistory and agent i if not exists
                 if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
                 {
-                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState<TState, TJointHistory_p>>(agent_id, this->default_value_));
+                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState<TState, TJointHistory_p>>(agent_id, this->num_agents_, this->default_value_));
                 }
                 // Set private occupancy measure
                 this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id][jhist->getIndividualHistory(agent_id)]->addProbabilityAt(pair_state_jhist.first, proba);
             }
         }
-        for (number agent_id = 0; agent_id < this->num_agents; agent_id++)
+        for (number agent_id = 0; agent_id < this->num_agents_; agent_id++)
         {
             for (const auto &pair_ihist_private_occupancy_state : this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id])
             {
@@ -275,7 +262,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     void OccupancyState<TState, TJointHistory_p>::setProbabilityOverIndividualHistories()
     {
-        for (number ag_id = 0; ag_id < this->num_agents; ag_id++)
+        for (number ag_id = 0; ag_id < this->num_agents_; ag_id++)
         {
             for (const auto &ihistory : this->getIndividualHistories(ag_id))
             {
