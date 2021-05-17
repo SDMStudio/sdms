@@ -48,7 +48,7 @@ namespace sdm
     protected:
         using Container = TStruct<TState, TValue>;
         using backup_operator_type = TBackupOperator<TState, TAction>;
-        
+
         /**
          * @brief The temporary one-stage value function represention.
          */
@@ -117,6 +117,15 @@ namespace sdm
         {
             os << vf.str();
             return os;
+        }
+
+    private:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            archive &BOOST_SERIALIZATION_NVP(representation);
         }
     };
 

@@ -85,7 +85,8 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
     {
-        try{
+        try
+        {
             if (!this->do_stop(s, cost_so_far, h))
             {
                 if (this->lower_bound_->isInfiniteHorizon())
@@ -122,7 +123,8 @@ namespace sdm
     template <typename TState, typename TAction>
     double HSVI<TState, TAction>::do_excess(const TState &s, double cost_so_far, number h)
     {
-         try{
+        try
+        {
             auto lb = this->lower_bound_->getValueAt(s, h);
             auto ub = this->upper_bound_->getValueAt(s, h);
             auto incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
@@ -134,7 +136,7 @@ namespace sdm
             std::cerr << "HSVI<TState, TAction>::do_excess(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
-   }
+    }
 
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_test()
