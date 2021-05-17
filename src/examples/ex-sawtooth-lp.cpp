@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     number horizon;
     number discount = 1;
     double error = 0.00001;
-    number trials = 100;
+    number trials = 3;
 
 	TypeOfResolution type_of_resolution = TypeOfResolution::BigM;
 	auto ValueBigM = 100;

@@ -6,6 +6,7 @@ namespace sdm
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP()
     {
         this->setTStateType(ONE_STEP_UNCOMPRESSED);
+        this->setSawtoothType(RELAXED_SAWTOOTH_LINER_PROGRAMMING);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -16,12 +17,14 @@ namespace sdm
           bigM_value_(bigM_value)
     {
         this->setTStateType(ONE_STEP_UNCOMPRESSED);
+        this->setSawtoothType(RELAXED_SAWTOOTH_LINER_PROGRAMMING);
     }
 
     template <typename TState, typename TAction, typename TValue>
     SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, TypeOfResolution current_type_of_resolution, number bigM_value)
         : SawtoothValueFunctionLP<TState, TAction, TValue>(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), current_type_of_resolution, bigM_value)
     {
+        this->setSawtoothType(RELAXED_SAWTOOTH_LINER_PROGRAMMING);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -74,9 +77,69 @@ namespace sdm
         }
     }
 
-
     template <typename TState, typename TAction, typename TValue>
     TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedySawtooth(const TState &occupancy_state, double &cub, number t)
+    {
+        switch( this->getSawtoothType() )
+        {
+            case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
+                return this->greedyFullSawtooth(occupancy_state, cub, t);
+            case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING:
+                return this->greedyRelaxedSawtooth(occupancy_state, cub, t);
+            default:
+                return this->greedyFullSawtooth(occupancy_state, cub, t);
+        }
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedyRelaxedSawtooth(const TState &occupancy_state, double &cub, number t)
+    {
+        TAction greedy, action;
+        double value; cub = std::numeric_limits<double>::max();
+
+        //// DEBUG //////
+        // double vub;
+        // auto gaction = greedyFullSawtooth(occupancy_state, vub, t);
+        /////////////////
+
+        if( this->representation[t+1].empty() )
+        {
+            this->tmp_representation = {};
+            greedy =  this->greedyActionSelectionBySawtooth(occupancy_state, cub, t);
+        }
+
+        else 
+        {
+            for(const auto& element : this->representation[t+1])        
+            {
+                this->tmp_representation = {element};
+
+                action = this->greedyActionSelectionBySawtooth(occupancy_state, value, t);
+
+                value = this->getQValueAt(occupancy_state, action, t);
+
+                //if( this->representation[t+1].size() > 1 ) std::cout << "\thorizon=" << t << "\tvalue=" << value << "\t cub=" << cub << "\t vub=" << vub << std::endl;
+
+                if( cub > value )
+                {
+                    cub = value;
+                    greedy = action;
+                }
+            } 
+        }
+
+        return greedy;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedyFullSawtooth(const TState &occupancy_state, double &cub, number t)
+    {
+        this->tmp_representation = this->representation[t+1]; 
+        return this->greedyActionSelectionBySawtooth(occupancy_state, cub, t);
+    }
+    
+    template <typename TState, typename TAction, typename TValue>
+    TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedyActionSelectionBySawtooth(const TState &occupancy_state, double &cub, number t)
     {
         number index = 0;
 
@@ -84,14 +147,6 @@ namespace sdm
         std::string VarName;
 
         TAction a;
-
-        std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> ihs;
-
-        for (number ag = 0; ag < this->getWorld()->getUnderlyingProblem()->getNumAgents(); ++ag)
-        {
-            std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type> empty;
-            ihs.emplace(ag, empty);
-        }
 
         IloEnv env;
         try
@@ -107,17 +162,16 @@ namespace sdm
             ///////  BEGIN CORE CPLEX Code  ///////
 
             // 0. Build variables a(u|o), a_i(u_i|o_i), v
-            this->setGreedyVariables(occupancy_state, ihs, env, var, cub, t);
+            this->setGreedyVariables(occupancy_state, env, var, cub, t);
 
             // 1. Build objective function \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v
             this->template setGreedyObjective<TState>(occupancy_state, obj, var, t);
 
             //<! 3.a Build sawtooth constraints v <= (V_k - v_k) * \frac{\sum_{o,u} a(u|o)\sum_{x,z_} s(x,o)*p(x,u,z_,x_)}}{s_k(x_,o_)} ,\forall k, x_,o_
-            if (!this->representation[t + 1].empty())
-                this->template setGreedySawtooth<TState>(occupancy_state, model, env, con, var, index, t);
+            this->template setGreedySawtooth<TState>(occupancy_state, model, env, con, var, index, t);
 
             // 3. Build decentralized control constraints [  a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n ] ---- and ---- [ a(u|o) <= a_i(u_i|o_i) ]
-            this->template setDecentralizedConstraints<TState>(occupancy_state, ihs, env, con, var, index, t);
+            this->template setDecentralizedConstraints<TState>(occupancy_state, env, con, var, index, t);
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
@@ -138,16 +192,6 @@ namespace sdm
             {
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
-                // auto vub_0 = this->getQValueAt(occupancy_state, a, t);
-                // auto vub_1 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
-                // auto vub_2 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(occupancy_state, a).getOneStepUncompressedOccupancy(), t + 1);
-
-                // if (std::abs(cub - vub_0) > 0.01)
-                // {
-                //     std::cout << "------------------------------------------------------------------------" << std::endl;
-                //     std::cout << "horizon:" << t << "\tcompressed occupancy state:" << occupancy_state << std::endl;
-                //     throw sdm::exception::Exception("Unexpected upper-bound values : cub(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
-                // }
             }
         }
         catch (IloException &e)
@@ -168,7 +212,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, double /*cub*/, number t)
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, IloEnv &env, IloNumVarArray &var, double /*cub*/, number t)
     {
         try{
             //<! tracking variable ids
@@ -187,7 +231,7 @@ namespace sdm
             //<! Define variables \omega_k(x',o')
 
             // Go over all Point Set in t+1
-            for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t + 1])
+            for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->tmp_representation)
             {
                 const auto &next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
 
@@ -205,7 +249,7 @@ namespace sdm
                     this->setNumber(VarName, index++);
                 }
             }
-            this->template setDecentralizedVariables<TState>(occupancy_state, ihs, env, var, index, t);
+            this->template setDecentralizedVariables<TState>(occupancy_state, env, var, index, t);
         }
         catch (const std::exception &exc)
         {
@@ -288,7 +332,7 @@ namespace sdm
 
        try{
             // Go over all points in the point set at t+1
-            for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t + 1])
+            for (const auto &next_one_step_uncompressed_occupancy_state_AND_upper_bound : this->tmp_representation)
             {
                 const auto &next_one_step_uncompressed_occupancy_state = next_one_step_uncompressed_occupancy_state_AND_upper_bound.first;
                 auto current_upper_bound = next_one_step_uncompressed_occupancy_state_AND_upper_bound.second;
@@ -449,7 +493,7 @@ namespace sdm
         number recover = 0;
 
         // Go over all points in the point set at t+1
-        for (const auto &next_one_step_uncompressed_serial_occupancy_state_AND_upper_bound : this->representation[t + 1])
+        for (const auto &next_one_step_uncompressed_serial_occupancy_state_AND_upper_bound : this->tmp_representation)
         {
 
             auto &next_one_step_uncompressed_serial_occupancy_state = next_one_step_uncompressed_serial_occupancy_state_AND_upper_bound.first;

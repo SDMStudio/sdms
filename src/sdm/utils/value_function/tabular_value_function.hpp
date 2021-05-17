@@ -48,6 +48,11 @@ namespace sdm
     protected:
         using Container = TStruct<TState, TValue>;
         using backup_operator_type = TBackupOperator<TState, TAction>;
+        
+        /**
+         * @brief The temporary one-stage value function represention.
+         */
+        Container tmp_representation;
 
         /**
          * @brief The value function represention.

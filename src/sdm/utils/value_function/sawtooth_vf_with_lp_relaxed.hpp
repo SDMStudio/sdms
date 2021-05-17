@@ -81,7 +81,6 @@ namespace sdm
          * @brief Create the variables
          * 
          * @param const TState& : current state
-         * @param std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>& : 
          * @param IloEnv& : env 
          * @param IloNumVarArray& : var 
          * @param double : limit inf for the objective function
@@ -90,7 +89,7 @@ namespace sdm
          * 
          * @warning The param who resctric the lower bound is not implemented for the moment
          */
-        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray&, double , double, number  ) ;
+        void setGreedyVariables(const TState&,  IloEnv& , IloNumVarArray&, double , double, number  ) ;
 
         /**
          * @brief Set the objective function

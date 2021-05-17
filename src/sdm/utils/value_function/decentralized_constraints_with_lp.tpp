@@ -34,30 +34,6 @@ namespace sdm
         }
       }
     }
-
-  /*  for (number ag_id = 0; ag_id < this->world_->getUnderlyingProblem()->getNumAgents(); ag_id++)
-    {
-      joint_histories.push_back({});
-      actions.push_back({});
-    }
-
-    for (const auto &joint_history : occupancy_state.getJointHistories())
-    {
-      for (const auto &u : this->world_->getUnderlyingProblem()->getActionSpace()->getAll())
-      {
-        index = this->getNumber(this->getVarNameJointHistoryDecisionRule(u, joint_history));
-
-        if (cplex.getValue(var[index]) == 1)
-        {
-          for (number ag_id = 0; ag_id < this->world_->getUnderlyingProblem()->getNumAgents(); ag_id++)
-          {
-            joint_histories[ag_id].push_back(joint_history->getIndividualHistory(ag_id));
-            actions[ag_id].push_back(u.get(ag_id));
-          }
-        }
-      }
-    }*/
-
     return TAction(joint_histories, actions);
   }
 

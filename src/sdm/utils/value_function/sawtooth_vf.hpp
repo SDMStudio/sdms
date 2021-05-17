@@ -26,9 +26,13 @@ namespace sdm
     {
     protected:
         TState_t ctype = COMPRESSED;
+        TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
 
         TState_t getTStateType();
         void setTStateType(const TState_t &);
+
+        TypeSawtoothLinearProgram getSawtoothType();
+        void setSawtoothType(const TypeSawtoothLinearProgram &);
 
     public:
         SawtoothValueFunction();

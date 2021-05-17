@@ -69,13 +69,15 @@ namespace sdm
         * 
         * @return TAction 
         */
+        TAction greedyActionSelectionBySawtooth(const TState& , double&, number);
+        TAction greedyRelaxedSawtooth(const TState& , double&, number);
+        TAction greedyFullSawtooth(const TState& , double&, number);
         TAction greedySawtooth(const TState& , double&, number);
 
         /**
          * @brief Create the variables
          * 
          * @param const TState& : current state
-         * @param std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>& : 
          * @param IloEnv& : env 
          * @param IloNumVarArray& : var 
          * @param double : Restrict the lower bound of the objectif variable  !
@@ -83,7 +85,7 @@ namespace sdm
          * 
          * @warning The param who resctric the lower bound is not implemented for the moment
          */
-        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray& , double, number  ) ;
+        void setGreedyVariables(const TState&, IloEnv& , IloNumVarArray& , double, number  ) ;
 
         /**
          * @brief Set the objective function
@@ -123,10 +125,11 @@ namespace sdm
         TValue getValueAt(const TState &, number );
 
     protected:
-
         TypeOfResolution current_type_of_resolution_;
 
         number bigM_value_;
+
+
 
         /**
          * @brief Set the Greedy Sawtooth Big M object
