@@ -2,6 +2,11 @@
 
 #include <sdm/exception.hpp>
 #include <sdm/algorithms.hpp>
+#include <sdm/world/serialized_belief_mdp.hpp>
+#include <sdm/core/state/serialized_belief_state.hpp>
+
+#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/initializers.hpp>
 
 using namespace sdm;
 
@@ -44,7 +49,7 @@ int main(int argc, char **argv)
 
 		// Instanciate initializers 
 		auto lb_init = std::make_shared<MinInitializer<TStatePrescriptor, TActionPrescriptor>>();
-		auto ub_init = std::make_shared<POMDPInitializer<TStatePrescriptor, TActionPrescriptor>>("PomdpInitializer");
+		auto ub_init = std::make_shared<MDPInitializer<TStatePrescriptor, TActionPrescriptor>>("ValueIteration");
 
 		// Instanciate the Tabular version for the lower bound
 		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(serialized_oMDP, horizon, lb_init); 

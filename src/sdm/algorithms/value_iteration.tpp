@@ -36,7 +36,7 @@ namespace sdm
 
             for(int t = this->horizon_ -1; t>=0;t--)
             {
-                for(const auto &state : under_pb->getStateSpace()->getAll() )
+                for(const auto &state : under_pb->getStateSpace(t)->getAll() )
                 {
                     this->policy_evaluation_2_->updateValueAt(state,t,this->policy_evaluation_1_->getQValueAt(state, t)->max());
                 }
@@ -62,7 +62,8 @@ namespace sdm
         {
             max_value = std::max(std::abs(policy_evaluation_1_->getValueAt(state,0) - policy_evaluation_2_->getValueAt(state,0)),max_value);
         }
-        std::cout<<"\n error"<<this->error_;
+        std::cout<<"\n Error : "<<max_value<<std::endl;
+
         if (max_value<= this->error_)
         {
             return false;

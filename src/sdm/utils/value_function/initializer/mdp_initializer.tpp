@@ -26,7 +26,7 @@ namespace sdm
 
         if (this->algo_name_ == "ValueIteration")
         {
-            auto value_iteration = algo::makeValueIteration<decltype(mdp->getInitialState()), number>(mdp, underlying_pb->getDiscount(), 0.01, underlying_pb->getPlanningHorizon());
+            auto value_iteration = algo::makeValueIteration<decltype(mdp->getInitialState()), number>(mdp, underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon());
             value_iteration->do_initialize();
             std::cout<<"\n initailise ;";
             std::cout<<"\n initailise ;";

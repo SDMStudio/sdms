@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
 		// Instanciate initializers 
 		auto lb_init = std::make_shared<MinInitializer<TStatePrescriptor, TActionPrescriptor>>();
-		auto ub_init = std::make_shared<POMDPInitializer<TStatePrescriptor, TActionPrescriptor>>("PomdpInitializer");
+		auto ub_init = std::make_shared<MDPInitializer<TStatePrescriptor, TActionPrescriptor>>("ValueIteration");
 
 		// Instanciate the Tabular version for the lower bound
 		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, lb_init); 
