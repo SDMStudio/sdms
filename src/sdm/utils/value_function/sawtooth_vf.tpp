@@ -58,6 +58,12 @@ namespace sdm
         throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
     }
 
+    template <>
+    double SawtoothValueFunction<SerializedBeliefState, number, double>::getValueAt(const SerializedBeliefState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedBeliefState.");
+    }
+
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
     {
@@ -93,6 +99,12 @@ namespace sdm
     void SawtoothValueFunction<BeliefState, number, double>::updateValueAt(const BeliefState &, number)
     {
         throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
+    }
+
+    template <>
+    void SawtoothValueFunction<SerializedBeliefState, number, double>::updateValueAt(const SerializedBeliefState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedBeliefState.");
     }
 
     template <typename TState, typename TAction, typename TValue>

@@ -50,7 +50,7 @@ namespace sdm
         getWorldType();
 
         template <bool is_serialized_belief_mdp = std::is_any<TState, SerializedBeliefState>::value>
-        static std::enable_if_t<is_serialized_belief_mdp, SerializedBeliefMDP<SerializedBeliefState, number, number>>
+        static std::enable_if_t<is_serialized_belief_mdp, SerializedBeliefMDP<SerializedBeliefState, number, Joint<number>>>
         getWorldType();
 
         template <bool is_serialized_mdp = std::is_any<TState, SerializedState>::value>

@@ -228,7 +228,7 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> >
-    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState& compressed_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_occupancy_state_AND_upper_bound, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState& compressed_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_occupancy_state_AND_upper_bound, IloModel &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //<!  Build sawtooth constraints v - \sum_{u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(y,<o,z>)*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
@@ -294,7 +294,7 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_serial_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_serial_occupancy_state_AND_upper_bound, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_serial_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_serial_occupancy_state_AND_upper_bound, IloModel &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         number agent_id = compressed_serial_occupancy_state.getCurrentAgentId();
 

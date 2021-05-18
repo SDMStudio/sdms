@@ -23,7 +23,7 @@ namespace sdm
   class BaseBeliefState : public MappedVector<TState, double>
   {
   public:
-    using state_type = number;
+    using state_type = TState;
     using value_type = typename MappedVector<TState, double>::value_type;
 
     BaseBeliefState();

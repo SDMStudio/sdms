@@ -11,54 +11,32 @@ namespace sdm
     template <typename TBelief, typename TOccupancyState>
     template <bool is_solving_dpomdp>
     std::enable_if_t<is_solving_dpomdp, double>
-    Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &, const number &)
+    Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
     {
-        // double value = 0;
+        double value = 0;
 
-        // std::map<typename TOccupancyState::jhistory_type, double> o_proba;
-        // std::map<typename TOccupancyState::jhistory_type, TBelief> belief_map; // Pas possible de faire decltype ici car o n'est pas encore déclaré TOccupancyState::jhistory_type plutot
+        std::map<typename TOccupancyState::jhistory_type, TBelief> belief_map;
 
-        // for (const auto &ost : ostate)
-        // {
-        //     auto x = ostate.getHiddenState(ost.first);
-        //     auto o = ostate.getHistory(ost.first);
-        //     auto p = ost.second;
-        //     o_proba[o] += p;
-        //     belief_map[o][x] += p;
-        // }
+        for (const auto &ost : ostate)
+        {
+            auto x = ostate.getState(ost.first);
+            auto o = ostate.getHistory(ost.first);
+            belief_map[o].addProbabilityAt(x,ost.second);
+        }
 
-        // // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
-        // for (const auto &p_o_p : o_proba)
-        // {
-        //     TBelief belief = belief_map[p_o_p.first];
-        //     double sum = belief.norm_1();
-        //     for (const auto &b_s : belief)
-        //     {
-        //         belief[b_s.first] = belief[b_s.first] / sum;
-        //     }
-        //     value += p_o_p.second * this->sawtooth(belief, tau);
-        // }
-        // return value;
-        throw sdm::exception::NotImplementedException();
+        // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
+        for (const auto &joint_history : ostate.getJointHistories())
+        {
+            TBelief belief = belief_map[joint_history];
+            double sum = belief.norm_1();
+            for (const auto &b_s : belief)
+            {
+                belief[b_s.first] = belief[b_s.first] / sum;
+            }
+            value += ostate.getProbabilityOverJointHistory(joint_history) * this->sawtooth(belief, tau);
+        }
+        return value;
     }
-
-    // template <typename TBelief, typename TOccupancyState>
-    // template <bool is_solving_mdp>
-    // std::enable_if_t<is_solving_mdp, double>
-    // Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
-    // {
-    //     // return this->pomdp_vf_->operator()(ostate, tau);
-    //     return 0.0;
-    // }
-
-    // template <typename TBelief, typename TOccupancyState>
-    // template <bool is_solving_pomdp>
-    // std::enable_if_t<is_solving_pomdp, double>
-    // Belief2OccupancyValueFunction<TBelief, TOccupancyState>::operator()(const TOccupancyState &ostate, const number &tau)
-    // {
-    //     // return this->pomdp_vf_->operator()(ostate, tau);
-    //     return 0.0;
-    // }
 
     template <typename TBelief, typename TOccupancyState>
     template <bool is_solving_dpomdp>
@@ -69,7 +47,7 @@ namespace sdm
 
         double v_mdp = this->pomdp_vf_->getInitFunction()->operator()(bstate, tau);
         double min_ext = 0;
-        /*
+        
         for (const TBelief &belief : this->pomdp_vf_->getSupport(tau))
         {
             double v_kappa = this->pomdp_vf_->operator()(belief, tau);
@@ -88,7 +66,7 @@ namespace sdm
             {
                 min_ext = min_int;
             }
-        }*/
+        }
         return v_mdp + min_ext;
     }
 
@@ -106,4 +84,16 @@ namespace sdm
         return this->operator()<>(ostate, tau);
     }
 
+    // ****** Belief Graph  ****** A faire ********* // 
+    template <typename TState, typename TAction, typename TObservation>
+    Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf) : pomdp_vf_(vf)
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    template <typename TState, typename TAction, typename TObservation>
+    double Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::operator()(const OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>> &, const number &)
+    {
+        throw sdm::exception::NotImplementedException();
+    }
 } // namespace sdm

@@ -3,7 +3,7 @@
 #include <sdm/types.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/struct/pair.hpp>
-#include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/serialized_belief_mdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_state.hpp>
@@ -42,7 +42,7 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
+        std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>> toBeliefMDP(); 
 
         /**
          * @brief Get the Obs Space of the SerializedMPOMDP. In this situation, it is the same as the ObsSpace of a Dec-Pomdp
@@ -69,6 +69,13 @@ namespace sdm
         double getObservationProbability(const state_type, const action_type, const observation_type, const state_type) const;
 
         double getDynamics(const state_type, const action_type, const observation_type, const state_type) const;
+
+        /**
+         * @brief Return the current problem
+         * 
+         * @return std::shared_ptr<SerializedMPOMDP> 
+         */
+        std::shared_ptr<SerializedMPOMDP> getptr();
 
     protected:
         Joint<number> empty_serial_observation;

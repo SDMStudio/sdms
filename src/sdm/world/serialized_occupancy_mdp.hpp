@@ -45,12 +45,28 @@ namespace sdm
         SerializedOccupancyMDP(std::string, number = -1);
         SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
 
+        /**
+         * @brief Check if the problem is serialized.
+         * 
+         * @return true
+         */
         bool isSerialized() const;
+
+        /**
+         * @brief Get the actions availables at a specific state
+         * 
+         * @param state the state
+         * @return the action space 
+         */
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
 
         SerializedMPOMDP *getUnderlyingProblem();
 
+        /**
+         * @brief Get the initial state
+         */
         TState getInitialState();
+        
         TState nextState(const TState &, const TAction &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const;
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
@@ -64,9 +80,7 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
-
-
+        std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>> toBeliefMDP();
 
         /**
          * @brief Get the specific discount factor for the problem at hand

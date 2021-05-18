@@ -10,6 +10,9 @@
  */
 #pragma once
 
+#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/value_iteration.hpp>
+#include <sdm/world/world_type.hpp> 
 #include <sdm/utils/value_function/initializer.hpp>
 
 namespace sdm

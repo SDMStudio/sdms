@@ -42,7 +42,7 @@ namespace sdm
         TDistrib getStartDistrib() const;
         void setStartDistrib(TDistrib);
 
-        std::shared_ptr<TStateSpace> getStateSpace() const;
+        std::shared_ptr<TStateSpace> getStateSpace(number =0) const;
         void setStateSpace(std::shared_ptr<TStateSpace>);
 
     protected:

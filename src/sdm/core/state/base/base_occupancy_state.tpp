@@ -18,6 +18,7 @@ namespace sdm
         this->all_list_ihistories = v.all_list_ihistories;
         this->num_agents_ = v.num_agents_;
         this->ihistories_to_jhistory = v.ihistories_to_jhistory;
+        this->probability_jhistories = v.probability_jhistories;
     }
 
     template <typename TState, typename TJointHistory_p>
@@ -178,12 +179,28 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
+    const double &BaseOccupancyState<TState, TJointHistory_p>::getProbabilityOverJointHistory(jhistory_type joint_history) const
+    {
+        return this->probability_jhistories.at(joint_history);
+    }
+    
+    template <typename TState, typename TJointHistory_p>
+    void BaseOccupancyState<TState, TJointHistory_p>::setProbabilityOverJointHistory()
+    {
+        for(const auto &state : *this)
+        {
+            this->probability_jhistories[state.first.second] += state.second;
+        }
+    }
+
+    template <typename TState, typename TJointHistory_p>
     void BaseOccupancyState<TState, TJointHistory_p>::finalize()
     {
         this->setStates();
         this->setJointHistories();
         this->setAllIndividualHistories();
         this->setJointHistoryOverIndividualHistories();
+        this->setProbabilityOverJointHistory();
     }
 
     template <typename TState, typename TJointHistory_p>

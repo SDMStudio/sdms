@@ -110,6 +110,14 @@ namespace sdm
     void setJointHistoryOverIndividualHistories();
 
     /**
+     * @brief Get all the probability conditionning to a Joint History
+     * 
+     * @param jhistory_type : Joint History
+     */
+    const double &getProbabilityOverJointHistory(jhistory_type) const;
+    void setProbabilityOverJointHistory();
+
+    /**
      * @brief Return a shared pointer on current object
      */
     std::shared_ptr<BaseOccupancyState<TState, TJointHistory_p>> getptr();
@@ -154,6 +162,9 @@ namespace sdm
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
 
     std::unordered_map<number, std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<jhistory_type>>> ihistories_to_jhistory;
+
+    RecursiveMap<jhistory_type, double> probability_jhistories;
+
   };
 
 } // namespace sdm
