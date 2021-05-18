@@ -28,7 +28,7 @@ namespace sdm
 
     DiscreteMMDP::DiscreteMMDP(std::string &filename)
     {
-        *this = *(parser::parse_file(filename.c_str())->toMMDP());
+        *this = *(parser::parse_file(filename)->toMMDP());
     }
 
     std::shared_ptr<DiscreteMDP> DiscreteMMDP::toMDP()

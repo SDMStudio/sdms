@@ -21,16 +21,6 @@ namespace sdm
     TValue SawtoothValueFunction<TState, TAction, TValue>::getValueAt(const TState &state, number t)
     {
         TState state_ = state;
-        // switch (this->ctype)
-        // {
-        //     case TState_t::FULLY_UNCOMPRESSED:
-        //         state_ = *state.getFullyUncompressedOccupancy();
-        //     case TState_t::ONE_STEP_UNCOMPRESSED:
-        //         state_ = *state.getOneStepUncompressedOccupancy();
-        //     default:
-        //         state_ = state;
-        // }
-
         if (this->isInfiniteHorizon())
         {
             return this->getMaxAt(state_, 0).first;
@@ -216,5 +206,17 @@ namespace sdm
     void SawtoothValueFunction<TState, TAction, TValue>::setTStateType(const TState_t &ctype)
     {
         this->ctype = ctype;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TypeSawtoothLinearProgram SawtoothValueFunction<TState, TAction, TValue>::getSawtoothType()
+    {
+        return this->csawtooth_lp_;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunction<TState, TAction, TValue>::setSawtoothType(const TypeSawtoothLinearProgram & csawtooth_lp)
+    {
+        this->csawtooth_lp_ = csawtooth_lp;
     }
 }

@@ -1,5 +1,5 @@
 # Find packages
-find_package(Boost COMPONENTS system filesystem program_options iostreams REQUIRED)
+find_package(Boost COMPONENTS system filesystem program_options iostreams serialization REQUIRED)
 find_package(Torch REQUIRED)
 find_package(CPLEX)
 

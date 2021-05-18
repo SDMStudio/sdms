@@ -69,6 +69,9 @@ namespace sdm
         * 
         * @return TAction 
         */
+        TAction greedyActionSelectionBySawtooth(const TState& , double&, number);
+        TAction greedyRelaxedSawtooth(const TState& , double&, number);
+        TAction greedyFullSawtooth(const TState& , double&, number);
         TAction greedySawtooth(const TState& , double&, number);
 
         /**
@@ -122,10 +125,11 @@ namespace sdm
         TValue getValueAt(const TState &, number );
 
     protected:
-
         TypeOfResolution current_type_of_resolution_;
 
         number bigM_value_;
+
+
 
         /**
          * @brief Set the Greedy Sawtooth Big M object

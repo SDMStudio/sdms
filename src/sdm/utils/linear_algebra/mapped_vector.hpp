@@ -20,6 +20,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
 
@@ -108,6 +109,22 @@ namespace sdm
         {
             os << vect.str();
             return os;
+        }
+
+    private:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            archive &BOOST_SERIALIZATION_NVP(default_value_);
+            archive &BOOST_SERIALIZATION_NVP(size_);
+            archive &BOOST_SERIALIZATION_NVP(precision);
+            for (const auto &pair_index_value : *this)
+            {
+                archive &BOOST_SERIALIZATION_NVP(pair_index_value.first);
+                archive &BOOST_SERIALIZATION_NVP(pair_index_value.second);
+            }
         }
     };
 } // namespace sdm

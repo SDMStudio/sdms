@@ -11,7 +11,7 @@ namespace sdm
 
     DiscreteDecPOMDP::DiscreteDecPOMDP(std::string &filename)
     {
-        *this = *(parser::parse_file(filename.c_str()));
+        *this = *(parser::parse_file(filename));
     }
 
     DiscreteDecPOMDP::DiscreteDecPOMDP(DiscreteDecPOMDP &copy)

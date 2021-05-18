@@ -1,3 +1,5 @@
+#include <regex>
+#include <sdm/parser/parser.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/space/function_space.hpp>
@@ -17,7 +19,9 @@ namespace sdm
 
     template <typename TState, typename TAction>
     OccupancyMDP<TState, TAction>::OccupancyMDP(std::string underlying_dpomdp, number hist_length)
-        : OccupancyMDP(std::make_shared<DiscreteDecPOMDP>(underlying_dpomdp), hist_length) {}
+    {
+        *this = OccupancyMDP(parser::parse_file(underlying_dpomdp), hist_length);
+    }
 
     template <typename TState, typename TAction>
     void OccupancyMDP<TState, TAction>::initialize(number history_length)
@@ -26,8 +30,8 @@ namespace sdm
         this->initial_history_ = std::make_shared<typename TState::jhistory_type::element_type>(this->dpomdp_->getNumAgents(), (history_length > 0) ? history_length : -1);
 
         // Initialize empty state
-        this->initial_state_ = std::make_shared<TState>();
-        this->current_state_ = std::make_shared<TState>();
+        this->initial_state_ = std::make_shared<TState>(this->dpomdp_->getNumAgents());
+        this->current_state_ = std::make_shared<TState>(this->dpomdp_->getNumAgents());
 
         // Fill the initial state state
         for (typename TState::state_type s : this->dpomdp_->getStateSpace()->getAll())
@@ -94,17 +98,19 @@ namespace sdm
     template <typename TState, typename TAction>
     TState OccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &joint_idr, number, std::shared_ptr<HSVI<TState, TAction>>, bool compression) const
     {
-        try{
+        try
+        {
             // The new compressed occupancy state
             std::shared_ptr<TState> new_compressed_occupancy_state;
             // The new fully uncompressed occupancy state
-            std::shared_ptr<TState> new_fully_uncompressed_occupancy_state = std::make_shared<TState>();
+            std::shared_ptr<TState> new_fully_uncompressed_occupancy_state = std::make_shared<TState>(this->dpomdp_->getNumAgents());
             // The new one step left occupancy state
-            std::shared_ptr<TState> new_one_step_left_compressed_occupancy_state = std::make_shared<TState>();
+            std::shared_ptr<TState> new_one_step_left_compressed_occupancy_state = std::make_shared<TState>(this->dpomdp_->getNumAgents());
 
             // for all element in the support of the fully uncompressed occupancy state
             for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
             {
+
                 auto x = p_x_o.first.first;
                 auto o = p_x_o.first.second;
 
@@ -115,6 +121,7 @@ namespace sdm
                 {
                     for (auto &z : this->dpomdp_->getReachableObservations(x, jaction, y))
                     {
+
                         // Get the probability of the next couple (next_state, next_joint history)
                         double next_occupancy_measure = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
 
@@ -146,13 +153,13 @@ namespace sdm
                 new_compressed_occupancy_state = std::make_shared<TState>(new_one_step_left_compressed_occupancy_state->compress());
                 new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
                 new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
+
                 return *new_compressed_occupancy_state;
             }
 
             new_one_step_left_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
             new_one_step_left_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
             return *new_one_step_left_compressed_occupancy_state;
-
 
             // Go over all pair in the fully uncompressed occupancy state
             // for (const auto &pair_index_proba : *occupancy_state.getFullyUncompressedOccupancy())
@@ -266,8 +273,8 @@ namespace sdm
         this->initial_history_ = std::make_shared<typename state_type::jhistory_type::element_type>(this->dpomdp_->getNumAgents(), (history_length > 0) ? history_length : -1);
 
         // Initialize empty occupancy state
-        this->initial_state_ = std::make_shared<state_type>();
-        this->current_state_ = std::make_shared<state_type>();
+        this->initial_state_ = std::make_shared<state_type>(this->dpomdp_->getNumAgents());
+        this->current_state_ = std::make_shared<state_type>(this->dpomdp_->getNumAgents());
 
         BeliefStateVector belief = this->dpomdp_->getStartDistrib().probabilities();
         auto belief_graph = std::make_shared<typename state_type::state_type::element_type>(belief, this->dpomdp_->getObsDynamics()->getDynamics());
@@ -336,9 +343,9 @@ namespace sdm
             // The new compressed occupancy state
             std::shared_ptr<state_type> new_compressed_occupancy_state;
             // The new fully uncompressed occupancy state
-            std::shared_ptr<state_type> new_fully_uncompressed_occupancy_state = std::make_shared<state_type>();
+            std::shared_ptr<state_type> new_fully_uncompressed_occupancy_state = std::make_shared<state_type>(this->dpomdp_->getNumAgents());
             // The new one step left occupancy state
-            std::shared_ptr<state_type> new_one_step_left_compressed_occupancy_state = std::make_shared<state_type>();
+            std::shared_ptr<state_type> new_one_step_left_compressed_occupancy_state = std::make_shared<state_type>(this->dpomdp_->getNumAgents());
 
             // for all element in the support of the fully uncompressed occupancy state
             for (auto const &pair_belief_history_proba : *ostate.getFullyUncompressedOccupancy())

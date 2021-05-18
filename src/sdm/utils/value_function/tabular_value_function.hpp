@@ -50,6 +50,11 @@ namespace sdm
         using backup_operator_type = TBackupOperator<TState, TAction>;
 
         /**
+         * @brief The temporary one-stage value function represention.
+         */
+        Container tmp_representation;
+
+        /**
          * @brief The value function represention.
          * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
          */
@@ -112,6 +117,15 @@ namespace sdm
         {
             os << vf.str();
             return os;
+        }
+
+    private:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            archive &BOOST_SERIALIZATION_NVP(representation);
         }
     };
 

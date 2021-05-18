@@ -33,9 +33,7 @@ namespace sdm
     using state_type = TState;
     using jhistory_type = TJointHistory_p;
 
-    BaseOccupancyState();
-    BaseOccupancyState(double);
-    BaseOccupancyState(std::size_t, double);
+    BaseOccupancyState(number num_agents = 2, double default_value = 0.);
     BaseOccupancyState(const BaseOccupancyState &);
 
     void setProbabilityAt(const TState &, const TJointHistory_p &, double);
@@ -140,7 +138,7 @@ namespace sdm
     /**
      * @brief the number of agents 
      */
-    number num_agents = 2;
+    number num_agents_ = 2;
 
     /**
      * @brief space of all reachable states, those in the support of the occupancy state
@@ -163,11 +161,9 @@ namespace sdm
      */
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
 
-
     std::unordered_map<number, std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<jhistory_type>>> ihistories_to_jhistory;
 
     RecursiveMap<jhistory_type, double> probability_jhistories;
-
 
   };
 

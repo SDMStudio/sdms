@@ -5,6 +5,7 @@ namespace sdm
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>
     PartiallyObservableDecisionProcess<TStateSpace, TActionSpace, TObsSpace, TStateDynamics, TObsDynamics, TReward, TDistrib>::PartiallyObservableDecisionProcess()
     {
+        this->obs_dynamics_ = std::make_shared<TObsDynamics>();
     }
 
     template <typename TStateSpace, typename TActionSpace, typename TObsSpace, typename TStateDynamics, typename TObsDynamics, typename TReward, typename TDistrib>

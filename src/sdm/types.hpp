@@ -102,6 +102,13 @@ namespace sdm
       IloIfThenResolution
   };
 
+  enum TypeSawtoothLinearProgram
+  { 
+      PLAIN_SAWTOOTH_LINER_PROGRAMMING,
+      RELAXED_SAWTOOTH_LINER_PROGRAMMING
+  };
+
+
   class World;
   class DiscreteMDP;
   class DiscreteMMDP;

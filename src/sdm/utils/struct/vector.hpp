@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <boost/serialization/vector.hpp>
 
 #include <sdm/types.hpp>
 

@@ -29,7 +29,7 @@ namespace sdm
 
     DiscreteMDP::DiscreteMDP(std::string &filename)
     {
-        *this = *(parser::parse_file(filename.c_str())->toPOMDP()->toMDP());
+        *this = *(parser::parse_file(filename)->toPOMDP()->toMDP());
     }
 
     // SolvableByHSVI interface implementation
