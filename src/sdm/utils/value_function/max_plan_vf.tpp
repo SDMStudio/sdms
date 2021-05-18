@@ -325,6 +325,23 @@ namespace sdm
     }
 
     // ---------------------------------------------------------------
+    // --------- DEFINITION FOR BeliefMDP FORMALISM ------------------
+    // ---------------------------------------------------------------
+
+    template <>
+    std::pair<double, SerializedBeliefState> MaxPlanValueFunction<SerializedBeliefState, number, double>::getMaxAt(const SerializedBeliefState &, number)
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    template <typename TVector, typename TAction, typename TValue>
+    template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int>>
+    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    // ---------------------------------------------------------------
     // --------- DEFINITION FOR MDP FORMALISM ------------------------
     // ---------------------------------------------------------------
 

@@ -239,9 +239,9 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedOccupancyMDP<TState, TAction>::toBeliefMDP()
+    std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>> SerializedOccupancyMDP<TState, TAction>::toBeliefMDP()
     {
-        throw sdm::exception::NotImplementedException();
+        return this->serialized_mpomdp_->toBeliefMDP();
     }
 
     template <typename TState, typename TAction>

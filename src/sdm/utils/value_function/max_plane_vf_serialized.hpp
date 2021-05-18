@@ -235,6 +235,45 @@ namespace sdm
         }
     };
 
+    template <class TAction, class TValue>
+    class MaxPlanValueFunctionSerialized<SerializedBeliefState, TAction, TValue> : public MaxPlanValueFunction<SerializedBeliefState, TAction, TValue>
+    {
+    public:
+        MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<SerializedBeliefState, TAction>> , int , std::shared_ptr<Initializer<SerializedBeliefState, TAction>> )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedBeliefState.");
+        }
+
+        void initialize()
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedBeliefState.");
+        }
+        void initialize(TValue , number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedBeliefState.");
+        }
+
+        TValue getValueAt(const SerializedBeliefState &, number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedBeliefState.");
+        }
+
+        void updateValueAt(const SerializedBeliefState &, number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedBeliefState.");
+        }
+
+        std::vector<SerializedBeliefState> getSupport(number )
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedBeliefState.");
+        }
+
+        std::string str()
+        {
+            return "MaxPlanVFSerialized";
+        }
+    };
+
 
     template <class TAction, class TValue>
     class MaxPlanValueFunctionSerialized<OccupancyState<>, TAction, TValue> : public MaxPlanValueFunction<OccupancyState<>, TAction, TValue>

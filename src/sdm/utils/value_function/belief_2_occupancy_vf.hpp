@@ -18,7 +18,7 @@ namespace sdm
     public:
         Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction<TBelief, number>> pomdp_vf);
 
-        template <bool is_solving_dpomdp = std::is_any<typename WorldType<TOccupancyState>::underlying_problem_type, DiscreteDecPOMDP>::value>
+        template <bool is_solving_dpomdp = std::is_any<typename WorldType<TOccupancyState>::type, OccupancyMDP<>,SerializedOccupancyMDP<>>::value>
         std::enable_if_t<is_solving_dpomdp, double>
         sawtooth(const TBelief &bstate, const number &tau);
 
@@ -31,17 +31,29 @@ namespace sdm
         // std::enable_if_t<is_solving_pomdp, double>
         // operator()(const TOccupancyState &ostate, const number &tau);
 
-        template <bool is_solving_dpomdp = std::is_any<typename WorldType<TOccupancyState>::underlying_problem_type, DiscreteDecPOMDP>::value>
+        template <bool is_solving_dpomdp = std::is_any<typename WorldType<TOccupancyState>::type, OccupancyMDP<>,SerializedOccupancyMDP<>>::value>
         std::enable_if_t<is_solving_dpomdp, double>
         operator()(const TOccupancyState &ostate, const number &tau);
         
 
-        template <bool is_solving_dpomdp = std::is_any<typename WorldType<TOccupancyState>::underlying_problem_type, DiscreteDecPOMDP>::value>
+        template <bool is_solving_dpomdp = std::is_any<typename WorldType<TOccupancyState>::type, OccupancyMDP<>,SerializedOccupancyMDP<>>::value>
         std::enable_if_t<!is_solving_dpomdp, double>
         operator()(const TOccupancyState &ostate, const number &tau);
         
 
         double operator()(const TOccupancyState &ostate, const number &tau);
+    };
+
+    template <typename TState, typename TAction, typename TObservation>
+    class Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>
+        : public BinaryFunction<OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>, number, double>
+    {
+    protected:
+        std::shared_ptr<ValueFunction<TState, TAction>> pomdp_vf_;
+
+    public:
+        Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf);
+        double operator()(const OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>> &ostate, const number &tau);
     };
 
 } // namespace sdm

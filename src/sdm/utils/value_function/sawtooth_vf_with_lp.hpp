@@ -75,7 +75,6 @@ namespace sdm
          * @brief Create the variables
          * 
          * @param const TState& : current state
-         * @param std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>& : 
          * @param IloEnv& : env 
          * @param IloNumVarArray& : var 
          * @param double : Restrict the lower bound of the objectif variable  !
@@ -83,7 +82,7 @@ namespace sdm
          * 
          * @warning The param who resctric the lower bound is not implemented for the moment
          */
-        void setGreedyVariables(const TState&, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>>&, IloEnv& , IloNumVarArray& , double, number  ) ;
+        void setGreedyVariables(const TState&, IloEnv& , IloNumVarArray& , double, number  ) ;
 
         /**
          * @brief Set the objective function
@@ -365,6 +364,54 @@ namespace sdm
         std::vector<BeliefState> getSupport(number)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
+        }
+
+        std::string str()
+        {
+            return "Sawtooth_LP";
+        }
+    };
+
+    template <class TAction, class TValue>
+    class SawtoothValueFunctionLP<SerializedBeliefState, TAction, TValue> : public SawtoothValueFunction<SerializedBeliefState, TAction, TValue>
+    {
+    public:
+        SawtoothValueFunctionLP()
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
+        }
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedBeliefState, TAction>>, number = 0, TValue = 0.)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
+        }
+
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedBeliefState, TAction>> problem, number horizon, std::shared_ptr<Initializer<SerializedBeliefState, TAction>> initializer) : SawtoothValueFunction<SerializedBeliefState, TAction, TValue>(problem, horizon, initializer)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
+        }
+
+        void initialize()
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
+        }
+        void initialize(TValue, number = 0)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
+        }
+
+        TValue getValueAt(const SerializedBeliefState &, number = 0)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
+        }
+
+        void updateValueAt(const SerializedBeliefState &, number = 0)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
+        }
+
+        std::vector<SerializedBeliefState> getSupport(number)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
         }
 
         std::string str()

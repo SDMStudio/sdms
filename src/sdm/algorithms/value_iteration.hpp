@@ -4,7 +4,6 @@
 #include <sdm/public/algorithm.hpp>
 
 #include <sdm/utils/value_function/initializer.hpp>
-#include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
 

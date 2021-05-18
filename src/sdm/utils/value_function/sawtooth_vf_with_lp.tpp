@@ -85,14 +85,6 @@ namespace sdm
 
         TAction a;
 
-        std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> ihs;
-
-        for (number ag = 0; ag < this->getWorld()->getUnderlyingProblem()->getNumAgents(); ++ag)
-        {
-            std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type> empty;
-            ihs.emplace(ag, empty);
-        }
-
         IloEnv env;
         try
         {
@@ -107,7 +99,7 @@ namespace sdm
             ///////  BEGIN CORE CPLEX Code  ///////
 
             // 0. Build variables a(u|o), a_i(u_i|o_i), v
-            this->setGreedyVariables(occupancy_state, ihs, env, var, cub, t);
+            this->setGreedyVariables(occupancy_state, env, var, cub, t);
 
             // 1. Build objective function \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v
             this->template setGreedyObjective<TState>(occupancy_state, obj, var, t);
@@ -117,7 +109,7 @@ namespace sdm
                 this->template setGreedySawtooth<TState>(occupancy_state, model, env, con, var, index, t);
 
             // 3. Build decentralized control constraints [  a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n ] ---- and ---- [ a(u|o) <= a_i(u_i|o_i) ]
-            this->template setDecentralizedConstraints<TState>(occupancy_state, ihs, env, con, var, index, t);
+            this->template setDecentralizedConstraints<TState>(occupancy_state, env, con, var, index, t);
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
@@ -168,7 +160,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, double /*cub*/, number t)
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, IloEnv &env, IloNumVarArray &var, double /*cub*/, number t)
     {
         try{
             //<! tracking variable ids
@@ -205,7 +197,7 @@ namespace sdm
                     this->setNumber(VarName, index++);
                 }
             }
-            this->template setDecentralizedVariables<TState>(occupancy_state, ihs, env, var, index, t);
+            this->template setDecentralizedVariables<TState>(occupancy_state, env, var, index, t);
         }
         catch (const std::exception &exc)
         {

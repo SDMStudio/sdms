@@ -113,14 +113,6 @@ namespace sdm
         TAction a;
         double value_opti = 0;
 
-        std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> ihs;
-
-        for (number ag = 0; ag < this->getWorld()->getUnderlyingProblem()->getNumAgents(); ++ag)
-        {
-            std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type> empty;
-            ihs.emplace(ag, empty);
-        }
-
         IloEnv env;
         try
         {
@@ -135,7 +127,7 @@ namespace sdm
             ///////  BEGIN CORE CPLEX Code  ///////
 
             // 0. Build variables a(u|o), a_i(u_i|o_i), v
-            this->setGreedyVariables(occupancy_state, ihs, env, var,limite_inf,limite_sup, t);
+            this->setGreedyVariables(occupancy_state, env, var,limite_inf,limite_sup, t);
 
             // 1. Build objective function \sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v
             this->template setGreedyObjective<TState>(occupancy_state, obj, var, t);
@@ -145,7 +137,7 @@ namespace sdm
                 this->template setGreedySawtooth<TState>(occupancy_state,next_one_step_uncompressed_occupancy_state_AND_upper_bound, model, env, con, var, index, t);
 
             // 3. Build decentralized control constraints [  a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n ] ---- and ---- [ a(u|o) <= a_i(u_i|o_i) ]
-            this->template setDecentralizedConstraints<TState>(occupancy_state, ihs, env, con, var, index, t);
+            this->template setDecentralizedConstraints<TState>(occupancy_state, env, con, var, index, t);
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
@@ -186,7 +178,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, std::unordered_map<agent, std::unordered_set<typename TState::jhistory_type::element_type::ihistory_type>> &ihs, IloEnv &env, IloNumVarArray &var, double /*limite_inf*/, double /*limite_sup*/, number t)
+    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedyVariables(const TState &occupancy_state, IloEnv &env, IloNumVarArray &var, double /*limite_inf*/, double /*limite_sup*/, number t)
     {
         //<! tracking variable ids
         number index = 0;
@@ -201,7 +193,7 @@ namespace sdm
         var.add(IloNumVar(env, -IloInfinity, 0.0, VarName.c_str()));
         this->setNumber(VarName, index++);
 
-        this->template setDecentralizedVariables<TState>(occupancy_state, ihs, env, var, index, t);
+        this->template setDecentralizedVariables<TState>(occupancy_state, env, var, index, t);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -251,7 +243,7 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> >
-    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState& compressed_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_occupancy_state_AND_upper_bound, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState& compressed_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_occupancy_state_AND_upper_bound, IloModel &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //<!  Build sawtooth constraints v - \sum_{u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(y,<o,z>)*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
@@ -317,7 +309,7 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_serial_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_serial_occupancy_state_AND_upper_bound, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void SawtoothValueFunctionLPRelaxed<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_serial_occupancy_state,const Pair<TState,double>& next_one_step_uncompressed_serial_occupancy_state_AND_upper_bound, IloModel &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         number agent_id = compressed_serial_occupancy_state.getCurrentAgentId();
 

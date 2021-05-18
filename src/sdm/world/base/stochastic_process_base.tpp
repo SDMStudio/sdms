@@ -42,7 +42,7 @@ namespace sdm
     }
 
     template <typename TStateSpace, typename TDistrib>
-    std::shared_ptr<TStateSpace> StochasticProcessBase<TStateSpace, TDistrib>::getStateSpace() const
+    std::shared_ptr<TStateSpace> StochasticProcessBase<TStateSpace, TDistrib>::getStateSpace(number) const
     {
         return this->state_space_;
     }

@@ -62,6 +62,7 @@ namespace sdm
         {
             max_value = std::max(std::abs(policy_evaluation_1_->getValueAt(state,0) - policy_evaluation_2_->getValueAt(state,0)),max_value);
         }
+        std::cout<<"\n error"<<this->error_;
         if (max_value<= this->error_)
         {
             return false;

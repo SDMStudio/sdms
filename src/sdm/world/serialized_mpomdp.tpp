@@ -164,9 +164,9 @@ namespace sdm
         return std::make_shared<SerializedMMDP>(this->mmdp_);
     }
 
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMPOMDP::toBeliefMDP()
+    std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>> SerializedMPOMDP::toBeliefMDP()
     {
-        throw sdm::exception::NotImplementedException();
+        return std::make_shared<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>>(this->getptr());
     }
 
     std::shared_ptr<MultiDiscreteSpace<number>> SerializedMPOMDP::getObsSpace() const
@@ -188,5 +188,11 @@ namespace sdm
     {
         return this->dynamics.at(serialized_state).at(action).at(joint_obs).at(serialized_state_next);
     }
+
+    std::shared_ptr<SerializedMPOMDP>  SerializedMPOMDP::getptr()
+    {
+        return  std::static_pointer_cast<SerializedMPOMDP>(SerializedMMDPStructure::getptr());
+    }
+
 
 }
