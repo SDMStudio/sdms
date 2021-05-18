@@ -186,6 +186,16 @@ namespace sdm
     //! \param const vector<type, value>&
     //! \return bool
     bool operator==(const vector<type, value> &) const;
+
+    friend class boost::serialization::access;
+
+    template <class Archive>
+    void serialize(Archive &archive, const unsigned int)
+    {
+      using boost::serialization::make_nvp;
+      archive &make_nvp("size", _size_);
+      archive &make_nvp("container", container);
+    }
   };
 
 #ifdef EIGEN
@@ -198,7 +208,6 @@ namespace sdm
 #endif
 
 }
-
 
 namespace std
 {
@@ -220,4 +229,3 @@ namespace std
     }
   };
 }
-

@@ -67,10 +67,10 @@ namespace sdm
             this->do_episode();
 
             // Test current policy and write logs
-            if (this->do_log)
+            if (this->do_log_)
             {
                 this->logger_->log(this->episode, this->global_step, this->q_value_->getQValueAt(this->env_->reset(), 0)->max(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-                this->do_log = false;
+                this->do_log_ = false;
             }
             if (this->do_test_)
             {
@@ -80,6 +80,12 @@ namespace sdm
             }
         }
         std::cout << "Final QValue :" << *this->q_value_ << std::endl;
+    }
+
+    template <typename TObservation, typename TAction>
+    void QLearning<TObservation, TAction>::do_save()
+    {
+        this->q_value_->save(this->name_ + "_qvalue.bin");
     }
 
     template <typename TObservation, typename TAction>
@@ -100,8 +106,8 @@ namespace sdm
             this->do_step();
 
             //Save the model
-            this->do_save = (this->global_step % this->save_freq == 0);
-            this->do_log = (this->global_step % this->log_freq == 0);
+            this->do_save_ = (this->global_step % this->save_freq == 0);
+            this->do_log_ = (this->global_step % this->log_freq == 0);
             this->do_test_ = (this->global_step % this->test_freq == 0);
 
             if (this->is_done)

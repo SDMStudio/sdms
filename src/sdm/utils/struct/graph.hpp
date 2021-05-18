@@ -4,10 +4,12 @@
 #include <unordered_map>
 #include <memory>
 #include <iostream>
+#include <boost/serialization/set.hpp>
 
 // #include <sdm/utils/struct/node.hpp>
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
+#include <sdm/public/boost_serializable.hpp>
 
 namespace sdm
 {
@@ -25,7 +27,8 @@ namespace sdm
      * 
      */
     template <typename TNode, typename TEdge>
-    class Graph : public std::enable_shared_from_this<Graph<TNode, TEdge>>
+    class Graph : public std::enable_shared_from_this<Graph<TNode, TEdge>>,
+                  public BoostSerializable<Graph<TNode, TEdge>>
     {
     public:
         /**
@@ -86,6 +89,9 @@ namespace sdm
         std::string str();
 
         std::shared_ptr<Graph<TNode, TEdge>> getptr();
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
 
         friend std::ostream &operator<<(std::ostream &os, Graph<TNode, TEdge> &graph)
         {

@@ -60,6 +60,18 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::save(std::string filename)
+    {
+        BoostSerializable<TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>>::save(filename);
+    }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::load(std::string filename)
+    {
+        BoostSerializable<TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>>::load(filename);
+    }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     std::string TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::str()
     {
         std::ostringstream res;

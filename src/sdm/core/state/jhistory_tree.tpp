@@ -95,7 +95,7 @@ namespace sdm
     void JointHistoryTree<T>::setDefaultObs(number n_agents)
     {
         std::vector<T> default_vector;
-        
+
         for (number i = 0; i < n_agents; i++)
         {
             default_vector.push_back(sdm::DEFAULT_OBSERVATION);
@@ -132,7 +132,7 @@ namespace sdm
     std::vector<std::shared_ptr<JointHistoryTree<T>>> JointHistoryTree<T>::getChildren() const
     {
         std::vector<std::shared_ptr<JointHistoryTree<T>>> vector;
-        for(const auto& children : HistoryTree<Joint<T>>::getChildren())
+        for (const auto &children : HistoryTree<Joint<T>>::getChildren())
         {
             vector.push_back(std::static_pointer_cast<JointHistoryTree<T>>(children));
         }
@@ -143,6 +143,17 @@ namespace sdm
     std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::getChild(const T &child_item) const
     {
         return std::static_pointer_cast<JointHistoryTree<T>>(HistoryTree<Joint<T>>::getChild(child_item));
+    }
+
+    template <typename T>
+    template <class Archive>
+    void JointHistoryTree<T>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+
+        archive &boost::serialization::base_object<HistoryTree<Joint<T>>>(*this);
+        archive &boost::serialization::base_object<Joint<std::shared_ptr<HistoryTree<T>>>>(*this);
+        archive &make_nvp("default_value", default_value);
     }
 
 } // namespace sdm

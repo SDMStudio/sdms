@@ -141,4 +141,21 @@ namespace sdm
     {
         return this->shared_from_this();
     }
+
+    template <typename T>
+    template <class Archive>
+    void Tree<T>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+        archive &make_nvp("depth", depth_);
+        archive &make_nvp("max_depth", max_depth_);
+        archive &make_nvp("data", data_);
+        archive &make_nvp("is_origin", is_origin);
+        if (!this->isOrigin())
+        {
+            archive &make_nvp("origin", origin_);
+            archive &make_nvp("parent", parent_);
+        }
+        archive &make_nvp("children", children_);
+    }
 } // namespace sdm

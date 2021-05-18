@@ -124,9 +124,9 @@ namespace sdm
     std::vector<std::shared_ptr<HistoryTree<T>>> HistoryTree<T>::getChildren() const
     {
         std::vector<std::shared_ptr<HistoryTree<T>>> vector;
-        for(const auto& children : Tree<T>::getChildren())
+        for (const auto &children : Tree<T>::getChildren())
         {
-            std::cout<<"\n children "<<*children<<std::endl;
+            std::cout << "\n children " << *children << std::endl;
             vector.push_back(std::static_pointer_cast<HistoryTree<T>>(children));
         }
         return vector;
@@ -138,5 +138,12 @@ namespace sdm
         return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getChild(child_item));
     }
 
+    template <typename T>
+    template <class Archive>
+    void HistoryTree<T>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+        archive &boost::serialization::base_object<Tree<T>>(*this);
+    }
 
 } // namespace sdm

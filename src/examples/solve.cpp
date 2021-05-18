@@ -22,7 +22,8 @@ int solve(int argv, char **args)
         po::options_description options("Options");
         options.add_options()
         ("help", "produce help message")
-        ("test", "test the policy found");
+        ("test", "test the policy found")
+        ("save", "save the policy found");
 
         po::options_description config("Configuration");
         config.add_options()
@@ -77,6 +78,11 @@ int solve(int argv, char **args)
             if (vm.count("test"))
             {
                 algo->do_test();
+            }
+
+            if (vm.count("save"))
+            {
+                algo->do_save();
             }
         }
         else

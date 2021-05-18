@@ -118,4 +118,15 @@ namespace sdm
         return std::static_pointer_cast<BeliefStateGraph<TBeliefState, TAction, TObservation>>(this->shared_from_this());
     }
 
+    template <typename TBeliefState, typename TAction, typename TObservation>
+    template <class Archive>
+    void BeliefStateGraph<TBeliefState, TAction, TObservation>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+
+        archive &boost::serialization::base_object<Graph<TBeliefState, Pair<TAction, TObservation>>>(*this);
+        archive &make_nvp("belief_space", belief_space);
+        archive &make_nvp("belief_proba", belief_proba);
+    }
+
 } // namespace sdm

@@ -10,6 +10,8 @@
  */
 #pragma once
 
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/unordered_map.hpp>
 #include <unordered_map>
 // #include <map>
 #include <vector>
@@ -86,6 +88,15 @@ namespace sdm
             os << " }";
             return os;
         }
+
+    protected:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            archive &boost::serialization::base_object<map_t<T0, T1>>(*this);
+        }
     };
 
     template <class T0, class T1, class T2, class... Ts>
@@ -138,6 +149,15 @@ namespace sdm
             }
             os << " }";
             return os;
+        }
+
+    protected:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            archive &boost::serialization::base_object<map_t<T0, RecursiveMap_t<T1, T2, Ts...>>>(*this);
         }
     };
 

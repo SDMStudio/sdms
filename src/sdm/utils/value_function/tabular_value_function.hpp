@@ -16,13 +16,13 @@
 
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/core/function.hpp>
+#include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 #include <sdm/utils/backup_operator/backup_operator.hpp>
-#include <sdm/core/state/state.hpp>
-#include <sdm/core/function.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/value_function/initializer.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -43,39 +43,16 @@ namespace sdm
               typename TValue = double,
               template <typename TI, typename TV> class TBackupOperator = ClassicBellmanBackupOperator,
               template <typename TI, typename TV> class TStruct = MappedVector>
-    class TabularValueFunction : public ValueFunction<TState, TAction, TValue>
+    class TabularValueFunction : public ValueFunction<TState, TAction, TValue>,
+                                 public BoostSerializable<TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>>
     {
-    protected:
+    public:
         using Container = TStruct<TState, TValue>;
         using backup_operator_type = TBackupOperator<TState, TAction>;
 
-        /**
-         * @brief The temporary one-stage value function represention.
-         */
-        Container tmp_representation;
-
-        /**
-         * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
-         */
-        std::vector<Container> representation;
-
-        /**
-         * @brief The backup operator used in order to update this value function. 
-         * 
-         */
-        backup_operator_type backup_op_;
-
-        /**
-         * @brief The initializer to use for this value function. 
-         * 
-         */
-        std::shared_ptr<Initializer<TState, TAction>> initializer_;
-
-    public:
         TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
 
-        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon = 0, TValue default_value = 0.);
+        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem = nullptr, number horizon = 0, TValue default_value = 0.);
 
         /**
          * @brief Initialize the value function according using initializer.
@@ -107,6 +84,22 @@ namespace sdm
         void updateValueAt(const TState &state, number t = 0);
         void updateValueAt(const TState &state, number t, TValue target);
 
+        /**
+         * @brief Save a value function into a file. 
+         * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format). 
+         * 
+         * @param filename the filename
+         */
+        void save(std::string filename);
+
+        /**
+         * @brief Load a value function from a file.
+         * The extension of the file will indicate the type of formatage for reading (`.txt` = text format, '.xml' = XML format, other = binary format). 
+         * 
+         * @param filename the filename
+         */
+        void load(std::string filename);
+
         std::string str();
 
         std::vector<TState> getSupport(number t);
@@ -119,13 +112,40 @@ namespace sdm
             return os;
         }
 
-    private:
+    protected:
+        /**
+         * @brief The temporary one-stage value function represention.
+         */
+        Container tmp_representation;
+
+        /**
+         * @brief The value function represention.
+         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
+         */
+        std::vector<Container> representation;
+
+        /**
+         * @brief The backup operator used in order to update this value function. 
+         * 
+         */
+        backup_operator_type backup_op_;
+
+        /**
+         * @brief The initializer to use for this value function. 
+         * 
+         */
+        std::shared_ptr<Initializer<TState, TAction>> initializer_;
+
+    public:
         friend class boost::serialization::access;
 
         template <class Archive>
         void serialize(Archive &archive, const unsigned int)
         {
-            archive &BOOST_SERIALIZATION_NVP(representation);
+            using boost::serialization::make_nvp;
+            
+            archive &make_nvp("horizon", this->horizon_);
+            archive &make_nvp("representation", representation);
         }
     };
 

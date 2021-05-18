@@ -22,7 +22,6 @@ namespace sdm
         std::enable_if_t<is_solving_dpomdp, double>
         sawtooth(const TBelief &bstate, const number &tau);
 
-
         // template <bool is_solving_mdp = std::is_any<typename WorldType<TOccupancyState>::underlying_problem_type, DiscreteMDP, DiscreteMMDP>::value>
         // std::enable_if_t<is_solving_mdp, double>
         // operator()(const TOccupancyState &ostate, const number &tau);

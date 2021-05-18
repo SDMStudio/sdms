@@ -1,10 +1,10 @@
 #pragma once
 
+#include <sdm/types.hpp>
+
 #include <iostream>
-#include <vector>
 #include <boost/serialization/vector.hpp>
 
-#include <sdm/types.hpp>
 
 namespace sdm
 {

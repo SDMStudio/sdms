@@ -290,6 +290,33 @@ namespace sdm
         return res.str();
     }
 
+    template <typename TIndex, typename T>
+    template <class Archive>
+    void MappedVector<TIndex, T>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+
+        archive &boost::serialization::base_object<RecursiveMap<TIndex, T>>(*this);
+        archive &make_nvp("default_value", default_value_);
+        archive &make_nvp("size", size_);
+        archive &make_nvp("precision", precision);
+
+        archive &make_nvp("bmin", bmin);
+        archive &make_nvp("bmax", bmax);
+
+        if (v_indexes.size() > 0)
+            archive &make_nvp("vector_indexes", v_indexes);
+
+        if (bmin)
+        {
+            archive &make_nvp("pair_min", pmin);
+        }
+        if (bmax)
+        {
+            archive &make_nvp("pair_max", pmax);
+        }
+    }
+
 } // namespace sdm
 
 namespace std
