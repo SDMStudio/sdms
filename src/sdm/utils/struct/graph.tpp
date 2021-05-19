@@ -74,6 +74,18 @@ namespace sdm
         return this->shared_from_this();
     }
 
+
+    template <typename TNode, typename TEdge>
+    template <class Archive>
+    void Graph<TNode, TEdge>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+
+        archive &make_nvp("data", data_);
+        archive &make_nvp("successors", successors);
+        archive &make_nvp("predecessors", predecessors);
+    }
+
     template <typename TNode, typename TEdge>
     std::string Graph<TNode, TEdge>::str()
     {

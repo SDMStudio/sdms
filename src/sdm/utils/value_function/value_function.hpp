@@ -11,6 +11,7 @@
 #pragma once
 
 #include <memory>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
@@ -39,19 +40,6 @@ namespace sdm
           public BinaryFunction<TState, number, TValue>
 
     {
-    protected:
-        /**
-         * @brief The problem which incremental value function is evaluated 
-         * 
-         */
-        std::shared_ptr<SolvableByHSVI<TState, TAction>> problem_;
-
-        /**
-         * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
-         * 
-         */
-        std::shared_ptr<BinaryFunction<TState, number, TValue>> init_function_ = nullptr;
-
     public:
         ValueFunction() {}
 
@@ -115,7 +103,6 @@ namespace sdm
          */
         std::shared_ptr<ValueFunction<TState, TAction, TValue>> getptr();
 
-
         TValue operator()(const TState &, const number & = 0);
 
         /**
@@ -163,6 +150,19 @@ namespace sdm
          * @return double the discount factor
          */
         double getDiscount(number);
+
+    protected:
+        /**
+         * @brief The problem which incremental value function is evaluated 
+         * 
+         */
+        std::shared_ptr<SolvableByHSVI<TState, TAction>> problem_;
+
+        /**
+         * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
+         * 
+         */
+        std::shared_ptr<BinaryFunction<TState, number, TValue>> init_function_ = nullptr;
     };
 } // namespace sdm
 #include <sdm/utils/value_function/value_function.tpp>

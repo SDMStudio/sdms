@@ -85,39 +85,39 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
     {
-        try
+        // try
+        // {
+        if (!this->do_stop(s, cost_so_far, h))
         {
-            if (!this->do_stop(s, cost_so_far, h))
+            if (this->lower_bound_->isInfiniteHorizon())
             {
-                if (this->lower_bound_->isInfiniteHorizon())
-                {
-                    this->lower_bound_->updateValueAt(s, h);
-                    this->upper_bound_->updateValueAt(s, h);
-                }
-
-                // Select next action and state following search process
-                TAction a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
-
-                TState s_ = this->world_->nextState(s, a, h, this->getptr());
-
-                // Recursive explore
-                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
-
-                // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
                 this->upper_bound_->updateValueAt(s, h);
             }
 
-            //---------------DEBUG-----------------//
-            std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
-            //-----------------DEBUG----------------//
+            // Select next action and state following search process
+            TAction a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+
+            TState s_ = this->world_->nextState(s, a, h, this->getptr());
+
+            // Recursive explore
+            this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
+
+            // Update bounds
+            this->lower_bound_->updateValueAt(s, h);
+            this->upper_bound_->updateValueAt(s, h);
         }
-        catch (const std::exception &exc)
-        {
-            // catch anything thrown within try block that derives from std::exception
-            std::cerr << "HSVI<TState, TAction>::do_explore(..) exception caught: " << exc.what() << std::endl;
-            exit(-1);
-        }
+
+        //---------------DEBUG-----------------//
+        std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
+        //-----------------DEBUG----------------//
+        // }
+        // catch (const std::exception &exc)
+        // {
+        //     // catch anything thrown within try block that derives from std::exception
+        //     std::cerr << "HSVI<TState, TAction>::do_explore(..) exception caught: " << exc.what() << std::endl;
+        //     exit(-1);
+        // }
     }
 
     template <typename TState, typename TAction>
@@ -156,6 +156,12 @@ namespace sdm
                       << jdr << std::endl;
             ostate = this->world_->nextState(ostate, jdr, i, this->getptr());
         }
+    }
+
+    template <typename TState, typename TAction>
+    void HSVI<TState, TAction>::do_save()
+    {
+        this->getLowerBound()->save(this->name_ + "_lb");
     }
 
     template <typename TState, typename TAction>

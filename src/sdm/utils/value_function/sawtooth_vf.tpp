@@ -94,7 +94,6 @@ namespace sdm
                 state_ = state;
                 break;
         }
-
         MappedValueFunction<TState, TAction, TValue>::updateValueAt(state_, t, this->getBackup(state, t));
 
         if (this->last_prunning == this->freq_prune_)
@@ -197,23 +196,23 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     bool SawtoothValueFunction<TState, TAction, TValue>::is_dominated(const TState &state, double value, number t)
     {
-        TState state_;
-        switch (this->ctype)
-        {
-            case TState_t::FULLY_UNCOMPRESSED:
-                state_ = *state.getFullyUncompressedOccupancy();
-                break;
-            case TState_t::ONE_STEP_UNCOMPRESSED:
-                state_ = *state.getOneStepUncompressedOccupancy();
-                break;
-            default:
-                state_ = state;
-                break;
-        }
+        // TState state_;
+        // switch (this->ctype)
+        // {
+        //     case TState_t::FULLY_UNCOMPRESSED:
+        //         state_ = *state.getFullyUncompressedOccupancy();
+        //         break;
+        //     case TState_t::ONE_STEP_UNCOMPRESSED:
+        //         state_ = *state.getOneStepUncompressedOccupancy();
+        //         break;
+        //     default:
+        //         state_ = state;
+        //         break;
+        // }
 
-        auto pair_witness_ostate = this->getMaxAt(state_, t);
+        auto pair_witness_ostate = this->getMaxAt(state, t);
 
-        if (pair_witness_ostate.second == state_)
+        if (pair_witness_ostate.second == state)
         {
             return false;
         }

@@ -105,6 +105,12 @@ namespace sdm
     void do_test();
 
     /**
+     * @brief Save the lower bound under "name_lb.bin"
+     * 
+     */
+    void do_save();
+
+    /**
      * @brief Check the end of HSVI algo
      * 
      * @param s the current state

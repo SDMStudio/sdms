@@ -11,14 +11,16 @@
  */
 #pragma once
 
-#include <unordered_set>
-#include <unordered_map>
 #include <memory>
 #include <iostream>
+#include <unordered_set>
+#include <unordered_map>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/weak_ptr.hpp>
 
-// #include <sdm/utils/struct/node.hpp>
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
+#include <sdm/public/boost_serializable.hpp>
 
 namespace sdm
 {
@@ -39,7 +41,8 @@ namespace sdm
      * 
      */
     template <typename T>
-    class Tree : public std::enable_shared_from_this<Tree<T>>
+    class Tree : public std::enable_shared_from_this<Tree<T>>,
+                 public BoostSerializable<Tree<T>>
     {
     protected:
         //! @brief depth of the tree
@@ -122,11 +125,15 @@ namespace sdm
 
         std::shared_ptr<Tree<T>> getptr();
 
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
+
         friend std::ostream &operator<<(std::ostream &os, Tree<T> &tree)
         {
             os << tree.str();
             return os;
         }
+
     };
 
 } // namespace sdm

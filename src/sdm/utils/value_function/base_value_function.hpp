@@ -13,6 +13,7 @@
 #include <memory>
 
 #include <sdm/types.hpp>
+#include <sdm/public/boost_serializable.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
 /**
@@ -33,12 +34,6 @@ namespace sdm
     class BaseValueFunction
         : public std::enable_shared_from_this<BaseValueFunction<TState, TAction, TValue>>
     {
-    protected:
-        /**
-         * @brief The horizon for planning.
-         */
-        number horizon_;
-
     public:
         BaseValueFunction();
 
@@ -91,6 +86,22 @@ namespace sdm
         virtual TAction getBestAction(const TState &state, number t) = 0;
 
         /**
+         * @brief Save a value function into a file. 
+         * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format). 
+         * 
+         * @param filename the filename
+         */
+        virtual void save(std::string) { throw sdm::exception::Exception("This class cannot be saved."); }
+
+        /**
+         * @brief Load a value function from a file.
+         * The extension of the file will indicate the type of formatage for reading (`.txt` = text format, '.xml' = XML format, other = binary format). 
+         * 
+         * @param filename the filename
+         */
+        virtual void load(std::string) { throw sdm::exception::Exception("This class cannot be load."); }
+
+        /**
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() = 0;
@@ -113,6 +124,12 @@ namespace sdm
             os << vf.str();
             return os;
         }
+
+    protected:
+        /**
+         * @brief The horizon for planning.
+         */
+        number horizon_;
     };
 } // namespace sdm
 #include <sdm/utils/value_function/base_value_function.tpp>

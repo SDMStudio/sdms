@@ -10,21 +10,20 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, TypeOfResolution current_type_of_resolution, number bigM_value)
+    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution)
         : DecentralizedConstraintsLP<TState, TAction, TValue>(problem),
           SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer),
           current_type_of_resolution_(current_type_of_resolution),
           bigM_value_(bigM_value)
     {
         this->setTStateType(ONE_STEP_UNCOMPRESSED);
-        this->setSawtoothType(RELAXED_SAWTOOTH_LINER_PROGRAMMING);
+        this->setSawtoothType(type_sawtooth_resolution);
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, TypeOfResolution current_type_of_resolution, number bigM_value)
-        : SawtoothValueFunctionLP<TState, TAction, TValue>(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), current_type_of_resolution, bigM_value)
+    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, TypeOfResolution current_type_of_resolution, number bigM_value,TypeSawtoothLinearProgram type_sawtooth_resolution)
+        : SawtoothValueFunctionLP<TState, TAction, TValue>(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), current_type_of_resolution, bigM_value,type_sawtooth_resolution)
     {
-        this->setSawtoothType(RELAXED_SAWTOOTH_LINER_PROGRAMMING);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -291,11 +290,51 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> >
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_occupancy_state, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
+        number recover = 0;
+
+        // Build constraints \sum_x s(x,o) Q_MDP(x,u) + discount * v0 <= \bar{v}(st)
+        std::cout<<"\n new greedy Sawtooth";
+        TState one_step_uncompressed_occupancy_state = *compressed_occupancy_state.getOneStepUncompressedOccupancy();
+
+        //By default, the upper bound of the compressed is v_relaxation(st)
+        double upper_bound_compressed = this->getInitFunction()->operator()(compressed_occupancy_state, t );
+
+        //Try to find a better upper for \bar{v}(st)
+        for(const auto &one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t])
+        {
+            //Successully find a better upper bound
+            if(one_step_uncompressed_occupancy_state_AND_upper_bound.first == one_step_uncompressed_occupancy_state)
+            {
+                std::cout<<"\n find ! ";
+                upper_bound_compressed =  one_step_uncompressed_occupancy_state_AND_upper_bound.second;
+            }
+        }
+        // Add range contraints
+        con.add(IloRange(env, -IloInfinity, upper_bound_compressed));
+
+        recover = this->getNumber(this->getVarNameWeight(0));
+        //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) + discount * v0"
+        con[index].setLinearCoef(var[recover], this->getWorld()->getUnderlyingProblem()->getDiscount(t));
+
+        // Go over all action
+        for (const auto &action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+        {
+            // Go over all joint history
+            for (const auto &joint_history : compressed_occupancy_state.getJointHistories())
+            {
+                //<! 1.c.4 get variable a(u|o)
+                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
+
+                //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
+                con[index].setLinearCoef(var[recover], this->template getQValueRelaxation<TState>(compressed_occupancy_state, joint_history, action, t));
+            }
+        }
+        index++;
+
         //<!  Build sawtooth constraints v - \sum_{u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(y,<o,z>)*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
 
         assert(this->getInitFunction() != nullptr);
-        number recover = 0;
 
        try{
             // Go over all points in the point set at t+1

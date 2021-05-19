@@ -24,7 +24,8 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class HistoryTree : public Tree<T>
+    class HistoryTree : public Tree<T>,
+                        public BoostSerializable<HistoryTree<T>>
     {
     protected:
         /*!
@@ -85,12 +86,13 @@ namespace sdm
 
         std::shared_ptr<HistoryTree<T>> getptr();
 
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
+
         std::shared_ptr<HistoryTree<T>> getParent() const;
         std::shared_ptr<HistoryTree<T>> getOrigin();
         std::vector<std::shared_ptr<HistoryTree<T>>> getChildren() const;
         std::shared_ptr<HistoryTree<T>> getChild(const T &child_item) const;
-
-
 
         friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
         {

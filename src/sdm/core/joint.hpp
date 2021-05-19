@@ -64,6 +64,14 @@ namespace sdm
       os << ")";
       return os;
     }
+
+    friend class boost::serialization::access;
+
+    template <class Archive>
+    void serialize(Archive &archive, const unsigned int)
+    {
+      archive &boost::serialization::base_object<std::vector<T>>(*this);
+    }
   };
 
   template class Joint<number>;

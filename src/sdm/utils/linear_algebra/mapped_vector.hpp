@@ -10,13 +10,14 @@
  */
 #pragma once
 
+#include <iostream>
 #include <unordered_map>
 #include <cmath>
 #include <string>
 #include <vector>
-
-#include <iostream>
 #include <assert.h>
+
+#include <boost/serialization/base_object.hpp>
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
@@ -37,19 +38,6 @@ namespace sdm
     template <typename TIndex, typename T = double>
     class MappedVector : public RecursiveMap<TIndex, T>, public VectorImpl<TIndex, T>
     {
-    protected:
-        T default_value_;
-        long size_ = -1;
-        double precision = 0.00001;
-
-        std::vector<TIndex> v_indexes;
-
-        bool bmin = false, bmax = false;
-        std::pair<TIndex, T> pmin, pmax;
-
-        const std::pair<TIndex, T> &getMin();
-        const std::pair<TIndex, T> &getMax();
-
     public:
         using iterator = typename std::unordered_map<TIndex, T>::iterator;
         using const_iterator = typename std::unordered_map<TIndex, T>::const_iterator;
@@ -111,21 +99,23 @@ namespace sdm
             return os;
         }
 
-    private:
+    protected:
+        T default_value_;
+        long size_ = -1;
+        double precision = 0.00001;
+
+        std::vector<TIndex> v_indexes = {};
+
+        bool bmin = false, bmax = false;
+        std::pair<TIndex, T> pmin, pmax;
+
+        const std::pair<TIndex, T> &getMin();
+        const std::pair<TIndex, T> &getMax();
+
         friend class boost::serialization::access;
 
         template <class Archive>
-        void serialize(Archive &archive, const unsigned int)
-        {
-            archive &BOOST_SERIALIZATION_NVP(default_value_);
-            archive &BOOST_SERIALIZATION_NVP(size_);
-            archive &BOOST_SERIALIZATION_NVP(precision);
-            for (const auto &pair_index_value : *this)
-            {
-                archive &BOOST_SERIALIZATION_NVP(pair_index_value.first);
-                archive &BOOST_SERIALIZATION_NVP(pair_index_value.second);
-            }
-        }
+        void serialize(Archive &archive, const unsigned int);
     };
 } // namespace sdm
 #include <sdm/utils/linear_algebra/mapped_vector.tpp>

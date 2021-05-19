@@ -6,7 +6,6 @@ namespace sdm
   class Algorithm
   {
   public:
-  
     virtual ~Algorithm() {}
 
     /**
@@ -27,10 +26,16 @@ namespace sdm
      */
     virtual void do_test() = 0;
 
+    /**
+     * @brief Save the policy in a file.
+     * 
+     */
+    virtual void do_save() = 0;
+
     // /**
     //  * @brief Get the optimal resultat of the algorithm, but only after the resolution of the problem (do_solve()).
-    //  * 
-    //  * @return double 
+    //  *
+    //  * @return double
     //  */
     // virtual double getResultOpti() =0;
 

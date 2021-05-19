@@ -10,6 +10,7 @@
  */
 #pragma once
 
+#include <sdm/public/boost_serializable.hpp>
 #include <sdm/utils/struct/graph.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
 
@@ -23,7 +24,8 @@ namespace sdm
      * @tparam TObservation 
      */
     template <typename TBeliefState, typename TAction, typename TObservation>
-    class BeliefStateGraph : public Graph<TBeliefState, Pair<TAction, TObservation>>
+    class BeliefStateGraph : public Graph<TBeliefState, Pair<TAction, TObservation>>,
+                             public BoostSerializable<BeliefStateGraph<TBeliefState, TAction, TObservation>>
     {
     public:
         using action_type = TAction;
@@ -91,6 +93,9 @@ namespace sdm
          * @brief Return a the pointer on this object
          */
         std::shared_ptr<BeliefStateGraph<TBeliefState, TAction, TObservation>> getptr();
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
 
         friend std::ostream &operator<<(std::ostream &os, BeliefStateGraph &belief_state_graph)
         {

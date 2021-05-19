@@ -50,6 +50,19 @@ namespace sdm
 
 } // namespace sdm
 
+namespace boost
+{
+  namespace serialization
+  {
+    template <class Archive>
+    void serialize(Archive &archive, sdm::SerializedState &serialized_state, const unsigned int)
+    {
+      archive &boost::serialization::base_object<sdm::Pair<sdm::number, std::vector<sdm::number>>>(serialized_state);
+    }
+
+  } // namespace serialization
+} // namespace boost
+
 namespace std
 {
   template <>

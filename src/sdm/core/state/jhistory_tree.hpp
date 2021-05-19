@@ -26,7 +26,10 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class JointHistoryTree : public HistoryTree<Joint<T>>, public Joint<std::shared_ptr<HistoryTree<T>>>
+    class JointHistoryTree : public HistoryTree<Joint<T>>,
+                             public Joint<std::shared_ptr<HistoryTree<T>>>,
+                             public BoostSerializable<JointHistoryTree<T>>
+
     {
     protected:
         void addIndividualHistory(std::shared_ptr<HistoryTree<T>> ihist);
@@ -106,8 +109,10 @@ namespace sdm
 
         std::shared_ptr<JointHistoryTree<T>> getptr();
 
-        Joint<T> getDefaultObs();
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
 
+        Joint<T> getDefaultObs();
 
         std::shared_ptr<JointHistoryTree<T>> getParent() const;
         std::shared_ptr<JointHistoryTree<T>> getOrigin();

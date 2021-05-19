@@ -9,6 +9,13 @@ namespace sdm
     //     this->agent = 0;
     // }
 
+
+    template <typename TState, typename TJointHistory_p>
+    SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(double default_value) : OccupancyState<TState, TJointHistory_p>(default_value)
+    {
+        this->agent = 0;
+    }
+
     template <typename TState, typename TJointHistory_p>
     SerializedOccupancyState<TState, TJointHistory_p>::SerializedOccupancyState(number num_agents, double default_value) : OccupancyState<TState, TJointHistory_p>(num_agents, default_value)
     {
