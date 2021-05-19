@@ -39,13 +39,13 @@ int main(int argc, char **argv)
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 		auto somdp_world = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, horizon);
 
-        // ************ Exemple HSVI for Serialized Occupancy MDP
+        // // ************ Exemple HSVI for Serialized Occupancy MDP
 
-        //HSVI with default parameter
-        auto p_algo = sdm::algo::makeHSVI<TState, TAction>(somdp_world, "", "", "MaxInitializer", "MinInitializer", discount, error, horizon, trials, "Exemple_SerialOccupancyMDP_HSVI");
+        // //HSVI with default parameter
+        // auto p_algo = sdm::algo::makeHSVI<TState, TAction>(somdp_world, "", "", "MaxInitializer", "MinInitializer", discount, error, horizon, trials, "Exemple_SerialOccupancyMDP_HSVI");
 
-        p_algo->do_initialize();
-        p_algo->do_solve();
+        // p_algo->do_initialize();
+        // p_algo->do_solve();
 
 	}
 	catch (exception::Exception &e)

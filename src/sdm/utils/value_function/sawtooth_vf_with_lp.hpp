@@ -50,7 +50,7 @@ namespace sdm
          * @param TypeOfResolution : DO the resolution with the BigM formalism or with IlofIfThen
          * @param number : Value of BigM
          */
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100 );
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., TypeOfResolution = TypeOfResolution::BigM, number = 1000 );
 
         /**
          * @brief Get the best action to do at a state
@@ -120,16 +120,10 @@ namespace sdm
 
         TValue getBackup(const TState &, number );
 
-        void updateValueAt(const TState &, number );
-
-        TValue getValueAt(const TState &, number );
-
     protected:
         TypeOfResolution current_type_of_resolution_;
 
         number bigM_value_;
-
-
 
         /**
          * @brief Set the Greedy Sawtooth Big M object

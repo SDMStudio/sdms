@@ -125,6 +125,9 @@ namespace sdm
          * \brief Getter for the serial action space
          */
         std::shared_ptr<DiscreteSpace<state_type>> getStateSpace(number = 0) const;
+
+        void setIndexAction();
+        number getIndexAction(number , number);
   
     protected:
         /**
@@ -143,6 +146,9 @@ namespace sdm
          */
         std::unordered_map<state_type, std::unordered_map<action_type, std::set<state_type>>> reachable_state_space;
 
+        std::vector<Pair<number,number>> associate_ag_id_action;
+
+
         /**
          * @brief Initialize Serial State Space
          * 
@@ -154,7 +160,6 @@ namespace sdm
          * 
          */
         void createInitReachableStateSpace();
-
     };
 } // namespace sdm
 #include <sdm/world/serialized_mmdp_structure.tpp>

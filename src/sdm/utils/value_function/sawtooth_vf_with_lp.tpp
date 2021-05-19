@@ -43,41 +43,6 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::updateValueAt(const TState &occupancy_state, number t)
-    {
-        double cub = 0;
-
-        this->greedySawtooth(occupancy_state, cub, t);
-
-        switch (this->ctype)
-        {
-            case TState_t::FULLY_UNCOMPRESSED:
-                MappedValueFunction<TState, TAction, TValue>::updateValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t, cub);
-                break;
-            case TState_t::ONE_STEP_UNCOMPRESSED:
-                MappedValueFunction<TState, TAction, TValue>::updateValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t, cub);
-                break;
-            default:
-                MappedValueFunction<TState, TAction, TValue>::updateValueAt(occupancy_state, t, cub);
-                break;
-        }
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getValueAt(const TState &occupancy_state, number t)
-    {
-        switch (this->ctype)
-        {
-        case TState_t::FULLY_UNCOMPRESSED:
-            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*occupancy_state.getFullyUncompressedOccupancy(), t);
-        case TState_t::ONE_STEP_UNCOMPRESSED:
-            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(*occupancy_state.getOneStepUncompressedOccupancy(), t);
-        default:
-            return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(occupancy_state, t);
-        }
-    }
-
-    template <typename TState, typename TAction, typename TValue>
     TAction SawtoothValueFunctionLP<TState, TAction, TValue>::greedySawtooth(const TState &occupancy_state, double &cub, number t)
     {
         switch( this->getSawtoothType() )
@@ -276,11 +241,11 @@ namespace sdm
             //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v0"
             obj.setLinearCoef(var[recover], this->getWorld()->getUnderlyingProblem()->getDiscount(t));
 
-            // Go over all joint history
-            for (const auto &joint_history : compressed_occupancy_state.getJointHistories())
+            // Go over all action
+            for (const auto &action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
             {
-                // Go over all action
-                for (const auto &action : this->getWorld()->getUnderlyingProblem()->getActionSpace()->getAll())
+                // Go over all joint history
+                for (const auto &joint_history : compressed_occupancy_state.getJointHistories())
                 {
                     //<! 1.c.4 get variable a(u|o)
                     recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
@@ -310,6 +275,8 @@ namespace sdm
                 // \sum_{x} s(x,o) * Q_MDP(x,u)
                 weight += compressed_occupancy_state.at(std::make_pair(x, joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->getQValueAt(x, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), t);
             }
+
+            // weight = this->getInitFunction()->getQValueAt(compressed_occupancy_state,action,t);
         }
         catch (const std::exception &exc)
         {

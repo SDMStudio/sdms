@@ -10,14 +10,19 @@ namespace sdm
 
     SerializedMMDPStructure::SerializedMMDPStructure(std::shared_ptr<DiscreteMMDP> underlying_mmdp) : mmdp_(underlying_mmdp)
     {
+        // Set parameter for the Serial problem
         this->setPlanningHorizon(mmdp_->getPlanningHorizon());
         this->setDiscount(mmdp_->getDiscount());
         this->setActionSpace(mmdp_->getActionSpace());
+        this->setStartDistrib(mmdp_->getStartDistrib());
         
+        // Creation of Serial State
         this->createInitSerializedStateSpace();
+
+        // Creation of Reachable State
         this->createInitReachableStateSpace();
 
-        this->setStartDistrib(mmdp_->getStartDistrib());
+        this->setIndexAction();
     }
 
     
@@ -28,25 +33,36 @@ namespace sdm
     
     void SerializedMMDPStructure::createInitSerializedStateSpace()
     {
+        // Vector of all serial state
         std::vector<std::shared_ptr<DiscreteSpace<SerializedState>>> all_serialized_state;
 
         number n_agents = this->getNumAgents();
 
         std::vector<std::vector<number>> all_past_action;
 
+        // Go over all agent
         for(int i =0; i<n_agents;i++)
         {
+            // Vector all serial state
             std::vector<SerializedState> serialized_state_i;
+
+            // All possible vector of actions
             std::vector<std::vector<number>> all_new_action;
 
+            //Creation of all possible vector of actions
             if(i>0)
             {
+                // Go over all current serial state
                 for(const auto &action : all_past_action)
                 {
+                    // Add new action to current serial state
                     for(const auto &action_agent_i : this->mmdp_->getActionSpace()->getSpaces()[i-1]->getAll())
                     {
+                        //Current action
                         std::vector<number> temp_action = action;
+                        //Add new action 
                         temp_action.push_back(action_agent_i);
+                        // Add new possibility in the vector
                         all_new_action.push_back(temp_action);
                     }
                 }
@@ -55,10 +71,13 @@ namespace sdm
                 all_new_action.push_back({});
             }
 
+            //Go over all state 
             for(const auto &state : this->mmdp_->getStateSpace()->getAll())
             {
+                // Go over all possible vector of actions
                 for(const auto &action : all_new_action)
                 {
+                    // Add new serial state with the state of the problem and vector of action
                     serialized_state_i.push_back(SerializedState(state,action));
                 }
             }
@@ -70,7 +89,6 @@ namespace sdm
         this->setStateSpace(this->serialized_state_space_);
     }
 
-    // setReachableStateSpace()
     void SerializedMMDPStructure::createInitReachableStateSpace()
     {
         for(const auto serialized_state : this->serialized_state_space_->getAll())
@@ -233,6 +251,33 @@ namespace sdm
     std::shared_ptr<DiscreteSpace<SerializedState>> SerializedMMDPStructure::getStateSpace(number t) const
     {
         return this->serialized_state_space_->getSpace(t % this->getNumAgents());
+    }
+
+    void SerializedMMDPStructure::setIndexAction()
+    {
+        for(number ag_id = 0; ag_id <this->getNumAgents(); ag_id ++)
+        {
+            for(auto action : this->getActionSpace(ag_id)->getAll())
+            {
+                this->associate_ag_id_action.push_back(std::make_pair(ag_id,action));
+            }
+        }
+    }
+
+    number SerializedMMDPStructure::getIndexAction(number ag_id, number action)
+    {
+        auto it = std::find(this->associate_ag_id_action.begin(), this->associate_ag_id_action.end(), std::make_pair(ag_id,action));
+
+        if (it != associate_ag_id_action.end())
+        {
+           std::cout << "Element Found" << std::endl;
+           return std::distance(associate_ag_id_action.begin(), it);;
+        }
+        else
+        {
+            std::cout << "Element Not Found" << std::endl;
+            return -1;
+        }
     }
 
 }

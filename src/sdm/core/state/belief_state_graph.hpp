@@ -26,6 +26,9 @@ namespace sdm
     class BeliefStateGraph : public Graph<TBeliefState, Pair<TAction, TObservation>>
     {
     public:
+        using action_type = TAction;
+        using state_type = TBeliefState;
+
         BeliefStateGraph();
 
         BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<Matrix>> &dynamics);

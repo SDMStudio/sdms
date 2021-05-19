@@ -28,6 +28,10 @@ namespace sdm
         TState_t ctype = COMPRESSED;
         TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
 
+        number freq_prune_;
+        number last_prunning = 0;
+        double epsilon_prunning;
+
         TState_t getTStateType();
         void setTStateType(const TState_t &);
 
@@ -36,8 +40,18 @@ namespace sdm
 
     public:
         SawtoothValueFunction();
-        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
-        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon = 0, TValue default_value = 0.);
+
+        /**
+         * @brief Construct a new Sawtooth Value Function object
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param std::shared_ptr<Initializer<TState, TAction>> : initializer 
+         * @param number frequency of the pruning 
+         * @param double : espilon prunning 
+         */
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, number = 10, double = 0.1);
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., number = 10, double = 0.1);
 
         /**
          * @brief Evaluate the value at a state.
@@ -49,7 +63,7 @@ namespace sdm
 
         void updateValueAt(const TState &state, number t);
 
-        TValue getBackup(const TState &state, number t);
+        virtual TValue getBackup(const TState &state, number t);
 
 
         std::pair<TValue, TState> getMaxAt(const TState &state, number t);

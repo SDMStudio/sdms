@@ -8,6 +8,7 @@
 
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/base/base_serial_occupancy_mdp.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
 
@@ -22,20 +23,11 @@ namespace sdm
      * @tparam TAction refers to a occupancy action type 
      */
     template <typename TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>, typename TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>>
-    class SerializedOccupancyMDP : public SolvableByHSVI<TState, TAction>
+    class SerializedOccupancyMDP : public BaseSerializedOccupancyMDP<TState, TAction>
     {
-    protected:
-        std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
-        std::shared_ptr<TState> initial_state_, current_state_;
-        typename TState::jhistory_type initial_history_ = nullptr, current_history_ = nullptr;
+    protected : 
 
-        /**
-         * @brief Compute the next serial occupancy state for a non-terminal agent, i.e., expanding by the last action every entry.
-         * @param const TState & serial occupancy state
-         * @param const TAction & individual decision rule 
-         * @return TState 
-         */
-        TState nextStateSerialStep(const TState &, const TAction &) const;
+        void initialize(number);
 
     public:
         using state_type = TState;
@@ -46,83 +38,53 @@ namespace sdm
         SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
 
         /**
-         * @brief Check if the problem is serialized.
-         * 
-         * @return true
-         */
-        bool isSerialized() const;
-
-        /**
          * @brief Get the actions availables at a specific state
          * 
          * @param state the state
          * @return the action space 
          */
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
-
-        SerializedMPOMDP *getUnderlyingProblem();
-
-        /**
-         * @brief Get the initial state
-         */
-        TState getInitialState();
+        // std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
         
         TState nextState(const TState &, const TAction &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const;
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
 
+
         double getReward(const TState &, const TAction &) const;
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState &, const TAction &, number = 0) const;
 
-        std::shared_ptr<SerializedMMDP> toMDP();
-
-        /**
-         * @brief Get the corresponding Belief Markov Decision Process. It corresponds to the reformulation of the original POMP in a MDP where the state space is the space of beliefs. 
-         * 
-         * @return a belief MDP
-         */
-        std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>> toBeliefMDP();
-
-        /**
-         * @brief Get the specific discount factor for the problem at hand
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getDiscount(number = 0);
-
-        
-        /**
-         * @brief Get the specific weighted discount factor for the problem at hand
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getWeightedDiscount(number);
-
-
-        /**
-         * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
-         * 
-         * @param double : incumbent 
-         * @param double : lb value
-         * @param double : ub value
-         * @param double : cost_so_far 
-         * @param double : error 
-         * @param number : horizon 
-         * @return double 
-         */
-        double do_excess(double, double, double, double, double, number);
-
-
-        /**
-         * @brief Select the next action
-         * 
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the lower bound
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the upper bound
-         * @param const TState & s : current state
-         * @param number h : horizon
-         * @return TAction 
-         */
-        TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>& lb, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h);
-
+        TState nextStateSerialStep(const TState &ostate, const TAction &indiv_dr) const;
     };
+
+    // ##############################################################################################################################
+    // ############################ SPECIALISATION FOR BeliefOccupancyState Structure ###############################################
+    // ##############################################################################################################################
+
+    // /**
+    //  * @brief Specialisation of occupancy mdp in the case of occupancy states. 
+    //  * 
+    //  * @tparam TActionDescriptor the action type
+    //  * @tparam TObservation the observation type
+    //  * @tparam TActionPrescriptor the action type (controller's one)
+    //  */
+    // template <typename TActionDescriptor, typename TObservation, typename TActionPrescriptor>
+    // class SerializedOccupancyMDP<SerializedOccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>, TActionPrescriptor>
+    //     : public BaseSerializedOccupancyMDP<SerializedOccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>, TActionPrescriptor>
+    // {
+    // public:
+    //     using state_type = SerializedOccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
+    //     using action_type = TActionPrescriptor;
+    //     using observation_type = TObservation;
+
+    //     SerializedOccupancyMDP();
+    //     SerializedOccupancyMDP(std::string dpomdp_name, number max_history_length = -1);
+    //     SerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> dpomdp, number max_history_length = -1);
+
+    //     void initialize(number history_length);
+
+    //     state_type nextState(const state_type &, const action_type &, number, std::shared_ptr<HSVI<state_type, action_type>>, bool) const;
+    //     state_type nextState(const state_type &, const action_type &, number = 0, std::shared_ptr<HSVI<state_type, action_type>> = nullptr) const;
+    //     double getReward(const state_type &occupancy_state, const action_type &decision_rule) const;
+    // };
+
+
 } // namespace sdm
 #include <sdm/world/serialized_occupancy_mdp.tpp>
