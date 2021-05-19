@@ -25,6 +25,7 @@ namespace sdm
     using state_type = typename OccupancyState<TState, TJointHistory_p>::state_type;
     using jhistory_type = typename OccupancyState<TState, TJointHistory_p>::jhistory_type;
 
+    SerializedOccupancyState(double default_value);
     SerializedOccupancyState(number num_agents = 2, double default_value = 0.);
     SerializedOccupancyState(const SerializedOccupancyState &);
     SerializedOccupancyState(const OccupancyState<TState, TJointHistory_p> &);

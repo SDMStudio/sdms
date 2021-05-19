@@ -149,25 +149,25 @@ namespace sdm
                 vf->initialize(tot, vf->getHorizon());
                 for (number t = vf->getHorizon(); t > 0; t--)
                 {
-                    tot = this->getValue(vf,t) + under_pb->getDiscount(t) * tot;
+                    tot = this->getValue(vf, t) + under_pb->getDiscount(t) * tot;
                     vf->initialize(tot, t - 1);
                 }
             }
         }
 
-        double getValue(std::shared_ptr<ValueFunction<TState, TAction>> vf,number t)
+        double getValue(std::shared_ptr<ValueFunction<TState, TAction>> vf, number t)
         {
             double value = 0;
             if (vf->getWorld()->isSerialized())
             {
                 if (t % vf->getWorld()->getUnderlyingProblem()->getNumAgents() == 0)
                 {
-                    value= this->value_ ;
+                    value = this->value_;
                 }
             }
             else
             {
-                value=  this->value_;
+                value = this->value_;
             }
             return value;
         }
@@ -220,10 +220,7 @@ namespace sdm
     class BlindInitializer : public Initializer<TState, TAction>
     {
     public:
-        BlindInitializer()
-        {
-            std::cout << "In BlindInitalizer" << std::endl;
-        }
+        BlindInitializer() { std::cout << "In BlindInitalizer" << std::endl; }
 
         void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
         {

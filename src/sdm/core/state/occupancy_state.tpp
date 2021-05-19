@@ -4,6 +4,11 @@
 namespace sdm
 {
     template <typename TState, typename TJointHistory_p>
+    OccupancyState<TState, TJointHistory_p>::OccupancyState(double default_value) : OccupancyState<TState, TJointHistory_p>(2, default_value)
+    {
+    }
+
+    template <typename TState, typename TJointHistory_p>
     OccupancyState<TState, TJointHistory_p>::OccupancyState(number num_agents, double default_value) : BaseOccupancyState<TState, TJointHistory_p>(num_agents, default_value)
     {
         for (number agent_id = 0; agent_id < num_agents; agent_id++)

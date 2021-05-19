@@ -32,7 +32,9 @@ namespace sdm
   public:
     using state_type = TState;
     using jhistory_type = TJointHistory_p;
+    using struct_type = MappedVector<Pair<TState, TJointHistory_p>, double>;
 
+    BaseOccupancyState(double default_value);
     BaseOccupancyState(number num_agents = 2, double default_value = 0.);
     BaseOccupancyState(const BaseOccupancyState &);
 

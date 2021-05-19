@@ -2,6 +2,11 @@
 
 namespace sdm
 {
+    template <typename TState, typename TJointHistory_p>
+    BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(default_value)
+    {
+    }
+
 
     template <typename TState, typename TJointHistory_p>
     BaseOccupancyState<TState, TJointHistory_p>::BaseOccupancyState(number num_agents, double default_value) : MappedVector<Pair<TState, TJointHistory_p>, double>(default_value), num_agents_(num_agents)

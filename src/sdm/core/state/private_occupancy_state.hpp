@@ -36,6 +36,7 @@ namespace sdm
     using state_type = typename OccupancyState<TState, TJointHistory_p>::state_type;
 
     PrivateOccupancyState();
+    PrivateOccupancyState(double default_value);
     PrivateOccupancyState(number num_agents, double default_value);
     PrivateOccupancyState(number agent_id, number num_agents, double default_value);
     PrivateOccupancyState(const PrivateOccupancyState &);

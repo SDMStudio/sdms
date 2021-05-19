@@ -24,7 +24,9 @@ namespace sdm
   {
   public:
     using state_type = TState;
-    using value_type = typename MappedVector<TState, double>::value_type;
+    using struct_type = MappedVector<TState, double>;
+    using value_type = typename struct_type::value_type;
+
 
     BaseBeliefState();
     BaseBeliefState(double);
