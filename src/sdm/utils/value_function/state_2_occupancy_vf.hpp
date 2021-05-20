@@ -4,11 +4,13 @@
 #include <sdm/core/function.hpp>
 #include <sdm/core/state/beliefs.hpp>
 #include <sdm/world/world_type.hpp>
+#include <sdm/utils/struct/pair.hpp>
+
 
 namespace sdm
 {
     template <typename TState, typename TOccupancyState>
-    class State2OccupancyValueFunction : public BinaryFunction<TOccupancyState, number, double>
+    class State2OccupancyValueFunction : public RelaxedValueFunction<TState,TOccupancyState>
     {
     protected:
         std::shared_ptr<ValueFunction<TState, number>> mdp_vf_;
@@ -26,12 +28,15 @@ namespace sdm
 
         double operator()(const TOccupancyState &ostate, const number &tau);
 
-        double getQValueAt(const TState &state, const number& ,const number &tau);
+        double operator()(const Pair<TState, number> &ostate, const number &tau);
+
+        bool isPomdpAvailable();
+        bool isMdpAvailable();
     };
 
     template <typename TState, typename TAction, typename TObservation>
     class State2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>
-        : public BinaryFunction<OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>, number, double>
+        : public RelaxedValueFunction<TState,OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>
     {
     protected:
         std::shared_ptr<ValueFunction<TState, TAction>> mdp_vf_;
@@ -39,7 +44,12 @@ namespace sdm
     public:
         State2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf);
         double operator()(const OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>> &ostate, const number &tau);
-        double getQValueAt(const TState &state, const TAction&action ,const number &tau);
+        
+        double operator()(const Pair<TState, number> &ostate, const number &tau);
+
+        bool isPomdpAvailable();
+        bool isMdpAvailable();
+
     };
 } // namespace sdm
 

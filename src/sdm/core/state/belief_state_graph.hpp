@@ -28,6 +28,9 @@ namespace sdm
                              public BoostSerializable<BeliefStateGraph<TBeliefState, TAction, TObservation>>
     {
     public:
+        using action_type = TAction;
+        using state_type = TBeliefState;
+
         BeliefStateGraph();
 
         BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<Matrix>> &dynamics);

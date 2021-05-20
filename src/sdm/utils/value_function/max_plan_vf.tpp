@@ -68,7 +68,15 @@ namespace sdm
         if (std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
             this->representation[t].push_back(new_hyperplan);
 
-        //this->prune(t);
+        if (this->last_prunning == this->freq_prune_)
+        {
+            for(number time =0; time<this->getHorizon();time++)
+            {
+                this->prune(time);
+            }
+            this->last_prunning = 0;
+        }
+        this->last_prunning ++;
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -84,9 +92,46 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number)
+    void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number t)
     {
-        throw sdm::exception::Exception("MaxPlanVF cannot be used for bounded_prune().");
+        std::unordered_map<TVector, number> refCount;
+        auto all_plan = this->isInfiniteHorizon() ? this->representation[0] : this->representation[t];
+
+        // Initialize ref count to 0 for each hyperplan 
+        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
+        {
+            refCount.emplace(*iter,0);
+        }
+
+        //<! update the count
+        TVector max_alpha;
+        TValue max_value = -std::numeric_limits<TValue>::max(), value;
+        for (const auto &hyperplan : all_plan)
+        {
+            for (const auto &alpha : refCount)
+            {
+                if (max_value < (value = (hyperplan) ^ (alpha.first)))
+                {
+                    max_value = value;
+                    max_alpha = alpha.first;
+                }
+            }
+
+            if (refCount.find(max_alpha) != refCount.end())
+            {
+                refCount.at(max_alpha)++;
+            }
+        }
+
+        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
+        {
+            if (refCount.at(*iter) == 0)
+            {
+                this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), *iter));
+
+            }
+        }
+
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -381,6 +426,12 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
+    }
+
+    template <>
+    void MaxPlanValueFunction<SerializedState, number, double>::bounded_prune(number t)
+    {
+        throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
     }
 
 } // namespace sdm

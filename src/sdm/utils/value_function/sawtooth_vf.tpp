@@ -6,21 +6,35 @@ namespace sdm
     SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction() {}
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer)
-        : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer)
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, number freq_prune, double epsilon)
+        : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer), freq_prune_(freq_prune), epsilon_prunning(epsilon)
     {
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value)
-        : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, number freq_prune, double epsilon)
+        : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), freq_prune,epsilon)
     {
     }
 
     template <typename TState, typename TAction, typename TValue>
     TValue SawtoothValueFunction<TState, TAction, TValue>::getValueAt(const TState &state, number t)
     {
-        TState state_ = state;
+        TState state_ ;
+
+        switch (this->ctype)
+        {
+            case TState_t::FULLY_UNCOMPRESSED:
+                state_ = *state.getFullyUncompressedOccupancy();
+                break;
+            case TState_t::ONE_STEP_UNCOMPRESSED:
+                state_ = *state.getOneStepUncompressedOccupancy();
+                break;
+            default:
+                state_ = state;
+                break;
+        }
+        
         if (this->isInfiniteHorizon())
         {
             return this->getMaxAt(state_, 0).first;
@@ -67,20 +81,30 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
     {
-
         TState state_;
         switch (this->ctype)
         {
             case TState_t::FULLY_UNCOMPRESSED:
                 state_ = *state.getFullyUncompressedOccupancy();
+                break;
             case TState_t::ONE_STEP_UNCOMPRESSED:
                 state_ = *state.getOneStepUncompressedOccupancy();
+                break;
             default:
                 state_ = state;
+                break;
         }
-
         MappedValueFunction<TState, TAction, TValue>::updateValueAt(state_, t, this->getBackup(state, t));
-        // this->prune(t);
+
+        if (this->last_prunning == this->freq_prune_)
+        {
+            for(number time =0; time<this->getHorizon();time++)
+            {
+                this->prune(time);
+            }
+            this->last_prunning = 0;
+        }
+        this->last_prunning ++;
     }
 
     template <>
@@ -110,7 +134,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     TValue SawtoothValueFunction<TState, TAction, TValue>::getBackup(const TState &state, number t)
     {
-        return this->getBackupOperator().backup(this->getptr(), state, t);
+        return  this->getBackupOperator().backup(this->getptr(), state, t);
     }
 
 
@@ -170,17 +194,31 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    bool SawtoothValueFunction<TState, TAction, TValue>::is_dominated(const TState &ostate, double value, number t)
+    bool SawtoothValueFunction<TState, TAction, TValue>::is_dominated(const TState &state, double value, number t)
     {
-        auto pair_witness_ostate = this->getMaxAt(ostate, t);
+        // TState state_;
+        // switch (this->ctype)
+        // {
+        //     case TState_t::FULLY_UNCOMPRESSED:
+        //         state_ = *state.getFullyUncompressedOccupancy();
+        //         break;
+        //     case TState_t::ONE_STEP_UNCOMPRESSED:
+        //         state_ = *state.getOneStepUncompressedOccupancy();
+        //         break;
+        //     default:
+        //         state_ = state;
+        //         break;
+        // }
 
-        if (pair_witness_ostate.second == ostate)
+        auto pair_witness_ostate = this->getMaxAt(state, t);
+
+        if (pair_witness_ostate.second == state)
         {
             return false;
         }
         else
         {
-            return (pair_witness_ostate.first <= value);
+            return (pair_witness_ostate.first <= value + this->epsilon_prunning);
         }
     }
 

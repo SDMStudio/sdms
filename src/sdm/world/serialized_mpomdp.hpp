@@ -12,6 +12,8 @@
 #include <sdm/core/action/det_decision_rule.hpp>
 
 #include <sdm/world/serialized_mmdp_structure.hpp>
+#include <sdm/utils/linear_algebra/matrix.hpp>
+
 
 namespace sdm
 {
@@ -77,6 +79,16 @@ namespace sdm
          */
         std::shared_ptr<SerializedMPOMDP> getptr();
 
+        /**
+         * @brief Return a observation type associated to a number
+         * 
+         */
+        const observation_type getObservation(number);
+
+        std::vector<std::vector<Matrix>> getDynamics();
+
+        number joint2single(const Joint<number>);
+
     protected:
         Joint<number> empty_serial_observation;
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
@@ -86,6 +98,7 @@ namespace sdm
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> dynamics;
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> observation_probability;
 
+        std::vector<std::vector<Matrix>> matrix_dynamics;
         /**
          * @brief Initialize Serial Observation Space
          * 

@@ -18,8 +18,6 @@
 
 #include <sdm/utils/value_function/sawtooth_vf.hpp>
 #include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
-#include <sdm/utils/value_function/sawtooth_vf_with_lp_relaxed.hpp>
-
 
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -53,7 +51,7 @@ namespace sdm
          * @return pointer on HSVI instance
          */
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name)
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution , number BigM, std::string type_sawtooth_linear_programming )
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -97,11 +95,19 @@ namespace sdm
             }
             else if (upper_bound_name == "sawtooth_lp")
             {
-                upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init);
-            }
-            else if (upper_bound_name == "sawtooth_lp_relaxed")
-            {
-                upper_bound = std::make_shared<sdm::SawtoothValueFunctionLPRelaxed<TState, TAction>>(problem, horizon, ub_init);
+                if(type_sawtooth_linear_programming =="Full")
+                {
+                    if(current_type_of_resolution == "BigM")
+                    {
+                        upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+                    }else
+                    {
+                        upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::IloIfThenResolution, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+                    }
+                }else
+                {
+                    upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING);
+                }
             }
             else
             {
@@ -150,7 +156,7 @@ namespace sdm
          * @param trials the maximum number of trials 
          * @return auto pointer on algorithm instance
          */
-        std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount = 0.99, double error = 0.001, number horizon = 0, int trials = 1000, int truncation = -1, std::string name = "")
+        std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount = 0.99, double error = 0.001, number horizon = 0, int trials = 1000, int truncation = -1, std::string name = "", std::string current_type_of_resolution = "BigM", number BigM= 100, std::string type_sawtooth_linear_programming = "Full")
         {
             std::shared_ptr<Algorithm> p_algo;
 
@@ -161,7 +167,7 @@ namespace sdm
                     auto mdp = std::make_shared<DiscreteMDP>(problem_path);
                     mdp->getUnderlyingProblem()->setInternalState(0);
 
-                    p_algo = makeHSVI<number, number>(mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name);
+                    p_algo = makeHSVI<number, number>(mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "pomdp") || (formalism == "POMDP"))
                 {
@@ -172,7 +178,7 @@ namespace sdm
                     auto pomdp = std::make_shared<DiscretePOMDP>(problem_path);
                     auto beliefMDP = std::make_shared<BeliefMDP<TState, TAction, TObservation>>(pomdp);
 
-                    p_algo = makeHSVI<TState, TAction>(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
+                    p_algo = makeHSVI<TState, TAction>(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "decpomdp_b") || (formalism == "DecPOMDP_b") || (formalism == "dpomdp_b") || (formalism == "DPOMDP_b"))
                 {
@@ -187,7 +193,7 @@ namespace sdm
                     // using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, (truncation > 0) ? truncation : horizon);
-                    p_algo = makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                    p_algo = makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
@@ -203,7 +209,7 @@ namespace sdm
                     using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
 
                     auto oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(problem_path, (truncation > 0) ? truncation : horizon);
-                    p_algo = makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name);
+                    p_algo = makeHSVI<TStatePrescriptor, TActionPrescriptor>(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
@@ -213,7 +219,7 @@ namespace sdm
                     auto serialized_mdp = std::make_shared<SerializedMMDP>(problem_path);
                     serialized_mdp->getUnderlyingProblem()->setInternalState(SerializedState(0, std::vector<number>()));
 
-                    p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name);
+                    p_algo = makeHSVI<TState, TAction>(serialized_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
                 {
@@ -223,7 +229,7 @@ namespace sdm
 
                     auto serialized_pomdp = std::make_shared<SerializedBeliefMDP<TState, TAction,TObservation>>(problem_path);
 
-                    p_algo = makeHSVI<TState, TAction>(serialized_pomdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name);
+                    p_algo = makeHSVI<TState, TAction>(serialized_pomdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
@@ -232,7 +238,7 @@ namespace sdm
 
                     auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
 
-                    p_algo = makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name);
+                    p_algo = makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }
             }
             else

@@ -69,6 +69,10 @@ namespace sdm
         static std::enable_if_t<is_belief_occupancy_mdp, OccupancyMDP<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>>
         getWorldType();
 
+        template <bool is_belief_serial_occupancy_mdp = std::is_same<TState, SerializedOccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value>
+        static std::enable_if_t<is_belief_serial_occupancy_mdp, SerializedOccupancyMDP<SerializedOccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, JointDeterministicDecisionRule<HistoryTree_p<number>, number>>>
+        getWorldType();
+
         template <bool is_private_occupancy_mdp = std::is_same<TState, PrivateOccupancyState<>>::value>
         static std::enable_if_t<is_private_occupancy_mdp, PrivateOccupancyMDP<PrivateOccupancyState<>, PrivateJointDeterministicDecisionRule<HistoryTree_p<number>, number>>>
         getWorldType();
@@ -89,7 +93,7 @@ namespace sdm
         static std::enable_if_t<is_solving_serialized_mmdp, SerializedMMDPStructure>
         getUnderlyingProblem();
 
-        template <bool is_solving_serialized_mpomdp = std::is_any<TState,SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,SerializedBeliefState>::value>
+        template <bool is_solving_serialized_mpomdp = std::is_any<TState,SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>,SerializedBeliefState, SerializedOccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value>
         static std::enable_if_t<is_solving_serialized_mpomdp, SerializedMPOMDP>
         getUnderlyingProblem();
 

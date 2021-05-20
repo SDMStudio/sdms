@@ -8,6 +8,9 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
 
+// using Belief = BeliefStateGraph_p<SerializedBeliefState, number, number>;
+// using SerializedBelief = BeliefStateGraph_p<BeliefStateVector, number, number>; 
+
 //!
 //! \file     dynamics.hpp
 //! \author   Jilles S. Dibangoye
