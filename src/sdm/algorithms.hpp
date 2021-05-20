@@ -18,8 +18,6 @@
 
 #include <sdm/utils/value_function/sawtooth_vf.hpp>
 #include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
-#include <sdm/utils/value_function/sawtooth_vf_with_lp_relaxed.hpp>
-
 
 #include <sdm/utils/value_function/initializers.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>

@@ -266,16 +266,31 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, number t)
     {
-        auto weight = 0.0;
-        try{
-            // Go over all state conditionning a joint history
-            for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
-            {
-                // \sum_{x} s(x,o) * Q_MDP(x,u)
-                weight += compressed_occupancy_state.at(std::make_pair(x, joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->getQValueAt(x, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), t);
-            }
+        // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
 
-            // weight = this->getInitFunction()->getQValueAt(compressed_occupancy_state,action,t);
+        auto weight = 0.0;
+        try
+        {
+            auto relaxation =  std::static_pointer_cast<BaseRelaxedValueFunction<TState>>(this->getInitFunction());
+            auto index_action = this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action);
+
+            if(relaxation->isPomdpAvailable())
+            {
+                BeliefState belief;
+                for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
+                {
+                    belief.addProbabilityAt(x,compressed_occupancy_state.at(std::make_pair(x, joint_history)));
+                }
+                weight = std::static_pointer_cast<RelaxedValueFunction<BeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
+
+            }else
+            {
+                for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
+                {
+                    // \sum_{x} s(x,o) * Q_MDP(x,u)
+                    weight += compressed_occupancy_state.at(std::make_pair(x, joint_history)) * std::static_pointer_cast<RelaxedValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->operator()(std::make_pair(x, index_action), t);
+                }
+            }
         }
         catch (const std::exception &exc)
         {
@@ -293,7 +308,6 @@ namespace sdm
         number recover = 0;
 
         // Build constraints \sum_x s(x,o) Q_MDP(x,u) + discount * v0 <= \bar{v}(st)
-        std::cout<<"\n new greedy Sawtooth";
         TState one_step_uncompressed_occupancy_state = *compressed_occupancy_state.getOneStepUncompressedOccupancy();
 
         //By default, the upper bound of the compressed is v_relaxation(st)
@@ -305,7 +319,6 @@ namespace sdm
             //Successully find a better upper bound
             if(one_step_uncompressed_occupancy_state_AND_upper_bound.first == one_step_uncompressed_occupancy_state)
             {
-                std::cout<<"\n find ! ";
                 upper_bound_compressed =  one_step_uncompressed_occupancy_state_AND_upper_bound.second;
             }
         }
@@ -578,7 +591,7 @@ namespace sdm
         for (auto hidden_serial_state :  this->getWorld()->getUnderlyingProblem()->getStateSpace(t)->getAll())
         {
             //< \sum_x s(x,o) Q_MDP(x,u)
-            weight += compressed_serial_occupancy_state.at(std::make_pair(hidden_serial_state, joint_history)) * std::static_pointer_cast<State2OccupancyValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->getQValueAt(hidden_serial_state, action, t);
+            weight += compressed_serial_occupancy_state.at(std::make_pair(hidden_serial_state, joint_history)) * std::static_pointer_cast<RelaxedValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->operator()( std::make_pair(hidden_serial_state, action), t);
         }
         return weight;
     }
@@ -714,15 +727,15 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int>>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, number t)
     {
-        assert(compressed_occupancy_state.getStatesAt(joint_history).size() == 1);
+        // assert(compressed_occupancy_state.getStatesAt(joint_history).size() == 1);
         auto weight = 0.0;
-        for (const auto &belief : compressed_occupancy_state.getStatesAt(joint_history))
-        {
-            for (number state = 0; state < belief->getData().size(); ++state)
-            {
-                weight += compressed_occupancy_state.at(std::make_pair(belief, joint_history)) * belief->getData()[state] * std::static_pointer_cast<State2OccupancyValueFunction<number, TState>>(this->getInitFunction())->getQValueAt(state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action), t);
-            }
-        }
+        // for (const auto &belief : compressed_occupancy_state.getStatesAt(joint_history))
+        // {
+        //     for (number state = 0; state < belief->getData().size(); ++state)
+        //     {
+        //         weight += compressed_occupancy_state.at(std::make_pair(belief, joint_history)) * belief->getData()[state] * this->getInitFunction()->operator()(std::make_pair(state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action)), t);
+        //     }
+        // }
         return weight;
     }
 }

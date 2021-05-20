@@ -28,8 +28,22 @@ namespace sdm
         TState_t ctype = COMPRESSED;
         TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
 
+        /**
+         * @brief Frequency before prunning
+         * 
+         */
         number freq_prune_;
+
+        /**
+         * @brief The last time the prunning took place
+         * 
+         */
         number last_prunning = 0;
+
+        /**
+         * @brief epsilon value used for the prunning
+         * 
+         */
         double epsilon_prunning;
 
         TState_t getTStateType();
