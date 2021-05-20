@@ -287,4 +287,29 @@ namespace sdm
         return res.str();
     }
 
+    template <typename TState, typename TJointHistory_p>
+    const BaseBeliefState<TState> BaseOccupancyState<TState, TJointHistory_p>::createBelief(const jhistory_type &joint_history) const
+    {
+        BaseBeliefState<TState> belief;
+
+        //Go over all hidden state conditionning to a joint history
+        for (auto hidden_state : this->getStatesAt(joint_history))
+        {
+            belief.addProbabilityAt(hidden_state,this->at(std::make_pair(hidden_state, joint_history)));
+        }
+        return belief;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const BaseBeliefState<TState> BaseOccupancyState<TState, TJointHistory_p>::createBeliefWeighted(const jhistory_type &joint_history) const
+    {
+        auto belief = this->createBelief(joint_history);
+        double sum = belief.norm_1();
+        for (const auto &b_s : belief)
+        {
+            belief[b_s.first] = b_s.second / sum;
+        }
+        return belief;
+    }
+
 } // namespace sdm

@@ -7,15 +7,17 @@ namespace sdm
     MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction() {}
 
     template <typename TVector, typename TAction, typename TValue>
-    MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer)
+    MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer, int freq_prune)
         : ValueFunction<TVector, TAction, TValue>(problem, horizon), initializer_(initializer)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<TValue>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
+        
+        this->setPrunningFrequency(freq_prune);
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, TValue default_value) : MaxPlanValueFunction(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value))
+    MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, TValue default_value, int freq_prune) : MaxPlanValueFunction(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value)), freq_prune_(freq_prune)
     {
     }
 
@@ -31,6 +33,18 @@ namespace sdm
     void MaxPlanValueFunction<TVector, TAction, TValue>::initialize()
     {
         this->initializer_->init(this->getptr());
+    }
+
+    template <typename TVector, typename TAction, typename TValue>
+    void MaxPlanValueFunction<TVector, TAction, TValue>::setPrunningFrequency(int freq_prunning)
+    {
+        this->freq_prune_ = freq_prunning;
+    }
+    
+    template <typename TVector, typename TAction, typename TValue>
+    int MaxPlanValueFunction<TVector, TAction, TValue>::getPrunningFrequency()
+    {
+        return this->freq_prune_;
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -88,7 +102,8 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunction<TVector, TAction, TValue>::prune(number t)
     {
-        this->bounded_prune(t);
+        std::cout<<"\n prunning";
+        // this->bounded_prune(t);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -104,12 +119,17 @@ namespace sdm
         }
 
         //<! update the count
+
         TVector max_alpha;
         TValue max_value = -std::numeric_limits<TValue>::max(), value;
+
+        //Go over all hyperplan
         for (const auto &hyperplan : all_plan)
         {
+            //Go over all hyperplan in RefCount 
             for (const auto &alpha : refCount)
             {
+                // Determine the hyperplan with 
                 if (max_value < (value = (hyperplan) ^ (alpha.first)))
                 {
                     max_value = value;
@@ -128,11 +148,66 @@ namespace sdm
             if (refCount.at(*iter) == 0)
             {
                 this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), *iter));
-
+                std::cout<<"\n succefully pruned";
             }
         }
 
     }
+
+    // template <typename TVector, typename TAction, typename TValue>
+    // void MaxPlanValueFunction<TVector, TAction, TValue>::pairwise_prune(number t)
+    // {
+    //     std::vector<TVector> hyperplan_not_to_be_deleted;
+    //     std::vector<TVector> hyperplan_to_delete;
+
+    //     // Go over all hyperplan
+    //     for(const auto &alpha: this->representation[t])
+    //     {
+    //         bool alpha_dominated = false;
+
+    //         //Go over all hyperplan in hyperplan_not_to_be_deleted
+    //         for(const auto &beta: hyperplan_not_to_be_deleted)
+    //         {
+    //             // If beta dominate alpha, we had alpha to the hyperplan to delete
+    //             if(this->dominated(beta,alpha))
+    //             {
+    //                 hyperplan_to_delete.push_back(alpha);
+    //                 alpha_dominated = true;
+    //                 break;
+    //             }
+    //         }
+    //         // If alpha is dominated, we go to the next hyperplan
+    //         if(alpha_dominated == true)
+    //         {
+    //             continue;
+    //         }
+
+    //         //Go over all hyperplan in hyperplan_not_to_be_deleted
+    //         for(const auto &beta: hyperplan_not_to_be_deleted)
+    //         {
+    //             //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
+    //             if(this->dominated(alpha,beta))
+    //             {
+    //                 auto it = std::find(hyperplan_not_to_be_deleted.begin(),hyperplan_not_to_be_deleted.end(),beta);
+    //                 hyperplan_not_to_be_deleted.erase(std::distance(hyperplan_not_to_be_deleted.begin(), it));
+    //             }
+    //         }
+    //     }
+
+    //     //Delete the hyperplan present in hyperplan_to_delete 
+    //     for(const auto &to_delete : hyperplan_to_delete)
+    //     {
+    //         this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
+    //     }
+    // }
+
+    // template <typename TVector, typename TAction, typename TValue>
+    // void MaxPlanValueFunction<TVector, TAction, TValue>::dominated(TVector first_hyperplan, TVector second_hyperplan)
+    // {
+    //     // Comment faire ? 
+    //     //On parcourt tous les points de chaque hyperplan ? Ok, mais il est très probable qu'il n'existe pas dans l'autre hyperplan
+
+    // }
 
     template <typename TVector, typename TAction, typename TValue>
     number MaxPlanValueFunction<TVector, TAction, TValue>::size()
@@ -433,5 +508,7 @@ namespace sdm
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
     }
+
+
 
 } // namespace sdm

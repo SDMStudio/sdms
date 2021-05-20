@@ -10,9 +10,9 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution)
+    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution, int freq_prunning, double epsilon)
         : DecentralizedConstraintsLP<TState, TAction, TValue>(problem),
-          SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer),
+          SawtoothValueFunction<TState, TAction, TValue>(problem, horizon, initializer,freq_prunning,epsilon),
           current_type_of_resolution_(current_type_of_resolution),
           bigM_value_(bigM_value)
     {
@@ -21,8 +21,8 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, TypeOfResolution current_type_of_resolution, number bigM_value,TypeSawtoothLinearProgram type_sawtooth_resolution)
-        : SawtoothValueFunctionLP<TState, TAction, TValue>(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), current_type_of_resolution, bigM_value,type_sawtooth_resolution)
+    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, TypeOfResolution current_type_of_resolution, number bigM_value,TypeSawtoothLinearProgram type_sawtooth_resolution, int freq_prunning, double epsilon)
+        : SawtoothValueFunctionLP<TState, TAction, TValue>(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), current_type_of_resolution, bigM_value,type_sawtooth_resolution,freq_prunning, epsilon)
     {
     }
 
@@ -30,7 +30,20 @@ namespace sdm
     TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getBackup(const TState &compressed_occupancy_state, number t)
     {
         double cub = 0;
-        this->greedySawtooth(compressed_occupancy_state, cub, t);
+        auto action = this->greedySawtooth(compressed_occupancy_state, cub, t);
+
+        auto vub_0 = this->getQValueAt(compressed_occupancy_state, action, t);
+        // auto vub_0 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
+        auto vub_1 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(compressed_occupancy_state, action), t + 1);
+        auto vub_2 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * MappedValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(compressed_occupancy_state, action).getOneStepUncompressedOccupancy(), t + 1);
+
+        if (std::abs(cub - vub_0) > 0.01)
+        {
+            std::cout << "------------------------------------------------------------------------" << std::endl;
+            std::cout << "horizon:" << t << "\tcompressed occupancy state:" << compressed_occupancy_state << std::endl;
+            throw sdm::exception::Exception("Unexpected upper-bound values : value_opti(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
+        }
+
         return cub;
     }
 
@@ -266,25 +279,28 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, number t)
     {
-        // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
+        //\sum_{x} s(x,o) * Q_MDP(x,u)
 
         auto weight = 0.0;
         try
         {
+            // Relaxation problem 
             auto relaxation =  std::static_pointer_cast<BaseRelaxedValueFunction<TState>>(this->getInitFunction());
             auto index_action = this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action);
 
+            // Ask is POmdp Relaxation exists
             if(relaxation->isPomdpAvailable())
             {
-                BeliefState belief;
-                for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
-                {
-                    belief.addProbabilityAt(x,compressed_occupancy_state.at(std::make_pair(x, joint_history)));
-                }
+                // Creation of belief 
+                auto belief = compressed_occupancy_state.createBeliefWeighted(joint_history);
+
+                //get Q Relaxation for POMDP
                 weight = std::static_pointer_cast<RelaxedValueFunction<BeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
 
-            }else
+            }
+            else
             {
+                //Go over all hidden state conditionning to a joint history
                 for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
                 {
                     // \sum_{x} s(x,o) * Q_MDP(x,u)
@@ -303,25 +319,12 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> >
-    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_occupancy_state, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setInitialConstrainte(const TState &compressed_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         number recover = 0;
 
-        // Build constraints \sum_x s(x,o) Q_MDP(x,u) + discount * v0 <= \bar{v}(st)
-        TState one_step_uncompressed_occupancy_state = *compressed_occupancy_state.getOneStepUncompressedOccupancy();
-
         //By default, the upper bound of the compressed is v_relaxation(st)
-        double upper_bound_compressed = this->getInitFunction()->operator()(compressed_occupancy_state, t );
-
-        //Try to find a better upper for \bar{v}(st)
-        for(const auto &one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t])
-        {
-            //Successully find a better upper bound
-            if(one_step_uncompressed_occupancy_state_AND_upper_bound.first == one_step_uncompressed_occupancy_state)
-            {
-                upper_bound_compressed =  one_step_uncompressed_occupancy_state_AND_upper_bound.second;
-            }
-        }
+        double upper_bound_compressed = this->getValueAt(compressed_occupancy_state);
         // Add range contraints
         con.add(IloRange(env, -IloInfinity, upper_bound_compressed));
 
@@ -343,11 +346,20 @@ namespace sdm
             }
         }
         index++;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> >
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_occupancy_state, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        assert(this->getInitFunction() != nullptr);
+
+        this->template setInitialConstrainte<TState>(compressed_occupancy_state, env, con, var, index, t);
+
+        number recover = 0;
 
         //<!  Build sawtooth constraints v - \sum_{u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(y,<o,z>)*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
-
-        assert(this->getInitFunction() != nullptr);
 
        try{
             // Go over all points in the point set at t+1
@@ -505,10 +517,50 @@ namespace sdm
     // -------------  SerializedOccupancyState<TState, JointHistory>  ----------------
     // --------------------------------------------------------------------------
 
+
+    template <typename TState, typename TAction, typename TValue>
+    template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setInitialConstrainte(const TState &compressed_serial_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        number recover = 0;
+        number agent_id = compressed_serial_occupancy_state.getCurrentAgentId();
+
+        //By default, the upper bound of the compressed is v_relaxation(st)
+        double upper_bound_compressed = this->getValueAt(compressed_serial_occupancy_state);
+        // Add range contraints
+        con.add(IloRange(env, -IloInfinity, upper_bound_compressed));
+
+        recover = this->getNumber(this->getVarNameWeight(0));
+        //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) + discount * v0"
+        con[index].setLinearCoef(var[recover], this->getWorld()->getUnderlyingProblem()->getDiscount(t));
+
+        // Go over all action
+        for (const auto &indiv_history : compressed_serial_occupancy_state.getIndividualHistories(agent_id))
+        {
+            for (const auto serial_action : this->world_->getUnderlyingProblem()->getActionSpace(t)->getAll())
+            {
+                //<! 1.c.4 get variable a_i(u_i|o_i)
+                recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
+
+                double res = 0;
+                for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistoryOverIndividualHistories(agent_id,indiv_history))
+                {
+                    //<! 1.c.5 set coefficient of variable a_i(u_i|o_i) i.e., \sum_x s(x,o_i) Q_MDP(x,u_i)
+                    res += this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
+                }
+                //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
+                con[index].setLinearCoef(var[recover], res);
+            }
+        }
+        index++;
+    }
+
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_serial_occupancy_state, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
+        this->template setInitialConstrainte<TState>(compressed_serial_occupancy_state, env, con, var, index, t);
+
         number recover = 0;
 
         // Go over all points in the point set at t+1
@@ -585,15 +637,39 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &compressed_serial_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, number t)
     {
-        double weight = 0.0;
-
-        // Go over all hidden serial state conditional to a joint_history
-        for (auto hidden_serial_state :  this->getWorld()->getUnderlyingProblem()->getStateSpace(t)->getAll())
+        auto weight = 0.0;
+        try
         {
-            //< \sum_x s(x,o) Q_MDP(x,u)
-            weight += compressed_serial_occupancy_state.at(std::make_pair(hidden_serial_state, joint_history)) * std::static_pointer_cast<RelaxedValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->operator()( std::make_pair(hidden_serial_state, action), t);
+            // Relaxation problem 
+            auto relaxation =  std::static_pointer_cast<BaseRelaxedValueFunction<TState>>(this->getInitFunction());
+
+            // Ask is POmdp Relaxation exists
+            if(relaxation->isPomdpAvailable())
+            {
+                // Creation of belief 
+                auto belief = compressed_serial_occupancy_state.createBeliefWeighted(joint_history);
+
+                //get Q Relaxation for POMDP
+                weight = std::static_pointer_cast<RelaxedValueFunction<SerializedBeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, action), t);
+
+            }else
+            {
+                //Go over all hidden state conditionning to a joint history
+                for (auto hidden_serial_state : compressed_serial_occupancy_state.getStatesAt(joint_history))
+                {
+                    // \sum_{x} s(x,o) * Q_MDP(x,u)
+                    weight += compressed_serial_occupancy_state.at(std::make_pair(hidden_serial_state, joint_history)) * std::static_pointer_cast<RelaxedValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->operator()(std::make_pair(hidden_serial_state, action), t);
+                }
+            }
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
         }
         return weight;
+        
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -617,13 +693,10 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
 
                 double res = 0;
-                for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistories())
+                for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistoryOverIndividualHistories(agent_id,indiv_history))
                 {
-                    if(joint_history->getIndividualHistory(agent_id) == indiv_history)
-                    {
-                        //<! 1.c.5 set coefficient of variable a_i(u_i|o_i) i.e., \sum_x s(x,o_i) Q_MDP(x,u_i)
-                        res += this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
-                    }
+                    //<! 1.c.5 set coefficient of variable a_i(u_i|o_i) i.e., \sum_x s(x,o_i) Q_MDP(x,u_i)
+                    res += this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
                 }
                 obj.setLinearCoef(var[recover],res);
             }
@@ -647,7 +720,7 @@ namespace sdm
             // Go over all actions
             for (const auto &serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
             {
-                //<! 1.c.4 get variable a(u|o) and set constant
+                //<! 1.c.4 get variable a_i(u_i|o_i) and set constant
                 con[index].setLinearCoef(var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))], -this->getQValueRealistic(compressed_serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, probability, difference));
             }
         }
@@ -677,7 +750,7 @@ namespace sdm
             // Go over all actions
             for(const auto & serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
             {
-                //<! 1.c.4 get variable a(u|o) and set constant 
+                //<! 1.c.4 get variable a_i(u_i|o_i) and set constant 
                 expr -= this->getQValueRealistic(compressed_serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, probability, difference) * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
             } 
         }               
@@ -725,7 +798,7 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int>>
-    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action, number t)
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &, typename TState::jhistory_type , typename TAction::output_type , number )
     {
         // assert(compressed_occupancy_state.getStatesAt(joint_history).size() == 1);
         auto weight = 0.0;

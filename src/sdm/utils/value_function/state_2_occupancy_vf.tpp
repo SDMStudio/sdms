@@ -84,10 +84,10 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TObservation>
-    double State2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::operator()(const Pair<TState, number> &ostate_AND_action, const number &tau)
+    double State2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::operator()(const Pair<TState, number> &, const number &)
     {
-        auto ostate = ostate_AND_action.first;
-        auto action = ostate_AND_action.second;
+        // auto ostate = ostate_AND_action.first;
+        // auto action = ostate_AND_action.second;
         
         // return this->mdp_vf_->getQValueAt(ostate, action, tau);
         throw sdm::exception::NotImplementedException();

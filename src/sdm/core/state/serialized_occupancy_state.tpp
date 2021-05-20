@@ -47,32 +47,6 @@ namespace sdm
     }
 
     template <typename TState, typename TJointHistory_p>
-    std::set<typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::state_type> SerializedOccupancyState<TState, TJointHistory_p>::getHiddenStates() const
-    {
-        std::set<state_type> states = this->getStates();
-
-        std::set<typename state_type::state_type> possible_hidden_states;
-        for (const auto &key : states)
-        {
-            possible_hidden_states.insert(key.getState());
-        }
-        return possible_hidden_states;
-    }
-
-    template <typename TState, typename TJointHistory_p>
-    std::set<typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::action_type> SerializedOccupancyState<TState, TJointHistory_p>::getActions() const
-    {
-        std::set<state_type> states = this->getStates();
-
-        std::set<typename state_type::state_type> possible_action_states;
-        for (const auto &key : states)
-        {
-            possible_action_states.insert(key.getAction());
-        }
-        return possible_action_states;
-    }
-
-    template <typename TState, typename TJointHistory_p>
     typename SerializedOccupancyState<TState, TJointHistory_p>::state_type::state_type SerializedOccupancyState<TState, TJointHistory_p>::getHiddenState(const Pair<state_type, jhistory_type> &state) const
     {
         return state.first.getState();
@@ -165,6 +139,34 @@ namespace sdm
         res << "</serial-hyperplan>" << std::endl;
 
         return res.str();
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const SerializedBeliefState SerializedOccupancyState<TState, TJointHistory_p>::createBelief(const TJointHistory_p &joint_history) const
+    {
+        SerializedBeliefState belief;
+
+        //Go over all hidden state conditionning to a joint history
+        for (auto hidden_state : this->getStatesAt(joint_history))
+        {
+            belief.addProbabilityAt(hidden_state,this->at(std::make_pair(hidden_state, joint_history)));
+        }
+        return belief;
+    }
+
+    template <typename TState, typename TJointHistory_p>
+    const SerializedBeliefState SerializedOccupancyState<TState, TJointHistory_p>::createBeliefWeighted(const TJointHistory_p &joint_history) const
+    {
+        // Create a belief not weighted 
+        auto belief = this->createBelief(joint_history);
+
+        // Normalize the belief
+        double sum = belief.norm_1();
+        for (const auto &b_s : belief)
+        {
+            belief[b_s.first] = b_s.second / sum;
+        }
+        return belief;
     }
 
 } // namespace sdm

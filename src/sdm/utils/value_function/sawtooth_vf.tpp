@@ -6,13 +6,14 @@ namespace sdm
     SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction() {}
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, number freq_prune, double epsilon)
-        : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer), freq_prune_(freq_prune), epsilon_prunning(epsilon)
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, int freq_prune, double epsilon)
+        : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer), epsilon_prunning(epsilon)
     {
+        this->setPrunningFrequency(freq_prune);
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, number freq_prune, double epsilon)
+    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, int freq_prune, double epsilon)
         : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), freq_prune,epsilon)
     {
     }
@@ -100,7 +101,7 @@ namespace sdm
         {
             for(number time =0; time<this->getHorizon();time++)
             {
-                this->prune(time);
+                // this->prune(time);
             }
             this->last_prunning = 0;
         }
@@ -196,20 +197,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     bool SawtoothValueFunction<TState, TAction, TValue>::is_dominated(const TState &state, double value, number t)
     {
-        // TState state_;
-        // switch (this->ctype)
-        // {
-        //     case TState_t::FULLY_UNCOMPRESSED:
-        //         state_ = *state.getFullyUncompressedOccupancy();
-        //         break;
-        //     case TState_t::ONE_STEP_UNCOMPRESSED:
-        //         state_ = *state.getOneStepUncompressedOccupancy();
-        //         break;
-        //     default:
-        //         state_ = state;
-        //         break;
-        // }
-
         auto pair_witness_ostate = this->getMaxAt(state, t);
 
         if (pair_witness_ostate.second == state)
@@ -256,5 +243,17 @@ namespace sdm
     void SawtoothValueFunction<TState, TAction, TValue>::setSawtoothType(const TypeSawtoothLinearProgram & csawtooth_lp)
     {
         this->csawtooth_lp_ = csawtooth_lp;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunction<TState, TAction, TValue>::setPrunningFrequency(int freq_prunning)
+    {
+        this->freq_prune_ = freq_prunning;
+    }
+    
+    template <typename TState, typename TAction, typename TValue>
+    int SawtoothValueFunction<TState, TAction, TValue>::getPrunningFrequency()
+    {
+        return this->freq_prune_;
     }
 }

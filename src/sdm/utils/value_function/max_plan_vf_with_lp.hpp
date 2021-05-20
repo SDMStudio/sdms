@@ -28,8 +28,26 @@ namespace sdm
     public:
 
         MaxPlanValueFunctionLP();
-        MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int , std::shared_ptr<Initializer<TVector, TAction>> );
-        MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int = 0, TValue = 0.);
+
+        /**
+         * @brief Construct a new MaxPlane Value Function object
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param std::shared_ptr<Initializer<TState, TAction>> : initializer 
+         * @param int frequency of the pruning 
+         */
+        MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int , std::shared_ptr<Initializer<TVector, TAction>>, int = 10 );
+
+        /**
+         * @brief Construct a new MaxPlane Value Function object
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param TValue : initializer 
+         * @param int frequency of the pruning 
+         */
+        MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int = 0, TValue = 0., int = 10);
 
        /**
         * @brief Returns the greedy decision rule for the current occupancy state and the prescribed hyperplan
@@ -97,15 +115,6 @@ namespace sdm
          * @param IloNumVarArray&
          */
         void setGreedyVariables(const TVector&, IloEnv&, IloNumVarArray&,number); 
-
-        /**
-         * @brief Update the max plan representation by adding a new hyperplan 
-         * 
-         * @param const TVector & : current occupancy state
-         * @param number : time
-         * 
-         */
-        void updateValueAt(const TVector &, number );
 
         /**
          * @brief Do the backup operator (return a new hyperplan) for a precise occupancy state

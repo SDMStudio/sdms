@@ -24,34 +24,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue = double>
     class SawtoothValueFunction : public MappedValueFunction<TState, TAction, TValue>
     {
-    protected:
-        TState_t ctype = COMPRESSED;
-        TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
-
-        /**
-         * @brief Frequency before prunning
-         * 
-         */
-        number freq_prune_;
-
-        /**
-         * @brief The last time the prunning took place
-         * 
-         */
-        number last_prunning = 0;
-
-        /**
-         * @brief epsilon value used for the prunning
-         * 
-         */
-        double epsilon_prunning;
-
-        TState_t getTStateType();
-        void setTStateType(const TState_t &);
-
-        TypeSawtoothLinearProgram getSawtoothType();
-        void setSawtoothType(const TypeSawtoothLinearProgram &);
-
     public:
         SawtoothValueFunction();
 
@@ -61,11 +33,21 @@ namespace sdm
          * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
          * @param number : horizon 
          * @param std::shared_ptr<Initializer<TState, TAction>> : initializer 
-         * @param number frequency of the pruning 
+         * @param int frequency of the pruning 
          * @param double : espilon prunning 
          */
-        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, number = 10, double = 0.1);
-        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., number = 10, double = 0.1);
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, int = 10, double = 0.1);
+
+        /**
+         * @brief Construct a new Sawtooth Value Function object
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param TValue : Initiale value for the initializer function 
+         * @param int frequency of the pruning 
+         * @param double : espilon prunning 
+         */
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., int = 10, double = 0.1);
 
         /**
          * @brief Evaluate the value at a state.
@@ -89,6 +71,37 @@ namespace sdm
         void prune(number t = 0);
 
         bool is_dominated(const TState &ostate, double value, number t);
+
+    protected:
+        TState_t ctype = COMPRESSED;
+        TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
+
+        /**
+         * @brief Frequency before prunning
+         * 
+         */
+        int freq_prune_;
+
+        /**
+         * @brief The last time the prunning took place
+         * 
+         */
+        int last_prunning = 0;
+
+        /**
+         * @brief epsilon value used for the prunning
+         * 
+         */
+        double epsilon_prunning;
+
+        TState_t getTStateType();
+        void setTStateType(const TState_t &);
+
+        TypeSawtoothLinearProgram getSawtoothType();
+        void setSawtoothType(const TypeSawtoothLinearProgram &);
+
+        void setPrunningFrequency(int);
+        int getPrunningFrequency();
     };
 }
 #include <sdm/utils/value_function/sawtooth_vf.tpp>

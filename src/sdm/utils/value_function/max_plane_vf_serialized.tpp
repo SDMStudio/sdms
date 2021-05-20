@@ -7,13 +7,13 @@ namespace sdm
     MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::MaxPlanValueFunctionSerialized() {}
 
     template <typename TVector, typename TAction, typename TValue>
-    MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer)
-        : MaxPlanValueFunction<TVector, TAction, TValue>(problem, horizon,initializer)
+    MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer, int freq_prunning)
+        : MaxPlanValueFunction<TVector, TAction, TValue>(problem, horizon,initializer,freq_prunning)
     {
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, TValue default_value) : MaxPlanValueFunctionSerialized(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value))
+    MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, TValue default_value, int freq_pruning) : MaxPlanValueFunctionSerialized(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value),freq_pruning)
     {
     }
 
@@ -187,7 +187,6 @@ namespace sdm
 
     // For SerializedOccupancyMDP (i.e. SerializedOccupancyState as vector type)
     template <typename TVector, typename TAction, typename TValue>
-    template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     TVector MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::backup_operator(const TVector &serial_occupancy_state, number t)
     {
         double max = -std::numeric_limits<double>::max(), value; 
@@ -208,17 +207,6 @@ namespace sdm
             }
         }
         return this->setHyperplan(serial_occupancy_state, pair_action_value.first, max_next_step_hyperplan, t);
-    }
-
-    template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunctionSerialized<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
-    {
-        auto new_hyperplan = this->backup_operator<TVector>(state, t);
-
-        if(std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
-        {
-            this->representation[t].push_back(new_hyperplan);
-        }
     }
 
 } // namespace sdm

@@ -38,8 +38,10 @@ namespace sdm
          * @param TypeOfResolution : DO the resolution with the BigM formalism or with IlofIfThen
          * @param number : Value of BigM
          * @param TypeSawtoothLinearProgram : Type of Sawtooth resolution
+         * @param int : prunning frequency 
+         * @param double : epsilon prunning  
          */
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number, std::shared_ptr<Initializer<TState, TAction>>, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number, std::shared_ptr<Initializer<TState, TAction>>, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING, int = 10, double = 0.1);
 
         /**
          * @brief Construct a new Sawtooth Value Function L P object
@@ -50,8 +52,10 @@ namespace sdm
          * @param TypeOfResolution : DO the resolution with the BigM formalism or with IlofIfThen
          * @param number : Value of BigM
          * @param TypeSawtoothLinearProgram : Type of Sawtooth resolution
+         * @param int : prunning frequency 
+         * @param double : epsilon prunning  
          */
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100,TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100,TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING, int = 10, double = 0.1);
 
         /**
          * @brief Get the best action to do at a state
@@ -223,6 +227,12 @@ namespace sdm
          * @return double 
          */
         double getQValueRealistic(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double);
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        void setInitialConstrainte(const TState &compressed_serial_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
+        void setInitialConstrainte(const TState &compressed_serial_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
     };
 
     template <class TAction, class TValue>

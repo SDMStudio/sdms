@@ -4,11 +4,13 @@ namespace sdm
   MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP() {}
 
   template <typename TVector, typename TAction, typename TValue>
-  MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer)
-      : MaxPlanValueFunction<TVector, TAction, TValue>(problem, horizon, initializer), DecentralizedConstraintsLP<TVector, TAction, TValue>(problem) {}
+  MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer, int freq_prunning)
+      : MaxPlanValueFunction<TVector, TAction, TValue>(problem, horizon, initializer,freq_prunning), DecentralizedConstraintsLP<TVector, TAction, TValue>(problem) 
+  {}
 
   template <typename TVector, typename TAction, typename TValue>
-  MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, TValue default_value) : MaxPlanValueFunctionLP(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value)) {}
+  MaxPlanValueFunctionLP<TVector, TAction, TValue>::MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, int horizon, TValue default_value, int freq_prunning) : MaxPlanValueFunctionLP(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value), freq_prunning)
+  {}
 
   template <typename TVector, typename TAction, typename TValue>
   TAction MaxPlanValueFunctionLP<TVector, TAction, TValue>::greedyMaxPlane(const TVector &occupancy_state, const TVector &hyperplan, double &value, double, number t)
@@ -21,16 +23,6 @@ namespace sdm
 
     //<! greedy decision, initialization
     TAction a;
-
-    //<! set of individual histories per agent
-    // std::unordered_map<agent, std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type>> ihs;
-
-    //<! initialization of the above set of individual histories per agent
-    // for (agent ag = 0; ag < this->getWorld()->getUnderlyingProblem()->getNumAgents(); ++ag)
-    // {
-    //   std::unordered_set<typename TVector::jhistory_type::element_type::ihistory_type> empty;
-    //   ihs.emplace(ag, empty);
-    // }
 
     IloEnv env;
     try
@@ -217,14 +209,6 @@ namespace sdm
       }
     }
     return this->template getHyperplanAt<TVector>(occupancy_state, next_hyperplan, max_decision_rule, t);
-  }
-
-  template <typename TVector, typename TAction, typename TValue>
-  void MaxPlanValueFunctionLP<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
-  {
-    auto new_hyperplan = this->backup_operator(state, t);
-    this->representation[this->isInfiniteHorizon() ? 0 : t].push_back(new_hyperplan);
-    //this->prune(t);
   }
 
   template <typename TVector, typename TAction, typename TValue>

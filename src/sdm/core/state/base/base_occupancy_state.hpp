@@ -128,6 +128,20 @@ namespace sdm
     std::string str_hyperplan() const;
 
     /**
+     * @brief Create of a belief conditionning to a joint history
+     * 
+     * @return MappedVector<TState,double> 
+     */
+    const BaseBeliefState<TState> createBelief(const jhistory_type& ) const;
+
+    /**
+     * @brief Create a belief weighted conditionning to a joint history
+     * 
+     * @return MappedVector<TState,double> 
+     */
+    const BaseBeliefState<TState> createBeliefWeighted(const jhistory_type&) const;
+
+    /**
      *  @brief  Returns an ostream instance
      */
     friend std::ostream &operator<<(std::ostream &os, BaseOccupancyState &ostate)
