@@ -91,7 +91,7 @@ namespace sdm
         if (this->private_ihistory_map_[agent_id].find(ihistory) != this->private_ihistory_map_[agent_id].end())
         {
             // Get the old label
-            auto old_label = this->private_ihistory_map_[agent_id].at(ihistory);
+            auto &&old_label = this->private_ihistory_map_[agent_id].at(ihistory);
             // Change every labels of ihistories that have old_label as label
             *old_label = label;
         }
@@ -105,7 +105,7 @@ namespace sdm
             else
             {
                 // If no such label is already used, create a pointer on it and store it
-                auto new_ptr_on_label = std::make_shared<ihistory_type>(label);
+                auto &&new_ptr_on_label = std::make_shared<ihistory_type>(label);
                 this->map_label_to_pointer[agent_id][label] = new_ptr_on_label;
                 this->private_ihistory_map_[agent_id][ihistory] = new_ptr_on_label;
             }
@@ -149,7 +149,7 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     TJointHistory_p OccupancyState<TState, TJointHistory_p>::getCompressedJointHistory(const TJointHistory_p &joint_history) const
     {
-        auto labels = this->getJointLabels(joint_history->getIndividualHistories());
+        const auto &labels = this->getJointLabels(joint_history->getIndividualHistories());
         return this->jhistory_map_.at(labels);
     }
 
@@ -167,8 +167,8 @@ namespace sdm
         for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
         {
             // Get support (a set of individual histories for agent i)
-            auto support_set = this->getIndividualHistories(agent_id);
-            auto support = tools::set2vector(support_set);
+            const auto &support_set = this->getIndividualHistories(agent_id);
+            auto &&support = tools::set2vector(support_set);
 
             // Sort support
             std::sort(support.begin(), support.end());
@@ -222,8 +222,8 @@ namespace sdm
 
         for (const auto &pair_state_jhist : *this)
         {
-            auto jhist = this->getHistory(pair_state_jhist.first);
-            auto proba = this->getProbability(pair_state_jhist.first);
+            const auto& jhist = this->getHistory(pair_state_jhist.first);
+            const auto& proba = this->getProbability(pair_state_jhist.first);
 
             // Store relation between joint history and list of individual histories
             this->jhistory_map_.emplace(jhist->getIndividualHistories(), jhist);

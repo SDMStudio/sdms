@@ -42,6 +42,23 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    TAction TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getBestAction(const TState &state, number t)
+    {
+        TAction best_action;
+        TValue max = -std::numeric_limits<TValue>::max(), tmp;
+
+        for (const auto &action : this->getWorld()->getActionSpaceAt(state)->getAll())
+        {
+            if (max < (tmp = this->getQValueAt(state, action, t)))
+            {
+                best_action = action;
+                max = tmp;
+            }
+        }
+        return best_action;
+    }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
     {
         this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
@@ -79,7 +96,7 @@ namespace sdm
         for (std::size_t i = 0; i < this->representation.size(); i++)
         {
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
-            for (auto pair_st_val : this->representation[i])
+            for (const auto &pair_st_val : this->representation[i])
             {
                 // res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
                 // res << "\t\t</state>" << std::endl;

@@ -24,8 +24,9 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     std::shared_ptr<VectorImpl<TAction, TValue>> ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, number t)
     {
+        // Compute Q(s,*)
         std::shared_ptr<MappedVector<TAction, TValue>> q_s = std::make_shared<MappedVector<TAction, TValue>>();
-        for (auto &a : this->getWorld()->getActionSpaceAt(state)->getAll())
+        for (const auto &a : this->getWorld()->getActionSpaceAt(state)->getAll())
         {
             (*q_s)[a] = this->getQValueAt(state, a, t);
         }
@@ -42,8 +43,8 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     TAction ValueFunction<TState, TAction, TValue>::getBestAction(const TState &state, number t)
     {
-        auto qvalues = this->getQValueAt(state, t);
-        return qvalues->argmax();
+        // Get the best action (i.e. the action that maximizes the q value function)
+        return this->getQValueAt(state, t)->argmax();
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -61,7 +62,6 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     double ValueFunction<TState, TAction, TValue>::getDiscount(number t)
     {
-
         if (this->getWorld()->isSerialized())
         {
             if ((t + 1) % this->getWorld()->getUnderlyingProblem()->getNumAgents() != 0)

@@ -136,7 +136,7 @@ namespace sdm
      * @param number : the timestep
      * @return the error
      */
-    double do_excess(const TState &,double , number);
+    double do_excess(const TState &, double /*cost_so_far*/, number);
 
     /**
      * @brief Get the lower bound value function 

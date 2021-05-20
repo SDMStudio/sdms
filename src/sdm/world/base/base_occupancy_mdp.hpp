@@ -45,6 +45,10 @@ namespace sdm
                              public GymInterface<TState, TAction>
     {
     protected:
+        /**
+         * @brief Type of occupancy state.
+         */
+        bool compress = true, keep_one_step_uncompressed = false, keep_fully_uncompressed = false;
 
         /**
          * @brief The problem that we want solve. 

@@ -102,9 +102,9 @@ namespace sdm
         // Add elements in bimap jhistory <--> jhistory^{-i}
         for (const auto &pair_state_hist_prob : *this)
         {
-            auto jhist = this->getHistory(pair_state_hist_prob.first);
+            const auto &jhist = this->getHistory(pair_state_hist_prob.first);
             // Get partial joint history
-            auto partial_jhist = this->getPartialJointHistory(jhist->getIndividualHistories());
+            const auto &partial_jhist = this->getPartialJointHistory(jhist->getIndividualHistories());
             //
             this->bimap_jhist_partial_jhist.insert(bimap_value(jhist, partial_jhist));
         }
@@ -121,19 +121,19 @@ namespace sdm
         }
         for (const auto &pair_partial_joint_history_joint_history : this->bimap_jhist_partial_jhist.right)
         {
-            auto partial_joint_history = pair_partial_joint_history_joint_history.first;
-            auto current_joint_history = pair_partial_joint_history_joint_history.second;
-            auto other_joint_history = other.bimap_jhist_partial_jhist.right.at(partial_joint_history);
+            const auto &partial_joint_history = pair_partial_joint_history_joint_history.first;
+            const auto &current_joint_history = pair_partial_joint_history_joint_history.second;
+            const auto &other_joint_history = other.bimap_jhist_partial_jhist.right.at(partial_joint_history);
 
             for (const auto &hidden_state : this->getStatesAt(current_joint_history))
             {
                 // Get value in the current private occupancy state
-                auto current_pair_state_joint_history = std::make_pair(hidden_state, current_joint_history);
-                auto current_value = this->at(current_pair_state_joint_history);
+                const auto &current_pair_state_joint_history = std::make_pair(hidden_state, current_joint_history);
+                const auto &current_value = this->at(current_pair_state_joint_history);
 
                 // Get corresponding value in the other private occupancy state
-                auto other_pair_state_joint_history = std::make_pair(hidden_state, other_joint_history);
-                auto other_value = other.at(other_pair_state_joint_history);
+                const auto &other_pair_state_joint_history = std::make_pair(hidden_state, other_joint_history);
+                const auto &other_value = other.at(other_pair_state_joint_history);
 
                 if (other_value == 0)
                 {

@@ -71,7 +71,7 @@ namespace sdm
         bool first_passage = true;
         for (const auto &jhist : this->getJointHistories())
         {
-            auto ihists = jhist->getIndividualHistories();
+            const auto& ihists = jhist->getIndividualHistories();
             for (std::size_t i = 0; i < ihists.size(); i++)
             {
                 if (first_passage)

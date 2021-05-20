@@ -63,7 +63,7 @@ namespace sdm
     void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
     {
         //std::cout<<"\n support ::::::"<<this->representation;
-        auto new_hyperplan = this->backup_operator(state, t);
+        const auto &new_hyperplan = this->backup_operator(state, t);
 
         if (std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
             this->representation[t].push_back(new_hyperplan);
@@ -107,7 +107,7 @@ namespace sdm
             // Go over all joint decision rules at occupancy occupancy_state
             for (const auto &joint_decision_rule : this->getWorld()->getActionSpaceAt(occupancy_state)->getAll())
             {
-                TVector new_hyperplan = this->getHyperplanAt<TVector>(occupancy_state, next_hyperplan, joint_decision_rule, t);
+                const TVector &new_hyperplan = this->getHyperplanAt<TVector>(occupancy_state, next_hyperplan, joint_decision_rule, t);
                 if (value_max < (tmp = occupancy_state ^ new_hyperplan))
                 {
                     value_max = tmp;
