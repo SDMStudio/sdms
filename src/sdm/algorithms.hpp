@@ -242,7 +242,7 @@ namespace sdm
                     using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
                     using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-                    auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, horizon);
+                    auto serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(problem_path, (truncation > 0) ? truncation : horizon);
 
                     p_algo = makeHSVI<TState, TAction>(serialized_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name,current_type_of_resolution,BigM,type_sawtooth_linear_programming);
                 }

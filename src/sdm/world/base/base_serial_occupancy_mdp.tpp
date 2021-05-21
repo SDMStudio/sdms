@@ -13,7 +13,6 @@ namespace sdm
     template <typename TState, typename TAction>
     BaseSerializedOccupancyMDP<TState, TAction>::BaseSerializedOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number ) : serialized_mpomdp_(std::make_shared<SerializedMPOMDP>(underlying_dpomdp))
     {
-        std::cout<<"\n oui ?";
     }
 
     template <typename TState, typename TAction>

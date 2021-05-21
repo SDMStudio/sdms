@@ -54,7 +54,6 @@ namespace sdm
      * @return state_type::state_type 
      */
     typename state_type::state_type getHiddenState(const Pair<state_type, jhistory_type> &) const;
-
     /**
      * @brief Get the Action object of a precise element of the occupancy state
      * 

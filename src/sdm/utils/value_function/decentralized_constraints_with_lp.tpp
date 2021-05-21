@@ -22,6 +22,7 @@ namespace sdm
       for(const auto& ihistory : occupancy_state.getIndividualHistories(agent))
       {
         joint_histories[agent].push_back(ihistory);
+
         for(const auto& action : this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(agent)->getAll())
         {
           index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent));

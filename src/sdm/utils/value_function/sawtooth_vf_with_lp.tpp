@@ -31,19 +31,7 @@ namespace sdm
     {
         double cub = 0;
         auto action = this->greedySawtooth(compressed_occupancy_state, cub, t);
-
-        auto vub_0 = this->getQValueAt(compressed_occupancy_state, action, t);
-        // auto vub_0 = this->getWorld()->getReward(occupancy_state, a) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(occupancy_state, a), t + 1);
-        auto vub_1 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(compressed_occupancy_state, action), t + 1);
-        auto vub_2 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * MappedValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(compressed_occupancy_state, action).getOneStepUncompressedOccupancy(), t + 1);
-
-        if (std::abs(cub - vub_0) > 0.01)
-        {
-            std::cout << "------------------------------------------------------------------------" << std::endl;
-            std::cout << "horizon:" << t << "\tcompressed occupancy state:" << compressed_occupancy_state << std::endl;
-            throw sdm::exception::Exception("Unexpected upper-bound values : value_opti(" + std::to_string(cub) + ")\t vub_0(" + std::to_string(vub_0) + ")\t vub_1(" + std::to_string(vub_1) + ")\t vub_2(" + std::to_string(vub_2) + ")");
-        }
-
+        std::cout<<"\n cub "<<cub;
         return cub;
     }
 
@@ -384,6 +372,7 @@ namespace sdm
 
                     auto joint_history = next_joint_history->getParent();
                     auto next_observation = next_joint_history->getData();
+                    
 
                     // Build the sawtooth constraint depending on the type of resolution choiced
                     switch (this->current_type_of_resolution_)
@@ -559,7 +548,7 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_serial_occupancy_state, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        this->template setInitialConstrainte<TState>(compressed_serial_occupancy_state, env, con, var, index, t);
+        // this->template setInitialConstrainte<TState>(compressed_serial_occupancy_state, env, con, var, index, t);
 
         number recover = 0;
 
@@ -629,7 +618,6 @@ namespace sdm
             // \sum_{x} s(x,o) * p_{x,u,z',x'}
             factor += compressed_serial_occupancy_state.at(std::make_pair(hidden_serial_state, joint_history)) * this->getWorld()->getUnderlyingProblem()->getDynamics(hidden_serial_state, action, next_observation, next_hidden_serial_state);
         }
-
         return factor / denominator;
     }
 
@@ -714,8 +702,7 @@ namespace sdm
 
         con.add(IloRange(env, -IloInfinity, this->bigM_value_));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
-
-        if (compressed_serial_occupancy_state.getJointHistories().find(joint_history) != compressed_serial_occupancy_state.getJointHistories().end())
+        if(compressed_serial_occupancy_state.getJointHistories().find(joint_history) != compressed_serial_occupancy_state.getJointHistories().end())
         {
             // Go over all actions
             for (const auto &serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
@@ -744,7 +731,6 @@ namespace sdm
         IloExpr expr(env);
         //<! 1.c.1 get variable v and set coefficient of variable v
         expr = var[this->getNumber(this->getVarNameWeight(0))];
-
         if(compressed_serial_occupancy_state.getJointHistories().find(joint_history) != compressed_serial_occupancy_state.getJointHistories().end())
         {
             // Go over all actions
@@ -752,8 +738,8 @@ namespace sdm
             {
                 //<! 1.c.4 get variable a_i(u_i|o_i) and set constant 
                 expr -= this->getQValueRealistic(compressed_serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, probability, difference) * var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))];
-            } 
-        }               
+            }  
+        }             
 
         // <! get variable \omega_k(x',o')
         recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_serial_occupancy_state, next_hidden_state, next_joint_history));
@@ -798,17 +784,50 @@ namespace sdm
 
     template <typename TState, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int>>
-    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &, typename TState::jhistory_type , typename TAction::output_type , number )
+    double SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(const TState &compressed_occupancy_state, typename TState::jhistory_type joint_history, typename TAction::output_type action , number t )
     {
         // assert(compressed_occupancy_state.getStatesAt(joint_history).size() == 1);
+
+
         auto weight = 0.0;
-        // for (const auto &belief : compressed_occupancy_state.getStatesAt(joint_history))
-        // {
-        //     for (number state = 0; state < belief->getData().size(); ++state)
-        //     {
-        //         weight += compressed_occupancy_state.at(std::make_pair(belief, joint_history)) * belief->getData()[state] * this->getInitFunction()->operator()(std::make_pair(state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action)), t);
-        //     }
-        // }
+        try
+        {
+            // Relaxation problem 
+            auto relaxation =  std::static_pointer_cast<BaseRelaxedValueFunction<TState>>(this->getInitFunction());
+            // auto index_action = this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action);
+
+            // Ask is POmdp Relaxation exists
+            if(relaxation->isPomdpAvailable())
+            {
+                // Creation of belief 
+                // for (const auto &belief : compressed_occupancy_state.getStatesAt(joint_history))
+                // {
+                //     for (number state = 0; state < belief->getData().size(); ++state)
+                //     {
+                //         weight += compressed_occupancy_state.at(std::make_pair(belief, joint_history)) * belief->getData()[state] * this->getInitFunction()->operator()(std::make_pair(state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action)), t);
+                //     }
+                // }
+                // //get Q Relaxation for POMDP
+                // weight = std::static_pointer_cast<RelaxedValueFunction<BeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
+            }
+            else
+            {
+                //Go over all hidden state conditionning to a joint history
+                for (const auto &belief : compressed_occupancy_state.getStatesAt(joint_history))
+                {
+                    for (number state = 0; state < belief->getData().size(); ++state)
+                    {
+                        weight += compressed_occupancy_state.at(std::make_pair(belief, joint_history)) * belief->getData()[state] * std::static_pointer_cast<RelaxedValueFunction<number, TState>>(this->getInitFunction())->operator()(std::make_pair(state, this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action)), t);
+                    }
+                }
+            }
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::getQValueRelaxation(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
         return weight;
     }
 }

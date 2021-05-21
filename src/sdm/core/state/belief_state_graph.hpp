@@ -29,7 +29,7 @@ namespace sdm
     {
     public:
         using action_type = TAction;
-        using state_type = TBeliefState;
+        using state_type = typename TBeliefState::state_type;
 
         BeliefStateGraph();
 

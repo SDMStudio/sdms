@@ -35,21 +35,6 @@ int main(int argc, char **argv)
     {
         clock_t t_begin = clock();
 
-        // auto world = std::make_shared<DiscreteDecPOMDP>(filename);
-
-        // // Init belief
-        // BeliefStateVector belief = world->getStartDistrib().probabilities();
-        // auto belief_graph = std::make_shared<BeliefStateGraph_p::element_type>(belief, world->getObsDynamics()->getDynamics());
-        // belief_graph->initialize();
-        // // Init Joint history tree
-        // auto joint_history_tree = std::make_shared<JointHistoryTree_p<number>::element_type>(2);
-
-        // // Init occupancy state
-        // auto occupancy_state = std::make_shared<OccupancyState<BeliefStateGraph_p, JointHistoryTree_p<number>>>();
-        // occupancy_state->setProbabilityAt({belief_graph, joint_history_tree}, 1);
-
-        // std::cout << *occupancy_state << std::endl;
-
         // using TState = number;
         // using TObservation = number;
 

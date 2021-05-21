@@ -202,17 +202,13 @@ namespace sdm
     {
         for (const auto &item : *this)
         {
-            if (v2.find(item.first) != v2.end())
-            {
-                return item.second < v2.at(item.first);
-            }
+            if ( item.second > v2.at(item.first))
+                return false;
         }
         for (const auto &item : v2)
         {
-            if (this->find(item.first) != this->end())
-            {
-                return this->at(item.first) < item.second;
-            }
+            if (item.second < this->at(item.first) )
+                return false;
         }
         return false;
     }

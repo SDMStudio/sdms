@@ -57,6 +57,8 @@ namespace sdm
             items.push_front(parent->getData());
             parent = std::static_pointer_cast<output>(parent->getParent());
         }
+        T last_item = parent->getData();
+
 
         //<! iteratively expands the base_graph
         auto trace = std::static_pointer_cast<HistoryTree<T>>(parent->getOrigin());
@@ -65,6 +67,8 @@ namespace sdm
         {
             trace = trace->template expand<output>(*it, backup);
         }
+        trace->truncated_last_item = last_item;
+        trace->truncated_item = true;
 
         return std::static_pointer_cast<output>(trace);
     }
@@ -111,7 +115,29 @@ namespace sdm
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getParent() const
     {
-        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getParent());
+        std::list<T> items;
+
+        //<! fill in the vector of observation to simulate
+        auto parent = Tree<T>::getParent();
+        while (parent != this->origin_)
+        {
+            items.push_front(parent->getData());
+            parent = parent->Tree<T>::getParent();
+        }
+        
+        if(this->truncated_item)
+        {
+            items.push_front(this->truncated_last_item);
+        }
+
+        //<! iteratively expands the base_graph
+        auto trace = std::static_pointer_cast<HistoryTree<T>>(parent->getOrigin());
+        for (auto it = items.begin(); it != items.end(); ++it)
+        {
+            trace = trace->getChild(*it);
+        }
+        
+        return std::static_pointer_cast<HistoryTree<T>>(trace);
     }
 
     template <typename T>

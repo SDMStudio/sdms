@@ -59,7 +59,7 @@ namespace sdm
          * @param ag_id is the identifiant of a precise agent
          * @return std::shared_ptr<DiscreteSpace<number>> 
          */
-        std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ) const;
+        std::vector<observation_type> getObsSpaceAt(number ) const;
 
         //! \fn       double getObservationProbability(action, observation, state) const
         //! \param    x a specific current state

@@ -108,6 +108,24 @@ namespace sdm
         void bounded_prune(number = 0);
 
         /**
+         * @brief this method prunes dominated vectors, known as Pairwise pruning.
+         * 
+         * @param number : timestep 
+         */
+        void pairwise_prune(number t);
+
+        /**
+         * @brief Determine if the first hyperplan dominate the second hyperplan
+         * 
+         * @param TVector : first_hyperplan 
+         * @param TVector: second_hyperplan 
+         * @return true 
+         * @return false 
+         */
+        bool dominated(TVector first_hyperplan, TVector second_hyperplan);
+
+
+        /**
          * @brief backup operator for the occupancy state with belief representation -- type of the state -- 
          * @param const TVector & occupancy state 
          * @param number horizon
