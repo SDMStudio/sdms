@@ -1,91 +1,93 @@
 #include <iostream>
-#include <sdm/types.hpp>
 
-#include <sdm/utils/struct/graph.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
-
-#include <sdm/core/state/belief_state.hpp>
-#include <sdm/core/state/belief_state_vector.hpp>
-#include <sdm/core/state/belief_state_graph.hpp>
-
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/core/states.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/core/joint.hpp>
+#include <sdm/core/action/hierarchical_private_joint_det_decision_rule.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
+#include <sdm/world/hierarchical_private_occupancy_mdp.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // TEST BeliefStateGraph
-    std::cout << "\n--------- Usage : class BeliefStateGraph ( sdm/core/state/belief_state_graph.hpp ) ---------\n\n";
+	std::string filename;
+	int limit;
 
-    std::string filename;
+	if (argc == 2)
+	{
+		filename = argv[1];
+		limit = 5;
+	} 
+	
+	else if (argc == 3)
+	{
+		filename = argv[1];
+		limit = atoi(argv[2]);
+	}
 
-    if (argc > 1)
-    {
-        filename = argv[1];
-    }
-    else
-    {
-        std::cerr << "Error: Require 1 input file." << std::endl;
-        return 1;
-    }
+	else
+	{
+		std::cerr << "Error: Require 1 input file." << std::endl;
+		return 1;
+	}
 
-    try
-    {
-        clock_t t_begin = clock();
+	try
+	{
+		using TState = OccupancyState<number, JointHistoryTree_p<number>>;
+		using TAction = HierarchicalPrivateJointDeterministicDecisionRule<Joint<HistoryTree_p<number>>, number>;
+		// using TAction = PrivateHierarchicalJointDeterministicDecisionRule<HistoryTree_p<number>, number>;
 
-        // using TState = number;
-        // using TObservation = number;
+		// Construct hpoMDP using parser
+		std::cout << "#> Parsing file \"" << filename << "\"\n";
+		auto hpoMDP = std::make_shared<HierarchicalPrivateOccupancyMDP<TState, TAction>>(filename);
+		// We will show how to expand an initial private occupancy state and generate next ones using compression
+		int depth = 0;
+		std::cout << "#> Depth: " << depth << "\n";
+		auto postate = hpoMDP->getInitialState();
+		std::cout << "#> Private occupancy state: \n"
+				  		<< postate << "\n";
+		// std::cout << "#> Fully uncompressed occupancy state \n"
+		// 					<< *postate.getFullyUncompressedOccupancy() << "\n";
+		std::cout << "Uncompressed size: " << postate.getFullyUncompressedOccupancy()->getSize() << "\n";
+		std::cout << "Compressed size: " << postate.getSize() << "\n";
+		auto oaction_space = hpoMDP->getActionSpaceAt(postate);
+		// std::cout << "#> All possible oactions: \n";
+		// for (auto oaction: oaction_space->getAll()){
+		// 	std::cout << oaction;
+		// }
+		auto oaction = oaction_space->sample();
+		std::cout << "#> Private hierarchical joint decision rule: \n"
+				  		<< oaction << "\n";
 
-        // using TActionDescriptor = number;
-        // using TStateDescriptor = HistoryTree_p<TObservation>;
+		do
+		{
+			std::cout << "\n" << "#> Depth: " << ++depth << "\n";
 
-        // using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
+			// Compute the next compressed occupancy state
+			postate = hpoMDP->nextState(postate, oaction, 0);
+			std::cout << "#> Print compressed occupancy state \n"
+					  		<< postate << "\n";
+			std::cout << "Uncompressed size: " << postate.getFullyUncompressedOccupancy()->getSize() << "\n";
+			std::cout << "Compressed size: " << postate.getSize() << "\n";
+			// std::cout << "#> Print fully uncompressed occupancy state \n"
+			// 		  		<< *postate.getFullyUncompressedOccupancy() << "\n";
 
-        // using TStatePrescriptor = SerializedOccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
-        // // using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+			// Sample a decision rule
+			oaction_space = hpoMDP->getActionSpaceAt(postate);
+			std::cout << "#> Size of oaction_space: " << oaction_space->getNumItems() << "\n";
+			// std::cout << "#> All possible oactions: \n";
+			// for (auto oaction: oaction_space->getAll()){
+			// 	std::cout << oaction;
+			// }
+			oaction = oaction_space->sample();
+			std::cout << "#> Oaction: \n"
+					  		<< oaction << "\n";
+		} while (depth < limit);
+	}
+	catch (exception::Exception &e)
+	{
+		std::cout << "!!! Exception: " << e.what() << std::endl;
+	}
 
-        // // Construct OccupancyMDP using parser
-        // std::cout << "#> Parsing file \"" << filename << "\"\n";
-        // auto omdp_world = std::make_shared<SerializedOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename);
-
-        // // We will show how to expand an initial occupancy state and generate next ones using compression
-        // int depth = 0, limit = 10;
-        // // std::cout << "#> Print depth \"" << depth << "\"\n";
-        // auto ostate = omdp_world->getInitialState();
-
-        // // std::cout << "#> Print occupancy state \n"
-        // //           << ostate << "\n";
-
-        // auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-        // // std::cout << "#> Print joint decision rule \n"
-        // //           << oaction << "\n";
-
-        // do
-        // {
-        //     depth++;
-        //     std::cout << "#> Print depth \"" << depth << "\"\n";
-
-        //     // Compute the next compressed occupancy state
-        //     ostate = omdp_world->nextState(ostate, oaction);
-        //     // std::cout << "#> Print compressed occupancy state \n"
-        //     //           << ostate << "\n";
-        //     // std::cout << "#> Print one step left occupancy state \n"
-        //     //           << *ostate.getOneStepUncompressedOccupancy() << "\n";
-        //     // std::cout << "#> Print fully uncompressed occupancy state \n"
-        //     //           << *ostate.getFullyUncompressedOccupancy() << "\n";
-
-        //     // Sample a decision rule
-        //     oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-        //     // std::cout << "#> Print joint decision rule \n"
-        //     //           << oaction << "\n";
-        // } while (depth < limit);
-        // std::cout << "Time : " << ((float)(clock() - t_begin) / CLOCKS_PER_SEC) << std::endl;
-    }
-    catch (exception::Exception &e)
-    {
-        std::cout << "!!! Exception: " << e.what() << std::endl;
-    }
-    return 0;
-}
+	return 0;
+} // END main
