@@ -120,7 +120,7 @@ namespace sdm
                 upper_bound = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(problem, horizon, ub_init);
             }
 
-            return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name);
+            return std::make_shared<HSVI<TState, TAction>>(problem, lower_bound, upper_bound, horizon, error, trials, name,10000);
         }
 
         /**

@@ -210,7 +210,7 @@ namespace sdm
             if (item.second < this->at(item.first) )
                 return false;
         }
-        return false;
+        return true;
     }
 
     template <typename TIndex, typename T>

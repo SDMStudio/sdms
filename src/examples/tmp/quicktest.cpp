@@ -12,76 +12,33 @@
 #include <sdm/world/serialized_occupancy_mdp.hpp>
 #include <sdm/core/states.hpp>
 
+#include <sdm/utils/global_Test.hpp>
+
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // TEST BeliefStateGraph
-    std::cout << "\n--------- Usage : class BeliefStateGraph ( sdm/core/state/belief_state_graph.hpp ) ---------\n\n";
-
-    std::string filename;
-
-    if (argc > 1)
-    {
-        filename = argv[1];
-    }
-    else
-    {
-        std::cerr << "Error: Require 1 input file." << std::endl;
-        return 1;
-    }
-
     try
     {
-        clock_t t_begin = clock();
+        // Grid3x3corners
 
-        // using TState = number;
-        // using TObservation = number;
+        std::vector<std::string> all_formalism={"decpomdp"};
+        std::vector<std::string> all_problem={"mabc","tiger","recycling","GridSmall","alignment_2x4","Mars"};
+        std::vector<int> all_horizon={10};
+        std::vector<double> all_discount={1};
+        std::vector<std::string> upper_bound_name = {"sawtooth_lp"};
+        std::vector<std::string> lower_bound_name={"maxplan_lp"};
+        std::vector<std::string> all_lower__init_name={"BlindInitializer"};
+        std::vector<std::string> all_upper_init_name= {"MdpValueIterationInitializer"};
+        std::vector<int> all_truncation = {2};
+        std::vector<std::string> all_sawtooth_current_type_of_resolution = {"BigM"};
+        std::vector<number> all_sawtooth_BigM = {1000};
+        int mean = 1;
+        std::string filepath = "../data/world/dpomdp/";
+        std::string save_path = "../run/Resultat/resultat.csv";
 
-        // using TActionDescriptor = number;
-        // using TStateDescriptor = HistoryTree_p<TObservation>;
-
-        // using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
-
-        // using TStatePrescriptor = SerializedOccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
-        // // using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
-
-        // // Construct OccupancyMDP using parser
-        // std::cout << "#> Parsing file \"" << filename << "\"\n";
-        // auto omdp_world = std::make_shared<SerializedOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename);
-
-        // // We will show how to expand an initial occupancy state and generate next ones using compression
-        // int depth = 0, limit = 10;
-        // // std::cout << "#> Print depth \"" << depth << "\"\n";
-        // auto ostate = omdp_world->getInitialState();
-
-        // // std::cout << "#> Print occupancy state \n"
-        // //           << ostate << "\n";
-
-        // auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-        // // std::cout << "#> Print joint decision rule \n"
-        // //           << oaction << "\n";
-
-        // do
-        // {
-        //     depth++;
-        //     std::cout << "#> Print depth \"" << depth << "\"\n";
-
-        //     // Compute the next compressed occupancy state
-        //     ostate = omdp_world->nextState(ostate, oaction);
-        //     // std::cout << "#> Print compressed occupancy state \n"
-        //     //           << ostate << "\n";
-        //     // std::cout << "#> Print one step left occupancy state \n"
-        //     //           << *ostate.getOneStepUncompressedOccupancy() << "\n";
-        //     // std::cout << "#> Print fully uncompressed occupancy state \n"
-        //     //           << *ostate.getFullyUncompressedOccupancy() << "\n";
-
-        //     // Sample a decision rule
-        //     oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-        //     // std::cout << "#> Print joint decision rule \n"
-        //     //           << oaction << "\n";
-        // } while (depth < limit);
-        // std::cout << "Time : " << ((float)(clock() - t_begin) / CLOCKS_PER_SEC) << std::endl;
+        test(all_formalism,all_problem,all_horizon,all_discount,upper_bound_name,lower_bound_name,all_lower__init_name, all_upper_init_name,
+            all_truncation,all_sawtooth_current_type_of_resolution, all_sawtooth_BigM ,mean,filepath ,save_path); 
     }
     catch (exception::Exception &e)
     {

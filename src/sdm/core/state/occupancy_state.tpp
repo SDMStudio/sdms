@@ -206,7 +206,6 @@ namespace sdm
                     }
                 }
             }
-
             previous_compact_ostate = current_compact_ostate;
             previous_compact_ostate.private_ihistory_map_ = this->private_ihistory_map_;
             previous_compact_ostate.finalize();

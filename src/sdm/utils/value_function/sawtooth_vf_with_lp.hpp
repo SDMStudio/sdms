@@ -148,10 +148,10 @@ namespace sdm
          * @param number : time step
          */
         template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
-        void setGreedySawtoothBigM(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
+        void setGreedySawtoothBigM(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void setGreedySawtoothBigM(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
+        void setGreedySawtoothBigM(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
 
         /**
          * @brief Set the Greedy Sawtooth Ifo If Then object
@@ -170,10 +170,10 @@ namespace sdm
          * @param number : time step
          */
         template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
-        void setGreedySawtoothIloIfThen(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
+        void setGreedySawtoothIloIfThen(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void setGreedySawtoothIloIfThen(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
+        void setGreedySawtoothIloIfThen(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
 
         /**
          * @brief Get the Sawtooth Minimum Ratio  i.e. \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)}

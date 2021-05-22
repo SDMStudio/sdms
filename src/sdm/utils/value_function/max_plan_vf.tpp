@@ -203,7 +203,6 @@ namespace sdm
         //Delete the hyperplan present in hyperplan_to_delete 
         for(const auto &to_delete : hyperplan_to_delete)
         {
-            std::cout<<"\n succesfully deleted";
             this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
         }
     }

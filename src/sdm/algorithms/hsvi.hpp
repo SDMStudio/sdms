@@ -59,7 +59,7 @@ namespace sdm
      * @brief Some variables for the algorithm.
      * 
      */
-    int trial, MAX_TRIALS;
+    int trial, MAX_TRIALS, time_max_in_seconds_;
     double error_;
     number planning_horizon_;
     std::string name_ = "hsvi";
@@ -84,7 +84,8 @@ namespace sdm
          number planning_horizon,
          double epsilon,
          number num_max_trials = 10000,
-         std::string name = "hsvi");
+         std::string name = "hsvi",
+         int time_max_in_seconds_ = 10000);
 
     std::shared_ptr<HSVI<TState, TAction>> getptr();
 
@@ -147,6 +148,8 @@ namespace sdm
      * @brief Get the upper bound value function 
      */
     std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
+
+    double getResultOpti();
 
     int getTrial();
   };
