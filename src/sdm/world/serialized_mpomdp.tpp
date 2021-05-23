@@ -226,7 +226,7 @@ namespace sdm
 
     std::vector<Joint<number>> SerializedMPOMDP::getObsSpaceAt(number ag_id) const
     {
-        return (ag_id % this->getNumAgents()) ? std::vector<Joint<number>>{this->empty_serial_observation} : this->decpomdp_->getObsSpace()->getAll();
+        return (ag_id % this->getNumAgents() == 0) ? std::vector<Joint<number>>{this->empty_serial_observation} : this->decpomdp_->getObsSpace()->getAll();
 
         // return this->decpomdp_->getObsSpace()->getSpace(ag_id);
     }

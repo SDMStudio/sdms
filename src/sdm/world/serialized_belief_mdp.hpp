@@ -59,8 +59,15 @@ namespace sdm
          */
         TBelief nextState(const TBelief &, const TAction &, number  = 0, std::shared_ptr<HSVI<TBelief, TAction>> = nullptr) const;
 
-        //Tempo à vérifier leur utilité
-        // TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
+        /**
+         * @brief Get the next occupancy state.
+         * 
+         * @param const TBelief & the belief state
+         * @param const TAction & the action state
+         * @param const TObservation & observation
+         * @return the next belief state
+         */
+        TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
         
 
         double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;

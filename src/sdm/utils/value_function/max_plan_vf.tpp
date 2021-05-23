@@ -103,7 +103,7 @@ namespace sdm
     void MaxPlanValueFunction<TVector, TAction, TValue>::prune(number t )
     {
         // this->bounded_prune(t);
-        this->pairwise_prune(t);
+        // this->pairwise_prune(t);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -452,62 +452,60 @@ namespace sdm
     // ---------------------------------------------------------------
     // --------- DEFINITION FOR SerialBeliefMDP FORMALISM ------------------
     // ---------------------------------------------------------------
+    template <>
+    SerializedBeliefState MaxPlanValueFunction<SerializedBeliefState, number, double>::backup_operator(const SerializedBeliefState &serial_belief_state, number t)
+    {
+        // auto serial_beliefMDP = std::static_pointer_cast<SerializedBeliefMDP<SerializedBeliefState, number, Joint<number>>>(this->getWorld());
+        // auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-    // template <>
-    // SeriliazedBeliefState MaxPlanValueFunction<SeriliazedBeliefState, number, double>::backup_operator(const SeriliazedBeliefState &serial_belief_state, number t)
-    // {
-    //     auto serial_beliefMDP = std::static_pointer_cast<SerializedBeliefMDP<SeriliazedBeliefState, number, Joint<number>>>(this->getWorld());
-    //     auto under_pb = this->getWorld()->getUnderlyingProblem();
+        // number n_obs = under_pb->getObsSpaceAt(t).size();
+        // number n_actions = under_pb->getActionSpace(t)->getNumItems();
 
-    //     number obs_space = under_pb->getObsSpace(t)->getAll();
-    //     number action_space = under_pb->getActionSpace(t)->getAll();
-    //     number state_space = under_pb->getStateSpace(t)->getAll();
+        // std::vector<std::vector<SerializedBeliefState>> beta_a_o(n_actions, std::vector<SerializedBeliefState>(n_obs, SerializedBeliefState()));
+        // std::vector<SerializedBeliefState> beta_a(n_actions, SerializedBeliefState());
 
-    //     std::vector<std::vector<SeriliazedBeliefState>> beta_a_o(n_actions, std::vector<SeriliazedBeliefState>(n_obs, SeriliazedBeliefState()));
-    //     std::vector<SeriliazedBeliefState> beta_a(n_actions, SeriliazedBeliefState());
+        // // beta_a_o = argmax_alpha ( alpha * belief_t+1)
+        // for (const auto &action :  under_pb->getActionSpace(t)->getAll())
+        // {
+        //     for (const auto &obs : under_pb->getObsSpaceAt(t))
+        //     {
+        //         auto next_belief = serial_beliefMDP->nextState(serial_belief_state, action, obs);
+        //         beta_a_o[action][obs] = this->getMaxAt(next_belief, t + 1).second;
+        //     }
+        // }
 
-    //     // beta_a_o = argmax_alpha ( alpha * belief_t+1)
-    //     for (const auto &action :  action_space)
-    //     {
-    //         for (const auto &obs : obs_space)
-    //         {
-    //             auto next_belief = serial_beliefMDP->nextState(serial_belief_state, action, obs);
-    //             beta_a_o[action][o] = this->getMaxAt(next_belief, t + 1).second;
-    //         }
-    //     }
+        // // \beta_a = R(s,a) + \gamma * \sum_{o, s'} [ \beta_{a,o}(s') * O(s', a, o) * T(s,a,s') ]
+        // for (const auto &action : under_pb->getActionSpace(t)->getAll())
+        // {
+        //     for (const auto &state : under_pb->getStateSpace(t)->getAll())
+        //     {
+        //         double tmp = 0;
+        //         for (const auto &next_state : under_pb->getReachableSerialStates(state,action))
+        //         {
+        //             for(const auto &obs : under_pb->getReachableObservations(state,action,next_state))
+        //             {
+        //                 tmp += beta_a_o[action][obs].at(next_state) * under_pb->getDynamics(state, action, obs, next_state);
+        //             }
+        //         }
+        //         beta_a[action][state] = under_pb->getReward(state, action) + under_pb->getDiscount(t) * tmp;
+            
+        // }
 
-    //     // \beta_a = R(s,a) + \gamma * \sum_{o, s'} [ \beta_{a,o}(s') * O(s', a, o) * T(s,a,s') ]
-    //     for (const auto &action : action_space)
-    //     {
-    //         for (const auto &state : state_space)
-    //         {
-    //             double tmp = 0;
-    //             for (const auto &next_state : under_pb->getReachableSerialStates(state,action))
-    //             {
-    //                 for(const auto &obs : under_pb->getReachableObservations(state,action,next_state))
-    //                 {
-    //                     tmp += beta_a_o[action][obs].at(next_state) * under_pb->getDynamics(state, action, obs, next_state);
-    //                 }
-    //             }
-    //             beta_a[action][s] = under_pb->getReward(s, action) + under_pb->getDiscount(t) * tmp;
-    //         }
-    //     }
+        // number a_max;
+        // double current, max_v = -std::numeric_limits<double>::max();
+        // for (const auto &action : under_pb->getActionSpace(t)->getAll())
+        // {
+        //     current = serial_belief_state ^ beta_a[action];
+        //     if (current > max_v)
+        //     {
+        //         max_v = current;
+        //         a_max = action;
+        //     }
+        // }
+        // auto new_plan = beta_a[a_max];
 
-    //     number a_max;
-    //     double current, max_v = -std::numeric_limits<double>::max();
-    //     for (number a = 0; a < n_actions; a++)
-    //     {
-    //         current = serial_belief_state ^ beta_a[a];
-    //         if (current > max_v)
-    //         {
-    //             max_v = current;
-    //             a_max = a;
-    //         }
-    //     }
-    //     auto new_plan = beta_a[a_max];
-
-    //     return new_plan;
-    // }
+        // return new_plan;
+    }
 
     template <>
     std::pair<double, SerializedBeliefState> MaxPlanValueFunction<SerializedBeliefState, number, double>::getMaxAt(const SerializedBeliefState &, number)
