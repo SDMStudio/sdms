@@ -280,6 +280,31 @@ namespace sdm
         }
     }
 
+    template <typename TState, typename TJointHistory_p>
+    number OccupancyState<TState, TJointHistory_p>::getSize(){
+
+        number horizon;
+        std::unordered_map<TJointHistory_p, std::pair<double, MappedVector<TState, double>>> map;
+        
+        for (const auto &pair_x_o_p : *this)
+        {
+            if (map.find(pair_x_o_p.first.second) == map.end())
+            {
+                map.emplace(pair_x_o_p.first.second, std::make_pair(0, MappedVector<TState, double>()));
+                horizon = pair_x_o_p.first.second->getDepth();
+            }
+            map[pair_x_o_p.first.second].first += pair_x_o_p.second;
+            map[pair_x_o_p.first.second].second[pair_x_o_p.first.first] = pair_x_o_p.second;
+        }
+
+        for (const auto &pair_x_o_p : *this)
+        {
+            map[pair_x_o_p.first.second].second[pair_x_o_p.first.first] /= map[pair_x_o_p.first.second].first;
+        }
+        
+        return map.size();
+    }
+
 } // namespace sdm
 
 namespace std

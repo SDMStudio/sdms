@@ -44,11 +44,7 @@ namespace sdm
     protected:
         using Container = TMatrix<TState, TAction, TValue>;
 
-        /**
-         * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
-         */
-        std::vector<Container> representation;
+        
 
         double learning_rate_;
 
@@ -59,6 +55,13 @@ namespace sdm
         std::shared_ptr<QInitializer<TState, TAction>> initializer_;
 
     public:
+
+        /**
+         * @brief The value function represention.
+         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
+         */
+        std::vector<Container> representation;
+        
         TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer);
 
         TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, TValue default_value = 0.);
@@ -79,7 +82,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t);
+        std::shared_ptr<VectorImpl<TAction, TValue>> getQValuesAt(const TState &state, number t);
 
         /**
          * @brief Get the q-value given state and action
@@ -89,6 +92,14 @@ namespace sdm
          * @return the q-value
          */
         TValue getQValueAt(const TState &state, const TAction &action, number t);
+
+        /**
+         * @brief Get the target q-value given state
+         * 
+         * @param state the state
+         * @return the q-value
+         */
+        TValue getNextValueAt(const TState &state, number t);
 
         /**
          * @brief Update the value at a given state

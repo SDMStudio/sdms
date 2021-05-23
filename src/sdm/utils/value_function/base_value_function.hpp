@@ -66,7 +66,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        virtual std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t) = 0;
+        // virtual std::shared_ptr<VectorImpl<TAction, TValue>> getQValuesAt(const TState &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action

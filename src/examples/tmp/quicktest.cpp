@@ -1,16 +1,10 @@
 #include <iostream>
-#include <sdm/types.hpp>
 
-#include <sdm/utils/struct/graph.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
-
-#include <sdm/core/state/belief_state.hpp>
-#include <sdm/core/state/belief_state_vector.hpp>
-#include <sdm/core/state/belief_state_graph.hpp>
-
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/core/states.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/core/joint.hpp>
+#include <sdm/core/action/hierarchical_private_joint_det_decision_rule.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
+#include <sdm/world/hierarchical_private_occupancy_mdp.hpp>
 
 #include <sdm/utils/global_Test.hpp>
 

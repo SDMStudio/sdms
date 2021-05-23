@@ -136,6 +136,8 @@ namespace sdm
     const double &getProbabilityOverIndividualHistories(number, typename jhistory_type::element_type::ihistory_type) const;
     void setProbabilityOverIndividualHistories();
 
+    number getSize();
+    
   protected:
     /** @brief This representation of occupancy states consists of private occupancy states for each agent*/
     Joint<RecursiveMap<ihistory_type, std::shared_ptr<PrivateOccupancyState<TState, TJointHistory_p>>>> tuple_of_maps_from_histories_to_private_occupancy_states_;
