@@ -19,6 +19,7 @@
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
+#include <sdm/utils/linear_algebra/matrix.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 
@@ -28,8 +29,11 @@ namespace sdm
     class sdmsMatrix : public TBaseMatrix
     {
     public:
+        using vector_type = TBaseVector;
+
         sdmsMatrix();
         sdmsMatrix(std::size_t n_lig, std::size_t n_col);
+        sdmsMatrix(const Matrix &m);
         sdmsMatrix(const sdmsMatrix &m);
         template <class AE>
         sdmsMatrix(const boost::numeric::ublas::matrix_expression<AE> &ae);

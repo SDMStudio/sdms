@@ -2,6 +2,8 @@
 
 namespace sdm
 {
+    template <typename TState, typename TJointHistory_p>
+    double PrivateOccupancyState<TState, TJointHistory_p>::PRECISION = OccupancyState<TState, TJointHistory_p>::PRECISION;
 
     template <typename TState, typename TJointHistory_p>
     PrivateOccupancyState<TState, TJointHistory_p>::PrivateOccupancyState()
@@ -143,7 +145,7 @@ namespace sdm
                 {
                     ratio = current_value / other_value;
                 }
-                else if (std::abs(ratio - current_value / other_value) > this->precision)
+                else if (std::abs(ratio - current_value / other_value) > PrivateOccupancyState::PRECISION)
                 {
                     return false;
                 }

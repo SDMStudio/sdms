@@ -30,11 +30,11 @@ namespace sdm
 
     for (a = 0; a < num_jactions; ++a)
     {
-      this->dynamics.push_back(std::vector<Matrix>());
-      this->o_model.push_back(Matrix(num_states, num_jobservations));
+      this->dynamics.push_back(std::vector<DenseMatrix<number, number>>());
+      this->o_model.push_back(DenseMatrix<number, number>(num_states, num_jobservations));
       for (o = 0; o < num_jobservations; ++o)
       {
-        this->dynamics[a].push_back(Matrix(num_states, num_states));
+        this->dynamics[a].push_back(DenseMatrix<number, number>(num_states, num_states));
       }
     }
   }
@@ -54,12 +54,22 @@ namespace sdm
     return this->successor_observations.at(x).at(u);
   }
 
-  void ObservationDynamics::setObservations(const std::vector<Matrix> &o_model)
+  void ObservationDynamics::setObservations(const std::vector<DenseMatrix<number, number>> &o_model)
   {
     this->o_model = o_model;
   }
 
-  const Matrix &ObservationDynamics::getObservations(number u) const
+  void ObservationDynamics::setObservations(const std::vector<Matrix> &o_model)
+  {
+    std::vector<DenseMatrix<number, number>> vect;
+    for (const auto &matrix : o_model)
+    {
+      vect.push_back(DenseMatrix<number, number>(matrix));
+    }
+    this->setObservations(vect);
+  }
+
+  const DenseMatrix<number, number> &ObservationDynamics::getObservations(number u) const
   {
     return this->o_model[u];
   }
@@ -69,12 +79,12 @@ namespace sdm
     return dynamics[a][o](s, s_);
   }
 
-  const Matrix &ObservationDynamics::getDynamics(number a, number o) const
+  const DenseMatrix<number, number> &ObservationDynamics::getDynamics(number a, number o) const
   {
     return dynamics[a][o];
   }
 
-  void ObservationDynamics::setDynamics(number a, number o, const Matrix &m)
+  void ObservationDynamics::setDynamics(number a, number o, const DenseMatrix<number, number> &m)
   {
     this->dynamics[a][o] = m;
   }
@@ -84,12 +94,12 @@ namespace sdm
     this->dynamics[a][o](s, s_) = prob;
   }
 
-  const std::vector<std::vector<Matrix>> &ObservationDynamics::getDynamics() const
+  const std::vector<std::vector<DenseMatrix<number, number>>> &ObservationDynamics::getDynamics() const
   {
     return this->dynamics;
   }
 
-  const std::vector<Matrix> &ObservationDynamics::getObservationProbabilities() const
+  const std::vector<DenseMatrix<number, number>> &ObservationDynamics::getObservationProbabilities() const
   {
     return this->o_model;
   }

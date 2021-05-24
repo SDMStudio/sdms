@@ -10,11 +10,17 @@ namespace sdm
     }
 
     template <typename TBeliefState, typename TAction, typename TObservation>
-    BeliefStateGraph<TBeliefState, TAction, TObservation>::BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<Matrix>> &dynamics)
+    BeliefStateGraph<TBeliefState, TAction, TObservation>::BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<DenseMatrix<number, number>>> &dynamics)
         : Graph<TBeliefState, Pair<TAction, TObservation>>(data)
     {
-        this->dynamics_ = std::make_shared<std::vector<std::vector<Matrix>>>(dynamics);
+        this->dynamics_ = std::make_shared<std::vector<std::vector<DenseMatrix<number, number>>>>(dynamics);
         this->belief_space = std::make_shared<std::unordered_map<TBeliefState, std::shared_ptr<BeliefStateGraph>>>();
+    }
+
+    template <typename TBeliefState, typename TAction, typename TObservation>
+    BeliefStateGraph<TBeliefState, TAction, TObservation>::BeliefStateGraph(const std::vector<typename TBeliefState::state_type> &list_states, const std::vector<double> &list_proba, const std::vector<std::vector<DenseMatrix<number, number>>> &dynamics)
+        : BeliefStateGraph(TBeliefState(list_states, list_proba), dynamics)
+    {
     }
 
     template <typename TBeliefState, typename TAction, typename TObservation>
@@ -36,7 +42,7 @@ namespace sdm
     }
 
     template <typename TBeliefState, typename TAction, typename TObservation>
-    void BeliefStateGraph<TBeliefState, TAction, TObservation>::setDynamics(std::vector<std::vector<Matrix>> dynamics)
+    void BeliefStateGraph<TBeliefState, TAction, TObservation>::setDynamics(std::vector<std::vector<DenseMatrix<number, number>>> dynamics)
     {
         *this->dynamics_ = dynamics;
     }
@@ -51,7 +57,7 @@ namespace sdm
     std::pair<TBeliefState, double> BeliefStateGraph<TBeliefState, TAction, TObservation>::computeNextBelief(const TAction &action, const TObservation &observation)
     {
         // Compute next coef belief (non normailized)
-        auto weighted_next_belief = (this->dynamics_->at(action).at(observation).transpose() * this->getData());
+        auto weighted_next_belief = (this->dynamics_->at(action).at(observation).transpose() ^ (*this));
 
         // Compute the coefficient of normalization (eta)
         double eta = weighted_next_belief.norm_1();
@@ -108,7 +114,7 @@ namespace sdm
     std::string BeliefStateGraph<TBeliefState, TAction, TObservation>::str()
     {
         std::ostringstream str_result;
-        str_result << this->getData();
+        str_result << TBeliefState::str();
         return str_result.str();
     }
 

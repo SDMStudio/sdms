@@ -30,9 +30,9 @@ namespace sdm
     {
     public:
         DiscreteMDP();
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> );
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> , std::discrete_distribution<number>);
-        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<DiscreteSpace<number>> , std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number> , number  = 0, double  = 0.9, Criterion  = Criterion::REW_MAX);
+        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>);
+        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::discrete_distribution<number>);
+        DiscreteMDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number>, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
         DiscreteMDP(std::string &);
 
         std::shared_ptr<DiscreteMDP> getptr();
@@ -40,13 +40,12 @@ namespace sdm
 
         // SolvableByHSVI interface implementation
         number getInitialState();
-        number nextState(const number &, const number &, number = 0, std::shared_ptr<HSVI<number, number>>  = nullptr) const;
+        number nextState(const number &, const number &, number = 0, std::shared_ptr<HSVI<number, number>> = nullptr) const;
         std::shared_ptr<DiscreteSpace<number>> getActionSpaceAt(const number &);
         double getReward(const number &, const number &) const;
         double getExpectedNextValue(std::shared_ptr<ValueFunction<number, number>>, const number &, const number &, number = 0) const;
         DiscreteMDP *getUnderlyingProblem();
         bool isSerialized() const;
-
 
         /**
          * @brief Get the specific discount factor for the problem at hand
@@ -56,7 +55,6 @@ namespace sdm
          */
         double getDiscount(number = 0);
 
-        
         /**
          * @brief Get the specific weighted discount factor for the problem at hand
          * 
@@ -64,7 +62,6 @@ namespace sdm
          * @return double discount factor
          */
         double getWeightedDiscount(number);
-
 
         /**
          * @brief  Compute the excess of the HSVI paper. It refers to the termination condition.
@@ -79,7 +76,6 @@ namespace sdm
          */
         double do_excess(double, double, double, double, double, number);
 
-
         /**
          * @brief  Select the next action
          * 
@@ -89,7 +85,7 @@ namespace sdm
          * @param number h : horizon
          * @return TAction 
          */
-        number selectNextAction(const std::shared_ptr<ValueFunction<number, number>>& , const std::shared_ptr<ValueFunction<number, number>>& , const number &, number );
+        number selectNextAction(const std::shared_ptr<ValueFunction<number, number>> &, const std::shared_ptr<ValueFunction<number, number>> &, const number &, number);
 
         // Problem conversion
         std::shared_ptr<DiscreteMDP> toMDP();
@@ -100,6 +96,6 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+        std::shared_ptr<BeliefMDP<BeliefState<number>, number, number>> toBeliefMDP();
     };
 } // namespace sdm

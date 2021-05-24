@@ -46,6 +46,6 @@ namespace sdm
          * 
          * @return a belief MDP
         */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+        std::shared_ptr<BeliefMDP<BeliefState<number>, number, number>> toBeliefMDP();
     };
 } // namespace sdm

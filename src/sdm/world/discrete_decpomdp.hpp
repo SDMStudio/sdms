@@ -62,7 +62,7 @@ namespace sdm
          * 
          * @return The corresponding POMDP.
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+        std::shared_ptr<BeliefMDP<BeliefState<number>, number, number>> toBeliefMDP();
 
         /**
          * @brief Get the corresponding Multi-agent Markov Decision Process. It corresponds to the relaxation of the original DecPOMP assuming that all agents can observation the entire state of the environment. 

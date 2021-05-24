@@ -112,7 +112,7 @@ namespace sdm
         return this->getptr();
     }
 
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> DiscreteMDP::toBeliefMDP()
+    std::shared_ptr<BeliefMDP<BeliefState<number>, number, number>> DiscreteMDP::toBeliefMDP()
     {
         throw sdm::exception::NotImplementedException();
     }

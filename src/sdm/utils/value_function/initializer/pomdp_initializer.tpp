@@ -8,7 +8,7 @@ namespace sdm
     namespace algo
     {
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution , number BigM , std::string type_sawtooth_linear_programming );
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming);
     }
 }
 
@@ -25,7 +25,7 @@ namespace sdm
     {
         auto pomdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toBeliefMDP();
         auto underlying_pb = pomdp->getUnderlyingProblem();
-        auto algorithm = algo::makeHSVI<decltype(pomdp->getInitialState()), number>(pomdp, "tabular", "tabular", "MdpHsviInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "pomdp_init","BigM",100,"Full");
+        auto algorithm = algo::makeHSVI<decltype(pomdp->getInitialState()), number>(pomdp, "tabular", "tabular", "MdpHsviInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "pomdp_init", "BigM", 100, "Full");
 
         algorithm->do_initialize();
         algorithm->do_solve();

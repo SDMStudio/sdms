@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/vector_sparse.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
 #include <assert.h>
@@ -31,17 +32,26 @@ namespace sdm
   class sdmsVector : public TBaseVector, public VectorImpl<I, T>
   {
   public:
+    using array_type = typename TBaseVector::array_type;
+    using value_type = typename array_type::value_type;
+
+    static double PRECISION;
+
     sdmsVector();
-    sdmsVector(sdm::size_t);
-    sdmsVector(sdm::size_t, const T &);
+    sdmsVector(sdm::size_t size);
+    sdmsVector(sdm::size_t size, const T &default_value);
 
     template <class AE>
     sdmsVector(const boost::numeric::ublas::vector_expression<AE> &ae);
+    sdmsVector(const Vector &);
     sdmsVector(const sdmsVector &);
     sdmsVector(const std::vector<T> &);
 
-    void init(T);
+    virtual ~sdmsVector() {}
+
     T at(const I &) const;
+    T getValueAt(const I &) const;
+    void setValueAt(const I &, const T &value);
 
     T sum();
     T norm_1() const;
@@ -54,6 +64,9 @@ namespace sdm
 
     sdmsVector transpose() const;
 
+    const std::vector<I> &getIndexes() const;
+    void setIndexes(const std::vector<I> &);
+
     /**
      * @brief Compare two vectors. Return true if all values are lower or equal to the second vector.
      * 
@@ -63,21 +76,36 @@ namespace sdm
     bool operator<=(const sdmsVector &) const;
     bool operator==(const sdmsVector &) const;
     bool operator!=(const sdmsVector &) const;
+    bool is_equal(const sdmsVector &other, double precision) const;
 
     template <class AE>
     T dot(const boost::numeric::ublas::vector_expression<AE> &) const;
 
     template <class AE>
-    T operator^(const boost::numeric::ublas::vector_expression<AE> &ae);
+    T operator^(const boost::numeric::ublas::vector_expression<AE> &ae) const;
 
     std::string str() const;
 
-  protected:
-    std::pair<I, T> getMin() const;
-    std::pair<I, T> getMax() const;
+    auto begin() const { return this->iterator_.begin(); }
+    auto end() const { return this->iterator_.end(); }
 
     template <class Archive>
     void serialize(Archive &archive, const unsigned int);
+
+  protected:
+    std::vector<I> vector_indexes_;
+    std::unordered_map<I, size_t> map_index_to_int_;
+    std::map<I, T> iterator_;
+
+    std::pair<I, T> getMin() const;
+    std::pair<I, T> getMax() const;
+
+    friend sdmsVector operator*(const T &arg1, const sdmsVector &arg2)
+    {
+      sdmsVector vnew = arg1 * static_cast<TBaseVector>(arg2);
+      vnew.setIndexes(arg2.getIndexes());
+      return vnew;
+    }
   };
 
   /**
@@ -86,7 +114,7 @@ namespace sdm
    * @tparam I Type of index
    * @tparam T Type of value
    */
-  template <typename I, typename T = double>
+  template <typename I = size_t, typename T = double>
   using SparseVector = sdmsVector<I, T, boost::numeric::ublas::mapped_vector<T>>;
 
   /**
@@ -95,7 +123,7 @@ namespace sdm
    * @tparam I Type of index
    * @tparam T Type of value
    */
-  template <typename I, typename T = double>
+  template <typename I = size_t, typename T = double>
   using DenseVector = sdmsVector<I, T, boost::numeric::ublas::vector<T>>;
 
 } // namespace sdm

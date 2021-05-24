@@ -25,17 +25,13 @@ namespace sdm
     class SawtoothValueFunction : public MappedValueFunction<TState, TAction, TValue>
     {
     protected:
-        TState_t ctype = COMPRESSED;
-        TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
-
         /**
-         * @brief Frequency before prunning
-         * 
+         * @brief Frequency before prunning.
          */
         number freq_prune_;
 
         /**
-         * @brief The last time the prunning took place
+         * @brief The last time the prunning took place.
          * 
          */
         number last_prunning = 0;
@@ -45,12 +41,6 @@ namespace sdm
          * 
          */
         double epsilon_prunning;
-
-        TState_t getTStateType();
-        void setTStateType(const TState_t &);
-
-        TypeSawtoothLinearProgram getSawtoothType();
-        void setSawtoothType(const TypeSawtoothLinearProgram &);
 
     public:
         SawtoothValueFunction();
@@ -65,6 +55,7 @@ namespace sdm
          * @param double : espilon prunning 
          */
         SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, number = 10, double = 0.1);
+        
         SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., number = 10, double = 0.1);
 
         /**
@@ -79,11 +70,10 @@ namespace sdm
 
         virtual TValue getBackup(const TState &state, number t);
 
-
         std::pair<TValue, TState> getMaxAt(const TState &state, number t);
 
         /**
-         * @brief Point-wise pruning
+         * @brief Point-wise pruning.
          * 
          */
         void prune(number t = 0);

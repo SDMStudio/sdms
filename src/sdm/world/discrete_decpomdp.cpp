@@ -55,7 +55,7 @@ namespace sdm
 
     // // Other methods
     
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> DiscreteDecPOMDP::toBeliefMDP()
+    std::shared_ptr<BeliefMDP<BeliefState<number>, number, number>> DiscreteDecPOMDP::toBeliefMDP()
     {
         return this->toPOMDP()->toBeliefMDP();
     }

@@ -100,7 +100,7 @@ namespace sdm
          * @return the initial observation
          */
         TState reset();
-        
+
         /**
          * @brief Do a step on the environment.
          * 
@@ -185,7 +185,7 @@ namespace sdm
          * @warning The above comment is wrong!!!
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+        std::shared_ptr<BeliefMDP<BeliefState<>, number, number>> toBeliefMDP();
     };
 } // namespace sdm
 #include <sdm/world/base/base_occupancy_mdp.tpp>

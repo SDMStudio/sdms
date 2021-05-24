@@ -14,24 +14,64 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
+#include <sdm/utils/linear_algebra/mapped_matrix.hpp>
+#include <sdm/utils/linear_algebra/sdms_vector.hpp>
 
 namespace sdm
 {
 
+  // template <typename TState, typename TAction, template <typename TI, typename TV> class TMatrix = MappedMatrix>
+  // class BaseReward
+  // {
+  // public:
+  //   using value_type = double;
+
+  //   BaseReward();
+  //   BaseReward(number, number);
+  //   BaseReward(Reward &copy);
+
+  //   void initReward(number, number);
+
+  //   double getReward(const TState &, const TAction &) const;
+  //   const TMatrix<TState, TAction>::vector_type &getReward(const TAction &) const;
+  //   const TMatrix<TState, TAction> &getReward() const;
+
+  //   void setReward(const TState &, const TAction &, double);
+  //   void setReward(const TAction&, TMatrix<TState, TAction>::vector_type);
+
+  //   double getMaxReward() const;
+  //   double getMinReward() const;
+
+  //   friend std::ostream &operator<<(std::ostream &os, const Reward &reward_fct)
+  //   {
+
+  //     number ja;
+  //     os << "<reward> " << std::endl;
+  //     for (ja = 0; ja < reward_fct.rewards.size(); ++ja)
+  //     {
+  //       os << "\t" << reward_fct.getReward(ja) << "" << std::endl;
+  //     }
+  //     os << "</reward> " << std::endl;
+  //     return os;
+  //   }
+
+  // protected:
+  //   //! \brief model of the outcomes of the entire team of collaborative agents involved in the system.
+  //   TMatrix<TState, TAction> rewards;
+
+  //   double max = -999999, min = +999999;
+  // };
+
   /**
+   * 
    * @brief This class provides getter and setter methods for the reward model.
    * 
    */
   class Reward
   {
-  protected:
-    //! \brief model of the outcomes of the entire team of collaborative agents involved in the system.
-    std::vector<Vector> rewards;
-
-    double max = -999999, min = +999999;
-
   public:
     using value_type = double;
+    using vector_type = DenseVector<number, value_type>;
 
     Reward();
 
@@ -67,18 +107,18 @@ namespace sdm
     //! \param    a A specific joint action
     //! \brief    Get reward vector for given action
     //! \return   the vector of rewards for given action
-    const Vector &getReward(number) const;
+    const DenseVector<number> &getReward(number) const;
 
-    //! \fn       const std::vector<Vector>& getReward() const
+    //! \fn       const std::vector<DenseVector<number>>& getReward() const
     //! \brief    Returns list of reward vectors
     //! \return   the entire reward function
-    const std::vector<Vector> &getReward() const;
+    const std::vector<DenseVector<number>> &getReward() const;
 
     //! \fn       void setReward(action, const vector&)
     //! \param    a A specific joint action
     //! \param    v the vector of rewards for corresponding action
     //! \brief    Sets the reward vector for action
-    void setReward(number, const Vector &);
+    void setReward(number, DenseVector<number>);
 
     double getMaxReward() const;
 
@@ -105,6 +145,12 @@ namespace sdm
       os << "</reward> " << std::endl;
       return os;
     }
+
+  protected:
+    //! \brief model of the outcomes of the entire team of collaborative agents involved in the system.
+    std::vector<vector_type> rewards;
+
+    double max = -999999, min = +999999;
   };
 
 }

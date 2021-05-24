@@ -103,7 +103,7 @@ namespace sdm
     }
     
     
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> SerializedMMDP::toBeliefMDP()
+    std::shared_ptr<BeliefMDP<BeliefState<>, number, number>> SerializedMMDP::toBeliefMDP()
     {
         throw sdm::exception::NotImplementedException();
     }

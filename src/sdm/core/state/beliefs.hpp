@@ -17,5 +17,5 @@
 namespace sdm
 {
     template <typename action_t, typename obs_t>
-    using BeliefStateGraph_p = std::shared_ptr<BeliefStateGraph<BeliefStateVector, action_t, obs_t>>;
+    using BeliefStateGraph_p = std::shared_ptr<BeliefStateGraph<BeliefState<>, action_t, obs_t>>;
 } // namespace sdm

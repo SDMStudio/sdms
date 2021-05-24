@@ -31,6 +31,8 @@ namespace sdm
   class PrivateOccupancyState : public OccupancyState<TState, TJointHistory_p>
   {
   public:
+    static double PRECISION;
+
     using jhistory_type = typename OccupancyState<TState, TJointHistory_p>::jhistory_type;
     using ihistory_type = typename jhistory_type::element_type::ihistory_type;
     using state_type = typename OccupancyState<TState, TJointHistory_p>::state_type;

@@ -30,6 +30,8 @@ namespace sdm
                              public std::enable_shared_from_this<BaseOccupancyState<TState, TJointHistory_p>>
   {
   public:
+    static double PRECISION;
+
     using state_type = TState;
     using jhistory_type = TJointHistory_p;
     using struct_type = MappedVector<Pair<TState, TJointHistory_p>, double>;
@@ -127,6 +129,8 @@ namespace sdm
     std::string str() const;
     std::string str_hyperplan() const;
 
+    bool operator==(const BaseOccupancyState<TState, TJointHistory_p> &other) const;
+
     /**
      *  @brief  Returns an ostream instance
      */
@@ -166,7 +170,6 @@ namespace sdm
     std::unordered_map<number, std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<jhistory_type>>> ihistories_to_jhistory;
 
     RecursiveMap<jhistory_type, double> probability_jhistories;
-
   };
 
 } // namespace sdm

@@ -70,13 +70,13 @@ namespace sdm
 
         if (this->last_prunning == this->freq_prune_)
         {
-            for(number time =0; time<this->getHorizon();time++)
+            for (number time = 0; time < this->getHorizon(); time++)
             {
                 this->prune(time);
             }
             this->last_prunning = 0;
         }
-        this->last_prunning ++;
+        this->last_prunning++;
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -97,10 +97,10 @@ namespace sdm
         std::unordered_map<TVector, number> refCount;
         auto all_plan = this->isInfiniteHorizon() ? this->representation[0] : this->representation[t];
 
-        // Initialize ref count to 0 for each hyperplan 
+        // Initialize ref count to 0 for each hyperplan
         for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
         {
-            refCount.emplace(*iter,0);
+            refCount.emplace(*iter, 0);
         }
 
         //<! update the count
@@ -128,10 +128,8 @@ namespace sdm
             if (refCount.at(*iter) == 0)
             {
                 this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), *iter));
-
             }
         }
-
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -314,17 +312,18 @@ namespace sdm
     // }
 
     template <>
-    BeliefState MaxPlanValueFunction<BeliefState, number, double>::backup_operator(const BeliefState &state, number t)
+    BeliefState<> MaxPlanValueFunction<BeliefState<>, number, double>::backup_operator(const BeliefState<> &state, number t)
     {
-        auto beliefMDP = std::static_pointer_cast<BeliefMDP<BeliefState, number, number>>(this->getWorld());
+        std::cout << "in backup"<<std::endl;
+        auto beliefMDP = std::static_pointer_cast<BeliefMDP<BeliefState<>, number, number>>(this->getWorld());
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         number n_obs = under_pb->getObsSpace()->getNumItems();
         number n_actions = under_pb->getActionSpace()->getNumItems();
         number n_states = under_pb->getStateSpace()->getNumItems();
 
-        std::vector<std::vector<BeliefState>> beta_a_o(n_actions, std::vector<BeliefState>(n_obs, BeliefState()));
-        std::vector<BeliefState> beta_a(n_actions, BeliefState());
+        std::vector<std::vector<BeliefState<>>> beta_a_o(n_actions, std::vector<BeliefState<>>(n_obs, BeliefState<>(n_states)));
+        std::vector<BeliefState<>> beta_a(n_actions, BeliefState<>(n_states));
 
         // beta_a_o = argmax_alpha ( alpha * belief_t+1)
         for (number a = 0; a < n_actions; a++)
@@ -357,7 +356,7 @@ namespace sdm
         double current, max_v = -std::numeric_limits<double>::max();
         for (number a = 0; a < n_actions; a++)
         {
-            current = state ^ beta_a[a];
+            current = state ^ beta_a.at(a);
             if (current > max_v)
             {
                 max_v = current;
@@ -403,12 +402,6 @@ namespace sdm
     }
 
     template <>
-    number MaxPlanValueFunction<number, number, double>::backup_operator(const number &, number)
-    {
-        throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
-    }
-
-    template <>
     SerializedState MaxPlanValueFunction<SerializedState, number, double>::backup_operator(const SerializedState &, number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
@@ -419,6 +412,13 @@ namespace sdm
     TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
+    }
+
+    template <typename TVector, typename TAction, typename TValue>
+    template <typename T, std::enable_if_t<std::is_same_v<BeliefStateGraph_p<number, number>, T>, int>>
+    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
+    {
+        throw sdm::exception::Exception("MaxPlanVF cannot be used for State = BeliefStateGraph_p<number, number>.");
     }
 
     template <typename TVector, typename TAction, typename TValue>

@@ -23,9 +23,7 @@ namespace sdm
     number a;
     for (a = 0; a < num_jactions; ++a)
     {
-      auto v = Vector(num_states);
-      v.init(0.0);
-      this->rewards.push_back(v);
+      this->rewards.push_back(Reward::vector_type(num_states, 0.));
     }
   }
 
@@ -34,17 +32,17 @@ namespace sdm
     return this->rewards[a][s];
   }
 
-  const Vector &Reward::getReward(number a) const
+  const Reward::vector_type &Reward::getReward(number a) const
   {
     return this->rewards[a];
   }
 
-  const std::vector<Vector> &Reward::getReward() const
+  const std::vector<Reward::vector_type> &Reward::getReward() const
   {
     return this->rewards;
   }
 
-  void Reward::setReward(number a, const Vector &v)
+  void Reward::setReward(number a, Reward::vector_type v)
   {
     auto r = v.min();
     this->min = std::min(r, this->min);

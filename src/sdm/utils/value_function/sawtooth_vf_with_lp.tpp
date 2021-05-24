@@ -21,9 +21,33 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, TypeOfResolution current_type_of_resolution, number bigM_value,TypeSawtoothLinearProgram type_sawtooth_resolution)
-        : SawtoothValueFunctionLP<TState, TAction, TValue>(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), current_type_of_resolution, bigM_value,type_sawtooth_resolution)
+    SawtoothValueFunctionLP<TState, TAction, TValue>::SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution)
+        : SawtoothValueFunctionLP<TState, TAction, TValue>(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), current_type_of_resolution, bigM_value, type_sawtooth_resolution)
     {
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TState_t SawtoothValueFunctionLP<TState, TAction, TValue>::getTStateType()
+    {
+        return this->ctype;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setTStateType(const TState_t &ctype)
+    {
+        this->ctype = ctype;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TypeSawtoothLinearProgram SawtoothValueFunctionLP<TState, TAction, TValue>::getSawtoothType()
+    {
+        return this->csawtooth_lp_;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::setSawtoothType(const TypeSawtoothLinearProgram &csawtooth_lp)
+    {
+        this->csawtooth_lp_ = csawtooth_lp;
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -53,6 +77,44 @@ namespace sdm
         default:
             return this->greedyFullSawtooth(occupancy_state, cub, t);
         }
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    TValue SawtoothValueFunctionLP<TState, TAction, TValue>::getValueAt(const TState &state, number t)
+    {
+        TState state_;
+        switch (this->ctype)
+        {
+        case TState_t::FULLY_UNCOMPRESSED:
+            state_ = *state.getFullyUncompressedOccupancy();
+            break;
+        case TState_t::ONE_STEP_UNCOMPRESSED:
+            state_ = *state.getOneStepUncompressedOccupancy();
+            break;
+        default:
+            state_ = state;
+            break;
+        }
+        return SawtoothValueFunction<TState, TAction, TValue>::getValueAt(state_, t);
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunctionLP<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
+    {
+        TState state_;
+        switch (this->ctype)
+        {
+        case TState_t::FULLY_UNCOMPRESSED:
+            state_ = *state.getFullyUncompressedOccupancy();
+            break;
+        case TState_t::ONE_STEP_UNCOMPRESSED:
+            state_ = *state.getOneStepUncompressedOccupancy();
+            break;
+        default:
+            state_ = state;
+            break;
+        }
+        SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(state_, t);
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -274,21 +336,22 @@ namespace sdm
         auto weight = 0.0;
         try
         {
-            auto relaxation =  std::static_pointer_cast<BaseRelaxedValueFunction<TState>>(this->getInitFunction());
+            auto relaxation = std::static_pointer_cast<BaseRelaxedValueFunction<TState>>(this->getInitFunction());
             auto index_action = this->getWorld()->getUnderlyingProblem()->getActionSpace()->joint2single(action);
 
-            if(relaxation->isPomdpAvailable())
+            if (relaxation->isPomdpAvailable())
             {
-                BeliefState belief;
-                for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
+                const auto &list_states = compressed_occupancy_state.getStatesAt(joint_history);
+                BeliefState<> belief;
+                for (const auto &x : list_states)
                 {
-                    belief.addProbabilityAt(x,compressed_occupancy_state.at(std::make_pair(x, joint_history)));
+                    belief.setProbabilityAt(x, compressed_occupancy_state.at(std::make_pair(x, joint_history)));
                 }
-                weight = std::static_pointer_cast<RelaxedValueFunction<BeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
-
-            }else
+                weight = std::static_pointer_cast<RelaxedValueFunction<BeliefState<>, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
+            }
+            else
             {
-                for (auto x : compressed_occupancy_state.getStatesAt(joint_history))
+                for (const auto &x : compressed_occupancy_state.getStatesAt(joint_history))
                 {
                     // \sum_{x} s(x,o) * Q_MDP(x,u)
                     weight += compressed_occupancy_state.at(std::make_pair(x, joint_history)) * std::static_pointer_cast<RelaxedValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->operator()(std::make_pair(x, index_action), t);
@@ -314,15 +377,15 @@ namespace sdm
         TState one_step_uncompressed_occupancy_state = *compressed_occupancy_state.getOneStepUncompressedOccupancy();
 
         //By default, the upper bound of the compressed is v_relaxation(st)
-        double upper_bound_compressed = this->getInitFunction()->operator()(compressed_occupancy_state, t );
+        double upper_bound_compressed = this->getInitFunction()->operator()(compressed_occupancy_state, t);
 
         //Try to find a better upper for \bar{v}(st)
-        for(const auto &one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t])
+        for (const auto &one_step_uncompressed_occupancy_state_AND_upper_bound : this->representation[t])
         {
             //Successully find a better upper bound
-            if(one_step_uncompressed_occupancy_state_AND_upper_bound.first == one_step_uncompressed_occupancy_state)
+            if (one_step_uncompressed_occupancy_state_AND_upper_bound.first == one_step_uncompressed_occupancy_state)
             {
-                upper_bound_compressed =  one_step_uncompressed_occupancy_state_AND_upper_bound.second;
+                upper_bound_compressed = one_step_uncompressed_occupancy_state_AND_upper_bound.second;
             }
         }
         // Add range contraints
@@ -597,7 +660,7 @@ namespace sdm
         for (auto hidden_serial_state : this->getWorld()->getUnderlyingProblem()->getStateSpace(t)->getAll())
         {
             //< \sum_x s(x,o) Q_MDP(x,u)
-            weight += compressed_serial_occupancy_state.at(std::make_pair(hidden_serial_state, joint_history)) * std::static_pointer_cast<RelaxedValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->operator()( std::make_pair(hidden_serial_state, action), t);
+            weight += compressed_serial_occupancy_state.at(std::make_pair(hidden_serial_state, joint_history)) * std::static_pointer_cast<RelaxedValueFunction<typename TState::state_type, TState>>(this->getInitFunction())->operator()(std::make_pair(hidden_serial_state, action), t);
         }
         return weight;
     }

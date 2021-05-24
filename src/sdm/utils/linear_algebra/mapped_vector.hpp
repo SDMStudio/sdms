@@ -46,9 +46,11 @@ namespace sdm
         using value_type = typename RecursiveMap<TIndex, T>::value_type;
         using value_list_type = typename RecursiveMap<TIndex, T>::value_list_type;
 
+        static double PRECISION;
+
         MappedVector();
-        MappedVector(T);
-        MappedVector(long, T);
+        MappedVector(T default_value);
+        MappedVector(long size, T default_value);
         MappedVector(const MappedVector &);
         MappedVector(std::initializer_list<value_list_type>);
         virtual ~MappedVector();
@@ -63,6 +65,8 @@ namespace sdm
         TIndex argmax();
 
         T at(const TIndex &) const;
+        T getValueAt(const TIndex &) const;
+        void setValueAt(const TIndex &, const T &);
 
         /**
          * @brief This method implements a non-commutative dot product
@@ -72,9 +76,10 @@ namespace sdm
         T operator^(const MappedVector &) const;
         T operator*(const MappedVector &) const;
 
-        bool operator==(const MappedVector &) const;
         bool operator!=(const MappedVector &) const;
         bool operator<(const MappedVector &) const;
+        bool operator==(const MappedVector &other) const;
+        bool is_equal(const MappedVector<TIndex, T> &other, double precision) const;
 
         /**
          * @brief This method implements a non-commutative dot product
@@ -89,7 +94,7 @@ namespace sdm
 
         std::vector<TIndex> getIndexes() const;
 
-        void setPrecision(double);
+        static void setPrecision(double);
 
         std::string str() const;
 
@@ -102,7 +107,6 @@ namespace sdm
     protected:
         T default_value_;
         long size_ = -1;
-        double precision = 0.00001;
 
         std::vector<TIndex> v_indexes = {};
 

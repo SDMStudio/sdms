@@ -103,7 +103,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
-    std::shared_ptr<BeliefMDP<BeliefState, number, number>> BaseOccupancyMDP<TState, TAction>::toBeliefMDP()
+    std::shared_ptr<BeliefMDP<BeliefState<>, number, number>> BaseOccupancyMDP<TState, TAction>::toBeliefMDP()
     {
         return this->dpomdp_->toBeliefMDP();
     }

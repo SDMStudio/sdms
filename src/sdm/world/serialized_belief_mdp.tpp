@@ -11,18 +11,8 @@ namespace sdm
     template <typename TBelief, typename TAction, typename TObservation>
     SerializedBeliefMDP<TBelief, TAction, TObservation>::SerializedBeliefMDP(std::shared_ptr<SerializedMPOMDP> underlying_serial_mpomdp) : serialized_mpomdp_(underlying_serial_mpomdp)
     {
-        // Creation of the initial state
-        double proba = 0;
-
         // Go over all state at time step 0
-        for (const auto &s : this->serialized_mpomdp_->getStateSpace(0)->getAll())
-        {
-            proba = this->serialized_mpomdp_->getStartDistrib().probabilities()[s.getState()];
-            if (proba > 0)
-            {
-                this->initial_state_[s] = proba;
-            }
-        }
+        this->initial_state_ = TBelief(this->serialized_mpomdp_->getStateSpace(0)->getAll(), this->serialized_mpomdp_->getStartDistrib().probabilities());
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -57,24 +47,24 @@ namespace sdm
     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextStateSerialLastAgent(const TBelief &belief, const TAction &action, const TObservation &obs) const
     {
 
-        TBelief new_belief;
+        TBelief new_belief(this->serialized_mpomdp_->getStateSpace()->getNumItems());
 
         double tmp, obs_proba;
-        for (const auto &next_serial_state :this->serialized_mpomdp_->getStateSpace()->getAll())
+        for (const auto &next_serial_state : this->serialized_mpomdp_->getStateSpace()->getAll())
         {
             tmp = 0;
             obs_proba = 0;
-            for (const auto &belief_state : belief )
+            for (const auto &belief_state : belief)
             {
                 auto serial_state = belief_state.first;
 
                 tmp += this->serialized_mpomdp_->getTransitionProbability(serial_state, action, next_serial_state) * belief_state.second;
-                obs_proba += this->serialized_mpomdp_->getObservationProbability(serial_state,action, obs, next_serial_state);
+                obs_proba += this->serialized_mpomdp_->getObservationProbability(serial_state, action, obs, next_serial_state);
             }
 
             if (obs_proba && tmp)
             {
-                new_belief[next_serial_state] = obs_proba * tmp;
+                new_belief.setProbabilityAt(next_serial_state, obs_proba * tmp);
             }
         }
 
@@ -82,7 +72,8 @@ namespace sdm
         double sum = new_belief.norm_1();
         for (const auto &next_serial_state : new_belief)
         {
-            new_belief[next_serial_state.first] = next_serial_state.second / sum;
+            new_belief.setProbabilityAt(next_serial_state.first, next_serial_state.second / sum);
+            // new_belief[next_serial_state.first] = next_serial_state.second / sum;
         }
         return new_belief;
     }
@@ -91,10 +82,10 @@ namespace sdm
     TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextStateSerialStep(const TBelief &belief, const TAction &action) const
     {
 
-        TBelief new_belief;
-        new_belief.setAgent(belief.getCurrentAgentId()+1);
+        TBelief new_belief(belief.size());
+        new_belief.setAgent(belief.getCurrentAgentId() + 1);
 
-        for(const auto &belief_state : belief)
+        for (const auto &belief_state : belief)
         {
             auto serial_state = belief_state.first;
 
@@ -106,9 +97,24 @@ namespace sdm
             // Create new serial state
             typename TBelief::state_type new_serialized_state(serial_state.first, actions_list);
 
-            new_belief[new_serialized_state] = belief_state.second;
+            // new_belief[new_serialized_state] = belief_state.second;
+            new_belief.setProbabilityAt(new_serialized_state, belief_state.second);
         }
         return new_belief;
+
+        // TBelief new_belief(belief.size());
+        // new_belief.setContainer(belief.getContainer());
+        // new_belief.setAgent(belief.getCurrentAgentId() + 1);
+
+        // auto list_indexes = belief.getIndexes();
+        // for (const auto &index : list_indexes)
+        // {
+        //     index.second.push_back(action);   
+        // }
+
+        // new_belief.setIndexes(list_indexes);
+
+        // return new_belief;
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
@@ -121,7 +127,7 @@ namespace sdm
         if (ag_id != this->serialized_mpomdp_->getNumAgents() - 1)
         {
             // Call the function next State Serial Step which determine the next belief when the it's not the last agent
-            new_belief = this->nextStateSerialStep(belief,action);
+            new_belief = this->nextStateSerialStep(belief, action);
         }
         else
         {
@@ -148,7 +154,6 @@ namespace sdm
         }
         return new_belief;
     }
-
 
     template <typename TBelief, typename TAction, typename TObservation>
     std::shared_ptr<DiscreteSpace<TAction>> SerializedBeliefMDP<TBelief, TAction, TObservation>::getActionSpaceAt(const TBelief &belief)
@@ -196,7 +201,7 @@ namespace sdm
             exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
         }
         return exp_next_v;
-    } 
+    }
 
     template <typename TBelief, typename TAction, typename TObservation>
     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const
@@ -205,7 +210,7 @@ namespace sdm
 
         double proba = 0, tmp;
 
-        //Go over all state in the belief 
+        //Go over all state in the belief
         for (const auto &belief_state : belief)
         {
 
@@ -213,7 +218,7 @@ namespace sdm
             auto serialized_state = belief_state.first;
 
             // Go over all the next Serial State possible
-            for (auto next_serialized_state : this->serialized_mpomdp_->getReachableSerialStates(serialized_state,action))
+            for (auto next_serialized_state : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, action))
             {
                 tmp += this->serialized_mpomdp_->getDynamics(serialized_state, action, obs, next_serialized_state);
             }
@@ -221,7 +226,6 @@ namespace sdm
         }
         return proba;
     }
-
 
     template <typename TBelief, typename TAction, typename TObservation>
     std::shared_ptr<SerializedMMDP> SerializedBeliefMDP<TBelief, TAction, TObservation>::toMDP()
@@ -254,7 +258,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    double SerializedBeliefMDP<TBelief, TAction, TObservation>::do_excess(double, double lb, double ub, double , double error, number horizon)
+    double SerializedBeliefMDP<TBelief, TAction, TObservation>::do_excess(double, double lb, double ub, double, double error, number horizon)
     {
         return (ub - lb) - error / this->getWeightedDiscount(horizon);
     }
@@ -264,6 +268,7 @@ namespace sdm
     {
         return ub->getBestAction(s, h);
     }
+
 } // namespace sdm
 
 namespace std
@@ -275,7 +280,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-        return std::hash<sdm::BaseBeliefState<sdm::SerializedState>>()(in);
+            return std::hash<sdm::BaseBeliefState<sdm::SerializedState>>()(in);
         }
     };
 }

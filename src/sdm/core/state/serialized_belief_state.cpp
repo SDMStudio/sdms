@@ -8,17 +8,22 @@ namespace sdm
         this->agent = 0;
     }
 
-    SerializedBeliefState::SerializedBeliefState(double default_value) : BaseBeliefState<SerializedState>(default_value)
+    SerializedBeliefState::SerializedBeliefState(double default_value) : BeliefState<SerializedState>(default_value)
     {
         this->agent = 0;
     }
 
-    SerializedBeliefState::SerializedBeliefState(std::size_t size, double default_value) : BaseBeliefState<SerializedState>(size, default_value)
+    SerializedBeliefState::SerializedBeliefState(std::size_t size, double default_value) : BeliefState<SerializedState>(size, default_value)
     {
         this->agent = 0;
     }
 
-    SerializedBeliefState::SerializedBeliefState(const SerializedBeliefState &serial_belief_state) : BaseBeliefState<SerializedState>(serial_belief_state)
+    SerializedBeliefState::SerializedBeliefState(const std::vector<SerializedState> &list_serial_states, const std::vector<double> &list_proba) : BeliefState<SerializedState>(list_serial_states, list_proba)
+    {
+        this->agent = 0;
+    }
+
+    SerializedBeliefState::SerializedBeliefState(const SerializedBeliefState &serial_belief_state) : BeliefState<SerializedState>(serial_belief_state)
     {
         this->agent = serial_belief_state.getCurrentAgentId();
     }

@@ -12,10 +12,8 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
-
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/world/discrete_mdp.hpp>
-#include <sdm/world/discrete_mmdp.hpp>
+#include <sdm/core/state/beliefs.hpp>
+#include <sdm/world/base/base_belief_mdp.hpp>
 
 namespace sdm
 {
@@ -25,100 +23,54 @@ namespace sdm
      * @tparam TBelief the belief type
      * @tparam TAction the action type
      */
-    template <typename TBelief = BeliefState, typename TAction = number, typename TObservation = number>
-    class BeliefMDP : public SolvableByHSVI<TBelief, TAction>,
-                      public GymInterface<TBelief, TAction>
+    template <typename TBelief = BeliefState<number>, typename TAction = number, typename TObservation = number>
+    class BeliefMDP : public BaseBeliefMDP<TBelief, TAction, TObservation>
     {
-    protected:
-        std::shared_ptr<DiscretePOMDP> pomdp_;
-        TBelief initial_state_;
-        TBelief current_state_;
-
     public:
         using state_type = TBelief;
         using action_type = TAction;
         using observation_type = TBelief;
 
         BeliefMDP();
-        BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
         BeliefMDP(std::string underlying_pomdp);
+        BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
 
-        TBelief reset();
-        TBelief &getState();
-        std::tuple<TBelief, std::vector<double>, bool> step(TAction action);
-
-        bool isSerialized() const;
-        DiscretePOMDP *getUnderlyingProblem();
-
-        TBelief getInitialState();
         TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
         TBelief nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const;
 
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
-
         double getReward(const TBelief &belief, const TAction &action) const;
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, number t) const;
-
-        /**
-         * @brief Get the Observation Probability p(o | b, a)
-         */
         double getObservationProbability(const TBelief &, const TAction &action, const TObservation &obs, const TBelief &belief) const;
+    };
 
-        /**
-         * @brief Get the corresponding Markov Decision Process. It corresponds to the reformulation of the Belief MDP in a MDP where the blief state space is the state space. 
-         * 
-         * @return a belief MDP
-         */
-        std::shared_ptr<DiscreteMDP> toMDP();
+    // ##############################################################################################################################
+    // ############################ SPECIALISATION FOR BeliefState Structure ###############################################
+    // ##############################################################################################################################
 
-        /**
-         * @brief Get the corresponding Belief Markov Decision Process. In this particular case, it will return the current MDP
-         * 
-         * @return a belief MDP
-         */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+    /**
+     * @brief Specialisation of occupancy mdp in the case of occupancy states. 
+     * 
+     * @tparam TActionDescriptor the action type
+     * @tparam TObservation the observation type
+     * @tparam TActionPrescriptor the action type (controller's one)
+     */
+    template <typename TAction, typename TObservation>
+    class BeliefMDP<BeliefStateGraph_p<TAction, TObservation>, TAction, TObservation>
+        : public BaseBeliefMDP<BeliefStateGraph_p<TAction, TObservation>, TAction, TObservation>
+    {
+    public:
+        using state_type = BeliefStateGraph_p<TAction, TObservation>;
+        using action_type = TAction;
+        using observation_type = TObservation;
 
+        BeliefMDP();
+        BeliefMDP(std::string underlying_pomdp);
+        BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
 
-        /**
-         * @brief Get the specific discount factor for the problem at hand
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getDiscount(number = 0);
+        state_type nextState(const state_type &belief, const TAction &action, const TObservation &obs) const;
+        state_type nextState(const state_type &belief, const TAction &action, number t, std::shared_ptr<HSVI<state_type, TAction>> hsvi) const;
 
-        
-        /**
-         * @brief Get the specific weighted discount factor for the problem at hand
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getWeightedDiscount(number);
-
-
-        /**
-         * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
-         * 
-         * @param double : incumbent 
-         * @param double : lb value
-         * @param double : ub value
-         * @param double : cost_so_far 
-         * @param double : error 
-         * @param number : horizon 
-         * @return double 
-         */
-        double do_excess(double, double, double, double, double, number);
-
-
-        /**
-         * @brief Select the next action
-         * 
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the lower bound
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the upper bound
-         * @param const TState & s : current state
-         * @param number h : horizon
-         * @return TAction 
-         */
-        TAction selectNextAction(const std::shared_ptr<ValueFunction<TBelief, TAction>>& , const std::shared_ptr<ValueFunction<TBelief, TAction>>& , const TBelief &, number );
+        double getReward(const state_type &belief, const TAction &action) const;
+        double getObservationProbability(const state_type &, const TAction &action, const TObservation &obs, const state_type &belief) const;
     };
 } // namespace sdm
 #include <sdm/world/belief_mdp.tpp>

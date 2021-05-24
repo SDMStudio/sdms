@@ -7,9 +7,10 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
+#include <sdm/utils/linear_algebra/sdms_matrix.hpp>
 
 // using Belief = BeliefStateGraph_p<SerializedBeliefState, number, number>;
-// using SerializedBelief = BeliefStateGraph_p<BeliefStateVector, number, number>; 
+// using SerializedBelief = BeliefStateGraph_p<BeliefStateVector, number, number>;
 
 //!
 //! \file     dynamics.hpp
@@ -34,10 +35,10 @@ namespace sdm
     {
     protected:
         //! \brief transition and observation matrices
-        std::vector<Matrix> o_model;
+        std::vector<DenseMatrix<number, number>> o_model;
 
         //! \brief dynamics model of the probabilities of state-observation pairs given state-action pairs.
-        std::vector<std::vector<Matrix>> dynamics;
+        std::vector<std::vector<DenseMatrix<number, number>>> dynamics;
 
         //! \brief map from next-state, current action pairs to set of next observations
         std::unordered_map<number, std::unordered_map<number, std::unordered_set<number>>> successor_observations;
@@ -87,12 +88,13 @@ namespace sdm
         //! \fn       void setObservations(const std::vector<Matrix>&)
         //! \param    const std::vector<Matrix>& matrices of observations, one for each action.
         //! \brief    Sets probability transitions
-        void setObservations(const std::vector<Matrix> &);
+        void setObservations(const std::vector<DenseMatrix<number, number>> &);
+        void setObservations(const std::vector<Matrix> &o_model);
 
-        //! \fn       const Matrix& getObservations(action)
+        //! \fn       const DenseMatrix<number, number>& getObservations(action)
         //! \param    u a specific joint action
         //! \brief    Returns matrix of probability observations for the pre-defined action.
-        const Matrix &getObservations(number) const;
+        const DenseMatrix<number, number> &getObservations(number) const;
 
         //! \fn       value getDynamics(state, action, observation, state) const
         //! \param    s a specific state (timestep t)
@@ -117,15 +119,15 @@ namespace sdm
         //! \param    o a specific joint observation
         //! \brief    Returns transition matrix
         //! \return   const matrix&
-        const Matrix &getDynamics(number, number) const;
+        const DenseMatrix<number, number> &getDynamics(number, number) const;
 
         //! \fn       void setDynamics(action, observation, const matrix&)
         //! \param    a a specific joint action
         //! \param    o a specific joint observation
         //! \brief    Sets transition matrix
-        void setDynamics(number, number, const Matrix &);
+        void setDynamics(number, number, const DenseMatrix<number, number> &);
 
-        const std::vector<std::vector<Matrix>> &getDynamics() const;
-        const std::vector<Matrix> &getObservationProbabilities() const;
+        const std::vector<std::vector<DenseMatrix<number, number>>> &getDynamics() const;
+        const std::vector<DenseMatrix<number, number>> &getObservationProbabilities() const;
     };
 } // namespace sdm

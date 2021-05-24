@@ -108,6 +108,8 @@ namespace sdm
       RELAXED_SAWTOOTH_LINER_PROGRAMMING
   };
 
+  // using StateType = number;
+  // using BeliefStateType = BeliefState<StateType>;
 
   class World;
   class DiscreteMDP;

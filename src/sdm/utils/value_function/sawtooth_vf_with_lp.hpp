@@ -51,7 +51,16 @@ namespace sdm
          * @param number : Value of BigM
          * @param TypeSawtoothLinearProgram : Type of Sawtooth resolution
          */
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100,TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+
+        /**
+         * @brief Get the value at state s
+         * 
+         * @param state the state 
+         * @param t the timestep
+         * @return the value
+         */
+        TValue getValueAt(const TState &state, number t);
 
         /**
          * @brief Get the best action to do at a state
@@ -60,6 +69,8 @@ namespace sdm
          * @return the best action
          */
         TAction getBestAction(const TState &, number = 0);
+
+        void updateValueAt(const TState &state, number t);
 
         /**
         * @brief Returns the greedy decision rule for the current occupancy state
@@ -122,9 +133,28 @@ namespace sdm
         TValue getBackup(const TState &, number);
 
     protected:
+        /**
+         * @brief The 
+         */
+        TState_t ctype = COMPRESSED;
+
+        /**
+         * @brief The type of resolution.
+         */
         TypeOfResolution current_type_of_resolution_;
 
+        /**
+         * @brief The type of linear program.
+         */
+        TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
+
         number bigM_value_;
+
+        TState_t getTStateType();
+        void setTStateType(const TState_t &);
+
+        TypeSawtoothLinearProgram getSawtoothType();
+        void setSawtoothType(const TypeSawtoothLinearProgram &);
 
         /**
          * @brief Set the Greedy Sawtooth Big M object
@@ -238,7 +268,7 @@ namespace sdm
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = number.");
         }
 
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<number, TAction>>problem, number horizon, std::shared_ptr<Initializer<number, TAction>> initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<number, TAction, TValue>(problem, horizon, initializer)
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<number, TAction>> problem, number horizon, std::shared_ptr<Initializer<number, TAction>> initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<number, TAction, TValue>(problem, horizon, initializer)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = number.");
         }
@@ -286,7 +316,7 @@ namespace sdm
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedState.");
         }
 
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>>problem, number horizon, std::shared_ptr<Initializer<SerializedState, TAction>>initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<SerializedState, TAction, TValue>(problem, horizon, initializer)
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedState, TAction>> problem, number horizon, std::shared_ptr<Initializer<SerializedState, TAction>> initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<SerializedState, TAction, TValue>(problem, horizon, initializer)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedState.");
         }
@@ -322,45 +352,93 @@ namespace sdm
     };
 
     template <class TAction, class TValue>
-    class SawtoothValueFunctionLP<BeliefState, TAction, TValue> : public SawtoothValueFunction<BeliefState, TAction, TValue>
+    class SawtoothValueFunctionLP<BeliefState<>, TAction, TValue> : public SawtoothValueFunction<BeliefState<>, TAction, TValue>
     {
     public:
         SawtoothValueFunctionLP()
         {
-            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState<>.");
         }
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState, TAction>>, number = 0, TValue = 0.)
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState<>, TAction>>, number = 0, TValue = 0.)
         {
-            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState<>.");
         }
 
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState, TAction>>problem, number horizon, std::shared_ptr<Initializer<BeliefState, TAction>>initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<BeliefState, TAction, TValue>(problem, horizon, initializer)
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState<>, TAction>> problem, number horizon, std::shared_ptr<Initializer<BeliefState<>, TAction>> initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<BeliefState<>, TAction, TValue>(problem, horizon, initializer)
         {
-            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState<>.");
         }
 
         void initialize()
         {
-            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState<>.");
         }
         void initialize(TValue, number = 0)
         {
-            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState<>.");
         }
 
-        TValue getValueAt(const BeliefState &, number = 0)
+        TValue getValueAt(const BeliefState<> &, number = 0)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
         }
 
-        void updateValueAt(const BeliefState &, number = 0)
+        void updateValueAt(const BeliefState<> &, number = 0)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
         }
 
-        std::vector<BeliefState> getSupport(number)
+        std::vector<BeliefState<>> getSupport(number)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefState.");
+        }
+
+        std::string str()
+        {
+            return "Sawtooth_LP";
+        }
+    };
+
+    template <class TAction, class TValue>
+    class SawtoothValueFunctionLP<BeliefStateGraph_p<number, number>, TAction, TValue> : public SawtoothValueFunction<BeliefStateGraph_p<number, number>, TAction, TValue>
+    {
+    public:
+        SawtoothValueFunctionLP()
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefStateGraph_p<number, number>, TAction>>, number = 0, TValue = 0.)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefStateGraph_p<number, number>, TAction>> problem, number horizon, std::shared_ptr<Initializer<BeliefStateGraph_p<number, number>, TAction>> initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<BeliefStateGraph_p<number, number>, TAction, TValue>(problem, horizon, initializer)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        void initialize()
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+        void initialize(TValue, number = 0)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        TValue getValueAt(const BeliefStateGraph_p<number, number> &, number = 0)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        void updateValueAt(const BeliefStateGraph_p<number, number> &, number = 0)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        std::vector<BeliefStateGraph_p<number, number>> getSupport(number)
+        {
+            throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = BeliefStateGraph_p<number, number>.");
         }
 
         std::string str()
@@ -382,7 +460,7 @@ namespace sdm
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
         }
 
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedBeliefState, TAction>>problem, number horizon, std::shared_ptr<Initializer<SerializedBeliefState, TAction>> initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<SerializedBeliefState, TAction, TValue>(problem, horizon, initializer)
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<SerializedBeliefState, TAction>> problem, number horizon, std::shared_ptr<Initializer<SerializedBeliefState, TAction>> initializer, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING) : SawtoothValueFunction<SerializedBeliefState, TAction, TValue>(problem, horizon, initializer)
         {
             throw sdm::exception::Exception("Sawtooth_LP cannot be used for State = SerializedBeliefState.");
         }

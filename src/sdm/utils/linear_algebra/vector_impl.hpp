@@ -1,3 +1,4 @@
+
 /**
  * @file vector_impl.hpp
  * @author David Albert (david.albert@insa-lyon.fr)

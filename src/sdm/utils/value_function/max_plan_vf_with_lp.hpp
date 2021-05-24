@@ -200,41 +200,81 @@ namespace sdm
     };
 
     template <class TAction, class TValue>
-    class MaxPlanValueFunctionLP<BeliefState, TAction, TValue> : public MaxPlanValueFunction<BeliefState, TAction, TValue>
+    class MaxPlanValueFunctionLP<BeliefState<>, TAction, TValue> : public MaxPlanValueFunction<BeliefState<>, TAction, TValue>
     {
     public:
-        MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState, TAction>> , int , std::shared_ptr<Initializer<BeliefState, TAction>> )
+        MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefState<>, TAction>> , int , std::shared_ptr<Initializer<BeliefState<>, TAction>> )
         {
-            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefState<>.");
         }
 
         void initialize()
         {
-            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefState<>.");
         }
         void initialize(TValue , number )
         {
-            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefState<>.");
         }
 
-        TValue getValueAt(const BeliefState &, number )
+        TValue getValueAt(const BeliefState<> &, number )
         {
-            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefState<>.");
         }
 
-        void updateValueAt(const BeliefState &, number )
+        void updateValueAt(const BeliefState<> &, number )
         {
-            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefState<>.");
         }
 
-        std::vector<BeliefState> getSupport(number )
+        std::vector<BeliefState<>> getSupport(number )
         {
-            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = BeliefState.");
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefState<>.");
         }
 
         std::string str()
         {
-            return "MaxPlanVFSerialized";
+            return "MaxPlanLP";
+        }
+    };
+
+
+    template <class TAction, class TValue>
+    class MaxPlanValueFunctionLP<BeliefStateGraph_p<number, number>, TAction, TValue> : public MaxPlanValueFunction<BeliefStateGraph_p<number, number>, TAction, TValue>
+    {
+    public:
+        MaxPlanValueFunctionLP(std::shared_ptr<SolvableByHSVI<BeliefStateGraph_p<number, number>, TAction>> , int , std::shared_ptr<Initializer<BeliefStateGraph_p<number, number>, TAction>> )
+        {
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        void initialize()
+        {
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+        void initialize(TValue , number )
+        {
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        TValue getValueAt(const BeliefStateGraph_p<number, number> &, number )
+        {
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        void updateValueAt(const BeliefStateGraph_p<number, number> &, number )
+        {
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        std::vector<BeliefStateGraph_p<number, number>> getSupport(number )
+        {
+            throw sdm::exception::Exception("MaxPlanLP cannot be used for State = BeliefStateGraph_p<number, number>.");
+        }
+
+        std::string str()
+        {
+            return "MaxPlanLP";
         }
     };
 

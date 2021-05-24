@@ -6,7 +6,7 @@
 
 namespace sdm
 {
-  class SerializedBeliefState : public BaseBeliefState<SerializedState>
+  class SerializedBeliefState : public BeliefState<SerializedState>
   {
   public:
     using state_type = SerializedState;
@@ -15,6 +15,7 @@ namespace sdm
     SerializedBeliefState();
     SerializedBeliefState(double default_value);
     SerializedBeliefState(std::size_t size, double default_value);
+    SerializedBeliefState(const std::vector<SerializedState> &, const std::vector<double> &);
     SerializedBeliefState(const SerializedBeliefState &v);
 
     number getCurrentAgentId() const;

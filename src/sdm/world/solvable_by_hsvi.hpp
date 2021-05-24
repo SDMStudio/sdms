@@ -22,16 +22,15 @@ namespace sdm
      * @tparam TAction The action type
      */
     template <typename TState, typename TAction>
-    class SolvableByHSVI 
+    class SolvableByHSVI
     {
     public:
         virtual ~SolvableByHSVI() {}
-        
+
         /**
          * @brief Get the initial state
          */
         virtual TState getInitialState() = 0;
-
 
         /**
          * @brief Get the specific discount factor for the problem at hand
@@ -41,7 +40,6 @@ namespace sdm
          */
         virtual double getDiscount(number = 0) = 0;
 
-        
         /**
          * @brief Get the specific weighted discount factor for the problem at hand
          * 
@@ -49,7 +47,6 @@ namespace sdm
          * @return double discount factor
          */
         virtual double getWeightedDiscount(number) = 0;
-
 
         /**
          * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
@@ -64,7 +61,6 @@ namespace sdm
          */
         virtual double do_excess(double, double, double, double, double, number) = 0;
 
-
         /**
          * @brief Select the next action
          * 
@@ -74,8 +70,7 @@ namespace sdm
          * @param number h : horizon
          * @return TAction 
          */
-        virtual  TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>>& lb, const std::shared_ptr<ValueFunction<TState, TAction>>& ub, const TState &s, number h) = 0;
-
+        virtual TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &lb, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h) = 0;
 
         /**
          * @brief Get the next occupancy state.

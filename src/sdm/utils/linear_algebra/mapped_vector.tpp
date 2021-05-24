@@ -1,9 +1,14 @@
 
+#include <sdm/config.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
 {
+
+    template <typename TIndex, typename T>
+    double MappedVector<TIndex, T>::PRECISION = config::PRECISION_MAPPED_VECTOR;
+
     template <typename TIndex, typename T>
     MappedVector<TIndex, T>::MappedVector() : RecursiveMap<TIndex, T>(), default_value_(0.), size_(-1)
     {
@@ -24,7 +29,6 @@ namespace sdm
         : RecursiveMap<TIndex, T>(v),
           default_value_(v.default_value_),
           size_(v.size_),
-          precision(v.precision),
           v_indexes(v.v_indexes),
           bmin(v.bmin),
           bmax(v.bmax),
@@ -50,6 +54,31 @@ namespace sdm
             v += std::abs(item.second);
         }
         return v;
+    }
+
+    template <typename TIndex, typename T>
+    T MappedVector<TIndex, T>::at(const TIndex &i) const
+    {
+        if (this->find(i) != this->end())
+        {
+            return RecursiveMap<TIndex, T>::at(i);
+        }
+        else
+        {
+            return this->default_value_;
+        }
+    }
+
+    template <typename TIndex, typename T>
+    T MappedVector<TIndex, T>::getValueAt(const TIndex &index) const
+    {
+        return this->at(index);
+    }
+
+    template <typename TIndex, typename T>
+    void MappedVector<TIndex, T>::setValueAt(const TIndex &index, const T &value)
+    {
+        (*this)[index] = value;
     }
 
     template <typename TIndex, typename T>
@@ -145,17 +174,17 @@ namespace sdm
     template <typename TIndex, typename T>
     void MappedVector<TIndex, T>::setPrecision(double precision)
     {
-        this->precision = precision;
+        MappedVector<TIndex, T>::PRECISION = precision;
     }
 
     template <typename TIndex, typename T>
-    bool MappedVector<TIndex, T>::operator==(const MappedVector<TIndex, T> &other) const
+    bool MappedVector<TIndex, T>::is_equal(const MappedVector<TIndex, T> &other, double precision) const
     {
         if (this->size() != other.size())
         {
             return false;
         }
-        if (std::abs(this->getDefault() - other.getDefault()) > this->precision)
+        if (std::abs(this->getDefault() - other.getDefault()) > precision)
         {
             return false;
         }
@@ -168,7 +197,7 @@ namespace sdm
             }
             else
             {
-                if (std::abs(other.at(v.first) - v.second) > this->precision)
+                if (std::abs(other.at(v.first) - v.second) > precision)
                 {
                     return false;
                 }
@@ -179,22 +208,15 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    bool MappedVector<TIndex, T>::operator!=(const MappedVector<TIndex, T> &v2) const
+    bool MappedVector<TIndex, T>::operator==(const MappedVector<TIndex, T> &other) const
     {
-        return (!this->operator==(v2));
+        return this->is_equal(other, PRECISION);
     }
 
     template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::at(const TIndex &i) const
+    bool MappedVector<TIndex, T>::operator!=(const MappedVector<TIndex, T> &v2) const
     {
-        if (this->find(i) != this->end())
-        {
-            return RecursiveMap<TIndex, T>::at(i);
-        }
-        else
-        {
-            return this->default_value_;
-        }
+        return (!this->operator==(v2));
     }
 
     template <typename TIndex, typename T>
@@ -202,19 +224,19 @@ namespace sdm
     {
         for (const auto &item : *this)
         {
-            if (v2.find(item.first) != v2.end())
+            if (item.second > v2.at(item.first))
             {
-                return item.second < v2.at(item.first);
+                return false;
             }
         }
         for (const auto &item : v2)
         {
-            if (this->find(item.first) != this->end())
+            if (item.second < this->at(item.first))
             {
-                return this->at(item.first) < item.second;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     template <typename TIndex, typename T>
@@ -299,7 +321,7 @@ namespace sdm
         archive &boost::serialization::base_object<RecursiveMap<TIndex, T>>(*this);
         archive &make_nvp("default_value", default_value_);
         archive &make_nvp("size", size_);
-        archive &make_nvp("precision", precision);
+        archive &make_nvp("PRECISION", PRECISION);
 
         archive &make_nvp("bmin", bmin);
         archive &make_nvp("bmax", bmax);

@@ -164,7 +164,10 @@ namespace sdm
         template <typename T, std::enable_if_t<std::is_same_v<SerializedState, T>, int> = 0>
         TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
 
-        template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int> = 0>
+        template <typename T, std::enable_if_t<std::is_same_v<BeliefState<>, T>, int> = 0>
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+
+        template <typename T, std::enable_if_t<std::is_same_v<BeliefStateGraph_p<number, number>, T>, int> = 0>
         TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int> = 0>

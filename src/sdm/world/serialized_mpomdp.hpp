@@ -14,7 +14,6 @@
 #include <sdm/world/serialized_mmdp_structure.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
 
-
 namespace sdm
 {
     /**
@@ -24,7 +23,7 @@ namespace sdm
      * @tparam state_type refer to the serialized state type
      * @tparam number refer to the number type
      */
-    class SerializedMPOMDP : public SerializedMMDPStructure
+    class SerializedMPOMDP : public SerializedMMDPStructure /**, POMDP<SerializedState, number, Joint<number>>*/
     {
     public:
         using action_type = number;
@@ -35,7 +34,7 @@ namespace sdm
         SerializedMPOMDP(std::string);
         SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP>);
 
-        const std::set<observation_type>& getReachableObservations(state_type, action_type, state_type) const;
+        const std::set<observation_type> &getReachableObservations(state_type, action_type, state_type) const;
 
         std::shared_ptr<SerializedMMDP> toMDP();
 
@@ -44,7 +43,7 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>> toBeliefMDP(); 
+        std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState, number, Joint<number>>> toBeliefMDP();
 
         /**
          * @brief Get the Obs Space of the SerializedMPOMDP. In this situation, it is the same as the ObsSpace of a Dec-Pomdp
@@ -59,7 +58,7 @@ namespace sdm
          * @param ag_id is the identifiant of a precise agent
          * @return std::shared_ptr<DiscreteSpace<number>> 
          */
-        std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number ) const;
+        std::shared_ptr<DiscreteSpace<number>> getObsSpaceAt(number) const;
 
         //! \fn       double getObservationProbability(action, observation, state) const
         //! \param    x a specific current state
@@ -95,8 +94,10 @@ namespace sdm
         std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
 
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<state_type, std::set<observation_type>>>> reachable_obs_state_space;
-        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> dynamics;
-        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> observation_probability;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type, double>>>> dynamics;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type, double>>>> observation_probability;
+
+        // Dynamics<state_type, action_type, observation_type> dynamics_;
 
         std::vector<std::vector<Matrix>> matrix_dynamics;
         /**
@@ -110,7 +111,6 @@ namespace sdm
          * 
          */
         void setReachableObsSpace();
-
     };
 } // namespace sdm
 #include <sdm/world/serialized_mpomdp.tpp>

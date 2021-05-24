@@ -7,6 +7,7 @@
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/beliefs.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
@@ -102,7 +103,7 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
+        std::shared_ptr<BeliefMDP<BeliefState<SerializedState>, number, number>> toBeliefMDP(); 
 
         /**
          * @brief Return the number of agent

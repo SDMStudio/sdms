@@ -5,6 +5,8 @@
 
 #include <sdm/world/serialized_mpomdp.hpp>
 
+#include <sdm/core/state/beliefs.hpp>
+#include <sdm/core/state/serialized_state.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state/serialized_belief_state.hpp>
 
@@ -28,6 +30,7 @@ namespace sdm
     public:
         using state_type = TBelief;
         using action_type = TAction;
+        using observation_type = TBelief;
 
         SerializedBeliefMDP();
         SerializedBeliefMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp);

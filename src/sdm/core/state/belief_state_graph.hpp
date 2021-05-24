@@ -12,7 +12,7 @@
 
 #include <sdm/public/boost_serializable.hpp>
 #include <sdm/utils/struct/graph.hpp>
-#include <sdm/utils/linear_algebra/matrix.hpp>
+#include <sdm/utils/linear_algebra/sdms_matrix.hpp>
 
 namespace sdm
 {
@@ -32,8 +32,8 @@ namespace sdm
         using state_type = TBeliefState;
 
         BeliefStateGraph();
-
-        BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<Matrix>> &dynamics);
+        BeliefStateGraph(const std::vector<typename TBeliefState::state_type> &list_states, const std::vector<double> &list_proba,  const std::vector<std::vector<DenseMatrix<number, number>>> &dynamics = {});
+        BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<DenseMatrix<number, number>>> &dynamics = {});
 
         /**
          * @brief Construct a new belief 
@@ -61,7 +61,7 @@ namespace sdm
          * 
          * @param dynamics the matrix of state transition for each (action, observation) pair. 
          */
-        void setDynamics(std::vector<std::vector<Matrix>> dynamics);
+        void setDynamics(std::vector<std::vector<DenseMatrix<number, number>>> dynamics);
 
         /**
          * @brief Get the probability of associated belief.
@@ -116,7 +116,9 @@ namespace sdm
         /**
          * @brief The dynamics of states. 
          */
-        std::shared_ptr<std::vector<std::vector<Matrix>>> dynamics_;
+        std::shared_ptr<std::vector<std::vector<DenseMatrix<typename TBeliefState::state_type, typename TBeliefState::state_type>>>> dynamics_;
+
+        // std::shared_ptr<BinaryFunction<TAction, TObservation, std::shared_ptr<MatrixImpl<TBeliefState::state_type, TBeliefState::state_type>>>> dynamics_;
 
         /**
          * @brief A pointer on the bag containing all nodes.
