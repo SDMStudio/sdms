@@ -51,7 +51,7 @@ namespace sdm
          * 
          * @return std::shared_ptr<MultiDiscreteSpace<number>> 
          */
-        std::shared_ptr<MultiDiscreteSpace<number>> getObsSpace() const;
+        std::shared_ptr<DiscreteSpace<observation_type>> getObsSpace(number =0) const;
 
         /**
          * @brief Get the Obs Space of a precise agent
@@ -92,7 +92,7 @@ namespace sdm
     protected:
         Joint<number> empty_serial_observation;
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
-        std::shared_ptr<MultiDiscreteSpace<number>> serialized_observation_space_;
+        std::shared_ptr<MultiSpace<DiscreteSpace<observation_type>>> serialized_observation_space_;
 
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<state_type, std::set<observation_type>>>> reachable_obs_state_space;
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> dynamics;

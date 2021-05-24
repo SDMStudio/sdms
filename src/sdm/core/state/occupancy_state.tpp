@@ -186,6 +186,7 @@ namespace sdm
                 for (auto iter_second = iter_first; iter_second != support.end();)
                 {
                     auto ihistory_one_step_left = *iter_second; // Get the ihistory we want check the equivalence
+
                     if (this->areIndividualHistoryLPE(ihistory_label, ihistory_one_step_left, agent_id))
                     {
                         // Store new label
@@ -206,6 +207,7 @@ namespace sdm
                     }
                 }
             }
+            
             previous_compact_ostate = current_compact_ostate;
             previous_compact_ostate.private_ihistory_map_ = this->private_ihistory_map_;
             previous_compact_ostate.finalize();

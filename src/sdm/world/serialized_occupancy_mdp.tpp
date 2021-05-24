@@ -103,25 +103,6 @@ namespace sdm
         return this->nextState(ostate, joint_idr, h, hsvi, true);
     }
 
-
-    // template <typename TState, typename TAction>
-    // std::shared_ptr<DiscreteSpace<TAction>> SerializedOccupancyMDP<TState, TAction>::getActionSpaceAt(const TState &ostate)
-    // {
-    //     // Get id of the current agent
-    //     number ag_id = ostate.getCurrentAgentId();
-
-    //     // Get the individual possible histories for the current agent (as vector)
-    //     auto indiv_hist = ostate.getIndividualHistories(ag_id);
-
-    //     std::vector<typename TState::jhistory_type::element_type::ihistory_type> v_inputs(indiv_hist.begin(), indiv_hist.end());
-
-    //     // Generate all individual decision rules for agent 'ag_id' (the current agent)
-    //     FunctionSpace<TAction> f_indiv_dr_space(v_inputs, this->serialized_mpomdp_->getActionSpace(ag_id)->getAll());
-
-    //     // Now we can return a discrete space of all indiv decision rules
-    //     return std::make_shared<DiscreteSpace<TAction>>(f_indiv_dr_space.getAll());
-    // }
-
     template <typename TState, typename TAction>
     TState SerializedOccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &indiv_dr, number, std::shared_ptr<HSVI<TState, TAction>>, bool compression) const
     {

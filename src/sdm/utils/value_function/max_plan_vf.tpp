@@ -100,7 +100,7 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::prune(number t )
+    void MaxPlanValueFunction<TVector, TAction, TValue>::prune(number )
     {
         // this->bounded_prune(t);
         // this->pairwise_prune(t);
@@ -455,63 +455,64 @@ namespace sdm
     template <>
     SerializedBeliefState MaxPlanValueFunction<SerializedBeliefState, number, double>::backup_operator(const SerializedBeliefState &serial_belief_state, number t)
     {
-        // auto serial_beliefMDP = std::static_pointer_cast<SerializedBeliefMDP<SerializedBeliefState, number, Joint<number>>>(this->getWorld());
-        // auto under_pb = this->getWorld()->getUnderlyingProblem();
+        auto serial_beliefMDP = std::static_pointer_cast<SerializedBeliefMDP<SerializedBeliefState, number, Joint<number>>>(this->getWorld());
+        auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-        // number n_obs = under_pb->getObsSpaceAt(t).size();
-        // number n_actions = under_pb->getActionSpace(t)->getNumItems();
+        std::unordered_map<number, std::unordered_map<Joint<number>, SerializedBeliefState>> beta_a_o;
+        std::unordered_map<number, SerializedBeliefState> beta_a;
 
-        // std::vector<std::vector<SerializedBeliefState>> beta_a_o(n_actions, std::vector<SerializedBeliefState>(n_obs, SerializedBeliefState()));
-        // std::vector<SerializedBeliefState> beta_a(n_actions, SerializedBeliefState());
+        // beta_a_o = argmax_alpha ( alpha * belief_t+1)
+        for (const auto &action :  under_pb->getActionSpace(t)->getAll())
+        {
+            beta_a_o.emplace(action, std::unordered_map<Joint<number>, SerializedBeliefState>());
+            beta_a.emplace(action,SerializedBeliefState());
+            for (const auto &obs : under_pb->getObsSpace(t)->getAll())
+            {
+                auto next_belief = serial_beliefMDP->nextState(serial_belief_state, action, obs);
+                // beta_a_o[action][obs] = this->getMaxAt(next_belief, t + 1).second;
+                beta_a_o[action].emplace(obs,this->getMaxAt(next_belief, t + 1).second);
 
-        // // beta_a_o = argmax_alpha ( alpha * belief_t+1)
-        // for (const auto &action :  under_pb->getActionSpace(t)->getAll())
-        // {
-        //     for (const auto &obs : under_pb->getObsSpaceAt(t))
-        //     {
-        //         auto next_belief = serial_beliefMDP->nextState(serial_belief_state, action, obs);
-        //         beta_a_o[action][obs] = this->getMaxAt(next_belief, t + 1).second;
-        //     }
-        // }
+            }
+        }
 
-        // // \beta_a = R(s,a) + \gamma * \sum_{o, s'} [ \beta_{a,o}(s') * O(s', a, o) * T(s,a,s') ]
-        // for (const auto &action : under_pb->getActionSpace(t)->getAll())
-        // {
-        //     for (const auto &state : under_pb->getStateSpace(t)->getAll())
-        //     {
-        //         double tmp = 0;
-        //         for (const auto &next_state : under_pb->getReachableSerialStates(state,action))
-        //         {
-        //             for(const auto &obs : under_pb->getReachableObservations(state,action,next_state))
-        //             {
-        //                 tmp += beta_a_o[action][obs].at(next_state) * under_pb->getDynamics(state, action, obs, next_state);
-        //             }
-        //         }
-        //         beta_a[action][state] = under_pb->getReward(state, action) + under_pb->getDiscount(t) * tmp;
-            
-        // }
+        // \beta_a = R(s,a) + \gamma * \sum_{o, s'} [ \beta_{a,o}(s') * O(s', a, o) * T(s,a,s') ]
+        for (const auto &action : under_pb->getActionSpace(t)->getAll())
+        {
+            for (const auto &state : under_pb->getStateSpace(t)->getAll())
+            {
+                double tmp = 0;
+                for (const auto &next_state : under_pb->getReachableSerialStates(state,action))
+                {
+                    for(const auto &obs : under_pb->getReachableObservations(state,action,next_state))
+                    {
+                        tmp += beta_a_o[action][obs].at(next_state) * under_pb->getDynamics(state, action, obs, next_state);
+                    }
+                }
+                beta_a[action][state] = under_pb->getReward(state, action) + under_pb->getDiscount(t) * tmp;
+            }
+        }
 
-        // number a_max;
-        // double current, max_v = -std::numeric_limits<double>::max();
-        // for (const auto &action : under_pb->getActionSpace(t)->getAll())
-        // {
-        //     current = serial_belief_state ^ beta_a[action];
-        //     if (current > max_v)
-        //     {
-        //         max_v = current;
-        //         a_max = action;
-        //     }
-        // }
-        // auto new_plan = beta_a[a_max];
+        number a_max;
+        double current, max_v = -std::numeric_limits<double>::max();
+        for (const auto &action : under_pb->getActionSpace(t)->getAll())
+        {
+            current = serial_belief_state ^ beta_a[action];
+            if (current > max_v)
+            {
+                max_v = current;
+                a_max = action;
+            }
+        }
+        auto new_plan = beta_a[a_max];
 
-        // return new_plan;
+        return new_plan;
     }
 
-    template <>
-    std::pair<double, SerializedBeliefState> MaxPlanValueFunction<SerializedBeliefState, number, double>::getMaxAt(const SerializedBeliefState &, number)
-    {
-        throw sdm::exception::NotImplementedException();
-    }
+    // template <>
+    // std::pair<double, SerializedBeliefState> MaxPlanValueFunction<SerializedBeliefState, number, double>::getMaxAt(const SerializedBeliefState &, number)
+    // {
+    //     throw sdm::exception::NotImplementedException();
+    // }
 
     template <typename TVector, typename TAction, typename TValue>
     template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int>>
@@ -563,7 +564,7 @@ namespace sdm
     }
 
     template <>
-    void MaxPlanValueFunction<SerializedState, number, double>::bounded_prune(number t)
+    void MaxPlanValueFunction<SerializedState, number, double>::bounded_prune(number )
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
     }

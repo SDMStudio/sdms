@@ -31,25 +31,36 @@ namespace sdm
 
     void SerializedMPOMDP::setObsSpace()
     {
-        std::vector<number> v;
-        std::vector<std::shared_ptr<DiscreteSpace<number>>> all_observation_space;
+        std::vector<number> create_empty_serial_observation;
+        std::vector<std::shared_ptr<DiscreteSpace<observation_type>>> all_observation_space;
 
-        //Creation of Individual Serial Observation Space
+
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
-            auto obs = this->decpomdp_->getObsSpace()->getSpace(ag_id)->getAll();
-            std::vector<number> observation = obs;
-            observation.push_back(sdm::DEFAULT_OBSERVATION);
-            v.push_back(sdm::DEFAULT_OBSERVATION);
+            create_empty_serial_observation.push_back(sdm::DEFAULT_OBSERVATION);
+        }
+        this->empty_serial_observation = Joint<number>(create_empty_serial_observation);
 
-            auto serial_ind_space = std::make_shared<DiscreteSpace<number>>(observation);
+
+        for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
+        {
+            std::vector<observation_type> observation;
+
+            if( (ag_id+1) %this->getNumAgents() == 0)
+            {
+                for(const auto &obs : this->decpomdp_->getObsSpace()->getAll())
+                {
+                    observation.push_back(obs);
+                }
+            }
+            else
+            {
+                observation.push_back(this->empty_serial_observation);
+            }
+            auto serial_ind_space = std::make_shared<DiscreteSpace<observation_type>>(observation);
             all_observation_space.push_back(serial_ind_space);
         }
-        // Creation of all serial state
-        this->serialized_observation_space_ = std::make_shared<MultiDiscreteSpace<number>>(all_observation_space);
-
-        // Creation of the empty observation
-        this->empty_serial_observation = Joint<number>(v);
+        this->serialized_observation_space_ = std::make_shared<MultiSpace<DiscreteSpace<observation_type>>>(all_observation_space);
 
         // Creation of dynamics and observation_probability
         // Go over serial states 
@@ -65,7 +76,7 @@ namespace sdm
                 this->observation_probability[serialized_state].emplace(serial_action,std::unordered_map<Joint<number>, std::unordered_map<SerializedState,double>>());
 
                 // Go over joint_obs 
-                for(const auto joint_obs: this->serialized_observation_space_->getAll())
+                for(const auto joint_obs: this->getObsSpace(serialized_state.getCurrentAgentId())->getAll())
                 {                    
                     this->dynamics[serialized_state][serial_action].emplace(joint_obs,std::unordered_map<SerializedState,double>());
                     this->observation_probability[serialized_state][serial_action].emplace(joint_obs,std::unordered_map<SerializedState,double>());
@@ -219,16 +230,14 @@ namespace sdm
         return std::make_shared<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>>(this->getptr());
     }
 
-    std::shared_ptr<MultiDiscreteSpace<number>> SerializedMPOMDP::getObsSpace() const
+    std::shared_ptr<DiscreteSpace<Joint<number>>> SerializedMPOMDP::getObsSpace(number t) const
     {
-        return this->serialized_observation_space_;
+        return this->serialized_observation_space_->getSpace(t % this->getNumAgents());
     }
 
     std::vector<Joint<number>> SerializedMPOMDP::getObsSpaceAt(number ag_id) const
     {
         return (ag_id % this->getNumAgents() == 0) ? std::vector<Joint<number>>{this->empty_serial_observation} : this->decpomdp_->getObsSpace()->getAll();
-
-        // return this->decpomdp_->getObsSpace()->getSpace(ag_id);
     }
 
     double SerializedMPOMDP::getObservationProbability(const SerializedState serialized_state, const number action, const Joint<number> joint_obs, const SerializedState serialized_state_next) const
@@ -246,18 +255,18 @@ namespace sdm
         return  std::static_pointer_cast<SerializedMPOMDP>(SerializedMMDPStructure::getptr());
     }
 
-    const Joint<number> SerializedMPOMDP::getObservation(number index)
-    {
-        return this->serialized_observation_space_->getAll().at(index);
-    }
+    // const Joint<number> SerializedMPOMDP::getObservation(number index)
+    // {
+    //     return this->serialized_observation_space_->getAll().at(index);
+    // }
 
-    std::vector<std::vector<Matrix>> SerializedMPOMDP::getDynamics()
-    {
-        return this->matrix_dynamics;
-    }
+    // std::vector<std::vector<Matrix>> SerializedMPOMDP::getDynamics()
+    // {
+    //     return this->matrix_dynamics;
+    // }
 
-    number SerializedMPOMDP::joint2single(const Joint<number> joint_obs)
-    {
-        return this->decpomdp_->getObsSpace()->joint2single(joint_obs);
-    }
+    // number SerializedMPOMDP::joint2single(const Joint<number> joint_obs)
+    // {
+    //     return this->decpomdp_->getObsSpace()->joint2single(joint_obs);
+    // }
 }

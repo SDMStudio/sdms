@@ -145,7 +145,7 @@ namespace sdm
         double max_o = -std::numeric_limits<double>::max(), tmp;
 
         // Go over all Serial Observation
-        for (const auto &o : this->serialized_mpomdp_->getObsSpaceAt(t))
+        for (const auto &o : this->serialized_mpomdp_->getObsSpace(t)->getAll())
         {
             tmp = this->getObservationProbability(action, o, belief);
             // Call the function next State Serial Last Agent which determine the next belief when the it's the last agent
@@ -188,10 +188,9 @@ namespace sdm
     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, number t) const
     {
         double exp_next_v = 0;
-        number ag_id = belief.getCurrentAgentId();
 
         // Go over all observation
-        for (const auto &obs : this->serialized_mpomdp_->getObsSpaceAt(t))
+        for (const auto &obs : this->serialized_mpomdp_->getObsSpace(t)->getAll())
         {
             TBelief next_belief = this->nextState(belief, action, obs);
             exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(next_belief, t + 1);

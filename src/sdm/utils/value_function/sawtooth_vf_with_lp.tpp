@@ -31,8 +31,18 @@ namespace sdm
     {
         double cub = 0;
         auto action = this->greedySawtooth(compressed_occupancy_state, cub, t);
-        // std::cout<<"\n action "<<action;
-        // std::cout<<"\n occupancy "<<compressed_occupancy_state;
+        std::cout<<"\n action "<<action;
+        std::cout<<"\n occupancy "<<compressed_occupancy_state;
+
+        // auto vub_0 = this->getQValueAt(compressed_occupancy_state,action,t);
+        // auto vub_1 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * SawtoothValueFunction<TState, TAction, TValue>::getValueAt(this->getWorld()->nextState(compressed_occupancy_state, action), t + 1);
+        // auto vub_2 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * MappedValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(compressed_occupancy_state, action).getOneStepUncompressedOccupancy(), t + 1);
+
+        // if(std::abs(vub_0 - cub )> 0.1)
+        // {
+        //      throw sdm::exception::Exception("\n cub :" +std::to_string(cub) + ", vub_0 "+ std::to_string(vub_0)+ ", vub_1 "+ std::to_string(vub_1)+ ", vub_2 "+ std::to_string(vub_2));
+        // }
+
         return cub;
     }
 
@@ -282,7 +292,6 @@ namespace sdm
             {
                 // Creation of belief 
                 auto belief = compressed_occupancy_state.createBelief(joint_history);
-
                 //get Q Relaxation for POMDP
                 weight =  std::static_pointer_cast<RelaxedValueFunction<BeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
 
@@ -574,27 +583,48 @@ namespace sdm
                 auto next_joint_history = next_one_step_uncompressed_serial_occupancy_state.getHistory(pair_hidden_serial_state_AND_joint_history);
 
                 // Gets the current joint history conditional upon the current agent and next joint history 
-                // auto joint_history = next_agent_id == 0 ? next_joint_history->getParent() : next_joint_history;
+                auto joint_history = next_agent_id == 0 ? next_joint_history->getParent() : next_joint_history;
                 // Gets the current joint observation conditional upon the current agent and next joint history
                 auto next_observation = next_agent_id == 0 ? next_joint_history->getData() : next_joint_history->getDefaultObs();
 
-                for(const auto &joint_history : compressed_serial_occupancy_state.getJointHistories())
+                // number agent_id = compressed_serial_occupancy_state.getCurrentAgentId();
+                // // Gets the current individual history conditional on the current joint history
+
+                // con.add(IloRange(env, -IloInfinity, this->bigM_value_));
+                // con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
+
+                // for (const auto &indiv_history : compressed_serial_occupancy_state.getIndividualHistories(agent_id))
+                // {
+                //     // Go over all actions
+                //     for (const auto &serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
+                //     {
+                //         recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
+                //         auto resultat = 0.0;
+                //         for(const auto &joint_history : compressed_serial_occupancy_state.getJointHistoryOverIndividualHistories(agent_id,indiv_history))
+                //         {
+                //             resultat += this->getQValueRealistic(compressed_serial_occupancy_state, joint_history, serial_action, next_hidden_serial_state, next_observation, probability, difference);
+                //         }
+                //         //<! 1.c.4 get variable a_i(u_i|o_i) and set constant
+                //         con[index].setLinearCoef(var[recover], -resultat);
+                //     }
+                // }
+
+                // // Build the sawtooth constraint depending on the type of resolution choiced
+                switch (this->current_type_of_resolution_)
                 {
-                    auto verification = joint_history->expand(next_observation);
-                    if(verification == next_joint_history)
-                    {
-                        // Build the sawtooth constraint depending on the type of resolution choiced
-                        switch (this->current_type_of_resolution_)
-                        {
-                            case TypeOfResolution::BigM:
-                                this->template setGreedySawtoothBigM<TState>(compressed_serial_occupancy_state, joint_history,next_hidden_serial_state, next_observation, next_joint_history,next_one_step_uncompressed_serial_occupancy_state, probability, difference, env, con, var, index,t);
-                                break;
-                            case TypeOfResolution::IloIfThenResolution:
-                                this->template setGreedySawtoothIloIfThen<TState>(compressed_serial_occupancy_state,joint_history,next_hidden_serial_state,next_observation,next_joint_history,next_one_step_uncompressed_serial_occupancy_state,probability,difference,env,model,var,t);
-                                break;
-                        }
-                    }
+                    case TypeOfResolution::BigM:
+                        this->template setGreedySawtoothBigM<TState>(compressed_serial_occupancy_state, joint_history,next_hidden_serial_state, next_observation, next_joint_history,next_one_step_uncompressed_serial_occupancy_state, probability, difference, env, con, var, index,t);
+                        break;
+                    case TypeOfResolution::IloIfThenResolution:
+                        this->template setGreedySawtoothIloIfThen<TState>(compressed_serial_occupancy_state,joint_history,next_hidden_serial_state,next_observation,next_joint_history,next_one_step_uncompressed_serial_occupancy_state,probability,difference,env,model,var,t);
+                        break;
                 }
+
+                // <! \omega_k(x',o') * BigM
+                auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_serial_occupancy_state, next_hidden_serial_state, next_joint_history);
+                con[index].setLinearCoef(var[this->getNumber(VarName)], this->bigM_value_);
+
+                index++;
             }
 
             // Build constraint \sum{x',o'} \omega_k(x',o') = 1
@@ -683,14 +713,14 @@ namespace sdm
         // Go over all joint history
         for (const auto &indiv_history : compressed_serial_occupancy_state.getIndividualHistories(agent_id))
         {
-            for (const auto serial_action : this->world_->getUnderlyingProblem()->getActionSpace(t)->getAll())
+            for (const auto &serial_action : this->world_->getUnderlyingProblem()->getActionSpace(t)->getAll())
             {
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
 
                 double res = 0;
                 for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistoryOverIndividualHistories(agent_id,indiv_history))
                 {
-                    //<! 1.c.5 set coefficient of variable a_i(u_i|o_i) i.e., \sum_x s(x,o_i) Q_MDP(x,u_i)
+    
                     res += this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
                 }
                 obj.setLinearCoef(var[recover],res);
@@ -710,11 +740,15 @@ namespace sdm
         con.add(IloRange(env, -IloInfinity, this->bigM_value_));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
-        // Go over all actions
-        for (const auto &serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
+        if (compressed_serial_occupancy_state.getJointHistories().find(joint_history) != compressed_serial_occupancy_state.getJointHistories().end())
         {
-            //<! 1.c.4 get variable a_i(u_i|o_i) and set constant
-            con[index].setLinearCoef(var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))], -this->getQValueRealistic(compressed_serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, probability, difference));
+
+            // Go over all actions
+            for (const auto &serial_action : this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->getAll())
+            {
+                //<! 1.c.4 get variable a_i(u_i|o_i) and set constant
+                con[index].setLinearCoef(var[this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id))], -this->getQValueRealistic(compressed_serial_occupancy_state, joint_history, serial_action, next_hidden_state, next_observation, probability, difference));
+            }
         }
 
         // <! \omega_k(x',o') * BigM

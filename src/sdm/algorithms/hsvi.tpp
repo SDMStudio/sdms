@@ -15,10 +15,10 @@ namespace sdm
                                 int time_max) : world_(world),
                                                     lower_bound_(lower_bound),
                                                     upper_bound_(upper_bound),
+                                                    time_max_in_seconds_(time_max),
                                                     error_(error),
                                                     planning_horizon_(planning_horizon),
-                                                    name_(name),
-                                                    time_max_in_seconds_(time_max)
+                                                    name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
     }

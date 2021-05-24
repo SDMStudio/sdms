@@ -17,7 +17,7 @@ int main(int argc, char **argv)
         // Grid3x3corners
 
         std::vector<std::string> all_formalism={"decpomdp"};
-        std::vector<std::string> all_problem={"mabc","tiger","recycling","GridSmall","alignment_2x4","Mars"};
+        std::vector<std::string> all_problem={"mabc","tiger","recycling","GridSmall","boxPushingUAI07"};
         std::vector<int> all_horizon={10};
         std::vector<double> all_discount={1};
         std::vector<std::string> upper_bound_name = {"sawtooth_lp"};
