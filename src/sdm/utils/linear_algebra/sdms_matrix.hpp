@@ -30,6 +30,12 @@ namespace sdm
     public:
         sdmsMatrix();
         sdmsMatrix(std::size_t n_lig, std::size_t n_col);
+        sdmsMatrix(const sdmsMatrix &m);
+        template <class AE>
+        sdmsMatrix(const boost::numeric::ublas::matrix_expression<AE> &ae);
+
+        sdmsMatrix transpose() const;
+        TBaseVector operator^(const TBaseVector &) const;
     };
 
     /**
@@ -38,8 +44,8 @@ namespace sdm
      * @tparam TLig Type of lines
      * @tparam TCol Type of columns
      */
-    template <typename TLig, class TCol, class TValue>
-    using SparseMatrix = sdmsMatrix<TLig, TCol, TValue, boost::numeric::ublas::mapped_matrix<TValue>, boost::numeric::ublas::mapped_vector<TValue>>;
+    template <typename TLig, class TCol, class TValue = double>
+    using SparseMatrix = sdmsMatrix<TLig, TCol, TValue, boost::numeric::ublas::mapped_matrix<TValue>, SparseVector<TCol, TValue>>;
 
     /**
      * @brief Dense matrix are plain matrix.
@@ -47,8 +53,8 @@ namespace sdm
      * @tparam TLig Type of lines
      * @tparam TCol Type of columns
      */
-    template <typename TLig, class TCol, class TValue>
-    using DenseMatrix = sdmsMatrix<TLig, TCol, TValue, boost::numeric::ublas::matrix<TValue>, boost::numeric::ublas::vector<TValue>>;
+    template <typename TLig, class TCol, class TValue = double>
+    using DenseMatrix = sdmsMatrix<TLig, TCol, TValue, boost::numeric::ublas::matrix<TValue>, DenseVector<TCol, TValue>>;
 
 } // namespace sdm
 

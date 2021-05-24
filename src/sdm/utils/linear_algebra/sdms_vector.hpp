@@ -32,8 +32,11 @@ namespace sdm
   {
   public:
     sdmsVector();
-    sdmsVector(I);
-    sdmsVector(I, T);
+    sdmsVector(sdm::size_t);
+    sdmsVector(sdm::size_t, const T &);
+
+    template <class AE>
+    sdmsVector(const boost::numeric::ublas::vector_expression<AE> &ae);
     sdmsVector(const sdmsVector &);
     sdmsVector(const std::vector<T> &);
 
@@ -49,28 +52,32 @@ namespace sdm
     T max();
     I argmax();
 
-    bool operator<(const sdmsVector &) const;
-    T operator^(const sdmsVector &) const;
-    T dot(const sdmsVector &) const;
+    sdmsVector transpose() const;
 
+    /**
+     * @brief Compare two vectors. Return true if all values are lower or equal to the second vector.
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool operator<=(const sdmsVector &) const;
     bool operator==(const sdmsVector &) const;
     bool operator!=(const sdmsVector &) const;
+
+    template <class AE>
+    T dot(const boost::numeric::ublas::vector_expression<AE> &) const;
+
+    template <class AE>
+    T operator^(const boost::numeric::ublas::vector_expression<AE> &ae);
 
     std::string str() const;
 
   protected:
-    // std::unordered_map<I, sdm::size_t> map_item_to_index;
-
     std::pair<I, T> getMin() const;
     std::pair<I, T> getMax() const;
 
-  protected:
-    friend class boost::serialization::access;
-
     template <class Archive>
-    void serialize(Archive &, const unsigned int)
-    {
-    }
+    void serialize(Archive &archive, const unsigned int);
   };
 
   /**
@@ -79,7 +86,7 @@ namespace sdm
    * @tparam I Type of index
    * @tparam T Type of value
    */
-  template <typename I, typename T>
+  template <typename I, typename T = double>
   using SparseVector = sdmsVector<I, T, boost::numeric::ublas::mapped_vector<T>>;
 
   /**
@@ -88,7 +95,7 @@ namespace sdm
    * @tparam I Type of index
    * @tparam T Type of value
    */
-  template <typename I, typename T>
+  template <typename I, typename T = double>
   using DenseVector = sdmsVector<I, T, boost::numeric::ublas::vector<T>>;
 
 } // namespace sdm
