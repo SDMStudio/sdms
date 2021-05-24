@@ -84,11 +84,9 @@ namespace sdm
                 for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
                 {
                     // Generate all individual decision rules for agent 'ag_id'
-                    std::cout << "vect_i_hist[" << ag_id << "].size()=" << vect_i_hist[ag_id].size() << std::endl;
                     const auto &vect_inputs = sdm::tools::set2vector(vect_i_hist[ag_id]);
                     FunctionSpace<decision_rule_t> f_indiv_dr_space(vect_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
                     vect_i_dr.push_back(f_indiv_dr_space.getAll());
-                    std::cout << "vect_i_dr[" << ag_id << "].size()=" << vect_i_dr[ag_id].size() << std::endl;
                 }
             }
             // Get joint decision rules for each agent
@@ -96,7 +94,6 @@ namespace sdm
             {
                 vect_j_dr.push_back(TAction(joint_idr));
             }
-            std::cout << "vect_j_dr.size()=" << vect_j_dr.size() << std::endl;
         }
 
         // Now we can return a discrete space of all joint decision rules

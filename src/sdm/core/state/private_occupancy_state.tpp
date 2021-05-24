@@ -123,7 +123,14 @@ namespace sdm
         {
             const auto &partial_joint_history = pair_partial_joint_history_joint_history.first;
             const auto &current_joint_history = pair_partial_joint_history_joint_history.second;
-            const auto &other_joint_history = other.bimap_jhist_partial_jhist.right.at(partial_joint_history);
+
+            auto iterator = other.bimap_jhist_partial_jhist.right.find(partial_joint_history);
+            if (iterator == other.bimap_jhist_partial_jhist.right.end())
+            {
+                return false;
+            }
+
+            const auto &other_joint_history = iterator->second;
 
             for (const auto &hidden_state : this->getStatesAt(current_joint_history))
             {
