@@ -118,7 +118,6 @@ namespace sdm
             // for all element in the support of the fully uncompressed occupancy state
             for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
             {
-
                 auto x = p_x_o.first.first;
                 auto o = p_x_o.first.second;
 
@@ -128,14 +127,14 @@ namespace sdm
                 for (auto &y : this->dpomdp_->getReachableStates(x, jaction))
                 {
                     for (auto &z : this->dpomdp_->getReachableObservations(x, jaction, y))
-                    {
-
+                    {                        
                         // Get the probability of the next couple (next_state, next_joint history)
                         double next_occupancy_measure = p_x_o.second * this->dpomdp_->getObsDynamics()->getDynamics(x, this->dpomdp_->getActionSpace()->joint2single(jaction), this->dpomdp_->getObsSpace()->joint2single(z), y);
 
                         // If occupancy measure is greater than zero, we build our occupancy states
                         if (next_occupancy_measure > 0)
                         {
+
                             // Build fully uncompressed occupancy state
                             auto joint_history_next = o->expand(z);
                             new_fully_uncompressed_occupancy_state->addProbabilityAt({y, joint_history_next}, next_occupancy_measure);
@@ -151,7 +150,6 @@ namespace sdm
                     }
                 }
             }
-
             // Finalize the one step left compressed occupancy state
             new_one_step_left_compressed_occupancy_state->finalize();
 
@@ -164,7 +162,6 @@ namespace sdm
 
                 return *new_compressed_occupancy_state;
             }
-
             new_one_step_left_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
             new_one_step_left_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
             return *new_one_step_left_compressed_occupancy_state;

@@ -60,18 +60,22 @@ namespace sdm
         TBelief new_belief;
 
         double tmp, obs_proba;
+        // Go over all next serial state
         for (const auto &next_serial_state :this->serialized_mpomdp_->getStateSpace()->getAll())
         {
             tmp = 0;
             obs_proba = 0;
+            // GO over all belief state
             for (const auto &belief_state : belief )
             {
                 auto serial_state = belief_state.first;
-
+                
+                //Determine Transition probability and Observation Probability
                 tmp += this->serialized_mpomdp_->getTransitionProbability(serial_state, action, next_serial_state) * belief_state.second;
                 obs_proba += this->serialized_mpomdp_->getObservationProbability(serial_state,action, obs, next_serial_state);
             }
 
+            // If observation probability and transition probability is not zero, we add a probability in the belief for the next serial state
             if (obs_proba && tmp)
             {
                 new_belief[next_serial_state] = obs_proba * tmp;
@@ -112,38 +116,47 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const
+    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const
     {
-        TBelief new_belief;
+        TBelief next_belief;
         number ag_id = belief.getCurrentAgentId();
 
-        //Determine the next belief
+        // Determine the next belief
         if (ag_id != this->serialized_mpomdp_->getNumAgents() - 1)
         {
             // Call the function next State Serial Step which determine the next belief when the it's not the last agent
-            new_belief = this->nextStateSerialStep(belief,action);
+            next_belief = this->nextStateSerialStep(belief, action);
         }
         else
         {
-            // Select o* as in the paper
-            TObservation selected_o;
-            double max_o = -std::numeric_limits<double>::max(), tmp;
+            // Call the function next State Serial Last Agent which determine the next belief when the it's the last agent
+            next_belief = this->nextStateSerialLastAgent(belief, action, obs);
+        }
+        return next_belief;
+    }
 
-            // Go over all Serial Observation
-            for (const auto &o : this->serialized_mpomdp_->getObsSpace()->getAll())
+    template <typename TBelief, typename TAction, typename TObservation>
+    TBelief SerializedBeliefMDP<TBelief, TAction, TObservation>::nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const
+    {
+        TBelief new_belief;
+
+        // Select o* as in the paper
+        TObservation selected_o;
+        double max_o = -std::numeric_limits<double>::max(), tmp;
+
+        // Go over all Serial Observation
+        for (const auto &o : this->serialized_mpomdp_->getObsSpaceAt(t))
+        {
+            tmp = this->getObservationProbability(action, o, belief);
+            // Call the function next State Serial Last Agent which determine the next belief when the it's the last agent
+            auto tau = this->nextState(belief, action, o);
+
+            tmp *= hsvi->do_excess(tau, 0, t + 1);
+            if (tmp > max_o)
             {
-                tmp = this->getObservationProbability(action, o, belief);
-
-                // Call the function next State Serial Last Agent which determine the next belief when the it's the last agent
-                auto tau = this->nextStateSerialLastAgent(belief, action, o);
-
-                tmp *= hsvi->do_excess(tau, 0, t + 1);
-                if (tmp > max_o)
-                {
-                    max_o = tmp;
-                    selected_o = o;
-                    new_belief = tau;
-                }
+                max_o = tmp;
+                selected_o = o;
+                new_belief = tau;
             }
         }
         return new_belief;
@@ -178,21 +191,9 @@ namespace sdm
         number ag_id = belief.getCurrentAgentId();
 
         // Go over all observation
-        for (const auto &obs : this->serialized_mpomdp_->getObsSpace()->getAll())
+        for (const auto &obs : this->serialized_mpomdp_->getObsSpaceAt(t))
         {
-            TBelief next_belief;
-
-            // Determine the next belief
-            if (ag_id != this->serialized_mpomdp_->getNumAgents() - 1)
-            {
-                // Call the function next State Serial Step which determine the next belief when the it's not the last agent
-                next_belief = this->nextStateSerialStep(belief, action);
-            }
-            else
-            {
-                // Call the function next State Serial Last Agent which determine the next belief when the it's the last agent
-                next_belief = this->nextStateSerialLastAgent(belief, action, obs);
-            }
+            TBelief next_belief = this->nextState(belief, action, obs);
             exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
         }
         return exp_next_v;

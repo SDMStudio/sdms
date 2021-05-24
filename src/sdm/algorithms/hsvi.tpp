@@ -11,11 +11,13 @@ namespace sdm
                                 number planning_horizon,
                                 double error,
                                 number num_max_trials,
-                                std::string name) : world_(world),
+                                std::string name,
+                                int time_max) : world_(world),
                                                     lower_bound_(lower_bound),
                                                     upper_bound_(upper_bound),
                                                     error_(error),
                                                     planning_horizon_(planning_horizon),
+                                                    time_max_in_seconds_(time_max),
                                                     name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
@@ -74,8 +76,12 @@ namespace sdm
 
             this->do_explore(start_state, 0, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0, 0));
+        } while (!this->do_stop(start_state, 0, 0) and time_max_in_seconds_ >= ((clock() - t_begin)/CLOCKS_PER_SEC));
 
+        if(time_max_in_seconds_ < ((clock() - t_begin)/CLOCKS_PER_SEC))
+        {
+            std::cout<<"\n Time Limit "<<(clock() - t_begin)/CLOCKS_PER_SEC;
+        }
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         //std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
@@ -188,4 +194,11 @@ namespace sdm
     {
         return this->trial;
     }
+
+    template <typename TState, typename TAction>
+    double HSVI<TState, TAction>::getResultOpti()
+    {
+        return this->lower_bound_->getValueAt(this->world_->getInitialState());
+    }
+
 } // namespace sdm

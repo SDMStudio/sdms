@@ -36,8 +36,26 @@ namespace sdm
     protected:
     public:
         MaxPlanValueFunctionSerialized();
-        MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int , std::shared_ptr<Initializer<TVector, TAction>> );
-        MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int = 0, TValue = 0.);
+
+        /**
+         * @brief Construct a new Sawtooth Value Function for the serialized Case
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param std::shared_ptr<Initializer<TState, TAction>> : initializer 
+         * @param int frequency of the pruning 
+         */
+        MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int , std::shared_ptr<Initializer<TVector, TAction>>, int = 10 );
+
+        /**
+         * @brief Construct a new Sawtooth Value Function for the serialized Case
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param TValue :  initializer 
+         * @param int frequency of the pruning 
+         */
+        MaxPlanValueFunctionSerialized(std::shared_ptr<SolvableByHSVI<TVector, TAction>> , int = 0, TValue = 0., int = 10);
 
         std::string str()
         {
@@ -87,7 +105,6 @@ namespace sdm
          * @tparam T 
          * @return TVector 
          */
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
         TVector backup_operator(const TVector &, number  = 0);
 
         /**
@@ -111,9 +128,6 @@ namespace sdm
          * @return TVector 
          */
         TVector setHyperplan(const TVector &, const TAction& , const TVector& , number );
-
-
-        void updateValueAt(const TVector &, number );
 
     };
 

@@ -26,7 +26,7 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    std::shared_ptr<VectorImpl<TAction, TValue>> TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(const TState &state, number t)
+    std::shared_ptr<VectorImpl<TAction, TValue>> TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValuesAt(const TState &state, number t)
     {
         using v_type = typename TMatrix<TState, TAction, TValue>::value_type::second_type;
 
@@ -37,6 +37,11 @@ namespace sdm
     TValue TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(const TState &state, const TAction &action, number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state).at(action);
+    }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
+    TValue TabularQValueFunction<TState, TAction, TValue, TMatrix>::getNextValueAt(const TState &state, number t){
+        return this->getQValuesAt(state, t)->max();
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>

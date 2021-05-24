@@ -37,6 +37,8 @@ namespace sdm
         template <typename output = HistoryTree<T>>
         std::shared_ptr<output> truncatedExpand(const T &data, bool backup);
 
+        std::list<T> truncated_item;
+
     public:
         using value_type = typename Tree<T>::value_type;
         /*!

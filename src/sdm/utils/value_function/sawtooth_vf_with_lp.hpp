@@ -38,8 +38,10 @@ namespace sdm
          * @param TypeOfResolution : DO the resolution with the BigM formalism or with IlofIfThen
          * @param number : Value of BigM
          * @param TypeSawtoothLinearProgram : Type of Sawtooth resolution
+         * @param int : prunning frequency 
+         * @param double : epsilon prunning  
          */
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number, std::shared_ptr<Initializer<TState, TAction>>, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number, std::shared_ptr<Initializer<TState, TAction>>, TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING, int = 10, double = 0.1);
 
         /**
          * @brief Construct a new Sawtooth Value Function L P object
@@ -50,8 +52,10 @@ namespace sdm
          * @param TypeOfResolution : DO the resolution with the BigM formalism or with IlofIfThen
          * @param number : Value of BigM
          * @param TypeSawtoothLinearProgram : Type of Sawtooth resolution
+         * @param int : prunning frequency 
+         * @param double : epsilon prunning  
          */
-        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100, TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        SawtoothValueFunctionLP(std::shared_ptr<SolvableByHSVI<TState, TAction>>, number = 0, TValue = 0., TypeOfResolution = TypeOfResolution::BigM, number = 100,TypeSawtoothLinearProgram = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING, int = 10, double = 0.1);
 
         /**
          * @brief Get the best action to do at a state
@@ -59,9 +63,9 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        TAction getBestAction(const TState &, number = 0);
+        TAction getBestAction(const TState &state, number t = 0);
         
-        TValue getValueAt(const TState &state, number t);
+        TValue getValueAt(const TState &state, number t = 0);
         void updateValueAt(const TState &state, number t);
 
         /**
@@ -156,10 +160,10 @@ namespace sdm
          * @param number : time step
          */
         template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
-        void setGreedySawtoothBigM(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
+        void setGreedySawtoothBigM(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void setGreedySawtoothBigM(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
+        void setGreedySawtoothBigM(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number);
 
         /**
          * @brief Set the Greedy Sawtooth Ifo If Then object
@@ -178,10 +182,10 @@ namespace sdm
          * @param number : time step
          */
         template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
-        void setGreedySawtoothIloIfThen(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
+        void setGreedySawtoothIloIfThen(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        void setGreedySawtoothIloIfThen(const TState &, typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
+        void setGreedySawtoothIloIfThen(const TState &, const typename TState::jhistory_type &, typename TState::state_type &, typename TState::observation_type &, typename TState::jhistory_type &, const TState &, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number);
 
         /**
          * @brief Get the Sawtooth Minimum Ratio  i.e. \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)}
@@ -235,6 +239,12 @@ namespace sdm
          * @return double 
          */
         double getQValueRealistic(const TState &, typename TState::jhistory_type, typename TAction::output_type, typename TState::state_type, typename TState::observation_type, double, double);
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        void setInitialConstrainte(const TState &compressed_serial_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+
+        template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
+        void setInitialConstrainte(const TState &compressed_serial_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
     };
 
     template <class TAction, class TValue>

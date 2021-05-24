@@ -22,7 +22,7 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     TAction QValueFunction<TState, TAction, TValue>::getBestAction(const TState &state, number t)
     {
-        auto qvalues = this->getQValueAt(state, t);
+        auto qvalues = this->getQValuesAt(state, t);
         return qvalues->argmax();
     }
 

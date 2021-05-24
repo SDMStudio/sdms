@@ -28,17 +28,18 @@ int main(int, char **)
     std::cout << "\n--- 2) Instanciate and expand a joint history" << std::endl;
 
     // List of joint observation for the example
-    std::vector<Joint<TObservation>> list_joint_obs = {{1, 0}, {0, 0}, {2, 2}, {2, 1}};
+    std::vector<Joint<TObservation>> list_joint_obs = {{1, 0}, {0, 0}, {0, 0}, {2, 1},{36,20}};
     for (const auto &joint_obs : list_joint_obs)
     {
         std::cout << "\n#> Expand with observation " << joint_obs << std::endl;
         jhistory = jhistory->expand(joint_obs);
         std::cout << "#> Expanded joint history --> " << *jhistory << std::endl;
+        std::cout<<"\n Get Parent of Joint History "<<*jhistory->getParent()<<std::endl;
     }
 
     std::cout<<"\n get Last Observation "<<jhistory->getData()<<std::endl;
 
-    std::cout<<"\n Get Parent of Joint History "<<*jhistory->getOrigin()<<std::endl;
+    std::cout<<"\n Get Parent of Joint History "<<*jhistory->getParent()<<std::endl;
 
     // How to access individual histories and expand them
     std::cout << "\n--- 3) Access individual histories" << std::endl;

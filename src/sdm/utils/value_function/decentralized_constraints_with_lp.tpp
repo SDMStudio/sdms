@@ -22,10 +22,10 @@ namespace sdm
       for(const auto& ihistory : occupancy_state.getIndividualHistories(agent))
       {
         joint_histories[agent].push_back(ihistory);
+
         for(const auto& action : this->world_->getUnderlyingProblem()->getActionSpace()->getSpace(agent)->getAll())
         {
           index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent));
-
           //<! https://stackoverflow.com/questions/35904947/problems-to-parse-from-iloboolvararray-to-bool-in-cplex 
           if( cplex.getValue(var[index]) + .5 >= 1 )
           {

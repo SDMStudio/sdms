@@ -34,8 +34,26 @@ namespace sdm
     {
     public:
         MaxPlanValueFunction();
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number, std::shared_ptr<Initializer<TVector, TAction>>);
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number = 0, TValue = 0.);
+
+        /**
+         * @brief Construct a new Max Plane Value Function object
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param std::shared_ptr<Initializer<TState, TAction>> : initializer 
+         * @param int frequency of the pruning 
+         */
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number, std::shared_ptr<Initializer<TVector, TAction>>, int = 10);
+
+        /**
+         * @brief Construct a new Max PLane Value Function object
+         * 
+         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param number : horizon 
+         * @param TValue : initializer 
+         * @param int frequency of the pruning 
+         */
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number = 0, TValue = 0., int = 10);
 
         void initialize();
         void initialize(TValue, number = 0);
@@ -90,13 +108,31 @@ namespace sdm
         void bounded_prune(number = 0);
 
         /**
+         * @brief this method prunes dominated vectors, known as Pairwise pruning.
+         * 
+         * @param number : timestep 
+         */
+        void pairwise_prune(number t);
+
+        /**
+         * @brief Determine if the first hyperplan dominate the second hyperplan
+         * 
+         * @param TVector : first_hyperplan 
+         * @param TVector: second_hyperplan 
+         * @return true 
+         * @return false 
+         */
+        bool dominated(TVector first_hyperplan, TVector second_hyperplan);
+
+
+        /**
          * @brief backup operator for the occupancy state with belief representation -- type of the state -- 
          * @param const TVector & occupancy state 
          * @param number horizon
          * @tparam T 
          * @return TVector 
          */
-        TVector backup_operator(const TVector &, number = 0);
+        virtual TVector backup_operator(const TVector &, number = 0);
 
         /**
          * @brief Get the number of hyperplans 
@@ -150,13 +186,26 @@ namespace sdm
          * @brief Frequency before prunning
          * 
          */
-        number freq_prune_;
+        int freq_prune_;
 
         /**
          * @brief The last time the prunning took place
          * 
          */
-        number last_prunning = 0;
+        int last_prunning = 0;
+
+        /**
+         * @brief Set the trunning frequency 
+         * 
+         */
+        void setPrunningFrequency(int);
+
+        /**
+         * @brief Get the prunning frequency 
+         * 
+         * @return int 
+         */
+        int getPrunningFrequency();
 
         template <typename T, std::enable_if_t<std::is_same_v<number, T>, int> = 0>
         TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);

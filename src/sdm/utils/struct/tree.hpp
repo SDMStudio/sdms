@@ -89,6 +89,8 @@ namespace sdm
          */
         Tree(std::shared_ptr<Tree<T>> parent, const T &data);
 
+        Tree(const Tree<T> &);
+
         /*!
          *  @fn     ~Tree()
          *  @brief  Destructor of Tree (that's bad). 

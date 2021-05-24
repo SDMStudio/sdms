@@ -26,10 +26,10 @@ int main(int argc, char **argv)
 	{
 		// Construct OccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
-		auto omdp_world = std::make_shared<OccupancyMDP<>>(filename);
+		auto omdp_world = std::make_shared<OccupancyMDP<>>(filename, 2);
 
 		// We will show how to expand an initial occupancy state and generate next ones using compression
-		int depth = 0, limit = 3;
+		int depth = 0, limit = 5;
 		auto ostate = omdp_world->getInitialState();
 		auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
 
