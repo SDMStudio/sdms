@@ -16,7 +16,7 @@ int solve(int argv, char **args)
     {
         std::string problem, algorithm, formalism, name, upper_bound, lower_bound, ub_init, lb_init,sawtooth_type_of_resolution,type_sawtooth_linear_programming;
         int trials, truncation;
-        number horizon, lb_update_freq, sawtooth_BigM_value;
+        number horizon, lb_update_freq, ub_update_freq, sawtooth_BigM_value;
         double error, discount;
 
         po::options_description options("Options");
@@ -46,7 +46,8 @@ int solve(int argv, char **args)
         ("sawtooth_type_of_resolution", po::value<string>(&sawtooth_type_of_resolution)->default_value("BigM"), "the type of resolution used for sawtooth (BigM, IloIfThen)")
         ("sawtooth_BigM_value", po::value<number>(&sawtooth_BigM_value)->default_value(100), "the upper bound initialization method (HSVI)")
         ("type_sawtooth_linear_programming", po::value<string>(&type_sawtooth_linear_programming)->default_value("Full"), "the type of linear program used for sawtooth (Relaxed, Full)")
-        ("lb_update_freq", po::value<number>(&lb_update_freq)->default_value(10), "the frequency to update the lower bound");
+        ("lb_update_freq", po::value<number>(&lb_update_freq)->default_value(1), "the frequency to update the lower bound")
+        ("ub_update_freq", po::value<number>(&ub_update_freq)->default_value(1), "the frequency to update the upper bound");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -75,7 +76,7 @@ int solve(int argv, char **args)
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
         {
-            auto algo = sdm::algo::make(algorithm, problem, formalism, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, truncation, name,sawtooth_type_of_resolution,sawtooth_BigM_value,type_sawtooth_linear_programming, lb_update_freq);
+            auto algo = sdm::algo::make(algorithm, problem, formalism, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, truncation, name,sawtooth_type_of_resolution,sawtooth_BigM_value,type_sawtooth_linear_programming, lb_update_freq, ub_update_freq);
             algo->do_initialize();
             algo->do_solve();
 

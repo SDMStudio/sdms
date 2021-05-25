@@ -60,8 +60,8 @@ namespace sdm
      * 
      */
     double error_;
-    number planning_horizon_;
-    int trial, MAX_TRIALS, time_max_in_seconds_, lb_update_frequency;
+    number planning_horizon_, lb_update_frequency_, ub_update_frequency_;
+    int trial, MAX_TRIALS, time_max_in_seconds_;
     std::string name_ = "hsvi";
 
     void initLogger();
@@ -85,8 +85,9 @@ namespace sdm
          double epsilon,
          number num_max_trials = 10000,
          std::string name = "hsvi",
-         int time_max_in_seconds_ = 10000,
-         int lb_update_frequency = 1);
+         number lb_update_frequency = 1,
+         number ub_update_frequency = 1,
+         int time_max_in_seconds_ = 10000);
 
     std::shared_ptr<HSVI<TState, TAction>> getptr();
 
@@ -139,6 +140,8 @@ namespace sdm
      * @return the error
      */
     double do_excess(const TState &, double /*cost_so_far*/, number);
+
+    void update_bounds(const TState &s, number h);
 
     /**
      * @brief Get the lower bound value function 
