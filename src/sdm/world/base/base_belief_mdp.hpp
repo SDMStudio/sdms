@@ -29,11 +29,13 @@ namespace sdm
     class BaseBeliefMDP : public SolvableByHSVI<TBelief, TAction>,
                           public GymInterface<TBelief, TAction>,
                           public std::enable_shared_from_this<BaseBeliefMDP<TBelief, TAction, TObservation>>
+                          //   public MDP<TBelief, TAction>>,
     {
     public:
         using state_type = TBelief;
         using action_type = TAction;
         using observation_type = TBelief;
+        // using pomdp_type = POMDP<TBelief::state_type, TAction, TObservation>;
 
         BaseBeliefMDP();
         BaseBeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);

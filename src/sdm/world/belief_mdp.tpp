@@ -26,6 +26,7 @@ namespace sdm
     {
         // Compute next coef belief (non normailized)
         TBelief weighted_next_belief = this->pomdp_->getObsDynamics()->getDynamics(action, obs).transpose() ^ belief;
+        // return (this->pomdp_->getDynamics(action, observation) ^ belief);
 
         // Compute the coefficient of normalization (eta)
         double eta = weighted_next_belief.norm_1();
@@ -57,6 +58,7 @@ namespace sdm
     double BeliefMDP<TBelief, TAction, TObservation>::getReward(const TBelief &belief, const TAction &action) const
     {
         return (belief ^ this->pomdp_->getReward()->getReward(action));
+        // return (this->pomdp_->getReward(action) ^ belief);
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
