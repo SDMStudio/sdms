@@ -3,7 +3,7 @@ namespace sdm
     namespace algo
     {
         template <typename TState, typename TAction>
-        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution , number BigM , std::string type_sawtooth_linear_programming );
+        std::shared_ptr<sdm::HSVI<TState, TAction>> makeHSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming, number lb_update_freq);
 
         template <typename TState, typename TAction>
         std::shared_ptr<sdm::ValueIteration<TState, TAction>> makeValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double discount, double error, number horizon);
@@ -27,7 +27,7 @@ namespace sdm
         if (this->algo_name_ == "ValueIteration")
         {
             auto value_iteration = algo::makeValueIteration<decltype(mdp->getInitialState()), number>(mdp, underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon());
-            
+
             value_iteration->do_initialize();
             value_iteration->do_solve();
 
@@ -37,7 +37,7 @@ namespace sdm
         {
             auto initial = underlying_pb->getInternalState();
             // Instanciate HSVI for MDP
-            auto algorithm = algo::makeHSVI<decltype(mdp->getInitialState()), number>(mdp, "tabular", "tabular", "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init", "BigM",100,"Full");
+            auto algorithm = algo::makeHSVI<decltype(mdp->getInitialState()), number>(mdp, "tabular", "tabular", "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init", "BigM", 100, "Full", 1);
             algorithm->do_initialize();
 
             // Solve HSVI from every possible initial state
@@ -46,7 +46,7 @@ namespace sdm
                 underlying_pb->setInternalState(s);
                 algorithm->do_solve();
             }
-            
+
             auto ubound = algorithm->getUpperBound();
 
             underlying_pb->setInternalState(initial);
