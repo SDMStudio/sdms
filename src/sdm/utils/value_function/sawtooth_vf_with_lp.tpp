@@ -625,7 +625,7 @@ namespace sdm
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
     void SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtooth(const TState &compressed_serial_occupancy_state, IloModel &model, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        // this->template setInitialConstrainte<TState>(compressed_serial_occupancy_state, env, con, var, index, t);
+        this->template setInitialConstrainte<TState>(compressed_serial_occupancy_state, env, con, var, index, t);
 
         number recover = 0;
 
@@ -722,6 +722,12 @@ namespace sdm
                 //get Q Relaxation for POMDP
                 weight = std::static_pointer_cast<RelaxedValueFunction<SerializedBeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, action), t);
 
+                // if( weight > this->getValueAt(compressed_serial_occupancy_state))
+                // {
+                //     std::cout<<"\n belief "<<belief;
+                //     std::cout<<"\n serial occupancy state "<<compressed_serial_occupancy_state;
+                //     throw sdm::exception::Exception("\n Problem Value Relaxation, Pomdp : " +std::to_string(weight) + ", getValueCompress "+ std::to_string(this->getValueAt(compressed_serial_occupancy_state)));
+                // }
             }else
             {
                 //Go over all hidden state conditionning to a joint history

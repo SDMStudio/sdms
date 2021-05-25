@@ -61,7 +61,7 @@ namespace sdm
      */
     double error_;
     number planning_horizon_;
-    int trial, MAX_TRIALS, time_max_in_seconds_;
+    int trial, MAX_TRIALS, time_max_in_seconds_, lb_update_frequency;
     std::string name_ = "hsvi";
 
     void initLogger();
@@ -85,7 +85,8 @@ namespace sdm
          double epsilon,
          number num_max_trials = 10000,
          std::string name = "hsvi",
-         int time_max_in_seconds_ = 10000);
+         int time_max_in_seconds_ = 10000,
+         int lb_update_frequency = 1);
 
     std::shared_ptr<HSVI<TState, TAction>> getptr();
 

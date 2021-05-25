@@ -12,13 +12,15 @@ namespace sdm
                                 double error,
                                 number num_max_trials,
                                 std::string name,
-                                int time_max) : world_(world),
-                                                    lower_bound_(lower_bound),
-                                                    upper_bound_(upper_bound),
-                                                    error_(error),
-                                                    planning_horizon_(planning_horizon),
-                                                    time_max_in_seconds_(time_max),
-                                                    name_(name)
+                                int time_max,
+                                int lower_bound_update_frequency) : world_(world),
+                                                lower_bound_(lower_bound),
+                                                upper_bound_(upper_bound),
+                                                error_(error),
+                                                planning_horizon_(planning_horizon),
+                                                time_max_in_seconds_(time_max),
+                                                lb_update_frequency(lower_bound_update_frequency),
+                                                name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
     }
@@ -44,8 +46,8 @@ namespace sdm
         auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
 
         // Build a multi logger that combines previous loggers
-        // this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
-        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{csv_logger});
+        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
+        // this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{csv_logger});
     }
 
     template <typename TState, typename TAction>
@@ -77,11 +79,11 @@ namespace sdm
 
             this->do_explore(start_state, 0, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0, 0) and time_max_in_seconds_ >= ((clock() - t_begin)/CLOCKS_PER_SEC));
+        } while (!this->do_stop(start_state, 0, 0) /*&& (time_max_in_seconds_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)) */);
 
-        if(time_max_in_seconds_ < ((clock() - t_begin)/CLOCKS_PER_SEC))
+        if (time_max_in_seconds_ < ((clock() - t_begin) / CLOCKS_PER_SEC))
         {
-            std::cout<<"\n Time Limit "<<(clock() - t_begin)/CLOCKS_PER_SEC;
+            std::cout << "\n Time Limit " << (clock() - t_begin) / CLOCKS_PER_SEC;
         }
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -111,14 +113,16 @@ namespace sdm
                 // Select next action and state following search process
                 const TAction &a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
 
-
                 const TState &s_ = this->world_->nextState(s, a, h, this->getptr());
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
 
                 // Update bounds
-                this->lower_bound_->updateValueAt(s, h);
+                if ((this->trial % this->lb_update_frequency) == 0)
+                {
+                    this->lower_bound_->updateValueAt(s, h);
+                }
                 this->upper_bound_->updateValueAt(s, h);
             }
 

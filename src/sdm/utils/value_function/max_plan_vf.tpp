@@ -86,7 +86,7 @@ namespace sdm
         {
             for(number time =0; time<this->getHorizon();time++)
             {
-                this->prune(time);
+                // this->prune(time); 
             }
             this->last_prunning = 0;
         }
