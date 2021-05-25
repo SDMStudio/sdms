@@ -48,8 +48,8 @@ namespace sdm
         auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB","Size_lower_bound","Size_upper_bound", "Time"});
 
         // Build a multi logger that combines previous loggers
-        // this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
-        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{file_logger,csv_logger});
+        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
+        // this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{file_logger,csv_logger});
     }
 
     template <typename TState, typename TAction>

@@ -144,23 +144,22 @@ namespace sdm
     template <typename TState, typename TJointHistory_p>
     const SerializedBeliefState SerializedOccupancyState<TState, TJointHistory_p>::createBelief(const TJointHistory_p &joint_history) const
     {
-        SerializedBeliefState belief;
-
+        SerializedBeliefState belief ; //= dynamic_cast<SerializedBeliefState&>(OccupancyState<TState, TJointHistory_p>::createBelief(joint_history));
+        
         //Go over all hidden state conditionning to a joint history
         for (auto hidden_state : this->getStatesAt(joint_history))
         {
             belief.addProbabilityAt(hidden_state,this->at(std::make_pair(hidden_state, joint_history)));
         }
+
+        belief.setAgent(this->getCurrentAgentId());
         return belief;
     }
 
     template <typename TState, typename TJointHistory_p>
     const SerializedBeliefState SerializedOccupancyState<TState, TJointHistory_p>::createBeliefWeighted(const TJointHistory_p &joint_history) const
     {
-        // Create a belief not weighted 
         auto belief = this->createBelief(joint_history);
-
-        // Normalize the belief
         double sum = belief.norm_1();
         for (const auto &b_s : belief)
         {

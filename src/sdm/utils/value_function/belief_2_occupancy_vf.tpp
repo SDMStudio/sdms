@@ -15,19 +15,10 @@ namespace sdm
     {
         double value = 0;
 
-        std::map<typename TOccupancyState::jhistory_type, TBelief> belief_map;
-
-        for (const auto &ost : ostate)
-        {
-            auto x = ostate.getState(ost.first);
-            auto o = ostate.getHistory(ost.first);
-            belief_map[o].addProbabilityAt(x,ost.second);
-        }
-
         // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
         for (const auto &joint_history : ostate.getJointHistories())
         {
-            TBelief belief = belief_map[joint_history];
+            TBelief belief = ostate.createBeliefWeighted(joint_history);
             double sum = belief.norm_1();
             for (const auto &b_s : belief)
             {
@@ -90,7 +81,6 @@ namespace sdm
         auto belief = belief_AND_action.first;
         auto action = belief_AND_action.second;
 
-        // std::cout<<"\n this pomdp_vf"<<*this->pomdp_vf_;
         return this->pomdp_vf_->getQValueAt(belief, action, tau);
     }
 
