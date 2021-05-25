@@ -232,6 +232,7 @@ namespace sdm
             {
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
+                // system("cat bellman_greedy_op.lp");
             }
         }
         catch (IloException &e)
