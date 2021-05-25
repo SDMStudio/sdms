@@ -7,13 +7,17 @@
 namespace sdm
 {
 
-    class DiscreteMDP;
+    // class DiscreteMDP;
     class DiscreteMMDP;
     class DiscretePOMDP;
     class DiscreteDecPOMDP;
     class SerializedMMDPStructure;
     class SerializedMMDP;
     class SerializedMPOMDP;
+
+    template <typename TState, typename TAction>
+    class MDP;
+    using DiscreteMDP = MDP<number, number>;
 
     template <typename TBelief, typename TAction, typename TObservation>
     class BeliefMDP;

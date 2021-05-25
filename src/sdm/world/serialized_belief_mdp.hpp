@@ -24,7 +24,7 @@ namespace sdm
     template <typename TBelief = SerializedBeliefState,
               typename TAction = number,
               typename TObservation = Joint<number>>
-    class SerializedBeliefMDP : public std::enable_shared_from_this<SerializedBeliefMDP<TBelief, TAction,TObservation>>,
+    class SerializedBeliefMDP : public std::enable_shared_from_this<SerializedBeliefMDP<TBelief, TAction, TObservation>>,
                                 public SolvableByHSVI<TBelief, TAction>
     {
     public:
@@ -52,6 +52,23 @@ namespace sdm
         TBelief getInitialState();
 
         /**
+         * @brief Compute the next serial belief state for a terminal agent.
+         * @param const TBelief & serial belief state
+         * @param const TAction & action
+         * @param  const TObservation & : observation
+         * @return TBelief 
+         */
+        TBelief nextState(const TBelief &, const TAction &, const TObservation &) const;
+
+        /**
+         * @brief Compute the next serial belief state for a non-terminal agent.
+         * @param const TBelief & serial belief state
+         * @param const TAction & action
+         * @return TBelief 
+         */
+        TBelief nextStateSerialStep(const TBelief &belief, const TAction &action) const;
+
+        /**
          * @brief Get the next occupancy state.
          * 
          * @param const TBelief & the belief state
@@ -60,13 +77,12 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next belief state
          */
-        TBelief nextState(const TBelief &, const TAction &, number  = 0, std::shared_ptr<HSVI<TBelief, TAction>> = nullptr) const;
+        TBelief nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const;
 
         //Tempo à vérifier leur utilité
         // TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
-        
 
-        double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
+        double getObservationProbability(const TBelief &belief, const TAction &action, const TObservation &obs) const;
 
         /**
          * @brief Get the actions availables at a specific state
@@ -93,7 +109,7 @@ namespace sdm
          * @param t : time step
          * @return double 
          */
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> , const TBelief &, const TAction &, number  = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>>, const TBelief &, const TAction &, number = 0) const;
 
         /**
          * @brief Get the specific discount factor for the problem at hand
@@ -131,8 +147,7 @@ namespace sdm
          * @param number h : horizon
          * @return TAction 
          */
-        TAction selectNextAction(const std::shared_ptr<ValueFunction<TBelief, TAction>>& lb, const std::shared_ptr<ValueFunction<TBelief, TAction>>& ub, const TBelief &s, number h);
-
+        TAction selectNextAction(const std::shared_ptr<ValueFunction<TBelief, TAction>> &lb, const std::shared_ptr<ValueFunction<TBelief, TAction>> &ub, const TBelief &s, number h);
 
         std::shared_ptr<SerializedMMDP> toMDP();
 
@@ -145,29 +160,10 @@ namespace sdm
 
         std::shared_ptr<SerializedBeliefMDP<TBelief, TAction, TObservation>> getptr();
 
-        /**
-         * @brief Compute the next serial belief state for a terminal agent.
-         * @param const TBelief & serial belief state
-         * @param const TAction & action
-         * @param  const TObservation & : observation
-         * @return TBelief 
-         */
-        TBelief nextStateSerialLastAgent(const TBelief &, const TAction &, const TObservation &) const;
-
-        /**
-         * @brief Compute the next serial belief state for a non-terminal agent.
-         * @param const TBelief & serial belief state
-         * @param const TAction & action
-         * @return TBelief 
-         */
-        TBelief nextStateSerialStep(const TBelief &belief, const TAction &action) const;
-
     protected:
-
         std::shared_ptr<SerializedMPOMDP> serialized_mpomdp_;
-        
-        TBelief initial_state_;
 
+        TBelief initial_state_;
     };
 } // namespace sdm
 #include <sdm/world/serialized_belief_mdp.tpp>

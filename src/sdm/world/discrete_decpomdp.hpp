@@ -12,12 +12,14 @@
 
 #include <sdm/types.hpp>
 #include <sdm/world/po_decision_process.hpp>
-#include <sdm/world/discrete_mdp.hpp>
-#include <sdm/world/discrete_pomdp.hpp>
-#include <sdm/world/belief_mdp.hpp>
+// #include <sdm/world/discrete_mdp.hpp>
+// #include <sdm/world/discrete_pomdp.hpp>
+// #include <sdm/world/belief_mdp.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
+#include <sdm/core/state/belief_state.hpp>
+// #include <sdm/parser/parser.hpp>
 
 // #include <sdm/core/action/det_decision_rule.hpp>
 

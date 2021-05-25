@@ -96,29 +96,40 @@ namespace sdm
     REW_MAX
   };
 
-  enum TypeOfResolution 
-  { 
-      BigM,
-      IloIfThenResolution
+  enum TypeOfResolution
+  {
+    BigM,
+    IloIfThenResolution
   };
 
   enum TypeSawtoothLinearProgram
-  { 
-      PLAIN_SAWTOOTH_LINER_PROGRAMMING,
-      RELAXED_SAWTOOTH_LINER_PROGRAMMING
+  {
+    PLAIN_SAWTOOTH_LINER_PROGRAMMING,
+    RELAXED_SAWTOOTH_LINER_PROGRAMMING
   };
 
   // using StateType = number;
   // using BeliefStateType = BeliefState<StateType>;
 
   class World;
-  class DiscreteMDP;
+  // class DiscreteMDP;
   class DiscreteMMDP;
   class DiscretePOMDP;
   class DiscreteDecPOMDP;
 
+
+  template <typename TState, typename TAction>
+  class MDP;
+  using DiscreteMDP = MDP<number, number>;
+
+  template <typename TBelief, typename TAction, typename TObservation>
+  class BeliefMDP;
+
   template <typename TState, typename TAction>
   class SolvableByHSVI;
+
+  template <typename TState, typename TAction>
+  class HSVI;
 
   template <typename TState, typename TAction>
   struct WorldType;

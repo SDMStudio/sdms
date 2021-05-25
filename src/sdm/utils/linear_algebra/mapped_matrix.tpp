@@ -1,4 +1,5 @@
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
+#include <sdm/exception.hpp>
 
 namespace sdm
 {

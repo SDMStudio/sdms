@@ -12,11 +12,12 @@
 
 #include <sdm/types.hpp>
 
-#include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/po_decision_process.hpp>
+#include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
 #include <sdm/core/reward.hpp>
+// #include <sdm/world/discrete_mdp.hpp>
 
 namespace sdm
 {
@@ -45,7 +46,7 @@ namespace sdm
          * 
          * @return a MDP 
          */
-        std::shared_ptr<DiscreteMDP> toMDP();
+        std::shared_ptr<MDP<number, number>> toMDP();
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. It corresponds to the reformulation of the original POMP in a MDP where the state space is the space of beliefs. 

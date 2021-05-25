@@ -33,8 +33,8 @@ namespace sdm
 
     std::shared_ptr<DiscreteMDP> DiscreteMMDP::toMDP()
     {
-        std::shared_ptr<DiscreteSpace<number>> new_action_space = std::make_shared<DiscreteSpace<number>>(this->getActionSpace()->getNumJointItems());
-        return std::make_shared<DiscreteMDP>(this->getStateSpace(), new_action_space, this->getStateDynamics(), this->getReward(), this->getStartDistrib(), this->getPlanningHorizon(), this->getDiscount(), this->getCriterion());
+        // std::shared_ptr<DiscreteSpace<number>> new_action_space = std::make_shared<DiscreteSpace<number>>(this->getActionSpace()->getNumJointItems());
+        // return std::make_shared<DiscreteMDP>(this->getStateSpace(), new_action_space, this->getStateDynamics(), this->getReward(), this->getStartDistrib(), this->getPlanningHorizon(), this->getDiscount(), this->getCriterion());
     }
 
     std::shared_ptr<BeliefMDP<BeliefState<number>, number, number>> DiscreteMMDP::toBeliefMDP()

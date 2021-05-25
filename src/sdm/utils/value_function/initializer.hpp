@@ -11,7 +11,6 @@
 #pragma once
 
 #include <math.h>
-#include <sdm/algorithms/hsvi.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>

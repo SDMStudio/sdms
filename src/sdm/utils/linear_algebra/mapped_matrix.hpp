@@ -33,7 +33,7 @@ namespace sdm
         using type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::type;
         using value_type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::value_type;
         using value_list_type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::value_list_type;
-        using vector_type = MappedVector<TCol, TValue>>;
+        using vector_type = MappedVector<TCol, TValue>;
 
         MappedMatrix();
         MappedMatrix(TValue default_value);
