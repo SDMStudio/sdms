@@ -42,7 +42,7 @@ namespace sdm
                 }
             }
         } while (this->borne());
-        std::cout<<"Final value : "<<this->policy_evaluation_2_->str();
+        // std::cout<<"Final value : "<<this->policy_evaluation_2_->str();
     }
 
     /**
@@ -62,7 +62,7 @@ namespace sdm
         {
             max_value = std::max(std::abs(policy_evaluation_1_->getValueAt(state,0) - policy_evaluation_2_->getValueAt(state,0)),max_value);
         }
-        std::cout<<"\n Error : "<<max_value<<std::endl;
+        // std::cout<<"\n Error : "<<max_value<<std::endl;
 
         if (max_value<= this->error_)
         {

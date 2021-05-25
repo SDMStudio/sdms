@@ -36,7 +36,7 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::initLogger()
     {
-        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\n";
+        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\t Size_lower_bound({}) \t Size_upper_bound({}) \t Time({})  \n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
@@ -45,11 +45,11 @@ namespace sdm
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
 
         // Build a logger that stores data in a CSV file
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB","Size_lower_bound","Size_upper_bound", "Time"});
 
         // Build a multi logger that combines previous loggers
-        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
-        // this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{csv_logger});
+        // this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
+        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{file_logger,csv_logger});
     }
 
     template <typename TState, typename TAction>
@@ -76,19 +76,19 @@ namespace sdm
         {
             // Logging (save data and print algorithms variables)
             //---------------------------------//
-            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             //---------------------------------//
 
             this->do_explore(start_state, 0, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0, 0) /*&& (time_max_in_seconds_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)) */);
+        } while (!this->do_stop(start_state, 0, 0) && (time_max_in_seconds_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)));
 
         if (time_max_in_seconds_ < ((clock() - t_begin) / CLOCKS_PER_SEC))
         {
             std::cout << "\n Time Limit " << (clock() - t_begin) / CLOCKS_PER_SEC;
         }
         //---------------------------------//
-        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         //std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }

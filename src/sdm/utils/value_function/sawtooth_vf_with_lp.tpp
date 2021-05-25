@@ -232,6 +232,7 @@ namespace sdm
             {
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
+                // std::cout<<"\n action "<<a;
                 // system("cat bellman_greedy_op.lp");
             }
         }
@@ -610,11 +611,15 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
 
                 double res = 0;
+                // std::cout<<"\n \n \n indiv history "<<indiv_history->short_str();
+                // std::cout<<"\n action "<<serial_action;
                 for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistoryOverIndividualHistories(agent_id,indiv_history))
                 {
                     //<! 1.c.5 set coefficient of variable a_i(u_i|o_i) i.e., \sum_x s(x,o_i) Q_MDP(x,u_i)
                     res += this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
+                    // std::cout<<"\n Relaxation "<<this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
                 }
+                // std::cout<<"\n res "<<res;
                 //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
                 con[index].setLinearCoef(var[recover], res);
             }
@@ -719,10 +724,10 @@ namespace sdm
             {
                 // Creation of belief 
                 auto belief = compressed_serial_occupancy_state.createBelief(joint_history);
-
+                // std::cout<<"\n belief"<<belief;
                 //get Q Relaxation for POMDP
                 weight = std::static_pointer_cast<RelaxedValueFunction<SerializedBeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, action), t);
-
+                // std::cout<<"\n weight"<<weight;
                 // if( weight > this->getValueAt(compressed_serial_occupancy_state))
                 // {
                 //     std::cout<<"\n belief "<<belief;

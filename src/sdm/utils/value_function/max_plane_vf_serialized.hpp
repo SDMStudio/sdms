@@ -168,6 +168,11 @@ namespace sdm
         {
             return "MaxPlanVFSerialized";
         }
+
+        size_t getSize(number) const
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedState.");
+        }
     };
 
     template <class TAction, class TValue>
@@ -207,6 +212,12 @@ namespace sdm
         {
             return "MaxPlanVFSerialized";
         }
+
+        size_t getSize(number) const
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedState.");
+        }
+
     };
 
 
@@ -247,6 +258,11 @@ namespace sdm
         {
             return "MaxPlanVFSerialized";
         }
+
+        size_t getSize(number) const
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedState.");
+        }
     };
 
     template <class TAction, class TValue>
@@ -285,6 +301,11 @@ namespace sdm
         std::string str()
         {
             return "MaxPlanVFSerialized";
+        }
+
+        size_t getSize(number) const
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedState.");
         }
     };
 
@@ -326,6 +347,11 @@ namespace sdm
         {
             return "MaxPlanVFSerialized";
         }
+
+        size_t getSize(number) const
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedState.");
+        }
     };
 
     template <class TAction, class TValue>
@@ -364,6 +390,11 @@ namespace sdm
         std::string str()
         {
             return "MaxPlanVFSerialized";
+        }
+
+        size_t getSize(number) const
+        {
+            throw sdm::exception::Exception("MaxPlanVFSerialized cannot be used for State = SerializedState.");
         }
     };
 

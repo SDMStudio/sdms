@@ -141,6 +141,9 @@ namespace sdm
          */
         number size();
 
+        size_t getSize(number t) const;
+
+
         std::string str()
         {
             std::ostringstream res;

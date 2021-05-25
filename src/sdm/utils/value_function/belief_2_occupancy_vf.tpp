@@ -90,6 +90,7 @@ namespace sdm
         auto belief = belief_AND_action.first;
         auto action = belief_AND_action.second;
 
+        // std::cout<<"\n this pomdp_vf"<<*this->pomdp_vf_;
         return this->pomdp_vf_->getQValueAt(belief, action, tau);
     }
 

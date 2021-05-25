@@ -86,11 +86,17 @@ namespace sdm
         {
             for(number time =0; time<this->getHorizon();time++)
             {
-                // this->prune(time); 
+                this->prune(time); 
             }
             this->last_prunning = 0;
         }
         this->last_prunning ++;
+    }
+
+    template <typename TVector, typename TAction, typename TValue>
+    size_t MaxPlanValueFunction<TVector, TAction, TValue>::getSize(number t) const
+    {
+        return this->representation[t].size();
     }
 
     template <typename TVector, typename TAction, typename TValue>
