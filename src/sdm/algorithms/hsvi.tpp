@@ -12,14 +12,16 @@ namespace sdm
                                 double error,
                                 number num_max_trials,
                                 std::string name,
-                                int time_max,
-                                int lower_bound_update_frequency) : world_(world),
+                                number lb_update_frequency,
+                                number ub_update_frequency,
+                                int time_max) : world_(world),
                                                 lower_bound_(lower_bound),
                                                 upper_bound_(upper_bound),
                                                 error_(error),
                                                 planning_horizon_(planning_horizon),
+                                                lb_update_frequency_(lb_update_frequency),
+                                                ub_update_frequency_(ub_update_frequency),
                                                 time_max_in_seconds_(time_max),
-                                                lb_update_frequency(lower_bound_update_frequency),
                                                 name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
@@ -98,6 +100,19 @@ namespace sdm
     }
 
     template <typename TState, typename TAction>
+    void HSVI<TState, TAction>::update_bounds(const TState &s, number h)
+    {
+        if ((this->trial % this->lb_update_frequency_) == 0)
+        {
+            this->lower_bound_->updateValueAt(s, h);
+        }
+        if ((this->trial % this->ub_update_frequency_) == 0)
+        {
+            this->upper_bound_->updateValueAt(s, h);
+        }
+    }
+
+    template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
     {
         try
@@ -106,8 +121,7 @@ namespace sdm
             {
                 if (this->lower_bound_->isInfiniteHorizon())
                 {
-                    this->lower_bound_->updateValueAt(s, h);
-                    this->upper_bound_->updateValueAt(s, h);
+                    this->update_bounds(s, h);
                 }
 
                 // Select next action and state following search process
@@ -119,11 +133,7 @@ namespace sdm
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
 
                 // Update bounds
-                if ((this->trial % this->lb_update_frequency) == 0)
-                {
-                    this->lower_bound_->updateValueAt(s, h);
-                }
-                this->upper_bound_->updateValueAt(s, h);
+                this->update_bounds(s, h);
             }
 
             //---------------DEBUG-----------------//
