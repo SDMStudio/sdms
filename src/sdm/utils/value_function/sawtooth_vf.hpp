@@ -57,10 +57,10 @@ namespace sdm
          */
         TValue getValueAt(const TState &state, number t = 0);
 
+        void updateValueAt(const TState &state, number t, const TValue &value);
         void updateValueAt(const TState &state, number t);
 
         virtual TValue getBackup(const TState &state, number t);
-
 
         std::pair<TValue, TState> getMaxAt(const TState &state, number t);
 
@@ -73,9 +73,6 @@ namespace sdm
         bool is_dominated(const TState &ostate, double value, number t);
 
     protected:
-        TState_t ctype = COMPRESSED;
-        TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
-
         /**
          * @brief Frequency before prunning
          * 
@@ -93,12 +90,6 @@ namespace sdm
          * 
          */
         double epsilon_prunning;
-
-        TState_t getTStateType();
-        void setTStateType(const TState_t &);
-
-        TypeSawtoothLinearProgram getSawtoothType();
-        void setSawtoothType(const TypeSawtoothLinearProgram &);
 
         void setPrunningFrequency(int);
         int getPrunningFrequency();

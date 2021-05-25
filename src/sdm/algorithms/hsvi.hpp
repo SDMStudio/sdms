@@ -59,9 +59,9 @@ namespace sdm
      * @brief Some variables for the algorithm.
      * 
      */
-    int trial, MAX_TRIALS, time_max_in_seconds_;
     double error_;
     number planning_horizon_;
+    int trial, MAX_TRIALS, time_max_in_seconds_;
     std::string name_ = "hsvi";
 
     void initLogger();
@@ -137,7 +137,7 @@ namespace sdm
      * @param number : the timestep
      * @return the error
      */
-    double do_excess(const TState &,double , number);
+    double do_excess(const TState &, double /*cost_so_far*/, number);
 
     /**
      * @brief Get the lower bound value function 

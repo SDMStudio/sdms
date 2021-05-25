@@ -21,37 +21,23 @@ namespace sdm
     template <typename TState, typename TAction, typename TValue>
     TValue SawtoothValueFunction<TState, TAction, TValue>::getValueAt(const TState &state, number t)
     {
-        TState state_ ;
-
-        switch (this->ctype)
-        {
-            case TState_t::FULLY_UNCOMPRESSED:
-                state_ = *state.getFullyUncompressedOccupancy();
-                break;
-            case TState_t::ONE_STEP_UNCOMPRESSED:
-                state_ = *state.getOneStepUncompressedOccupancy();
-                break;
-            default:
-                state_ = state;
-                break;
-        }
         
         if (this->isInfiniteHorizon())
         {
-            return this->getMaxAt(state_, 0).first;
+            return this->getMaxAt(state, 0).first;
         }
         else
         {
             bool already_exist = false;
             for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
             {
-                if (iter->first == state_)
+                if (iter->first == state)
                 {
                     already_exist = true;
                 }
             }
 
-            return (already_exist) ? this->representation[t].at(state_) : this->getMaxAt(state_, t).first;
+            return (already_exist) ? this->representation[t].at(state) : this->getMaxAt(state, t).first;
         }
     }
 
@@ -67,45 +53,26 @@ namespace sdm
         throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
     }
 
-    template <>
-    double SawtoothValueFunction<BeliefState, number, double>::getValueAt(const BeliefState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
-    }
-
-    template <>
-    double SawtoothValueFunction<SerializedBeliefState, number, double>::getValueAt(const SerializedBeliefState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedBeliefState.");
-    }
-
     template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
+    void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t, const TValue& value)
     {
-        TState state_;
-        switch (this->ctype)
-        {
-            case TState_t::FULLY_UNCOMPRESSED:
-                state_ = *state.getFullyUncompressedOccupancy();
-                break;
-            case TState_t::ONE_STEP_UNCOMPRESSED:
-                state_ = *state.getOneStepUncompressedOccupancy();
-                break;
-            default:
-                state_ = state;
-                break;
-        }
-        MappedValueFunction<TState, TAction, TValue>::updateValueAt(state_, t, this->getBackup(state, t));
+        MappedValueFunction<TState, TAction, TValue>::updateValueAt(state, t, value);
 
         if (this->last_prunning == this->freq_prune_)
         {
             for(number time =0; time<this->getHorizon();time++)
             {
-                // this->prune(time);
+                this->prune(time);
             }
             this->last_prunning = 0;
         }
         this->last_prunning ++;
+    }
+
+    template <typename TState, typename TAction, typename TValue>
+    void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
+    {
+        SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(state, t, this->getBackup(state, t));
     }
 
     template <>
@@ -118,18 +85,6 @@ namespace sdm
     void SawtoothValueFunction<SerializedState, number, double>::updateValueAt(const SerializedState &, number)
     {
         throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
-    }
-
-    template <>
-    void SawtoothValueFunction<BeliefState, number, double>::updateValueAt(const BeliefState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
-    }
-
-    template <>
-    void SawtoothValueFunction<SerializedBeliefState, number, double>::updateValueAt(const SerializedBeliefState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedBeliefState.");
     }
 
     template <typename TState, typename TAction, typename TValue>
@@ -209,41 +164,6 @@ namespace sdm
         }
     }
 
-    template <>
-    std::pair<double, number> SawtoothValueFunction<number, number, double>::getMaxAt(const number &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
-    }
-
-    template <>
-    std::pair<double, SerializedState> SawtoothValueFunction<SerializedState, number, double>::getMaxAt(const SerializedState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    TState_t SawtoothValueFunction<TState, TAction, TValue>::getTStateType()
-    {
-        return this->ctype;
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunction<TState, TAction, TValue>::setTStateType(const TState_t &ctype)
-    {
-        this->ctype = ctype;
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    TypeSawtoothLinearProgram SawtoothValueFunction<TState, TAction, TValue>::getSawtoothType()
-    {
-        return this->csawtooth_lp_;
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunction<TState, TAction, TValue>::setSawtoothType(const TypeSawtoothLinearProgram & csawtooth_lp)
-    {
-        this->csawtooth_lp_ = csawtooth_lp;
-    }
 
     template <typename TState, typename TAction, typename TValue>
     void SawtoothValueFunction<TState, TAction, TValue>::setPrunningFrequency(int freq_prunning)
@@ -255,5 +175,18 @@ namespace sdm
     int SawtoothValueFunction<TState, TAction, TValue>::getPrunningFrequency()
     {
         return this->freq_prune_;
+    }
+
+
+    template <>
+    std::pair<double, number> SawtoothValueFunction<number, number, double>::getMaxAt(const number &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
+    }
+
+    template <>
+    std::pair<double, SerializedState> SawtoothValueFunction<SerializedState, number, double>::getMaxAt(const SerializedState &, number)
+    {
+        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
     }
 }

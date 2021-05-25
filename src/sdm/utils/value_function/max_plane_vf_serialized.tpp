@@ -90,7 +90,7 @@ namespace sdm
                         decision_[private_history] = private_action;
                     }
                 }
-                decision_rule_value += serial_occupancy_state.getProbabilityOverIndividualHistories(agent,private_history) * argmax_local;
+                decision_rule_value += argmax_local;
             }
             // Take the best deterministic decision rule
             if(argmax_global < decision_rule_value)

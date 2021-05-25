@@ -17,16 +17,16 @@ int main(int argc, char **argv)
         // Grid3x3corners
 
         std::vector<std::string> all_formalism={"decpomdp"};
-        std::vector<std::string> all_problem={"mabc","tiger","recycling","GridSmall","boxPushingUAI07"};
+        std::vector<std::string> all_problem={"tiger","GridSmall","boxPushingUAI07"};
         std::vector<int> all_horizon={10};
         std::vector<double> all_discount={1};
         std::vector<std::string> upper_bound_name = {"sawtooth_lp"};
         std::vector<std::string> lower_bound_name={"maxplan_lp"};
-        std::vector<std::string> all_lower__init_name={"BlindInitializer"};
+        std::vector<std::string> all_lower__init_name={"MinInitializer"};
         std::vector<std::string> all_upper_init_name= {"MdpValueIterationInitializer"};
         std::vector<int> all_truncation = {2};
         std::vector<std::string> all_sawtooth_current_type_of_resolution = {"BigM"};
-        std::vector<number> all_sawtooth_BigM = {1000};
+        std::vector<number> all_sawtooth_BigM = {100,500,1000,5000,10000};
         int mean = 1;
         std::string filepath = "../data/world/dpomdp/";
         std::string save_path = "../run/Resultat/resultat.csv";

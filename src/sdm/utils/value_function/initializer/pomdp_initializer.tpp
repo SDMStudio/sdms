@@ -25,7 +25,7 @@ namespace sdm
     {
         auto pomdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toBeliefMDP();
         auto underlying_pb = pomdp->getUnderlyingProblem();
-        auto algorithm = algo::makeHSVI<decltype(pomdp->getInitialState()), number>(pomdp, "tabular", "maxplan", "MdpHsviInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "pomdp_init","BigM",100,"Full");
+        auto algorithm = algo::makeHSVI<decltype(pomdp->getInitialState()), number>(pomdp, "sawtooth", "maxplan", "MdpHsviInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "pomdp_init","BigM",100,"Full");
 
         algorithm->do_initialize();
         algorithm->do_solve();

@@ -27,7 +27,7 @@ namespace sdm
         std::vector<double> all_discount={1},std::vector<std::string> upper_bound_name = {""},std::vector<std::string> lower_bound_name={""},
         std::vector<std::string> all_lower__init_name={"MinInitializer"},std::vector<std::string> all_upper_init_name= {"MaxInitializer"}, std::vector<int> all_truncation = {2},
         std::vector<std::string> all_sawtooth_current_type_of_resolution = {"BigM"}, std::vector<number> all_sawtooth_BigM = {1000},int mean = 2,
-        std::string filepath = "../data/world/dpomdp/",std::string save_path = "../run/Resultat/resultat.csv") 
+        std::string filepath = "../data/world/dpomdp/",std::string save_path = "../../run/Resultat/resultat.csv") 
     {
         std::ofstream myfile;
 
@@ -68,7 +68,7 @@ namespace sdm
                                                     std::vector<double> results;
                                                     for(int i =0; i<mean;i++)
                                                     {
-                                                        std::string name = filename+"#"+std::to_string(horizon)+"#"+formalism+"#"+std::to_string(discount)+"#"+upper_bound_init+"#"+lower_bound_init+"#"+upper_bound+"#"+lower_bound+"#"+std::to_string(i);
+                                                        std::string name = filename+"#"+std::to_string(horizon)+"#"+formalism+"#"+std::to_string(discount)+"#"+upper_bound_init+"#"+lower_bound_init+"#"+upper_bound+"#"+lower_bound+"#"+std::to_string(truncation)+"#"+sawtooth_current_type_of_resolution+"#"+std::to_string(sawtooth_BigM)+"#"+std::to_string(i);
 
                                                         std::cout<<"\n*************** \n";
                                                         std::cout<<"Formalism : "<<formalism<<"\n";

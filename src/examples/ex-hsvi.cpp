@@ -18,11 +18,18 @@ int main(int argc, char **argv)
 {
 	std::string filename;
 
+	number horizon = 3;
+	double discount = 1.0, error = 0.1, trial = 10000;
+
 	if (argc > 1)
 	{
 		filename = argv[1];
-	}
 
+		if (argc > 2)
+		{
+			horizon = std::stoi(argv[2]);
+		}
+	}
 	else
 	{
 		std::cerr << "Error: Require 1 input file." << std::endl;
@@ -34,18 +41,14 @@ int main(int argc, char **argv)
 		// Construct OccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-
 		using TActionDescriptor = number;
 		using TStateDescriptor = HistoryTree_p<number>;
 
 		using TState = OccupancyState<number, JointHistoryTree_p<number>>;
 		using TAction = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
 
-		number horizon = 3;
-		double discount = 1.0, error = 0.1, trial = 1000;
+		std::shared_ptr<SolvableByHSVI<TState, TAction>> omdp_world = std::make_shared<OccupancyMDP<TState, TAction>>(filename, horizon);
 
-		std::shared_ptr<SolvableByHSVI<TState, TAction>>  omdp_world = std::make_shared<OccupancyMDP<TState,TAction>>(filename, horizon);
-		
 		// Set params in the environment
 		omdp_world->getUnderlyingProblem()->setDiscount(discount);
 		omdp_world->getUnderlyingProblem()->setPlanningHorizon(horizon);
@@ -61,8 +64,8 @@ int main(int argc, char **argv)
 		// Instanciate the Tabular version for the upper bound
 		auto upper_bound = std::make_shared<MappedValueFunction<TState, TAction>>(omdp_world, horizon, ub_init);
 
-		auto algo = std::make_shared<HSVI<TState, TAction>>(omdp_world, lower_bound, upper_bound, horizon, error,trial,"");
-		
+		auto algo = std::make_shared<HSVI<TState, TAction>>(omdp_world, lower_bound, upper_bound, horizon, error, trial, "");
+
 		algo->do_initialize();
 		algo->do_solve();
 	}

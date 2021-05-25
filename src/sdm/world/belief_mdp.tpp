@@ -109,7 +109,7 @@ namespace sdm
         for (const auto &o : this->pomdp_->getObsSpace()->getAll())
         {
             tmp = this->getObservationProbability(belief, action, o, belief);
-            auto tau = this->nextState(belief, action, o);
+            const auto &tau = this->nextState(belief, action, o);
             tmp *= hsvi->do_excess(tau, 0, t + 1);
             if (tmp > max_o)
             {
@@ -160,9 +160,9 @@ namespace sdm
     double BeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, number t) const
     {
         double exp_next_v = 0;
-        for (TObservation obs : this->pomdp_->getObsSpace()->getAll())
+        for (const TObservation &obs : this->pomdp_->getObsSpace()->getAll())
         {
-            auto next_belief = this->nextState(belief, action, obs);
+            const auto &next_belief = this->nextState(belief, action, obs);
             exp_next_v += this->getObservationProbability(belief, action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
         }
         return exp_next_v;
@@ -183,7 +183,7 @@ namespace sdm
         for (number s = 0; s < this->pomdp_->getStateSpace()->getNumItems(); s++)
         {
             tmp = 0;
-            for (auto next_s : this->pomdp_->getStateSpace()->getAll())
+            for (const auto &next_s : this->pomdp_->getStateSpace()->getAll())
             {
                 tmp += this->pomdp_->getObsDynamics()->getDynamics(s, action, obs, next_s);
             }

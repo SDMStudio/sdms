@@ -15,9 +15,9 @@ namespace sdm
                                 int time_max) : world_(world),
                                                     lower_bound_(lower_bound),
                                                     upper_bound_(upper_bound),
-                                                    time_max_in_seconds_(time_max),
                                                     error_(error),
                                                     planning_horizon_(planning_horizon),
+                                                    time_max_in_seconds_(time_max),
                                                     name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
@@ -34,11 +34,18 @@ namespace sdm
     {
         std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\n";
 
+        // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
+
+        // Build a logger that prints logs in a file
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
+
+        // Build a logger that stores data in a CSV file
         auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
 
-        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
+        // Build a multi logger that combines previous loggers
+        // this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
+        this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{csv_logger});
     }
 
     template <typename TState, typename TAction>
@@ -57,9 +64,9 @@ namespace sdm
         std::cout << "#############    Start HSVI \"" << this->name_ << "\"    ####################\n";
         std::cout << "###############################################################\n\n";
 
-        TState start_state = this->world_->getInitialState();
-        this->trial = 0;
+        const TState &start_state = this->world_->getInitialState();
 
+        this->trial = 0;
         clock_t t_begin = clock();
         do
         {
@@ -91,39 +98,40 @@ namespace sdm
     template <typename TState, typename TAction>
     void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
     {
-        // try
-        // {
-        if (!this->do_stop(s, cost_so_far, h))
+        try
         {
-            if (this->lower_bound_->isInfiniteHorizon())
+            if (!this->do_stop(s, cost_so_far, h))
             {
+                if (this->lower_bound_->isInfiniteHorizon())
+                {
+                    this->lower_bound_->updateValueAt(s, h);
+                    this->upper_bound_->updateValueAt(s, h);
+                }
+
+                // Select next action and state following search process
+                const TAction &a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+
+
+                const TState &s_ = this->world_->nextState(s, a, h, this->getptr());
+
+                // Recursive explore
+                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
+
+                // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
                 this->upper_bound_->updateValueAt(s, h);
             }
 
-            // Select next action and state following search process
-            TAction a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
-
-            TState s_ = this->world_->nextState(s, a, h, this->getptr());
-
-            // Recursive explore
-            this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
-
-            // Update bounds
-            this->lower_bound_->updateValueAt(s, h);
-            this->upper_bound_->updateValueAt(s, h);
+            //---------------DEBUG-----------------//
+            // std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
+            //-----------------DEBUG----------------//
         }
-
-        //---------------DEBUG-----------------//
-        std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
-        //-----------------DEBUG----------------//
-        // }
-        // catch (const std::exception &exc)
-        // {
-        //     // catch anything thrown within try block that derives from std::exception
-        //     std::cerr << "HSVI<TState, TAction>::do_explore(..) exception caught: " << exc.what() << std::endl;
-        //     exit(-1);
-        // }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "HSVI<TState, TAction>::do_explore(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
     }
 
     template <typename TState, typename TAction>
@@ -131,9 +139,9 @@ namespace sdm
     {
         try
         {
-            auto lb = this->lower_bound_->getValueAt(s, h);
-            auto ub = this->upper_bound_->getValueAt(s, h);
-            auto incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
+            const auto &lb = this->lower_bound_->getValueAt(s, h);
+            const auto &ub = this->upper_bound_->getValueAt(s, h);
+            const auto &incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
             return this->world_->do_excess(incumbent, lb, ub, cost_so_far, this->error_, h);
         }
         catch (const std::exception &exc)

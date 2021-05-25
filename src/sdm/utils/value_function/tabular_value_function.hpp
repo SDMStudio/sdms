@@ -75,6 +75,8 @@ namespace sdm
          */
         TValue getValueAt(const TState &state, number t = 0);
 
+        TAction getBestAction(const TState &state, number t = 0);
+
         /**
          * @brief Update the value at a specific state and timestep.
          * 
@@ -143,7 +145,7 @@ namespace sdm
         void serialize(Archive &archive, const unsigned int)
         {
             using boost::serialization::make_nvp;
-            
+
             archive &make_nvp("horizon", this->horizon_);
             archive &make_nvp("representation", representation);
         }

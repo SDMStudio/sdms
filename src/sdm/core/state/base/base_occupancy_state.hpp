@@ -144,7 +144,7 @@ namespace sdm
     /**
      *  @brief  Returns an ostream instance
      */
-    friend std::ostream &operator<<(std::ostream &os, BaseOccupancyState &ostate)
+    friend std::ostream &operator<<(std::ostream &os, BaseOccupancyState<TState, TJointHistory_p> &ostate)
     {
       os << ostate.str();
       return os;
