@@ -4,7 +4,8 @@
 #include <sdm/exception.hpp>
 // #include <sdm/core/state/beliefs.hpp>
 // #include <sdm/world/serialized_belief_mdp.hpp>
-#include <sdm/world/discrete_pomdp.hpp>
+// #include <sdm/world/discrete_pomdp.hpp>
+#include <sdm/world/discrete_mdp.hpp>
 // #include <sdm/world/occupancy_mdp.hpp>
 // #include <sdm/world/serialized_occupancy_mdp.hpp>
 // #include <sdm/core/state/occupancy_state.hpp>
@@ -54,7 +55,13 @@ int main(int argc, char **argv)
 		
 
 		// std::shared_ptr<SolvableByHSVI<TState, TAction>> omdp_world = std::make_shared<BeliefMDP<TState, TAction>>(filename);
-		auto omdp_world = std::make_shared<DiscretePOMDP>(filename);
+		auto omdp_world = std::make_shared<DiscreteMDP>(filename);
+
+		std::cout << omdp_world->getDiscount() << std::endl;
+		std::cout << omdp_world->getReward()->getMinReward() << std::endl;
+		std::cout << omdp_world->getReward()->getMaxReward() << std::endl;
+		std::cout << omdp_world->getStateSpace() << std::endl;
+		std::cout << omdp_world->getActionSpace() << std::endl;
 
 		// Set params in the environment
 		// omdp_world->getUnderlyingProblem()->setDiscount(discount);

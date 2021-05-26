@@ -15,8 +15,8 @@
 #include <sdm/exception.hpp>
 
 // #include <sdm/world/belief_mdp.hpp>
-// #include <sdm/world/discrete_pomdp.hpp>
-// #include <sdm/world/discrete_decpomdp.hpp>
+#include <sdm/world/discrete_pomdp.hpp>
+#include <sdm/world/discrete_decpomdp.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
