@@ -140,9 +140,9 @@ namespace sdm
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type, double>>>> dynamics;
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type, double>>>> observation_probability;
 
-        ObservationDynamics obs_dynamics;
+        // ObservationDynamics obs_dynamics;
 
-        std::vector<std::vector<MappedMatrix<state_type, state_type>>> dyn_matrix
+        // std::vector<std::vector<MappedMatrix<state_type, state_type>>> dyn_matrix
 
         /**
          * @brief Initialize Serial Observation Space
