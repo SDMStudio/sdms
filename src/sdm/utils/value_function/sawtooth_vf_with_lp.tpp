@@ -55,19 +55,6 @@ namespace sdm
     {
         double cub = 0;
         auto action = this->greedySawtooth(compressed_occupancy_state, cub, t);
-        // std::cout<<"\n action "<<action;
-        // std::cout<<"\n occupancy "<<compressed_occupancy_state;
-
-        // auto vub_0 = this->getQValueAt(compressed_occupancy_state,action,t);
-        // auto vub_1 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * this->getValueAt(this->getWorld()->nextState(compressed_occupancy_state, action), t + 1);
-        // auto vub_2 = this->getWorld()->getReward(compressed_occupancy_state, action) + this->getWorld()->getDiscount(t) * MappedValueFunction<TState, TAction, TValue>::getValueAt(*this->getWorld()->nextState(compressed_occupancy_state, action).getOneStepUncompressedOccupancy(), t + 1);
-        // throw sdm::exception::Exception("\n cub :" +std::to_string(cub) + ", vub_0 "+ std::to_string(vub_0)+ ", vub_1 "+ std::to_string(vub_1)+ ", vub_2 "+ std::to_string(vub_2));
-
-        // if(std::abs(vub_0 - cub )> 0.1)
-        // {
-        //      throw sdm::exception::Exception("\n cub :" +std::to_string(cub) + ", vub_0 "+ std::to_string(vub_0)+ ", vub_1 "+ std::to_string(vub_1)+ ", vub_2 "+ std::to_string(vub_2));
-        // }
-
         return cub;
     }
 
@@ -232,7 +219,6 @@ namespace sdm
             {
                 cub = cplex.getObjValue();
                 a = this->template getDecentralizedVariables<TState>(cplex, var, occupancy_state, t);
-                // system("cat bellman_greedy_op.lp");
             }
         }
         catch (IloException &e)
@@ -358,9 +344,9 @@ namespace sdm
             if(relaxation->isPomdpAvailable())
             {
                 // Creation of belief 
-                auto belief = compressed_occupancy_state.createBelief(joint_history);
+                auto belief = compressed_occupancy_state.createBeliefWeighted(joint_history);
                 //get Q Relaxation for POMDP
-                weight =  std::static_pointer_cast<RelaxedValueFunction<BeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
+                weight =  compressed_occupancy_state.getProbabilityOverJointHistory(joint_history) * std::static_pointer_cast<RelaxedValueFunction<BeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, index_action), t);
 
             }
             else
@@ -610,11 +596,15 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
 
                 double res = 0;
+                // std::cout<<"\n \n \n indiv history "<<indiv_history->short_str();
+                // std::cout<<"\n action "<<serial_action;
                 for (const auto &joint_history : compressed_serial_occupancy_state.getJointHistoryOverIndividualHistories(agent_id,indiv_history))
                 {
                     //<! 1.c.5 set coefficient of variable a_i(u_i|o_i) i.e., \sum_x s(x,o_i) Q_MDP(x,u_i)
                     res += this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
+                    // std::cout<<"\n Relaxation "<<this->template getQValueRelaxation<TState>(compressed_serial_occupancy_state, joint_history, serial_action, t);
                 }
+                // std::cout<<"\n res "<<res;
                 //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
                 con[index].setLinearCoef(var[recover], res);
             }
@@ -718,17 +708,9 @@ namespace sdm
             if(relaxation->isPomdpAvailable())
             {
                 // Creation of belief 
-                auto belief = compressed_serial_occupancy_state.createBelief(joint_history);
-
+                auto belief = compressed_serial_occupancy_state.createBeliefWeighted(joint_history);
                 //get Q Relaxation for POMDP
-                weight = std::static_pointer_cast<RelaxedValueFunction<SerializedBeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, action), t);
-
-                // if( weight > this->getValueAt(compressed_serial_occupancy_state))
-                // {
-                //     std::cout<<"\n belief "<<belief;
-                //     std::cout<<"\n serial occupancy state "<<compressed_serial_occupancy_state;
-                //     throw sdm::exception::Exception("\n Problem Value Relaxation, Pomdp : " +std::to_string(weight) + ", getValueCompress "+ std::to_string(this->getValueAt(compressed_serial_occupancy_state)));
-                // }
+                weight = compressed_serial_occupancy_state.getProbabilityOverJointHistory(joint_history) * std::static_pointer_cast<RelaxedValueFunction<SerializedBeliefState, TState>>(this->getInitFunction())->operator()(std::make_pair(belief, action), t);
             }else
             {
                 //Go over all hidden state conditionning to a joint history

@@ -94,6 +94,12 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
+    size_t MaxPlanValueFunction<TVector, TAction, TValue>::getSize(number t) const
+    {
+        return this->representation[t].size();
+    }
+
+    template <typename TVector, typename TAction, typename TValue>
     std::vector<TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getSupport(number t)
     {
         return this->representation[t];

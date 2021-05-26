@@ -65,6 +65,12 @@ namespace sdm
     }
 
     template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    size_t TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getSize(number t) const
+    {
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].size();
+    }
+
+    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
     void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t)
     {
         this->updateValueAt(state, t, this->getBackupOperator().backup(this->getptr(), state, t));

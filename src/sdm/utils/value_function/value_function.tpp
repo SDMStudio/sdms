@@ -79,4 +79,16 @@ namespace sdm
         return std::static_pointer_cast<ValueFunction<TState, TAction, TValue>>(this->shared_from_this());
     }
 
+    template <typename TState, typename TAction, typename TValue>
+    size_t ValueFunction<TState, TAction, TValue>::getSize() const
+    {
+        size_t size_total = 0;
+
+        for(number t= 0;t<this->horizon_;t++)
+        {
+            size_total += this->getSize(t);
+        }
+        return size_total;
+    }
+
 } // namespace sdm

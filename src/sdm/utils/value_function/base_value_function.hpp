@@ -125,6 +125,7 @@ namespace sdm
             return os;
         }
 
+
     protected:
         /**
          * @brief The horizon for planning.

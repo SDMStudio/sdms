@@ -151,6 +151,9 @@ namespace sdm
          */
         double getDiscount(number);
 
+        virtual size_t getSize(number) const = 0;
+        size_t getSize() const;
+
     protected:
         /**
          * @brief The problem which incremental value function is evaluated 

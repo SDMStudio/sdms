@@ -108,6 +108,9 @@ namespace sdm
 
         backup_operator_type getBackupOperator();
 
+        size_t getSize(number t) const;
+
+
         friend std::ostream &operator<<(std::ostream &os, TabularValueFunction<TState, TAction> &vf)
         {
             os << vf.str();
