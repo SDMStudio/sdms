@@ -119,6 +119,7 @@ namespace sdm
          */
         virtual typename WorldType<TState, TAction>::underlying_problem_type *getUnderlyingProblem() = 0;
 
+
         /**
          * @brief Check if the problem is serialized.
          * 

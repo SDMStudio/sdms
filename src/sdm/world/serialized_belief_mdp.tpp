@@ -61,18 +61,18 @@ namespace sdm
 
         double tmp, obs_proba;
         // Go over all next serial state
-        for (const auto &next_serial_state :this->serialized_mpomdp_->getStateSpace()->getAll())
+        for (const auto &next_serial_state : this->serialized_mpomdp_->getStateSpace()->getAll())
         {
             tmp = 0;
             obs_proba = 0;
             // GO over all belief state
-            for (const auto &belief_state : belief )
+            for (const auto &belief_state : belief)
             {
                 auto serial_state = belief_state.first;
-                
+
                 //Determine Transition probability and Observation Probability
                 tmp += this->serialized_mpomdp_->getTransitionProbability(serial_state, action, next_serial_state) * belief_state.second;
-                obs_proba += this->serialized_mpomdp_->getObservationProbability(serial_state,action, obs, next_serial_state);
+                obs_proba += this->serialized_mpomdp_->getObservationProbability(serial_state, action, obs, next_serial_state);
             }
 
             // If observation probability and transition probability is not zero, we add a probability in the belief for the next serial state
@@ -96,9 +96,9 @@ namespace sdm
     {
 
         TBelief new_belief;
-        new_belief.setAgent(belief.getCurrentAgentId()+1);
+        new_belief.setAgent(belief.getCurrentAgentId() + 1);
 
-        for(const auto &belief_state : belief)
+        for (const auto &belief_state : belief)
         {
             auto serial_state = belief_state.first;
 
@@ -162,7 +162,6 @@ namespace sdm
         return new_belief;
     }
 
-
     template <typename TBelief, typename TAction, typename TObservation>
     std::shared_ptr<DiscreteSpace<TAction>> SerializedBeliefMDP<TBelief, TAction, TObservation>::getActionSpaceAt(const TBelief &belief)
     {
@@ -196,7 +195,7 @@ namespace sdm
             exp_next_v += this->getObservationProbability(action, obs, belief) * value_function->getValueAt(next_belief, t + 1);
         }
         return exp_next_v;
-    } 
+    }
 
     template <typename TBelief, typename TAction, typename TObservation>
     double SerializedBeliefMDP<TBelief, TAction, TObservation>::getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const
@@ -205,7 +204,7 @@ namespace sdm
 
         double proba = 0, tmp;
 
-        //Go over all state in the belief 
+        //Go over all state in the belief
         for (const auto &belief_state : belief)
         {
 
@@ -213,7 +212,7 @@ namespace sdm
             auto serialized_state = belief_state.first;
 
             // Go over all the next Serial State possible
-            for (auto next_serialized_state : this->serialized_mpomdp_->getReachableSerialStates(serialized_state,action))
+            for (auto next_serialized_state : this->serialized_mpomdp_->getReachableSerialStates(serialized_state, action))
             {
                 tmp += this->serialized_mpomdp_->getDynamics(serialized_state, action, obs, next_serialized_state);
             }
@@ -221,7 +220,6 @@ namespace sdm
         }
         return proba;
     }
-
 
     template <typename TBelief, typename TAction, typename TObservation>
     std::shared_ptr<SerializedMMDP> SerializedBeliefMDP<TBelief, TAction, TObservation>::toMDP()
@@ -254,7 +252,7 @@ namespace sdm
     }
 
     template <typename TBelief, typename TAction, typename TObservation>
-    double SerializedBeliefMDP<TBelief, TAction, TObservation>::do_excess(double, double lb, double ub, double , double error, number horizon)
+    double SerializedBeliefMDP<TBelief, TAction, TObservation>::do_excess(double, double lb, double ub, double, double error, number horizon)
     {
         return (ub - lb) - error / this->getWeightedDiscount(horizon);
     }
@@ -275,7 +273,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-        return std::hash<sdm::BaseBeliefState<sdm::SerializedState>>()(in);
+            return std::hash<sdm::BaseBeliefState<sdm::SerializedState>>()(in);
         }
     };
 }

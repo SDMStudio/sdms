@@ -3,6 +3,7 @@
 #include <sdm/types.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/struct/pair.hpp>
+#include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 #include <sdm/world/serialized_belief_mdp.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
@@ -13,7 +14,6 @@
 
 #include <sdm/world/serialized_mmdp_structure.hpp>
 #include <sdm/utils/linear_algebra/matrix.hpp>
-
 
 namespace sdm
 {
@@ -35,23 +35,26 @@ namespace sdm
         SerializedMPOMDP(std::string);
         SerializedMPOMDP(std::shared_ptr<DiscreteDecPOMDP>);
 
-        const std::set<observation_type>& getReachableObservations(state_type, action_type, state_type) const;
+        const std::set<observation_type> &getReachableObservations(state_type, action_type, state_type) const;
 
         std::shared_ptr<SerializedMMDP> toMDP();
+        double getDiscount(number t = 0) const;
+
+        number getNumAgents() const;
 
         /**
          * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState,number,Joint<number>>> toBeliefMDP(); 
+        std::shared_ptr<SerializedBeliefMDP<SerializedBeliefState, number, Joint<number>>> toBeliefMDP();
 
         /**
          * @brief Get the Obs Space of the SerializedMPOMDP. In this situation, it is the same as the ObsSpace of a Dec-Pomdp
          * 
          * @return std::shared_ptr<MultiDiscreteSpace<number>> 
          */
-        std::shared_ptr<DiscreteSpace<observation_type>> getObsSpace(number =0) const;
+        std::shared_ptr<DiscreteSpace<observation_type>> getObsSpace(number = 0) const;
 
         /**
          * @brief Get the Obs Space of a precise agent
@@ -59,9 +62,13 @@ namespace sdm
          * @param ag_id is the identifiant of a precise agent
          * @return std::shared_ptr<DiscreteSpace<number>> 
          */
-        std::vector<observation_type> getObsSpaceAt(number ) const;
+        std::vector<observation_type> getObsSpaceAt(number) const;
 
-        //! \fn       double getObservationProbability(action, observation, state) const
+        std::shared_ptr<MultiDiscreteSpace<number>> getJointActionSpace() const;
+
+        std::shared_ptr<DiscreteSpace<number>> getActionSpace(number t = 0) const;
+
+        //! \fn       double (action, observation, state) const
         //! \param    x a specific current state
         //! \param    u a specific action
         //! \param    z a specific observation
@@ -69,8 +76,6 @@ namespace sdm
         //! \brief    Returns probability
         //! \return   value
         double getObservationProbability(const state_type, const action_type, const observation_type, const state_type) const;
-
-        double getDynamics(const state_type, const action_type, const observation_type, const state_type) const;
 
         /**
          * @brief Return the current problem
@@ -87,30 +92,73 @@ namespace sdm
 
         std::vector<std::vector<Matrix>> getDynamics();
 
+        /**
+         * @brief Get the Reward for a precise serialized_state and the action of the last agent
+         * 
+         * @param serialized_state 
+         * @param action 
+         * @return double 
+         */
+        double getReward(const SerializedState &, const number &) const;
+
+        /**
+         * @brief Get the Reward for a precise serialized_state and the Joint<action>
+         * 
+         * @param serialized_state 
+         * @param action 
+         * @return double 
+         */
+        double getReward(const SerializedState &, const Joint<number> &) const;
+
+        /**
+         * @brief The reward of the simultaneous mmdp. 
+         * 
+         * @return std::shared_ptr<TReward> 
+         */
+        std::shared_ptr<Reward> getReward() const; // Pour le moment, obligé de crée cette variable
+
         number joint2single(const Joint<number>);
+
+        void setDynamics();
+
+        double getDynamics(const SerializedState serialized_state, const number action, const Joint<number> joint_obs, const SerializedState serialized_state_next) const;
+
+        double getTransitionProbability(const SerializedState &s, const number &action, const SerializedState &s_) const;
+
+        void setInternalState(SerializedState new_i_state);
+
+        void setPlanningHorizon(number horizon);
 
     protected:
         Joint<number> empty_serial_observation;
+
         std::shared_ptr<DiscreteDecPOMDP> decpomdp_;
+
         std::shared_ptr<MultiSpace<DiscreteSpace<observation_type>>> serialized_observation_space_;
 
         std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<state_type, std::set<observation_type>>>> reachable_obs_state_space;
-        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> dynamics;
-        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type,double>>>> observation_probability;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type, double>>>> dynamics;
+        std::unordered_map<state_type, std::unordered_map<action_type, std::unordered_map<observation_type, std::unordered_map<state_type, double>>>> observation_probability;
 
-        std::vector<std::vector<Matrix>> matrix_dynamics;
+        ObservationDynamics obs_dynamics;
+
+        std::vector<std::vector<MappedMatrix<state_type, state_type>>> dyn_matrix
+
         /**
          * @brief Initialize Serial Observation Space
          * 
          */
-        void setObsSpace();
+        void setupObsSpace();
 
         /**
          * @brief Initialize "reachable_observation_space"
          * 
          */
+
         void setReachableObsSpace();
 
+        void createInitSerializedStateSpace();
+        void createInitReachableStateSpace();
     };
 } // namespace sdm
 #include <sdm/world/serialized_mpomdp.tpp>

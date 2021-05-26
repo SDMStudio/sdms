@@ -12,10 +12,12 @@
 #include <set>
 
 #include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serialized_belief_state.hpp>
+
 #include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -56,6 +58,7 @@ namespace sdm
         MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number = 0, TValue = 0., int = 10);
 
         void initialize();
+
         void initialize(TValue, number = 0);
 
         /**
@@ -263,6 +266,10 @@ namespace sdm
          * @param const TVector& : hyperplan
          * @param const TAction& : joint decision rule
          * @param number : time step
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+
+        template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int> = 0>
+        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
          * 
          * 
          * @return TVector 

@@ -28,6 +28,7 @@ namespace sdm
         SerializedMMDPStructure();
         SerializedMMDPStructure(std::string);
         SerializedMMDPStructure(std::shared_ptr<DiscreteMMDP>);
+        virtual ~SerializedMMDPStructure() {}
 
         /**
          * @brief Return the Serialized Discount
@@ -35,7 +36,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        double getDiscount(number = 0) const;
+        virtual double getDiscount(number = 0) const;
 
         /**
          * @brief Get the Next State Space object for a precise serialized state
@@ -43,7 +44,7 @@ namespace sdm
          * @param serialized_state 
          * @return std::shared_ptr<DiscreteSpace<SerializedState>> 
          */
-        const std::set<SerializedState>& getReachableSerialStates(const SerializedState&, const number&) const;
+        virtual const std::set<SerializedState> &getReachableSerialStates(const SerializedState &, const number &) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the action of the last agent
@@ -52,7 +53,7 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const SerializedState &,const number &) const;
+        virtual double getReward(const SerializedState &, const number &) const;
 
         /**
          * @brief Get the Reward for a precise serialized_state and the Joint<action>
@@ -61,14 +62,14 @@ namespace sdm
          * @param action 
          * @return double 
          */
-        double getReward(const SerializedState &,const Joint<number> &) const;
+        virtual double getReward(const SerializedState &, const Joint<number> &) const;
 
         /**
          * @brief The reward of the simultaneous mmdp. 
          * 
          * @return std::shared_ptr<TReward> 
          */
-        std::shared_ptr<Reward> getReward() const; // Pour le moment, obligé de crée cette variable
+        virtual std::shared_ptr<Reward> getReward() const; // Pour le moment, obligé de crée cette variable
 
         /**
          * @brief Get the probability to be in serialized_state_next giving a precise serialized_state and the action of the last agent. 
@@ -77,11 +78,11 @@ namespace sdm
          * @param serialized_state_next 
          * @return double 
          */
-        double getTransitionProbability(const SerializedState &,const number &, const SerializedState &) const;
-        
-        void setInternalState(SerializedState );
-        
-        void setPlanningHorizon(number );      
+        virtual double getTransitionProbability(const SerializedState &, const number &, const SerializedState &) const;
+
+        virtual void setInternalState(SerializedState);
+
+        virtual void setPlanningHorizon(number);
 
         /**
          * @brief Return the current problem
@@ -102,33 +103,33 @@ namespace sdm
          * 
          * @return a belief MDP
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP(); 
+        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
 
         /**
          * @brief Return the number of agent
          * 
          * @return number 
          */
-        number getNumAgents() const;
+        virtual number getNumAgents() const;
 
         /**
          * \brief Getter for the serial action space
          */
-        std::shared_ptr<DiscreteSpace<action_type>> getActionSpace(number = 0) const;
+        virtual std::shared_ptr<DiscreteSpace<action_type>> getActionSpace(number = 0) const;
 
         /**
          * \brief Getter for the Joint action space
          */
-        std::shared_ptr<MultiDiscreteSpace<action_type>> getJointActionSpace() const;
+        virtual std::shared_ptr<MultiDiscreteSpace<action_type>> getJointActionSpace() const;
 
         /**
          * \brief Getter for the serial action space
          */
-        std::shared_ptr<DiscreteSpace<state_type>> getStateSpace(number = 0) const;
+        virtual std::shared_ptr<DiscreteSpace<state_type>> getStateSpace(number = 0) const;
 
-        void setIndexAction();
-        number getIndexAction(number , number);
-  
+        virtual void setIndexAction();
+        virtual number getIndexAction(number, number);
+
     protected:
         /**
          * @brief the simultaneous multi-agent Markov decision process
@@ -146,8 +147,7 @@ namespace sdm
          */
         std::unordered_map<state_type, std::unordered_map<action_type, std::set<state_type>>> reachable_state_space;
 
-        std::vector<Pair<number,number>> associate_ag_id_action;
-
+        std::vector<Pair<number, number>> associate_ag_id_action;
 
         /**
          * @brief Initialize Serial State Space

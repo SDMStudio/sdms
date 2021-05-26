@@ -191,6 +191,8 @@ namespace sdm
     
     std::shared_ptr<Reward> SerializedMMDPStructure::getReward() const
     {
+        std::cout << "LA";
+
         return this->mmdp_->getReward();
     }
 

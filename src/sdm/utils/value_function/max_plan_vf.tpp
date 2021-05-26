@@ -12,7 +12,7 @@ namespace sdm
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<TValue>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
-        
+
         this->setPrunningFrequency(freq_prune);
     }
 
@@ -40,7 +40,7 @@ namespace sdm
     {
         this->freq_prune_ = freq_prunning;
     }
-    
+
     template <typename TVector, typename TAction, typename TValue>
     int MaxPlanValueFunction<TVector, TAction, TValue>::getPrunningFrequency()
     {
@@ -84,13 +84,13 @@ namespace sdm
 
         if (this->last_prunning == this->freq_prune_)
         {
-            for(number time =0; time<this->getHorizon();time++)
+            for (number time = 0; time < this->getHorizon(); time++)
             {
-                // this->prune(time); 
+                // this->prune(time);
             }
             this->last_prunning = 0;
         }
-        this->last_prunning ++;
+        this->last_prunning++;
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -107,12 +107,12 @@ namespace sdm
     }
 
     template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number )
+    void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number)
     {
         // std::unordered_map<TVector, number> refCount;
         // auto all_plan = this->isInfiniteHorizon() ? this->representation[0] : this->representation[t];
 
-        // // Initialize ref count to 0 for each hyperplan 
+        // // Initialize ref count to 0 for each hyperplan
         // for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
         // {
         //     refCount.emplace(*iter,0);
@@ -126,10 +126,10 @@ namespace sdm
         // //Go over all hyperplan
         // for (const auto &hyperplan : all_plan)
         // {
-        //     //Go over all hyperplan in RefCount 
+        //     //Go over all hyperplan in RefCount
         //     for (const auto &alpha : refCount)
         //     {
-        //         // Determine the hyperplan with 
+        //         // Determine the hyperplan with
         //         if (max_value < (value = (alpha.first) ^ hyperplan))
         //         {
         //             max_value = value;
@@ -151,7 +151,6 @@ namespace sdm
         //         std::cout<<"\n succefully pruned";
         //     }
         // }
-
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -161,15 +160,15 @@ namespace sdm
         std::vector<TVector> hyperplan_to_delete;
 
         // Go over all hyperplan
-        for(const auto &alpha: this->representation[t])
+        for (const auto &alpha : this->representation[t])
         {
             bool alpha_dominated = false;
 
             //Go over all hyperplan in hyperplan_not_to_be_deleted
-            for(const auto &beta: hyperplan_not_to_be_deleted)
+            for (const auto &beta : hyperplan_not_to_be_deleted)
             {
                 // If beta dominate alpha, we had alpha to the hyperplan to delete
-                if(this->dominated(beta,alpha))
+                if (this->dominated(beta, alpha))
                 {
                     hyperplan_to_delete.push_back(alpha);
                     alpha_dominated = true;
@@ -177,31 +176,31 @@ namespace sdm
                 }
             }
             // If alpha is dominated, we go to the next hyperplan
-            if(alpha_dominated == true)
+            if (alpha_dominated == true)
             {
                 continue;
             }
 
             //Go over all hyperplan in hyperplan_not_to_be_deleted
             std::vector<TVector> erase_tempo;
-            for(const auto &beta: hyperplan_not_to_be_deleted)
+            for (const auto &beta : hyperplan_not_to_be_deleted)
             {
                 //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
-                if(this->dominated(alpha,beta))
+                if (this->dominated(alpha, beta))
                 {
                     erase_tempo.push_back(beta);
                 }
             }
-            for(const auto&erase : erase_tempo)
+            for (const auto &erase : erase_tempo)
             {
-                auto it = std::find(hyperplan_not_to_be_deleted.begin(),hyperplan_not_to_be_deleted.end(),erase);
+                auto it = std::find(hyperplan_not_to_be_deleted.begin(), hyperplan_not_to_be_deleted.end(), erase);
                 hyperplan_not_to_be_deleted.erase(it);
             }
             hyperplan_not_to_be_deleted.push_back(alpha);
         }
 
-        //Delete the hyperplan present in hyperplan_to_delete 
-        for(const auto &to_delete : hyperplan_to_delete)
+        //Delete the hyperplan present in hyperplan_to_delete
+        for (const auto &to_delete : hyperplan_to_delete)
         {
             this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
         }
@@ -210,7 +209,7 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     bool MaxPlanValueFunction<TVector, TAction, TValue>::dominated(TVector first_hyperplan, TVector second_hyperplan)
     {
-        return (second_hyperplan<first_hyperplan);
+        return (second_hyperplan < first_hyperplan);
     }
 
     template <typename TVector, typename TAction, typename TValue>
@@ -448,7 +447,6 @@ namespace sdm
         return new_plan;
     }
 
-
     // ---------------------------------------------------------------
     // --------- DEFINITION FOR SerialBeliefMDP FORMALISM ------------------
     // ---------------------------------------------------------------
@@ -462,16 +460,15 @@ namespace sdm
         std::unordered_map<number, SerializedBeliefState> beta_a;
 
         // beta_a_o = argmax_alpha ( alpha * belief_t+1)
-        for (const auto &action :  under_pb->getActionSpace(t)->getAll())
+        for (const auto &action : under_pb->getActionSpace(t)->getAll())
         {
             beta_a_o.emplace(action, std::unordered_map<Joint<number>, SerializedBeliefState>());
-            beta_a.emplace(action,SerializedBeliefState());
+            beta_a.emplace(action, SerializedBeliefState());
             for (const auto &obs : under_pb->getObsSpace(t)->getAll())
             {
                 auto next_belief = serial_beliefMDP->nextState(serial_belief_state, action, obs);
                 // beta_a_o[action][obs] = this->getMaxAt(next_belief, t + 1).second;
-                beta_a_o[action].emplace(obs,this->getMaxAt(next_belief, t + 1).second);
-
+                beta_a_o[action].emplace(obs, this->getMaxAt(next_belief, t + 1).second);
             }
         }
 
@@ -481,9 +478,9 @@ namespace sdm
             for (const auto &state : under_pb->getStateSpace(t)->getAll())
             {
                 double tmp = 0;
-                for (const auto &next_state : under_pb->getReachableSerialStates(state,action))
+                for (const auto &next_state : under_pb->getReachableSerialStates(state, action))
                 {
-                    for(const auto &obs : under_pb->getReachableObservations(state,action,next_state))
+                    for (const auto &obs : under_pb->getReachableObservations(state, action, next_state))
                     {
                         tmp += beta_a_o[action][obs].at(next_state) * under_pb->getDynamics(state, action, obs, next_state);
                     }
@@ -564,11 +561,9 @@ namespace sdm
     }
 
     template <>
-    void MaxPlanValueFunction<SerializedState, number, double>::bounded_prune(number )
+    void MaxPlanValueFunction<SerializedState, number, double>::bounded_prune(number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
     }
-
-
 
 } // namespace sdm
