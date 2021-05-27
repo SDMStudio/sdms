@@ -12,12 +12,12 @@
 
 #include <sdm/types.hpp>
 
-#include <sdm/world/po_decision_process.hpp>
+#include <sdm/core/reward.hpp>
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/state_dynamics.hpp>
-#include <sdm/core/reward.hpp>
-// #include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/po_decision_process.hpp>
 
 namespace sdm
 {

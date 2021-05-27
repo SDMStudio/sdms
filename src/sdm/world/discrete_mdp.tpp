@@ -35,7 +35,7 @@ namespace sdm
     template <typename TState, typename TAction>
     MDP<TState, TAction>::MDP(std::string &filename)
     {
-        *this = *(DiscreteDecPOMDP(filename).toPOMDP()->toMDP());
+        *this = *(DiscreteDecPOMDP(filename).toMDP());
         this->reset();
     }
 

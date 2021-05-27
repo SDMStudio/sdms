@@ -130,7 +130,7 @@ namespace sdm
                         // If not the new agent
                         if (next_serialized_state.getCurrentAgentId() != 0)
                         {
-                            // If it is a intermediate agent, the probability is worth 1 only if : the joint_obs is the empty observation, 
+                            // If it is an intermediate agent, the probability is worth 1 only if : the joint_obs is the empty observation, 
                             // the currentand next hidden state are equal, the action of the next serial state is equal to the action of current serial state + serial action
                             proba_dynamics = (this->empty_serial_observation == joint_obs && serialized_state.getState() == next_serialized_state.getState() && next_serialized_state.getAction() == all_action) ? 1 : 0;
                             proba_observation_probability = proba_dynamics;

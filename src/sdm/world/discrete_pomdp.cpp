@@ -43,7 +43,7 @@ namespace sdm
     // // Other methods
     std::shared_ptr<MDP<number, number>> DiscretePOMDP::toMDP()
     {
-        // return std::make_shared<MDP<number, number>>(this->getStateSpace(), this->getActionSpace(), this->getStateDynamics(), this->getReward(), this->getStartDistrib(), this->getPlanningHorizon(), this->getDiscount(), this->getCriterion());
+        return std::make_shared<MDP<number, number>>(this->getStateSpace(), this->getActionSpace(), this->getStateDynamics(), this->getReward(), this->getStartDistrib(), this->getPlanningHorizon(), this->getDiscount(), this->getCriterion());
     }
 
     std::shared_ptr<BeliefMDP<BeliefState<number>, number, number>> DiscretePOMDP::toBeliefMDP()

@@ -23,7 +23,6 @@ namespace sdm
     template <typename TState, typename TAction>
     void SerializedOccupancyMDP<TState, TAction>::initialize(number history_length)
     {
-        std::cout<<"\n init "<<std::endl;
         this->initial_history_ = std::make_shared<typename TState::jhistory_type::element_type>(this->serialized_mpomdp_->getNumAgents(), (history_length > 0) ? history_length : -1);;
         this->initial_state_ = std::make_shared<TState>(this->serialized_mpomdp_->getNumAgents());
 
@@ -41,8 +40,6 @@ namespace sdm
         this->initial_state_->setFullyUncompressedOccupancy(this->initial_state_->getptr());
         this->initial_state_->setOneStepUncompressedOccupancy(this->initial_state_->getptr());
         this->current_state_ = this->initial_state_;
-        std::cout<<"\n end init "<<std::endl;
-
     }
 
     template <typename TState, typename TAction>
