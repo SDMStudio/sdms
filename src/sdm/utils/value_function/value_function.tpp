@@ -4,28 +4,24 @@
 
 namespace sdm
 {
-    template <typename TState, typename TAction, typename TValue>
-    ValueFunction<TState, TAction, TValue>::ValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon) : BaseValueFunction<TState, TAction, TValue>(horizon), problem_(problem)
+    ValueFunction::ValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon) : BaseValueFunction(horizon), problem_(problem)
     {
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    std::shared_ptr<BinaryFunction<TState, number, TValue>> ValueFunction<TState, TAction, TValue>::getInitFunction()
+    std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
     {
         return this->init_function_;
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    TValue ValueFunction<TState, TAction, TValue>::operator()(const TState &state, const number &t)
+    double ValueFunction::operator()(const std::shared_ptr<State> &state, const number &t)
     {
         return this->getValueAt(state, t);
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    std::shared_ptr<VectorImpl<TAction, TValue>> ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, number t)
+    std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> ValueFunction::getQValueAt(const std::shared_ptr<State> &state, number t)
     {
         // Compute Q(s,*)
-        std::shared_ptr<MappedVector<TAction, TValue>> q_s = std::make_shared<MappedVector<TAction, TValue>>();
+        std::shared_ptr<MappedVector<std::shared_ptr<Action>, double>> q_s = std::make_shared<MappedVector<std::shared_ptr<Action>, double>>();
         for (const auto &a : this->getWorld()->getActionSpaceAt(state)->getAll())
         {
             (*q_s)[a] = this->getQValueAt(state, a, t);
@@ -33,34 +29,29 @@ namespace sdm
         return q_s;
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    TValue ValueFunction<TState, TAction, TValue>::getQValueAt(const TState &state, const TAction &action, number t)
+    double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         // implement bellman operator
         return this->getWorld()->getReward(state, action) + this->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    TAction ValueFunction<TState, TAction, TValue>::getBestAction(const TState &state, number t)
+    std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
         // Get the best action (i.e. the action that maximizes the q value function)
         return this->getQValueAt(state, t)->argmax();
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    void ValueFunction<TState, TAction, TValue>::initialize(std::shared_ptr<BinaryFunction<TState, number, TValue>> init_function)
+    void ValueFunction::initialize(std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> init_function)
     {
         this->init_function_ = init_function;
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    std::shared_ptr<SolvableByHSVI<TState, TAction>> ValueFunction<TState, TAction, TValue>::getWorld()
+    std::shared_ptr<SolvableByHSVI> ValueFunction::getWorld()
     {
         return this->problem_;
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    double ValueFunction<TState, TAction, TValue>::getDiscount(number t)
+    double ValueFunction::getDiscount(number t)
     {
         if (this->getWorld()->isSerialized())
         {
@@ -73,10 +64,9 @@ namespace sdm
     }
 
 
-    template <typename TState, typename TAction, typename TValue>
-    std::shared_ptr<ValueFunction<TState, TAction, TValue>> ValueFunction<TState, TAction, TValue>::getptr()
+    std::shared_ptr<ValueFunction> ValueFunction::getptr()
     {
-        return std::static_pointer_cast<ValueFunction<TState, TAction, TValue>>(this->shared_from_this());
+        return std::static_pointer_cast<ValueFunction>(this->shared_from_this());
     }
 
 } // namespace sdm

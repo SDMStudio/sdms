@@ -26,13 +26,12 @@ namespace sdm
      * @class BaseValueFunction
      * @brief This class is the abstract class of all kind of value functions. All {state,action,q}-value function must derived this class.
      * 
-     * @tparam TState Type of the state.
-     * @tparam TAction Type of the action.
-     * @tparam TValue Type of the value.
+     * @tparam std::shared_ptr<State> Type of the state.
+     * @tparam std::shared<Action> Type of the action.
+     * @tparam double Type of the value.
      */
-    template <typename TState, typename TAction, typename TValue = double>
     class BaseValueFunction
-        : public std::enable_shared_from_this<BaseValueFunction<TState, TAction, TValue>>
+        : public std::enable_shared_from_this<BaseValueFunction>
     {
     public:
         BaseValueFunction();
@@ -53,12 +52,12 @@ namespace sdm
         /**
          * @brief Initialize the value function with a default value
          */
-        virtual void initialize(TValue v, number t = 0) = 0;
+        virtual void initialize(double v, number t = 0) = 0;
 
         /**
          * @brief Get the value at a given state
          */
-        virtual TValue getValueAt(const TState &state, number t = 0) = 0;
+        virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-value at a state
@@ -66,7 +65,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        virtual std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t) = 0;
+        virtual std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action
@@ -75,7 +74,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        virtual TValue getQValueAt(const TState &state, const TAction &action, number t) = 0;
+        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Get the best action to do at a state
@@ -83,7 +82,7 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        virtual TAction getBestAction(const TState &state, number t) = 0;
+        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Save a value function into a file. 
@@ -111,7 +110,7 @@ namespace sdm
          * 
          * @return the corresponding shared pointer
          */
-        std::shared_ptr<BaseValueFunction<TState, TAction, TValue>> getptr();
+        std::shared_ptr<BaseValueFunction> getptr();
 
         number getHorizon() const;
 
@@ -119,7 +118,7 @@ namespace sdm
 
         bool isInfiniteHorizon() const;
 
-        friend std::ostream &operator<<(std::ostream &os, BaseValueFunction<TState, TAction> &vf)
+        friend std::ostream &operator<<(std::ostream &os, BaseValueFunction &vf)
         {
             os << vf.str();
             return os;
