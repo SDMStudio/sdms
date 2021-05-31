@@ -21,6 +21,9 @@ endif()
 add_definitions (-DBOOST)
 add_definitions (-DDENSE)
 
+add_definitions (-DDEBUG)
+add_definitions (-DDEBUG_TIME)
+
 # Add include directories
 include_directories(${SDMS_INCLUDE_DIRS}
 					${Boost_INCLUDE_DIRS}

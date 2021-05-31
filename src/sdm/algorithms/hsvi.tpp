@@ -45,7 +45,7 @@ namespace sdm
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
 
         // Build a logger that stores data in a CSV file
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB","Size_lower_bound","Size_upper_bound", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Size_lower_bound", "Size_upper_bound", "Time"});
 
         // Build a multi logger that combines previous loggers
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
@@ -69,6 +69,7 @@ namespace sdm
         std::cout << "###############################################################\n\n";
 
         const TState &start_state = this->world_->getInitialState();
+        this->before_time = this->start_time;
 
         this->trial = 0;
         clock_t t_begin = clock();
@@ -76,7 +77,7 @@ namespace sdm
         {
             // Logging (save data and print algorithms variables)
             //---------------------------------//
-            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), this->lower_bound_->getSize(), this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             //---------------------------------//
 
             this->do_explore(start_state, 0, 0);
@@ -88,7 +89,7 @@ namespace sdm
             std::cout << "\n Time Limit " << (clock() - t_begin) / CLOCKS_PER_SEC;
         }
         //---------------------------------//
-        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), this->lower_bound_->getSize(), this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
         //std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
@@ -104,11 +105,23 @@ namespace sdm
     {
         if ((this->trial % this->lb_update_frequency_) == 0)
         {
+#ifdef DEBUG_TIME
+            this->before_time = std::chrono::high_resolution_clock::now();
+#endif
             this->lower_bound_->updateValueAt(s, h);
+                #ifdef DEBUG_TIME
+                    this->printDuration("updateValueLB");
+                #endif
         }
         if ((this->trial % this->ub_update_frequency_) == 0)
         {
+#ifdef DEBUG_TIME
+            this->before_time = std::chrono::high_resolution_clock::now();
+#endif
             this->upper_bound_->updateValueAt(s, h);
+                #ifdef DEBUG_TIME
+                    this->printDuration("updateValueUB");
+                #endif
         }
     }
 
@@ -124,10 +137,22 @@ namespace sdm
                     this->update_bounds(s, h);
                 }
 
+                #ifdef DEBUG_TIME
+                    this->before_time = std::chrono::high_resolution_clock::now();
+                #endif
                 // Select next action and state following search process
                 const TAction &a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+                #ifdef DEBUG_TIME
+                    this->printDuration("selectAction");
+                #endif
 
+                #ifdef DEBUG_TIME
+                    this->before_time = std::chrono::high_resolution_clock::now();
+                #endif
                 const TState &s_ = this->world_->nextState(s, a, h, this->getptr());
+                #ifdef DEBUG_TIME
+                    this->printDuration("nextState");
+                #endif
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
@@ -136,9 +161,10 @@ namespace sdm
                 this->update_bounds(s, h);
             }
 
-            //---------------DEBUG-----------------//
-            // std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
-            //-----------------DEBUG----------------//
+//---------------DEBUG-----------------//
+#ifdef DEBUG
+            std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tSize_lb(" << this->lower_bound_->getSize(h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")\tSize_ub(" << this->upper_bound_->getSize(h) << ")" << std::endl;
+#endif
         }
         catch (const std::exception &exc)
         {
@@ -190,6 +216,15 @@ namespace sdm
     void HSVI<TState, TAction>::do_save()
     {
         this->getLowerBound()->save(this->name_ + "_lb");
+    }
+
+    template <typename TState, typename TAction>
+    void HSVI<TState, TAction>::printDuration(std::string name)
+    {
+        this->after_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::duration<double>>(this->after_time - this->before_time);
+        std::cout << "\n### Duration \"" << name << "\" : " << duration.count() << std::endl;
+        this->before_time = this->after_time;
     }
 
     template <typename TState, typename TAction>

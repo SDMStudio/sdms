@@ -86,7 +86,7 @@ namespace sdm
         {
             for (number time = 0; time < this->getHorizon(); time++)
             {
-                // this->prune(time);
+                this->prune(time);
             }
             this->last_prunning = 0;
         }
@@ -162,6 +162,8 @@ namespace sdm
     template <typename TVector, typename TAction, typename TValue>
     void MaxPlanValueFunction<TVector, TAction, TValue>::pairwise_prune(number t)
     {
+        // std::cout << "List Hyperplan (" << t << ")=" << this->representation[t] << std::endl;
+
         std::vector<TVector> hyperplan_not_to_be_deleted;
         std::vector<TVector> hyperplan_to_delete;
 
@@ -182,7 +184,7 @@ namespace sdm
                 }
             }
             // If alpha is dominated, we go to the next hyperplan
-            if (alpha_dominated == true)
+            if (alpha_dominated)
             {
                 continue;
             }
@@ -205,6 +207,8 @@ namespace sdm
             hyperplan_not_to_be_deleted.push_back(alpha);
         }
 
+        // std::cout << "hyperplan_not_to_be_deleted=" << hyperplan_not_to_be_deleted << std::endl;
+        // std::cout << "hyperplan_to_delete=" << hyperplan_to_delete << std::endl;
         //Delete the hyperplan present in hyperplan_to_delete
         for (const auto &to_delete : hyperplan_to_delete)
         {

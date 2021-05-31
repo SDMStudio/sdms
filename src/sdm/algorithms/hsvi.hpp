@@ -10,6 +10,7 @@
  */
 #pragma once
 
+#include <chrono>
 #include <string>
 
 #include <sdm/types.hpp>
@@ -55,6 +56,9 @@ namespace sdm
      */
     std::shared_ptr<MultiLogger> logger_;
 
+    std::chrono::high_resolution_clock::time_point start_time, before_time, after_time;
+
+
     /**
      * @brief Some variables for the algorithm.
      * 
@@ -65,6 +69,8 @@ namespace sdm
     std::string name_ = "hsvi";
 
     void initLogger();
+    void printDuration(std::string name);
+
 
   public:
     /**

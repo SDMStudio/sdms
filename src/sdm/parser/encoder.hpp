@@ -692,12 +692,9 @@ namespace sdm
         parsed_model->setDiscount(ast.discount_param);
         parsed_model->setCriterion((Criterion)(ast.value_param == "reward"));
 
-#ifdef DEBUG
-        std::cout << "Model Soundness=" << (parsed_model->isSound() ? "yes" : "no") << std::endl;
 #ifdef VERBOSE
         std::cout << "Print model" << std::endl;
         std::cout << parsed_model << std::endl;
-#endif
 #endif
         return parsed_model;
       }
