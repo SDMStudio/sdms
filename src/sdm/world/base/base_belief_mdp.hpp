@@ -25,7 +25,7 @@ namespace sdm
      * @tparam TBelief the belief type
      * @tparam TAction the action type
      */
-    template <typename TBelief = BeliefState<>, typename TAction = number, typename TObservation = number>
+    // template <typename TBelief = BeliefState<>, typename TAction = number, typename TObservation = number>
     class BaseBeliefMDP : public SolvableByHSVI<TBelief, TAction>,
                           public GymInterface<TBelief, TAction>,
                           public std::enable_shared_from_this<BaseBeliefMDP<TBelief, TAction, TObservation>>

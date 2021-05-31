@@ -60,7 +60,7 @@ namespace sdm
     double BaseBeliefMDP<TBelief, TAction, TObservation>::getExpectedNextValue(std::shared_ptr<ValueFunction<TBelief, TAction>> value_function, const TBelief &belief, const TAction &action, number t) const
     {
         double exp_next_v = 0;
-        for (const TObservation &obs : this->pomdp_->getObsSpace()->getAll())
+        for (const TObservation &obs : this->pomdp_->getReachableObservations(belief, action))
         {
             const auto &next_belief = this->nextState(belief, action, obs);
             exp_next_v += this->getObservationProbability(belief, action, obs, belief) * value_function->getValueAt(next_belief, t + 1);

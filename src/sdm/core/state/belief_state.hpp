@@ -20,47 +20,45 @@
 
 namespace sdm
 {
-  template <typename TState, template <typename TI, typename TV> class TVector = DenseVector>
-  class BaseBeliefState : public TVector<TState, double>
+  class BeliefState : public BaseState<TVector<std::shared_ptr<State>, double>>, public Distribution<std::shared_ptr<State>>
   {
   public:
-    using state_type = TState;
-    using struct_type = TVector<TState, double>;
+    using state_type = std::shared_ptr<State>;
+    using struct_type = TVector<std::shared_ptr<State>, double>;
     using value_type = typename struct_type::value_type;
 
     static double PRECISION;
 
-    BaseBeliefState();
-    BaseBeliefState(double);
-    BaseBeliefState(std::size_t, double);
-    BaseBeliefState(const BaseBeliefState &);
-    BaseBeliefState(const TVector<TState, double> &);
-    BaseBeliefState(std::initializer_list<value_type>);
-    BaseBeliefState(const std::vector<TState> &list_states, const std::vector<double> &list_proba);
+    BeliefState();
+    BeliefState(double);
+    BeliefState(std::size_t, double);
+    BeliefState(const BeliefState &);
+    BeliefState(const TVector<std::shared_ptr<State>, double> &);
+    BeliefState(std::initializer_list<value_type>);
+    BeliefState(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
 
-    void setProbabilityAt(const TState &, double);
-    void addProbabilityAt(const TState &, double);
-    double getProbabilityAt(const TState &) const;
+    void setProbabilityAt(const std::shared_ptr<State> &state, double proba);
+    void addProbabilityAt(const std::shared_ptr<State> &state, double proba);
+    double getProbabilityAt(const std::shared_ptr<State> &state) const;
 
-    static TState getState(const TState &);
+    std::shared_ptr<State> sample() const;
+    double getProbability(const std::shared_ptr<State> &begin, const std::shared_ptr<State> &end = 0) const;
 
-    bool operator==(const BaseBeliefState &) const;
+    static std::shared_ptr<State> getState(const std::shared_ptr<State> &);
+
+    bool operator==(const BeliefState &) const;
 
     std::string str() const;
 
-    friend std::ostream &operator<<(std::ostream &os, BaseBeliefState &state)
+    friend std::ostream &operator<<(std::ostream &os, BeliefState &belief)
     {
-      os << "<belief " << state.str() << "/>";
+      os << "<belief " << belief.str() << "/>";
       return os;
     }
 
     template <class Archive>
     void serialize(Archive &archive, const unsigned int);
   };
-
-  template <typename TState = number>
-  using BeliefState = BaseBeliefState<TState>;
-
 } // namespace sdm
 
 #include <sdm/core/state/belief_state.tpp>

@@ -14,10 +14,10 @@
 
 #include <sdm/types.hpp>
 #include <sdm/public/algorithm.hpp>
-
 #include <sdm/core/state/state.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/core/action/action.hpp>
 #include <sdm/utils/logging/logger.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 
 namespace sdm
 {
@@ -25,29 +25,28 @@ namespace sdm
   /**
    * @brief 
    * 
-   * @tparam TState 
-   * @tparam TAction 
+   * @tparam std::shared_ptr<State> 
+   * @tparam std::shared_ptr<Action> 
    */
-  template <typename TState, typename TAction>
   class HSVI : public Algorithm,
-               public std::enable_shared_from_this<HSVI<TState, TAction>>
+               public std::enable_shared_from_this<HSVI>
   {
   protected:
     /**
      * @brief The problem to be solved.
      * 
      */
-    std::shared_ptr<SolvableByHSVI<TState, TAction>> world_;
+    std::shared_ptr<SolvableByHSVI> world_;
 
     /**
      * @brief Lower Bound representation. 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> lower_bound_;
+    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> lower_bound_;
 
     /**
      * @brief Upper Bound representation. 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
+    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> upper_bound_;
 
     /**
      * @brief Logger.
@@ -78,15 +77,15 @@ namespace sdm
      * @param num_max_trials the maximum number of trials before stop
      * @param name the name of the algorithm (this name is used to save logs)
      */
-    HSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> &world,
-         std::shared_ptr<ValueFunction<TState, TAction>> lower_bound,
-         std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
+    HSVI(std::shared_ptr<SolvableByHSVI> &world,
+         std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> lower_bound,
+         std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> upper_bound,
          number planning_horizon,
          double epsilon,
          number num_max_trials = 10000,
          std::string name = "hsvi");
 
-    std::shared_ptr<HSVI<TState, TAction>> getptr();
+    std::shared_ptr<HSVI> getptr();
 
     /**
      * @brief 
@@ -118,7 +117,7 @@ namespace sdm
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
      * @return false elsewhere
      */
-    bool do_stop(const TState &, double /*cost_so_far*/, number);
+    bool do_stop(const std::shared_ptr<State> &, double /*cost_so_far*/, number);
 
     /**
      * @brief Explore a state.
@@ -126,29 +125,28 @@ namespace sdm
      * @param s the state to explore
      * @param h the timestep of the exploration
      */
-    void do_explore(const TState &s, double /*cost_so_far*/, number h);
+    void do_explore(const std::shared_ptr<State> &s, double /*cost_so_far*/, number h);
 
     /**
      * @brief Computes the error between bounds (or excess).
      * 
-     * @param const TState & : the state
+     * @param const std::shared_ptr<State> & : the state
      * @param double : cost so far
      * @param number : the timestep
      * @return the error
      */
-    double do_excess(const TState &, double /*cost_so_far*/, number);
+    double do_excess(const std::shared_ptr<State> &, double /*cost_so_far*/, number);
 
     /**
      * @brief Get the lower bound value function 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> getLowerBound() const;
+    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> getLowerBound() const;
 
     /**
      * @brief Get the upper bound value function 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
+    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> getUpperBound() const;
 
     int getTrial();
   };
 } // namespace sdm
-#include <sdm/algorithms/hsvi.tpp>

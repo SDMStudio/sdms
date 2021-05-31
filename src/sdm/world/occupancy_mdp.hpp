@@ -57,7 +57,7 @@ namespace sdm
         void initialize(number history_length);
         std::tuple<TState, std::vector<double>, bool> step(TAction decision_rule);
         std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &occupancy_state);
-        TState nextState(const TState &, const TAction &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const;
+        std::shared_ptr<BaseOccupancyState> nextState(const std::shared_ptr<BaseOccupancyState> &, const std::shared_ptr<JointDeterministic> &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const;
         TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
         double getReward(const TState &occupancy_state, const TAction &decision_rule) const;
     };
@@ -96,3 +96,10 @@ namespace sdm
     };
 } // namespace sdm
 #include <sdm/world/occupancy_mdp.tpp>
+
+
+DecisionProcess<TState, TAction, TObservation>
+
+MDP<TState, TAction> <|-- 
+-> (Reward<TState, TAction> , )
+

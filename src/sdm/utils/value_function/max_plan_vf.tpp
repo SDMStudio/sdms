@@ -3,41 +3,40 @@
 namespace sdm
 {
 
-    template <typename TVector, typename TAction, typename TValue>
-    MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction() {}
+    
+    MaxPlanValueFunction::MaxPlanValueFunction() {}
 
-    template <typename TVector, typename TAction, typename TValue>
-    MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, std::shared_ptr<Initializer<TVector, TAction>> initializer)
-        : ValueFunction<TVector, TAction, TValue>(problem, horizon), initializer_(initializer)
+    
+    MaxPlanValueFunction::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, std::shared_ptr<Initializer> initializer)
+        : ValueFunction<std::shared_ptr<BeliefState>, TAction, TValue>(problem, horizon), initializer_(initializer)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<TValue>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    MaxPlanValueFunction<TVector, TAction, TValue>::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>> problem, number horizon, TValue default_value) : MaxPlanValueFunction(problem, horizon, std::make_shared<ValueInitializer<TVector, TAction>>(default_value))
+    
+    MaxPlanValueFunction::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, TValue default_value) : MaxPlanValueFunction(problem, horizon, std::make_shared<ValueInitializer<std::shared_ptr<BeliefState>, TAction>>(default_value))
     {
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::initialize(TValue value, number t)
+    void MaxPlanValueFunction::initialize(TValue value, number t)
     {
-        TVector new_v(value);
+        std::shared_ptr<BeliefState> new_v(value);
         this->representation[t].push_back(new_v);
         this->default_values_per_horizon[t] = value;
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::initialize()
+    
+    void MaxPlanValueFunction::initialize()
     {
         this->initializer_->init(this->getptr());
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    std::pair<TValue, TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getMaxAt(const TVector &state, number t)
+    
+    std::pair<TValue, std::shared_ptr<BeliefState>> MaxPlanValueFunction::getMaxAt(const std::shared_ptr<BeliefState> &state, number t)
     {
         TValue current, max = -std::numeric_limits<TValue>::max();
-        TVector alpha_vector;
+        std::shared_ptr<BeliefState> alpha_vector;
 
         for (const auto &plan : this->representation[t])
         {
@@ -53,14 +52,14 @@ namespace sdm
         return {max, alpha_vector};
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    TValue MaxPlanValueFunction<TVector, TAction, TValue>::getValueAt(const TVector &state, number t)
+    
+    TValue MaxPlanValueFunction::getValueAt(const std::shared_ptr<BeliefState> &state, number t)
     {
         return this->getMaxAt(state, t).first;
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::updateValueAt(const TVector &state, number t)
+    
+    void MaxPlanValueFunction::updateValueAt(const std::shared_ptr<BeliefState> &state, number t)
     {
         //std::cout<<"\n support ::::::"<<this->representation;
         const auto &new_hyperplan = this->backup_operator(state, t);
@@ -79,22 +78,22 @@ namespace sdm
         this->last_prunning++;
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    std::vector<TVector> MaxPlanValueFunction<TVector, TAction, TValue>::getSupport(number t)
+    
+    std::vector<std::shared_ptr<BeliefState>> MaxPlanValueFunction::getSupport(number t)
     {
         return this->representation[t];
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::prune(number t)
+    
+    void MaxPlanValueFunction::prune(number t)
     {
         this->bounded_prune(t);
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    void MaxPlanValueFunction<TVector, TAction, TValue>::bounded_prune(number t)
+    
+    void MaxPlanValueFunction::bounded_prune(number t)
     {
-        std::unordered_map<TVector, number> refCount;
+        std::unordered_map<std::shared_ptr<BeliefState>, number> refCount;
         auto all_plan = this->isInfiniteHorizon() ? this->representation[0] : this->representation[t];
 
         // Initialize ref count to 0 for each hyperplan
@@ -104,7 +103,7 @@ namespace sdm
         }
 
         //<! update the count
-        TVector max_alpha;
+        std::shared_ptr<BeliefState> max_alpha;
         TValue max_value = -std::numeric_limits<TValue>::max(), value;
         for (const auto &hyperplan : all_plan)
         {
@@ -132,16 +131,16 @@ namespace sdm
         }
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    number MaxPlanValueFunction<TVector, TAction, TValue>::size()
+    
+    number MaxPlanValueFunction::size()
     {
         return this->representation.size();
     }
 
-    template <typename TVector, typename TAction, typename TValue>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::backup_operator(const TVector &occupancy_state, number t)
+    
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::backup_operator(const std::shared_ptr<BeliefState> &occupancy_state, number t)
     {
-        TVector v_max;
+        std::shared_ptr<BeliefState> v_max;
         double value_max = -std::numeric_limits<double>::max(), tmp;
 
         // Go over the hyperplanes of decision step t+1
@@ -150,7 +149,7 @@ namespace sdm
             // Go over all joint decision rules at occupancy occupancy_state
             for (const auto &joint_decision_rule : this->getWorld()->getActionSpaceAt(occupancy_state)->getAll())
             {
-                const TVector &new_hyperplan = this->getHyperplanAt<TVector>(occupancy_state, next_hyperplan, joint_decision_rule, t);
+                const std::shared_ptr<BeliefState> &new_hyperplan = this->getHyperplanAt<std::shared_ptr<BeliefState>>(occupancy_state, next_hyperplan, joint_decision_rule, t);
                 if (value_max < (tmp = occupancy_state ^ new_hyperplan))
                 {
                     value_max = tmp;
@@ -165,11 +164,11 @@ namespace sdm
     // ----- DEFINITION FOR OccupancyMDP with Belief FORMALISM -------
     // ---------------------------------------------------------------
 
-    template <typename TVector, typename TAction, typename TValue>
+    
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &occupancy_state, const TVector &next_hyperplan, const TAction &joint_decision_rule, number t)
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &occupancy_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &joint_decision_rule, number t)
     {
-        TVector new_hyperplan(this->default_values_per_horizon[t]);
+        std::shared_ptr<BeliefState> new_hyperplan(this->default_values_per_horizon[t]);
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         // Go over all occupancy state
@@ -201,11 +200,11 @@ namespace sdm
     // --------- DEFINITION FOR OccupancyMDP FORMALISM ---------------
     // ---------------------------------------------------------------
 
-    template <typename TVector, typename TAction, typename TValue>
+    
     template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &occupancy_state, const TVector &next_hyperplan, const TAction &joint_decision_rule, number t)
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &occupancy_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &joint_decision_rule, number t)
     {
-        TVector new_hyperplan(this->default_values_per_horizon[t]);
+        std::shared_ptr<BeliefState> new_hyperplan(this->default_values_per_horizon[t]);
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
         // Go over all occupancy state
@@ -240,13 +239,13 @@ namespace sdm
     // ------- DEFINITION FOR SerializedOccupancyMDP FORMALISM -------
     // ---------------------------------------------------------------
 
-    template <typename TVector, typename TAction, typename TValue>
+    
     template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &serial_occupancy_state, const TVector &next_hyperplan, const TAction &serial_decision_rule, number t)
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &serial_occupancy_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &serial_decision_rule, number t)
     {
         auto under_pb = this->getWorld()->getUnderlyingProblem();
 
-        TVector new_hyperplan(this->default_values_per_horizon[t]);
+        std::shared_ptr<BeliefState> new_hyperplan(this->default_values_per_horizon[t]);
         number ag_id = serial_occupancy_state.getCurrentAgentId();
         new_hyperplan.setAgent(ag_id);
 
@@ -282,11 +281,11 @@ namespace sdm
     // --------- DEFINITION FOR BeliefMDP FORMALISM ------------------
     // ---------------------------------------------------------------
 
-    // template <typename TVector, typename TAction, typename TValue>
+    // 
     // template <typename T, std::enable_if_t<std::is_same_v<BeliefState, T>, int>>
-    // TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &belief_state, const TVector &next_hyperplan, const TAction &action, number t)
+    // std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &belief_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &action, number t)
     // {
-    //     TVector new_hyperplan(this->default_values_per_horizon[t]);
+    //     std::shared_ptr<BeliefState> new_hyperplan(this->default_values_per_horizon[t]);
     //     auto underlying_problem = this->getWorld()->getUnderlyingProblem();
 
     //     // Go over all occupancy state
@@ -378,9 +377,9 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
-    template <typename TVector, typename TAction, typename TValue>
+    
     template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number)
     {
         throw sdm::exception::NotImplementedException();
     }
@@ -407,23 +406,23 @@ namespace sdm
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
     }
 
-    template <typename TVector, typename TAction, typename TValue>
+    
     template <typename T, std::enable_if_t<std::is_same_v<SerializedState, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = SerializedState.");
     }
 
-    template <typename TVector, typename TAction, typename TValue>
+    
     template <typename T, std::enable_if_t<std::is_same_v<BeliefStateGraph_p<number, number>, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = BeliefStateGraph_p<number, number>.");
     }
 
-    template <typename TVector, typename TAction, typename TValue>
+    
     template <typename T, std::enable_if_t<std::is_same_v<number, T>, int>>
-    TVector MaxPlanValueFunction<TVector, TAction, TValue>::getHyperplanAt(const TVector &, const TVector &, const TAction &, number)
+    std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number)
     {
         throw sdm::exception::Exception("MaxPlanVF cannot be used for State = number.");
     }

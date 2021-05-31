@@ -5,6 +5,8 @@
 
 #include <sdm/tools.hpp>
 #include <sdm/core/function.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/action/action.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -12,24 +14,24 @@
  */
 namespace sdm
 {
-
-    /**
-     * @brief The deterministic decision rule class. This class is a function that maps generic states to generic actions. 
-     * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
-     */
-    template <typename TState, typename TAction>
-    class DecisionRule : public Function<TState, TAction>
+    class DecisionRule : public Function<std::shared_ptr<State>, std::shared_ptr<Action>>
     {
     public:
-        using input_type = typename Function<TState, TAction>::input_type;
-        using output_type = typename Function<TState, TAction>::output_type;
+        /**
+         * @brief Get the action deducted from a given state 
+         * 
+         * @param state the generic state
+         * @return the corresponding action
+         */
+        virtual std::shared_ptr<Action> act(const std::shared_ptr<State> &state) const = 0;
 
         /**
-         * @brief Selects an action given an input (state, observation, history, etc).
+         * @brief Apply the DecisionRule function (similar to `act`)
+         * 
+         * @param state the generic states
+         * @return the corresponding action
          */
-        virtual TAction operator()(const TState &s) = 0;
+        std::shared_ptr<Action> operator()(const std::shared_ptr<State> &s) { return this->act(s);}
 
         /**
          * @brief Get the probability of action 'action' in state 'state'
@@ -38,7 +40,7 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        virtual double getProbability(const TState &state, const TAction &action) = 0;
+        virtual double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) = 0;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -47,7 +49,7 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        virtual void setProbability(const TState &state, const TAction &action, double proba) = 0;
+        virtual void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba) = 0;
     };
 
 } // namespace sdm

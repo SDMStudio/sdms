@@ -26,47 +26,46 @@ namespace sdm
     /**
      * @brief 
      * 
-     * @tparam TVector type of hyperplan representation. Must implement sdm::VectorImpl interface.
-     * @tparam TValue value type (default : double)
+     * @tparam std::shared_ptr<BeliefState> type of hyperplan representation. Must implement sdm::VectorImpl interface.
+     * @tparam double value type (default : double)
      */
-    template <typename TVector, typename TAction, typename TValue = double>
-    class MaxPlanValueFunction : public ValueFunction<TVector, TAction, TValue>
+    class MaxPlanValueFunction : public ValueFunction
     {
     public:
         MaxPlanValueFunction();
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number, std::shared_ptr<Initializer<TVector, TAction>>);
-        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI<TVector, TAction>>, number = 0, TValue = 0.);
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI>, number, std::shared_ptr<Initializer>);
+        MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI>, number = 0, double = 0.);
 
         void initialize();
-        void initialize(TValue, number = 0);
+        void initialize(double, number = 0);
 
         /**
          * @brief Get the Value at state x.
          * 
          * @param state the state 
-         * @return TValue 
+         * @return double 
          */
-        TValue getValueAt(const TVector &, number = 0);
+        double getValueAt(const std::shared_ptr<BeliefState> &, number = 0);
 
         /**
          * @brief Update the max plan representation by adding a new hyperplan
          */
-        void updateValueAt(const TVector &, number = 0);
+        void updateValueAt(const std::shared_ptr<BeliefState> &, number = 0);
 
         /**
          * @brief 
          * 
          * @return std::string 
          */
-        std::vector<TVector> getSupport(number);
+        std::vector<std::shared_ptr<BeliefState>> getSupport(number);
 
         /**
          * @brief Get the maximum value and hyperplan at a specific state
          * 
          * @param state a specific state
-         * @return the maximum value and hyperplan at a specific state (std::pair<TValue, TVector>) 
+         * @return the maximum value and hyperplan at a specific state (std::pair<double, std::shared_ptr<BeliefState>>) 
          */
-        std::pair<TValue, TVector> getMaxAt(const TVector &, number);
+        std::pair<double, std::shared_ptr<BeliefState>> getMaxAt(const std::shared_ptr<BeliefState> &, number);
 
         /**
          * @brief Prune unecessary vectors
@@ -91,12 +90,12 @@ namespace sdm
 
         /**
          * @brief backup operator for the occupancy state with belief representation -- type of the state -- 
-         * @param const TVector & occupancy state 
+         * @param const std::shared_ptr<BeliefState> & occupancy state 
          * @param number horizon
          * @tparam T 
-         * @return TVector 
+         * @return std::shared_ptr<BeliefState> 
          */
-        TVector backup_operator(const TVector &, number = 0);
+        std::shared_ptr<BeliefState> backup_operator(const std::shared_ptr<BeliefState> &, number = 0);
 
         /**
          * @brief Get the number of hyperplans 
@@ -127,7 +126,7 @@ namespace sdm
         }
 
     protected:
-        using HyperplanSet = std::vector<TVector>;
+        using HyperplanSet = std::vector<std::shared_ptr<BeliefState>>;
 
         /**
          * @brief The value function represention.
@@ -139,12 +138,12 @@ namespace sdm
          * @brief The initializer to use for this value function. 
          * 
          */
-        std::shared_ptr<Initializer<TVector, TAction>> initializer_;
+        std::shared_ptr<Initializer> initializer_;
 
         /**
          * @brief the default values, one for each decision epoch.
          */
-        std::vector<TValue> default_values_per_horizon;
+        std::vector<double> default_values_per_horizon;
 
         /**
          * @brief Frequency before prunning
@@ -159,19 +158,19 @@ namespace sdm
         number last_prunning = 0;
 
         template <typename T, std::enable_if_t<std::is_same_v<number, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedState, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         template <typename T, std::enable_if_t<std::is_same_v<BeliefState<>, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         template <typename T, std::enable_if_t<std::is_same_v<BeliefStateGraph_p<number, number>, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         /**
          * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
@@ -179,16 +178,16 @@ namespace sdm
          * @tparam T 
          * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
          * 
-         * @param const TVector& : occupancy state
-         * @param const TVector& : hyperplan
+         * @param const std::shared_ptr<BeliefState>& : occupancy state
+         * @param const std::shared_ptr<BeliefState>& : hyperplan
          * @param const TAction& : joint decision rule
          * @param number : time step
          * 
          * 
-         * @return TVector 
+         * @return std::shared_ptr<BeliefState> 
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         /**
          * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
@@ -196,16 +195,16 @@ namespace sdm
          * @tparam T 
          * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
          * 
-         * @param const TVector& : occupancy state
-         * @param const TVector& : hyperplan
+         * @param const std::shared_ptr<BeliefState>& : occupancy state
+         * @param const std::shared_ptr<BeliefState>& : hyperplan
          * @param const TAction& : joint decision rule
          * @param number : time step
          * 
          * 
-         * @return TVector 
+         * @return std::shared_ptr<BeliefState> 
          */
         template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         /**
          * @brief Compute the next hyperplan for a precise serialized_occupancy_state, hyperplan and a joint decision rule
@@ -213,16 +212,16 @@ namespace sdm
          * @tparam T 
          * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
          * 
-         * @param const TVector& : serialized_occupancy_state
-         * @param const TVector& : hyperplan
+         * @param const std::shared_ptr<BeliefState>& : serialized_occupancy_state
+         * @param const std::shared_ptr<BeliefState>& : hyperplan
          * @param const TAction& : joint decision rule
          * @param number : time step
          * 
          * 
-         * @return TVector 
+         * @return std::shared_ptr<BeliefState> 
          */
         template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        TVector getHyperplanAt(const TVector &, const TVector &, const TAction &, number = 0);
+        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
     };
 
 } // namespace sdm

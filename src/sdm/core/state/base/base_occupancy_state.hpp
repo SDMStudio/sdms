@@ -22,29 +22,24 @@ namespace sdm
   /**
    * @brief An occupancy state refers to a state in which all the knowledge known by a central planner.
    * @comment: Instead of state-history pairs, I'd suggest using belief-history pairs for the sake of efficiency. 
-   * @tparam TState refers to a number
-   * @tparam TJointHistory_p refers to a joint histories
+   * @tparam std::shared_ptr<State> refers to a number
+   * @tparam std::shared_ptr<State> refers to a joint histories
    */
-  template <typename TState, typename TJointHistory_p>
-  class BaseOccupancyState : public MappedVector<Pair<TState, TJointHistory_p>, double>,
-                             public std::enable_shared_from_this<BaseOccupancyState<TState, TJointHistory_p>>
+  class BaseOccupancyState : public MappedVector<Pair<std::shared_ptr<BeliefState>, std::shared_ptr<JointHistory>>, double>,
+                             public std::enable_shared_from_this<BaseOccupancyState<std::shared_ptr<State>>>
   {
   public:
     static double PRECISION;
-
-    using state_type = TState;
-    using jhistory_type = TJointHistory_p;
-    using struct_type = MappedVector<Pair<TState, TJointHistory_p>, double>;
 
     BaseOccupancyState(double default_value);
     BaseOccupancyState(number num_agents = 2, double default_value = 0.);
     BaseOccupancyState(const BaseOccupancyState &);
 
-    void setProbabilityAt(const TState &, const TJointHistory_p &, double);
-    void setProbabilityAt(const Pair<TState, TJointHistory_p> &, double);
+    void setProbabilityAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<JointHistory> &, double);
+    void setProbabilityAt(const Pair<std::shared_ptr<BeliefState>, std::shared_ptr<JointHistory>> &, double);
 
-    void addProbabilityAt(const TState &, const TJointHistory_p &, double);
-    void addProbabilityAt(const Pair<TState, TJointHistory_p> &, double);
+    void addProbabilityAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<JointHistory> &, double);
+    void addProbabilityAt(const Pair<std::shared_ptr<BeliefState>, std::shared_ptr<JointHistory>> &, double);
 
     void finalize();
 
@@ -54,8 +49,8 @@ namespace sdm
      *            -- require run of setJointHistories(); 
      * @return the possible states per joint histories
      */
-    const std::set<TState> &getStates() const;
-    const std::set<TState> &getStatesAt(const TJointHistory_p &) const;
+    const std::set<std::shared_ptr<State>> &getStates() const;
+    const std::set<std::shared_ptr<State>> &getStatesAt(const std::shared_ptr<JointHistory> &) const;
     void setStates();
 
     /**
@@ -63,7 +58,7 @@ namespace sdm
      * @comment: Should be pre-computed -- require run of setJointHistories();
      * @return the possible joint hitories
      */
-    const std::set<jhistory_type> &getJointHistories() const;
+    const std::set<std::shared_ptr<JointHistory>> &getJointHistories() const;
     void setJointHistories();
 
     /**
@@ -84,25 +79,25 @@ namespace sdm
      * @brief Return the state of a precise occupancy state
      * @comment: what is the difference with getHiddenState()
      */
-    TState getState(const Pair<TState, TJointHistory_p> &) const;
+    std::shared_ptr<State> getState(const Pair<std::shared_ptr<State>, std::shared_ptr<JointHistory>> &) const;
 
     /**
      * @brief Get the Hidden State of a precise occupancy state. For this situation, the hidden state is the current State
      * @comment: what is the difference with getState()
      * @param pair of state and joint history 
-     * @return TState 
+     * @return std::shared_ptr<State> 
      */
-    TState getHiddenState(const Pair<TState, TJointHistory_p> &) const;
+    std::shared_ptr<State> getHiddenState(const Pair<std::shared_ptr<State>, std::shared_ptr<JointHistory>> &) const;
 
     /**
      * @brief Return the hidden Joint history of a precise occupancy state
      */
-    TJointHistory_p getHistory(const Pair<TState, TJointHistory_p> &) const;
+    std::shared_ptr<JointHistory> getHistory(const Pair<std::shared_ptr<State>, std::shared_ptr<JointHistory>> &) const;
 
     /**
      * @brief Return the probability of a precise occupancy state
      */
-    double getProbability(const Pair<TState, TJointHistory_p> &) const;
+    double getProbability(const Pair<std::shared_ptr<State>,std::shared_ptr<JointHistory>> &) const;
 
     /**
      * @brief Get all Joint History associated with a precise agent and an individual history
@@ -110,7 +105,7 @@ namespace sdm
      * @param number :Agent Id
      * @param typename jhistory_type::element_type::ihistory_type : Individual History
      */
-    const std::unordered_set<jhistory_type> &getJointHistoryOverIndividualHistories(number, typename jhistory_type::element_type::ihistory_type) const;
+    const std::unordered_set<std::shared_ptr<JointHistory>> &getJointHistoryOverIndividualHistories(number, typename jhistory_type::element_type::ihistory_type) const;
     void setJointHistoryOverIndividualHistories();
 
     /**
@@ -118,23 +113,23 @@ namespace sdm
      * 
      * @param jhistory_type : Joint History
      */
-    const double &getProbabilityOverJointHistory(jhistory_type) const;
+    const double &getProbabilityOverJointHistory(std::shared_ptr<JointHistory>) const;
     void setProbabilityOverJointHistory();
 
     /**
      * @brief Return a shared pointer on current object
      */
-    std::shared_ptr<BaseOccupancyState<TState, TJointHistory_p>> getptr();
+    std::shared_ptr<BaseOccupancyState> getptr();
 
     std::string str() const;
     std::string str_hyperplan() const;
 
-    bool operator==(const BaseOccupancyState<TState, TJointHistory_p> &other) const;
+    bool operator==(const BaseOccupancyState &other) const;
 
     /**
      *  @brief  Returns an ostream instance
      */
-    friend std::ostream &operator<<(std::ostream &os, BaseOccupancyState<TState, TJointHistory_p> &ostate)
+    friend std::ostream &operator<<(std::ostream &os, BaseOccupancyState &ostate)
     {
       os << ostate.str();
       return os;
@@ -155,21 +150,21 @@ namespace sdm
     /**
      * @brief space of joint histories of all agents
      */
-    std::set<jhistory_type> list_jhistories;
+    std::set<std::shared_ptr<JointHistory>> list_jhistories;
 
     /**
      * @brief space of joint history and state of all agents
      */
-    RecursiveMap<jhistory_type, std::set<state_type>> list_jhistory_states;
+    RecursiveMap<std::shared_ptr<JointHistory>, std::set<state_type>> list_jhistory_states;
 
     /**
      * @brief tuple of private history spaces, one private history space per agent
      */
     std::vector<std::set<typename jhistory_type::element_type::ihistory_type>> all_list_ihistories;
 
-    std::unordered_map<number, std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<jhistory_type>>> ihistories_to_jhistory;
+    std::unordered_map<number, std::unordered_map<typename jhistory_type::element_type::ihistory_type, std::unordered_set<std::shared_ptr<JointHistory>>>> ihistories_to_jhistory;
 
-    RecursiveMap<jhistory_type, double> probability_jhistories;
+    RecursiveMap<std::shared_ptr<JointHistory>, double> probability_jhistories;
   };
 
 } // namespace sdm

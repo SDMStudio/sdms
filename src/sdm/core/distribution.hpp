@@ -1,7 +1,7 @@
 /**
- * @file state.hpp
+ * @file action.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief The file for state class
+ * @brief The file for interface action class
  * @version 0.1
  * @date 11/12/2020
  * 
@@ -15,8 +15,10 @@
 
 namespace sdm
 {
-    class State : public Item
+    template <typename T>
+    class Distribution
     {
-        virtual std::string str() const = 0;
+        virtual T sample() const = 0;
+        virtual double getProbability(const T &begin, const T &end = 0) const = 0;
     };
 } // namespace sdm

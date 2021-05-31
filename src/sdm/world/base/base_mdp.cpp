@@ -1,63 +1,57 @@
-#include <sdm/world/discrete_mdp.hpp>
+#include <sdm/world/base/base_mdp.hpp>
 
 namespace sdm
 {
 
-    template <typename TState, typename TAction>
-    MDP<TState, TAction>::MDP()
+    MDP::MDP()
     {
     }
 
-    template <typename TState, typename TAction>
-    MDP<TState, TAction>::MDP(std::shared_ptr<DiscreteSpace<TState>> state_sp, std::shared_ptr<DiscreteSpace<TAction>> action_sp)
+    MDP::MDP(std::shared_ptr<DiscreteSpace<TState>> state_sp, std::shared_ptr<DiscreteSpace<TAction>> action_sp)
         : StochasticProcessBase<DiscreteSpace<TState>, std::discrete_distribution<number>>(state_sp),
           FullyObservableDecisionProcess<DiscreteSpace<TState>, DiscreteSpace<TAction>, StateDynamics, Reward, std::discrete_distribution<number>>(state_sp, action_sp)
     {
         this->reset();
     }
 
-    template <typename TState, typename TAction>
-    MDP<TState, TAction>::MDP(std::shared_ptr<DiscreteSpace<TState>> state_sp, std::shared_ptr<DiscreteSpace<TAction>> action_sp, std::discrete_distribution<number> start_distrib)
+    MDP::MDP(std::shared_ptr<DiscreteSpace<TState>> state_sp, std::shared_ptr<DiscreteSpace<TAction>> action_sp, std::discrete_distribution<number> start_distrib)
         : StochasticProcessBase<DiscreteSpace<TState>, std::discrete_distribution<number>>(state_sp, start_distrib),
           FullyObservableDecisionProcess<DiscreteSpace<TState>, DiscreteSpace<TAction>, StateDynamics, Reward, std::discrete_distribution<number>>(state_sp, action_sp, start_distrib)
     {
         this->reset();
     }
 
-    template <typename TState, typename TAction>
-    MDP<TState, TAction>::MDP(std::shared_ptr<DiscreteSpace<TState>> state_sp, std::shared_ptr<DiscreteSpace<TAction>> action_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<Reward> rew, std::discrete_distribution<number> start_distrib, number planning_horizon, double discount, Criterion criterion)
+    MDP::MDP(std::shared_ptr<DiscreteSpace<TState>> state_sp, std::shared_ptr<DiscreteSpace<TAction>> action_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<Reward> rew, std::discrete_distribution<number> start_distrib, number planning_horizon, double discount, Criterion criterion)
         : StochasticProcessBase<DiscreteSpace<TState>, std::discrete_distribution<number>>(state_sp, start_distrib),
           FullyObservableDecisionProcess<DiscreteSpace<TState>, DiscreteSpace<TAction>, StateDynamics, Reward, std::discrete_distribution<number>>(state_sp, action_sp, state_dyn, rew, start_distrib, planning_horizon, discount, criterion)
     {
         this->reset();
     }
 
-    template <typename TState, typename TAction>
-    MDP<TState, TAction>::MDP(std::string &filename)
+    MDP::MDP(std::string &filename)
     {
         *this = *(DiscreteDecPOMDP(filename).toMDP());
         this->reset();
     }
 
     // SolvableByHSVI interface implementation
-    template <typename TState, typename TAction>
-    TState MDP<TState, TAction>::getInitialState()
+
+    std::shared_ptr<State> MDP::getInitialState()
     {
         return this->getInternalState();
     }
 
-    template <typename TState, typename TAction>
-    TState MDP<TState, TAction>::nextState(const TState &state, const TAction &action, number t, std::shared_ptr<HSVI<TState, TAction>> hsvi) const
+    std::shared_ptr<State> MDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, std::shared_ptr<HSVI> hsvi) const
     {
         double max = -std::numeric_limits<double>::max();
-        number amax = 0;
-        for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
+        std::shared_ptr<State> argmax = 0;
+        for (const auto &next_state : this->getReachableStates(state, action, t))
         {
-            double tmp = this->getStateDynamics()->getTransitionProbability(state, action, state_) * hsvi->do_excess(state_, 0, t + 1);
+            double tmp = this->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
             if (tmp > max)
             {
                 max = tmp;
-                amax = state_;
+                argmax = next_state;
             }
         }
 
@@ -67,85 +61,73 @@ namespace sdm
         //     if (tmp > max)
         //     {
         //         max = tmp;
-        //         amax = state_;
+        //         argmax = state_;
         //     }
         // }
-        return amax;
+        return argmax;
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<DiscreteSpace<TAction>> MDP<TState, TAction>::getActionSpaceAt(const TState &)
+    std::shared_ptr<DiscreteSpace<TAction>> MDP::getActionSpaceAt(const TState &)
     {
         return this->getActionSpace();
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<Reward> MDP<TState, TAction>::getReward() const
+    std::shared_ptr<Reward> MDP::getReward() const
     {
         return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward();
     }
-    template <typename TState, typename TAction>
-    double MDP<TState, TAction>::getReward(const TState &state, const TAction &action) const
+
+    double MDP::getReward(const TState &state, const TAction &action) const
     {
         return FullyObservableDecisionProcess<DiscreteSpace<number>, DiscreteSpace<number>, StateDynamics, Reward, std::discrete_distribution<number>>::getReward()->getReward(state, action);
     }
 
-    template <typename TState, typename TAction>
-    double MDP<TState, TAction>::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const TState &state, const TAction &action, number t) const
+    double MDP::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
         double tmp = 0;
-        for (number state_ = 0; state_ < this->getStateSpace()->getNumItems(); state_++)
+        for (const auto &next_state : this->getReachableStates(state, action, t))
         {
-            tmp += this->getStateDynamics()->getTransitionProbability(state, action, state_) * value_function->getValueAt(state_, t + 1);
+            tmp += this->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
         }
         return tmp;
     }
 
-    template <typename TState, typename TAction>
-    bool MDP<TState, TAction>::isSerialized() const
+    bool MDP::isSerialized() const
     {
         return false;
     }
 
-    template <typename TState, typename TAction>
-    MDP<number, number> * MDP<TState, TAction>::getUnderlyingProblem()
-    {
-        return nullptr;
-        // return this->getptr().get();
-    }
-
-    template <typename TState, typename TAction>
-    std::shared_ptr<MDP<TState, TAction>> MDP<TState, TAction>::getptr()
-    {
-        return this->shared_from_this();
-    }
-
-    template <typename TState, typename TAction>
-    std::shared_ptr<MDP<TState, TAction>> MDP<TState, TAction>::toMDP()
+    std::shared_ptr<MDP> MDP::getUnderlyingProblem()
     {
         return this->getptr();
     }
 
-    template <typename TState, typename TAction>
-    double MDP<TState, TAction>::getDiscount(number)
+    std::shared_ptr<MDP> MDP::getptr()
+    {
+        return this->shared_from_this();
+    }
+
+    std::shared_ptr<MDP> MDP::toMDP()
+    {
+        return this->getptr();
+    }
+
+    double MDP::getDiscount(number)
     {
         return this->discount_;
     }
 
-    template <typename TState, typename TAction>
-    double MDP<TState, TAction>::getWeightedDiscount(number horizon)
+    double MDP::getWeightedDiscount(number horizon)
     {
-        return std::pow(this->getDiscount(), horizon);
+        return std::pow(this->getDiscount(horizon), horizon);
     }
 
-    template <typename TState, typename TAction>
-    double MDP<TState, TAction>::do_excess(double, double lb, double ub, double, double error, number horizon)
+    double MDP::do_excess(double, double lb, double ub, double, double error, number horizon)
     {
         return (ub - lb) - error / this->getWeightedDiscount(horizon);
     }
 
-    template <typename TState, typename TAction>
-    TAction MDP<TState, TAction>::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h)
+    TAction MDP::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h)
     {
         return ub->getBestAction(s, h);
     }

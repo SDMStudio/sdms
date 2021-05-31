@@ -4,31 +4,28 @@
 
 namespace sdm
 {
-    template <typename TState, typename TAction>
-    HSVI<TState, TAction>::HSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> &world,
-                                std::shared_ptr<ValueFunction<TState, TAction>> lower_bound,
-                                std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
-                                number planning_horizon,
-                                double error,
-                                number num_max_trials,
-                                std::string name) : world_(world),
-                                                    lower_bound_(lower_bound),
-                                                    upper_bound_(upper_bound),
-                                                    error_(error),
-                                                    planning_horizon_(planning_horizon),
-                                                    name_(name)
+    HSVI::HSVI(std::shared_ptr<SolvableByHSVI> &world,
+               std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> lower_bound,
+               std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> upper_bound,
+               number planning_horizon,
+               double error,
+               number num_max_trials,
+               std::string name) : world_(world),
+                                   lower_bound_(lower_bound),
+                                   upper_bound_(upper_bound),
+                                   error_(error),
+                                   planning_horizon_(planning_horizon),
+                                   name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<HSVI<TState, TAction>> HSVI<TState, TAction>::getptr()
+    std::shared_ptr<HSVI> HSVI::getptr()
     {
         return this->shared_from_this();
     }
 
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::initLogger()
+    void HSVI::initLogger()
     {
         std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\n";
 
@@ -45,8 +42,7 @@ namespace sdm
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_initialize()
+    void HSVI::do_initialize()
     {
         this->initLogger();
 
@@ -54,14 +50,13 @@ namespace sdm
         this->upper_bound_->initialize();
     }
 
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_solve()
+    void HSVI::do_solve()
     {
         std::cout << "\n\n###############################################################\n";
         std::cout << "#############    Start HSVI \"" << this->name_ << "\"    ####################\n";
         std::cout << "###############################################################\n\n";
 
-        const TState &start_state = this->world_->getInitialState();
+        std::shared_ptr<State> start_state = this->world_->getInitialState();
 
         this->trial = 0;
         clock_t t_begin = clock();
@@ -82,14 +77,12 @@ namespace sdm
         //---------------------------------//
     }
 
-    template <typename TState, typename TAction>
-    bool HSVI<TState, TAction>::do_stop(const TState &s, double cost_so_far, number h)
+    bool HSVI::do_stop(const std::shared_ptr<State> &s, double cost_so_far, number h)
     {
         return ((this->do_excess(s, cost_so_far, h) <= 0) || (this->trial > this->MAX_TRIALS));
     }
 
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_explore(const TState &s, double cost_so_far, number h)
+    void HSVI::do_explore(const std::shared_ptr<State> &s, double cost_so_far, number h)
     {
         try
         {
@@ -102,10 +95,9 @@ namespace sdm
                 }
 
                 // Select next action and state following search process
-                const TAction &a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+                std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
 
-
-                const TState &s_ = this->world_->nextState(s, a, h, this->getptr());
+                std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
@@ -122,13 +114,12 @@ namespace sdm
         catch (const std::exception &exc)
         {
             // catch anything thrown within try block that derives from std::exception
-            std::cerr << "HSVI<TState, TAction>::do_explore(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "HSVI::do_explore(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
     }
 
-    template <typename TState, typename TAction>
-    double HSVI<TState, TAction>::do_excess(const TState &s, double cost_so_far, number h)
+    double HSVI::do_excess(const std::shared_ptr<State> &s, double cost_so_far, number h)
     {
         try
         {
@@ -140,16 +131,15 @@ namespace sdm
         catch (const std::exception &exc)
         {
             // catch anything thrown within try block that derives from std::exception
-            std::cerr << "HSVI<TState, TAction>::do_excess(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "HSVI::do_excess(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
     }
 
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_test()
+    void HSVI::do_test()
     {
-        TState ostate = this->world_->getInitialState();
-        TAction jdr;
+        std::shared_ptr<State> ostate = this->world_->getInitialState();
+        std::shared_ptr<Action> jdr;
         number end = (this->planning_horizon_ > 0) ? this->planning_horizon_ : 10;
         for (number i = 0; i < end; i++)
         {
@@ -165,26 +155,22 @@ namespace sdm
         }
     }
 
-    template <typename TState, typename TAction>
-    void HSVI<TState, TAction>::do_save()
+    void HSVI::do_save()
     {
         this->getLowerBound()->save(this->name_ + "_lb");
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::getLowerBound() const
+    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> HSVI::getLowerBound() const
     {
         return this->lower_bound_;
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<ValueFunction<TState, TAction>> HSVI<TState, TAction>::getUpperBound() const
+    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> HSVI::getUpperBound() const
     {
         return this->upper_bound_;
     }
 
-    template <typename TState, typename TAction>
-    int HSVI<TState, TAction>::getTrial()
+    int HSVI::getTrial()
     {
         return this->trial;
     }

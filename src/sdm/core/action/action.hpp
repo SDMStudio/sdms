@@ -1,7 +1,7 @@
 /**
- * @file state.hpp
+ * @file action.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief The file for state class
+ * @brief The file for interface action class
  * @version 0.1
  * @date 11/12/2020
  * 
@@ -15,7 +15,7 @@
 
 namespace sdm
 {
-    class State : public Item
+    class Action : public Item
     {
         virtual std::string str() const = 0;
     };
