@@ -21,7 +21,7 @@ namespace sdm
   {
   public:
     BaseState() {}
-    BaseState(const TState &item) : state_(state) {}
+    BaseState(const TState &item) : state_(item) {}
 
     virtual TState getState() const { return this->state_; }
     virtual void setState(const TState &state) { this->state_ = state; }

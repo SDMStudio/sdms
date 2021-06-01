@@ -1,38 +1,38 @@
 
 namespace sdm
 {
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer)
-        : ValueFunction<TState, TAction, TValue>(problem, horizon), initializer_(initializer)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    TabularValueFunction<TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, std::shared_ptr<Initializer> initializer)
+        : ValueFunction(problem, horizon), initializer_(initializer)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value) : TabularValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    TabularValueFunction<TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, double default_value) : TabularValueFunction(problem, horizon, std::make_shared<ValueInitializer>(default_value))
     {
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize()
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TBackupOperator, TStruct>::initialize()
     {
         this->initializer_->init(this->getptr());
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize(TValue default_value, number t)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TBackupOperator, TStruct>::initialize(double default_value, number t)
     {
         this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TValue TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(const TState &state, number t)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    double TabularValueFunction<TBackupOperator, TStruct>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
         if (t < this->getHorizon() && this->init_function_ != nullptr)
         {
             if ((this->representation[t].find(state) == this->representation[t].end()))
             {
-                TValue i_value = this->init_function_->operator()(state, t);
+                double i_value = this->init_function_->operator()(state, t);
                 this->updateValueAt(state, t, i_value);
                 return i_value;
             }
@@ -41,11 +41,11 @@ namespace sdm
         return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TAction TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getBestAction(const TState &state, number t)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    std::shared_ptr<Action> TabularValueFunction<TBackupOperator, TStruct>::getBestAction(const std::shared_ptr<State> &state, number t)
     {
-        TAction best_action;
-        TValue max = -std::numeric_limits<TValue>::max(), tmp;
+        std::shared_ptr<Action> best_action;
+        double max = -std::numeric_limits<double>::max(), tmp;
 
         for (const auto &action : this->getWorld()->getActionSpaceAt(state)->getAll())
         {
@@ -58,38 +58,38 @@ namespace sdm
         return best_action;
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TBackupOperator, TStruct>::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
         this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TBackupOperator, TStruct>::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
         this->updateValueAt(state, t, this->getBackupOperator().backup(this->getptr(), state, t));
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    typename TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::backup_operator_type TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getBackupOperator()
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    typename TabularValueFunction<TBackupOperator, TStruct>::backup_operator_type TabularValueFunction<TBackupOperator, TStruct>::getBackupOperator()
     {
         return this->backup_op_;
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::save(std::string filename)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TBackupOperator, TStruct>::save(std::string filename)
     {
-        BoostSerializable<TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>>::save(filename);
+        BoostSerializable<TabularValueFunction<TBackupOperator, TStruct>>::save(filename);
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::load(std::string filename)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    void TabularValueFunction<TBackupOperator, TStruct>::load(std::string filename)
     {
-        BoostSerializable<TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>>::load(filename);
+        BoostSerializable<TabularValueFunction<TBackupOperator, TStruct>>::load(filename);
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    std::string TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::str()
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    std::string TabularValueFunction<TBackupOperator, TStruct>::str()
     {
         std::ostringstream res;
         res << "<tabular_value_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
@@ -116,8 +116,8 @@ namespace sdm
         return res.str();
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    std::vector<TState> TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getSupport(number t)
+    template <template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
+    std::vector<std::shared_ptr<State>> TabularValueFunction<TBackupOperator, TStruct>::getSupport(number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
     }

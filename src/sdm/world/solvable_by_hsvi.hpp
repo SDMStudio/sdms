@@ -5,7 +5,7 @@
 #include <sdm/exception.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 // #include <sdm/algorithms/hsvi.hpp>
-#include <sdm/world/world_type.hpp>
+// #include <sdm/world/world_type.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
 /**

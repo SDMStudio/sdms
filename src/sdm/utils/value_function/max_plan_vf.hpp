@@ -157,37 +157,20 @@ namespace sdm
          */
         number last_prunning = 0;
 
-        template <typename T, std::enable_if_t<std::is_same_v<number, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+        // template <typename T, std::enable_if_t<std::is_same_v<number, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedState, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+        // template <typename T, std::enable_if_t<std::is_same_v<SerializedState, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
-        template <typename T, std::enable_if_t<std::is_same_v<BeliefState<>, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+        // template <typename T, std::enable_if_t<std::is_same_v<BeliefState<>, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
-        template <typename T, std::enable_if_t<std::is_same_v<BeliefStateGraph_p<number, number>, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+        // template <typename T, std::enable_if_t<std::is_same_v<BeliefStateGraph_p<number, number>, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
-
-        /**
-         * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
-         * 
-         * @tparam T 
-         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
-         * 
-         * @param const std::shared_ptr<BeliefState>& : occupancy state
-         * @param const std::shared_ptr<BeliefState>& : hyperplan
-         * @param const TAction& : joint decision rule
-         * @param number : time step
-         * 
-         * 
-         * @return std::shared_ptr<BeliefState> 
-         */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+        // template <typename T, std::enable_if_t<std::is_same_v<SerializedBeliefState, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         /**
          * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
@@ -203,8 +186,25 @@ namespace sdm
          * 
          * @return std::shared_ptr<BeliefState> 
          */
-        template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+        // template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+
+        /**
+         * @brief Compute the next hyperplan for a precise occupancy_state, hyperplan and a joint decision rule
+         * 
+         * @tparam T 
+         * @tparam std::enable_if_t<std::is_same_v<OccupancyState<>, T>, int> 
+         * 
+         * @param const std::shared_ptr<BeliefState>& : occupancy state
+         * @param const std::shared_ptr<BeliefState>& : hyperplan
+         * @param const TAction& : joint decision rule
+         * @param number : time step
+         * 
+         * 
+         * @return std::shared_ptr<BeliefState> 
+         */
+        // template <typename T, std::enable_if_t<std::is_same_v<OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
 
         /**
          * @brief Compute the next hyperplan for a precise serialized_occupancy_state, hyperplan and a joint decision rule
@@ -220,8 +220,8 @@ namespace sdm
          * 
          * @return std::shared_ptr<BeliefState> 
          */
-        template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
+        // template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
+        // std::shared_ptr<BeliefState> getHyperplanAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<BeliefState> &, const TAction &, number = 0);
     };
 
 } // namespace sdm

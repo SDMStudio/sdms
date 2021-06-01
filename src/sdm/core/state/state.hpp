@@ -17,6 +17,7 @@ namespace sdm
 {
     class State : public Item
     {
+    public :
         virtual std::string str() const = 0;
     };
 } // namespace sdm

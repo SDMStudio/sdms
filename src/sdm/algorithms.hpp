@@ -77,11 +77,11 @@ namespace sdm
             }
             else if (lower_bound_name == "maxplan_serial")
             {
-                lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized<TState, TAction>>(problem, horizon, lb_init);
+                // lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized<TState, TAction>>(problem, horizon, lb_init);
             }
             else if (lower_bound_name == "maxplan_lp")
             {
-                lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
+                // lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP<TState, TAction>>(problem, horizon, lb_init);
             }
             else
             {
@@ -99,16 +99,16 @@ namespace sdm
                 {
                     if (current_type_of_resolution == "BigM")
                     {
-                        upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+                        // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
                     }
                     else
                     {
-                        upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::IloIfThenResolution, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+                        // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::IloIfThenResolution, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
                     }
                 }
                 else
                 {
-                    upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING);
+                    // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP<TState, TAction>>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING);
                 }
             }
             else

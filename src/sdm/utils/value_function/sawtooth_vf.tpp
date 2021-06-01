@@ -2,23 +2,19 @@
 
 namespace sdm
 {
-    template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction() {}
+    SawtoothValueFunction::SawtoothValueFunction() {}
 
-    template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer, number freq_prune, double epsilon)
-        : MappedValueFunction<TState, TAction, TValue>(problem, horizon, initializer), freq_prune_(freq_prune), epsilon_prunning(epsilon)
+    SawtoothValueFunction::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, std::shared_ptr<Initializer> initializer, number freq_prune, double epsilon)
+        : MappedValueFunction(problem, horizon, initializer), freq_prune_(freq_prune), epsilon_prunning(epsilon)
     {
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    SawtoothValueFunction<TState, TAction, TValue>::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value, number freq_prune, double epsilon)
-        : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value), freq_prune, epsilon)
+    SawtoothValueFunction::SawtoothValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, double default_value, number freq_prune, double epsilon)
+        : SawtoothValueFunction(problem, horizon, std::make_shared<ValueInitializer>(default_value), freq_prune, epsilon)
     {
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    TValue SawtoothValueFunction<TState, TAction, TValue>::getValueAt(const TState &state, number t)
+    double SawtoothValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
         if (this->isInfiniteHorizon())
         {
@@ -39,10 +35,9 @@ namespace sdm
         }
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunction<TState, TAction, TValue>::updateValueAt(const TState &state, number t)
+    void SawtoothValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        MappedValueFunction<TState, TAction, TValue>::updateValueAt(state, t, this->getBackup(state, t));
+        MappedValueFunction::updateValueAt(state, t, this->getBackup(state, t));
 
         if (this->last_prunning == this->freq_prune_)
         {
@@ -55,46 +50,47 @@ namespace sdm
         this->last_prunning++;
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    std::pair<TValue, TState> SawtoothValueFunction<TState, TAction, TValue>::getMaxAt(const TState &state, number t)
+    std::pair<double, std::shared_ptr<State>> SawtoothValueFunction::getMaxAt(const std::shared_ptr<State> &state, number t)
     {
-        assert(this->getInitFunction() != nullptr);
+        // Attention pour le moment, ça risque de ne pas fonctionner, il faut créer une classes State plus précise
 
-        double min_ext = 0;
-        double v_ub_state = this->getInitFunction()->operator()(state, t);
 
-        TState argmin_ = state;
+        // assert(this->getInitFunction() != nullptr);
 
-        for (const auto &pair_ostate_value : this->representation[t])
-        {
-            auto ostate = pair_ostate_value.first;
-            double v_kappa = pair_ostate_value.second;
-            double v_ub_kappa = this->getInitFunction()->operator()(ostate, t);
+        // double min_ext = 0;
+        // double v_ub_state = this->getInitFunction()->operator()(state, t);
 
-            double phi = 1.0;
-            for (auto &pair_hidden_state_AND_joint_history_AND_probability : ostate)
-            {
-                double v_int = (state.at(pair_hidden_state_AND_joint_history_AND_probability.first) / pair_hidden_state_AND_joint_history_AND_probability.second);
-                if (v_int < phi)
-                {
-                    phi = v_int;
-                }
-            }
+        // std::shared_ptr<State> argmin_ = state;
 
-            double min_int = phi * (v_kappa - v_ub_kappa);
-            if (min_int < min_ext)
-            {
-                min_ext = min_int;
-                argmin_ = ostate;
-            }
-        }
-        return std::make_pair(v_ub_state + min_ext, argmin_);
+        // for (const auto &pair_ostate_value : this->representation[t])
+        // {
+        //     auto ostate = pair_ostate_value.first;
+        //     double v_kappa = pair_ostate_value.second;
+        //     double v_ub_kappa = this->getInitFunction()->operator()(ostate, t);
+
+        //     double phi = 1.0;
+        //     for (auto &pair_hidden_state_AND_joint_history_AND_probability : ostate)
+        //     {
+        //         double v_int = (state.at(pair_hidden_state_AND_joint_history_AND_probability.first) / pair_hidden_state_AND_joint_history_AND_probability.second);
+        //         if (v_int < phi)
+        //         {
+        //             phi = v_int;
+        //         }
+        //     }
+
+        //     double min_int = phi * (v_kappa - v_ub_kappa);
+        //     if (min_int < min_ext)
+        //     {
+        //         min_ext = min_int;
+        //         argmin_ = ostate;
+        //     }
+        // }
+        // return std::make_pair(v_ub_state + min_ext, argmin_);
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    void SawtoothValueFunction<TState, TAction, TValue>::prune(number t)
+    void SawtoothValueFunction::prune(number t)
     {
-        std::vector<TState> to_delete;
+        std::vector<std::shared_ptr<State>> to_delete;
 
         for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
         {
@@ -110,8 +106,7 @@ namespace sdm
         }
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    bool SawtoothValueFunction<TState, TAction, TValue>::is_dominated(const TState &state, double value, number t)
+    bool SawtoothValueFunction::is_dominated(const std::shared_ptr<State> &state, double value, number t)
     {
         auto pair_witness_ostate = this->getMaxAt(state, t);
 
@@ -123,71 +118,5 @@ namespace sdm
         {
             return (pair_witness_ostate.first <= value + this->epsilon_prunning);
         }
-    }
-
-    template <>
-    double SawtoothValueFunction<number, number, double>::getValueAt(const number &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
-    }
-
-    template <>
-    double SawtoothValueFunction<SerializedState, number, double>::getValueAt(const SerializedState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
-    }
-
-    template <>
-    double SawtoothValueFunction<BeliefState<>, number, double>::getValueAt(const BeliefState<> &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
-    }
-
-    template <>
-    double SawtoothValueFunction<SerializedBeliefState, number, double>::getValueAt(const SerializedBeliefState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedBeliefState.");
-    }
-
-    template <>
-    void SawtoothValueFunction<number, number, double>::updateValueAt(const number &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
-    }
-
-    template <>
-    void SawtoothValueFunction<SerializedState, number, double>::updateValueAt(const SerializedState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
-    }
-
-    template <>
-    void SawtoothValueFunction<BeliefState<>, number, double>::updateValueAt(const BeliefState<> &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = BeliefState.");
-    }
-
-    template <>
-    void SawtoothValueFunction<SerializedBeliefState, number, double>::updateValueAt(const SerializedBeliefState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedBeliefState.");
-    }
-
-    template <typename TState, typename TAction, typename TValue>
-    TValue SawtoothValueFunction<TState, TAction, TValue>::getBackup(const TState &state, number t)
-    {
-        return this->getBackupOperator().backup(this->getptr(), state, t);
-    }
-
-    template <>
-    std::pair<double, number> SawtoothValueFunction<number, number, double>::getMaxAt(const number &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = number.");
-    }
-
-    template <>
-    std::pair<double, SerializedState> SawtoothValueFunction<SerializedState, number, double>::getMaxAt(const SerializedState &, number)
-    {
-        throw sdm::exception::Exception("SawtoothValueFunction cannot be used for State = SerializedState.");
     }
 }

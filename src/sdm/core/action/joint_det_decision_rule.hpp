@@ -10,7 +10,7 @@ namespace sdm
     /**
      * @brief The joint deterministic decision rule class. This class is a function that maps joint generic states to joint generic actions. 
      */
-    class JointDeterministicDecisionRules
+    class JointDeterministicDecisionRule
         : public Joint<DeterministicDecisionRule>,
           public DeterministicDecisionRule
     {
@@ -28,7 +28,7 @@ namespace sdm
          * @param action the joint action
          * @param proba the probability
          */
-        double getProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action);
+        double getProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action) const;
 
         /**
          * @brief Get the probability of action 'action' in state 'state' for agent id 
@@ -38,7 +38,7 @@ namespace sdm
          * @param action the action
          * @return the probability selecting action 'action' in state 'state' 
          */
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id);
+        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -49,17 +49,7 @@ namespace sdm
          */
         void setProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action, double proba = 0);
 
-        std::string str() const
-        {
-            std::ostringstream res;
-            res << "<joint-decision-rule>" << std::endl;
-            for (const auto &indiv_dr : *this)
-            {
-                res << indiv_dr << std::endl;
-            }
-            res << "<joint-decision-rule/>" << std::endl;
-            return res.str();
-        }
+        std::string str() const;
 
         friend std::ostream &operator<<(std::ostream &os, const JointDeterministicDecisionRule &joint_dr)
         {

@@ -2,30 +2,26 @@
 
 namespace sdm
 {
-    template <typename TState, typename TAction>
-    JointDeterministicDecisionRule<TState, TAction>::JointDeterministicDecisionRule() {}
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule() {}
 
-    template <typename TState, typename TAction>
-    JointDeterministicDecisionRule<TState, TAction>::JointDeterministicDecisionRule(const std::vector<DeterministicDecisionRule<TState, TAction>> &idr_list)
-        : Joint<DeterministicDecisionRule<TState, TAction>>(idr_list)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const Joint<DeterministicDecisionRule> &idr_list)
+        : Joint<DeterministicDecisionRule>(idr_list)
     {
     }
 
-    template <typename TState, typename TAction>
-    JointDeterministicDecisionRule<TState, TAction>::JointDeterministicDecisionRule(std::vector<std::vector<TState>> acc_states, std::vector<std::vector<TAction>> actions)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<State>>> acc_states, std::vector<std::vector<std::shared_ptr<Action>>> actions)
     {
         assert(acc_states.size() == actions.size());
         for (std::size_t ag_id = 0; ag_id < acc_states.size(); ag_id++)
         {
-            this->push_back(DeterministicDecisionRule<TState, TAction>(acc_states[ag_id], actions[ag_id]));
+            this->push_back(DeterministicDecisionRule(acc_states[ag_id], actions[ag_id]));
         }
     }
 
-    template <typename TState, typename TAction>
-    Joint<TAction> JointDeterministicDecisionRule<TState, TAction>::act(const Joint<TState> &jobserv) const
+    Joint<std::shared_ptr<Action>> JointDeterministicDecisionRule::act(const Joint<std::shared_ptr<State>> &jobserv) const
     {
         // assert(this->size() == jobserv.size());
-        Joint<TAction> jaction;
+        Joint<std::shared_ptr<Action>> jaction;
         for (number ag_id = 0; ag_id < jobserv.size(); ag_id++)
         {
             jaction.push_back(this->at(ag_id).act(jobserv.at(ag_id)));
@@ -33,15 +29,13 @@ namespace sdm
         return jaction;
     }
 
-    template <typename TState, typename TAction>
-    Joint<TAction> JointDeterministicDecisionRule<TState, TAction>::operator()(const Joint<TState> &s)
-    {
-        return this->act(s);
-    }
+    // Joint<std::shared_ptr<Action>> JointDeterministicDecisionRule::operator()(const Joint<std::shared_ptr<State>> &s)
+    // {
+    //     return this->act(s);
+    // }
 
     // Get probabilities of decision a(u | o)
-    template <typename TState, typename TAction>
-    double JointDeterministicDecisionRule<TState, TAction>::getProbability(const Joint<TState> &states, const Joint<TAction> &actions)
+    double JointDeterministicDecisionRule::getProbability(const Joint<std::shared_ptr<State>> &states, const Joint<std::shared_ptr<Action>> &actions) const
     {
         assert((this->size() == states.size()) && (this->size() == actions.size()));
 
@@ -53,48 +47,62 @@ namespace sdm
         return probability;
     }
 
-    template <typename TState, typename TAction>
-    double JointDeterministicDecisionRule<TState, TAction>::getProbability(const number &agent_id, const TState &state, const TAction &action)
+    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const
     {
         assert(agent_id < this->size());
         return this->at(agent_id).getProbability(state, action);
     }
 
-    template <typename TState, typename TAction>
-    void JointDeterministicDecisionRule<TState, TAction>::setProbability(const Joint<TState> &states, const Joint<TAction> &actions, double)
+    void JointDeterministicDecisionRule::setProbability(const Joint<std::shared_ptr<State>> &states, const Joint<std::shared_ptr<Action>> &actions, double probability)
     {
+        assert(probability == 1 || probability == 0);
+
         if (this->size() == 0)
         {
             assert(states.size() == actions.size());
             for (number agent_id = 0; agent_id < states.size(); agent_id++)
             {
-                this->push_back(DeterministicDecisionRule<TState, TAction>());
+                this->push_back(DeterministicDecisionRule());
             }
         }
+
         assert((this->size() == states.size()) && (this->size() == actions.size()));
+
         for (number agent_id = 0; agent_id < this->size(); agent_id++)
         {
             (*this)[agent_id].setProbability(states.at(agent_id), actions.at(agent_id));
         }
     }
+
+    std::string JointDeterministicDecisionRule::str() const
+    {
+        std::ostringstream res;
+        res << "<joint-decision-rule>" << std::endl;
+        for (const auto &indiv_dr : *this)
+        {
+            res << indiv_dr << std::endl;
+        }
+        res << "<joint-decision-rule/>" << std::endl;
+        return res.str();
+    }
 }
 
 namespace std
 {
-    template <typename S, typename A>
-    struct hash<sdm::JointDeterministicDecisionRule<S, A>>
-    {
-        typedef sdm::JointDeterministicDecisionRule<S, A> argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            size_t seed = 0;
-            for (auto &input : in)
-            {
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, input);
-            }
-            return seed;
-        }
-    };
+    // template <typename S, typename A>
+    // struct hash<sdm::JointDeterministicDecisionRule<S, A>>
+    // {
+    //     typedef sdm::JointDeterministicDecisionRule<S, A> argument_type;
+    //     typedef std::size_t result_type;
+    //     inline result_type operator()(const argument_type &in) const
+    //     {
+    //         size_t seed = 0;
+    //         for (auto &input : in)
+    //         {
+    //             //Combine the hash of the current vector with the hashes of the previous ones
+    //             sdm::hash_combine(seed, input);
+    //         }
+    //         return seed;
+    //     }
+    // };
 }

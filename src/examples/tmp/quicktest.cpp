@@ -1,106 +1,89 @@
-#include <iostream>
-#include <sdm/types.hpp>
-
-#include <sdm/utils/struct/graph.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
-
-#include <sdm/core/state/belief_state.hpp>
-#include <sdm/core/state/belief_state_vector.hpp>
-#include <sdm/core/state/belief_state_graph.hpp>
-
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
-#include <sdm/core/states.hpp>
-
+#include <sdm/core/actions.hpp>
+#include <sdm/core/state/discrete_state.hpp>
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // TEST BeliefStateGraph
-    std::cout << "\n--------- Usage : class BeliefStateGraph ( sdm/core/state/belief_state_graph.hpp ) ---------\n\n";
+    auto state_0 = std::make_shared<DiscreteState>(0);
+    auto state_1 = std::make_shared<DiscreteState>(1);
+    auto state_2 = std::make_shared<DiscreteState>(2);
+    auto state_3 = std::make_shared<DiscreteState>(3);
+    auto state_4 = std::make_shared<DiscreteState>(4);
+    auto state_5 = std::make_shared<DiscreteState>(5);
 
-    std::string filename;
+    auto action_0 = std::make_shared<DiscreteAction>(0);
+    auto action_1 = std::make_shared<DiscreteAction>(1);
+    auto action_2 = std::make_shared<DiscreteAction>(2);
+    auto action_3 = std::make_shared<DiscreteAction>(3);
+    auto action_4 = std::make_shared<DiscreteAction>(4);
+    auto action_5 = std::make_shared<DiscreteAction>(5);
 
-    if (argc > 1)
-    {
-        filename = argv[1];
-    }
-    else
-    {
-        std::cerr << "Error: Require 1 input file." << std::endl;
-        return 1;
-    }
+    // Joint Deterministic Decision Rule usage
+    std::cout << "\n----- Usage : JointDeterministicDecisionRule ( sdm/core/action/joint_det_decision_rule.hpp ) ---------" << std::endl;
 
-    try
-    {
-        clock_t t_begin = clock();
+    // Here, we will suppose an example with 3 agents
+    JointDeterministicDecisionRule joint_det_dr;
 
-        // auto world = std::make_shared<DiscreteDecPOMDP>(filename);
+    auto joint_state_1 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_3,state_4,state_5}));
+    auto joint_state_2 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_1,state_1,state_1}));
+    auto joint_state_3 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_3,state_1,state_5}));
 
-        // // Init belief
-        // BeliefStateVector belief = world->getStartDistrib().probabilities();
-        // auto belief_graph = std::make_shared<BeliefStateGraph_p::element_type>(belief, world->getObsDynamics()->getDynamics());
-        // belief_graph->initialize();
-        // // Init Joint history tree
-        // auto joint_history_tree = std::make_shared<JointHistoryTree_p<number>::element_type>(2);
+    auto joint_action_1 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2,action_1,action_3}));
+    auto joint_action_2 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_3,action_2,action_3}));
+    auto joint_action_3 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_0,action_5,action_1}));
 
-        // // Init occupancy state
-        // auto occupancy_state = std::make_shared<OccupancyState<BeliefStateGraph_p, JointHistoryTree_p<number>>>();
-        // occupancy_state->setProbabilityAt({belief_graph, joint_history_tree}, 1);
+    // Create the joint deterministic decision rule
+    joint_det_dr.setProbability(joint_state_1, joint_action_1);
+    joint_det_dr.setProbability(joint_state_2, joint_action_2);
+    joint_det_dr.setProbability(joint_state_3, joint_action_3);
 
-        // std::cout << *occupancy_state << std::endl;
+    // Displays
+    std::cout << "\n#> Joint Decision Rule\n"
+              << joint_det_dr << std::endl;
 
-        // using TState = number;
-        // using TObservation = number;
+    std::cout << "#> With a_i=2, o_i=5, u_i=1 --> a_i(u_i | o_i) = " << joint_det_dr.getProbability(state_5, action_1,2) << std::endl;
 
-        // using TActionDescriptor = number;
-        // using TStateDescriptor = HistoryTree_p<TObservation>;
+    std::cout << "#> With o={3, 1, 5}, u={0, 5, 1} --> a(u | o) = " << joint_det_dr.getProbability(joint_state_3, joint_action_3) << std::endl;
 
-        // using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
+    std::cout << "#> With o={3, 1, 5}, u={2, 1, 3} --> a(u | o) = " << joint_det_dr.getProbability(joint_state_3, joint_action_1) << std::endl;
 
-        // using TStatePrescriptor = SerializedOccupancyState<BeliefStateGraph_p<TActionDescriptor, TObservation>, JointHistoryTree_p<TObservation>>;
-        // // using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+    // Determinis*tic Decision Rule usage
+    std::cout << "\n----- Usage : DeterministicDecisionRule ( sdm/core/action/det_decision_rule.hpp ) ---------" << std::endl;
 
-        // // Construct OccupancyMDP using parser
-        // std::cout << "#> Parsing file \"" << filename << "\"\n";
-        // auto omdp_world = std::make_shared<SerializedOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename);
+    // Create the deterministic decision rule
+    std::vector<std::shared_ptr<State>> state_vector = {state_0, state_1,state_2};
+    std::vector<std::shared_ptr<Action>> action_vector = {action_3, action_0,action_2};
 
-        // // We will show how to expand an initial occupancy state and generate next ones using compression
-        // int depth = 0, limit = 10;
-        // // std::cout << "#> Print depth \"" << depth << "\"\n";
-        // auto ostate = omdp_world->getInitialState();
+    DeterministicDecisionRule det_dr(state_vector,action_vector);
 
-        // // std::cout << "#> Print occupancy state \n"
-        // //           << ostate << "\n";
+    det_dr.setProbability(state_3, action_4);
+    det_dr.setProbability(state_4, action_4, 1.0);
+    det_dr.setProbability(state_5, action_4, 0.0);
 
-        // auto oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-        // // std::cout << "#> Print joint decision rule \n"
-        // //           << oaction << "\n";
+    // Displays
+    std::cout << "\n#> Det Decision Rule\n"
+              << det_dr << std::endl;
 
-        // do
-        // {
-        //     depth++;
-        //     std::cout << "#> Print depth \"" << depth << "\"\n";
+    std::cout << "#> With o=4, u=4 --> a(u | o) = " << det_dr.getProbability(state_4, action_4) << std::endl;
+    // std::cout << "#> With o=5, u=4 --> a(u | o) = " << det_dr.getProbability(state_5, action_4) << std::endl;
 
-        //     // Compute the next compressed occupancy state
-        //     ostate = omdp_world->nextState(ostate, oaction);
-        //     // std::cout << "#> Print compressed occupancy state \n"
-        //     //           << ostate << "\n";
-        //     // std::cout << "#> Print one step left occupancy state \n"
-        //     //           << *ostate.getOneStepUncompressedOccupancy() << "\n";
-        //     // std::cout << "#> Print fully uncompressed occupancy state \n"
-        //     //           << *ostate.getFullyUncompressedOccupancy() << "\n";
+    // Stochastic Deterministic Decision Rule usage
+    std::cout << "\n----- Usage : StochasticDecisionRule ( sdm/core/action/stochastic_decision_rule.hpp ) ---------" << std::endl;
 
-        //     // Sample a decision rule
-        //     oaction = omdp_world->getActionSpaceAt(ostate)->sample();
-        //     // std::cout << "#> Print joint decision rule \n"
-        //     //           << oaction << "\n";
-        // } while (depth < limit);
-        // std::cout << "Time : " << ((float)(clock() - t_begin) / CLOCKS_PER_SEC) << std::endl;
-    }
-    catch (exception::Exception &e)
-    {
-        std::cout << "!!! Exception: " << e.what() << std::endl;
-    }
+    StochasticDecisionRule stoch_dr;
+
+    stoch_dr.setProbability(state_3, action_2, 0.5);
+    stoch_dr.setProbability(state_3, action_1, 0.5);
+    stoch_dr.setProbability(state_5, action_4, 0.8);
+    stoch_dr.setProbability(state_5, action_2, 0.2);
+
+    // Displays
+    std::cout << "\n#> Stochastic Decision Rule\n"
+              << stoch_dr << std::endl;
+
+    std::cout << "#> With o=5, u=4 --> a(u | o) = " << stoch_dr.getProbability(state_5, action_4) << std::endl;
+    std::cout << "#> With o=5 --> a(u | o) = " << stoch_dr.getProbabilities(state_5) << std::endl;
+
+
     return 0;
 }
