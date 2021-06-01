@@ -20,9 +20,20 @@ namespace sdm
     /**
      * @brief The class for Discrete Partially Observable Markov Decision Processes. 
      */
-    class BasePOMDP : public BaseMDP, public std::enable_shared_from_this<BasePOMDP>
+    class BasePOMDP : public BaseMDP
     {
     public:
+        /**
+         * @brief Get the reachable next states
+         * 
+         * @param state the state
+         * @param action the action
+         * @return the set of reachable states
+         */
+        std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
+
+        std::set<std::shared_ptr<Observation>> getAllObservations(number t) const;
+
         /**
          * @brief Get the observation probability (i.e. p_t(o | a, x'))
          * 
@@ -32,8 +43,8 @@ namespace sdm
          * @param t the timestep
          * @return double the probability 
          */
-        double getObservationProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) const;
-        
+        double getObservationProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
+
         /**
          * @brief Get the dynamics (i.e. p_t(x', o | x,a))
          * 
@@ -43,7 +54,7 @@ namespace sdm
          * @param observation 
          * @return double 
          */
-        double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation) const;
+        double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
 
         std::shared_ptr<BasePOMDP> getptr();
 

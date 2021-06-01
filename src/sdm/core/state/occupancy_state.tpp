@@ -93,6 +93,7 @@ namespace sdm
             // Get the old label
             auto &&old_label = this->private_ihistory_map_[agent_id].at(ihistory);
             // Change every labels of ihistories that have old_label as label
+
             *old_label = label;
         }
         else
@@ -222,8 +223,8 @@ namespace sdm
 
         for (const auto &pair_state_jhist : *this)
         {
-            const auto& jhist = this->getHistory(pair_state_jhist.first);
-            const auto& proba = this->getProbability(pair_state_jhist.first);
+            const auto &jhist = this->getHistory(pair_state_jhist.first);
+            const auto &proba = this->getProbability(pair_state_jhist.first);
 
             // Store relation between joint history and list of individual histories
             this->jhistory_map_.emplace(jhist->getIndividualHistories(), jhist);

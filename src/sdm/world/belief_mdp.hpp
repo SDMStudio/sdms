@@ -12,65 +12,63 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
-#include <sdm/core/state/beliefs.hpp>
-#include <sdm/world/base/base_belief_mdp.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/world/base/base_pomdp.hpp>
 
 namespace sdm
 {
     /**
      * @brief The BeliefMDP class is the interface that enables solving Discret POMDP using HSVI algorithm.
      * 
-     * @tparam TBelief the belief type
-     * @tparam TAction the action type
+     * @tparam std::shared_ptr<State> the belief type
+     * @tparam std::shared_ptr<Action> the action type
      */
-    template <typename TBelief = BeliefState<number>, typename TAction = number, typename TObservation = number>
-    class BeliefMDP : public BaseBeliefMDP<TBelief, TAction, TObservation>
+    class BeliefMDP : public MDP
     {
     public:
-        using state_type = TBelief;
-        using action_type = TAction;
-        using observation_type = TBelief;
-
         BeliefMDP();
-        BeliefMDP(std::string underlying_pomdp);
-        BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
+        BeliefMDP(std::shared_ptr<BasePOMDP> pomdp);
+        BeliefMDP(std::string pomdp);
 
-        TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
-        TBelief nextState(const TBelief &belief, const TAction &action, number t, std::shared_ptr<HSVI<TBelief, TAction>> hsvi) const;
+        std::shared_ptr<State> reset();
 
-        double getReward(const TBelief &belief, const TAction &action) const;
-        double getObservationProbability(const TBelief &, const TAction &action, const TObservation &obs, const TBelief &belief) const;
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+
+        std::shared_ptr<State> getInitialState();
+        
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs) const = 0;
+        
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, std::shared_ptr<HSVI> hsvi) const = 0;
+
+        std::shared_ptr<DiscreteSpace<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<State> &ostate = std::shared_ptr<State>());
+
+        virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t) const = 0;
+        
+        double getExpectedNextValue(std::shared_ptr<ValueFunction> value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t) const;
+
+        /**
+         * @brief Get the Observation Probability p(o | b, a)
+         */
+        virtual double getObservationProbability(const std::shared_ptr<State> &, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, const std::shared_ptr<State> &belief) const = 0;
+
+        bool isSerialized() const;
+        
+        std::shared_ptr<DecisionProcess> getUnderlyingProblem();
+
+        double getDiscount(number = 0);
+        
+        double getWeightedDiscount(number);
+        
+        double do_excess(double, double, double, double, double, number);
+        
+        std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &, const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &, const std::shared_ptr<State> &, number);
+
+    protected:
+        std::shared_ptr<std::shared_ptr<BasePOMDP>> pomdp_;
+        std::shared_ptr<std::shared_ptr<BeliefState>> initial_state_;
+        std::shared_ptr<std::shared_ptr<BeliefState>> current_state_;
     };
 
-    // ##############################################################################################################################
-    // ############################ SPECIALISATION FOR BeliefState Structure ###############################################
-    // ##############################################################################################################################
 
-    /**
-     * @brief Specialisation of occupancy mdp in the case of occupancy states. 
-     * 
-     * @tparam TActionDescriptor the action type
-     * @tparam TObservation the observation type
-     * @tparam TActionPrescriptor the action type (controller's one)
-     */
-    template <typename TAction, typename TObservation>
-    class BeliefMDP<BeliefStateGraph_p<TAction, TObservation>, TAction, TObservation>
-        : public BaseBeliefMDP<BeliefStateGraph_p<TAction, TObservation>, TAction, TObservation>
-    {
-    public:
-        using state_type = BeliefStateGraph_p<TAction, TObservation>;
-        using action_type = TAction;
-        using observation_type = TObservation;
 
-        BeliefMDP();
-        BeliefMDP(std::string underlying_pomdp);
-        BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
-
-        state_type nextState(const state_type &belief, const TAction &action, const TObservation &obs) const;
-        state_type nextState(const state_type &belief, const TAction &action, number t, std::shared_ptr<HSVI<state_type, TAction>> hsvi) const;
-
-        double getReward(const state_type &belief, const TAction &action) const;
-        double getObservationProbability(const state_type &, const TAction &action, const TObservation &obs, const state_type &belief) const;
-    };
-} // namespace sdm
-#include <sdm/world/belief_mdp.tpp>
+}

@@ -23,10 +23,6 @@ namespace sdm
   class BeliefState : public BaseState<TVector<std::shared_ptr<State>, double>>, public Distribution<std::shared_ptr<State>>
   {
   public:
-    using state_type = std::shared_ptr<State>;
-    using struct_type = TVector<std::shared_ptr<State>, double>;
-    using value_type = typename struct_type::value_type;
-
     static double PRECISION;
 
     BeliefState();
