@@ -18,15 +18,14 @@ namespace sdm
     /**
    * @brief The stochastic decision rule class. This class is a function that maps generic states distribution over generic actions. 
    * 
-   * @tparam TState the state type
-   * @tparam TAction the action type
+   * @tparam std::shared_ptr<State> the state type
+   * @tparam std::shared_ptr<Action> the action type
    */
-    template <typename TState, typename TAction>
-    class StochasticDecisionRule : public DecisionRule<TState, TAction>, public RecursiveMap<TState, TAction, double>
+    class StochasticDecisionRule : public DecisionRule, public RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, double>
     {
     public:
-        using input_type = typename DecisionRule<TState, TAction>::input_type;
-        using output_type = typename DecisionRule<TState, TAction>::output_type;
+        using input_type = typename DecisionRule::input_type;
+        using output_type = typename DecisionRule::output_type;
 
         StochasticDecisionRule();
 
@@ -36,19 +35,19 @@ namespace sdm
          * @param s the generic state
          * @return the corresponding action
          */
-        TAction act(const TState &s) const;
+        std::shared_ptr<Action> act(const std::shared_ptr<State> &s) const;
 
-        /**
-         * @brief Apply the DetDecisionRule function (similar to `act` or even `at`)
-         * 
-         * @param s the generic state
-         * @return the corresponding action
-         */
-        TAction operator()(const TState &s);
+        // /**
+        //  * @brief Apply the DetDecisionRule function (similar to `act` or even `at`)
+        //  * 
+        //  * @param s the generic state
+        //  * @return the corresponding action
+        //  */
+        // std::shared_ptr<Action> operator()(const std::shared_ptr<State> &s);
 
-        RecursiveMap<TAction, double> getProbabilities(const TState &state);
+        RecursiveMap<std::shared_ptr<Action>, double> getProbabilities(const std::shared_ptr<State> &state) const;
 
-        double getProbability(const TState &state, const TAction &action);
+        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -57,26 +56,16 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        void setProbability(const TState &state, const TAction &action, double proba);
+        void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba);
 
-        friend std::ostream &operator<<(std::ostream &os, const StochasticDecisionRule<TState, TAction> &stoch_decision_rule)
+        std::string str() const;
+
+        friend std::ostream &operator<<(std::ostream &os, const StochasticDecisionRule &stoch_decision_rule)
         {
-            os << "<decision-rule type=\"stochastic\">" << std::endl;
-            for (const auto &pair_state__pair_action__proba : stoch_decision_rule)
-            {
-                os << "\t<decision state=\"" << pair_state__pair_action__proba.first << "\">" << std::endl;
-                std::ostringstream res;
-                res << "\t\t" << pair_state__pair_action__proba.second << std::endl;
-                sdm::tools::indentedOutput(os, res.str().c_str());
-                os << "\t<decision/>" << std::endl;
-            }
-            os << "<decision-rule/>" << std::endl;
-            return os;
+            os << stoch_decision_rule.str();
+            return os;        
         }
     };
-
-    template <typename TState, typename TAction>
-    using StochDecisionRule = StochasticDecisionRule<TState, TAction>;
 
 } // namespace sdm
 

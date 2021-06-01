@@ -19,14 +19,14 @@ endforeach(f)
 #### This section can be uncommented and rewrite in order to compile only a part of sdms (quicktest.cpp file)
 file(
 	GLOB_RECURSE
-	lib_world
-	${INCLUDE_DIR}/*
+	# lib_world
+	# ${INCLUDE_DIR}/*
 	# ${INCLUDE_DIR}/utils/struct/*
-	# ${INCLUDE_DIR}/core/*
+	${INCLUDE_DIR}/core/action/*
 	# ${INCLUDE_DIR}/common.cpp
 	# ${INCLUDE_DIR}/tools.cpp
 )
-add_library(lib_world SHARED ${lib_world})
+# add_library(lib_world SHARED ${lib_world})
 include_directories(${SDMS_INCLUDE_DIRS})
 
 add_executable(quicktest tmp/quicktest.cpp)
@@ -36,7 +36,7 @@ dl
 ${Boost_LIBRARIES}
 ${TORCH_LIBRARIES}
 ${CPLEX_LIBRARIES}
-lib_world
+# lib_world
 )
 
 

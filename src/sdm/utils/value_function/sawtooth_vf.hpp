@@ -18,11 +18,8 @@ namespace sdm
     /**
      * @brief 
      * 
-     * @tparam TState type of hyperplan representation. Must implement sdm::VectorImpl interface.
-     * @tparam TValue value type (default : double)
      */
-    template <typename TState, typename TAction, typename TValue = double>
-    class SawtoothValueFunction : public MappedValueFunction<TState, TAction, TValue>
+    class SawtoothValueFunction : public MappedValueFunction
     {
     protected:
         /**
@@ -48,15 +45,15 @@ namespace sdm
         /**
          * @brief Construct a new Sawtooth Value Function object
          * 
-         * @param std::shared_ptr<SolvableByHSVI<TState, TAction>> : problem 
+         * @param std::shared_ptr<SolvableByHSVI> : problem 
          * @param number : horizon 
-         * @param std::shared_ptr<Initializer<TState, TAction>> : initializer 
+         * @param std::shared_ptr<Initializer> : initializer 
          * @param number frequency of the pruning 
          * @param double : espilon prunning 
          */
-        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number , std::shared_ptr<Initializer<TState, TAction>>, number = 10, double = 0.1);
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI> , number , std::shared_ptr<Initializer>, number = 10, double = 0.1);
         
-        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> , number  = 0, TValue  = 0., number = 10, double = 0.1);
+        SawtoothValueFunction(std::shared_ptr<SolvableByHSVI> , number  = 0, double  = 0., number = 10, double = 0.1);
 
         /**
          * @brief Evaluate the value at a state.
@@ -64,13 +61,13 @@ namespace sdm
          * @param state the state where we want to evaluate the function
          * @return the value
          */
-        TValue getValueAt(const TState &state, number t = 0);
+        double getValueAt(const std::shared_ptr<State> &state, number t = 0);
 
-        void updateValueAt(const TState &state, number t);
+        void updateValueAt(const std::shared_ptr<State> &state, number t);
 
-        virtual TValue getBackup(const TState &state, number t);
+        virtual double getBackup(const std::shared_ptr<State> &state, number t);
 
-        std::pair<TValue, TState> getMaxAt(const TState &state, number t);
+        std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Point-wise pruning.
@@ -78,7 +75,7 @@ namespace sdm
          */
         void prune(number t = 0);
 
-        bool is_dominated(const TState &ostate, double value, number t);
+        bool is_dominated(const std::shared_ptr<State> &ostate, double value, number t);
     };
 }
 #include <sdm/utils/value_function/sawtooth_vf.tpp>

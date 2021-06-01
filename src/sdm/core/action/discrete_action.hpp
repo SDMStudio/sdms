@@ -12,6 +12,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/action/action.hpp>
+#include <sdm/core/joint.hpp>
 
 namespace sdm
 {
@@ -21,7 +22,7 @@ namespace sdm
   {
   public:
     BaseAction() {}
-    BaseAction(const TAction &item) : action_(action) {}
+    BaseAction(const TAction &action) : action_(action) {}
 
     virtual TAction getAction() const { return this->action_; }
     virtual void setAction(const TAction &action) { this->action_ = action; }

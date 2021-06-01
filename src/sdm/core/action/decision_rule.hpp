@@ -40,7 +40,7 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        virtual double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) = 0;
+        virtual double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action)const = 0;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -50,6 +50,8 @@ namespace sdm
          * @param proba the probability
          */
         virtual void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba) = 0;
+
+        virtual std::string str() const = 0;
     };
 
 } // namespace sdm

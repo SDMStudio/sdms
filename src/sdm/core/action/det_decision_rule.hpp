@@ -30,7 +30,7 @@ namespace sdm
      * @param a the action
      * @return the probability
      */
-    virtual double getProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a);
+    virtual double getProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a) const;
 
     /**
      * @brief Set the probability of selecting action a in state s.
@@ -39,19 +39,9 @@ namespace sdm
      * @param a the action
      * @param proba the probability
      */
-    virtual void setProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, double proba = 0);
+    virtual void setProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, double proba = 1);
 
-    std::string str() const
-    {
-      std::ostringstream res;
-      res << "<decision-rule type=\"deterministic\">" << std::endl;
-      for (const auto &pair_s_a : this->map_state_to_action_)
-      {
-        os << "\t<decision state=\"" << pair_s_a.first->str() << "\" action=\"" << pair_s_a.second->str() << "\"/>" << std::endl;
-      }
-      os << "<decision-rule/>" << std::endl;
-      return res.str();
-    }
+    std::string str() const;
 
     friend std::ostream &operator<<(std::ostream &os, const DeterministicDecisionRule &dr)
     {
