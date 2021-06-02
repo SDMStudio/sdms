@@ -43,10 +43,20 @@ namespace sdm
      * 
      * @param std::shared_ptr<std::unordered_map<I, size_t>> : A map that associate the element I with a specific index
      * @param std::shared_ptr<std::unordered_map<I, T>> : A map that associate the element I with a specific value
-     * @param TypeVector : The type of Vector. The only possibility is Dense Vector or Sparse Vector
+     * @param double : the default value
      * 
      */
-    sdmsVector(std::shared_ptr<std::unordered_map<I, size_t>>, std::shared_ptr<std::unordered_map<I, T>>);
+    sdmsVector(std::shared_ptr<std::unordered_map<I, size_t>>, std::shared_ptr<std::unordered_map<I, T>>, double = 0);
+
+    /**
+     * @brief Create a SDMS Vector. 
+     * 
+     * @param std::vector<I>> : A vector for each element I
+     * @param std::vector<T> : A vector for each value associate at the same position of the element I in vector
+     * @param double : the default value
+     * 
+     */
+    sdmsVector(std::vector<I>, std::vector<T>, double = 0);
 
     virtual ~sdmsVector() {}
 
@@ -54,7 +64,7 @@ namespace sdm
     T getValueAt(const I &) const;
     void setValueAt(const I &, const T &value);
 
-    T sum();
+    T sum() const;
     T norm_1() const;
     T norm_2() const;
 

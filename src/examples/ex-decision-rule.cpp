@@ -1,5 +1,5 @@
 #include <sdm/core/actions.hpp>
-#include <sdm/core/state/discrete_state.hpp>
+#include <sdm/core/state/base_state.hpp>
 
 using namespace sdm;
 

@@ -11,10 +11,10 @@ namespace sdm
     sdmsVector<I, T,TBaseVector>::sdmsVector(){}
 
     template <class I, class T, class TBaseVector>
-    sdmsVector<I, T,TBaseVector>::sdmsVector(std::shared_ptr<std::unordered_map<I, size_t>> map_element_to_index, std::shared_ptr<std::unordered_map<I, T>> map_element_to_value ) :
+    sdmsVector<I, T,TBaseVector>::sdmsVector(std::shared_ptr<std::unordered_map<I, size_t>> map_element_to_index, std::shared_ptr<std::unordered_map<I, T>> map_element_to_value, double default_value) :
         map_element_to_index_(map_element_to_index)
     {        
-        TBaseVector vector(map_element_to_index_->size());
+        TBaseVector vector(map_element_to_index_->size(),default_value);
         for(const auto &element_to_index : *map_element_to_index)
         {
             vector[element_to_index.second] = map_element_to_value->at(element_to_index.first);
@@ -23,9 +23,28 @@ namespace sdm
         this->tbasevector_ = vector;
     }
 
+    template <class I, class T, class TBaseVector>
+    sdmsVector<I, T,TBaseVector>::sdmsVector(std::vector<I> vector_element, std::vector<T> vector_value, double default_value)
+    {        
+        assert(vector_element.size() == vector_value.size());
+        
+        std::unordered_map<I, size_t> element_to_index;
+
+        TBaseVector vector(vector_element.size(),default_value);
+        for(size_t index = 0; index <vector_element.size(); index ++)
+        {
+            vector[index] = vector_value[index];
+
+            vector_element_.push_back(vector_element[index]);
+            element_to_index[vector_element[index]] = index;
+        }
+        this->tbasevector_ = vector;
+        this->map_element_to_index_ = std::make_shared<std::unordered_map<I, size_t>>(element_to_index);
+    }
+
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T,TBaseVector>::sum()
+    T sdmsVector<I, T,TBaseVector>::sum() const
     {
         T sum = 0;
         for (auto pos = this->tbasevector_.begin(); pos != this->tbasevector_.end(); ++pos)
@@ -150,7 +169,7 @@ namespace sdm
     template <class I, class T, class TBaseVector>
     bool sdmsVector<I, T,TBaseVector>::operator<=(const sdmsVector &v2) const
     {
-        assert(this->map_element_to_index_ == v2.getMapElementToIndex());
+        assert(this->getIndexes() == v2.getIndexes());
 
         for (const auto &element : this->getIndexes())
         {
@@ -167,11 +186,13 @@ namespace sdm
         return this->map_element_to_index_;
     }
 
-
     template <class I, class T, class TBaseVector>
     bool sdmsVector<I, T,TBaseVector>::is_equal(const sdmsVector &other, double precision) const
     {
-        assert(this->map_element_to_index_ == other.getMapElementToIndex());
+        if( this->getIndexes() != other.getIndexes())
+        {
+            return false;
+        }
 
         for (const auto &element : this->getIndexes())
         {

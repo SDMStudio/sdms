@@ -1,6 +1,6 @@
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
-#include <sdm/core/state/discrete_state.hpp>
+#include <sdm/core/state/base_state.hpp>
 
 
 using namespace sdm;
@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     DenseVector<std::shared_ptr<DiscreteState>> test_vector_2(shared_map_element_to_index,shared_map_element_to_value_2);
 
     // Basic Function of SDMS Vector
+    std::cout<<"\n \nBasic Function of SDMS Vector"<<std::endl;
 
     std::cout<<"Print Test Vector"<<test_vector.str()<<std::endl;
 
@@ -66,6 +67,39 @@ int main(int argc, char **argv)
 
     std::cout <<"Test Vector Equivalence : "<< (test_vector == test_vector_2) << std::endl;
     std::cout<<"Dot Bewtween the vector "<<test_vector.dot(test_vector_2)<<std::endl;
+
+    std::cout<<"\n \nBasic Function of SDMS Vector with other Construtor"<<std::endl;
+
+    std::vector<std::shared_ptr<DiscreteState>> vector_state({element_state_5,element_state_0});
+    std::vector<double> vector_value({5,20});
+
+    DenseVector<std::shared_ptr<DiscreteState>> test_vector_3(vector_state,vector_value);
+
+    std::cout<<"Print Test Vector"<<test_vector_3.str()<<std::endl;
+
+    std::cout<<"Test Sum : "<<test_vector_3.sum()<<std::endl;
+    std::cout<<"Value State 0 : "<<test_vector_3.at(element_state_0)<<std::endl;
+
+    std::cout<<"Return all Indexes" <<test_vector_3.getIndexes()<<std::endl;
+
+    std::cout<<"Get Norm 1 :"<<test_vector_3.norm_1()<<std::endl;
+    std::cout<<"Get Norm 2 :"<<test_vector_3.norm_2()<<std::endl;
+
+    std::cout<<"Get Min : "<<test_vector_3.min()<<std::endl;
+    std::cout<<"Get Max : "<<test_vector_3.max()<<std::endl;
+
+    std::cout <<"Test Vector Equivalence : "<< (test_vector == test_vector_3) << std::endl;
+    std::cout <<"Test Vector <= : "<< (test_vector <= test_vector_3) << std::endl;
+
+    std::cout<<"Modification of value State 0 from 20 to 50 "<<std::endl;
+    test_vector_3.setValueAt(element_state_0,50);
+    std::cout<<"New Value At State 0 : "<<test_vector_3.at(element_state_0)<<std::endl;
+
+    std::cout <<"Test Vector Equivalence : "<< (test_vector == test_vector_3) << std::endl;
+    std::cout<<"Dot Bewtween the vector "<<test_vector.dot(test_vector_3)<<std::endl;
+
+
+
 
     // using TState = number;
     // using TAction = number;
