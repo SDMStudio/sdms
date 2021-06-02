@@ -20,9 +20,18 @@ namespace sdm
     /**
      * @brief The class for Discrete Partially Observable Markov Decision Processes. 
      */
-    class BasePOMDP : public BaseMDP
+    class BasePOMDP : public BaseMDP, virtual public POMDPInterface
     {
     public:
+        BasePOMDP(number num_agents,
+                  double discount,
+                  const std::shared_ptr<Space<std::shared_ptr<State>>> &state_space,
+                  const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
+                  const std::shared_ptr<Space<std::shared_ptr<Observation>>> &obs_space,
+                  const std::shared_ptr<BaseReward> &reward,
+                  const std::shared_ptr<BaseStateDynamics> &state_dynamics,
+                  const std::shared_ptr<BaseObservationDynamics> &obs_dynamics);
+
         /**
          * @brief Get the reachable next states
          * 
@@ -30,7 +39,7 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
+        std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
 
         std::set<std::shared_ptr<Observation>> getAllObservations(number t) const;
 
@@ -56,20 +65,8 @@ namespace sdm
          */
         double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
 
-        std::shared_ptr<BasePOMDP> getptr();
-
-        /**
-         * @brief Get the corresponding Markov Decision Process. It corresponds to the relaxation of the original POMP assuming that the agent can observation the state of the environment. 
-         * 
-         * @return a MDP 
-         */
-        std::shared_ptr<BaseMDP> toMDP();
-
-        /**
-         * @brief Get the corresponding Belief Markov Decision Process. It corresponds to the reformulation of the original POMP in a MDP where the state space is the space of beliefs. 
-         * 
-         * @return a belief MDP
-         */
-        std::shared_ptr<BeliefMDP> toBeliefMDP();
+    protected:
+        std::shared_ptr<Space<std::shared_ptr<Observation>>> obs_space_;
+        std::shared_ptr<BaseObservationDynamics> obs_dynamics_;
     };
 } // namespace sdm

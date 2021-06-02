@@ -24,28 +24,26 @@ namespace sdm
      * @tparam TAction action type
      * @tparam is_multi_agent set to true if the environment is multi agent.
      */
-    template <typename TObservation, typename TAction, bool is_multi_agent = false>
     class GymInterface
     {
     public:
-        using observation_type = TObservation;
-        using action_type = TAction;
-
-        GymInterface();
+        GymInterface(const std::shared_ptr<Space<std::shared_ptr<Observation>>>& observation_space, const std::shared_ptr<Space<std::shared_ptr<Action>>>& action_space);
 
         /**
          * @brief Get the action space.
          * 
          * @return the action space. 
          */
-        virtual std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TObservation &) = 0;
+        virtual std::shared_ptr<Space<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
+        virtual std::shared_ptr<Space<std::shared_ptr<Action>>> getActionSpaceAt(number t) = 0;
+        virtual std::shared_ptr<Space<std::shared_ptr<Observation>>> getObservationSpaceAt(number t) = 0;
 
         /**
          * @brief Reset the environment and return initial observation.
          * 
          * @return the initial observation
          */
-        virtual TObservation reset() = 0;
+        virtual std::shared_ptr<Observation> reset() = 0;
 
         /**
          * @brief Do a step on the environment.
@@ -53,7 +51,10 @@ namespace sdm
          * @param action the action to execute
          * @return the information produced. Include : next observation, rewards, episode done  
          */
-        virtual std::tuple<TObservation, std::vector<double>, bool> step(TAction action) = 0;
+        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
+
+    protected:
+
     };
 } // namespace sdm
 

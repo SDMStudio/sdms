@@ -4,51 +4,41 @@
 namespace sdm
 {
 
-    BasePOMDP::BasePOMDP()
+    BasePOMDP::BasePOMDP(number num_agents,
+                         double discount,
+                         const std::shared_ptr<Space<std::shared_ptr<State>>> &state_space,
+                         const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
+                         const std::shared_ptr<Space<std::shared_ptr<Observation>>> &obs_space,
+                         const std::shared_ptr<BaseReward> &reward,
+                         const std::shared_ptr<BaseStateDynamics> &state_dynamics,
+                         const std::shared_ptr<BaseObservationDynamics> &obs_dynamics) : BaseMDP(num_agents, discount, state_space, action_space, reward, state_dynamics),
+                                                                                         obs_space_(obs_space),
+                                                                                         obs_dynamics_(obs_dynamics)
     {
     }
 
-    BasePOMDP::BasePOMDP(std::string &filename)
-    {
-        *this = *(parser::parse_file(filename)->toPOMDP());
-    }
-
-    BasePOMDP::BasePOMDP(std::shared_ptr<DiscreteSpace<number>> state_sp, std::shared_ptr<DiscreteSpace<number>> action_sp, std::shared_ptr<DiscreteSpace<number>> obs_sp, std::shared_ptr<StateDynamics> state_dyn, std::shared_ptr<ObservationDynamics> obs_dyn, std::shared_ptr<Reward> rew_f, std::discrete_distribution<number> start_distrib, number planning_horizon, double discount, Criterion criterion)
-        : StochasticProcessBase<DiscreteSpace<number>, std::discrete_distribution<number>>(state_sp, start_distrib),
-          PartiallyObservableDecisionProcess<DiscreteSpace<number>,
-                                             DiscreteSpace<number>,
-                                             DiscreteSpace<number>,
-                                             StateDynamics,
-                                             ObservationDynamics,
-                                             Reward,
-                                             std::discrete_distribution<number>>(state_sp,
-                                                                                 action_sp,
-                                                                                 obs_sp,
-                                                                                 state_dyn,
-                                                                                 obs_dyn,
-                                                                                 rew_f,
-                                                                                 start_distrib,
-                                                                                 planning_horizon,
-                                                                                 discount,
-                                                                                 criterion)
-
+    std::set<std::shared_ptr<Observation>> BasePOMDP::getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
     }
 
-    std::shared_ptr<BasePOMDP> BasePOMDP::getptr()
+    std::set<std::shared_ptr<Observation>> BasePOMDP::getAllObservations(number t) const
     {
-        return shared_from_this();
+        return this->getObsSpace(t)->getAll();
     }
 
-    // // Other methods
-    std::shared_ptr<MDP> BasePOMDP::toMDP()
+    std::set<std::shared_ptr<Observation>> BasePOMDP::getObservationSpace(number) const
     {
-        return std::make_shared<MDP>(this->getStateSpace(), this->getActionSpace(), this->getStateDynamics(), this->getReward(), this->getStartDistrib(), this->getPlanningHorizon(), this->getDiscount(), this->getCriterion());
+        return this->obs_space_;
     }
 
-    std::shared_ptr<BeliefMDP> BasePOMDP::toBeliefMDP()
+    double BasePOMDP::getObservationProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
     {
-        return std::make_shared<BeliefMDP>(this->getptr());
+        return this->obs_dynamics_->getObservationProbability(action, next_state, observation, t);
+    }
+
+    double BasePOMDP::getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
+    {
+        return this->obs_dynamics_->getDynamics(state, action, next_state, observation, t);
     }
 
 }

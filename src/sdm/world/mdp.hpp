@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/world/base/base_mdp.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 
 namespace sdm
@@ -10,18 +10,12 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes.
      *
      */
-    class MDP : public SolvableByHSVI,
-                public std::enable_shared_from_this<MDP>
+    class MDP : public SolvableByHSVI
     {
-    protected:
-        std::shared_ptr<MDPInterface> underlying_problem;
-
     public:
         MDP();
-        MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::discrete_distribution<number>);
-        MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<StateDynamics>, std::shared_ptr<BaseReward> reward_function, std::discrete_distribution<number>, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
+
         MDP(const std::shared_ptr<MDPInterface> &mdp);
-        MDP(std::string &);
 
         /**
          * @brief Get the initial state
@@ -118,10 +112,9 @@ namespace sdm
          */
         bool isSerialized() const;
 
-        std::shared_ptr<MDP> getptr();
+    protected:
+        std::shared_ptr<MDPInterface> underlying_problem;
 
-        std::shared_ptr<MDP> toMDP();
-
-        std::shared_ptr<BeliefMDP> toBeliefMDP();
+        std::shared_ptr<MDPInterface> getUnderlyingMDP();
     };
 } // namespace sdm
