@@ -10,15 +10,17 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes.
      *
      */
-    class MDP : public BaseMDP,
-                public SolvableByHSVI,
+    class MDP : public SolvableByHSVI,
                 public std::enable_shared_from_this<MDP>
     {
+    protected:
+        std::shared_ptr<MDPInterface> underlying_problem;
+
     public:
         MDP();
-        MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>);
         MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::discrete_distribution<number>);
-        MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number>, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
+        MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<StateDynamics>, std::shared_ptr<BaseReward> reward_function, std::discrete_distribution<number>, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
+        MDP(const std::shared_ptr<MDPInterface> &mdp);
         MDP(std::string &);
 
         /**
@@ -64,7 +66,7 @@ namespace sdm
          * @param number h : horizon
          * @return TAction 
          */
-        std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &lb, const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &ub, const std::shared_ptr<State> &s, number h);
+        std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h);
 
         /**
          * @brief Get the next occupancy state.
@@ -99,14 +101,14 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+        double getExpectedNextValue(std::shared_ptr<ValueFunction> value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
          * 
          * @return the underlying problem 
          */
-        // std::shared_ptr<MDP> getUnderlyingProblem();
+        std::shared_ptr<MDPInterface> getUnderlyingProblem();
 
         /**
          * @brief Check if the problem is serialized.
@@ -115,7 +117,6 @@ namespace sdm
          * @return false if the problem is not serialized.
          */
         bool isSerialized() const;
-
 
         std::shared_ptr<MDP> getptr();
 

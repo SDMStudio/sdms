@@ -23,6 +23,18 @@
 namespace sdm
 {
 
+  namespace ptr
+  {
+    template <typename T>
+    using shared = std::shared_ptr<T>;
+
+    template <typename T>
+    using unique = std::unique_ptr<T>;
+
+    template <typename T>
+    using weak = std::weak_ptr<T>;
+  } // namespace ptr
+
   const size_t SUCCESS = 0;
   const size_t ERROR_IN_COMMAND_LINE = 1;
   const size_t ERROR_UNHANDLED_EXCEPTION = 2;
@@ -116,7 +128,6 @@ namespace sdm
   class DiscreteMMDP;
   class DiscretePOMDP;
   class DiscreteDecPOMDP;
-
 
   template <typename TState, typename TAction>
   class MDP;

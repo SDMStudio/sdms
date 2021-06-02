@@ -17,7 +17,7 @@ namespace sdm
     {
     public:
         POMDP();
-        POMDP(std::shared_ptr<MDP> mdp, std::shared_ptr<ObsDynamics> obs_dyn);
+        POMDP(const std::shared_ptr<MDP> &mdp, const std::shared_ptr<ObsDynamics> &obs_dyn);
         POMDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<StateDynamics>, std::shared_ptr<Reward>, std::discrete_distribution<number>, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
         POMDP(std::string &filename);
 

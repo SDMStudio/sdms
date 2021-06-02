@@ -37,7 +37,7 @@ namespace sdm
          * @param number decision epoch or any other parameter 
          * @return double discount factor
          */
-        virtual double getDiscount(number t = 0) = 0;
+        virtual double getDiscount(number t) = 0;
 
         /**
          * @brief Get the specific weighted discount factor for the problem at hand
@@ -58,7 +58,7 @@ namespace sdm
          * @param number : horizon 
          * @return double 
          */
-        virtual double do_excess(double incumbent, double lb_value, double ub_value, double cost_so_far, double error, number horizon) = 0;
+        virtual double do_excess(double incumbent, double lb_value, double ub_value, double cost_so_far, double error, number t) = 0;
 
         /**
          * @brief Select the next action
@@ -69,7 +69,7 @@ namespace sdm
          * @param number h : horizon
          * @return TAction 
          */
-        virtual std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &lb, const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &ub, const std::shared_ptr<State> &s, number h) = 0;
+        virtual std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the next occupancy state.
@@ -93,7 +93,7 @@ namespace sdm
         /**
          * @brief Get the reward at a given occupancy state and occupancy action 
          */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const = 0;
+        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
 
         /**
          * @brief Get the expected next value
@@ -104,7 +104,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getExpectedNextValue(std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const = 0;
+        virtual double getExpectedNextValue(std::shared_ptr<ValueFunction> value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
 
         /**
          * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  

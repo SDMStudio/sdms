@@ -18,7 +18,23 @@ namespace sdm
     template <typename T>
     class Distribution
     {
+    public:
         virtual T sample() const = 0;
-        virtual double getProbability(const T &begin, const T &end = 0) const = 0;
+        virtual double getProbability(const T &begin, const T &end) const = 0;
+    };
+
+    template <typename T>
+    class DiscreteDistribution : public Distribution<T> 
+    {
+    public:
+        virtual T sample() const;
+
+        virtual double getProbability(const T &begin, const T & = 0) const;
+
+        virtual double setProbability(const T &item, double proba) const;
+
+    protected:
+        std::map<T, double> probabilities_;
     };
 } // namespace sdm
+#include <sdm/core/distribution.tpp>

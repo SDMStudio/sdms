@@ -41,12 +41,12 @@ namespace sdm
     /**
      * @brief Lower Bound representation. 
      */
-    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> lower_bound_;
+    std::shared_ptr<ValueFunction> lower_bound_;
 
     /**
      * @brief Upper Bound representation. 
      */
-    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> upper_bound_;
+    std::shared_ptr<ValueFunction> upper_bound_;
 
     /**
      * @brief Logger.
@@ -78,8 +78,8 @@ namespace sdm
      * @param name the name of the algorithm (this name is used to save logs)
      */
     HSVI(std::shared_ptr<SolvableByHSVI> &world,
-         std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> lower_bound,
-         std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> upper_bound,
+         std::shared_ptr<ValueFunction> lower_bound,
+         std::shared_ptr<ValueFunction> upper_bound,
          number planning_horizon,
          double epsilon,
          number num_max_trials = 10000,
@@ -140,12 +140,12 @@ namespace sdm
     /**
      * @brief Get the lower bound value function 
      */
-    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> getLowerBound() const;
+    std::shared_ptr<ValueFunction> getLowerBound() const;
 
     /**
      * @brief Get the upper bound value function 
      */
-    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> getUpperBound() const;
+    std::shared_ptr<ValueFunction> getUpperBound() const;
 
     int getTrial();
   };

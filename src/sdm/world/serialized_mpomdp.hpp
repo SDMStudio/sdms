@@ -17,24 +17,10 @@
 
 namespace sdm
 {
-    /**
-     * @brief The class for Discrete Markov Decision Processes. 
-     * 
-     */
-    class BaseMDP : public MDPInterface
+    class SerializedMMDP : virtual public POMDPInterface, public SerializedMMDP
     {
     public:
-        BaseMDP(const std::shared_ptr<Space> &state_space,
-                const std::shared_ptr<Space> &action_space,
-                const std::shared_ptr<BaseReward> &reward,
-                const std::shared_ptr<BaseStateDynamics> &state_dynamics);
-
-        /**
-         * @brief Get the number of agents
-         * 
-         * @return the number of agents
-         */
-        virtual number getNumAgents() const;
+        SerializedMMDP(std::shared_ptr<MDPInterface> mpomdp);
 
         /**
          * @brief Get the discount factor at timestep t.
@@ -94,17 +80,6 @@ namespace sdm
          * @return double 
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
-
-        std::shared_ptr<Space> getActionSpace(number t);
-
-        std::shared_ptr<Space> getStateSpace(number t);
-        
-        std::shared_ptr<Space> getObservationSpace(number t);
-
-    protected:
-        std::shared_ptr<Space> state_space, action_space;
-        std::shared_ptr<BaseReward> &reward;
-        std::shared_ptr<BaseStateDynamics> state_dynamics;
     };
 
 } // namespace sdm

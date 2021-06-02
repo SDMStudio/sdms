@@ -37,12 +37,10 @@ namespace sdm
      * @brief An base occupancy MDP is a subclass of continuous state MDP where states are occupancy states. 
      * In the general case, an occupancy state refers to the whole knowledge that a central planner can have access to take decisions. But in this implementation we call occupancy state are distribution over state and joint histories .
      * 
-     * @tparam TState the occupancy state type 
-     * @tparam TAction the occupancy action type 
+     * @tparam std::shared_ptr<State> the occupancy state type 
+     * @tparam std::shared_ptr<Action> the occupancy action type 
      */
-    template <typename TState, typename TAction>
-    class BaseOccupancyMDP : public SolvableByHSVI<TState, TAction>,
-                             public GymInterface<TState, TAction>
+    class BaseOccupancyMDP : public BeliefMDP
     {
     protected:
         /**
@@ -51,25 +49,11 @@ namespace sdm
         bool compress = true, keep_one_step_uncompressed = false, keep_fully_uncompressed = false;
 
         /**
-         * @brief The problem that we want solve. 
-         */
-        std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
-
-        /**
-         * @brief Keep initial and current states.
-         */
-        std::shared_ptr<TState> initial_state_, current_state_;
-
-        /**
          * @brief Keep initial and current histories.
          */
-        typename TState::jhistory_type initial_history_ = nullptr, current_history_ = nullptr;
+        std::unique_ptr<JointHistory> initial_history_ = nullptr, current_history_ = nullptr;
 
     public:
-        using state_type = TState;
-        using action_type = TAction;
-        // using observation_type = oObservation;
-
         BaseOccupancyMDP();
 
         /**
@@ -86,7 +70,7 @@ namespace sdm
          * @param underlying_dpomdp the underlying DecPOMDP 
          * @param hist_length the maximum length of the history
          */
-        BaseOccupancyMDP(std::shared_ptr<DiscreteDecPOMDP>, number = -1);
+        BaseOccupancyMDP(std::shared_ptr<BasePOMDP>, number = -1);
 
         virtual void initialize(number history_length) = 0;
 
@@ -99,7 +83,7 @@ namespace sdm
          * 
          * @return the initial observation
          */
-        TState reset();
+        std::shared_ptr<State> reset();
 
         /**
          * @brief Do a step on the environment.
@@ -107,7 +91,7 @@ namespace sdm
          * @param action the action to execute
          * @return the information produced. Include : next observation, rewards, episode done  
          */
-        virtual std::tuple<TState, std::vector<double>, bool> step(TAction action) = 0;
+        virtual std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
 
         // ---------------------------------------------
         // ---------- HSVI exact interface -------------
@@ -115,31 +99,31 @@ namespace sdm
 
         bool isSerialized() const;
 
-        TState getInitialState();
+        std::shared_ptr<State> getInitialState();
 
-        virtual TState nextState(const TState &, const TAction &, number, std::shared_ptr<HSVI<TState, TAction>>, bool) const = 0;
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number, std::shared_ptr<HSVI>, bool) const = 0;
 
-        TState nextState(const TState &, const TAction &, number = 0, std::shared_ptr<HSVI<TState, TAction>> = nullptr) const;
+        std::shared_ptr<State> nextState(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number = 0, std::shared_ptr<HSVI> = nullptr) const;
 
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &);
+        std::shared_ptr<DiscreteSpace<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<State> &);
 
-        virtual double getReward(const TState &, const TAction &) const = 0;
+        virtual double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule) const = 0;
 
-        double getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>>, const TState &, const TAction &, number = 0) const;
+        double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t = 0) const;
 
         /**
          * @brief Get the specific discount factor for the problem at hand
          * @param number decision epoch or any other parameter 
          * @return double discount factor
          */
-        double getDiscount(number = 0);
+        double getDiscount(number t = 0);
 
         /**
          * @brief Get the specific weighted discount factor for the problem at hand
          * @param number decision epoch or any other parameter 
          * @return double discount factor
          */
-        double getWeightedDiscount(number);
+        double getWeightedDiscount(number t);
 
         /**
          * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
@@ -157,20 +141,20 @@ namespace sdm
         /**
          * @brief Select the next action
          * 
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the lower bound
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the upper bound
-         * @param const TState & s : current state
+         * @param const std::shared_ptr<ValueFunction>& : the lower bound
+         * @param const std::shared_ptr<ValueFunction>& : the upper bound
+         * @param const std::shared_ptr<State> & s : current state
          * @param number h : horizon
-         * @return TAction 
+         * @return std::shared_ptr<Action> 
          */
-        TAction selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &lb, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h);
+        std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number t);
 
         /**
          * @brief Get the underlying problem (i.e. the DecPOMDP formalism)
          * 
          * @return a formalism
          */
-        DiscreteDecPOMDP *getUnderlyingProblem();
+        std::shared_ptr<DecisionProcess> getUnderlyingProblem();
 
         // ---------- Other -------------
         /**
@@ -188,4 +172,3 @@ namespace sdm
         std::shared_ptr<BeliefMDP<BeliefState<>, number, number>> toBeliefMDP();
     };
 } // namespace sdm
-#include <sdm/world/base/base_occupancy_mdp.tpp>
