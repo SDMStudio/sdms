@@ -12,6 +12,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/joint.hpp>
 
 namespace sdm
 {

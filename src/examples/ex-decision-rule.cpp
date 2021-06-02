@@ -5,7 +5,6 @@ using namespace sdm;
 
 int main(int, char **)
 {
-
     auto state_0 = std::make_shared<DiscreteState>(0);
     auto state_1 = std::make_shared<DiscreteState>(1);
     auto state_2 = std::make_shared<DiscreteState>(2);

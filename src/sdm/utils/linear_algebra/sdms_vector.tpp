@@ -5,218 +5,177 @@
 namespace sdm
 {
     template <class I, class T, class TBaseVector>
-    double sdmsVector<I, T, TBaseVector>::PRECISION = config::PRECISION_SDMS_VECTOR;
+    double sdmsVector<I, T,TBaseVector>::PRECISION = config::PRECISION_SDMS_VECTOR;
 
     template <class I, class T, class TBaseVector>
-    sdmsVector<I, T, TBaseVector>::sdmsVector() : TBaseVector() {}
+    sdmsVector<I, T,TBaseVector>::sdmsVector(){}
 
     template <class I, class T, class TBaseVector>
-    sdmsVector<I, T, TBaseVector>::sdmsVector(sdm::size_t size) : TBaseVector(size) {}
-
-    template <class I, class T, class TBaseVector>
-    sdmsVector<I, T, TBaseVector>::sdmsVector(sdm::size_t size, const T &initial_value) : TBaseVector(size, initial_value) {}
-
-    template <class I, class T, class TBaseVector>
-    sdmsVector<I, T, TBaseVector>::sdmsVector(const sdmsVector &v) : TBaseVector(v), vector_indexes_(v.vector_indexes_), map_index_to_int_(v.map_index_to_int_), iterator_(v.iterator_) {}
-
-    template <class I, class T, class TBaseVector>
-    sdmsVector<I, T, TBaseVector>::sdmsVector(const Vector &v) : sdmsVector(v.size())
-    {
-        for (size_t i = 0; i < v.size(); i++)
+    sdmsVector<I, T,TBaseVector>::sdmsVector(std::shared_ptr<std::unordered_map<I, size_t>> map_element_to_index, std::shared_ptr<std::unordered_map<I, T>> map_element_to_value ) :
+        map_element_to_index_(map_element_to_index)
+    {        
+        TBaseVector vector(map_element_to_index_->size());
+        for(const auto &element_to_index : *map_element_to_index)
         {
-            (*this)[i] = v[i];
+            vector[element_to_index.second] = map_element_to_value->at(element_to_index.first);
+            vector_element_.push_back(element_to_index.first);
         }
+        this->tbasevector_ = vector;
     }
 
-    template <class I, class T, class TBaseVector>
-    sdmsVector<I, T, TBaseVector>::sdmsVector(const std::vector<T> &std_vector) : sdmsVector(std_vector.size())
-    {
-        for (int i = 0; i < std_vector.size(); i++)
-        {
-            (*this)[i] = std_vector[i];
-        }
-    }
 
     template <class I, class T, class TBaseVector>
-    template <class AE>
-    sdmsVector<I, T, TBaseVector>::sdmsVector(const boost::numeric::ublas::vector_expression<AE> &ae) : TBaseVector(ae) {}
-
-    template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::sum()
+    T sdmsVector<I, T,TBaseVector>::sum()
     {
         T sum = 0;
-        for (auto pos = TBaseVector::begin(); pos != TBaseVector::end(); ++pos)
+        for (auto pos = this->tbasevector_.begin(); pos != this->tbasevector_.end(); ++pos)
         {
-            sum += (*this)(pos.index());
+            sum += this->tbasevector_(pos.index());
         }
         return sum;
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::at(const I &index) const
+    T sdmsVector<I, T,TBaseVector>::at(const I &element) const
     {
-        assert(this->map_index_to_int_.find(index) != this->map_index_to_int_.end());
-        return TBaseVector::operator[](this->map_index_to_int_.at(index));
+        assert(this->map_element_to_index_->find(element) != this->map_element_to_index_->end());
+        return this->tbasevector_(this->map_element_to_index_->at(element));
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::getValueAt(const I &index) const
+    T sdmsVector<I, T,TBaseVector>::getValueAt(const I &index) const
     {
         return this->at(index);
     }
 
     template <class I, class T, class TBaseVector>
-    void sdmsVector<I, T, TBaseVector>::setValueAt(const I &index, const T &value)
+    void sdmsVector<I, T,TBaseVector>::setValueAt(const I &element, const T &value)
     {
-        if ((this->map_index_to_int_.size() < this->size()) && (this->map_index_to_int_.find(index) == this->map_index_to_int_.end()))
-        {
-            size_t real_index = this->map_index_to_int_.size();
-            this->map_index_to_int_[index] = real_index;
-            this->vector_indexes_.push_back(index);
-        }
-        // Init value and keep reference
-        (*this)[this->map_index_to_int_.at(index)] = value;
-        this->iterator_[index] = value;
+        assert(this->map_element_to_index_->find(element) != this->map_element_to_index_->end());
+        this->tbasevector_[this->map_element_to_index_->at(element)] = value;
     }
 
     template <class I, class T, class TBaseVector>
-    const std::vector<I> &sdmsVector<I, T, TBaseVector>::getIndexes() const
+    const std::vector<I> &sdmsVector<I, T,TBaseVector>::getIndexes() const
     {
-        return this->vector_indexes_;
+        return this->vector_element_;
     }
 
     template <class I, class T, class TBaseVector>
-    void sdmsVector<I, T, TBaseVector>::setIndexes(const std::vector<I> &vector_indexes)
+    T sdmsVector<I, T,TBaseVector>::norm_1() const
     {
-        this->vector_indexes_ = vector_indexes;
-        for (size_t i = 0; i < vector_indexes.size(); i++)
-        {
-            this->map_index_to_int_[vector_indexes[i]] = i;
-        }
-        for (auto pos = TBaseVector::begin(); pos != TBaseVector::end(); ++pos)
-        {
-            this->iterator_[this->vector_indexes_[pos.index()]] = (*this)(pos.index());
-        }
+        return boost::numeric::ublas::norm_1(this->tbasevector_);
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::norm_1() const
+    T sdmsVector<I, T,TBaseVector>::norm_2() const
     {
-        return boost::numeric::ublas::norm_1(*this);
+        return boost::numeric::ublas::norm_2(this->tbasevector_);
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::norm_2() const
+    std::pair<I, T> sdmsVector<I, T,TBaseVector>::getMin() const
     {
-        return boost::numeric::ublas::norm_2(*this);
-    }
-
-    template <class I, class T, class TBaseVector>
-    sdmsVector<I, T, TBaseVector> sdmsVector<I, T, TBaseVector>::transpose() const
-    {
-        return boost::numeric::ublas::trans(*this);
-    }
-
-    template <class I, class T, class TBaseVector>
-    std::pair<I, T> sdmsVector<I, T, TBaseVector>::getMin() const
-    {
-        T min = (*this)(0);
+        T min = this->tbasevector_(0);
         I amin = 0;
-        for (auto pos = TBaseVector::begin(); pos != TBaseVector::end(); ++pos)
+        for (auto pos = this->tbasevector_.begin(); pos != this->tbasevector_.end(); ++pos)
         {
-            if (min > (*this)(pos.index()))
+            if (min > this->tbasevector_(pos.index()))
             {
-                min = (*this)(pos.index());
-                amin = this->vector_indexes_[pos.index()];
+                min = this->tbasevector_(pos.index());
+                amin = this->vector_element_[pos.index()];
             }
         }
         return {amin, min};
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::min()
+    T sdmsVector<I, T,TBaseVector>::min()
     {
         return this->getMin().second;
     }
 
     template <class I, class T, class TBaseVector>
-    I sdmsVector<I, T, TBaseVector>::argmin()
+    I sdmsVector<I, T,TBaseVector>::argmin()
     {
         return this->getMin().first;
     }
 
     template <class I, class T, class TBaseVector>
-    std::pair<I, T> sdmsVector<I, T, TBaseVector>::getMax() const
+    std::pair<I, T> sdmsVector<I, T,TBaseVector>::getMax() const
     {
-        T max = (*this)(0);
+        T max = this->tbasevector_(0);
         I amax = 0;
-        for (auto pos = TBaseVector::begin(); pos != TBaseVector::end(); ++pos)
+        for (auto pos = this->tbasevector_.begin(); pos != this->tbasevector_.end(); ++pos)
         {
-            if (max < (*this)(pos.index()))
+            if (max < this->tbasevector_(pos.index()))
             {
-                max = (*this)(pos.index());
-                amax = this->vector_indexes_[pos.index()];
+                max = this->tbasevector_(pos.index());
+                amax = this->vector_element_[pos.index()];
             }
         }
         return {amax, max};
     }
 
     template <class I, class T, class TBaseVector>
-    T sdmsVector<I, T, TBaseVector>::max()
+    T sdmsVector<I, T,TBaseVector>::max()
     {
         return this->getMax().second;
     }
 
     template <class I, class T, class TBaseVector>
-    I sdmsVector<I, T, TBaseVector>::argmax()
+    I sdmsVector<I, T,TBaseVector>::argmax()
     {
         return this->getMax().first;
     }
 
     template <class I, class T, class TBaseVector>
-    template <class AE>
-    T sdmsVector<I, T, TBaseVector>::dot(const boost::numeric::ublas::vector_expression<AE> &ae) const
+    T sdmsVector<I, T,TBaseVector>::dot(const sdmsVector &v2) const
     {
-        return boost::numeric::ublas::inner_prod(*this, ae);
+        return boost::numeric::ublas::inner_prod(this->tbasevector_, v2.tbasevector_);
     }
 
     template <class I, class T, class TBaseVector>
-    template <class AE>
-    T sdmsVector<I, T, TBaseVector>::operator^(const boost::numeric::ublas::vector_expression<AE> &ae) const
+    T sdmsVector<I, T,TBaseVector>::operator^(const sdmsVector &v2) const
     {
-        return this->dot(ae);
+        return this->dot(v2);
     }
 
     template <class I, class T, class TBaseVector>
-    bool sdmsVector<I, T, TBaseVector>::operator<=(const sdmsVector &v2) const
+    size_t sdmsVector<I, T,TBaseVector>::size() const
     {
-        if (this->size() != v2.size())
+        return this->map_element_to_index_->size();
+    }
+
+    template <class I, class T, class TBaseVector>
+    bool sdmsVector<I, T,TBaseVector>::operator<=(const sdmsVector &v2) const
+    {
+        assert(this->map_element_to_index_ == v2.getMapElementToIndex());
+
+        for (const auto &element : this->getIndexes())
         {
-            return false;
-        }
-        else
-        {
-            for (auto pos = TBaseVector::begin(); pos != TBaseVector::end(); ++pos)
+            if (v2.getValueAt(element) < this->getValueAt(element))
             {
-                if (v2(pos.index()) < (*this)(pos.index()))
-                {
-                    return false;
-                }
+                return false;
             }
         }
         return true;
     }
+    template <class I, class T, class TBaseVector>
+    std::shared_ptr<std::unordered_map<I, size_t>> sdmsVector<I, T,TBaseVector>::getMapElementToIndex() const
+    {
+        return this->map_element_to_index_;
+    }
+
 
     template <class I, class T, class TBaseVector>
-    bool sdmsVector<I, T, TBaseVector>::is_equal(const sdmsVector &other, double precision) const
+    bool sdmsVector<I, T,TBaseVector>::is_equal(const sdmsVector &other, double precision) const
     {
-        if (this->size() != other.size())
+        assert(this->map_element_to_index_ == other.getMapElementToIndex());
+
+        for (const auto &element : this->getIndexes())
         {
-            return false;
-        }
-        for (auto pos = TBaseVector::begin(); pos != TBaseVector::end(); ++pos)
-        {
-            if (std::abs((*this)(pos.index()) - other(pos.index())) > precision)
+            if (std::abs(this->getValueAt(element) - other.getValueAt(element)) > precision)
             {
                 return false;
             }
@@ -225,53 +184,52 @@ namespace sdm
     }
 
     template <class I, class T, class TBaseVector>
-    bool sdmsVector<I, T, TBaseVector>::operator==(const sdmsVector &other) const
+    bool sdmsVector<I, T,TBaseVector>::operator==(const sdmsVector &other) const
     {
         return this->is_equal(other, PRECISION);
     }
 
     template <class I, class T, class TBaseVector>
-    bool sdmsVector<I, T, TBaseVector>::operator!=(const sdmsVector &v2) const
+    bool sdmsVector<I, T,TBaseVector>::operator!=(const sdmsVector &v2) const
     {
         return !this->operator==(v2);
     }
 
     template <class I, class T, class TBaseVector>
-    std::string sdmsVector<I, T, TBaseVector>::str() const
+    std::string sdmsVector<I, T,TBaseVector>::str() const
     {
         std::ostringstream res;
-        res << (*this);
+        res << tbasevector_;
         return res.str();
     }
 
     template <class I, class T, class TBaseVector>
     template <class Archive>
-    void sdmsVector<I, T, TBaseVector>::serialize(Archive &archive, const unsigned int)
+    void sdmsVector<I, T,TBaseVector>::serialize(Archive &archive, const unsigned int)
     {
         using boost::serialization::make_nvp;
-        archive &boost::serialization::base_object<TBaseVector>(*this);
-        archive &make_nvp("map_index_to_int", map_index_to_int_);
-        archive &make_nvp("vector_indexes", vector_indexes_);
-        archive &make_nvp("iterator", iterator_);
+        archive &boost::serialization::base_object<TBaseVector>(this->tbasevector_);
+        archive &make_nvp("map_index_to_int", map_element_to_index_);
+        archive &make_nvp("vector_indexes", vector_element_);
     }
 
 } // namespace sdm
 
 namespace std
 {
-    template <class I, class T, class TBaseVector>
-    struct hash<sdm::sdmsVector<I, T, TBaseVector>>
-    {
-        typedef sdm::sdmsVector<I, T, TBaseVector> argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            size_t seed = 0;
-            for (const auto &pair_state_value : in)
-            {
-                sdm::hash_combine(seed, pair_state_value);
-            }
-            return seed;
-        }
-    };
+    // template <class I, class T, class TBaseVector>
+    // struct hash<sdm::sdmsVector<I, T,TBaseVector>>
+    // {
+    //     typedef sdm::sdmsVector<I, T,TBaseVector> argument_type;
+    //     typedef std::size_t result_type;
+    //     inline result_type operator()(const argument_type &in) const
+    //     {
+    //         size_t seed = 0;
+    //         for (const auto &pair_state_value : in)
+    //         {
+    //             sdm::hash_combine(seed, pair_state_value);
+    //         }
+    //         return seed;
+    //     }
+    // };
 }

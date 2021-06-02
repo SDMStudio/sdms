@@ -22,30 +22,31 @@
 namespace sdm
 {
   /**
-   * @brief Vector that implement the sdm::VectorImpl interface. 
+   * @brief Create a SDMS Vector. A SMDS Vector is used to optimize the calculation, however, you have to be careful when using it because it's not possible to add element after the initialization
    * 
    * @tparam I Type of index
    * @tparam T Type of value
-   * @tparam TBaseVector Type of the base structure
    */
   template <class I, class T, class TBaseVector>
-  class sdmsVector : public TBaseVector, public VectorImpl<I, T>
+  class sdmsVector : public VectorImpl<I, T>
   {
   public:
-    using array_type = typename TBaseVector::array_type;
-    using value_type = typename array_type::value_type;
+    // using array_type = typename TBaseVector::array_type;
+    // using value_type = typename array_type::value_type;
 
     static double PRECISION;
 
     sdmsVector();
-    sdmsVector(sdm::size_t size);
-    sdmsVector(sdm::size_t size, const T &default_value);
 
-    template <class AE>
-    sdmsVector(const boost::numeric::ublas::vector_expression<AE> &ae);
-    sdmsVector(const Vector &);
-    sdmsVector(const sdmsVector &);
-    sdmsVector(const std::vector<T> &);
+    /**
+     * @brief Create a SDMS Vector. In order to create a vector, it's necessary to provide a map that associated the I element with a specific index and a specific Value.
+     * 
+     * @param std::shared_ptr<std::unordered_map<I, size_t>> : A map that associate the element I with a specific index
+     * @param std::shared_ptr<std::unordered_map<I, T>> : A map that associate the element I with a specific value
+     * @param TypeVector : The type of Vector. The only possibility is Dense Vector or Sparse Vector
+     * 
+     */
+    sdmsVector(std::shared_ptr<std::unordered_map<I, size_t>>, std::shared_ptr<std::unordered_map<I, T>>);
 
     virtual ~sdmsVector() {}
 
@@ -62,10 +63,9 @@ namespace sdm
     T max();
     I argmax();
 
-    sdmsVector transpose() const;
+    // sdmsVector transpose() const;
 
     const std::vector<I> &getIndexes() const;
-    void setIndexes(const std::vector<I> &);
 
     /**
      * @brief Compare two vectors. Return true if all values are lower or equal to the second vector.
@@ -78,11 +78,11 @@ namespace sdm
     bool operator!=(const sdmsVector &) const;
     bool is_equal(const sdmsVector &other, double precision) const;
 
-    template <class AE>
-    T dot(const boost::numeric::ublas::vector_expression<AE> &) const;
+    // template <class AE>
+    T dot(const sdmsVector &v2) const;
 
-    template <class AE>
-    T operator^(const boost::numeric::ublas::vector_expression<AE> &ae) const;
+    // template <class AE>
+    T operator^(const sdmsVector &v2) const;
 
     std::string str() const;
 
@@ -92,20 +92,27 @@ namespace sdm
     template <class Archive>
     void serialize(Archive &archive, const unsigned int);
 
+    size_t size() const;
+    std::shared_ptr<std::unordered_map<I, size_t>> getMapElementToIndex() const;
+
   protected:
-    std::vector<I> vector_indexes_;
-    std::unordered_map<I, size_t> map_index_to_int_;
-    std::map<I, T> iterator_;
+    std::vector<I> vector_element_;
+    // std::shared_ptr<std::unordered_map<I, size_t>> map_index_to_value_;
+    std::shared_ptr<std::unordered_map<I, size_t>> map_element_to_index_;
+
+    // std::map<I, T> iterator_;
+
+    TBaseVector tbasevector_;
 
     std::pair<I, T> getMin() const;
     std::pair<I, T> getMax() const;
 
-    friend sdmsVector operator*(const T &arg1, const sdmsVector &arg2)
-    {
-      sdmsVector vnew = arg1 * static_cast<TBaseVector>(arg2);
-      vnew.setIndexes(arg2.getIndexes());
-      return vnew;
-    }
+    // friend sdmsVector operator*(const T &arg1, const sdmsVector &arg2)
+    // {
+    //   sdmsVector vnew = arg1 * static_cast<TBaseVector>(arg2);
+    //   vnew.setIndexes(arg2.getIndexes());
+    //   return vnew;
+    // }
   };
 
   /**
