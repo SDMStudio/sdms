@@ -53,7 +53,6 @@ namespace sdm
         // std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
         std::string addIndent(std::string input_string, int num_indents = 1, std::string indent = "\t");
 
-
         /**
          * @brief Repeat a string n times.
          * 
@@ -67,6 +66,28 @@ namespace sdm
         std::vector<T> set2vector(const std::set<T> &set)
         {
             return std::vector<T>(set.begin(), set.end());
+        }
+
+        template <typename TKey, typename TValue>
+        std::vector<TKey> extractKeys(const std::map<TKey, TValue>& input_map)
+        {
+            std::vector<TKey> retkey;
+            for (auto const &element : input_map)
+            {
+                retkey.push_back(element.first);
+            }
+            return retkey;
+        }
+
+        template <typename TKey, typename TValue>
+        std::vector<TValue> extractValues(const std::map<TKey, TValue>& input_map)
+        {
+            std::vector<TValue> retvalue;
+            for (auto const &element : input_map)
+            {
+                retvalue.push_back(element.second);
+            }
+            return retvalue;
         }
 
     } // namespace tools

@@ -15,7 +15,13 @@
 
 namespace sdm
 {
-    class State : public Item
+    class Observation : public Item
+    {
+    public :
+        virtual std::string str() const = 0;
+    };
+
+    class State : public Observation
     {
     public :
         virtual std::string str() const = 0;

@@ -27,7 +27,7 @@ namespace sdm
     {
     public:
         BeliefMDP();
-        BeliefMDP(std::shared_ptr<BasePOMDP> pomdp);
+        BeliefMDP(std::shared_ptr<POMDPInterface> pomdp);
         BeliefMDP(std::string pomdp);
 
         std::shared_ptr<State> reset();
@@ -53,7 +53,7 @@ namespace sdm
 
         bool isSerialized() const;
         
-        std::shared_ptr<DecisionProcess> getUnderlyingProblem();
+        std::shared_ptr<MDPInterface> getUnderlyingProblem();
 
         double getDiscount(number = 0);
         
@@ -64,7 +64,6 @@ namespace sdm
         std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &, const std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> &, const std::shared_ptr<State> &, number);
 
     protected:
-        std::shared_ptr<std::shared_ptr<BasePOMDP>> pomdp_;
         std::shared_ptr<std::shared_ptr<BeliefState>> initial_state_;
         std::shared_ptr<std::shared_ptr<BeliefState>> current_state_;
     };

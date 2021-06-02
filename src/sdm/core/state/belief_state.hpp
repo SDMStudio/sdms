@@ -20,33 +20,31 @@
 
 namespace sdm
 {
-  class BeliefState : public BaseState<TVector<std::shared_ptr<State>, double>>, public Distribution<std::shared_ptr<State>>
+  class Belief : public BeliefInterface
   {
   public:
     static double PRECISION;
 
-    BeliefState();
-    BeliefState(double);
-    BeliefState(std::size_t, double);
-    BeliefState(const BeliefState &);
-    BeliefState(const TVector<std::shared_ptr<State>, double> &);
-    BeliefState(std::initializer_list<value_type>);
-    BeliefState(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
+    Belief();
+    Belief(double);
+    Belief(std::size_t, double);
+    Belief(const Belief &);
+    Belief(const TVector<std::shared_ptr<State>, double> &);
+    Belief(std::initializer_list<value_type>);
+    Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
 
-    void setProbabilityAt(const std::shared_ptr<State> &state, double proba);
-    void addProbabilityAt(const std::shared_ptr<State> &state, double proba);
-    double getProbabilityAt(const std::shared_ptr<State> &state) const;
-
-    std::shared_ptr<State> sample() const;
-    double getProbability(const std::shared_ptr<State> &begin, const std::shared_ptr<State> &end = 0) const;
+    virtual std::set<std::shared_ptr<State>> getAllStates() const;
+    virtual double getProbability(const std::shared_ptr<State> &state) const;
+    virtual void setProbability(const std::shared_ptr<State> &state, double proba);
+    virtual void addProbability(const std::shared_ptr<State> &state, double proba);
 
     static std::shared_ptr<State> getState(const std::shared_ptr<State> &);
 
-    bool operator==(const BeliefState &) const;
+    bool operator==(const Belief &) const;
 
-    std::string str() const;
+    virtual std::string str() const;
 
-    friend std::ostream &operator<<(std::ostream &os, BeliefState &belief)
+    friend std::ostream &operator<<(std::ostream &os, Belief &belief)
     {
       os << "<belief " << belief.str() << "/>";
       return os;
@@ -54,7 +52,13 @@ namespace sdm
 
     template <class Archive>
     void serialize(Archive &archive, const unsigned int);
+
+  protected:
+    std::shared_ptr<Vector<std::shared_ptr<State>>> container_;
   };
 } // namespace sdm
+
+
+
 
 #include <sdm/core/state/belief_state.tpp>

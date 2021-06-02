@@ -33,7 +33,7 @@
  */
 namespace sdm
 {
-    class OccupancyMDP : public BaseOccupancyMDP
+    class OccupancyMDP : public BeliefMDP
     {
     public:
         OccupancyMDP();

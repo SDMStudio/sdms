@@ -14,12 +14,13 @@ namespace sdm
                 public std::enable_shared_from_this<MDP>
     {
     protected:
-        std::shared_ptr<BaseMDP> underlying_problem;
+        std::shared_ptr<MDPInterface> underlying_problem;
+
     public:
         MDP();
         MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::discrete_distribution<number>);
         MDP(std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<DiscreteSpace<number>>, std::shared_ptr<StateDynamics>, std::shared_ptr<BaseReward> reward_function, std::discrete_distribution<number>, number = 0, double = 0.9, Criterion = Criterion::REW_MAX);
-        MDP(const std::shared_ptr<BaseMDP> &mdp);
+        MDP(const std::shared_ptr<MDPInterface> &mdp);
         MDP(std::string &);
 
         /**
@@ -107,7 +108,7 @@ namespace sdm
          * 
          * @return the underlying problem 
          */
-        std::shared_ptr<DecisionProcess> getUnderlyingProblem();
+        std::shared_ptr<MDPInterface> getUnderlyingProblem();
 
         /**
          * @brief Check if the problem is serialized.

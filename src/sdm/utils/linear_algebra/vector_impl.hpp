@@ -30,17 +30,31 @@ namespace sdm
   class VectorImpl
   {
   public:
-    virtual T norm_1() const = 0;
-    virtual T norm_2() const = 0;
+    virtual T at(const I &index) const = 0;
+    virtual T getValueAt(const I &index) const = 0;
+    virtual void setValueAt(const I &index, const T &value) = 0;
 
     virtual T min() = 0;
     virtual I argmin() = 0;
 
     virtual T max() = 0;
     virtual I argmax() = 0;
-    virtual T at(const I &) const = 0;
+
+    virtual T sum() const = 0;
+    virtual T norm_1() const = 0;
+    virtual T norm_2() const = 0;
 
     virtual std::string str() const = 0;
+
+    bool operator<=(const VectorImpl &) const;
+    bool operator==(const VectorImpl &) const;
+    bool operator!=(const VectorImpl &) const;
+    bool is_equal(const VectorImpl &other, double precision) const;
+
+    T dot(const VectorImpl &other) const;
+    T operator^(const VectorImpl &other) const;
+
+    virtual size_t size() const = 0;
 
     // T operator[](const I &) const;
 
