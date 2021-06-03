@@ -24,7 +24,7 @@ namespace sdm
     BaseJoint(const std::vector<T> &joint_item);
     BaseJoint(const std::vector<number> &, const std::vector<T> &joint_item);
     BaseJoint(std::initializer_list<T> list_values);
-    virtual ~BaseJoint();
+    // ~BaseJoint();
 
     /**
      * @brief Get the number of agents (i.e. the size of the joint element)
@@ -47,7 +47,7 @@ namespace sdm
       * @param const joint<item, instance>& joint item to be printed
       * @return std::ostream&
       */
-    friend std::ostream &operator<<(std::ostream &os, const Joint<T> &j)
+    friend std::ostream &operator<<(std::ostream &os, const BaseJoint<T> &j)
     {
       os << "(";
       if (j.size() > 0)
@@ -57,7 +57,7 @@ namespace sdm
         {
           std::ostringstream res;
           res << j[ag] << ", ";
-          sdm::tools::indentedOutput(os, res.str().c_str(), 0);
+          // sdm::tools::indentedOutput(os, res.str().c_str(), 0);
         }
         os << j[ag];
       }
@@ -73,10 +73,5 @@ namespace sdm
       archive &boost::serialization::base_object<std::vector<T>>(*this);
     }
   };
-
-  template class Joint<number>;
-
-  typedef Joint<number> JointItem;
 } // namespace sdm
-
 #include <sdm/core/base_joint.tpp>

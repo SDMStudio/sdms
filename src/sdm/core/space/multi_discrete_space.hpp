@@ -15,7 +15,6 @@
 #include <boost/bimap.hpp>
 
 #include <sdm/types.hpp>
-#include <sdm/core/space/multi_space.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/joint.hpp>
 
@@ -33,7 +32,7 @@ namespace sdm
      * @tparam TItem The type of items in each sub-discrete space.
      */
     template <typename TItem>
-    class MultiDiscreteSpace : public virtual MultiSpace<DiscreteSpace<TItem>>, public DiscreteSpace<Joint<TItem>>
+    class MultiDiscreteSpace : public DiscreteSpace<Joint<TItem>>, Joint<DiscreteSpace<TItem>>
     {
     protected:
         typedef boost::bimaps::bimap<number, Joint<TItem>> jitems_bimap;
@@ -49,6 +48,21 @@ namespace sdm
          * 
          */
         void setNumJItems(number);
+
+        /**
+         * @brief Get the number of sub-space.
+         */
+        number getNumSpaces() const;
+
+        /**
+         * @brief Get a specific subspace
+         * 
+         * @param index the index of the space
+         * @return a shared pointer on a specific space 
+         */
+        std::shared_ptr<DiscreteSpace<TItem>> getSpace(number index) const;
+
+        std::vector<std::shared_ptr<DiscreteSpace<TItem>>> spaces_;
 
     public:
         using value_type = Joint<TItem>;

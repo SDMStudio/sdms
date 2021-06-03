@@ -9,6 +9,7 @@
 #include <sdm/core/action/base_action.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/reward/tabular_reward.hpp>
 #include <sdm/core/dynamics/tabular_state_dynamics.hpp>
@@ -32,6 +33,10 @@ int main(int argc, char **argv)
     auto action_1 = std::make_shared<DiscreteAction>(1);
     auto action_2 = std::make_shared<DiscreteAction>(2);
     auto action_3 = std::make_shared<DiscreteAction>(3);
+
+    // auto test = MultiDiscreteSpace<number>();
+    auto test = MultiDiscreteSpace<std::shared_ptr<Action>>();
+    // auto test = MultiDiscreteSpace<std::shared_ptr<Observation>>();
 
     std::cout << *state_0 << std::endl;
     std::cout << *action_3 << std::endl;

@@ -55,6 +55,18 @@ namespace sdm
     }
 
     template <typename TItem>
+    number MultiDiscreteSpace<TItem>::getNumSpaces() const
+    {
+        return this->spaces_.size();
+    }
+
+    template <typename TItem>
+    std::shared_ptr<DiscreteSpace<TItem>> MultiDiscreteSpace<TItem>::getSpace(number index) const
+    {
+        return this->spaces_[index];
+    }
+
+    template <typename TItem>
     number MultiDiscreteSpace<TItem>::getItemIndex(number ag_id, const TItem &item) const
     {
         return this->getSpace(ag_id)->getItemIndex(item);
