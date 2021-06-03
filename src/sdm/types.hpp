@@ -43,19 +43,11 @@ namespace sdm
 
   typedef unsigned short number; // = uint16_t
 
-  typedef unsigned short dtype;
-
-  typedef unsigned short agent;
-
-  typedef unsigned short state;
-
-  typedef unsigned short action;
-
-  typedef unsigned short horizon;
-
-  typedef unsigned short observation;
-
   typedef boost::bimaps::bimap<std::string, sdm::size_t> bimap;
+
+  
+  template <typename TItem>
+  using bimap_item_index = boost::bimaps::bimap<TItem, sdm::size_t>;
 
   typedef typename bimap::value_type name2index;
 
@@ -119,31 +111,6 @@ namespace sdm
     PLAIN_SAWTOOTH_LINER_PROGRAMMING,
     RELAXED_SAWTOOTH_LINER_PROGRAMMING
   };
-
-  // using StateType = number;
-  // using BeliefStateType = BeliefState<StateType>;
-
-  class World;
-  // class DiscreteMDP;
-  class DiscreteMMDP;
-  class DiscretePOMDP;
-  class DiscreteDecPOMDP;
-
-  template <typename TState, typename TAction>
-  class MDP;
-  using DiscreteMDP = MDP<number, number>;
-
-  template <typename TBelief, typename TAction, typename TObservation>
-  class BeliefMDP;
-
-  template <typename TState, typename TAction>
-  class SolvableByHSVI;
-
-  template <typename TState, typename TAction>
-  class HSVI;
-
-  template <typename TState, typename TAction>
-  struct WorldType;
 
   //using boost::hash_combine
   template <class T>
