@@ -1,89 +1,199 @@
-#include <sdm/core/actions.hpp>
-#include <sdm/core/state/discrete_state.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/linear_algebra/sdms_vector.hpp>
+#include <sdm/core/state/base_state.hpp>
+
+
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    auto state_0 = std::make_shared<DiscreteState>(0);
-    auto state_1 = std::make_shared<DiscreteState>(1);
-    auto state_2 = std::make_shared<DiscreteState>(2);
-    auto state_3 = std::make_shared<DiscreteState>(3);
-    auto state_4 = std::make_shared<DiscreteState>(4);
-    auto state_5 = std::make_shared<DiscreteState>(5);
 
-    auto action_0 = std::make_shared<DiscreteAction>(0);
-    auto action_1 = std::make_shared<DiscreteAction>(1);
-    auto action_2 = std::make_shared<DiscreteAction>(2);
-    auto action_3 = std::make_shared<DiscreteAction>(3);
-    auto action_4 = std::make_shared<DiscreteAction>(4);
-    auto action_5 = std::make_shared<DiscreteAction>(5);
+    std::cout << "PRECISION DenseVector = " << DenseVector<number>::PRECISION << std::endl;
+    std::cout << "PRECISION SparseVector = " << SparseVector<number>::PRECISION << std::endl;
 
-    // Joint Deterministic Decision Rule usage
-    std::cout << "\n----- Usage : JointDeterministicDecisionRule ( sdm/core/action/joint_det_decision_rule.hpp ) ---------" << std::endl;
+    // Creation of Dense Vector 1
 
-    // Here, we will suppose an example with 3 agents
-    JointDeterministicDecisionRule joint_det_dr;
+    std::unordered_map<std::shared_ptr<DiscreteState>,size_t> map_element_to_index;
+    std::unordered_map<std::shared_ptr<DiscreteState>,double> map_element_to_value;
 
-    auto joint_state_1 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_3,state_4,state_5}));
-    auto joint_state_2 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_1,state_1,state_1}));
-    auto joint_state_3 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_3,state_1,state_5}));
+    auto element_state_0 = std::make_shared<DiscreteState>(0); // Create State 0
+    auto element_state_5 = std::make_shared<DiscreteState>(5); // Create State 5
 
-    auto joint_action_1 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2,action_1,action_3}));
-    auto joint_action_2 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_3,action_2,action_3}));
-    auto joint_action_3 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_0,action_5,action_1}));
+    map_element_to_index.emplace(element_state_0,1); // The State 0 is associated with the index 5
+    map_element_to_value.emplace(element_state_0,20); // The State 0 has a value of 20
 
-    // Create the joint deterministic decision rule
-    joint_det_dr.setProbability(joint_state_1, joint_action_1);
-    joint_det_dr.setProbability(joint_state_2, joint_action_2);
-    joint_det_dr.setProbability(joint_state_3, joint_action_3);
+    map_element_to_index.emplace(element_state_5,0); // The State 5 is associated with the index 3
+    map_element_to_value.emplace(element_state_5,5); // The State 5 has a value of 5
 
-    // Displays
-    std::cout << "\n#> Joint Decision Rule\n"
-              << joint_det_dr << std::endl;
+    auto shared_map_element_to_index = std::make_shared<std::unordered_map<std::shared_ptr<DiscreteState>,size_t>>(map_element_to_index);
+    auto shared_map_element_to_value = std::make_shared<std::unordered_map<std::shared_ptr<DiscreteState>,double>>(map_element_to_value);
 
-    std::cout << "#> With a_i=2, o_i=5, u_i=1 --> a_i(u_i | o_i) = " << joint_det_dr.getProbability(state_5, action_1,2) << std::endl;
+    DenseVector<std::shared_ptr<DiscreteState>> test_vector(shared_map_element_to_index,shared_map_element_to_value);
 
-    std::cout << "#> With o={3, 1, 5}, u={0, 5, 1} --> a(u | o) = " << joint_det_dr.getProbability(joint_state_3, joint_action_3) << std::endl;
+    // Creation of Dense Vector 2
 
-    std::cout << "#> With o={3, 1, 5}, u={2, 1, 3} --> a(u | o) = " << joint_det_dr.getProbability(joint_state_3, joint_action_1) << std::endl;
+    std::unordered_map<std::shared_ptr<DiscreteState>,double> map_element_to_value_2;
 
-    // Determinis*tic Decision Rule usage
-    std::cout << "\n----- Usage : DeterministicDecisionRule ( sdm/core/action/det_decision_rule.hpp ) ---------" << std::endl;
+    map_element_to_value_2.emplace(element_state_0,50); // The State 0 has a value of 20
 
-    // Create the deterministic decision rule
-    std::vector<std::shared_ptr<State>> state_vector = {state_0, state_1,state_2};
-    std::vector<std::shared_ptr<Action>> action_vector = {action_3, action_0,action_2};
+    map_element_to_value_2.emplace(element_state_5,5); // The State 5 has a value of 5
 
-    DeterministicDecisionRule det_dr(state_vector,action_vector);
+    auto shared_map_element_to_value_2 = std::make_shared<std::unordered_map<std::shared_ptr<DiscreteState>,double>>(map_element_to_value_2);
 
-    det_dr.setProbability(state_3, action_4);
-    det_dr.setProbability(state_4, action_4, 1.0);
-    det_dr.setProbability(state_5, action_4, 0.0);
+    DenseVector<std::shared_ptr<DiscreteState>> test_vector_2(shared_map_element_to_index,shared_map_element_to_value_2);
 
-    // Displays
-    std::cout << "\n#> Det Decision Rule\n"
-              << det_dr << std::endl;
+    // Basic Function of SDMS Vector
+    std::cout<<"\n \nBasic Function of SDMS Vector"<<std::endl;
 
-    std::cout << "#> With o=4, u=4 --> a(u | o) = " << det_dr.getProbability(state_4, action_4) << std::endl;
-    // std::cout << "#> With o=5, u=4 --> a(u | o) = " << det_dr.getProbability(state_5, action_4) << std::endl;
+    std::cout<<"Print Test Vector"<<test_vector.str()<<std::endl;
 
-    // Stochastic Deterministic Decision Rule usage
-    std::cout << "\n----- Usage : StochasticDecisionRule ( sdm/core/action/stochastic_decision_rule.hpp ) ---------" << std::endl;
+    std::cout<<"Test Sum : "<<test_vector.sum()<<std::endl;
+    std::cout<<"Value State 0 : "<<test_vector.at(element_state_0)<<std::endl;
 
-    StochasticDecisionRule stoch_dr;
+    std::cout<<"Return all Indexes" <<test_vector.getIndexes()<<std::endl;
 
-    stoch_dr.setProbability(state_3, action_2, 0.5);
-    stoch_dr.setProbability(state_3, action_1, 0.5);
-    stoch_dr.setProbability(state_5, action_4, 0.8);
-    stoch_dr.setProbability(state_5, action_2, 0.2);
+    std::cout<<"Get Norm 1 :"<<test_vector.norm_1()<<std::endl;
+    std::cout<<"Get Norm 2 :"<<test_vector.norm_2()<<std::endl;
 
-    // Displays
-    std::cout << "\n#> Stochastic Decision Rule\n"
-              << stoch_dr << std::endl;
+    std::cout<<"Get Min : "<<test_vector.min()<<std::endl;
+    std::cout<<"Get Max : "<<test_vector.max()<<std::endl;
 
-    std::cout << "#> With o=5, u=4 --> a(u | o) = " << stoch_dr.getProbability(state_5, action_4) << std::endl;
-    std::cout << "#> With o=5 --> a(u | o) = " << stoch_dr.getProbabilities(state_5) << std::endl;
+    std::cout <<"Test Vector Equivalence : "<< (test_vector == test_vector_2) << std::endl;
+    std::cout <<"Test Vector <= : "<< (test_vector <= test_vector_2) << std::endl;
 
+    std::cout<<"Modification of value State 0 from 20 to 50 "<<std::endl;
+    test_vector.setValueAt(element_state_0,50);
+    std::cout<<"New Value At State 0 : "<<test_vector.at(element_state_0)<<std::endl;
+
+    std::cout <<"Test Vector Equivalence : "<< (test_vector == test_vector_2) << std::endl;
+    std::cout<<"Dot Bewtween the vector "<<test_vector.dot(test_vector_2)<<std::endl;
+
+    std::cout<<"\n \nBasic Function of SDMS Vector with other Construtor"<<std::endl;
+
+    std::vector<std::shared_ptr<DiscreteState>> vector_state({element_state_5,element_state_0});
+    std::vector<double> vector_value({5,20});
+
+    DenseVector<std::shared_ptr<DiscreteState>> test_vector_3(vector_state,vector_value);
+
+    std::cout<<"Print Test Vector"<<test_vector_3.str()<<std::endl;
+
+    std::cout<<"Test Sum : "<<test_vector_3.sum()<<std::endl;
+    std::cout<<"Value State 0 : "<<test_vector_3.at(element_state_0)<<std::endl;
+
+    std::cout<<"Return all Indexes" <<test_vector_3.getIndexes()<<std::endl;
+
+    std::cout<<"Get Norm 1 :"<<test_vector_3.norm_1()<<std::endl;
+    std::cout<<"Get Norm 2 :"<<test_vector_3.norm_2()<<std::endl;
+
+    std::cout<<"Get Min : "<<test_vector_3.min()<<std::endl;
+    std::cout<<"Get Max : "<<test_vector_3.max()<<std::endl;
+
+    std::cout <<"Test Vector Equivalence : "<< (test_vector == test_vector_3) << std::endl;
+    std::cout <<"Test Vector <= : "<< (test_vector <= test_vector_3) << std::endl;
+
+    std::cout<<"Modification of value State 0 from 20 to 50 "<<std::endl;
+    test_vector_3.setValueAt(element_state_0,50);
+    std::cout<<"New Value At State 0 : "<<test_vector_3.at(element_state_0)<<std::endl;
+
+    std::cout <<"Test Vector Equivalence : "<< (test_vector == test_vector_3) << std::endl;
+    std::cout<<"Dot Bewtween the vector "<<test_vector.dot(test_vector_3)<<std::endl;
+
+
+
+
+    // using TState = number;
+    // using TAction = number;
+    // using TObservation = number;
+
+    // using TBelief = BeliefState<TState>;
+    // // using TBeliefStruct = BeliefStateGraph<TBelief, TAction, TObservation>;
+
+    // using TWorld = BeliefMDP<TBelief, TAction, TObservation>;
+
+    // auto belief_mdp = std::make_shared<TWorld>(filename);
+
+    // // auto belief = std::make_shared<TBeliefStruct>(belief_mdp->getStateSpace()->getAll(), belief_mdp->getStartDistrib().probabilities());
+    // auto belief = std::make_shared<TBeliefStruct>(belief_mdp->getStateSpace()->getAll(), belief_mdp->getStartDistrib().probabilities(), belief_mdp->getObsDynamics()->getDynamics());
+
+    // std::cout << *belief << std::endl;
+    // DenseMatrix<number, number> dyn(2, 2);
+    // dyn(0,1) = 2;
+
+    // std::cout << (dyn ^ *belief) << std::endl;
+    // // std::cout << *belief_mdp << std::endl;
+
+    // std::cout << "PRECISION BeliefState = " << BeliefState<number>::PRECISION << std::endl;
+    // std::cout << "PRECISION DenseVector = " << DenseVector<number>::PRECISION << std::endl;
+    // std::cout << "PRECISION SparseVector = " << SparseVector<number>::PRECISION << std::endl;
+
+    // BaseBeliefState<std::string, DenseVector> b(3, 0.), b2(3, 0.), b3(3, 2.), b4;
+
+    // // std::cout << b.iterator_.size() << std::endl;
+
+    // b.setIndexes({"State 0", "State 1", "State 2"});
+    // b2.setIndexes({"State 0", "State 1", "State 2"});
+    // b3.setIndexes({"State 0", "State 1", "State 2"});
+    // b.setProbabilityAt("State 0", 0.6);
+    // b.setProbabilityAt("State 1", 0.4);
+    // // std::cout << b.iterator_.size() << std::endl;
+
+    // b2.setProbabilityAt("State 0", 0.601);
+    // b2.setProbabilityAt("State 1", 0.4000001);
+
+    // b3.setProbabilityAt("State 0", 0.6);
+    // b3.setProbabilityAt("State 1", 0.4);
+
+    // std::cout << b << std::endl;
+
+    // std::cout << (b ^ b3) << std::endl;
+
+    // std::cout << (b == b2) << std::endl;
+    // std::cout << (b == b3) << std::endl;
+
+    // DenseVector<number> test_vector(3), test_vector2(3);
+    // SparseVector<number> test_sparse_vector(3), test_sparse_vector2({1, 0, 3});
+
+    // test_sparse_vector[0] = 1;
+    // test_sparse_vector[2] = 3;
+
+    // std::cout << (test_sparse_vector2 == test_sparse_vector) << std::endl;
+    // std::cout << (test_sparse_vector == test_sparse_vector2) << std::endl;
+
+    // // std::cout << "test_sparse_vector2 ^ v=" << (test_sparse_vector2 ^ v) << std::endl;
+    // // std::cout << "v ^ test_sparse_vector2=" << (v ^ test_sparse_vector2) << std::endl;
+
+    // std::cout << "test_sparse_vector=" << (test_sparse_vector <= test_sparse_vector2) << std::endl;
+    // std::cout << "test_sparse_vector=" << (test_sparse_vector2 <= test_sparse_vector) << std::endl;
+    // std::cout << "test_sparse_vector2=" << test_sparse_vector2 << std::endl;
+
+    // std::cout << "test_sparse_vector ^ test_sparse_vector2=" << (test_sparse_vector ^ test_sparse_vector2) << std::endl;
+    // test_vector[0] = 5;
+    // test_vector[2] = 5;
+
+    // test_vector2[1] = 1;
+    // test_vector2[2] = 2;
+    // std::cout << "test_vector=" << test_vector << std::endl;
+    // std::cout << "test_vector.transpose()=" << test_vector.transpose() << std::endl;
+    // std::cout << "test_vector2=" << test_vector2 << std::endl;
+    // std::cout << "test_vector ^ test_sparse_vector=" << (test_vector ^ test_sparse_vector) << std::endl;
+
+    // SparseMatrix<number, number> test_matrix(3, 3);
+    // test_matrix(1, 0) = 4;
+    // std::cout << "test_matrix=" << test_matrix << std::endl;
+    // std::cout << "test_matrix.transpose()=" << test_matrix.transpose() << std::endl;
+
+    // test_vector = (test_matrix ^ test_vector);
+    // test_vector = (test_matrix ^ test_sparse_vector);
+    // std::cout << "test_matrix ^ test_vector " << (test_matrix ^ test_vector) << std::endl;
+    // std::cout << "test_matrix ^ test_sparse_vector " << (test_matrix ^ test_sparse_vector) << std::endl;
+
+    // std::cout << "test_sparse_vector.norm_1()=" << test_sparse_vector.norm_1() << std::endl;
+    // std::cout << "test_sparse_vector.norm_2()=" << test_sparse_vector.norm_2() << std::endl;
+    // std::cout << "test_sparse_vector.sum()=" << test_sparse_vector.sum() << std::endl;
+    // std::cout << "test_sparse_vector.max()=" << test_sparse_vector.max() << std::endl;
+    // std::cout << "test_sparse_vector.argmax()=" << test_sparse_vector.argmax() << std::endl;
+    // std::cout << "test_sparse_vector.min()=" << test_sparse_vector.min() << std::endl;
+    // std::cout << "test_sparse_vector.argmin()=" << test_sparse_vector.argmin() << std::endl;
 
     return 0;
 }

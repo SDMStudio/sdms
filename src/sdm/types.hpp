@@ -105,7 +105,7 @@ namespace sdm
     BigM,
     IloIfThenResolution
   };
-
+  
   enum TypeSawtoothLinearProgram
   {
     PLAIN_SAWTOOTH_LINER_PROGRAMMING,
