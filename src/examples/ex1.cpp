@@ -35,20 +35,22 @@ int main(int argc, char **argv)
 
 	try
 	{
+		
+
 		// Construct DecPOMDP from filename (use parser)
-		std::cout << "#> Build DecPOMDP from file \"" << filename << "\"\n";
-		sdm::DiscreteDecPOMDP dpomdp_1(filename);
+		// std::cout << "#> Build DecPOMDP from file \"" << filename << "\"\n";
+		// sdm::DiscreteDecPOMDP dpomdp_1(filename);
 
-		// Construct DecPOMDP using parser
-		std::cout << "#> Parsing file \"" << filename << "\"\n";
-		auto dpomdp_2 = sdm::parser::parse_file(filename2);
+		// // Construct DecPOMDP using parser
+		// std::cout << "#> Parsing file \"" << filename << "\"\n";
+		// auto dpomdp_2 = sdm::parser::parse_file(filename2);
 
-		// Copie DecPOMDP into another DecPOMDP
-		auto dpomdp_3 = dpomdp_2;
+		// // Copie DecPOMDP into another DecPOMDP
+		// auto dpomdp_3 = dpomdp_2;
 
-		std::cout << "#> DPOMDP_1\n" << dpomdp_1 << "\n\n";
-		std::cout << "#> DPOMDP_2\n" << *dpomdp_2 << "\n\n";
-		std::cout << "#> DPOMDP_3\n" << *dpomdp_3 << "\n\n";
+		// std::cout << "#> DPOMDP_1\n" << dpomdp_1 << "\n\n";
+		// std::cout << "#> DPOMDP_2\n" << *dpomdp_2 << "\n\n";
+		// std::cout << "#> DPOMDP_3\n" << *dpomdp_3 << "\n\n";
 
 		return 0;
 	}

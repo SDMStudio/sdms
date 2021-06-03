@@ -5,8 +5,8 @@
 namespace sdm
 {
     HSVI::HSVI(std::shared_ptr<SolvableByHSVI> &world,
-               std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> lower_bound,
-               std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> upper_bound,
+               std::shared_ptr<ValueFunction> lower_bound,
+               std::shared_ptr<ValueFunction> upper_bound,
                number planning_horizon,
                double error,
                number num_max_trials,
@@ -100,7 +100,7 @@ namespace sdm
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
 
                 // Recursive explore
-                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a), h + 1);
+                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
                 // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
@@ -160,12 +160,12 @@ namespace sdm
         this->getLowerBound()->save(this->name_ + "_lb");
     }
 
-    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> HSVI::getLowerBound() const
+    std::shared_ptr<ValueFunction> HSVI::getLowerBound() const
     {
         return this->lower_bound_;
     }
 
-    std::shared_ptr<ValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>>> HSVI::getUpperBound() const
+    std::shared_ptr<ValueFunction> HSVI::getUpperBound() const
     {
         return this->upper_bound_;
     }
