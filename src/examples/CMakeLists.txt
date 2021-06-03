@@ -69,8 +69,8 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_hsvi
-		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/world/mdp.cpp
+		# ${INCLUDE_DIR}/algorithms/hsvi.cpp
+		# ${INCLUDE_DIR}/world/mdp.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 	)
