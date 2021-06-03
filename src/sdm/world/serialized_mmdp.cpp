@@ -45,9 +45,9 @@ namespace sdm
     {
     }
 
-    std::set<std::shared_ptr<Action>> SerializedMMDP::getAllActions(number t) const
+    std::vector<std::shared_ptr<Action>> SerializedMMDP::getAllActions(number t) const
     {
-        return std::static_pointer_cast<Joint<std::shared_ptr<Space<Action>>>>(this->mmdp_->getActionSpace(t))->get(this->getAgentId(t));
+        return std::static_pointer_cast<Joint<std::shared_ptr<Space<Action>>>>(this->mmdp_->getActionSpace(t))->get(this->getAgentId(t))->getAll();
     }
 
     double SerializedMMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
@@ -70,24 +70,29 @@ namespace sdm
     {
         std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
         std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
+        
+        Joint<std::shared_ptr<Action>> all_action = serialized_state->getAction();
+        all_action.push_back(action);
+
         if (!this->isLastAgent(t))
         {
             // If the next serialized_state and the current serialized_state don't have the same hidden or it's not the same player to act, then the dynamics is impossible
-            if ((serialized_state->getCurrentAgentId() != next_serialized_state->getCurrentAgentId()) || (serialized_state->getState() != next_serialized_state->getState()))
-            {
-                return 0;
-            }
-            else
-            {
-                return 1;
-            }
+            return !(((serialized_state->getCurrentAgentId() + 1) != next_serialized_state->getCurrentAgentId()) ||
+                    (serialized_state->getState() != next_serialized_state->getState()) ||
+                    (next_serialized_state->getAction() != all_action));
         }
         else
         {
-            auto all_action = serialized_state->getAction();
-            all_action.push_back(action);
             return this->mmdp_->getTransitionProbability(serialized_state->getState(), all_action, next_serialized_state->getState());
         }
+    }
+
+    double SerializedMMDP::getMinReward(number t) const
+    {
+    }
+
+    double SerializedMMDP::getMaxReward(number t) const
+    {
     }
 
 } // namespace sdm
