@@ -8,15 +8,23 @@
  * @copyright Copyright (c) 2021
  * 
  */
-#pragma once
-
 #include <sdm/types.hpp>
 #include <sdm/world/serialized_mmdp.hpp>
 
 namespace sdm
 {
-    SerializedMMDP::SerializedMMDP(std::shared_ptr<MDPInterface> mmdp) : mmdp_(mmdp)
+    SerializedMMDP::SerializedMMDP(const std::shared_ptr<MDPInterface> &mmdp) : mmdp_(mmdp)
     {
+    }
+
+    number SerializedMMDP::getAgentId(number t)
+    {
+        return (t % this->getNumAgents());
+    }
+
+    bool SerializedMMDP::isLastAgent(number t)
+    {
+        return (this->getAgentId(t) != (this->getNumAgents() - 1));
     }
 
     double SerializedMMDP::getDiscount(number t) const
@@ -39,17 +47,18 @@ namespace sdm
 
     std::set<std::shared_ptr<Action>> SerializedMMDP::getAllActions(number t) const
     {
+        return std::static_pointer_cast<Joint<std::shared_ptr<Space<Action>>>>(this->mmdp_->getActionSpace(t))->get(this->getAgentId(t));
     }
 
     double SerializedMMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
-        std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
-        if (serialized_state->getCurrentAgentId() != (this->getNumAgents() - 1))
+        if (!this->isLastAgent(t))
         {
             return 0;
         }
         else
         {
+            std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
             auto joint_action = serialized_state->getAction();
             joint_action.push_back(serial_action);
 
@@ -61,7 +70,7 @@ namespace sdm
     {
         std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
         std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
-        if (serialized_state->getCurrentAgentId() != (this->getNumAgents() - 1))
+        if (!this->isLastAgent(t))
         {
             // If the next serialized_state and the current serialized_state don't have the same hidden or it's not the same player to act, then the dynamics is impossible
             if ((serialized_state->getCurrentAgentId() != next_serialized_state->getCurrentAgentId()) || (serialized_state->getState() != next_serialized_state->getState()))

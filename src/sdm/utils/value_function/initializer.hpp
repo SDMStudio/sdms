@@ -94,7 +94,6 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
     class ZeroInitializer : public ValueInitializer
     {
     public:
@@ -109,11 +108,11 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
     class BoundInitializer : public Initializer
     {
     protected:
         double value_;
+        double (MDPInterface::*callback_value)(number) const = nullptr;
 
     public:
         BoundInitializer() {}
@@ -121,22 +120,10 @@ namespace sdm
 
         void init(std::shared_ptr<ValueFunction> vf)
         {
-            auto under_pb = vf->getWorld()->getUnderlyingProblem();
 
             if (vf->isInfiniteHorizon())
             {
-                // long l = log(1 - this->discount_) * this->error_ / this->reward_->getMaxReward();
-                double value;
-                double factor = 0, comp = 0;
-                number t = 0;
-                do
-                {
-                    comp = factor;
-                    factor += std::pow(under_pb->getDiscount(t), t);
-                    t++;
-                } while ((factor - comp) > 0.0001);
-                value = floor(this->value_ * factor) + 1;
-                vf->initialize(value);
+                vf->initialize(this->computeValueInfiniteHorizon(vf));
             }
             else
             {
@@ -144,7 +131,7 @@ namespace sdm
                 vf->initialize(tot, vf->getHorizon());
                 for (number t = vf->getHorizon(); t > 0; t--)
                 {
-                    tot = this->getValue(vf, t) + under_pb->getDiscount(t) * tot;
+                    tot = this->getValue(vf, t) + vf->getWorld()->getUnderlyingProblem()->getDiscount(t) * tot;
                     vf->initialize(tot, t - 1);
                 }
             }
@@ -152,18 +139,22 @@ namespace sdm
 
         double getValue(std::shared_ptr<ValueFunction> vf, number t)
         {
-            double value = 0;
-            if (vf->getWorld()->isSerialized())
+            return (this->callback_value == nullptr) ? this->value_ : ((*vf->getWorld()->getUnderlyingProblem()).*callback_value)(t);
+        }
+
+        double computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf)
+        {
+            auto under_pb = vf->getWorld()->getUnderlyingProblem();
+            // long l = log(1 - this->discount_) * this->error_ / this->reward_->getMaxReward();
+            number t = 0;
+            double value = this->getValue(vf, t), factor = 1.;
+            do
             {
-                if (t % vf->getWorld()->getUnderlyingProblem()->getNumAgents() == 0)
-                {
-                    value = this->value_;
-                }
-            }
-            else
-            {
-                value = this->value_;
-            }
+                factor *= under_pb->getDiscount(t);
+                value += factor * this->getValue(vf, t + 1);
+                t++;
+            } while (factor < 1.e-10);
+            value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
             return value;
         }
     };
@@ -174,7 +165,6 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
     class MinInitializer : public BoundInitializer
     {
     public:
@@ -182,7 +172,8 @@ namespace sdm
 
         void init(std::shared_ptr<ValueFunction> vf)
         {
-            this->value_ = vf->getWorld()->getUnderlyingProblem()->getMinReward();
+            //vf->getWorld()->getUnderlyingProblem()->getMinReward();
+            this->callback_value = &MDPInterface::getMinReward;
             BoundInitializer::init(vf);
         }
     };
@@ -193,7 +184,6 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
     class MaxInitializer : public BoundInitializer
     {
     public:
@@ -201,7 +191,8 @@ namespace sdm
 
         void init(std::shared_ptr<ValueFunction> vf)
         {
-            this->value_ = vf->getWorld()->getUnderlyingProblem()->getMaxReward();
+            // this->value_ = vf->getWorld()->getUnderlyingProblem()->getMaxReward();
+            this->callback_value = &MDPInterface::getMaxReward;
             BoundInitializer::init(vf);
         }
     };
@@ -211,8 +202,7 @@ namespace sdm
      * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf . 
      * 
      */
-    template <typename TState, typename TAction>
-    class BlindInitializer : public Initializer
+    class BlindInitializer : public BoundInitializer
     {
     public:
         BlindInitializer() { std::cout << "In BlindInitalizer" << std::endl; }
@@ -220,30 +210,24 @@ namespace sdm
         void init(std::shared_ptr<ValueFunction> vf)
         {
             auto under_pb = vf->getWorld()->getUnderlyingProblem();
-            std::vector<double> ra;
+            std::vector<double> ra, rt;
 
-            for (auto &a : under_pb->getAllActions())
+            for (number t = 0; t < vf->getHorizon(); t++)
             {
-                ra.push_back(std::numeric_limits<double>::max());
-                for (auto &s : under_pb->getAllStates())
+                ra.clear();
+                for (auto &a : under_pb->getAllActions(t))
                 {
-                    ra.back() = std::min(under_pb->getReward(s, a), ra.back());
+                    ra.push_back(std::numeric_limits<double>::max());
+                    for (auto &s : under_pb->getAllStates(t))
+                    {
+                        ra.back() = std::min(under_pb->getReward(s, a, t), ra.back());
+                    }
                 }
+                rt.push_back(*std::max_element(ra.begin(), ra.end()));
             }
-            if (vf->isInfiniteHorizon())
-            {
-                vf->initialize(*std::max_element(ra.begin(), ra.end()) / (1. - under_pb->getDiscount()));
-            }
-            else
-            {
-                double min_rsa = *std::max_element(ra.begin(), ra.end()), tot = 0;
-                vf->initialize(tot, vf->getHorizon());
-                for (number t = vf->getHorizon(); t > 0; t--)
-                {
-                    tot = min_rsa + under_pb->getDiscount(t) * tot;
-                    vf->initialize(tot, t - 1);
-                }
-            }
+
+            this->value_ = *std::min_element(rt.begin(), rt.end());
+            BoundInitializer::init(vf);
         }
     };
 

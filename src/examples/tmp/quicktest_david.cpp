@@ -15,9 +15,9 @@
 #include <sdm/core/dynamics/tabular_state_dynamics.hpp>
 
 #include <sdm/world/base/base_mdp.hpp>
-// #include <sdm/world/mdp.hpp>
+#include <sdm/world/mdp.hpp>
 
-// #include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/tabular_value_function.hpp>
 
 using namespace sdm;
 
@@ -89,9 +89,9 @@ int main(int argc, char **argv)
 
     for (const auto &state : state_space->getAll()) // = state_space->begin(); state != state_space->end(); state = state_space->next())
     {
-        for (const auto &action : {action_space->getAll()[2]}) //= action_space->begin(); action != action_space->end(); action = action_space->next())
+        for (const auto &action : action_space->getAll()) //= action_space->begin(); action != action_space->end(); action = action_space->next())
         {
-            for (const auto &next_state : {state_space->getAll()[0]}) // = state_space->begin(); state != state_space->end(); state = state_space->next())
+            for (const auto &next_state : state_space->getAll()) // = state_space->begin(); state != state_space->end(); state = state_space->next())
             {
                 dynamics->setTransitionProbability(state, action, next_state, proba);
             }
@@ -130,14 +130,18 @@ int main(int argc, char **argv)
     }
 
 
-    // auto hsvi_mdp = std::make_shared<MDP>(mdp);
+    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<MDP>(mdp);
 
 
-    // auto lb = std::make_shared<MappedValueFunction>(hsvi_mdp, 3);
-    // auto ub = std::make_shared<MappedValueFunction>(hsvi_mdp, 3);
+    auto lb = std::make_shared<MappedValueFunction>(hsvi_mdp, 3, -1000);
+    auto ub = std::make_shared<MappedValueFunction>(hsvi_mdp, 3, 1000);
 
-    // auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, 3, 0.01);
-    // algo->do_initialize();
-    // algo->do_solve();
+    auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, 3, 0.01);
+    algo->do_initialize();
+    std::cout << *algo->getLowerBound() << std::endl;
+    std::cout << *algo->getUpperBound() << std::endl;
+    algo->do_solve();
+    std::cout << *algo->getLowerBound() << std::endl;
+    std::cout << *algo->getUpperBound() << std::endl;
 
 } // END main

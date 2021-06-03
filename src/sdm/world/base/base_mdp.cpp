@@ -57,6 +57,16 @@ namespace sdm
         return this->reward_->getReward(state, action, t);
     }
 
+    double BaseMDP::getMinReward(number t) const
+    {
+        return this->reward_->getMinReward(t);
+    }
+
+    double BaseMDP::getMaxReward(number t) const
+    {
+        return this->reward_->getMaxReward(t);
+    }
+
     double BaseMDP::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const
     {
         return this->state_dynamics_->getTransitionProbability(state, action, next_state, t);

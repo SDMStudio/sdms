@@ -92,6 +92,10 @@ namespace sdm
          * @return double 
          */
         virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+        
+        virtual double getMinReward(number t = 0) const;
+
+        virtual double getMaxReward(number t = 0) const;
 
         /**
          * @brief Get the Transition Probability object

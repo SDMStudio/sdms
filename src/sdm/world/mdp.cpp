@@ -18,7 +18,7 @@ namespace sdm
 
     std::shared_ptr<State> MDP::getInitialState()
     {
-        return nullptr;
+        return this->getUnderlyingProblem()->getAllStates(0)[0];
     }
 
     std::shared_ptr<State> MDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi) const
@@ -87,14 +87,14 @@ namespace sdm
         return this->underlying_problem->getDiscount(t);
     }
 
-    double MDP::getWeightedDiscount(number horizon)
+    double MDP::getWeightedDiscount(number t)
     {
-        return std::pow(this->getDiscount(horizon), horizon);
+        return std::pow(this->getDiscount(t), t);
     }
 
-    double MDP::do_excess(double, double lb, double ub, double, double error, number horizon)
+    double MDP::do_excess(double, double lb, double ub, double, double error, number t)
     {
-        return (ub - lb) - error / this->getWeightedDiscount(horizon);
+        return (ub - lb) - error / this->getWeightedDiscount(t);
     }
 
     std::shared_ptr<Action> MDP::selectNextAction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h)

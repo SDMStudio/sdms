@@ -11,16 +11,35 @@
 #pragma once
 
 #include <sdm/types.hpp>
+
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 
 namespace sdm
 {
     class SerializedMMDP : public MDPInterface
     {
     public:
-        SerializedMMDP(std::shared_ptr<MDPInterface> mmdp);
+        SerializedMMDP(const std::shared_ptr<MDPInterface> &mmdp);
+
+        /**
+         * @brief Get the identifier of the current agent.
+         * 
+         * @param t the timestep
+         * @return number the agent id
+         */
+        number getAgentId(number t);
+
+        /**
+         * @brief 
+         * 
+         * @param t 
+         * @return true 
+         * @return false 
+         */
+        bool isLastAgent(number t);
 
         /**
          * @brief Get the discount factor at timestep t.
