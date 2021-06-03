@@ -14,6 +14,10 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
+#include <sdm/core/space/space.hpp>
+#include <sdm/core/reward/base_reward.hpp>
+#include <sdm/core/dynamics/base_state_dynamics.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 
 namespace sdm
 {
@@ -26,11 +30,13 @@ namespace sdm
     public:
         BaseMDP(number num_agents,
                 double discount,
-                const std::shared_ptr<Space> &state_space,
-                const std::shared_ptr<Space> &action_space,
+                const std::shared_ptr<Space<std::shared_ptr<State>>> &state_space,
+                const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
                 const std::shared_ptr<BaseReward> &reward,
                 const std::shared_ptr<BaseStateDynamics> &state_dynamics,
                 const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
+
+        virtual ~BaseMDP();
 
         /**
          * @brief Get the number of agents
@@ -45,7 +51,7 @@ namespace sdm
          * @param t the timestep
          * @return the discount factor
          */
-        virtual double getDiscount(number t) const;
+        virtual double getDiscount(number t = 0) const;
 
         /**
          * @brief Get the initial distribution over states.
@@ -59,7 +65,7 @@ namespace sdm
          * 
          * @return the set of states 
          */
-        virtual std::set<std::shared_ptr<State>> getAllStates(number t) const;
+        virtual std::vector<std::shared_ptr<State>> getAllStates(number t = 0) const;
 
         /**
          * @brief Get the reachable next states
@@ -68,14 +74,14 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        virtual std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        virtual std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get all actions
          * 
          * @return the set of actions 
          */
-        virtual std::set<std::shared_ptr<Action>> getAllActions(number t) const;
+        virtual std::vector<std::shared_ptr<Action>> getAllActions(number t = 0) const;
 
         /**
          * @brief Get the reward
@@ -85,7 +91,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the Transition Probability object
@@ -96,14 +102,14 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
+        virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
-        std::shared_ptr<Space<std::shared_ptr<Action>>> getActionSpace(number t);
+        const std::shared_ptr<Space<std::shared_ptr<State>>> &getStateSpace(number t = 0) const;
 
-        std::shared_ptr<Space<std::shared_ptr<State>>> getStateSpace(number t);
+        const std::shared_ptr<Space<std::shared_ptr<Action>>> &getActionSpace(number t = 0) const;
 
     protected:
-        number num_agents = 2;
+        number num_agents_ = 2;
 
         double discount_ = 1.0;
 

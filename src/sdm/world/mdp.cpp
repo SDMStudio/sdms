@@ -1,3 +1,5 @@
+#include <sdm/world/mdp.hpp>
+#include <sdm/world/base/base_mdp.hpp>
 
 namespace sdm
 {
@@ -6,17 +8,26 @@ namespace sdm
     {
     }
 
-    MDP(const std::shared_ptr<MDPInterface> &mdp) : mdp_(mdp)
+    MDP::MDP(const std::shared_ptr<MDPInterface> &mdp) : underlying_problem(mdp)
     {
     }
 
-    std::shared_ptr<State> MDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, std::shared_ptr<HSVI> hsvi) const
+    MDP::~MDP()
+    {
+    }
+
+    std::shared_ptr<State> MDP::getInitialState()
+    {
+        return nullptr;
+    }
+
+    std::shared_ptr<State> MDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi) const
     {
         double max = -std::numeric_limits<double>::max();
         std::shared_ptr<State> argmax = 0;
-        for (const auto &next_state : this->getUnderlyingProblem()->getReachableStates(state, action, t))
+        for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
         {
-            double tmp = this->getUnderlyingProblem()->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
+            double tmp = this->underlying_problem->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
             if (tmp > max)
             {
                 max = tmp;
@@ -36,22 +47,22 @@ namespace sdm
         return argmax;
     }
 
-    std::shared_ptr<DiscreteSpace<TAction>> MDP::getActionSpaceAt(const TState &, number t)
+    std::shared_ptr<Space<std::shared_ptr<Action>>> MDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
-        return this->getUnderlyingProblem()->getActionSpace(t);
+        return std::static_pointer_cast<BaseMDP>(this->underlying_problem)->getActionSpace(t);
     }
 
     double MDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
-        return this->getUnderlyingProblem()->getReward(state, action, t);
+        return this->underlying_problem->getReward(state, action, t);
     }
 
-    double MDP::getExpectedNextValue(std::shared_ptr<ValueFunction<TState, TAction>> value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
+    double MDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
         double tmp = 0;
-        for (const auto &next_state : this->getUnderlyingProblem()->getReachableStates(state, action, t))
+        for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
         {
-            tmp += this->getUnderlyingProblem()->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
+            tmp += this->underlying_problem->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
         }
         return tmp;
     }
@@ -61,19 +72,19 @@ namespace sdm
         return false;
     }
 
-    std::shared_ptr<MDPInterface> MDP::getUnderlyingProblem()
+    const std::shared_ptr<MDPInterface> &MDP::getUnderlyingProblem() const
     {
-        return this->mdp_;
+        return this->underlying_problem;
     }
 
-    std::shared_ptr<MDPInterface> MDP::getUnderlyingMDP()
+    const std::shared_ptr<MDPInterface> &MDP::getUnderlyingMDP() const
     {
-        return this->getUnderlyingProblem();
+        return this->underlying_problem;
     }
 
     double MDP::getDiscount(number t)
     {
-        return this->getUnderlyingProblem()->getDiscount(t);
+        return this->underlying_problem->getDiscount(t);
     }
 
     double MDP::getWeightedDiscount(number horizon)
@@ -86,10 +97,9 @@ namespace sdm
         return (ub - lb) - error / this->getWeightedDiscount(horizon);
     }
 
-    TAction MDP::selectNextAction(const std::shared_ptr<ValueFunction<TState, TAction>> &, const std::shared_ptr<ValueFunction<TState, TAction>> &ub, const TState &s, number h)
+    std::shared_ptr<Action> MDP::selectNextAction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h)
     {
         return ub->getBestAction(s, h);
     }
-
 
 }

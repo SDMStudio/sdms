@@ -21,7 +21,7 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class MDPInterface 
+    class MDPInterface
     {
     public:
         /**
@@ -37,7 +37,7 @@ namespace sdm
          * @param t the timestep
          * @return the discount factor
          */
-        virtual double getDiscount(number t) const = 0;
+        virtual double getDiscount(number t = 0) const = 0;
 
         /**
          * @brief Get the initial distribution over states.
@@ -51,7 +51,7 @@ namespace sdm
          * 
          * @return the set of states 
          */
-        virtual std::set<std::shared_ptr<State>> getAllStates(number t) const = 0;
+        virtual std::vector<std::shared_ptr<State>> getAllStates(number t) const = 0;
 
         /**
          * @brief Get the reachable next states
@@ -67,7 +67,7 @@ namespace sdm
          * 
          * @return the set of actions 
          */
-        virtual std::set<std::shared_ptr<Action>> getAllActions(number t) const = 0;
+        virtual std::vector<std::shared_ptr<Action>> getAllActions(number t) const = 0;
 
         /**
          * @brief Get the reward

@@ -4,9 +4,7 @@
 #include <sdm/types.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/core/space/discrete_space.hpp>
-// #include <sdm/algorithms/hsvi.hpp>
-// #include <sdm/world/world_type.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 
 /**
  * @namespace  sdm
@@ -14,6 +12,9 @@
  */
 namespace sdm
 {
+
+    class HSVI;
+    class ValueFunction;
 
     /**
      * @brief Public interface that must be implemented by all transformed problems that can be solved using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
@@ -30,6 +31,57 @@ namespace sdm
          * @brief Get the initial state
          */
         virtual std::shared_ptr<State> getInitialState() = 0;
+
+        /**
+         * @brief Get the next occupancy state.
+         * 
+         * @param state the occupancy state
+         * @param action the action state
+         * @param t the timestep
+         * @param hsvi a pointer on the algorithm that makes the call
+         * @return the next occupancy state
+         */
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI>& hsvi = nullptr) const = 0;
+
+        /**
+         * @brief Get the actions availables at a specific state
+         * 
+         * @param state the state
+         * @return the action space 
+         */
+        virtual std::shared_ptr<Space<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
+
+        /**
+         * @brief Get the reward at a given occupancy state and occupancy action 
+         */
+        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+
+        /**
+         * @brief Get the expected next value
+         * 
+         * @param value_function a pointer on the value function to use to perform the calculus.
+         * @param state the state on which to evaluate the next expected value *
+         * @param action 
+         * @param t 
+         * @return double 
+         */
+        virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+
+        /**
+         * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
+         * 
+         * @return the underlying problem 
+         */
+        virtual const std::shared_ptr<MDPInterface> &getUnderlyingProblem() const = 0;
+
+        /**
+         * @brief Check if the problem is serialized.
+         * 
+         * @return true if the problem is serialized.
+         * @return false if the problem is not serialized.
+         */
+        virtual bool isSerialized() const = 0;
+
 
         /**
          * @brief Get the specific discount factor for the problem at hand
@@ -71,54 +123,5 @@ namespace sdm
          */
         virtual std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &state, number t) = 0;
 
-        /**
-         * @brief Get the next occupancy state.
-         * 
-         * @param state the occupancy state
-         * @param action the action state
-         * @param t the timestep
-         * @param hsvi a pointer on the algorithm that makes the call
-         * @return the next occupancy state
-         */
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, std::shared_ptr<HSVI> hsvi = nullptr) const = 0;
-
-        /**
-         * @brief Get the actions availables at a specific state
-         * 
-         * @param state the state
-         * @return the action space 
-         */
-        virtual std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TState &state) = 0;
-
-        /**
-         * @brief Get the reward at a given occupancy state and occupancy action 
-         */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
-
-        /**
-         * @brief Get the expected next value
-         * 
-         * @param value_function a pointer on the value function to use to perform the calculus.
-         * @param state the state on which to evaluate the next expected value *
-         * @param action 
-         * @param t 
-         * @return double 
-         */
-        virtual double getExpectedNextValue(std::shared_ptr<ValueFunction> value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
-
-        /**
-         * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
-         * 
-         * @return the underlying problem 
-         */
-        virtual std::shared_ptr<DecisionProcess<TState, TAction>> getUnderlyingProblem() = 0;
-
-        /**
-         * @brief Check if the problem is serialized.
-         * 
-         * @return true if the problem is serialized.
-         * @return false if the problem is not serialized.
-         */
-        virtual bool isSerialized() const = 0;
     };
 } // namespace sdm
