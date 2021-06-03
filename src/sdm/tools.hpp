@@ -69,7 +69,7 @@ namespace sdm
         }
 
         template <typename TKey, typename TValue>
-        std::vector<TKey> extractKeys(const std::map<TKey, TValue>& input_map)
+        std::vector<TKey> extractKeys(const std::map<TKey, TValue> &input_map)
         {
             std::vector<TKey> retkey;
             for (auto const &element : input_map)
@@ -80,7 +80,7 @@ namespace sdm
         }
 
         template <typename TKey, typename TValue>
-        std::vector<TValue> extractValues(const std::map<TKey, TValue>& input_map)
+        std::vector<TValue> extractValues(const std::map<TKey, TValue> &input_map)
         {
             std::vector<TValue> retvalue;
             for (auto const &element : input_map)

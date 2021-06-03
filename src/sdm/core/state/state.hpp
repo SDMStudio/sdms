@@ -18,12 +18,14 @@ namespace sdm
     class Observation : public Item
     {
     public:
+        virtual ~Observation() {}
         virtual std::string str() const = 0;
     };
 
     class State : public Observation
     {
     public:
+        virtual ~State() {}
         virtual std::string str() const = 0;
     };
 } // namespace sdm

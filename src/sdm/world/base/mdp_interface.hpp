@@ -32,12 +32,19 @@ namespace sdm
         virtual number getNumAgents() const = 0;
 
         /**
+         * @brief Get the number of agents
+         * 
+         * @return the number of agents
+         */
+        // virtual number getHorizon() const = 0;
+
+        /**
          * @brief Get the discount factor at timestep t.
          * 
          * @param t the timestep
          * @return the discount factor
          */
-        virtual double getDiscount(number t = 0) const = 0;
+        virtual double getDiscount(number t) const = 0;
 
         /**
          * @brief Get the initial distribution over states.
@@ -78,6 +85,10 @@ namespace sdm
          * @return double 
          */
         virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        
+        virtual double getMinReward(number t) const = 0;
+        
+        virtual double getMaxReward(number t) const = 0;
 
         /**
          * @brief Get the Transition Probability object

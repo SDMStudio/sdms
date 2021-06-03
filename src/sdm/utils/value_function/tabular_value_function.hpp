@@ -38,14 +38,14 @@ namespace sdm
      * @tparam double Type of the values (must be primitive type)
      * @tparam TStruct Type of vector container (MappedVector, DenseVector and SparseVector are common type) 
      */
-    template <template <typename TI, typename TV> class TBackupOperator = ClassicBellmanBackupOperator,
+    template <class TBackupOperator = ClassicBellmanBackupOperator,
               template <typename TI, typename TV> class TStruct = MappedVector>
     class TabularValueFunction : public ValueFunction,
-                                 public BoostSerializable<TabularValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, TBackupOperator, TStruct>>
+                                 public BoostSerializable<TabularValueFunction<TBackupOperator, TStruct>>
     {
     public:
         using Container = TStruct<std::shared_ptr<State>, double>;
-        using backup_operator_type = TBackupOperator<std::shared_ptr<State>, std::shared_ptr<Action>>;
+        using backup_operator_type = TBackupOperator;
 
         TabularValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, std::shared_ptr<Initializer> initializer);
 

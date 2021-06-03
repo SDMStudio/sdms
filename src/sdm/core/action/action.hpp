@@ -18,6 +18,7 @@ namespace sdm
     class Action : public Item
     {
     public:
+        virtual ~Action() {}
         virtual std::string str() const = 0;
     };
 } // namespace sdm
