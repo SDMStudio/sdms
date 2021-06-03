@@ -12,7 +12,6 @@
 
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/algorithms/value_iteration.hpp>
-#include <sdm/world/world_type.hpp> 
 #include <sdm/utils/value_function/initializer.hpp>
 
 namespace sdm
@@ -25,7 +24,7 @@ namespace sdm
      * @tparam TAction the action type
      */
     template <typename TState, typename TAction>
-    class MDPInitializer : public Initializer<TState, TAction>
+    class MDPInitializer : public Initializer
     {
     public:
         std::string algo_name_;
@@ -33,7 +32,7 @@ namespace sdm
 
     public:
         MDPInitializer(std::string algo_name, double error = 0.01, int trials = 10000);
-        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf);
+        void init(std::shared_ptr<ValueFunction> vf);
     };
 } // namespace sdm
 #include <sdm/utils/value_function/initializer/mdp_initializer.tpp>

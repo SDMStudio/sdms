@@ -18,6 +18,7 @@
 #include <assert.h>
 
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector.hpp>
 
 namespace sdm
 {
@@ -95,6 +96,7 @@ namespace sdm
   protected:
     std::vector<I> vector_indexes_;
     std::unordered_map<I, size_t> map_index_to_int_;
+    
     std::map<I, T> iterator_;
 
     std::pair<I, T> getMin() const;

@@ -11,10 +11,10 @@
 #pragma once
 
 #include <math.h>
+#include <sdm/types.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
-#include <sdm/utils/value_function/state_2_occupancy_vf.hpp>
 
 namespace sdm
 {
@@ -24,11 +24,10 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
     class Initializer
     {
     public:
-        virtual void init(std::shared_ptr<ValueFunction<TState, TAction>> vf) = 0;
+        virtual void init(std::shared_ptr<ValueFunction> vf) = 0;
         virtual ~Initializer() {}
     };
 
@@ -38,11 +37,10 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
     class QInitializer
     {
     public:
-        virtual void init(std::shared_ptr<QValueFunction<TState, TAction>> vf) = 0;
+        virtual void init(std::shared_ptr<QValueFunction> vf) = 0;
         virtual ~QInitializer() {}
     };
 
@@ -52,8 +50,7 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
-    class ValueInitializer : public Initializer<TState, TAction>, public QInitializer<TState, TAction>
+    class ValueInitializer : public Initializer, public QInitializer
     {
     protected:
         double value;
@@ -63,7 +60,7 @@ namespace sdm
         {
         }
 
-        void initBase(std::shared_ptr<BaseValueFunction<TState, TAction>> vf)
+        void initBase(std::shared_ptr<BaseValueFunction> vf)
         {
             if (vf->getHorizon() < 1)
             {
@@ -80,12 +77,12 @@ namespace sdm
             }
         }
 
-        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
+        void init(std::shared_ptr<ValueFunction> vf)
         {
             this->initBase(vf);
         }
 
-        void init(std::shared_ptr<QValueFunction<TState, TAction>> vf)
+        void init(std::shared_ptr<QValueFunction> vf)
         {
             this->initBase(vf);
         }
@@ -98,22 +95,22 @@ namespace sdm
      * @tparam TAction the action type
      */
     template <typename TState, typename TAction>
-    class ZeroInitializer : public ValueInitializer<TState, TAction>
+    class ZeroInitializer : public ValueInitializer
     {
     public:
-        ZeroInitializer() : ValueInitializer<TState, TAction>(0)
+        ZeroInitializer() : ValueInitializer(0)
         {
         }
     };
 
     /**
-     * @brief This initializer initializes a value function to the estimation of the value if if we get a constant reward at every timestep.
+     * @brief This initializer initializes a value function to the estimation of the value if we get a constant reward at every timestep.
      * 
      * @tparam TState the state type
      * @tparam TAction the action type
      */
     template <typename TState, typename TAction>
-    class BoundInitializer : public Initializer<TState, TAction>
+    class BoundInitializer : public Initializer
     {
     protected:
         double value_;
@@ -122,22 +119,21 @@ namespace sdm
         BoundInitializer() {}
         BoundInitializer(double value) : value_(value) {}
 
-        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
+        void init(std::shared_ptr<ValueFunction> vf)
         {
             auto under_pb = vf->getWorld()->getUnderlyingProblem();
 
             if (vf->isInfiniteHorizon())
             {
                 // long l = log(1 - this->discount_) * this->error_ / this->reward_->getMaxReward();
-                assert(under_pb->getDiscount() < 1);
                 double value;
                 double factor = 0, comp = 0;
-                number n = 0;
+                number t = 0;
                 do
                 {
                     comp = factor;
-                    factor += std::pow(under_pb->getDiscount(), n);
-                    n++;
+                    factor += std::pow(under_pb->getDiscount(t), t);
+                    t++;
                 } while ((factor - comp) > 0.0001);
                 value = floor(this->value_ * factor) + 1;
                 vf->initialize(value);
@@ -154,7 +150,7 @@ namespace sdm
             }
         }
 
-        double getValue(std::shared_ptr<ValueFunction<TState, TAction>> vf, number t)
+        double getValue(std::shared_ptr<ValueFunction> vf, number t)
         {
             double value = 0;
             if (vf->getWorld()->isSerialized())
@@ -179,15 +175,15 @@ namespace sdm
      * @tparam TAction the action type
      */
     template <typename TState, typename TAction>
-    class MinInitializer : public BoundInitializer<TState, TAction>
+    class MinInitializer : public BoundInitializer
     {
     public:
         MinInitializer() { std::cout << "In MinInitalizer" << std::endl; }
 
-        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
+        void init(std::shared_ptr<ValueFunction> vf)
         {
-            this->value_ = vf->getWorld()->getUnderlyingProblem()->getReward()->getMinReward();
-            BoundInitializer<TState, TAction>::init(vf);
+            this->value_ = vf->getWorld()->getUnderlyingProblem()->getMinReward();
+            BoundInitializer::init(vf);
         }
     };
 
@@ -198,15 +194,15 @@ namespace sdm
      * @tparam TAction the action type
      */
     template <typename TState, typename TAction>
-    class MaxInitializer : public BoundInitializer<TState, TAction>
+    class MaxInitializer : public BoundInitializer
     {
     public:
         MaxInitializer() { std::cout << "In MaxInitalizer" << std::endl; }
 
-        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
+        void init(std::shared_ptr<ValueFunction> vf)
         {
-            this->value_ = vf->getWorld()->getUnderlyingProblem()->getReward()->getMaxReward();
-            BoundInitializer<TState, TAction>::init(vf);
+            this->value_ = vf->getWorld()->getUnderlyingProblem()->getMaxReward();
+            BoundInitializer::init(vf);
         }
     };
 
@@ -216,20 +212,20 @@ namespace sdm
      * 
      */
     template <typename TState, typename TAction>
-    class BlindInitializer : public Initializer<TState, TAction>
+    class BlindInitializer : public Initializer
     {
     public:
         BlindInitializer() { std::cout << "In BlindInitalizer" << std::endl; }
 
-        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
+        void init(std::shared_ptr<ValueFunction> vf)
         {
             auto under_pb = vf->getWorld()->getUnderlyingProblem();
             std::vector<double> ra;
 
-            for (auto &a : under_pb->getActionSpace()->getAll())
+            for (auto &a : under_pb->getAllActions())
             {
                 ra.push_back(std::numeric_limits<double>::max());
-                for (auto &s : under_pb->getStateSpace()->getAll())
+                for (auto &s : under_pb->getAllStates())
                 {
                     ra.back() = std::min(under_pb->getReward(s, a), ra.back());
                 }

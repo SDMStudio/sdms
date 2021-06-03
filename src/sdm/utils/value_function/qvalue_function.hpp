@@ -13,8 +13,8 @@
 #include <memory>
 
 #include <sdm/core/function.hpp>
-#include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/value_function/base_value_function.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -26,19 +26,18 @@ namespace sdm
      * @class QValueFunction
      * @brief This class is the abstract class of value function. All value function must derived this class.
      * 
-     * @tparam TState Type of the state.
-     * @tparam TAction Type of the action.
-     * @tparam TValue Type of the value.
+     * @tparam std::shared_ptr<State> Type of the state.
+     * @tparam std::shared_ptr<Action> Type of the action.
+     * @tparam double Type of the value.
      */
-    template <typename TState, typename TAction, typename TValue = double>
-    class QValueFunction : public BaseValueFunction<TState, TAction, TValue>
+    class QValueFunction : public BaseValueFunction
     {
     protected:
         /**
          * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
          * 
          */
-        // std::shared_ptr<BinaryFunction<TState, TAction, number, TValue>> init_function_ = nullptr;
+        // std::shared_ptr<BinaryFunction<std::shared_ptr<State>, std::shared_ptr<Action>, number, double>> init_function_ = nullptr;
 
     public:
         QValueFunction();
@@ -59,12 +58,12 @@ namespace sdm
         /**
          * @brief Initialize the value function with a default value
          */
-        virtual void initialize(TValue v, number t = 0) = 0;
+        virtual void initialize(double v, number t = 0) = 0;
 
         /**
          * @brief Get the value at a given state
          */
-        TValue getValueAt(const TState &state, number t = 0);
+        double getValueAt(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Get the q-value at a state
@@ -72,7 +71,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        virtual std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t) = 0;
+        virtual std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action
@@ -81,19 +80,19 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        virtual TValue getQValueAt(const TState &state, const TAction &action, number t) = 0;
+        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
-        TAction getBestAction(const TState &state, number t = 0);
+        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Update the value at a given state
          */
-        virtual void updateQValueAt(const TState &state, const TAction &action, number t = 0) = 0;
+        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) = 0;
 
         /**
          * @brief Update the value at a given state (given a target)
          */
-        virtual void updateQValueAt(const TState &state, const TAction &action, number t, TValue target) = 0;
+        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double target) = 0;
 
         /**
          * @brief Define this function in order to be able to display the value function
@@ -103,8 +102,7 @@ namespace sdm
         /**
          * @brief Get shared pointer on the current QValueFunction
          */
-        std::shared_ptr<QValueFunction<TState, TAction, TValue>> getptr();
+        std::shared_ptr<QValueFunction> getptr();
 
     };
 } // namespace sdm
-#include <sdm/utils/value_function/qvalue_function.tpp>

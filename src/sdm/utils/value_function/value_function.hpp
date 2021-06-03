@@ -14,6 +14,8 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 #include <sdm/core/function.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/action/action.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
@@ -48,7 +50,7 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        ValueFunction(std::shared_ptr<SolvableByHSVI>, number);
+        ValueFunction(const std::shared_ptr<SolvableByHSVI> &problem, number);
 
         /**
          * @brief Destroy the value function
@@ -142,14 +144,6 @@ namespace sdm
             return os;
         }
 
-        /**
-         * @brief Get the discount factor. If the problem is serialized then the discount factor is equal to one for every timestep except the one where agent $n$ take an action.  
-         * 
-         * @param t the timestep
-         * @return double the discount factor
-         */
-        double getDiscount(number);
-
     protected:
         /**
          * @brief The problem which incremental value function is evaluated 
@@ -164,4 +158,3 @@ namespace sdm
         std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> init_function_ = nullptr;
     };
 } // namespace sdm
-#include <sdm/utils/value_function/value_function.tpp>

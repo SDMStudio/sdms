@@ -1,59 +1,51 @@
+#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 
 namespace sdm
 {
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer)
-        : QValueFunction<TState, TAction, TValue>(horizon), learning_rate_(learning_rate), initializer_(initializer)
+    TabularQValueFunction::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<std::shared_ptr<State>, std::shared_ptr<Action>>> initializer)
+        : QValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double>(horizon), learning_rate_(learning_rate), initializer_(initializer)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    TabularQValueFunction<TState, TAction, TValue, TMatrix>::TabularQValueFunction(number horizon, double learning_rate, TValue default_value) : TabularQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    TabularQValueFunction::TabularQValueFunction(number horizon, double learning_rate, double default_value) : TabularQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer<std::shared_ptr<State>, std::shared_ptr<Action>>>(default_value))
     {
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::initialize()
+    void TabularQValueFunction::initialize()
     {
         this->initializer_->init(this->getptr());
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::initialize(TValue default_value, number t)
+    void TabularQValueFunction::initialize(double default_value, number t)
     {
         this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    std::shared_ptr<VectorImpl<TAction, TValue>> TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(const TState &state, number t)
+    std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, number t)
     {
-        using v_type = typename TMatrix<TState, TAction, TValue>::value_type::second_type;
+        using v_type = typename TMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>::value_type::second_type;
 
         return std::make_shared<v_type>(this->representation[this->isInfiniteHorizon() ? 0 : t].at(state));
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    TValue TabularQValueFunction<TState, TAction, TValue, TMatrix>::getQValueAt(const TState &state, const TAction &action, number t)
+    double TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state).at(action);
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(const TState &state, const TAction &action, number t, TValue target)
+    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double target)
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
         this->representation[h][state][action] = this->representation[h].at(state).at(action) + this->learning_rate_ * target;
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    void TabularQValueFunction<TState, TAction, TValue, TMatrix>::updateQValueAt(const TState &, const TAction &, number)
+    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number)
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TS, typename TA, typename TV> class TMatrix>
-    std::string TabularQValueFunction<TState, TAction, TValue, TMatrix>::str()
+    std::string TabularQValueFunction::str()
     {
         std::ostringstream res;
         res << "<tabular_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;

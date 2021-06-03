@@ -42,6 +42,9 @@ namespace sdm
         MappedMatrix(std::initializer_list<value_list_type> vals);
 
         TValue getDefault() const;
+        TValue getValueAt(const TLig &, const TCol &) const;
+        void setValueAt(const TLig &, const TCol &, const TValue &);
+        
         std::vector<long> dim() const;
         MappedMatrix dot(const MappedMatrix &) const;
         const MappedVector<TCol, TValue> &at(const TLig &i) const;

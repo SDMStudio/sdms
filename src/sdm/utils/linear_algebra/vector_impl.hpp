@@ -40,21 +40,21 @@ namespace sdm
     virtual T max() = 0;
     virtual I argmax() = 0;
 
-    virtual T sum() const = 0;
-    virtual T norm_1() const = 0;
-    virtual T norm_2() const = 0;
+    // virtual T sum() const = 0;
+    // virtual T norm_1() const = 0;
+    // virtual T norm_2() const = 0;
 
-    virtual std::string str() const = 0;
+    // virtual std::string str() const = 0;
 
-    bool operator<=(const VectorImpl &) const;
-    bool operator==(const VectorImpl &) const;
-    bool operator!=(const VectorImpl &) const;
-    bool is_equal(const VectorImpl &other, double precision) const;
+    // bool operator<=(const VectorImpl &) const;
+    // bool operator==(const VectorImpl &) const;
+    // bool operator!=(const VectorImpl &) const;
+    // bool is_equal(const VectorImpl &other, double precision) const;
 
-    T dot(const VectorImpl &other) const;
-    T operator^(const VectorImpl &other) const;
+    // T dot(const VectorImpl &other) const;
+    // T operator^(const VectorImpl &other) const;
 
-    virtual size_t size() const = 0;
+    // virtual size_t size() const = 0;
 
     // T operator[](const I &) const;
 

@@ -13,6 +13,9 @@
 #include <memory>
 
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/action/action.hpp>
 #include <sdm/public/boost_serializable.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 
@@ -90,7 +93,7 @@ namespace sdm
          * 
          * @param filename the filename
          */
-        virtual void save(std::string) { throw sdm::exception::Exception("This class cannot be saved."); }
+        virtual void save(std::string) { throw exception::Exception("This class cannot be saved."); }
 
         /**
          * @brief Load a value function from a file.
@@ -98,7 +101,7 @@ namespace sdm
          * 
          * @param filename the filename
          */
-        virtual void load(std::string) { throw sdm::exception::Exception("This class cannot be load."); }
+        virtual void load(std::string) { throw exception::Exception("This class cannot be load."); }
 
         /**
          * @brief Define this function in order to be able to display the value function
@@ -131,4 +134,3 @@ namespace sdm
         number horizon_;
     };
 } // namespace sdm
-#include <sdm/utils/value_function/base_value_function.tpp>

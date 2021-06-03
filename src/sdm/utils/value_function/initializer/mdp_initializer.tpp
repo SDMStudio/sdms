@@ -21,8 +21,8 @@ namespace sdm
     void MDPInitializer<TState, TAction>::init(std::shared_ptr<ValueFunction<TState, TAction>> vf)
     {
         // Get relaxed MDP problem and the underlying problem
-        auto mdp = std::static_pointer_cast<typename WorldType<TState, TAction>::type>(vf->getWorld())->toMDP();
-        auto underlying_pb = mdp->getUnderlyingProblem();
+        auto mdp = std::make_shared<MDP>(vf->getWorld()->getUnderlyingProblem());
+        auto underlying_pb =  mdp->getUnderlyingProblem();
 
         if (this->algo_name_ == "ValueIteration")
         {
@@ -37,11 +37,13 @@ namespace sdm
         {
             auto initial = underlying_pb->getInternalState();
             // Instanciate HSVI for MDP
-            auto algorithm = algo::makeHSVI<decltype(mdp->getInitialState()), number>(mdp, "tabular", "tabular", "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init", "BigM",100,"Full");
+            auto algorithm = std::make_shared<HSVI>(mdp, ....); 
+            
+            algo::makeHSVI(mdp, "tabular", "tabular", "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init", "BigM",100,"Full");
             algorithm->do_initialize();
 
             // Solve HSVI from every possible initial state
-            for (auto &s : underlying_pb->getStateSpace()->getAll())
+            for (const auto &s : underlying_pb->getAllStates())
             {
                 underlying_pb->setInternalState(s);
                 algorithm->do_solve();

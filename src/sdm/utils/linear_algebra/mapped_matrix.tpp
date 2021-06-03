@@ -43,6 +43,22 @@ namespace sdm
     }
 
     template <typename TLig, typename TCol, typename TValue>
+    TValue MappedMatrix<TLig, TCol, TValue>::getValueAt(const TLig &lig, const TCol &col) const
+    {
+        return this->at(lig, col);
+    }
+
+    template <typename TLig, typename TCol, typename TValue>
+    void MappedMatrix<TLig, TCol, TValue>::setValueAt(const TLig &lig, const TCol &col, const TValue &val)
+    {
+        if (this->find(lig) == this->end())
+        {
+            (*this)[lig] = this->getDefault();
+        }
+        (*this)[lig][col] = val;
+    }
+
+    template <typename TLig, typename TCol, typename TValue>
     MappedMatrix<TLig, TCol, TValue> MappedMatrix<TLig, TCol, TValue>::dot(const MappedMatrix &) const
     {
         throw sdm::exception::NotImplementedException();
@@ -65,7 +81,6 @@ namespace sdm
         //     }
         //     new_matrix.recursive_emplace(line_matrix1,new_line);
         // }
-
     }
 
     // template <typename TLig, typename TCol, typename TValue>
@@ -96,7 +111,7 @@ namespace sdm
     // template <typename TLig, typename TCol, typename TValue>
     // void &MappedMatrix<TLig, TCol, TValue>::initialize() const
     // {
-    //     // Creation of index line and col 
+    //     // Creation of index line and col
     //     for(const auto &item_lig : *this)
     //     {
     //         this->index_line.push_back(item_lig.first);
@@ -107,7 +122,7 @@ namespace sdm
     //         }
     //     }
 
-    //     // For each Mapped Matrix TLig , TCol we associate it with a Mapped Matrix TCol, TLig 
+    //     // For each Mapped Matrix TLig , TCol we associate it with a Mapped Matrix TCol, TLig
     //     MappedMatrix<TCol,TLig, TValue> new_matrix;
 
     //     for(const auto &col : this->index_col)
@@ -131,7 +146,7 @@ namespace sdm
     template <typename TLig, typename TCol, typename TValue>
     TValue MappedMatrix<TLig, TCol, TValue>::at(const TLig &i, const TCol &j) const
     {
-            return this->at(i).at(j);
+        return this->at(i).at(j);
     }
 
     template <typename TLig, typename TCol, typename TValue>
@@ -139,7 +154,10 @@ namespace sdm
     {
         std::ostringstream res;
         res << "<MappedMatrix>" << std::endl;
-
+        for (const auto &pair_lig_vect : *this)
+        {
+            res << "\t" << pair_lig_vect.first << " : " << pair_lig_vect.second << std::endl;
+        }
         res << "</MappedMatrix>" << std::endl;
         return res.str();
     }

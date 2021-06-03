@@ -4,7 +4,7 @@
 
 namespace sdm
 {
-    ValueFunction::ValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon) : BaseValueFunction(horizon), problem_(problem)
+    ValueFunction::ValueFunction(const std::shared_ptr<SolvableByHSVI> &problem, number horizon) : BaseValueFunction(horizon), problem_(problem)
     {
     }
 
@@ -22,7 +22,7 @@ namespace sdm
     {
         // Compute Q(s,*)
         std::shared_ptr<MappedVector<std::shared_ptr<Action>, double>> q_s = std::make_shared<MappedVector<std::shared_ptr<Action>, double>>();
-        for (const auto &a : this->getWorld()->getActionSpaceAt(state)->getAll())
+        for (const auto &a : this->getWorld()->getActionSpaceAt(state, t)->getAll())
         {
             (*q_s)[a] = this->getQValueAt(state, a, t);
         }
@@ -32,7 +32,7 @@ namespace sdm
     double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         // implement bellman operator
-        return this->getWorld()->getReward(state, action) + this->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
+        return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
     }
 
     std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
@@ -50,20 +50,7 @@ namespace sdm
     {
         return this->problem_;
     }
-
-    double ValueFunction::getDiscount(number t)
-    {
-        if (this->getWorld()->isSerialized())
-        {
-            if ((t + 1) % this->getWorld()->getUnderlyingProblem()->getNumAgents() != 0)
-            {
-                return 1.0;
-            }
-        }
-        return this->getWorld()->getUnderlyingProblem()->getDiscount();
-    }
-
-
+    
     std::shared_ptr<ValueFunction> ValueFunction::getptr()
     {
         return std::static_pointer_cast<ValueFunction>(this->shared_from_this());

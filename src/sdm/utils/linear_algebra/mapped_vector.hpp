@@ -105,7 +105,7 @@ namespace sdm
         }
 
     protected:
-        T default_value_;
+        T default_value_ = 0;
         long size_ = -1;
 
         std::vector<TIndex> v_indexes = {};

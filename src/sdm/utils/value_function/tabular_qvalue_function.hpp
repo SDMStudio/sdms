@@ -30,19 +30,13 @@ namespace sdm
     /**
      * @brief Tabular value function are functions of state and action that use a vector representation to store the values. 
      * 
-     * @tparam TState Type of the states 
-     * @tparam TAction Type of the states
-     * @tparam TValue Type of the values (must be primitive type)
-     * @tparam TStruct Type of vector container (MappedVector, DenseVector and SparseVector are common type) 
+     * @tparam TMatrix Type of matrix container (MappedMatrix, DenseMatrix and SparseMatrix are common type) 
      */
-    template <typename TState,
-              typename TAction,
-              typename TValue = double,
-              template <typename TS, typename TA, typename TV> class TMatrix = MappedMatrix>
-    class TabularQValueFunction : public QValueFunction<TState, TAction, TValue>
+    template <template <typename TS, typename TA, typename TV> class TMatrix = MappedMatrix>
+    class TabularQValueFunction : public QValueFunction
     {
     protected:
-        using Container = TMatrix<TState, TAction, TValue>;
+        using Container = TMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
 
         /**
          * @brief The value function represention.
@@ -56,12 +50,12 @@ namespace sdm
          * @brief The initializer to use for this value function. 
          * 
          */
-        std::shared_ptr<QInitializer<TState, TAction>> initializer_;
+        std::shared_ptr<QInitializer> initializer_;
 
     public:
-        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer);
+        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
 
-        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, TValue default_value = 0.);
+        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
 
         /**
          * @brief Initialize the value function 
@@ -71,7 +65,7 @@ namespace sdm
         /**
          * @brief Initialize the value function with a default value
          */
-        void initialize(TValue v, number t = 0);
+        void initialize(double v, number t = 0);
 
         /**
          * @brief Get the q-value at a state
@@ -79,7 +73,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t);
+        std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the q-value given state and action
@@ -88,38 +82,37 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        TValue getQValueAt(const TState &state, const TAction &action, number t);
+        double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
         /**
          * @brief Update the value at a given state
          */
-        void updateQValueAt(const TState &state, const TAction &action, number t = 0);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
          * @brief Update the value at a given state (given a target)
          */
-        void updateQValueAt(const TState &state, const TAction &action, number t, TValue target);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double target);
 
         /**
          * @brief Define this function in order to be able to display the value function
          */
         std::string str();
 
-        friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction<TState, TAction> &vf)
+        friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>> &vf)
         {
             os << vf.str();
             return os;
         }
     };
 
-    template <typename TState, typename TAction, typename TValue = double>
-    using MappedQValueFunction = TabularQValueFunction<TState, TAction, TValue, MappedMatrix>;
+    template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, MappedMatrix>;
 
-    // template <typename TState, typename TAction, typename TValue = double>
-    // using SparseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, SparseVector>;
+    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    // using SparseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, SparseVector>;
 
-    // template <typename TState, typename TAction, typename TValue = double>
-    // using DenseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, DenseVector>;
+    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    // using DenseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, DenseVector>;
 
 } // namespace sdm
-#include <sdm/utils/value_function/tabular_qvalue_function.tpp>
