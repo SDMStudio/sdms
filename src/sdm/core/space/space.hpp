@@ -13,7 +13,6 @@
 #pragma once
 
 #include <vector>
-#include <boost/bimap.hpp>
 #include <sdm/types.hpp>
 
 /**
@@ -26,6 +25,7 @@ namespace sdm
    * @class Space
    * @brief This class is an abstract interface that all spaces should inherite. It gives some useful general methods to use generic spaces in your algorithms. 
    */
+  template <typename TItem>
   class Space
   {
   public:
@@ -49,6 +49,14 @@ namespace sdm
      */
     virtual std::vector<number> getDim() const = 0;
 
+    virtual std::vector<TItem> getAll() const = 0;
+
+    // virtual TItem begin() const = 0;
+
+    // virtual TItem next() const = 0;
+
+    // virtual TItem end() const = 0;
+
     /**
      * @brief Space as a string
      */
@@ -68,6 +76,12 @@ namespace sdm
     bool operator!=(const Space &sp) const
     {
       return !(this->operator==(sp));
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Space &sp)
+    {
+      os << sp.str();
+      return os;
     }
   };
 } // namespace sdm

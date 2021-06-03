@@ -12,6 +12,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/joint.hpp>
 
 namespace sdm
 {
@@ -20,18 +21,14 @@ namespace sdm
   class BaseState : public State
   {
   public:
-    BaseState() {}
-    BaseState(const TState &item) : state_(item) {}
+    BaseState();
+    BaseState(const TState &item);
+    virtual ~BaseState();
 
-    virtual TState getState() const { return this->state_; }
-    virtual void setState(const TState &state) { this->state_ = state; }
+    virtual TState getState() const;
+    virtual void setState(const TState &state);
 
-    virtual std::string str() const
-    {
-      std::ostringstream res;
-      res << "S(" << this->state_ << ")";
-      return res.str();
-    }
+    virtual std::string str() const;
 
   protected:
     TState state_;
@@ -43,3 +40,5 @@ namespace sdm
   using JointContinuousState = BaseState<Joint<ContinuousState>>;
 
 } // namespace sdm
+
+#include <sdm/core/state/base_state.tpp>

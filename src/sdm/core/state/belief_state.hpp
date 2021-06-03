@@ -20,7 +20,8 @@
 
 namespace sdm
 {
-  class Belief : public BeliefInterface
+  class Belief : public BeliefInterface,
+                 public MappedVector<std::shared_ptr<State>>
   {
   public:
     static double PRECISION;
@@ -33,7 +34,7 @@ namespace sdm
     Belief(std::initializer_list<value_type>);
     Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
 
-    virtual std::set<std::shared_ptr<State>> getAllStates() const;
+    virtual std::set<std::shared_ptr<State>> getStates() const;
     virtual double getProbability(const std::shared_ptr<State> &state) const;
     virtual void setProbability(const std::shared_ptr<State> &state, double proba);
     virtual void addProbability(const std::shared_ptr<State> &state, double proba);
@@ -52,13 +53,7 @@ namespace sdm
 
     template <class Archive>
     void serialize(Archive &archive, const unsigned int);
-
-  protected:
-    std::shared_ptr<Vector<std::shared_ptr<State>>> container_;
   };
 } // namespace sdm
-
-
-
 
 #include <sdm/core/state/belief_state.tpp>

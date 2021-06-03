@@ -17,7 +17,7 @@ namespace sdm
 {
     class Action : public Item
     {
-    public :
+    public:
         virtual std::string str() const = 0;
     };
 } // namespace sdm

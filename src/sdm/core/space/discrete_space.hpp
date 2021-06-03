@@ -30,7 +30,7 @@ namespace sdm
      *  
      */
     template <typename TItem>
-    class DiscreteSpace : public Space
+    class DiscreteSpace : public Space<TItem>
     {
     protected:
         typedef boost::bimaps::bimap<number, TItem> items_bimap;

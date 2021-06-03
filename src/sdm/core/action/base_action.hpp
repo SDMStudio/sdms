@@ -23,6 +23,7 @@ namespace sdm
   public:
     BaseAction() {}
     BaseAction(const TAction &action) : action_(action) {}
+    virtual ~BaseAction() {}
 
     virtual TAction getAction() const { return this->action_; }
     virtual void setAction(const TAction &action) { this->action_ = action; }
@@ -30,7 +31,7 @@ namespace sdm
     virtual std::string str() const
     {
       std::ostringstream res;
-      res << "A(" << this->action_ << ")";
+      res << "Action(" << this->action_ << ")";
       return res.str();
     }
 

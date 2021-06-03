@@ -3,69 +3,70 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 ==============================================================================*/
 
 #include <sdm/core/reward/tabular_reward.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
 
 namespace sdm
 {
-  TabularReward::Reward() {}
+  TabularReward::TabularReward() {}
+  
+  TabularReward::~TabularReward() {}
 
-  TabularReward::Reward(Reward &copy) : rewards(copy.getReward()), max(copy.getMaxReward()), min(copy.getMinReward())
+  TabularReward::TabularReward(const TabularReward &copy) : rewards_(copy.rewards_), max(copy.max), min(copy.min)
   {
   }
 
-  TabularReward::Reward(number num_jactions, number num_states)
+  // TabularReward::TabularReward(number num_jactions, number num_states)
+  // {
+  //   this->initReward(num_jactions, num_states);
+  // }
+
+  void TabularReward::initReward(number, number)
   {
-    this->initReward(num_jactions, num_states);
+    // number a;
+    // for (a = 0; a < num_action; ++a)
+    // {
+    //   this->rewards.push_back(TabularReward::vector_type(num_states, 0.));
+    // }
   }
 
-  void TabularReward::initReward(number num_jactions, number num_states)
+  double TabularReward::getReward(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, number) const
   {
-    number a;
-    for (a = 0; a < num_jactions; ++a)
-    {
-      this->rewards.push_back(TabularReward::vector_type(num_states, 0.));
-    }
+    return this->rewards_.getValueAt(s, a);
   }
 
-  double TabularReward::getReward(std::shared_ptr<State> s, std::shared_ptr<Action> a) const
+  // const TabularReward::vector_type &TabularReward::getReward(std::shared_ptr<Action> a) const
+  // {
+  //   return this->rewards_[a];
+  // }
+
+  // const std::vector<TabularReward::vector_type> &TabularReward::getReward() const
+  // {
+  //   return this->rewards;
+  // }
+
+  // void TabularReward::setReward(std::shared_ptr<Action> a, TabularReward::vector_type v)
+  // {
+  //   auto r = v.min();
+  //   this->min = std::min(r, this->min);
+
+  //   r = v.max();
+  //   this->max = std::max(r, this->max);
+
+  //   this->rewards[a] = v;
+  // }
+
+  void TabularReward::setReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double reward, number)
   {
-    return this->rewards[a][s];
+    this->min = std::min(reward, this->min);
+    this->max = std::max(reward, this->max);
+    return this->rewards_.setValueAt(state, action, reward);
   }
 
-  const TabularReward::vector_type &TabularReward::getReward(std::shared_ptr<Action> a) const
-  {
-    return this->rewards[a];
-  }
-
-  const std::vector<TabularReward::vector_type> &TabularReward::getReward() const
-  {
-    return this->rewards;
-  }
-
-  void TabularReward::setReward(std::shared_ptr<Action> a, TabularReward::vector_type v)
-  {
-    auto r = v.min();
-    this->min = std::min(r, this->min);
-
-    r = v.max();
-    this->max = std::max(r, this->max);
-
-    this->rewards[a] = v;
-  }
-
-  void TabularReward::setReward(std::shared_ptr<State> s, std::shared_ptr<Action> a, double r)
-  {
-    this->min = std::min(r, this->min);
-    this->max = std::max(r, this->max);
-    this->rewards[a][s] = r;
-  }
-
-  double TabularReward::getMaxReward() const
+  double TabularReward::getMaxReward(number) const
   {
     return this->max;
   }
 
-  double TabularReward::getMinReward() const
+  double TabularReward::getMinReward(number) const
   {
     return this->min;
   }

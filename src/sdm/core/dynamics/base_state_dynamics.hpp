@@ -1,14 +1,34 @@
+#pragma once
 
-template <typename TState, typename TAction>
-class BaseStateDynamics
+#include <sdm/types.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
+
+namespace sdm
 {
-protected:
-    //! \brief transition and observation matrices
-    RecursiveMap<TState, TAction, TState, double> t_model; //
-    // RecursiveMap<TAction, TState<MappedVector<TObservation>> o_model;
-    // RecursiveMap<TAction, <MappedMatrix<TState,TObservation>> o_model;
+    class BaseStateDynamics
+    {
+    public:
+        /**
+         * @brief Get reachable states from a state given a specific action. 
+         * 
+         * @param state the current state
+         * @param action the current action
+         * @param t the timestep
+         * @return the list of next reachable states 
+         */
+        virtual std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
 
-public:
-    double getTransitionProbability(TState, TAction, TState) const;
-    void setTransitionProbability(TState, TAction, TState, double);
-};
+        /**
+         * @brief Get the state transition probability (i.e. p(s' | s, a)).
+         * 
+         * @param state the state 
+         * @param action the action
+         * @param next_state the next state
+         * @param t the timestep
+         * @return double the probability
+         */
+        virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const = 0;
+    };
+} // namespace sdm

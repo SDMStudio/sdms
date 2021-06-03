@@ -26,8 +26,8 @@ namespace sdm
      * 
      * @tparam TSpace 
      */
-    template <typename TSpace = Space>
-    class MultiSpace : public Space
+    template <typename TSpace>
+    class MultiSpace : public Space<typename TSpace::value_type>
     {
     protected:
         /**

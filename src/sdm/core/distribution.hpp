@@ -24,17 +24,21 @@ namespace sdm
     };
 
     template <typename T>
-    class DiscreteDistribution : public Distribution<T> 
+    class DiscreteDistribution : public Distribution<T>
     {
     public:
+        virtual ~DiscreteDistribution() {}
         virtual T sample() const;
 
         virtual double getProbability(const T &begin, const T & = 0) const;
 
-        virtual double setProbability(const T &item, double proba) const;
+        virtual void setProbability(const T &item, double proba);
 
     protected:
-        std::map<T, double> probabilities_;
+        typedef typename bimap_item_index<T>::value_type bimap_pair;
+
+        bimap_item_index<T> bimap_item_to_index_;
+        std::vector<double> probabilities_;
     };
 } // namespace sdm
 #include <sdm/core/distribution.tpp>

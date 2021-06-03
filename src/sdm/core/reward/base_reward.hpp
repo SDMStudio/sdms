@@ -17,8 +17,6 @@ namespace sdm
   class BaseReward
   {
   public:
-    BaseReward();
-
     virtual double getMinReward(number t) const = 0;
     virtual double getMaxReward(number t) const = 0;
     virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
