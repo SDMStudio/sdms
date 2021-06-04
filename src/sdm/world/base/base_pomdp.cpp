@@ -10,7 +10,7 @@ namespace sdm
                          const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
                          const std::shared_ptr<Space<std::shared_ptr<Observation>>> &obs_space,
                          const std::shared_ptr<BaseReward> &reward,
-                         const std::shared_ptr<BaseStateDynamics> &state_dynamics,
+                         const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                          const std::shared_ptr<BaseObservationDynamics> &obs_dynamics) : BaseMDP(num_agents, discount, state_space, action_space, reward, state_dynamics),
                                                                                          obs_space_(obs_space),
                                                                                          obs_dynamics_(obs_dynamics)

@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     auto action_3 = std::make_shared<DiscreteAction>(3);
 
     // auto test = MultiDiscreteSpace<number>();
-    // std::shared_ptr<Space<std::shared_ptr<Action>>> test = std::make_shared<MultiDiscreteSpace<std::shared_ptr<Action>>>();
+    // std::shared_ptr<Space<std::shared_ptr<Action>>> test = std::make_shared<MultiDiscreteSpace<std::shared_ptr<Action>>();
     // auto test = MultiDiscreteSpace<std::shared_ptr<Observation>>();
 
     std::cout << *state_0 << std::endl;

@@ -26,6 +26,31 @@ namespace sdm
     {
     public:
         SerializedMPOMDP(std::shared_ptr<POMDPInterface> mpomdp);
+<<<<<<< HEAD
+
+        /**
+         * @brief Get the discount factor at timestep t.
+         * 
+         * @param t the timestep
+         * @return the discount factor
+         */
+        virtual double getDiscount(number t) const;
+
+        /**
+         * @brief Get the initial distribution over states.
+         * 
+         * @return the initial distribution over states
+         */
+        virtual std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
+
+        /**
+         * @brief Get all states
+         * 
+         * @return the set of states 
+         */
+        virtual std::set<std::shared_ptr<State>> getAllStates(number t) const;
+=======
+>>>>>>> 105acc154b7b3b42373676fdc8da2b11bb2e036b
 
         /**
          * @brief Get the reachable next states

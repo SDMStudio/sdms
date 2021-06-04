@@ -13,9 +13,10 @@
 #include <unordered_set>
 
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/core/dynamics/base_state_dynamics.hpp>
+#include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 
 namespace sdm
@@ -24,7 +25,7 @@ namespace sdm
    * @brief This class provide quick accessors to transition probability distributions.
    * 
    */
-  class TabularStateDynamics : public BaseStateDynamics
+  class TabularStateDynamics : public StateDynamicsInterface
   {
   public:
     using value_type = double;

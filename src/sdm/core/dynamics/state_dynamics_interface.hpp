@@ -3,11 +3,10 @@
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/utils/struct/recursive_map.hpp>
 
 namespace sdm
 {
-    class BaseStateDynamics
+    class StateDynamicsInterface
     {
     public:
         /**

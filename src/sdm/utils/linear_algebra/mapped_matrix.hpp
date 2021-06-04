@@ -44,7 +44,8 @@ namespace sdm
         TValue getDefault() const;
         TValue getValueAt(const TLig &, const TCol &) const;
         void setValueAt(const TLig &, const TCol &, const TValue &);
-        
+        void setValuesAt(const TLig &lig, const MappedVector<TCol, TValue> &vector);
+
         std::vector<long> dim() const;
         MappedMatrix dot(const MappedMatrix &) const;
         const MappedVector<TCol, TValue> &at(const TLig &i) const;
