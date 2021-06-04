@@ -32,38 +32,9 @@ namespace sdm
      * @tparam TItem The type of items in each sub-discrete space.
      */
     template <typename TItem>
-    class MultiDiscreteSpace : public DiscreteSpace<Joint<TItem>>, Joint<DiscreteSpace<TItem>>
+    class MultiDiscreteSpace : public DiscreteSpace<std::shared_ptr<Joint<TItem>>>,
+                               public Joint<std::shared_ptr<DiscreteSpace<TItem>>>
     {
-    protected:
-        typedef boost::bimaps::bimap<number, Joint<TItem>> jitems_bimap;
-        typedef typename jitems_bimap::value_type jitems_bimap_value;
-
-        /**
-        *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
-        */
-        void generateJointItems();
-
-        /**
-         * @brief Sets the number of joint items
-         * 
-         */
-        void setNumJItems(number);
-
-        /**
-         * @brief Get the number of sub-space.
-         */
-        number getNumSpaces() const;
-
-        /**
-         * @brief Get a specific subspace
-         * 
-         * @param index the index of the space
-         * @return a shared pointer on a specific space 
-         */
-        std::shared_ptr<DiscreteSpace<TItem>> getSpace(number index) const;
-
-        std::vector<std::shared_ptr<DiscreteSpace<TItem>>> spaces_;
-
     public:
         using value_type = Joint<TItem>;
 
@@ -76,7 +47,7 @@ namespace sdm
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
          * 
          */
-        MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &);
+        MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &sub_spaces);
 
         /**
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
@@ -149,20 +120,20 @@ namespace sdm
          * @param jitem the joint item we want to get the index
          * @return the corresponding index
          */
-        number getJointItemIndex(Joint<TItem> &jitem) const;
+        number getJointItemIndex(std::shared_ptr<Joint<TItem>> &jitem) const;
         number getJointItemIndex(const std::vector<TItem> &) const;
 
         /*!
          * @brief Get the corresponding joint item from its index.
          */
-        Joint<TItem> getJointItem(number) const;
+        std::shared_ptr<Joint<TItem>> getJointItem(number) const;
 
         /**
          * @brief Get all the joint values
          * 
          * @return the list of all possible joint items
          */
-        std::vector<Joint<TItem>> getAll() const;
+        std::vector<std::shared_ptr<Joint<TItem>>> getAll() const;
 
         std::string str() const;
 
@@ -183,6 +154,36 @@ namespace sdm
             os << sp.str();
             return os;
         }
+
+    protected:
+        typedef boost::bimaps::bimap<number, Joint<TItem>> jitems_bimap;
+        typedef typename jitems_bimap::value_type jitems_bimap_value;
+
+        /**
+        *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
+        */
+        void generateJointItems();
+
+        /**
+         * @brief Sets the number of joint items
+         * 
+         */
+        void setNumJItems(number);
+
+        /**
+         * @brief Get the number of sub-space.
+         */
+        number getNumSpaces() const;
+
+        /**
+         * @brief Get a specific subspace
+         * 
+         * @param index the index of the space
+         * @return a shared pointer on a specific space 
+         */
+        std::shared_ptr<DiscreteSpace<TItem>> getSpace(number index) const;
+
+        std::vector<std::shared_ptr<DiscreteSpace<TItem>>> spaces_;
     };
 
 } // namespace sdm

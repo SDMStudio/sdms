@@ -1,8 +1,6 @@
 #pragma once
 
 #include <sdm/core/base_joint.hpp>
-#include <sdm/core/action/action.hpp>
-#include <sdm/core/state/state.hpp>
 
 namespace sdm
 {
@@ -11,7 +9,7 @@ namespace sdm
    * 
    * @tparam The type of item.
    */
-  template <typename T>
+  template <class T>
   class Joint : public BaseJoint<T>
   {
   public:
@@ -71,44 +69,31 @@ namespace sdm
     // }
   };
 
-  // Specialisation for the Joint Action 
-  template <>
-  class Joint<std::shared_ptr<Action>> : public BaseJoint<std::shared_ptr<Action>>, std::shared_ptr<Action>
-  {
-  public :
-    using value_type = typename BaseJoint<std::shared_ptr<Action>>::value_type;
+  // // Specialisation for the Joint State 
+  // template <>
+  // class Joint<std::shared_ptr<State>> : public BaseJoint<std::shared_ptr<State>>, std::shared_ptr<State>
+  // {
+  // public :
+  //   using value_type = typename BaseJoint<std::shared_ptr<State>>::value_type;
 
-    Joint();
-    Joint(const std::vector<std::shared_ptr<Action>> &joint_item);
-    Joint(const std::vector<number> &, const std::vector<std::shared_ptr<Action>> &joint_item);
-    Joint(std::initializer_list<std::shared_ptr<Action>> list_values);
-  };
+  //   Joint();
+  //   Joint(const std::vector<std::shared_ptr<State>> &joint_item);
+  //   Joint(const std::vector<number> &, const std::vector<std::shared_ptr<State>> &joint_item);
+  //   Joint(std::initializer_list<std::shared_ptr<State>> list_values);
+  // };
 
-  // Specialisation for the Joint State 
-  template <>
-  class Joint<std::shared_ptr<State>> : public BaseJoint<std::shared_ptr<State>>, std::shared_ptr<State>
-  {
-  public :
-    using value_type = typename BaseJoint<std::shared_ptr<State>>::value_type;
+  // // Specialisation for the Joint Observation 
+  // template <>
+  // class Joint<std::shared_ptr<Observation>> : public BaseJoint<std::shared_ptr<Observation>>, std::shared_ptr<Observation>
+  // {
+  // public :
+  //   using value_type = typename BaseJoint<std::shared_ptr<Observation>>::value_type;
 
-    Joint();
-    Joint(const std::vector<std::shared_ptr<State>> &joint_item);
-    Joint(const std::vector<number> &, const std::vector<std::shared_ptr<State>> &joint_item);
-    Joint(std::initializer_list<std::shared_ptr<State>> list_values);
-  };
-
-  // Specialisation for the Joint Observation 
-  template <>
-  class Joint<std::shared_ptr<Observation>> : public BaseJoint<std::shared_ptr<Observation>>, std::shared_ptr<Observation>
-  {
-  public :
-    using value_type = typename BaseJoint<std::shared_ptr<Observation>>::value_type;
-
-    Joint();
-    Joint(const std::vector<std::shared_ptr<Observation>> &joint_item);
-    Joint(const std::vector<number> &, const std::vector<std::shared_ptr<Observation>> &joint_item);
-    Joint(std::initializer_list<std::shared_ptr<Observation>> list_values);
-  };
+  //   Joint();
+  //   Joint(const std::vector<std::shared_ptr<Observation>> &joint_item);
+  //   Joint(const std::vector<number> &, const std::vector<std::shared_ptr<Observation>> &joint_item);
+  //   Joint(std::initializer_list<std::shared_ptr<Observation>> list_values);
+  // };
 
 } // namespace sdm
 #include <sdm/core/joint.tpp>

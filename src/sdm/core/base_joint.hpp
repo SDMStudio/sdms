@@ -47,19 +47,19 @@ namespace sdm
       * @param const joint<item, instance>& joint item to be printed
       * @return std::ostream&
       */
-    friend std::ostream &operator<<(std::ostream &os, const BaseJoint<T> &j)
+    friend std::ostream &operator<<(std::ostream &os, const BaseJoint<T> &joint)
     {
-      os << "(";
-      if (j.size() > 0)
+      os << "[" << joint.getNumAgents() << "](";
+      if (joint.getNumAgents() > 0)
       {
         number ag;
-        for (ag = 0; ag < j.size() - 1; ++ag)
+        for (ag = 0; ag < joint.getNumAgents() - 1; ++ag)
         {
           std::ostringstream res;
-          res << j[ag] << ", ";
+          os << joint.get(ag) << ", ";
           // sdm::tools::indentedOutput(os, res.str().c_str(), 0);
         }
-        os << j[ag];
+        os << joint[ag];
       }
       os << ")";
       return os;

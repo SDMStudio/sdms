@@ -73,9 +73,9 @@ namespace sdm
     }
 
     template <typename TItem>
-    Joint<TItem> MultiDiscreteSpace<TItem>::getJointItem(number idx) const
+    std::shared_ptr<Joint<TItem>> MultiDiscreteSpace<TItem>::getJointItem(number idx) const
     {
-        return DiscreteSpace<Joint<TItem>>::getItem(idx);
+        return DiscreteSpace<std::shared_ptr<Joint<TItem>>>::getItem(idx);
     }
 
     template <typename TItem>
@@ -156,7 +156,7 @@ namespace sdm
 
         // Generate joint items and store in containers
         number counter = 0;
-        Variations<Joint<TItem>> vars(v_possible_items);
+        Variations<std::shared_ptr<Joint<TItem>>> vars(v_possible_items);
         for (auto v = vars.begin(); v != vars.end(); v = vars.next())
         {
             this->all_items_.insert(jitems_bimap_value(counter, *v));
@@ -166,21 +166,21 @@ namespace sdm
     }
 
     template <typename TItem>
-    std::vector<Joint<TItem>> MultiDiscreteSpace<TItem>::getAll() const
+    std::vector<std::shared_ptr<Joint<TItem>>> MultiDiscreteSpace<TItem>::getAll() const
     {
         return this->list_items_;
     }
 
     template <typename TItem>
-    number MultiDiscreteSpace<TItem>::getJointItemIndex(Joint<TItem> &jitem) const
+    number MultiDiscreteSpace<TItem>::getJointItemIndex(std::shared_ptr<Joint<TItem>> &jitem) const
     {
-        return DiscreteSpace<Joint<TItem>>::getItemIndex(jitem);
+        return DiscreteSpace<std::shared_ptr<Joint<TItem>>>::getItemIndex(jitem);
     }
 
     template <typename TItem>
     number MultiDiscreteSpace<TItem>::getJointItemIndex(const std::vector<TItem> &jitem) const
     {
-        return DiscreteSpace<Joint<TItem>>::getItemIndex(jitem);
+        return DiscreteSpace<std::shared_ptr<Joint<TItem>>>::getItemIndex(jitem);
     }
 
     template <typename TItem>
@@ -193,7 +193,7 @@ namespace sdm
     template <typename TItem>
     bool MultiDiscreteSpace<TItem>::operator==(const MultiDiscreteSpace<TItem> &other) const
     {
-        return DiscreteSpace<Joint<TItem>>::operator==(other);
+        return DiscreteSpace<std::shared_ptr<Joint<TItem>>>::operator==(other);
     }
 
     template <typename TItem>
