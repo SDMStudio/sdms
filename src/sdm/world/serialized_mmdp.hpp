@@ -13,9 +13,17 @@
 #include <sdm/types.hpp>
 
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/state/serialized_state.hpp>
+
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
+
+#include <sdm/core/space/multi_space.hpp>
+#include <sdm/core/space/discrete_space.hpp>
+
+#include <unordered_map>
+
 
 namespace sdm
 {
@@ -30,7 +38,7 @@ namespace sdm
          * @param t the timestep
          * @return number the agent id
          */
-        number getAgentId(number t);
+        number getAgentId(number t) const;
 
         /**
          * @brief 
@@ -39,7 +47,7 @@ namespace sdm
          * @return true 
          * @return false 
          */
-        bool isLastAgent(number t);
+        bool isLastAgent(number t) const ;
 
         /**
          * @brief Get the discount factor at timestep t.
@@ -61,7 +69,7 @@ namespace sdm
          * 
          * @return the set of states 
          */
-        virtual std::set<std::shared_ptr<State>> getAllStates(number t) const;
+        virtual std::vector<std::shared_ptr<State>> getAllStates(number t) const;
 
         /**
          * @brief Get the reachable next states
@@ -77,7 +85,7 @@ namespace sdm
          * 
          * @return the set of actions 
          */
-        virtual std::set<std::shared_ptr<Action>> getAllActions(number t) const;
+        virtual std::vector<std::shared_ptr<Action>> getAllActions(number t) const;
 
         /**
          * @brief Get the reward
@@ -105,6 +113,54 @@ namespace sdm
 
     protected:
         std::shared_ptr<MDPInterface> mmdp_;
+        
+        /**
+         * @brief Refer to the Serialized State Space
+         * 
+         */
+        std::shared_ptr<MultiSpace<DiscreteSpace<std::shared_ptr<State>>>> serialized_state_space_;
+
+        /**
+         * @brief Map (serial state, seial action) to Set of reachable seial states
+         */
+        std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, std::set<std::shared_ptr<State>>>> reachable_state_space;
+
+        /**
+         * @brief Map the joint_action to a precise pointeur
+         * 
+         */
+        std::map<Joint<std::shared_ptr<Action>>, std::shared_ptr<Action>> map_joint_action_to_pointeur;
+
+        std::map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
+
+        /**
+         * @brief Initialize Serial State Space
+         * 
+         */
+        void createInitSerializedStateSpace();
+
+        /**
+         * @brief Initialize "serialized_state_space_"
+         * 
+         */
+        void createInitReachableStateSpace();
+
+        /**
+         * @brief Get the Pointeur object of a precise Joint Action
+         * 
+         * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
+         */
+        const std::shared_ptr<Action> getPointeurJointAction(Joint<std::shared_ptr<Action>> &) const;
+
+        void setJointActionToPointeur(std::vector<Joint<std::shared_ptr<Action>>>);
+
+        /**
+         * @brief Get the Pointeur object of a precise Joint Action
+         * 
+         * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
+         */
+        const std::shared_ptr<State> getPointeurState(SerializedState &) const;
+
     };
 
 } // namespace sdm
