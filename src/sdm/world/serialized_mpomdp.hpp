@@ -11,38 +11,20 @@
 #pragma once
 
 #include <sdm/types.hpp>
+
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
 
+#include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/world/serialized_mmdp.hpp>
+
 namespace sdm
 {
-    class SerializedMMDP : virtual public POMDPInterface, public SerializedMMDP
+    class SerializedMPOMDP : virtual public POMDPInterface, public SerializedMMDP
     {
     public:
-        SerializedMMDP(std::shared_ptr<MDPInterface> mpomdp);
-
-        /**
-         * @brief Get the discount factor at timestep t.
-         * 
-         * @param t the timestep
-         * @return the discount factor
-         */
-        virtual double getDiscount(number t) const;
-
-        /**
-         * @brief Get the initial distribution over states.
-         * 
-         * @return the initial distribution over states
-         */
-        virtual std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
-
-        /**
-         * @brief Get all states
-         * 
-         * @return the set of states 
-         */
-        virtual std::set<std::shared_ptr<State>> getAllStates(number t) const;
+        SerializedMPOMDP(std::shared_ptr<POMDPInterface> mpomdp);
 
         /**
          * @brief Get the reachable next states
@@ -51,35 +33,40 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        virtual std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        virtual std::set<std::shared_ptr<Observation>> getAllObservations(number t) const ;
 
         /**
-         * @brief Get all actions
-         * 
-         * @return the set of actions 
-         */
-        virtual std::set<std::shared_ptr<Action>> getAllActions(number t) const;
-
-        /**
-         * @brief Get the reward
+         * @brief Get the Reachablel Observations object
          * 
          * @param state 
          * @param action 
          * @param t 
-         * @return double 
+         * @return std::set<std::shared_ptr<Observation>> 
          */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        virtual std::set<std::shared_ptr<Observation>> getReachablelObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const ;
 
         /**
-         * @brief Get the Transition Probability object
+         * @brief Get the Obs Probability object
+         * 
+         * @param action 
+         * @param next_state 
+         * @param observation 
+         * @param t 
+         * @return double 
+         */
+        virtual double getObsProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
+
+        /**
+         * @brief Get the Dynamics object
          * 
          * @param state 
          * @param action 
          * @param next_state 
+         * @param observation 
          * @param t 
          * @return double 
          */
-        virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
+        virtual double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
     };
 
 } // namespace sdm
