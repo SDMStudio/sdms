@@ -70,7 +70,7 @@ namespace sdm
     {
         std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
         std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
-        
+
         Joint<std::shared_ptr<Action>> all_action = serialized_state->getAction();
         all_action.push_back(action);
 
@@ -78,8 +78,8 @@ namespace sdm
         {
             // If the next serialized_state and the current serialized_state don't have the same hidden or it's not the same player to act, then the dynamics is impossible
             return !(((serialized_state->getCurrentAgentId() + 1) != next_serialized_state->getCurrentAgentId()) ||
-                    (serialized_state->getState() != next_serialized_state->getState()) ||
-                    (next_serialized_state->getAction() != all_action));
+                     (serialized_state->getState() != next_serialized_state->getState()) ||
+                     (next_serialized_state->getAction() != all_action));
         }
         else
         {

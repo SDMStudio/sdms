@@ -16,7 +16,7 @@
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/space/space.hpp>
 #include <sdm/core/reward/base_reward.hpp>
-#include <sdm/core/dynamics/base_state_dynamics.hpp>
+#include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
 
 namespace sdm
@@ -33,7 +33,7 @@ namespace sdm
                 const std::shared_ptr<Space<std::shared_ptr<State>>> &state_space,
                 const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
                 const std::shared_ptr<BaseReward> &reward,
-                const std::shared_ptr<BaseStateDynamics> &state_dynamics,
+                const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                 const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
 
         virtual ~BaseMDP();
@@ -123,7 +123,7 @@ namespace sdm
 
         std::shared_ptr<BaseReward> reward_;
 
-        std::shared_ptr<BaseStateDynamics> state_dynamics_;
+        std::shared_ptr<StateDynamicsInterface> state_dynamics_;
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> start_distrib_;
     };

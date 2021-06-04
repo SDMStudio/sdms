@@ -57,7 +57,6 @@ namespace sdm
         std::shared_ptr<BeliefInterface> current_state_;
 
         std::shared_ptr<POMDPInterface> getUnderlyingPOMDP();
-
     };
 
 }

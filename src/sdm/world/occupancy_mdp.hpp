@@ -38,7 +38,7 @@ namespace sdm
     public:
         OccupancyMDP();
         OccupancyMDP(std::string dpomdp_name, number max_history_length = -1);
-        OccupancyMDP(std::shared_ptr<POMDP> dpomdp, number max_history_length = -1);
+        OccupancyMDP(std::shared_ptr<POMDPInterface> dpomdp, number max_history_length = -1);
 
         void initialize(number history_length);
         std::tuple<TState, std::vector<double>, bool> step(std::shared_ptr<Action> decision_rule);

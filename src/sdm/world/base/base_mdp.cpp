@@ -8,7 +8,7 @@ namespace sdm
                      const std::shared_ptr<Space<std::shared_ptr<State>>> &state_space,
                      const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
                      const std::shared_ptr<BaseReward> &reward,
-                     const std::shared_ptr<BaseStateDynamics> &state_dynamics,
+                     const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                      const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib) : num_agents_(num_agents),
                                                                                                    discount_(discount),
                                                                                                    state_space_(state_space),

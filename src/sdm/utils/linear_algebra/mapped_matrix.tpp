@@ -58,6 +58,13 @@ namespace sdm
         (*this)[lig][col] = val;
     }
 
+
+    template <typename TLig, typename TCol, typename TValue>
+    void MappedMatrix<TLig, TCol, TValue>::setValuesAt(const TLig &lig, const MappedVector<TCol, TValue> &vector)
+    {
+        (*this)[lig] = vector;
+    }
+
     template <typename TLig, typename TCol, typename TValue>
     MappedMatrix<TLig, TCol, TValue> MappedMatrix<TLig, TCol, TValue>::dot(const MappedMatrix &) const
     {

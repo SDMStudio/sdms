@@ -47,16 +47,25 @@ namespace sdm
 
     std::set<std::shared_ptr<State>> TabularStateDynamics::getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number) const
     {
-        const auto &iterator = this->successor_states.find(state);
-        if (iterator != this->successor_states.end())
+        try
         {
-            const auto &iterator2 = iterator->second.find(action);
-            if (iterator2 != iterator->second.end())
-            {
-                return this->successor_states.at(state).at(action);
-            }
+            return this->successor_states.at(state).at(action);
         }
-        return {};
+        catch (std::exception e)
+        {
+            return {};
+        }
+
+        // const auto &iterator = this->successor_states.find(state);
+        // if (iterator != this->successor_states.end())
+        // {
+        //     const auto &iterator2 = iterator->second.find(action);
+        //     if (iterator2 != iterator->second.end())
+        //     {
+        //         return this->successor_states.at(state).at(action);
+        //     }
+        // }
+        // return {};
     }
 
     // void TabularStateDynamics::setTransitions(const std::unordered_map<std::shared_ptr<Action>, matrix_type> &t_model)

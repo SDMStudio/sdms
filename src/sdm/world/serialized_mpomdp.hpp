@@ -17,10 +17,10 @@
 
 namespace sdm
 {
-    class SerializedMMDP : virtual public POMDPInterface, public SerializedMMDP
+    class SerializedMPOMDP : virtual public POMDPInterface, public SerializedMMDP
     {
     public:
-        SerializedMMDP(std::shared_ptr<MDPInterface> mpomdp);
+        SerializedMPOMDP(std::shared_ptr<POMDPInterface> mpomdp);
 
         /**
          * @brief Get the discount factor at timestep t.
