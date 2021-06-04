@@ -72,14 +72,16 @@ namespace sdm
     {
         std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
         std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
-
-        auto all_action = serialized_state->getAction();
+        
+        Joint<std::shared_ptr<Action>> all_action = serialized_state->getAction();
         all_action.push_back(action);
 
         if (!this->isLastAgent(t))
         {
             // If the next serialized_state and the current serialized_state don't have the same hidden or it's not the same player to act, then the dynamics is impossible
-            return !((serialized_state->getCurrentAgentId() + 1 != next_serialized_state->getCurrentAgentId()) || (serialized_state->getHiddenState() != next_serialized_state->getHiddenState()) || (next_serialized_state->getAction() != all_action) );
+            return !(((serialized_state->getCurrentAgentId() + 1) != next_serialized_state->getCurrentAgentId()) ||
+                    (serialized_state->getHiddenState() != next_serialized_state->getHiddenState()) ||
+                    (next_serialized_state->getAction() != all_action));
         }
         else
         {
@@ -177,5 +179,14 @@ namespace sdm
         }
     }
 
+    double SerializedMMDP::getMinReward(number t) const
+    {
+        return this->isLastAgent(t) ? this->mmdp_->getMinReward(t) : 0 ;
+    }
+
+    double SerializedMMDP::getMaxReward(number t) const
+    {
+        this->isLastAgent(t) ? this->mmdp_->getMaxReward(t) : 0 ;
+    }
 
 } // namespace sdm
