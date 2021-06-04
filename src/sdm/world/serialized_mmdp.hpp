@@ -118,12 +118,20 @@ namespace sdm
          * @brief Refer to the Serialized State Space
          * 
          */
-        std::shared_ptr<MultiSpace<DiscreteSpace<std::shared_ptr<SerializedState>>>> serialized_state_space_;
+        std::shared_ptr<MultiSpace<DiscreteSpace<std::shared_ptr<State>>>> serialized_state_space_;
 
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states
          */
-        std::unordered_map<std::shared_ptr<SerializedState>, std::unordered_map<std::shared_ptr<Action>, std::set<std::shared_ptr<SerializedState>>>> reachable_state_space;
+        std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, std::set<std::shared_ptr<State>>>> reachable_state_space;
+
+        /**
+         * @brief Map the joint_action to a precise pointeur
+         * 
+         */
+        std::map<Joint<std::shared_ptr<Action>>, std::shared_ptr<Action>> map_joint_action_to_pointeur;
+
+        std::map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
 
         /**
          * @brief Initialize Serial State Space
@@ -136,6 +144,22 @@ namespace sdm
          * 
          */
         void createInitReachableStateSpace();
+
+        /**
+         * @brief Get the Pointeur object of a precise Joint Action
+         * 
+         * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
+         */
+        const std::shared_ptr<Action> getPointeurJointAction(Joint<std::shared_ptr<Action>> &) const;
+
+        void setJointActionToPointeur(std::vector<Joint<std::shared_ptr<Action>>>);
+
+        /**
+         * @brief Get the Pointeur object of a precise Joint Action
+         * 
+         * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
+         */
+        const std::shared_ptr<State> getPointeurState(SerializedState &) const;
 
     };
 

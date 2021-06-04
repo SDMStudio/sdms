@@ -41,6 +41,7 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> SerializedMMDP::getAllStates(number t) const
     {
+        return this->serialized_state_space_->getSpace(t)->getAll();
     }
 
     std::set<std::shared_ptr<State>> SerializedMMDP::getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
@@ -64,7 +65,7 @@ namespace sdm
             auto joint_action = serialized_state->getAction();
             joint_action.push_back(serial_action);
 
-            return this->mmdp_->getReward(serialized_state->getHiddenState(), joint_action, t);
+            return this->mmdp_->getReward(serialized_state->getHiddenState(), this->getPointeurJointAction(joint_action), t);
         }
     }
 
@@ -73,7 +74,7 @@ namespace sdm
         std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
         std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
         
-        Joint<std::shared_ptr<Action>> all_action = serialized_state->getAction();
+        auto all_action = serialized_state->getAction();
         all_action.push_back(action);
 
         if (!this->isLastAgent(t))
@@ -85,7 +86,7 @@ namespace sdm
         }
         else
         {
-            return this->mmdp_->getTransitionProbability(serialized_state->getHiddenState(), all_action, next_serialized_state->getHiddenState());
+            return this->mmdp_->getTransitionProbability(serialized_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serialized_state->getHiddenState(),t);
         }
     }
 
@@ -94,15 +95,13 @@ namespace sdm
         // Vector of all serial state
         std::vector<std::shared_ptr<DiscreteSpace<std::shared_ptr<State>>>> all_serialized_state;
 
-        number n_agents = this->getNumAgents();
-
         std::vector<Joint<std::shared_ptr<Action>>> all_past_action;
 
         // Go over all agent
-        for(int i =0; i<n_agents;i++)
+        for(int i =0; i<this->getNumAgents();i++)
         {
             // Vector all serial state
-            std::vector<std::shared_ptr<SerializedState>> serialized_state_i;
+            std::vector<std::shared_ptr<State>> serialized_state_i;
 
             // All possible vector of actions
             std::vector<Joint<std::shared_ptr<Action>>> all_new_action;
@@ -136,43 +135,52 @@ namespace sdm
                 for(const auto &action : all_new_action)
                 {
                     // Add new serial state with the state of the problem and vector of action
-                    serialized_state_i.push_back(std::make_shared<SerializedState>(state,action));
+                    auto nex_serial_state = SerializedState(state,action);
+
+                    this->map_serialized_state_to_pointeur.emplace(nex_serial_state);
+                    serialized_state_i.push_back(this->getPointeurState(nex_serial_state));
                 }
             }
+
+            this->setJointActionToPointeur(all_new_action);
+
+
             all_past_action = all_new_action;
             auto s_i = std::make_shared<DiscreteSpace<std::shared_ptr<State>>>(serialized_state_i);
             all_serialized_state.push_back(s_i);
         }
-        this->serialized_state_space_= std::make_shared<MultiSpace<DiscreteSpace<std::shared_ptr<SerializedState>>>>(all_serialized_state);
+        this->serialized_state_space_= std::make_shared<MultiSpace<DiscreteSpace<std::shared_ptr<State>>>>(all_serialized_state);
     }
 
     void SerializedMMDP::createInitReachableStateSpace()
     {
-        for(const auto serialized_state : this->serialized_state_space_->getAll())
+        for(const auto state : this->serialized_state_space_->getAll())
         {
+            std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
+
             auto hidden_state = serialized_state->getHiddenState();
             auto action = serialized_state->getAction();
             number agent_identifier = serialized_state->getCurrentAgentId();
 
             auto next_action = action;
 
-            this->reachable_state_space.emplace(serialized_state,std::unordered_map<number,std::set<SerializedState>>());
+            this->reachable_state_space.emplace(serialized_state,std::unordered_map<number,std::set<std::shared_ptr<State>>>());
 
             for(auto serial_action : this->getAllActions(agent_identifier))
             {
                 next_action.push_back(serial_action);
 
-                std::set<SerializedState> all_next_serial_state;
+                std::set<std::shared_ptr<State>> all_next_serial_state;
 
                 if(agent_identifier +1 == this->getNumAgents())
                 {                    
-                    for(const auto next_state : this->mmdp_->getReachableStates(hidden_state, next_action))
+                    for(const auto next_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action),agent_identifier +1 ))
                     {
-                        all_next_serial_state.insert(std::make_shared<SerializedState>(next_state,Joint<std::shared_ptr<Action>>()));
+                        all_next_serial_state.insert( this->getPointeurState(SerializedState(next_state,Joint<std::shared_ptr<Action>>())));
                     }
                 }else
                 {
-                    all_next_serial_state.insert(std::shared_ptr<SerializedState>(hidden_state,next_action));
+                    all_next_serial_state.insert(  this->getPointeurState( (SerializedState(hidden_state,next_action))) ) ;
                 }
                 this->reachable_state_space[serialized_state].emplace(action,all_next_serial_state);
             }
@@ -187,6 +195,36 @@ namespace sdm
     double SerializedMMDP::getMaxReward(number t) const
     {
         this->isLastAgent(t) ? this->mmdp_->getMaxReward(t) : 0 ;
+    }
+
+    const std::shared_ptr<Action> SerializedMMDP::getPointeurJointAction(Joint<std::shared_ptr<Action>> &joint_action) const
+    {
+        return this->map_joint_action_to_pointeur.at(joint_action);
+    }
+
+    const std::shared_ptr<State> SerializedMMDP::getPointeurState(SerializedState & serialized_state) const
+    {
+        return this->map_serialized_state_to_pointeur.at(serialized_state);        
+    }
+
+    void SerializedMMDP::setJointActionToPointeur(std::vector<Joint<std::shared_ptr<Action>>> vecteur_of_joint_action )
+    {
+
+        // Go over all element in the vector of joint action
+        for(const auto &new_joint_action : vecteur_of_joint_action )
+        {
+            // If it's the last agent, then find the pointeur in the mmdp associated, else create a new pointeur
+            if(new_joint_action.size() + 1 == this->getNumAgents())
+            {
+                //Find the joint action in the mmdp associated 
+                int index = std::distance(this->mmdp_->getAllActions(0).begin(), std::find(this->mmdp_->getAllActions(0).begin(),this->mmdp_->getAllActions(0).end(),new_joint_action));
+                 
+                this->map_joint_action_to_pointeur.emplace(new_joint_action,this->mmdp_->getAllActions(0)[index]);
+            }else
+            {
+                this->map_joint_action_to_pointeur.emplace(new_joint_action,std::make_shared<Action>(new_joint_action));
+            }
+        }   
     }
 
 } // namespace sdm
