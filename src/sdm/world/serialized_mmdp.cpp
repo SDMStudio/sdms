@@ -180,7 +180,7 @@ namespace sdm
                     }
                 }else
                 {
-                    all_next_serial_state.insert(  this->getPointeurState( (SerializedState(hidden_state,next_action))) ) ;
+                    all_next_serial_state.insert(  this->getPointeurState(SerializedState(hidden_state,next_action))) ;
                 }
                 this->reachable_state_space[serialized_state].emplace(action,all_next_serial_state);
             }
