@@ -21,7 +21,7 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class POMDPInterface : public MDPInterface
+    class POMDPInterface : virtual public MDPInterface
     {
     public:
         /**
@@ -31,28 +31,30 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        virtual std::set<std::shared_ptr<Observation>> getAllObservations(number t) const = 0;
+        virtual std::vector<std::shared_ptr<Observation>> getAllObservations(number t) const = 0;
 
         /**
          * @brief Get the Reachablel Observations object
          * 
          * @param state 
          * @param action 
+         * @param next_state 
          * @param t 
          * @return std::set<std::shared_ptr<Observation>> 
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachablelObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const = 0;
 
         /**
          * @brief Get the Obs Probability object
          * 
+         * @param state
          * @param action 
          * @param next_state 
          * @param observation 
          * @param t 
          * @return double 
          */
-        virtual double getObsProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const = 0;
+        virtual double getObsProbability(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const = 0;
 
         /**
          * @brief Get the Dynamics object

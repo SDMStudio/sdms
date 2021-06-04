@@ -19,6 +19,11 @@ namespace sdm
         this->createInitReachableStateSpace();
     }
 
+    number SerializedMMDP::getNumAgents() const
+    {
+        return this->mmdp_->getNumAgents();
+    }
+
     number SerializedMMDP::getAgentId(number t) const
     {
         return (t % this->getNumAgents());
@@ -41,7 +46,7 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> SerializedMMDP::getAllStates(number t) const
     {
-        return this->serialized_state_space_->getSpace(t)->getAll();
+        return this->serialized_state_space_->getSpace(this->getAgentId(t))->getAll();
     }
 
     std::set<std::shared_ptr<State>> SerializedMMDP::getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const

@@ -21,7 +21,7 @@ namespace sdm
     {
     }
 
-    std::set<std::shared_ptr<Observation>> BasePOMDP::getAllObservations(number t) const
+    std::vector<std::shared_ptr<Observation>> BasePOMDP::getAllObservations(number t) const
     {
         return this->getObsSpace(t)->getAll();
     }

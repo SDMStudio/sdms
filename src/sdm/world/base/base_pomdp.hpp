@@ -41,7 +41,7 @@ namespace sdm
          */
         std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
 
-        std::set<std::shared_ptr<Observation>> getAllObservations(number t) const;
+        std::vector<std::shared_ptr<Observation>> getAllObservations(number t) const;
 
         /**
          * @brief Get the observation probability (i.e. p_t(o | a, x'))

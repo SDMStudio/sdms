@@ -9,7 +9,7 @@
 
 namespace sdm
 {
-  class SerializedState : public virtual BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>  //public Pair<number, std::vector<number>>
+  class SerializedState : public BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>  //public Pair<number, std::vector<number>>
   {
   public:
     SerializedState();
