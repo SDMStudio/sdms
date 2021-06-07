@@ -33,7 +33,7 @@ namespace sdm
     template <typename TState, typename TAction>
     std::shared_ptr<Initializer<TState, TAction>> createInstanceMDPValueIterationInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, MDPInitializer>, "ValueIteration", 0.01, 200000)(); }
     //J'ai crée une nouvelle classe, car je n'ai pas réussi à les regrouper en une seule (createInstanceTabMDPInit(std::string algo_name), et ensuite appeler cela dans le registry ))
-
+TInit
     template <typename TState, typename TAction>
     std::shared_ptr<Initializer<TState, TAction>> createInstanceTabPOMDPInit() { return boost::bind(createInstanceAlgoInit<TState, TAction, POMDPInitializer>, "tabular_hsvi", 0., 200000)(); }
 

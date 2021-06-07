@@ -36,7 +36,7 @@ namespace sdm
          * 
          * @return the number of agents
          */
-        // virtual number getHorizon() const = 0;
+        virtual number getHorizon() const = 0;
 
         /**
          * @brief Get the discount factor at timestep t.

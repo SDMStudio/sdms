@@ -16,6 +16,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/core/space/space.hpp>
+#include <sdm/utils/struct/iterator/super_iterator.hpp>
 
 /**
  * @namespace sdm
@@ -31,21 +32,9 @@ namespace sdm
      */
     class DiscreteSpace : public Space
     {
-    protected:
-        typedef boost::bimaps::bimap<number, std::shared_ptr<Item>> items_bimap;
-        typedef typename items_bimap::value_type items_bimap_value;
-
-        /** @brief number of possible items in the space (ex: [5, 12] --> 8 items) **/
-        number num_items_;
-
-        /** @brief the list of possible items in the space with their index **/
-        items_bimap all_items_;
-
-        /** @brief the list of possible items without their index **/
-        std::vector<std::shared_ptr<Item>> list_items_;
-
     public:
         using value_type = std::shared_ptr<Item>;
+        using iterator_type = Space::iterator_type;
 
         /**
          * @brief Construct a new Discrete Space object (default)
@@ -73,12 +62,6 @@ namespace sdm
         DiscreteSpace(const DiscreteSpace &copy);
 
         /**
-         * @brief Construct a new Discrete Space Base object
-         */
-        template <bool TBool = std::is_integral<std::shared_ptr<Item>>::value>
-        DiscreteSpace(std::enable_if_t<TBool, int> num_items);
-
-        /**
          * @brief Return true because this is a discrete space
          */
         bool isDiscrete() const;
@@ -101,7 +84,10 @@ namespace sdm
         /**
          * @brief Get all possible items in the space
          */
-        std::vector<std::shared_ptr<Item>> getAll() const;
+        std::vector<std::shared_ptr<Item>> getAll();
+
+        virtual std::shared_ptr<iterator_type> begin();
+        virtual std::shared_ptr<iterator_type> end();
 
         /**
          * @brief Get the index of an item
@@ -122,7 +108,7 @@ namespace sdm
         bool contains(const std::shared_ptr<Item> &) const;
 
         std::string str() const;
-        
+
         bool operator==(const DiscreteSpace &sp) const;
         bool operator!=(const DiscreteSpace &sp) const;
 
@@ -131,8 +117,19 @@ namespace sdm
             os << sp.str();
             return os;
         }
+
+    protected:
+        using items_bimap = boost::bimaps::bimap<number, std::shared_ptr<Item>>;
+        using items_bimap_value = items_bimap::value_type;
+
+        /** @brief number of possible items in the space (ex: [5, 12] --> 8 items) **/
+        number num_items_;
+
+        /** @brief the list of possible items in the space with their index **/
+        items_bimap all_items_;
+
+        /** @brief the list of possible items without their index **/
+        std::vector<std::shared_ptr<Item>> list_items_;
     };
 
 } // namespace sdm
-
-#include <sdm/core/space/discrete_space.tpp>

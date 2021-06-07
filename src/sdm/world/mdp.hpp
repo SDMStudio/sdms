@@ -14,14 +14,14 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes.
      *
      */
-    class MDP : public SolvableByHSVI
+    class SolvableByMDP : public SolvableByHSVI
     {
     public:
-        MDP();
+        SolvableByMDP();
 
-        MDP(const std::shared_ptr<MDPInterface> &mdp);
+        SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp);
 
-        ~MDP();
+        ~SolvableByMDP();
 
         /**
          * @brief Get the initial state

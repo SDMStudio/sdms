@@ -5,6 +5,7 @@
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
 #include <sdm/core/function.hpp>
+#include <sdm/core/item.hpp>
 #include <sdm/utils/struct/vector.hpp>
 
 namespace sdm
@@ -15,7 +16,7 @@ namespace sdm
    * @tparam The type of item.
    */
   template <typename T>
-  class BaseJoint : public std::vector<T>, public Function<number, T>, public Item
+  class BaseJoint : public Item, public std::vector<T>, public Function<number, T>
   {
   public:
     using value_type = T;
@@ -41,6 +42,8 @@ namespace sdm
      */
     T operator()(const number &);
 
+    std::string str() const;
+
     /**
       * @brief print the joint item
       * @param std::ostream&
@@ -49,19 +52,7 @@ namespace sdm
       */
     friend std::ostream &operator<<(std::ostream &os, const BaseJoint<T> &joint)
     {
-      os << "[" << joint.getNumAgents() << "](";
-      if (joint.getNumAgents() > 0)
-      {
-        number ag;
-        for (ag = 0; ag < joint.getNumAgents() - 1; ++ag)
-        {
-          std::ostringstream res;
-          os << joint.get(ag) << ", ";
-          // sdm::tools::indentedOutput(os, res.str().c_str(), 0);
-        }
-        os << joint[ag];
-      }
-      os << ")";
+      os << joint.str();
       return os;
     }
 

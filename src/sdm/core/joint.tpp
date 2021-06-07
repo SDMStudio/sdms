@@ -4,31 +4,31 @@ namespace sdm
 {
 
     // Specialisation for the Joint Action
-    template <>
-    class Joint<std::shared_ptr<Action>> : public BaseJoint<std::shared_ptr<Action>>,
-                                           public Action
-    {
-    public:
-        using value_type = typename BaseJoint<std::shared_ptr<Action>>::value_type;
+    // template <>
+    // class Joint<std::shared_ptr<Action>> : public BaseJoint<std::shared_ptr<Action>>,
+    //                                        public Action
+    // {
+    // public:
+    //     using value_type = typename BaseJoint<std::shared_ptr<Action>>::value_type;
 
-        std::string str() const
-        {
-            std::ostringstream res;
-            res << static_cast<BaseJoint<std::shared_ptr<Action>>>(*this);
-            return res.str();
-        }
+    //     std::string str() const
+    //     {
+    //         std::ostringstream res;
+    //         res << static_cast<BaseJoint<std::shared_ptr<Action>>>(*this);
+    //         return res.str();
+    //     }
 
-        Joint() {}
-        Joint(const std::vector<std::shared_ptr<Action>> &joint_item) : BaseJoint<std::shared_ptr<Action>>(joint_item) {}
-        Joint(const std::vector<number> &, const std::vector<std::shared_ptr<Action>> &joint_item) : BaseJoint<std::shared_ptr<Action>>(joint_item) {}
-        Joint(std::initializer_list<std::shared_ptr<Action>> list_values) : BaseJoint<std::shared_ptr<Action>>(list_values) {}
+    //     Joint() {}
+    //     Joint(const std::vector<std::shared_ptr<Action>> &joint_item) : BaseJoint<std::shared_ptr<Action>>(joint_item) {}
+    //     Joint(const std::vector<number> &, const std::vector<std::shared_ptr<Action>> &joint_item) : BaseJoint<std::shared_ptr<Action>>(joint_item) {}
+    //     Joint(std::initializer_list<std::shared_ptr<Action>> list_values) : BaseJoint<std::shared_ptr<Action>>(list_values) {}
 
-        friend std::ostream &operator<<(std::ostream &os, const Joint<std::shared_ptr<Action>> &joint_action)
-        {
-            os << joint_action.str();
-            return os;
-        }
-    };
+    //     friend std::ostream &operator<<(std::ostream &os, const Joint<std::shared_ptr<Action>> &joint_action)
+    //     {
+    //         os << joint_action.str();
+    //         return os;
+    //     }
+    // };
 
     template <typename T>
     Joint<T>::Joint() : BaseJoint<T>() {}

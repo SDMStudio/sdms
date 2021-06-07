@@ -7,34 +7,30 @@
 namespace sdm
 {
 
-    template <typename TState, typename TAction>
-    OccupancyMDP<TState, TAction>::OccupancyMDP() {}
+    OccupancyMDP::OccupancyMDP() {}
 
-    template <typename TState, typename TAction>
-    OccupancyMDP<TState, TAction>::OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length)
-        : BaseOccupancyMDP<TState, TAction>(underlying_dpomdp, hist_length)
+    OccupancyMDP::OccupancyMDP(std::shared_ptr<POMDPInterface> underlying_dpomdp, number hist_length)
+        : BaseOccupancyMDP(underlying_dpomdp, hist_length)
     {
         this->initialize(hist_length);
     }
 
-    template <typename TState, typename TAction>
-    OccupancyMDP<TState, TAction>::OccupancyMDP(std::string underlying_dpomdp, number hist_length)
+    OccupancyMDP::OccupancyMDP(std::string underlying_dpomdp, number hist_length)
     {
         *this = OccupancyMDP(parser::parse_file(underlying_dpomdp), hist_length);
     }
 
-    template <typename TState, typename TAction>
-    void OccupancyMDP<TState, TAction>::initialize(number history_length)
+    void OccupancyMDP::initialize(number history_length)
     {
         // Initialize history
-        this->initial_history_ = std::make_shared<typename TState::jhistory_type::element_type>(this->dpomdp_->getNumAgents(), (history_length > 0) ? history_length : -1);
+        this->initial_history_ = std::make_shared<typename std::shared_ptr<State>::jhistory_type::element_type>(this->dpomdp_->getNumAgents(), (history_length > 0) ? history_length : -1);
 
         // Initialize empty state
-        this->initial_state_ = std::make_shared<TState>(this->dpomdp_->getNumAgents());
-        this->current_state_ = std::make_shared<TState>(this->dpomdp_->getNumAgents());
+        this->initial_state_ = std::make_shared<std::shared_ptr<State>>(this->dpomdp_->getNumAgents());
+        this->current_state_ = std::make_shared<std::shared_ptr<State>>(this->dpomdp_->getNumAgents());
 
         // Fill the initial state state
-        for (const typename TState::state_type &s : this->dpomdp_->getStateSpace()->getAll())
+        for (const typename std::shared_ptr<State>::state_type &s : this->dpomdp_->getStateSpace()->getAll())
         {
             if (this->dpomdp_->getStartDistrib().probabilities()[s] > 0)
             {
@@ -47,8 +43,7 @@ namespace sdm
         this->initial_state_->setOneStepUncompressedOccupancy(this->initial_state_->getptr());
     }
 
-    template <typename TState, typename TAction>
-    std::tuple<TState, std::vector<double>, bool> OccupancyMDP<TState, TAction>::step(TAction joint_idr)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> OccupancyMDP::step(std::shared_ptr<Action> joint_idr)
     {
         // Select joint action
         const auto &jaction = joint_idr.act(this->current_state_->getJointLabels(this->current_history_->getIndividualHistories()));
@@ -66,54 +61,65 @@ namespace sdm
         return std::make_tuple(*this->current_state_, rewards, done);
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<DiscreteSpace<TAction>> OccupancyMDP<TState, TAction>::getActionSpaceAt(const TState &ostate)
+    std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate)
     {
-        using decision_rule_t = typename TAction::value_type;
+        // using decision_rule_t = typename std::shared_ptr<Action>::value_type;
 
-        // Get individual decision rules for each agent
-        std::vector<TAction> vect_j_dr = {};
+        // // Get individual decision rules for each agent
+        // std::vector<std::shared_ptr<Action>> vect_j_dr = {};
+        // {
+
+        //     std::vector<std::vector<decision_rule_t>> vect_i_dr = {};
+
+        //     {
+        //         // Get possible histories for all agents
+        //         const auto &vect_i_hist = ostate.getAllIndividualHistories();
+
+        //         for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
+        //         {
+        //             // Generate all individual decision rules for agent 'ag_id'
+        //             std::cout << "vect_i_hist[" << ag_id << "].size()=" << vect_i_hist[ag_id].size() << std::endl;
+        //             const auto &vect_inputs = sdm::tools::set2vector(vect_i_hist[ag_id]);
+        //             FunctionSpace<decision_rule_t> f_indiv_dr_space(vect_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
+        //             vect_i_dr.push_back(f_indiv_dr_space.getAll());
+        //             std::cout << "vect_i_dr[" << ag_id << "].size()=" << vect_i_dr[ag_id].size() << std::endl;
+        //         }
+        //     }
+        //     // Get joint decision rules for each agent
+        //     for (const auto &joint_idr : MultiDiscreteSpace<decision_rule_t>(vect_i_dr).getAll())
+        //     {
+        //         vect_j_dr.push_back(std::shared_ptr<Action>(joint_idr));
+        //     }
+        //     std::cout << "vect_j_dr.size()=" << vect_j_dr.size() << std::endl;
+        // }
+
+        // const auto &vect_i_hist = ostate.getAllIndividualHistories();
+
+        std::vector<std::shared_ptr<Space>> vector_indiv_space;
+        for (int agent_id = 0; agent_id < this->getUnderlyingProblem()->getNumAgents(); agent_id++)
         {
-
-            std::vector<std::vector<decision_rule_t>> vect_i_dr = {};
-
-            {
-                // Get possible histories for all agents
-                const auto &vect_i_hist = ostate.getAllIndividualHistories();
-
-                for (int ag_id = 0; ag_id < this->dpomdp_->getNumAgents(); ag_id++)
-                {
-                    // Generate all individual decision rules for agent 'ag_id'
-                    std::cout << "vect_i_hist[" << ag_id << "].size()=" << vect_i_hist[ag_id].size() << std::endl;
-                    const auto &vect_inputs = sdm::tools::set2vector(vect_i_hist[ag_id]);
-                    FunctionSpace<decision_rule_t> f_indiv_dr_space(vect_inputs, this->dpomdp_->getActionSpace()->getSpace(ag_id)->getAll());
-                    vect_i_dr.push_back(f_indiv_dr_space.getAll());
-                    std::cout << "vect_i_dr[" << ag_id << "].size()=" << vect_i_dr[ag_id].size() << std::endl;
-                }
-            }
-            // Get joint decision rules for each agent
-            for (const auto &joint_idr : MultiDiscreteSpace<decision_rule_t>(vect_i_dr).getAll())
-            {
-                vect_j_dr.push_back(TAction(joint_idr));
-            }
-            std::cout << "vect_j_dr.size()=" << vect_j_dr.size() << std::endl;
+            // Get action space of agent i
+            auto action_space_i = std::static_pointer_cast<Joint<std::shared_ptr<Space>>>(this->getUnderlyingProblem()->getActionSpace())->get(agent_id);
+            // Get history space of agent i
+            auto history_space_i = std::make_shared<DiscreteSpace>(ostate.getIndividualHistories(agent_id));
+            // Add individual decision rule space of agent i
+            vector_indiv_space.push_back(std::make_shared<FunctionSpace<DecisionRule>>(history_space_i, action_space_i));
         }
 
         // Now we can return a discrete space of all joint decision rules
-        return std::make_shared<DiscreteSpace<TAction>>(vect_j_dr);
+        return std::make_shared<MultiDiscreteSpace>(vector_indiv_space);
     }
 
-    template <typename TState, typename TAction>
-    TState OccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &joint_idr, number, std::shared_ptr<HSVI<TState, TAction>>, bool compression) const
+    std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &joint_idr, number, std::shared_ptr<HSVI>, bool compression) const
     {
         try
         {
             // The new compressed occupancy state
-            std::shared_ptr<TState> new_compressed_occupancy_state;
+            std::shared_ptr<std::shared_ptr<State>> new_compressed_occupancy_state;
             // The new fully uncompressed occupancy state
-            std::shared_ptr<TState> new_fully_uncompressed_occupancy_state = std::make_shared<TState>(this->dpomdp_->getNumAgents());
+            std::shared_ptr<std::shared_ptr<State>> new_fully_uncompressed_occupancy_state = std::make_shared<std::shared_ptr<State>>(this->dpomdp_->getNumAgents());
             // The new one step left occupancy state
-            std::shared_ptr<TState> new_one_step_left_compressed_occupancy_state = std::make_shared<TState>(this->dpomdp_->getNumAgents());
+            std::shared_ptr<std::shared_ptr<State>> new_one_step_left_compressed_occupancy_state = std::make_shared<std::shared_ptr<State>>(this->dpomdp_->getNumAgents());
 
             // for all element in the support of the fully uncompressed occupancy state
             for (auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
@@ -158,7 +164,7 @@ namespace sdm
             if (compression)
             {
                 // Compress the occupancy state
-                new_compressed_occupancy_state = std::make_shared<TState>(new_one_step_left_compressed_occupancy_state->compress());
+                new_compressed_occupancy_state = std::make_shared<std::shared_ptr<State>>(new_one_step_left_compressed_occupancy_state->compress());
                 new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state->getptr());
                 new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state->getptr());
 
@@ -174,18 +180,18 @@ namespace sdm
             std::cout << ostate << std::endl;
             std::cout << joint_idr << std::endl;
             // catch anything thrown within try block that derives from std::exception
-            std::cerr << "OccupancyMDP<TState, TAction>::nextState(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "OccupancyMDP::nextState(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
 
         // try
         // {
         //     // The new compressed occupancy state
-        //     std::shared_ptr<TState> new_compressed_occupancy_state;
+        //     std::shared_ptr<std::shared_ptr<State>> new_compressed_occupancy_state;
         //     // The new fully uncompressed occupancy state
-        //     std::shared_ptr<TState> new_fully_uncompressed_occupancy_state = std::make_shared<TState>(this->dpomdp_->getNumAgents());
+        //     std::shared_ptr<std::shared_ptr<State>> new_fully_uncompressed_occupancy_state = std::make_shared<std::shared_ptr<State>>(this->dpomdp_->getNumAgents());
         //     // The new one step left occupancy state
-        //     std::shared_ptr<TState> new_one_step_left_compressed_occupancy_state = std::make_shared<TState>(this->dpomdp_->getNumAgents());
+        //     std::shared_ptr<std::shared_ptr<State>> new_one_step_left_compressed_occupancy_state = std::make_shared<std::shared_ptr<State>>(this->dpomdp_->getNumAgents());
 
         //     // for all element in the support of the fully uncompressed occupancy state
         //     for (const auto &p_x_o : *ostate.getFullyUncompressedOccupancy())
@@ -242,7 +248,7 @@ namespace sdm
         //     if (this->compress)
         //     {
         //         // Compress the occupancy state
-        //         new_compressed_occupancy_state = std::make_shared<TState>(new_one_step_left_compressed_occupancy_state->compress());
+        //         new_compressed_occupancy_state = std::make_shared<std::shared_ptr<State>>(new_one_step_left_compressed_occupancy_state->compress());
 
         //         // Store one step uncompressed
         //         new_compressed_occupancy_state->setOneStepUncompressedOccupancy((this->keep_one_step_uncompressed) ? new_one_step_left_compressed_occupancy_state->getptr() : new_compressed_occupancy_state->getptr());
@@ -262,19 +268,17 @@ namespace sdm
         //     std::cout << ostate << std::endl;
         //     std::cout << joint_idr << std::endl;
         //     // catch anything thrown within try block that derives from std::exception
-        //     std::cerr << "OccupancyMDP<TState, TAction>::nextState(..) exception caught: " << exc.what() << std::endl;
+        //     std::cerr << "OccupancyMDP::nextState(..) exception caught: " << exc.what() << std::endl;
         //     exit(-1);
         // }
     }
 
-    template <typename TState, typename TAction>
-    TState OccupancyMDP<TState, TAction>::nextState(const TState &ostate, const TAction &joint_idr, number h, std::shared_ptr<HSVI<TState, TAction>> hsvi) const
+    std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &joint_idr, number h, std::shared_ptr<HSVI> hsvi) const
     {
         return this->nextState(ostate, joint_idr, h, hsvi, true);
     }
 
-    template <typename TState, typename TAction>
-    double OccupancyMDP<TState, TAction>::getReward(const TState &ostate, const TAction &joint_idr) const
+    double OccupancyMDP::getReward(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &joint_idr) const
     {
         double r = 0;
         for (const auto &p_x_o : ostate)

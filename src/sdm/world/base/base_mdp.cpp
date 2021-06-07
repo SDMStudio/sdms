@@ -39,12 +39,12 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> BaseMDP::getAllStates(number t) const
     {
-        return this->getStateSpace(t)->getAll();
+        // return this->getStateSpace(t)->getAll();
     }
 
     std::vector<std::shared_ptr<Action>> BaseMDP::getAllActions(number t) const
     {
-        return this->getActionSpace(t)->getAll();
+        // return this->getActionSpace(t)->getAll();
     }
 
     std::set<std::shared_ptr<State>> BaseMDP::getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const

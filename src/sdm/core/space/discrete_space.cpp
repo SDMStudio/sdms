@@ -31,14 +31,6 @@ namespace sdm
     {
     }
 
-    template <bool TBool>
-    DiscreteSpace::DiscreteSpace(std::enable_if_t<TBool, int> num_items)
-    {
-        std::vector<number> l(num_items);
-        std::iota(l.begin(), l.end(), 0);
-        *this = DiscreteSpace(l);
-    }
-
     bool DiscreteSpace::isDiscrete() const
     {
         return true;
@@ -51,7 +43,7 @@ namespace sdm
         return this->all_items_.left.at(distr(common::global_urng()));
     }
 
-    std::vector<std::shared_ptr<Item>> DiscreteSpace::getAll() const
+    std::vector<std::shared_ptr<Item>> DiscreteSpace::getAll()
     {
         return this->list_items_;
     }
@@ -111,6 +103,16 @@ namespace sdm
     bool DiscreteSpace::contains(const std::shared_ptr<Item> &item) const
     {
         return std::find(this->list_items_.begin(), this->list_items_.end(), item) != this->list_items_.end() ? true : false;
+    }
+
+    std::shared_ptr<DiscreteSpace::iterator_type> DiscreteSpace::begin()
+    {
+        return std::make_shared<iterator::SuperIterator<std::shared_ptr<Item>, decltype(list_items_.begin())>>(this->list_items_.begin());
+    }
+
+    std::shared_ptr<DiscreteSpace::iterator_type> DiscreteSpace::end()
+    {
+        return std::make_shared<iterator::SuperIterator<std::shared_ptr<Item>, decltype(list_items_.end())>>(this->list_items_.end());
     }
 
 } // namespace sdm

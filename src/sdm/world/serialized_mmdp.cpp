@@ -86,7 +86,7 @@ namespace sdm
         }
         else
         {
-            return this->mmdp_->getTransitionProbability(serialized_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serialized_state->getHiddenState(),t);
+            return this->mmdp_->getTransitionProbability(serialized_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serialized_state->getHiddenState(), t);
         }
     }
 
@@ -194,7 +194,7 @@ namespace sdm
 
     double SerializedMMDP::getMaxReward(number t) const
     {
-        this->isLastAgent(t) ? this->mmdp_->getMaxReward(t) : 0 ;
+        return this->isLastAgent(t) ? this->mmdp_->getMaxReward(t) : 0 ;
     }
 
     const std::shared_ptr<Action> SerializedMMDP::getPointeurJointAction(Joint<std::shared_ptr<Action>> &joint_action) const

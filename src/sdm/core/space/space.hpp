@@ -15,6 +15,7 @@
 #include <vector>
 #include <sdm/types.hpp>
 #include <sdm/core/item.hpp>
+#include <sdm/utils/struct/iterator.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -29,9 +30,11 @@ namespace sdm
   class Space
   {
   public:
+    using iterator_type = ItemIterator;
+
     virtual ~Space() {}
 
-    /**
+    /**t
      * @brief Check if the space is discrete.
      */
     virtual bool isDiscrete() const = 0;
@@ -39,46 +42,26 @@ namespace sdm
     /**
      * @brief Check if the space is continous.
      */
-    bool isContinuous() const
-    {
-      return !(this->isDiscrete());
-    }
+    bool isContinuous() const;
 
     /**
      * @brief Get the dimension of the space.
      */
     virtual std::vector<number> getDim() const = 0;
 
-    virtual std::vector<std::shared_ptr<Item>> getAll() const = 0;
-
-    // virtual std::shared_ptr<Item> begin() const = 0;
-
-    // virtual std::shared_ptr<Item> next() const = 0;
-
-    // virtual std::shared_ptr<Item> end() const = 0;
+    virtual std::shared_ptr<iterator_type> begin() = 0;
+    virtual std::shared_ptr<iterator_type> end() = 0;
 
     /**
      * @brief Space as a string
      */
     virtual std::string str() const = 0;
 
-    bool operator==(const Space &sp) const
-    {
-      if (this->str() == sp.str())
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-    bool operator!=(const Space &sp) const
-    {
-      return !(this->operator==(sp));
-    }
+    bool operator==(const Space &sp) const;
+    bool operator!=(const Space &sp) const;
 
-    friend std::ostream &operator<<(std::ostream &os, const Space &sp)
+    friend std::ostream &
+    operator<<(std::ostream &os, const Space &sp)
     {
       os << sp.str();
       return os;

@@ -33,10 +33,11 @@ namespace sdm
      * @tparam std::shared_ptr<Item> The type of items in each sub-discrete space.
      */
     class MultiDiscreteSpace : public DiscreteSpace,
-                               public Joint<std::shared_ptr<DiscreteSpace>>
+                               public Joint<std::shared_ptr<Space>>
     {
     public:
         using value_type = Joint<std::shared_ptr<Item>>;
+        using iterator_type = DiscreteSpace::iterator_type;
 
         /**
          * @brief Instantiate a default discrete space (MultiDiscreteSpace class)
@@ -47,24 +48,20 @@ namespace sdm
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
          * 
          */
-        MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace>> &sub_spaces);
+        MultiDiscreteSpace(const std::vector<std::shared_ptr<Space>> &sub_spaces, bool store_items = true);
 
         /**
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
          * 
          */
-        MultiDiscreteSpace(const std::vector<std::vector<std::shared_ptr<Item>>> &values);
+        MultiDiscreteSpace(const std::vector<std::vector<std::shared_ptr<Item>>> &values, bool store_items = true);
 
         /**
-         * @brief Cpoy constructor
+         * @brief Copy constructor
+         * 
+         * @param copy the space to be copied
          */
         MultiDiscreteSpace(const MultiDiscreteSpace &copy);
-
-        /**
-         * @brief Instantiate a multi discrete space from the list its sub-spaces (as objects).
-         * 
-         */
-        MultiDiscreteSpace(const std::vector<DiscreteSpace> &);
 
         /**
          * @brief Instantiate a multi discrete space using a list of dimensions (one by single space). This constructor is only available for classes where std::shared_ptr<Item> is an integer (long, int, short, etc).
@@ -73,6 +70,9 @@ namespace sdm
          */
         template <bool TBool = std::is_integral<std::shared_ptr<Item>>::value>
         MultiDiscreteSpace(const std::enable_if_t<TBool, std::vector<std::shared_ptr<Item>>> &num_items);
+
+        bool isStoringItems() const;
+        void storeItems(bool store_items);
 
         /**
          * @brief   Get a specific index of an item for a given agent
@@ -96,67 +96,6 @@ namespace sdm
          */
         std::shared_ptr<Item> getItem(number ag_id, number item_index) const;
 
-        template <bool TBool = std::is_integral<std::shared_ptr<Item>>::value>
-        void setSpaces(const std::enable_if_t<TBool, std::vector<std::shared_ptr<Item>>> &num_items);
-        void setSpaces(const std::vector<std::vector<std::shared_ptr<Item>>> &);
-        void setSpaces(const std::vector<std::shared_ptr<DiscreteSpace>> &spaces);
-        void setSpaces(const std::vector<DiscreteSpace> &spaces);
-
-        /*!
-         * @brief Transform joint item to its index in the list of all joint items.
-         * @param jitem the joint item we want to get the index
-         * @return the corresponding index
-         */
-        number getJointItemIndex(std::shared_ptr<Joint<std::shared_ptr<Item>>> &jitem) const;
-        number getJointItemIndex(const std::vector<std::shared_ptr<Item>> &) const;
-
-        /*!
-         * @brief Get the corresponding joint item from its index.
-         */
-        std::shared_ptr<Item> getJointItem(number) const;
-
-        /**
-         * @brief Get all the joint values
-         * 
-         * @return the list of all possible joint items
-         */
-        std::vector<std::shared_ptr<Item>> getAll() const;
-
-        std::string str() const;
-
-        MultiDiscreteSpace &operator=(const MultiDiscreteSpace &);
-        bool operator==(const MultiDiscreteSpace &other) const;
-        bool operator!=(const MultiDiscreteSpace &other) const;
-
-        /**
-         * @brief Verify is the multi discrete space contains the Joint<std::shared_ptr<Item>>;
-         * 
-         * @return true 
-         * @return false 
-         */
-        bool contains(const std::vector<std::shared_ptr<Item>> &) const;
-
-        friend std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpace &sp)
-        {
-            os << sp.str();
-            return os;
-        }
-
-    protected:
-        typedef boost::bimaps::bimap<number, Joint<std::shared_ptr<Item>>> jitems_bimap;
-        typedef typename jitems_bimap::value_type jitems_bimap_value;
-
-        /**
-        *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
-        */
-        void generateJointItems();
-
-        /**
-         * @brief Sets the number of joint items
-         * 
-         */
-        void setNumJItems(number);
-
         /**
          * @brief Get the number of sub-space.
          */
@@ -168,7 +107,75 @@ namespace sdm
          * @param index the index of the space
          * @return a shared pointer on a specific space 
          */
-        std::shared_ptr<DiscreteSpace> getSpace(number index) const;
+        std::shared_ptr<Space> getSpace(number index) const;
+
+        template <bool TBool = std::is_integral<std::shared_ptr<Item>>::value>
+        void setSpaces(const std::enable_if_t<TBool, std::vector<std::shared_ptr<Item>>> &num_items);
+        void setSpaces(const std::vector<std::vector<std::shared_ptr<Item>>> &);
+        void setSpaces(const std::vector<std::shared_ptr<Space>> &spaces);
+
+        /*!
+         * @brief Transform joint item to its index in the list of all joint items.
+         * @param jitem the joint item we want to get the index
+         * @return the corresponding index
+         */
+        number getJointItemIndex(std::shared_ptr<Joint<std::shared_ptr<Item>>> &jitem) const;
+        // number getJointItemIndex(const std::vector<std::shared_ptr<Item>> &) const;
+
+        /*!
+         * @brief Get the corresponding joint item from its index.
+         */
+        std::shared_ptr<Item> getJointItem(number) const;
+
+        /**
+         * @brief Get all the joint values
+         * 
+         * @return the list of all possible joint items
+         */
+        std::vector<std::shared_ptr<Item>> getAll();
+
+        std::string str() const;
+
+        virtual std::shared_ptr<iterator_type> begin();
+        virtual std::shared_ptr<iterator_type> end();
+
+        MultiDiscreteSpace &operator=(const MultiDiscreteSpace &);
+        bool operator==(const MultiDiscreteSpace &other) const;
+        bool operator!=(const MultiDiscreteSpace &other) const;
+
+        /**
+         * @brief Verify is the multi discrete space contains the Joint<std::shared_ptr<Item>>;
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool contains(const std::shared_ptr<Item> &) const;
+
+        friend std::ostream &operator<<(std::ostream &os, const MultiDiscreteSpace &sp)
+        {
+            os << sp.str();
+            return os;
+        }
+
+    protected:
+        using jitems_bimap = DiscreteSpace::items_bimap;
+        using jitems_bimap_value = jitems_bimap::value_type;
+
+        /**
+        *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
+        */
+        void generateJointItems();
+        bool isGenerated();
+
+        /**
+         * @brief Sets the number of joint items
+         * 
+         */
+        void setNumJItems(number);
+
+        inline std::shared_ptr<DiscreteSpace> cast(const std::shared_ptr<Space> &space) const;
+
+        bool store_items_;
     };
 
 } // namespace sdm

@@ -33,6 +33,24 @@ namespace sdm
         return (*this)[i];
     }
 
+    template <typename T>
+    std::string BaseJoint<T>::str() const
+    {
+        std::ostringstream res;
+        res << "[" << this->getNumAgents() << "](";
+        if (this->getNumAgents() > 0)
+        {
+            number ag;
+            for (ag = 0; ag < this->getNumAgents() - 1; ++ag)
+            {
+                res << this->get(ag) << ", ";
+            }
+            res << this->get(ag);
+        }
+        res << ")";
+        return res.str();
+    }
+
 } // namespace sdm
 
 namespace std

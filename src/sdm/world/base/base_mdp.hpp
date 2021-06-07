@@ -37,7 +37,7 @@ namespace sdm
                 const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
 
         virtual ~BaseMDP();
-
+ 
         /**
          * @brief Get the number of agents
          * 
