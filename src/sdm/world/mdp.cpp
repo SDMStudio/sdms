@@ -47,7 +47,7 @@ namespace sdm
         return argmax;
     }
 
-    std::shared_ptr<Space<std::shared_ptr<Action>>> MDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
+    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return std::static_pointer_cast<BaseMDP>(this->underlying_problem)->getActionSpace(t);
     }

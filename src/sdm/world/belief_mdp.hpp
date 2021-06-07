@@ -41,7 +41,7 @@ namespace sdm
 
         virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, std::shared_ptr<HSVI> hsvi) const = 0;
 
-        std::shared_ptr<DiscreteSpace<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<State> &ostate = std::shared_ptr<State>());
+        std::shared_ptr<DiscreteSpace> getActionSpaceAt(const std::shared_ptr<State> &ostate = std::shared_ptr<State>());
 
         virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t) const = 0;
 

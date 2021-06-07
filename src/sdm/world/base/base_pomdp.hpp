@@ -25,8 +25,8 @@ namespace sdm
     public:
         BasePOMDP(number num_agents,
                   double discount,
-                  const std::shared_ptr<Space<std::shared_ptr<State>>> &state_space,
-                  const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
+                  const std::shared_ptr<Space> &state_space,
+                  const std::shared_ptr<Space> &action_space,
                   const std::shared_ptr<Space<std::shared_ptr<Observation>>> &obs_space,
                   const std::shared_ptr<BaseReward> &reward,
                   const std::shared_ptr<StateDynamicsInterface> &state_dynamics,

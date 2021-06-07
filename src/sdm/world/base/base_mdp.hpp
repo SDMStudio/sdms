@@ -30,8 +30,8 @@ namespace sdm
     public:
         BaseMDP(number num_agents,
                 double discount,
-                const std::shared_ptr<Space<std::shared_ptr<State>>> &state_space,
-                const std::shared_ptr<Space<std::shared_ptr<Action>>> &action_space,
+                const std::shared_ptr<Space> &state_space,
+                const std::shared_ptr<Space> &action_space,
                 const std::shared_ptr<BaseReward> &reward,
                 const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                 const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
@@ -108,18 +108,18 @@ namespace sdm
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
-        const std::shared_ptr<Space<std::shared_ptr<State>>> &getStateSpace(number t = 0) const;
+        const std::shared_ptr<Space> &getStateSpace(number t = 0) const;
 
-        const std::shared_ptr<Space<std::shared_ptr<Action>>> &getActionSpace(number t = 0) const;
+        const std::shared_ptr<Space> &getActionSpace(number t = 0) const;
 
     protected:
         number num_agents_ = 2;
 
         double discount_ = 1.0;
 
-        std::shared_ptr<Space<std::shared_ptr<State>>> state_space_;
+        std::shared_ptr<Space> state_space_;
 
-        std::shared_ptr<Space<std::shared_ptr<Action>>> action_space_;
+        std::shared_ptr<Space> action_space_;
 
         std::shared_ptr<BaseReward> reward_;
 

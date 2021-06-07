@@ -3,11 +3,9 @@
 
 namespace sdm
 {
-    template <typename TItem>
-    DiscreteSpace<TItem>::DiscreteSpace() : num_items_(0) {}
+    DiscreteSpace::DiscreteSpace() : num_items_(0) {}
 
-    template <typename TItem>
-    DiscreteSpace<TItem>::DiscreteSpace(const std::vector<TItem> &items) : num_items_(items.size()), list_items_(items)
+    DiscreteSpace::DiscreteSpace(const std::vector<std::shared_ptr<Item>> &items) : num_items_(items.size()), list_items_(items)
     {
         for (number i = 0; i < this->num_items_; i++)
         {
@@ -15,74 +13,70 @@ namespace sdm
         }
     }
 
-    template <typename TItem>
-    DiscreteSpace<TItem>::DiscreteSpace(std::initializer_list<TItem> vals) : DiscreteSpace(std::vector<TItem>(vals))
+    template <typename T>
+    DiscreteSpace::DiscreteSpace(const std::vector<T> &items)
+    {
+        std::vector<std::shared_ptr<Item>> titems(items.begin(), items.end());
+        *this = DiscreteSpace(titems);
+    }
+
+    DiscreteSpace::DiscreteSpace(std::initializer_list<std::shared_ptr<Item>> vals) : DiscreteSpace(std::vector<std::shared_ptr<Item>>(vals))
     {
     }
-    
-    template <typename TItem>
-    DiscreteSpace<TItem>::DiscreteSpace(const DiscreteSpace<TItem> &copy)
+
+    DiscreteSpace::DiscreteSpace(const DiscreteSpace &copy)
         : num_items_(copy.num_items_),
           all_items_(copy.all_items_),
           list_items_(copy.list_items_)
     {
     }
 
-    template <typename TItem>
     template <bool TBool>
-    DiscreteSpace<TItem>::DiscreteSpace(std::enable_if_t<TBool, int> num_items)
+    DiscreteSpace::DiscreteSpace(std::enable_if_t<TBool, int> num_items)
     {
         std::vector<number> l(num_items);
         std::iota(l.begin(), l.end(), 0);
-        *this = DiscreteSpace<TItem>(l);
+        *this = DiscreteSpace(l);
     }
 
-    template <typename TItem>
-    bool DiscreteSpace<TItem>::isDiscrete() const
+    bool DiscreteSpace::isDiscrete() const
     {
         return true;
     }
 
-    template <typename TItem>
-    TItem DiscreteSpace<TItem>::sample() const
+    std::shared_ptr<Item> DiscreteSpace::sample() const
     {
         assert(!this->all_items_.empty());
         std::uniform_int_distribution<int> distr(0, this->all_items_.size() - 1);
         return this->all_items_.left.at(distr(common::global_urng()));
     }
 
-    template <typename TItem>
-    std::vector<TItem> DiscreteSpace<TItem>::getAll() const
+    std::vector<std::shared_ptr<Item>> DiscreteSpace::getAll() const
     {
         return this->list_items_;
     }
 
-    template <typename TItem>
-    number DiscreteSpace<TItem>::getNumItems() const
+    number DiscreteSpace::getNumItems() const
     {
         return this->num_items_;
     }
 
-    template <typename TItem>
-    TItem DiscreteSpace<TItem>::getItem(number index) const
+    std::shared_ptr<Item> DiscreteSpace::getItem(number index) const
     {
         return this->all_items_.left.at(index);
     }
 
-    template <typename TItem>
-    number DiscreteSpace<TItem>::getItemIndex(const TItem &item) const
+    number DiscreteSpace::getItemIndex(const std::shared_ptr<Item> &item) const
     {
         return this->all_items_.right.at(item);
     }
 
-    template <typename TItem>
-    std::vector<number> DiscreteSpace<TItem>::getDim() const
+    std::vector<number> DiscreteSpace::getDim() const
     {
         return {1};
     }
 
-    template <typename TItem>
-    std::string DiscreteSpace<TItem>::str() const
+    std::string DiscreteSpace::str() const
     {
         std::ostringstream res;
         res << "DiscreteSpace(" << this->getNumItems() << ")";
@@ -90,8 +84,7 @@ namespace sdm
         return res.str();
     }
 
-    template <typename TItem>
-    bool DiscreteSpace<TItem>::operator==(const DiscreteSpace &sp) const
+    bool DiscreteSpace::operator==(const DiscreteSpace &sp) const
     {
         if (this->getNumItems() != sp.getNumItems())
         {
@@ -110,14 +103,12 @@ namespace sdm
         }
     }
 
-    template <typename TItem>
-    bool DiscreteSpace<TItem>::operator!=(const DiscreteSpace &sp) const
+    bool DiscreteSpace::operator!=(const DiscreteSpace &sp) const
     {
         return !(operator==(sp));
     }
 
-    template <typename TItem>
-    bool DiscreteSpace<TItem>::contains(const TItem &item) const
+    bool DiscreteSpace::contains(const std::shared_ptr<Item> &item) const
     {
         return std::find(this->list_items_.begin(), this->list_items_.end(), item) != this->list_items_.end() ? true : false;
     }

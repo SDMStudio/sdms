@@ -111,7 +111,7 @@ namespace sdm
         return this->initial_state_;
     }
 
-    std::shared_ptr<DiscreteSpace<std::shared_ptr<Action>>> BeliefMDP::getActionSpaceAt(const std::shared_ptr<State> &)
+    std::shared_ptr<DiscreteSpace> BeliefMDP::getActionSpaceAt(const std::shared_ptr<State> &)
     {
         return this->getUnderlyingPOMDP()->getActionSpace();
     }

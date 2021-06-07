@@ -15,7 +15,7 @@ namespace sdm
    * @tparam The type of item.
    */
   template <typename T>
-  class BaseJoint : public std::vector<T>, public Function<number, T>
+  class BaseJoint : public std::vector<T>, public Function<number, T>, public Item
   {
   public:
     using value_type = T;

@@ -1,4 +1,8 @@
 
+######################################
+### PARTIE A DAVID : NE PAS CHANGER ##
+######################################
+
 # Build documentation
 if(DAVID)
     message(STATUS "Build David quicktest.")
@@ -45,6 +49,11 @@ if(DAVID)
 		hsvi
 	)
 endif()
+
+
+#######################################
+### PARTIE A JEROME : NE PAS CHANGER ##
+#######################################
 
 # Build documentation
 if(JEROME)

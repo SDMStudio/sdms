@@ -49,7 +49,7 @@ namespace sdm
          * @param state the state
          * @return the action space 
          */
-        virtual std::shared_ptr<Space<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the reward at a given occupancy state and occupancy action 

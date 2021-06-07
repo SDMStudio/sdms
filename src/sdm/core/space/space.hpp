@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <sdm/types.hpp>
+#include <sdm/core/item.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -25,7 +26,6 @@ namespace sdm
    * @class Space
    * @brief This class is an abstract interface that all spaces should inherite. It gives some useful general methods to use generic spaces in your algorithms. 
    */
-  template <typename TItem>
   class Space
   {
   public:
@@ -49,13 +49,13 @@ namespace sdm
      */
     virtual std::vector<number> getDim() const = 0;
 
-    virtual std::vector<TItem> getAll() const = 0;
+    virtual std::vector<std::shared_ptr<Item>> getAll() const = 0;
 
-    // virtual TItem begin() const = 0;
+    // virtual std::shared_ptr<Item> begin() const = 0;
 
-    // virtual TItem next() const = 0;
+    // virtual std::shared_ptr<Item> next() const = 0;
 
-    // virtual TItem end() const = 0;
+    // virtual std::shared_ptr<Item> end() const = 0;
 
     /**
      * @brief Space as a string
