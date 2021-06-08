@@ -95,8 +95,8 @@ if(JEROME)
 	target_link_libraries(hsvi world fmt)
 	include_directories(${SDMS_INCLUDE_DIRS})
 
-	add_executable(quicktest_david quicktest_david.cpp)
-	target_link_libraries(quicktest_david
+	add_executable(quicktest_jerome quicktest_jerome.cpp)
+	target_link_libraries(quicktest_jerome
 		dl
 		${Boost_LIBRARIES}
 		${TORCH_LIBRARIES}

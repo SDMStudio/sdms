@@ -95,7 +95,7 @@ namespace sdm
          * @param t 
          * @return std::set<std::shared_ptr<Observation>> 
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachablelObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
 
         /**
          * @brief Get the reward

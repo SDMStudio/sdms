@@ -21,7 +21,7 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class POMDPInterface : public MDPInterface
+    class POMDPInterface : virtual public MDPInterface
     {
     public:
 
@@ -41,7 +41,7 @@ namespace sdm
          * @param action the current action
          * @return the set of reachable observations
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const = 0;
 
         /**
          * @brief Get the observation probability, i.e. p(o | s', a)
