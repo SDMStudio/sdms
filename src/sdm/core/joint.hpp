@@ -1,6 +1,12 @@
 #pragma once
 
-#include <sdm/core/base_joint.hpp>
+#include <vector>
+
+#include <sdm/types.hpp>
+#include <sdm/tools.hpp>
+#include <sdm/core/function.hpp>
+#include <sdm/core/item.hpp>
+#include <sdm/utils/struct/vector.hpp>
 
 namespace sdm
 {
@@ -10,63 +16,53 @@ namespace sdm
    * @tparam The type of item.
    */
   template <class T>
-  class Joint : public BaseJoint<T>
+  class Joint : public Item, public std::vector<T>, public Function<number, T>
   {
   public:
-    using value_type = typename BaseJoint<T>::value_type;
+    using value_type = T;
 
     Joint();
     Joint(const std::vector<T> &joint_item);
     Joint(const std::vector<number> &, const std::vector<T> &joint_item);
     Joint(std::initializer_list<T> list_values);
-    // virtual ~Joint();
+    virtual ~Joint();
 
-    // /**
-    //  * @brief Get the number of agents (i.e. the size of the joint element)
-    //  */
-    // number getNumAgents() const;
+    /**
+     * @brief Get the number of agents (i.e. the size of the joint element)
+     */
+    number getNumAgents() const;
 
-    // /**
-    //  * @brief Get the element for agent i
-    //  */
-    // const T &get(const number &) const;
+    /**
+     * @brief Get the element for agent i
+     */
+    const T &get(const number &) const;
 
-    // /**
-    //  * @brief Get the element for agent i
-    //  */
-    // T operator()(const number &);
+    /**
+     * @brief Get the element for agent i
+     */
+    T operator()(const number &);
+    
+    std::string str() const;
 
-    // /**
-    //   * @brief print the joint item
-    //   * @param std::ostream&
-    //   * @param const joint<item, instance>& joint item to be printed
-    //   * @return std::ostream&
-    //   */
-    // friend std::ostream &operator<<(std::ostream &os, const Joint<T> &j)
-    // {
-    //   os << "(";
-    //   if (j.size() > 0)
-    //   {
-    //     number ag;
-    //     for (ag = 0; ag < j.size() - 1; ++ag)
-    //     {
-    //       std::ostringstream res;
-    //       res << j[ag] << ", ";
-    //       sdm::tools::indentedOutput(os, res.str().c_str(), 0);
-    //     }
-    //     os << j[ag];
-    //   }
-    //   os << ")";
-    //   return os;
-    // }
+    /**
+      * @brief print the joint item
+      * @param std::ostream&
+      * @param const joint<item, instance>& joint item to be printed
+      * @return std::ostream&
+      */
+    friend std::ostream &operator<<(std::ostream &os, const Joint<T> &joint_item)
+    {
+      os << joint_item.str();
+      return os;
+    }
 
-    // friend class boost::serialization::access;
+    friend class boost::serialization::access;
 
-    // template <class Archive>
-    // void serialize(Archive &archive, const unsigned int)
-    // {
-    //   archive &boost::serialization::base_object<std::vector<T>>(*this);
-    // }
+    template <class Archive>
+    void serialize(Archive &archive, const unsigned int)
+    {
+      archive &boost::serialization::base_object<std::vector<T>>(*this);
+    }
   };
 
   // // Specialisation for the Joint State 
