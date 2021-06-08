@@ -108,9 +108,9 @@ namespace sdm
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
-        const std::shared_ptr<Space> &getStateSpace(number t = 0) const;
+        std::shared_ptr<Space> getStateSpace(number t = 0) const;
 
-        const std::shared_ptr<Space> &getActionSpace(number t = 0) const;
+        std::shared_ptr<Space> getActionSpace(number t = 0) const;
 
     protected:
         number num_agents_ = 2;

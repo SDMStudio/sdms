@@ -13,6 +13,9 @@ namespace sdm
         virtual ~Iterator() {}
 
         virtual std::shared_ptr<Iterator> operator++() = 0;
+        virtual std::shared_ptr<Iterator<TItem>> operator+=(number n) = 0;
+        virtual std::shared_ptr<Iterator<TItem>> operator+(number n) const = 0;
+
         virtual bool operator==(const std::shared_ptr<Iterator> &other) const = 0;
         virtual bool operator!=(const std::shared_ptr<Iterator> &other) const = 0;
         virtual TItem &operator*() = 0;

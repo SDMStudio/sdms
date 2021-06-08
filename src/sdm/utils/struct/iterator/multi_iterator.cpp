@@ -5,9 +5,9 @@ namespace sdm
     namespace iterator
     {
 
-        MultiIterator::MultiIterator(const std::vector<single_iterator_type> &begin_iterators, const std::vector<single_iterator_type> &end_iterators, const std::vector<single_iterator_type> &current_iterators)
+        MultiIterator::MultiIterator(const std::vector<single_iterator_type> &begin_iterators, const std::vector<single_iterator_type> &end_iterators)
             : begin_iterators_(begin_iterators),
-              current_iterators_(current_iterators),
+              current_iterators_(begin_iterators),
               end_iterators_(end_iterators)
         {
             assert(begin_iterators.size() == end_iterators.size());
@@ -17,17 +17,34 @@ namespace sdm
         {
             for (int i = this->begin_iterators_.size() - 1; i >= 0; i--)
             {
-                if (this->current_iterators_[i] != this->end_iterators_[i])
-                {
-                    this->current_iterators_.at(i)->operator++();
+                this->current_iterators_[i] = this->current_iterators_[i]->operator+(1);
+                if (*this->current_iterators_.at(i) != *this->end_iterators_.at(i))
                     break;
-                }
                 else
                 {
-                    this->current_iterators_[i] = this->begin_iterators_.at(i);
+
+                    if (i == 0)
+                    {
+                        this->current_iterators_ = {};
+                    }
+                    else
+                        this->current_iterators_[i] = this->begin_iterators_.at(i);
                 }
             }
             return this->shared_from_this();
+        }
+
+        std::shared_ptr<ItemIterator> MultiIterator::operator+=(number n)
+        {
+            for (number i = 0; i < n; i++)
+            {
+                this->operator++();
+            }
+            return this->shared_from_this();
+        }
+
+        std::shared_ptr<ItemIterator> MultiIterator::operator+(number n) const
+        {
         }
 
         bool MultiIterator::operator==(const std::shared_ptr<ItemIterator> &other) const

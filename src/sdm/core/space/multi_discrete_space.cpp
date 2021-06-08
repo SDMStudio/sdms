@@ -78,11 +78,11 @@ namespace sdm
             this->push_back(std::shared_ptr<DiscreteSpace>(new DiscreteSpace(num_items[ag])));
             this->num_items_ *= num_items[ag];
         }
+        this->generateJointItems();
     }
 
     void MultiDiscreteSpace::setSpaces(const std::vector<std::vector<std::shared_ptr<Item>>> &e_names)
     {
-
         this->num_items_ = 1;
         this->clear();
 
@@ -91,6 +91,7 @@ namespace sdm
             this->push_back(std::shared_ptr<DiscreteSpace>(new DiscreteSpace(e_names[ag])));
             this->num_items_ *= e_names[ag].size();
         }
+        this->generateJointItems();
     }
 
     void MultiDiscreteSpace::setSpaces(const std::vector<std::shared_ptr<Space>> &spaces)
@@ -103,30 +104,26 @@ namespace sdm
             this->push_back(spaces[ag]);
             this->num_items_ *= this->cast(spaces[ag])->getNumItems();
         }
+        this->generateJointItems();
     }
 
     void MultiDiscreteSpace::generateJointItems()
     {
         if (this->isStoringItems())
         {
+            this->storeItems(false);
             this->all_items_.clear();
             this->list_items_.clear();
-            // Build a vector of vector of items to fit with Variation construct
-            std::vector<std::vector<std::shared_ptr<Item>>> v_possible_items;
-            for (number space_id = 0; space_id < this->getNumSpaces(); space_id++)
-            {
-                v_possible_items.push_back(this->cast(this->getSpace(space_id))->getAll());
-            }
 
             // Generate joint items and store in containers
             number counter = 0;
-            Variations<Joint<std::shared_ptr<Item>>> vars(v_possible_items);
-            for (std::shared_ptr<Item> v = vars.begin(); v != vars.end(); v = vars.next())
+            for (const auto &v : *this)
             {
                 this->all_items_.insert(jitems_bimap_value(counter, v));
                 this->list_items_.push_back(v);
                 counter++;
             }
+            this->storeItems(true);
         }
     }
 
@@ -156,7 +153,7 @@ namespace sdm
     //     return DiscreteSpace::getItemIndex(jitem);
     // }
 
-    std::shared_ptr<MultiDiscreteSpace::iterator_type> MultiDiscreteSpace::begin()
+    MultiDiscreteSpace::iterator_type MultiDiscreteSpace::begin()
     {
         if (this->isStoringItems())
         {
@@ -168,17 +165,17 @@ namespace sdm
         }
         else
         {
-            std::vector<std::shared_ptr<iterator_type>> begin_iterators, end_iterators;
+            std::vector<iterator_type> begin_iterators, current_iterators, end_iterators;
             for (number space_id = 0; space_id < this->getNumSpaces(); space_id++)
             {
                 begin_iterators.push_back(this->getSpace(space_id)->begin());
                 end_iterators.push_back(this->getSpace(space_id)->end());
             }
-            return std::make_shared<sdm::iterator::MultiIterator>(begin_iterators, end_iterators, begin_iterators);
+            return std::make_shared<sdm::iterator::MultiIterator>(begin_iterators, end_iterators);
         }
     }
 
-    std::shared_ptr<MultiDiscreteSpace::iterator_type> MultiDiscreteSpace::end()
+    MultiDiscreteSpace::iterator_type MultiDiscreteSpace::end()
     {
         if (this->isStoringItems())
         {
@@ -190,13 +187,7 @@ namespace sdm
         }
         else
         {
-            std::vector<std::shared_ptr<iterator_type>> begin_iterators, end_iterators;
-            for (number space_id = 0; space_id < this->getNumSpaces(); space_id++)
-            {
-                begin_iterators.push_back(this->getSpace(space_id)->begin());
-                end_iterators.push_back(this->getSpace(space_id)->end());
-            }
-            return std::make_shared<sdm::iterator::MultiIterator>(begin_iterators, end_iterators, end_iterators);
+            return std::make_shared<sdm::iterator::MultiIterator>();
         }
     }
 

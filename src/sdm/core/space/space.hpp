@@ -30,7 +30,7 @@ namespace sdm
   class Space
   {
   public:
-    using iterator_type = ItemIterator;
+    using iterator_type = std::shared_ptr<ItemIterator>;
 
     virtual ~Space() {}
 
@@ -49,8 +49,8 @@ namespace sdm
      */
     virtual std::vector<number> getDim() const = 0;
 
-    virtual std::shared_ptr<iterator_type> begin() = 0;
-    virtual std::shared_ptr<iterator_type> end() = 0;
+    virtual iterator_type begin() = 0;
+    virtual iterator_type end() = 0;
 
     /**
      * @brief Space as a string

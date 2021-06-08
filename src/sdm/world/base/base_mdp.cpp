@@ -72,12 +72,12 @@ namespace sdm
         return this->state_dynamics_->getTransitionProbability(state, action, next_state, t);
     }
 
-    const std::shared_ptr<Space> &BaseMDP::getActionSpace(number) const
+    std::shared_ptr<Space> BaseMDP::getActionSpace(number) const
     {
         return this->action_space_;
     }
 
-    const std::shared_ptr<Space> &BaseMDP::getStateSpace(number) const
+    std::shared_ptr<Space> BaseMDP::getStateSpace(number) const
     {
         return this->state_space_;
     }

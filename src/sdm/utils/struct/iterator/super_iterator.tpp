@@ -18,6 +18,19 @@ namespace sdm
         }
 
         template <typename TItem, typename STDIterator>
+        std::shared_ptr<Iterator<TItem>> SuperIterator<TItem, STDIterator>::operator+=(number n)
+        {
+            this->sub_iterator_+=n;
+            return this->shared_from_this();
+        }
+
+        template <typename TItem, typename STDIterator>
+        std::shared_ptr<Iterator<TItem>> SuperIterator<TItem, STDIterator>::operator+(number n) const
+        {
+            return std::make_shared<SuperIterator>(this->sub_iterator_ + n);
+        }
+
+        template <typename TItem, typename STDIterator>
         bool SuperIterator<TItem, STDIterator>::operator==(const std::shared_ptr<Iterator<TItem>> &other) const
         {
             return (this->sub_iterator_ == std::static_pointer_cast<SuperIterator>(other)->sub_iterator_);

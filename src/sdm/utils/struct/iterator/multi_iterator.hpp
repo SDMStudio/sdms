@@ -14,11 +14,13 @@ namespace sdm
         public:
             using single_iterator_type = std::shared_ptr<ItemIterator>;
 
+            MultiIterator(){}
             MultiIterator(const std::vector<single_iterator_type> &begin_iterators,
-                          const std::vector<single_iterator_type> &end_iterators,
-                          const std::vector<single_iterator_type> &current_iterators);
+                          const std::vector<single_iterator_type> &end_iterators);
 
             std::shared_ptr<ItemIterator> operator++();
+            std::shared_ptr<ItemIterator> operator+=(number n);
+            std::shared_ptr<ItemIterator> operator+(number n) const;
             bool operator==(const std::shared_ptr<ItemIterator> &other) const;
             bool operator!=(const std::shared_ptr<ItemIterator> &other) const;
             std::shared_ptr<Item> &operator*();

@@ -86,8 +86,8 @@ namespace sdm
          */
         std::vector<std::shared_ptr<Item>> getAll();
 
-        virtual std::shared_ptr<iterator_type> begin();
-        virtual std::shared_ptr<iterator_type> end();
+        virtual iterator_type begin();
+        virtual iterator_type end();
 
         /**
          * @brief Get the index of an item

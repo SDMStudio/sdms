@@ -136,8 +136,8 @@ namespace sdm
 
         std::string str() const;
 
-        virtual std::shared_ptr<iterator_type> begin();
-        virtual std::shared_ptr<iterator_type> end();
+        virtual iterator_type begin();
+        virtual iterator_type end();
 
         MultiDiscreteSpace &operator=(const MultiDiscreteSpace &);
         bool operator==(const MultiDiscreteSpace &other) const;

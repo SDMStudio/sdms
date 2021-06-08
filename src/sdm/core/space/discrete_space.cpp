@@ -105,12 +105,12 @@ namespace sdm
         return std::find(this->list_items_.begin(), this->list_items_.end(), item) != this->list_items_.end() ? true : false;
     }
 
-    std::shared_ptr<DiscreteSpace::iterator_type> DiscreteSpace::begin()
+    DiscreteSpace::iterator_type DiscreteSpace::begin()
     {
         return std::make_shared<iterator::SuperIterator<std::shared_ptr<Item>, decltype(list_items_.begin())>>(this->list_items_.begin());
     }
 
-    std::shared_ptr<DiscreteSpace::iterator_type> DiscreteSpace::end()
+    DiscreteSpace::iterator_type DiscreteSpace::end()
     {
         return std::make_shared<iterator::SuperIterator<std::shared_ptr<Item>, decltype(list_items_.end())>>(this->list_items_.end());
     }

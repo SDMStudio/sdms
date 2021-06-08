@@ -58,7 +58,7 @@ namespace sdm
          * 
          * @return the set of states 
          */
-        virtual std::vector<std::shared_ptr<State>> getAllStates(number t) const = 0;
+        virtual std::shared_ptr<Space> getStateSpace(number t) const = 0;
 
         /**
          * @brief Get the reachable next states
@@ -74,7 +74,7 @@ namespace sdm
          * 
          * @return the set of actions 
          */
-        virtual std::vector<std::shared_ptr<Action>> getAllActions(number t) const = 0;
+        virtual std::shared_ptr<Space> getActionSpace(number t) const = 0;
 
         /**
          * @brief Get the reward
