@@ -27,7 +27,7 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class MMDP : public MDP, public MMDPInterface
+    class MMDP : virtual public MDP, virtual public MMDPInterface
     {
     public:
         MMDP(double horizon,

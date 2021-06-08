@@ -125,7 +125,7 @@ namespace sdm
          * @brief Refer to the Serialized State Space
          * 
          */
-        std::shared_ptr<MultiSpace<DiscreteSpace<std::shared_ptr<State>>>> serialized_state_space_;
+        Joint<std::shared_ptr<DiscreteSpace>> serialized_state_space_;
 
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states

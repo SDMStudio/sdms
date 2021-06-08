@@ -12,7 +12,7 @@
 #include <map>
 #include <assert.h>
 
-#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/world/posg.hpp>
 

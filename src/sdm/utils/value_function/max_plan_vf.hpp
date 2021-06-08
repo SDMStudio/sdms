@@ -26,7 +26,7 @@ namespace sdm
     /**
      * @brief 
      * 
-     * @tparam std::shared_ptr<BeliefState> type of hyperplan representation. Must implement sdm::VectorImpl interface.
+     * @tparam std::shared_ptr<BeliefState> type of hyperplan representation. Must implement sdm::VectorInterface interface.
      * @tparam double value type (default : double)
      */
     class MaxPlanValueFunction : public ValueFunction
@@ -130,7 +130,7 @@ namespace sdm
 
         /**
          * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
+         * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          */
         std::vector<HyperplanSet> representation;
 

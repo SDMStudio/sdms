@@ -22,7 +22,7 @@ namespace sdm
         this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
     }
 
-    std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, number t)
     {
         using v_type = typename TMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>::value_type::second_type;
 

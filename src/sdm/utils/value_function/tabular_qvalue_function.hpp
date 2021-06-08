@@ -40,7 +40,7 @@ namespace sdm
 
         /**
          * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
+         * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          */
         std::vector<Container> representation;
 
@@ -73,7 +73,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t);
+        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the q-value given state and action

@@ -119,7 +119,7 @@ namespace sdm
 
         /**
          * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
+         * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          */
         std::vector<Container> representation;
 

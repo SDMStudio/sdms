@@ -13,7 +13,7 @@ namespace sdm
     /**
      * @brief 
      * 
-     * @tparam TState type of hyperplan representation. Must implement sdm::VectorImpl interface.
+     * @tparam TState type of hyperplan representation. Must implement sdm::VectorInterface interface.
      * @tparam TValue value type (default : double)
      */
     template <typename TVector, typename TAction, typename TValue = double>

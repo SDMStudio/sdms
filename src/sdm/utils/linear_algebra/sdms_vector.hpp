@@ -17,7 +17,7 @@
 
 #include <assert.h>
 
-#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 
 namespace sdm
@@ -29,7 +29,7 @@ namespace sdm
    * @tparam T Type of value
    */
   template <class I, class T, class TBaseVector>
-  class sdmsVector : public VectorImpl<I, T>
+  class sdmsVector : public VectorInterface<I, T>
   {
   public:
     // using array_type = typename TBaseVector::array_type;

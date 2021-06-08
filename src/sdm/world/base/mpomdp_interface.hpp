@@ -34,6 +34,14 @@ namespace sdm
          * @return the observation space
          */
         virtual std::shared_ptr<Space> getObservationSpace(number agent_id, number t) const = 0;
+
+        /**
+         * @brief Get ths observation space at timestep t.
+         * 
+         * @param t the timestep
+         * @return the observation space
+         */
+        virtual std::shared_ptr<Space> getObservationSpace(number t) const = 0;
     };
 
 } // namespace sdm
