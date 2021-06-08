@@ -2,21 +2,19 @@
 #include <sdm/algorithms/value_iteration.hpp>
 namespace sdm
 {
-    template <typename TState, typename TAction>
-    ValueIteration<TState,TAction>::ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double error, int horizon) : problem_(problem), error_(error), horizon_(horizon)   
+    ValueIteration::ValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, int horizon) : problem_(problem), error_(error), horizon_(horizon)   
     {
     }
 
     /**
      * @brief Initialize the algorithm
      */
-    template <typename TState, typename TAction>
-    void ValueIteration<TState,TAction>::do_initialize()
+    void ValueIteration::do_initialize()
     {
         auto under_pb = this->problem_->getUnderlyingProblem();
 
-        policy_evaluation_1_ = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(this->problem_, this->horizon_,under_pb->getReward()->getMaxReward());
-        policy_evaluation_2_ = std::make_shared<sdm::MappedValueFunction<TState, TAction>>(this->problem_, this->horizon_,under_pb->getReward()->getMaxReward());
+        policy_evaluation_1_ = std::make_shared<sdm::MappedValueFunction>(this->problem_, this->horizon_,under_pb->getReward()->getMaxReward());
+        policy_evaluation_2_ = std::make_shared<sdm::MappedValueFunction>(this->problem_, this->horizon_,under_pb->getReward()->getMaxReward());
 
         policy_evaluation_1_->initialize();
         policy_evaluation_2_->initialize();
@@ -25,8 +23,7 @@ namespace sdm
     /**
      * @brief Solve a problem solvable by HSVI. 
      */
-    template <typename TState, typename TAction>
-    void ValueIteration<TState,TAction>::do_solve()
+    void ValueIteration::do_solve()
     {
         auto under_pb = this->problem_->getUnderlyingProblem();
 
@@ -48,14 +45,12 @@ namespace sdm
     /**
      * @brief Test the learnt value function on one episode
      */
-    template <typename TState, typename TAction>
-    void ValueIteration<TState,TAction>::do_test()
+    void ValueIteration::do_test()
     {
         
     }
     
-    template <typename TState, typename TAction>
-    bool ValueIteration<TState,TAction>::borne()
+    bool ValueIteration::borne()
     {
         double max_value = std::numeric_limits<double>::min();
         for(auto &state : this->policy_evaluation_1_->getSupport(0))
@@ -73,14 +68,12 @@ namespace sdm
         }
     }
 
-    template <typename TState, typename TAction>
-    std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> ValueIteration<TState,TAction>::getResult()
+    std::shared_ptr<typename sdm::MappedValueFunction> ValueIteration::getResult()
     {
         return this->policy_evaluation_2_;
     }
 
-    template <typename TState, typename TAction>
-    double ValueIteration<TState,TAction>::getResultOpti() 
+    double ValueIteration::getResultOpti() 
     {
         return this->policy_evaluation_2_->getValueAt(this->problem_->getInitialState());
     }

@@ -85,6 +85,16 @@ namespace sdm
      */
     std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
+    /**
+     * @brief Create the Reachable State, i.e. a state and an action will be associated with a next_state
+     * 
+     * @param  state A specific state (the state at timestep t)
+     * @param  action A specific action
+     * @param  next_state A specific state (the state at timestep t+1)
+     * @param t Timestep t 
+     */
+    void setReachablesStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t = 0);
+
   protected:
     /** @brief transition and observation matrices */
     std::unordered_map<std::shared_ptr<Action>, matrix_type> t_model;

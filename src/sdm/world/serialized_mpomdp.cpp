@@ -10,9 +10,9 @@ namespace sdm
         return this->serialized_observation_space_->getSpace(this->getAgentId(t))->getAll();
     }
 
-    std::set<std::shared_ptr<Observation>> SerializedMPOMDP::getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number) const
+    std::set<std::shared_ptr<Observation>> SerializedMPOMDP::getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const
     {
-        return this->reachable_obs_state_space.at(state).at(action).at(next_state);
+        this->obs_dynamics_->getReachableObservations(state,action,next_state,t);
     }
 
     double SerializedMPOMDP::getObsProbability(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
@@ -92,6 +92,7 @@ namespace sdm
 
     void SerializedMPOMDP::setReachableObservationSpace(std::shared_ptr<POMDPInterface> mpomdp)
     {
+        auto observation_dynamics = std::make_shared<TabularObservationDynamics>();
         // Creation of all reachable Observation Space
 
         // Go over serial states
@@ -99,15 +100,12 @@ namespace sdm
         {
             std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
 
-            this->reachable_obs_state_space.emplace(serialized_state, std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<State>, std::set<std::shared_ptr<Observation>>>>());
-
             // Go over serial action
-            for (const auto serial_action : this->getAllActions(serialized_state->getCurrentAgentId())->getAll())
+            for (const auto serial_action : this->getAllActions(serialized_state->getCurrentAgentId()))
             {
-                this->reachable_obs_state_space[serialized_state].emplace(serial_action, std::unordered_map<std::shared_ptr<State>, std::set<std::shared_ptr<Observation>>>());
 
                 // Go over joint_obs
-                for (const auto next_state : this->getAllStates(serialized_state->getCurrentAgentId()+1) )
+                for (const auto next_state : this->getReachableStates(serialized_state,serial_action,0) )
                 {
                     std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
 
@@ -120,19 +118,22 @@ namespace sdm
                     // Insert the next reachable Observation State
                     if (next_serialized_state->getCurrentAgentId() == 0)
                     {
-                        for (const auto obs : mpomdp->getReachableObservations(serialized_state->getHiddenState(), this->getPointeurJointAction(joint_action), next_serialized_state->getHiddenState()),t)
+                        for (const auto obs : mpomdp->getReachableObservations(serialized_state->getHiddenState(), this->getPointeurJointAction(joint_action), next_serialized_state->getHiddenState(),0))
                         {
-                            all_obs.insert(obs);
+                            // all_obs.insert(obs);
+                            observation_dynamics->setReachableObservations(state,serial_action,next_state,obs);
                         }
                     }
                     else
                     {
-                        all_obs.insert(this->empty_serial_observation);
+                        // all_obs.insert(this->empty_serial_observation);
+                        observation_dynamics->setReachableObservations(state,serial_action,next_state,this->empty_serial_observation);
                     }
-                    this->reachable_obs_state_space[serialized_state][serial_action].emplace(next_serialized_state, all_obs);
                 }
             }
         }
+
+        this->obs_dynamics_ = observation_dynamics;
     }
 
 

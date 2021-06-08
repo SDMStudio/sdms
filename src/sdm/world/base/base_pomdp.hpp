@@ -15,6 +15,9 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 
+#include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
+
+
 namespace sdm
 {
     /**
@@ -30,7 +33,7 @@ namespace sdm
                   const std::shared_ptr<Space<std::shared_ptr<Observation>>> &obs_space,
                   const std::shared_ptr<BaseReward> &reward,
                   const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-                  const std::shared_ptr<BaseObservationDynamics> &obs_dynamics);
+                  const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics);
 
         /**
          * @brief Get the reachable next states
@@ -67,6 +70,6 @@ namespace sdm
 
     protected:
         std::shared_ptr<Space<std::shared_ptr<Observation>>> obs_space_;
-        std::shared_ptr<BaseObservationDynamics> obs_dynamics_;
+        std::shared_ptr<ObservationDynamicsInterface> obs_dynamics_;
     };
 } // namespace sdm

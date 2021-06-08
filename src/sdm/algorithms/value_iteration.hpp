@@ -8,14 +8,13 @@
 
 namespace sdm
 {
-    template <typename TState, typename TAction>
     class ValueIteration : public Algorithm
     {
     protected:
-        std::shared_ptr<SolvableByHSVI<TState, TAction>> problem_;
+        std::shared_ptr<SolvableByHSVI> problem_;
 
-        std::shared_ptr<sdm::MappedValueFunction<TState, TAction>> policy_evaluation_1_;
-        std::shared_ptr<sdm::MappedValueFunction<TState, TAction>> policy_evaluation_2_;
+        std::shared_ptr<sdm::MappedValueFunction> policy_evaluation_1_;
+        std::shared_ptr<sdm::MappedValueFunction> policy_evaluation_2_;
 
         double error_;
         int horizon_;
@@ -40,9 +39,9 @@ namespace sdm
 
         void do_save() {}
 
-        ValueIteration(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, double error, int horizon);
+        ValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, int horizon);
 
-        std::shared_ptr<typename sdm::MappedValueFunction<TState, TAction>> getResult();
+        std::shared_ptr<typename sdm::MappedValueFunction> getResult();
 
         double getResultOpti();
 

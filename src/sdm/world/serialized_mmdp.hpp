@@ -23,7 +23,7 @@
 #include <sdm/core/space/discrete_space.hpp>
 
 #include <unordered_map>
-
+#include <sdm/core/dynamics/tabular_state_dynamics.hpp>
 
 namespace sdm
 {
@@ -130,7 +130,8 @@ namespace sdm
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states
          */
-        std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, std::set<std::shared_ptr<State>>>> reachable_state_space;
+        // std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, std::set<std::shared_ptr<State>>>> reachable_state_space;
+        std::shared_ptr<StateDynamicsInterface> state_dynamics_;
 
         /**
          * @brief Map the joint_action to a precise pointeur

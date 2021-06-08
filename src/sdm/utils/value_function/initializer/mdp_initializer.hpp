@@ -23,7 +23,6 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <typename TState, typename TAction>
     class MDPInitializer : public Initializer
     {
     public:

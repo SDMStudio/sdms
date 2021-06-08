@@ -14,10 +14,11 @@ namespace sdm
          * 
          * @param state the current state
          * @param action the current action
+         * @param next_state the state at time t +1
          * @param t the timestep
          * @return the list of next reachable observations 
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const = 0;
 
         /**
          * @brief Get the the state / observation transition probability (i.e. p(o | s, a, s')).
