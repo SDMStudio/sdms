@@ -28,7 +28,7 @@ namespace sdm
         return this->num_agents_;
     }
 
-    double MDP::getDiscount(number t) const
+    double MDP::getDiscount(number) const
     {
         return this->discount_;
     }

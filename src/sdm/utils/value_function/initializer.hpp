@@ -220,7 +220,7 @@ namespace sdm
                     ra.push_back(std::numeric_limits<double>::max());
                     for (auto &s : *under_pb->getStateSpace(t))
                     {
-                        ra.back() = std::min(under_pb->getReward(std::static_pointer_cast<State>(s), std::static_pointer_cast<Action>(s), t), ra.back());
+                        ra.back() = std::min(under_pb->getReward(std::static_pointer_cast<State>(s), std::static_pointer_cast<Action>(a), t), ra.back());
                     }
                 }
                 rt.push_back(*std::max_element(ra.begin(), ra.end()));
