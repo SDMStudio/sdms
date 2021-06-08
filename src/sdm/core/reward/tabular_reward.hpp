@@ -1,12 +1,12 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/core/reward/base_reward.hpp>
+#include <sdm/core/reward/reward_interface.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 
 namespace sdm
 {
 
-    class TabularReward : public BaseReward
+    class TabularReward : public RewardInterface
     {
     public:
         using value_type = double;
@@ -44,7 +44,7 @@ namespace sdm
     // /**
     //  * @brief This class provides getter and setter methods for the reward model.
     //  */
-    // class TemporalTabularReward : public BaseReward,
+    // class TemporalTabularReward : public RewardInterface,
     //                               public TemporalFunction<std::shared_ptr<TabularReward>>
     // {
     // public:

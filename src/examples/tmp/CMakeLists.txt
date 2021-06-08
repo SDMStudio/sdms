@@ -23,7 +23,8 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_world
-		${INCLUDE_DIR}/world/base/base_mdp.cpp
+		${INCLUDE_DIR}/world/mdp.cpp
+		${INCLUDE_DIR}/world/mmdp.cpp
 	)
 	add_library(world SHARED ${lib_world})
 	target_link_libraries(world core)
@@ -32,11 +33,11 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_hsvi
-		# ${INCLUDE_DIR}/algorithms/hsvi.cpp
-		# ${INCLUDE_DIR}/world/mdp.cpp
+		${INCLUDE_DIR}/algorithms/hsvi.cpp
+		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/tools.cpp
-		# ${INCLUDE_DIR}/utils/value_function/value_function.cpp
-		# ${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)

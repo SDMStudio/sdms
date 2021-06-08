@@ -27,10 +27,10 @@
 
 namespace sdm
 {
-    class SerializedMMDP : public MDPInterface
+    class SerializedMMDP : public MMDPInterface
     {
     public:
-        SerializedMMDP(const std::shared_ptr<MDPInterface> &mmdp);
+        SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp);
 
         /**
          * @brief Get the identifier of the current agent.

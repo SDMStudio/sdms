@@ -30,6 +30,7 @@ namespace sdm
     {
     public:
         MultiSpace();
+        
         MultiSpace(const std::vector<std::shared_ptr<Space>> &);
 
         bool isDiscrete() const;

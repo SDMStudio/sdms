@@ -21,7 +21,7 @@
 
 namespace sdm
 {
-    class SerializedMPOMDP : virtual public POMDPInterface, public SerializedMMDP
+    class SerializedMPOMDP : virtual public MPOMDPInterface, public SerializedMMDP
     {
     public:
         SerializedMPOMDP(std::shared_ptr<POMDPInterface> mpomdp);
