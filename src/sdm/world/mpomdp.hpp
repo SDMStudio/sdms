@@ -36,6 +36,7 @@ namespace sdm
                const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
                const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
+        virtual ~MPOMDP();
 
         /**
          * @brief Get ths observation space of agent i at timestep t.

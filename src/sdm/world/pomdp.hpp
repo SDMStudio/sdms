@@ -49,9 +49,10 @@ namespace sdm
          * 
          * @param state the current state
          * @param action the current action
+         * @param next_state the next state
          * @return the set of reachable observations
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t = 0) const;
 
         /**
          * @brief Get the observation probability, i.e. p(o | s', a)
@@ -62,7 +63,7 @@ namespace sdm
          * @param t the timestep
          * @return the probability
          */
-        virtual double getObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
+        virtual double getObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) const;
 
         /**
          * @brief Get the dynamics, i.e. p(s', o | s, a)
@@ -74,7 +75,7 @@ namespace sdm
          * @param t the timestep
          * @return the probability
          */
-        virtual double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
+        virtual double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) const;
 
     protected:
         std::shared_ptr<Space> obs_space_;

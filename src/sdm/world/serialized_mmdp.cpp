@@ -199,10 +199,9 @@ namespace sdm
 
                 auto hidden_state = serialized_state->getHiddenState();
                 auto action = serialized_state->getAction();
-                number agent_identifier = serialized_state->getCurrentAgentId();
 
 
-                for(auto action_tmp : *this->getActionSpace(agent_identifier))
+                for(auto action_tmp : *this->getActionSpace(agent_id))
                 {
                     auto serial_action = std::static_pointer_cast<Action>(action_tmp);
 
@@ -210,9 +209,9 @@ namespace sdm
 
                     next_action.push_back(serial_action);
 
-                    if(agent_identifier +1 == this->getNumAgents())
+                    if(agent_id +1 == this->getNumAgents())
                     {                
-                        for(const auto next_hidden_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action),agent_identifier +1 ))
+                        for(const auto next_hidden_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action),agent_id +1 ))
                         {
                             auto next_state = SerializedState(next_hidden_state,Joint<std::shared_ptr<Action>>());
                             dynamics->setReachablesStates(serialized_state,serial_action,this->getPointeurState(next_state));

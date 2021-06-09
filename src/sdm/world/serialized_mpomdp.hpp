@@ -27,7 +27,7 @@ namespace sdm
     class SerializedMPOMDP : public MPOMDPInterface, public SerializedMMDP
     {
     public:
-        SerializedMPOMDP(std::shared_ptr<POMDPInterface> mpomdp);
+        SerializedMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp);
 
         /**
          * @brief Get the reachable next states
@@ -36,7 +36,16 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        virtual std::vector<std::shared_ptr<Observation>> getAllObservations(number t) const ;
+        std::shared_ptr<Space> getObservationSpace(number t) const ;
+
+        /**
+         * @brief Get ths observation space of agent i at timestep t.
+         * 
+         * @param agent_id the identifier of the agent 
+         * @param t the timestep
+         * @return the observation space
+         */
+        std::shared_ptr<Space> getObservationSpace(number agent_id, number t) const ;
 
         /**
          * @brief Get the Reachablel Observations object
@@ -47,7 +56,7 @@ namespace sdm
          * @param t 
          * @return std::set<std::shared_ptr<Observation>> 
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const ;
+        std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const ;
 
         /**
          * @brief Get the Obs Probability object
@@ -59,7 +68,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getObsProbability(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
+        double getObservationProbability(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
 
         /**
          * @brief Get the Dynamics object
@@ -71,7 +80,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
+        double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
 
     protected:
 
@@ -88,20 +97,20 @@ namespace sdm
          * @brief  Create the Observation Space
          * 
          */
-        std::shared_ptr<MultiSpace<DiscreteSpace<std::shared_ptr<Observation>>>> serialized_observation_space_;
+        Joint<std::shared_ptr<DiscreteSpace>> serialized_observation_space_;
 
         /**
          * @brief Initialize Serial Observation Space
          * 
          */
-        void setupObservationSpace(std::shared_ptr<POMDPInterface> mpomdp);
+        void setupObservationSpace(std::shared_ptr<MPOMDPInterface> mpomdp);
 
         /**
          * @brief Initialize "reachable_observation_space"
          * 
          */
 
-        void setReachableObservationSpace(std::shared_ptr<POMDPInterface> mpomdp);
+        void setReachableObservationSpace(std::shared_ptr<MPOMDPInterface> mpomdp);
 
         /**
          * @brief Get the Pointeur object of a precise Joint Action

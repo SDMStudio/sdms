@@ -16,6 +16,8 @@ namespace sdm
     this->initDynamics(num_jactions, num_jobservations, num_states);
   }
 
+  TabularObservationDynamics::~TabularObservationDynamics(){}
+
   void TabularObservationDynamics::initDynamics(number , number , number )
   {
     // number a;

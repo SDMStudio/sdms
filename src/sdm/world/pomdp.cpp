@@ -22,9 +22,9 @@ namespace sdm
         return this->obs_space_;
     }
 
-    std::set<std::shared_ptr<Observation>> POMDP::getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
+    std::set<std::shared_ptr<Observation>> POMDP::getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const
     {
-        return this->obs_dynamics_->getReachableObservations(state, action, t);
+        return this->obs_dynamics_->getReachableObservations(state, action,next_state, t);
     }
 
     double POMDP::getObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const

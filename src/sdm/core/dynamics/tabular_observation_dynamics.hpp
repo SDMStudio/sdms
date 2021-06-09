@@ -28,6 +28,8 @@ namespace sdm
         //! \brief    Instantiate a transition model
         TabularObservationDynamics(number, number, number);
 
+        virtual ~TabularObservationDynamics();
+
         /**
          * @brief Inits the dynamics model
          * 

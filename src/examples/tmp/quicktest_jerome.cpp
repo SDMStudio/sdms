@@ -10,17 +10,23 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/base_state.hpp>
 #include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/base_observation.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/reward/tabular_reward.hpp>
 #include <sdm/core/dynamics/tabular_state_dynamics.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
 
 #include <sdm/world/mdp.hpp>
 #include <sdm/world/mmdp.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/serialized_mmdp.hpp>
+#include <sdm/world/mpomdp.hpp>
+#include <sdm/world/pomdp.hpp>
+// #include <sdm/world/belief_mdp.hpp>
+
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
@@ -28,19 +34,26 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
+    // Creation of State 
     auto state_0 = std::make_shared<DiscreteState>(0);
     auto state_1 = std::make_shared<DiscreteState>(1);
     auto state_2 = std::make_shared<DiscreteState>(2);
     auto state_3 = std::make_shared<DiscreteState>(3);
 
+    // Creation of Action
     auto action_0 = std::make_shared<DiscreteAction>(0);
     auto action_1 = std::make_shared<DiscreteAction>(1);
     auto action_2 = std::make_shared<DiscreteAction>(2);
     auto action_3 = std::make_shared<DiscreteAction>(3);
+
+    auto observation_0 = std::make_shared<DiscreteObservation>(0);
+    auto observation_1 = std::make_shared<DiscreteObservation>(1);
     
+    // Creation of a Serial State
     auto joint_serial_action = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2}));
     auto serial_state = std::make_shared<SerializedState>(state_0,joint_serial_action);
 
+    // Some Function of Serial State
     std::cout<<serial_state->str()<<std::endl;
     std::cout<<"n_agent "<<serial_state->getCurrentAgentId()<<std::endl;
 
@@ -49,34 +62,17 @@ int main(int argc, char **argv)
         std::cout<<"action"<<*action<<std::endl;
     }
 
-    auto state_space_serial = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{serial_state});
-
-    // // auto test = MultiDiscreteSpace<number>();
-    // std::cout << *joint_action << std::endl;
-    // std::cout << jaction << std::endl;
-    // std::shared_ptr<Space> space1 = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{action_0, action_1, action_2, action_1});
-    // std::shared_ptr<Space> space2 = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{action_0, action_1, action_1, action_1});
-
-    // std::shared_ptr<Space> mdspace = std::make_shared<MultiDiscreteSpace>(std::vector<decltype(space2)>{space1, space2});
-
-    // std::cout << *mdspace << std::endl;
-
-    // for (const auto &values:  *mdspace)
-    // {
-    //     std::cout << values << std::endl;
-    // }
-
-
-    // for (const Space::iterator_type &values = mdspace->begin(); values != mdspace->end(); values->operator++())
-    // {
-    //     std::cout << *values << std::endl;
-    // }
-
+    //Creation of space for the MMDP
     auto state_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
-    std::cout << *state_space << std::endl;
 
     std::shared_ptr<Space> single_action_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{action_0, action_1, action_2, action_3});
     std::shared_ptr<Space> action_space = std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
+    // std::shared_ptr<Space> action_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{action_0, action_1, action_2, action_3});
+
+
+    std::shared_ptr<Space> single_observation_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{observation_0, observation_1});
+    auto observation_space = std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_observation_space, single_observation_space});
+    // auto observation_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{observation_0, observation_1});
 
     auto start_distrib = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
     for (const auto &state : *state_space)
@@ -97,14 +93,6 @@ int main(int argc, char **argv)
         }
     }
 
-    // for (const auto &state : *state_space) // = state_space->begin(); state != state_space->end(); state = state_space->next())
-    // {
-    //     for (const auto &action : *action_space) //= action_space->begin(); action != action_space->end(); action = action_space->next())
-    //     {
-    //         std::cout << "Reward(" << *state << ", " << *action << ") = " << rew->getReward(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action)) << std::endl;
-    //     }
-    // }
-
     std::cout << *rew << std::endl;
 
     auto dynamics = std::make_shared<TabularStateDynamics>();
@@ -122,77 +110,77 @@ int main(int argc, char **argv)
         }
     }
 
-    // for (const auto &state : *state_space)
-    // {
-    //     for (const auto &action : *action_space)
-    //     {
-    //         for (const auto &next_state : *state_space)
-    //         {
-    //             std::cout << "T(" << *state << ", " << *action << ", " << *next_state << ") = " << dynamics->getTransitionProbability(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state)) << std::endl;
-    //         }
-    //     }
-    // }
+    auto obs_dynamics = std::make_shared<TabularObservationDynamics>();
 
-    number horizon = 3;
+    proba = 1. / observation_space->getNumItems();
 
-    auto mdp = std::make_shared<MMDP>(horizon, 0.9, state_space, action_space, rew, dynamics, start_distrib);
-
-    auto serial_mmdp = std::make_shared<SerializedMMDP>(mdp);
-
-    std::cout << "#> NumAgents = " << serial_mmdp->getNumAgents() << std::endl;
-    std::cout << "#> Discount = " << serial_mmdp->getDiscount() << std::endl;
-    std::cout << "#> isLastAgent(0)"<<serial_mmdp->isLastAgent(0) << std::endl;
-    std::cout << "#> getAgentId( t = 3)"<<serial_mmdp->getAgentId(3) << std::endl;
-
-
-    for(const auto &state : *serial_mmdp->getStateSpace(1))
+    for (const auto &state : *state_space)
     {
-        std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
-        number agent_identifier = serialized_state->getCurrentAgentId();
-
-        for(auto action_tmp : *serial_mmdp->getActionSpace(agent_identifier))
+        for (const auto &action : *action_space) 
         {
-            auto serial_action = std::static_pointer_cast<Action>(action_tmp);
-
-            std::cout<<serialized_state->str()<<" , "<<serial_action->str()<<" , Reward = " << serial_mmdp->getReward(serialized_state, serial_action,agent_identifier) << std::endl;
-
-            for(const auto &next_state : serial_mmdp->getReachableStates(serialized_state,serial_action))
+            for (const auto &next_state : *state_space) 
             {
-                auto next_serial_state = std::static_pointer_cast<SerializedState>(next_state);
-                std::cout<<"Reachable State *** "<<next_serial_state->str()<<std::endl;
-                std::cout<<"Transition Probability : "<<serial_mmdp->getTransitionProbability(serialized_state,serial_action,next_serial_state,agent_identifier)<<std::endl;
+                for(const auto &obs : *observation_space)
+                {
+                    obs_dynamics->setObservationProbability(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state), std::static_pointer_cast<Observation>(obs),proba);
+                    obs_dynamics->setDynamics(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state), std::static_pointer_cast<Observation>(obs),proba*dynamics->getTransitionProbability(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state)));
+                }
             }
         }
     }
 
+    number horizon = 3;
 
-    // std::cout << "#> Reward(2, 2) = " << serial_mmdp->getReward(state_2, action_2) << std::endl;
-    // std::cout << "#> StateSpace = " << *serial_mmdp->getStateSpace() << std::endl;
-    // std::cout << "#> ActionSpace = " << *serial_mmdp->getActionSpace() << std::endl;
+    //Creation of the MMDP
+    auto pomdp = std::make_shared<MPOMDP>(horizon, 0.9, state_space, action_space,observation_space, rew, dynamics,obs_dynamics ,start_distrib);
 
-    // std::cout << "#> Reachable from 0, 2 :" << std::endl;
-    // for (const auto &reach : serial_mmdp->getReachableStates(state_0, action_2, 0))
-    // {
-    //     std::cout << "Reachable --> " << *reach << std::endl;
-    // }
+    // Creation of the Serial MMDP with the MMDP
+    // auto serial_mmdp = std::make_shared<SerializedMMDP>(mdp);
 
-    // std::cout << "#> Reachable from 0, 0 :" << std::endl;
-    // for (const auto &reach : serial_mmdp->getReachableStates(state_0, action_0, 0))
-    // {
-    //     std::cout << "Reachable --> " << *reach << std::endl;
-    // }
+    // Some function of the Serial MMDP 
+    std::cout << "#> NumAgents = " << pomdp->getNumAgents() << std::endl;
+    std::cout << "#> Discount = " << pomdp->getDiscount() << std::endl;
+    // std::cout << "#> isLastAgent(0)"<<pomdp->isLastAgent(0) << std::endl;
+    // std::cout << "#> getAgentId( t = 3)"<<pomdp->getAgentId(3) << std::endl;
+    std::cout << "#> Initial Distribution "<<pomdp->getStartDistribution() << std::endl;
 
-    std::shared_ptr<SolvableByHSVI> hsvi_serial_mmdp = std::make_shared<SolvableByMDP>(serial_mmdp);
 
-    horizon = horizon * serial_mmdp->getNumAgents();
-    auto lb = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, -1000);
-    auto ub = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, 1000);
+    for(const auto &state_tmp : *pomdp->getStateSpace(0))
+    {
+        std::shared_ptr<State> state = std::static_pointer_cast<State>(state_tmp);
 
-    auto algo = std::make_shared<HSVI>(hsvi_serial_mmdp, lb, ub, horizon, 0.01);
-    algo->do_initialize();
-    std::cout << *algo->getLowerBound() << std::endl;
-    std::cout << *algo->getUpperBound() << std::endl;
-    algo->do_solve();
+        for(auto action_tmp : *pomdp->getActionSpace(0))
+        {
+            std::shared_ptr<Action> action = std::static_pointer_cast<Action>(action_tmp);
+
+            for(const auto &next_state_tmp : pomdp->getReachableStates(state,action))
+            {
+                std::shared_ptr<State> next_state = std::static_pointer_cast<State>(next_state_tmp);
+
+                for(const auto &obst_tmp : pomdp->getReachableObservations(state,action,next_state))
+                {
+                    std::shared_ptr<Observation> obs = std::static_pointer_cast<Observation>(obst_tmp);
+
+                    std::cout<< state->str()<<" , "<<action->str()<<" , "<<next_state->str()<<" , "<<obs->str()<<" , Reward = " << pomdp->getReward(state, action) << std::endl;
+                    std::cout<<"Observation Probability : "<<pomdp->getObservationProbability(state,action,next_state,obs)<<std::endl;
+                    std::cout<<"Dynamics : "<<pomdp->getDynamics(state,action,next_state,obs)<<std::endl;
+                }
+            }
+        }
+    }
+
+    // Creation of HSVI problem and Resolution 
+    // std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::make_shared<BeliefMDP>(pomdp);
+
+    // horizon = horizon * pomdp->getNumAgents();
+    // auto lb = std::make_shared<MappedValueFunction>(hsvi_pomdp, horizon, -1000);
+    // auto ub = std::make_shared<MappedValueFunction>(hsvi_pomdp, horizon, 1000);
+
+    // auto algo = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, horizon, 0.01);
+    // algo->do_initialize();
+    // std::cout << *algo->getLowerBound() << std::endl;
+    // std::cout << *algo->getUpperBound() << std::endl;
+    // algo->do_solve();
     // std::cout << *algo->getLowerBound() << std::endl;
     // std::cout << *algo->getUpperBound() << std::endl;
 

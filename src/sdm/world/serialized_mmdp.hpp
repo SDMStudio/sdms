@@ -156,7 +156,7 @@ namespace sdm
          * @brief Map the joint_action to a precise pointeur
          * 
          */
-        std::map<Joint<std::shared_ptr<Action>>, std::shared_ptr<Action>> map_joint_action_to_pointeur;
+        std::unordered_map<Joint<std::shared_ptr<Action>>, std::shared_ptr<Action>> map_joint_action_to_pointeur;
 
         std::unordered_map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
 
