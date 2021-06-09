@@ -1,7 +1,7 @@
 /**
- * @file matrix_impl.hpp
+ * @file matrix_interface.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief File for MatrixImpl interface.
+ * @brief File for MatrixInterface interface.
  * @version 0.1
  * @date 12/01/2021
  * 
@@ -19,13 +19,13 @@ namespace sdm
    * @tparam T Type of the values.
    */
     template <typename TCol, typename TLig, typename TValue>
-    class MatrixImpl
+    class MatrixInterface
     {
     public:
         // T operator[](const I &) const;
 
-        // virtual T operator^(const MatrixImpl &) const = 0;
-        // virtual MatrixImpl dot(const MatrixImpl &) const = 0;
+        // virtual T operator^(const MatrixInterface &) const = 0;
+        // virtual MatrixInterface dot(const MatrixInterface &) const = 0;
     };
 
 } // namespace sdm

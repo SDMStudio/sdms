@@ -62,6 +62,12 @@ namespace sdm
         return DiscreteSpace::getItem(idx);
     }
 
+
+    std::shared_ptr<Item> MultiDiscreteSpace::getItem(number idx) const
+    {
+        return DiscreteSpace::getItem(idx);
+    }
+
     std::shared_ptr<Item> MultiDiscreteSpace::getItem(number ag_id, number el_id) const
     {
         return this->cast(this->getSpace(ag_id))->getItem(el_id);

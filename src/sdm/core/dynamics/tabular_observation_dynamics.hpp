@@ -21,21 +21,7 @@ namespace sdm
         TabularObservationDynamics();
 
         TabularObservationDynamics(const TabularObservationDynamics &copy);
-
-        //! \param    num_jactions Number of joint actions
-        //! \param    num_jobservations Number of joint observations
-        //! \param    num_states Number of states
-        //! \brief    Instantiate a transition model
-        TabularObservationDynamics(number, number, number);
-
-        /**
-         * @brief Inits the dynamics model
-         * 
-         * @param num_actions Number of actions
-         * @param num_observations Number of observations 
-         * @param num_states Number of states
-         */
-        void initDynamics(number num_actions, number num_observations, number num_states);
+        virtual ~TabularObservationDynamics();
 
         /**
          * @brief Get the observation probability
@@ -64,7 +50,7 @@ namespace sdm
          * @param next_state a specific state
          * @param proba a probability
          */
-        void setObservationProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba);
+        void setObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba);
 
         /**
          * @brief Set the observation probability
@@ -125,10 +111,11 @@ namespace sdm
         //! \brief transition and observation matrices
         std::unordered_map<std::shared_ptr<Action>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>>> observation_model_;
 
+        //! \brief map from next-state, current action pairs to set of next observations
+        std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<State>, std::set<std::shared_ptr<Observation>>>> successor_observations_;
+
         //! \brief dynamics model of the probabilities of state-observation pairs given state-action pairs.
         std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>>>> dynamics_;
 
-        //! \brief map from next-state, current action pairs to set of next observations
-        std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<State>, std::set<std::shared_ptr<Observation>>>> successor_observations_;
     };
 } // namespace sdm

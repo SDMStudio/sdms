@@ -63,12 +63,40 @@ namespace sdm
         return this->all_items_.right.at(item);
     }
 
+    // template <typename T>
+    // std::shared_ptr<Item> DiscreteSpace::getItemAddress(const T &item_value) 
+    // {
+    //     for (const auto &item : *this)
+    //     {
+    //         if (item_value == *std::static_pointer_cast<T>(item))
+    //         {
+    //             return item;
+    //         }
+    //     }
+    //     return nullptr;
+    // }
+
     std::vector<number> DiscreteSpace::getDim() const
     {
         return {1};
     }
 
     std::string DiscreteSpace::str() const
+    {
+        std::ostringstream res;
+        res << "DiscreteSpace(" << this->getNumItems() << ")";
+        res << "[";
+        for (std::size_t i = 0; i < this->list_items_.size(); ++i)
+        {
+            res << *this->list_items_[i];
+            if (i != this->list_items_.size() - 1)
+                res << ", ";
+        }
+        res << "]";
+        return res.str();
+    }
+
+    std::string DiscreteSpace::short_str() const
     {
         std::ostringstream res;
         res << "DiscreteSpace(" << this->getNumItems() << ")";

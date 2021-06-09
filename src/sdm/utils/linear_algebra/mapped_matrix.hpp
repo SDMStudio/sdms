@@ -13,7 +13,7 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/utils/linear_algebra/matrix_impl.hpp>
+#include <sdm/utils/linear_algebra/matrix_interface.hpp>
 
 namespace sdm
 {
@@ -23,7 +23,7 @@ namespace sdm
      * @tparam TIndex the type of indexes 
      */
     template <typename TLig, typename TCol, typename TValue = double>
-    class MappedMatrix : public RecursiveMap<TLig, MappedVector<TCol, TValue>>, public MatrixImpl<TLig, TCol, TValue>
+    class MappedMatrix : public RecursiveMap<TLig, MappedVector<TCol, TValue>>, public MatrixInterface<TLig, TCol, TValue>
     {
     protected:
         std::vector<long> dim_ = {};

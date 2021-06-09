@@ -100,6 +100,22 @@ namespace sdm
         std::shared_ptr<Item> getItem(number index) const;
 
         /**
+         * @brief Get the item at a specific index
+         */
+        template <typename T>
+        std::shared_ptr<Item> getItemAddress(const T &item_value)
+        {
+            for (const auto &item : *this)
+            {
+                if (item_value == *std::static_pointer_cast<T>(item))
+                {
+                    return item;
+                }
+            }
+            return nullptr;
+        }
+
+        /**
          * @brief Verify is the discrete space contains the std::shared_ptr<Item>;
          * 
          * @return true 
@@ -108,6 +124,7 @@ namespace sdm
         bool contains(const std::shared_ptr<Item> &) const;
 
         std::string str() const;
+        std::string short_str() const;
 
         bool operator==(const DiscreteSpace &sp) const;
         bool operator!=(const DiscreteSpace &sp) const;

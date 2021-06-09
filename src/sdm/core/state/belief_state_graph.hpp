@@ -118,7 +118,7 @@ namespace sdm
          */
         std::shared_ptr<std::vector<std::vector<DenseMatrix<typename TBeliefState::state_type, typename TBeliefState::state_type>>>> dynamics_;
 
-        // std::shared_ptr<BinaryFunction<TAction, TObservation, std::shared_ptr<MatrixImpl<TBeliefState::state_type, TBeliefState::state_type>>>> dynamics_;
+        // std::shared_ptr<BinaryFunction<TAction, TObservation, std::shared_ptr<MatrixInterface<TBeliefState::state_type, TBeliefState::state_type>>>> dynamics_;
 
         /**
          * @brief A pointer on the bag containing all nodes.

@@ -10,21 +10,8 @@ namespace sdm
     {
     }
 
-    // TabularStateDynamics::TabularStateDynamics(number num_actions, number num_states)
-    // {
-    //     this->initDynamics(num_actions, num_states);
-    // }
-
     TabularStateDynamics::~TabularStateDynamics()
     {
-    }
-
-    void TabularStateDynamics::initDynamics(number, number)
-    {
-        // for (number a = 0; a < num_actions; ++a)
-        // {
-        //     this->t_model.push_back(matrix_type(num_states, num_states));
-        // }
     }
 
     void TabularStateDynamics::setTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, double prob, number, bool cumul)
