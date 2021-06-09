@@ -56,7 +56,10 @@ namespace sdm
         std::cout << "#############    Start HSVI \"" << this->name_ << "\"    ####################\n";
         std::cout << "###############################################################\n\n";
 
+        std::cout<<"Test 1 "<<std::endl;
         std::shared_ptr<State> start_state = this->world_->getInitialState();
+
+        std::cout<<"Test 2 "<<start_state->str()<<std::endl;
 
         this->trial = 0;
         clock_t t_begin = clock();
@@ -66,7 +69,7 @@ namespace sdm
             //---------------------------------//
             this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             //---------------------------------//
-
+            
             this->do_explore(start_state, 0, 0);
             this->trial++;
         } while (!this->do_stop(start_state, 0, 0));
@@ -93,18 +96,28 @@ namespace sdm
                     this->lower_bound_->updateValueAt(s, h);
                     this->upper_bound_->updateValueAt(s, h);
                 }
+                std::cout<<"Test 3 "<<std::endl;
 
                 // Select next action and state following search process
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
 
+                std::cout<<"Test 44 "<<std::endl;
+
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
+
+                std::cout<<"Test 4 "<<std::endl;
+
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
                 // Update bounds
+                std::cout<<"Test 5 "<<std::endl;
+
                 this->lower_bound_->updateValueAt(s, h);
                 this->upper_bound_->updateValueAt(s, h);
+                std::cout<<"Test 6 "<<std::endl;
+
             }
 
             //---------------DEBUG-----------------//

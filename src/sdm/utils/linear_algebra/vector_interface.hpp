@@ -1,8 +1,8 @@
 
 /**
- * @file vector_impl.hpp
+ * @file vector_interface.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief File for VectorImpl interface.
+ * @brief File for VectorInterface interface.
  * @version 0.1
  * @date 12/01/2021
  * 
@@ -27,7 +27,7 @@ namespace sdm
    * @tparam T Type of the values.
    */
   template <typename I, typename T>
-  class VectorImpl
+  class VectorInterface
   {
   public:
     virtual T at(const I &index) const = 0;
@@ -46,20 +46,20 @@ namespace sdm
 
     // virtual std::string str() const = 0;
 
-    // bool operator<=(const VectorImpl &) const;
-    // bool operator==(const VectorImpl &) const;
-    // bool operator!=(const VectorImpl &) const;
-    // bool is_equal(const VectorImpl &other, double precision) const;
+    // bool operator<=(const VectorInterface &) const;
+    // bool operator==(const VectorInterface &) const;
+    // bool operator!=(const VectorInterface &) const;
+    // bool is_equal(const VectorInterface &other, double precision) const;
 
-    // T dot(const VectorImpl &other) const;
-    // T operator^(const VectorImpl &other) const;
+    // T dot(const VectorInterface &other) const;
+    // T operator^(const VectorInterface &other) const;
 
     // virtual size_t size() const = 0;
 
     // T operator[](const I &) const;
 
-    // virtual T operator^(const VectorImpl &) const = 0;
-    // virtual T dot(const VectorImpl &) const = 0;
+    // virtual T operator^(const VectorInterface &) const = 0;
+    // virtual T dot(const VectorInterface &) const = 0;
   };
 
 } // namespace sdm

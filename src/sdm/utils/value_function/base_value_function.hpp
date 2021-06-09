@@ -17,7 +17,7 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/public/boost_serializable.hpp>
-#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -68,7 +68,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        virtual std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action

@@ -20,7 +20,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include <sdm/types.hpp>
-#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
@@ -36,7 +36,7 @@ namespace sdm
      * @tparam T Type of value
      */
     template <typename TIndex, typename T = double>
-    class MappedVector : public RecursiveMap<TIndex, T>, public VectorImpl<TIndex, T>
+    class MappedVector : public RecursiveMap<TIndex, T>, public VectorInterface<TIndex, T>
     {
     public:
         using iterator = typename std::unordered_map<TIndex, T>::iterator;

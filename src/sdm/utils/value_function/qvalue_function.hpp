@@ -13,7 +13,7 @@
 #include <memory>
 
 #include <sdm/core/function.hpp>
-#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
 
 /**
@@ -71,7 +71,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        virtual std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action

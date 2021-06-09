@@ -38,7 +38,8 @@ int main(int argc, char **argv)
     auto action_2 = std::make_shared<DiscreteAction>(2);
     auto action_3 = std::make_shared<DiscreteAction>(3);
     
-    auto serial_state = std::make_shared<SerializedState>(state_0,Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2})));
+    auto joint_serial_action = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2}));
+    auto serial_state = std::make_shared<SerializedState>(state_0,joint_serial_action);
 
     std::cout<<serial_state->str()<<std::endl;
     std::cout<<"n_agent "<<serial_state->getCurrentAgentId()<<std::endl;
@@ -138,8 +139,33 @@ int main(int argc, char **argv)
 
     auto serial_mmdp = std::make_shared<SerializedMMDP>(mdp);
 
-    // std::cout << "#> NumAgents = " << serial_mmdp->getNumAgents() << std::endl;
-    // std::cout << "#> Discount = " << serial_mmdp->getDiscount() << std::endl;
+    std::cout << "#> NumAgents = " << serial_mmdp->getNumAgents() << std::endl;
+    std::cout << "#> Discount = " << serial_mmdp->getDiscount() << std::endl;
+    std::cout << "#> isLastAgent(0)"<<serial_mmdp->isLastAgent(0) << std::endl;
+    std::cout << "#> getAgentId( t = 3)"<<serial_mmdp->getAgentId(3) << std::endl;
+
+
+    for(const auto &state : *serial_mmdp->getStateSpace(1))
+    {
+        std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
+        number agent_identifier = serialized_state->getCurrentAgentId();
+
+        for(auto action_tmp : *serial_mmdp->getActionSpace(agent_identifier))
+        {
+            auto serial_action = std::static_pointer_cast<Action>(action_tmp);
+
+            std::cout<<serialized_state->str()<<" , "<<serial_action->str()<<" , Reward = " << serial_mmdp->getReward(serialized_state, serial_action,agent_identifier) << std::endl;
+
+            for(const auto &next_state : serial_mmdp->getReachableStates(serialized_state,serial_action))
+            {
+                auto next_serial_state = std::static_pointer_cast<SerializedState>(next_state);
+                std::cout<<"Reachable State *** "<<next_serial_state->str()<<std::endl;
+                std::cout<<"Transition Probability : "<<serial_mmdp->getTransitionProbability(serialized_state,serial_action,next_serial_state,agent_identifier)<<std::endl;
+            }
+        }
+    }
+
+
     // std::cout << "#> Reward(2, 2) = " << serial_mmdp->getReward(state_2, action_2) << std::endl;
     // std::cout << "#> StateSpace = " << *serial_mmdp->getStateSpace() << std::endl;
     // std::cout << "#> ActionSpace = " << *serial_mmdp->getActionSpace() << std::endl;
@@ -156,16 +182,17 @@ int main(int argc, char **argv)
     //     std::cout << "Reachable --> " << *reach << std::endl;
     // }
 
-    // std::shared_ptr<SolvableByHSVI> hsvi_serial_mmdp = std::make_shared<SolvableByMDP>(serial_mmdp);
+    std::shared_ptr<SolvableByHSVI> hsvi_serial_mmdp = std::make_shared<SolvableByMDP>(serial_mmdp);
 
-    // auto lb = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, -1000);
-    // auto ub = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, 1000);
+    horizon = horizon * serial_mmdp->getNumAgents();
+    auto lb = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, -1000);
+    auto ub = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, 1000);
 
-    // auto algo = std::make_shared<HSVI>(hsvi_serial_mmdp, lb, ub, horizon, 0.01);
-    // algo->do_initialize();
-    // std::cout << *algo->getLowerBound() << std::endl;
-    // std::cout << *algo->getUpperBound() << std::endl;
-    // algo->do_solve();
+    auto algo = std::make_shared<HSVI>(hsvi_serial_mmdp, lb, ub, horizon, 0.01);
+    algo->do_initialize();
+    std::cout << *algo->getLowerBound() << std::endl;
+    std::cout << *algo->getUpperBound() << std::endl;
+    algo->do_solve();
     // std::cout << *algo->getLowerBound() << std::endl;
     // std::cout << *algo->getUpperBound() << std::endl;
 

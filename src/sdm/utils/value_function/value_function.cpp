@@ -1,4 +1,4 @@
-#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
@@ -18,7 +18,7 @@ namespace sdm
         return this->getValueAt(state, t);
     }
 
-    std::shared_ptr<VectorImpl<std::shared_ptr<Action>, double>> ValueFunction::getQValueAt(const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> ValueFunction::getQValueAt(const std::shared_ptr<State> &state, number t)
     {
         // Compute Q(s,*)
         std::shared_ptr<MappedVector<std::shared_ptr<Action>, double>> q_s = std::make_shared<MappedVector<std::shared_ptr<Action>, double>>();

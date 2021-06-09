@@ -1,5 +1,5 @@
 /**
- * @file discrete_state.hpp
+ * @file base_state.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
  * @brief 
  * @version 1.0
@@ -35,9 +35,8 @@ namespace sdm
   };
 
   using DiscreteState = BaseState<number>;
+  using DiscreteStateString = BaseState<std::string>;
   using ContinuousState = BaseState<double>;
-  using JointDiscreteState = BaseState<Joint<DiscreteState>>;
-  using JointContinuousState = BaseState<Joint<ContinuousState>>;
 
 } // namespace sdm
 
