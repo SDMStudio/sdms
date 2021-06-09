@@ -42,7 +42,7 @@ namespace sdm
         return *this->initial_state_;
     }
 
-    std::shared_ptr<DiscreteSpace<std::shared_ptr<Action>>> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate)
+    std::shared_ptr<DiscreteSpace> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate)
     {
         // using decision_rule_t = typename sdt::shared_ptr<Action>::value_type;
 

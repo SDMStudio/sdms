@@ -17,7 +17,7 @@
 
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
-#include <sdm/world/base/mdp_interface.hpp>
+#include <sdm/world/base/mmdp_interface.hpp>
 
 #include <sdm/core/space/multi_space.hpp>
 #include <sdm/core/space/discrete_space.hpp>
@@ -27,10 +27,12 @@
 
 namespace sdm
 {
-    class SerializedMMDP : virtual public MDPInterface
+    class SerializedMMDP : virtual public MMDPInterface
     {
     public:
-        SerializedMMDP(const std::shared_ptr<MDPInterface> &mmdp);
+        SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp);
+
+        virtual ~SerializedMMDP();
 
         /**
          * @brief Get the number of agents
@@ -62,21 +64,28 @@ namespace sdm
          * @param t the timestep
          * @return the discount factor
          */
-        virtual double getDiscount(number t) const;
+        double getDiscount(number t = 0) const;
+
+        /**
+         * @brief Get the number of agents
+         * 
+         * @return the number of agents
+         */
+        number getHorizon() const;
 
         /**
          * @brief Get the initial distribution over states.
          * 
          * @return the initial distribution over states
          */
-        virtual std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
+        std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
 
         /**
          * @brief Get all states
          * 
          * @return the set of states 
          */
-        virtual std::vector<std::shared_ptr<State>> getAllStates(number t) const;
+        std::shared_ptr<Space> getStateSpace(number t =0) const;
 
         /**
          * @brief Get the reachable next states
@@ -85,14 +94,24 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        virtual std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
-         * @brief Get all actions
+         * @brief Get all actions at a specific time step
          * 
          * @return the set of actions 
          */
-        virtual std::vector<std::shared_ptr<Action>> getAllActions(number t) const;
+        std::shared_ptr<Space> getActionSpace(number t = 0) const;
+
+        /**
+         * @brief Get the Action Space at a specific time step and a precise agent
+         * 
+         * @param agent_id 
+         * @param t 
+         * @return std::shared_ptr<Space> 
+         */
+        std::shared_ptr<Space> getActionSpace(number agent_id, number t ) const;
+
 
         /**
          * @brief Get the reward
@@ -102,11 +121,11 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
-        virtual double getMinReward(number t) const;
+        double getMinReward(number t = 0) const;
         
-        virtual double getMaxReward(number t) const;
+        double getMaxReward(number t = 0) const;
         /**
          * @brief Get the Transition Probability object
          * 
@@ -116,16 +135,16 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
+        double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
     protected:
-        std::shared_ptr<MDPInterface> mmdp_;
+        std::shared_ptr<MMDPInterface> mmdp_;
         
         /**
          * @brief Refer to the Serialized State Space
          * 
          */
-        std::shared_ptr<MultiSpace<DiscreteSpace<std::shared_ptr<State>>>> serialized_state_space_;
+        Joint<std::shared_ptr<DiscreteSpace>> serialized_state_space_;
 
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states
@@ -139,7 +158,7 @@ namespace sdm
          */
         std::map<Joint<std::shared_ptr<Action>>, std::shared_ptr<Action>> map_joint_action_to_pointeur;
 
-        std::map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
+        std::unordered_map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
 
         /**
          * @brief Initialize Serial State Space

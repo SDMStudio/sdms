@@ -1,4 +1,8 @@
 
+######################################
+### PARTIE A DAVID : NE PAS CHANGER ##
+######################################
+
 # Build documentation
 if(DAVID)
     message(STATUS "Build David quicktest.")
@@ -9,6 +13,7 @@ if(DAVID)
 		GLOB_RECURSE
 		lib_core
 		${INCLUDE_DIR}/core/*
+		${INCLUDE_DIR}/utils/struct/iterator/*
 		${INCLUDE_DIR}/common.cpp
 		${INCLUDE_DIR}/tools.cpp
 	)
@@ -18,7 +23,8 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_world
-		${INCLUDE_DIR}/world/base/base_mdp.cpp
+		${INCLUDE_DIR}/world/mdp.cpp
+		${INCLUDE_DIR}/world/mmdp.cpp
 	)
 	add_library(world SHARED ${lib_world})
 	target_link_libraries(world core)
@@ -28,7 +34,8 @@ if(DAVID)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/world/mdp.cpp
+		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
+		${INCLUDE_DIR}/tools.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 	)
@@ -46,6 +53,11 @@ if(DAVID)
 	)
 endif()
 
+
+#######################################
+### PARTIE A JEROME : NE PAS CHANGER ##
+#######################################
+
 # Build documentation
 if(JEROME)
     message(STATUS "Build Jerome quicktest.")
@@ -56,6 +68,7 @@ if(JEROME)
 		GLOB_RECURSE
 		lib_core
 		${INCLUDE_DIR}/core/*
+		${INCLUDE_DIR}/utils/struct/iterator/*
 		${INCLUDE_DIR}/common.cpp
 		${INCLUDE_DIR}/tools.cpp
 	)
@@ -65,7 +78,9 @@ if(JEROME)
 	file(
 		GLOB_RECURSE
 		lib_world
-		${INCLUDE_DIR}/world/base/base_mdp.cpp
+		${INCLUDE_DIR}/world/mdp.cpp
+		${INCLUDE_DIR}/world/mmdp.cpp
+		${INCLUDE_DIR}/world/serialized_mmdp.cpp
 	)
 	add_library(world SHARED ${lib_world})
 	target_link_libraries(world core)
@@ -75,7 +90,8 @@ if(JEROME)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/world/mdp.cpp
+		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
+		${INCLUDE_DIR}/tools.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 	)

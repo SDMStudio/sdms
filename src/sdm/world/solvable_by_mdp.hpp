@@ -1,36 +1,32 @@
-
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/exception.hpp>
-#include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/algorithms/hsvi.hpp>
 
-/**
- * @namespace  sdm
- * @brief Namespace grouping all tools required for sequential decision making.
- */
 namespace sdm
 {
-
-    class HSVI;
-    class ValueFunction;
-
     /**
-     * @brief Public interface that must be implemented by all transformed problems that can be solved using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
-     * 
-     * @tparam TState The state type
-     * @tparam TAction The action type
+     * @brief The class for Discrete Markov Decision Processes.
+     *
      */
-    class SolvableByHSVI
+    class SolvableByMDP : public SolvableByHSVI
     {
     public:
-        virtual ~SolvableByHSVI() {}
+        SolvableByMDP();
+
+        SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp);
+
+        ~SolvableByMDP();
 
         /**
          * @brief Get the initial state
          */
-        virtual std::shared_ptr<State> getInitialState() = 0;
+        std::shared_ptr<State> getInitialState();
 
         /**
          * @brief Get the next occupancy state.
@@ -41,7 +37,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next occupancy state
          */
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI>& hsvi = nullptr) const = 0;
+        std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
 
         /**
          * @brief Get the actions availables at a specific state
@@ -49,12 +45,12 @@ namespace sdm
          * @param state the state
          * @return the action space 
          */
-        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Get the reward at a given occupancy state and occupancy action 
          */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the expected next value
@@ -65,14 +61,14 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
          * 
          * @return the underlying problem 
          */
-        virtual const std::shared_ptr<MDPInterface> &getUnderlyingProblem() const = 0;
+        const std::shared_ptr<MDPInterface> &getUnderlyingProblem() const;
 
         /**
          * @brief Check if the problem is serialized.
@@ -80,8 +76,7 @@ namespace sdm
          * @return true if the problem is serialized.
          * @return false if the problem is not serialized.
          */
-        virtual bool isSerialized() const = 0;
-
+        bool isSerialized() const;
 
         /**
          * @brief Get the specific discount factor for the problem at hand
@@ -89,7 +84,7 @@ namespace sdm
          * @param number decision epoch or any other parameter 
          * @return double discount factor
          */
-        virtual double getDiscount(number t) = 0;
+        double getDiscount(number t = 0);
 
         /**
          * @brief Get the specific weighted discount factor for the problem at hand
@@ -97,7 +92,7 @@ namespace sdm
          * @param number decision epoch or any other parameter 
          * @return double discount factor
          */
-        virtual double getWeightedDiscount(number t) = 0;
+        double getWeightedDiscount(number t);
 
         /**
          * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
@@ -110,7 +105,7 @@ namespace sdm
          * @param number : horizon 
          * @return double 
          */
-        virtual double do_excess(double incumbent, double lb_value, double ub_value, double cost_so_far, double error, number t) = 0;
+        double do_excess(double incumbent, double lb_value, double ub_value, double cost_so_far, double error, number horizon);
 
         /**
          * @brief Select the next action
@@ -121,7 +116,11 @@ namespace sdm
          * @param number h : horizon
          * @return TAction 
          */
-        virtual std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &state, number t) = 0;
+        std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h);
 
+    protected:
+        std::shared_ptr<MDPInterface> underlying_problem;
+
+        const std::shared_ptr<MDPInterface> &getUnderlyingMDP() const;
     };
 } // namespace sdm

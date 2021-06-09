@@ -22,9 +22,10 @@ namespace sdm
     {
         // Compute Q(s,*)
         std::shared_ptr<MappedVector<std::shared_ptr<Action>, double>> q_s = std::make_shared<MappedVector<std::shared_ptr<Action>, double>>();
-        for (const auto &a : this->getWorld()->getActionSpaceAt(state, t)->getAll())
+        for (const auto &action : *this->getWorld()->getActionSpaceAt(state, t))
         {
-            (*q_s)[a] = this->getQValueAt(state, a, t);
+            auto casted_action = std::static_pointer_cast<Action>(action);
+            (*q_s)[casted_action] = this->getQValueAt(state, casted_action, t);
         }
         return q_s;
     }

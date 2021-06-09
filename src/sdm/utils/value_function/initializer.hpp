@@ -215,12 +215,12 @@ namespace sdm
             for (number t = 0; t < vf->getHorizon(); t++)
             {
                 ra.clear();
-                for (auto &a : under_pb->getAllActions(t))
+                for (auto &a : *under_pb->getActionSpace(t))
                 {
                     ra.push_back(std::numeric_limits<double>::max());
-                    for (auto &s : under_pb->getAllStates(t))
+                    for (auto &s : *under_pb->getStateSpace(t))
                     {
-                        ra.back() = std::min(under_pb->getReward(s, a, t), ra.back());
+                        ra.back() = std::min(under_pb->getReward(std::static_pointer_cast<State>(s), std::static_pointer_cast<Action>(a), t), ra.back());
                     }
                 }
                 rt.push_back(*std::max_element(ra.begin(), ra.end()));

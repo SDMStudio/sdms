@@ -15,14 +15,16 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 
-#include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/core/distribution.hpp>
+
+#include <sdm/world/base/mpomdp_interface.hpp>
 #include <sdm/world/serialized_mmdp.hpp>
 
 #include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
 
 namespace sdm
 {
-    class SerializedMPOMDP : public SerializedMMDP, public POMDPInterface
+    class SerializedMPOMDP : public MPOMDPInterface, public SerializedMMDP
     {
     public:
         SerializedMPOMDP(std::shared_ptr<POMDPInterface> mpomdp);

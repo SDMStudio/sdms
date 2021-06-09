@@ -53,12 +53,24 @@ namespace sdm
         {
         }
 
+        /**
+         * @brief Construct a new Function Space object
+         * 
+         * @param possible_inputs possible inputs
+         * @param possible_outputs possible ouputs 
+         */
         FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs) : input_space_(possible_inputs)
         {
             this->output_space_.push_back(output_space(possible_outputs));
         }
 
-        FunctionSpace(input_space input_sp, std::vector<output_space> output_sps) : input_space_(input_sp), output_space_(output_sps)
+        /**
+         * @brief Construct a new Function Space object
+         * 
+         * @param input_space
+         * @param output_sps output spaces, one for each input value (requirements : input_space.size() == output_spaces.size() or output_spaces.size()==1). 
+         */
+        FunctionSpace(input_space input_space, std::vector<output_space> output_spaces) : input_space_(input_space), output_space_(output_spaces)
         {
             assert(input_sp.getNumElements() == output_sps.size());
         }

@@ -14,6 +14,8 @@
 
 #include <vector>
 #include <sdm/types.hpp>
+#include <sdm/core/item.hpp>
+#include <sdm/utils/struct/iterator.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -25,13 +27,14 @@ namespace sdm
    * @class Space
    * @brief This class is an abstract interface that all spaces should inherite. It gives some useful general methods to use generic spaces in your algorithms. 
    */
-  template <typename TItem>
   class Space
   {
   public:
+    using iterator_type = std::shared_ptr<ItemIterator>;
+
     virtual ~Space() {}
 
-    /**
+    /**t
      * @brief Check if the space is discrete.
      */
     virtual bool isDiscrete() const = 0;
@@ -39,46 +42,26 @@ namespace sdm
     /**
      * @brief Check if the space is continous.
      */
-    bool isContinuous() const
-    {
-      return !(this->isDiscrete());
-    }
+    bool isContinuous() const;
 
     /**
      * @brief Get the dimension of the space.
      */
     virtual std::vector<number> getDim() const = 0;
 
-    virtual std::vector<TItem> getAll() const = 0;
-
-    // virtual TItem begin() const = 0;
-
-    // virtual TItem next() const = 0;
-
-    // virtual TItem end() const = 0;
+    virtual iterator_type begin() = 0;
+    virtual iterator_type end() = 0;
 
     /**
      * @brief Space as a string
      */
     virtual std::string str() const = 0;
 
-    bool operator==(const Space &sp) const
-    {
-      if (this->str() == sp.str())
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-    bool operator!=(const Space &sp) const
-    {
-      return !(this->operator==(sp));
-    }
+    bool operator==(const Space &sp) const;
+    bool operator!=(const Space &sp) const;
 
-    friend std::ostream &operator<<(std::ostream &os, const Space &sp)
+    friend std::ostream &
+    operator<<(std::ostream &os, const Space &sp)
     {
       os << sp.str();
       return os;

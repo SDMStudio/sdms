@@ -105,7 +105,7 @@ namespace sdm
 
         std::shared_ptr<State> nextState(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number = 0, std::shared_ptr<HSVI> = nullptr) const;
 
-        std::shared_ptr<DiscreteSpace<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<State> &);
+        std::shared_ptr<DiscreteSpace> getActionSpaceAt(const std::shared_ptr<State> &);
 
         virtual double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule) const = 0;
 

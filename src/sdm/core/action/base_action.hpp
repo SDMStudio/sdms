@@ -40,6 +40,6 @@ namespace sdm
   };
 
   using DiscreteAction = BaseAction<number>;
-  using JointDiscreteAction = BaseAction<Joint<DiscreteAction>>;
+  using JointAction = BaseAction<Joint<std::shared_ptr<Action>>>;
 
 } // namespace sdm

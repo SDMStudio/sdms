@@ -1,126 +1,136 @@
+/**
+ * @file mdp.hpp
+ * @author David Albert (david.albert@insa-lyon.fr)
+ * @brief The file that contains the MDP class.
+ * @version 1.0
+ * @date 02/02/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/core/action/action.hpp>
 #include <sdm/core/state/state.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/core/distribution.hpp>
+#include <sdm/core/space/space.hpp>
+#include <sdm/core/reward/reward_interface.hpp>
+#include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/algorithms/hsvi.hpp>
 
 namespace sdm
 {
     /**
-     * @brief The class for Discrete Markov Decision Processes.
-     *
+     * @brief The class for Discrete Markov Decision Processes. 
+     * 
      */
-    class MDP : public SolvableByHSVI
+    class MDP : virtual public MDPInterface
     {
     public:
-        MDP();
+        MDP(number horizon,
+            double discount,
+            const std::shared_ptr<Space> &state_space,
+            const std::shared_ptr<Space> &action_space,
+            const std::shared_ptr<RewardInterface> &reward,
+            const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
+            const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
 
-        MDP(const std::shared_ptr<MDPInterface> &mdp);
-
-        ~MDP();
+        virtual ~MDP();
 
         /**
-         * @brief Get the initial state
-         */
-        std::shared_ptr<State> getInitialState();
-
-        /**
-         * @brief Get the next occupancy state.
+         * @brief Get the number of agents
          * 
-         * @param state the occupancy state
-         * @param action the action state
+         * @return the number of agents
+         */
+        number getNumAgents() const;
+
+        /**
+         * @brief Get the discount factor at timestep t.
+         * 
          * @param t the timestep
-         * @param hsvi a pointer on the algorithm that makes the call
-         * @return the next occupancy state
+         * @return the discount factor
          */
-        std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
+        double getDiscount(number t = 0) const;
 
         /**
-         * @brief Get the actions availables at a specific state
+         * @brief Get the number of agents
          * 
-         * @param state the state
-         * @return the action space 
+         * @return the number of agents
          */
-        std::shared_ptr<Space<std::shared_ptr<Action>>> getActionSpaceAt(const std::shared_ptr<State> &state, number t = 0);
+        number getHorizon() const;
 
         /**
-         * @brief Get the reward at a given occupancy state and occupancy action 
-         */
-        double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
-
-        /**
-         * @brief Get the expected next value
+         * @brief Get the initial distribution over states.
          * 
-         * @param value_function a pointer on the value function to use to perform the calculus.
-         * @param state the state on which to evaluate the next expected value *
+         * @return the initial distribution over states
+         */
+        std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
+
+        /**
+         * @brief Get ths state space at timestep t.
+         * 
+         * @param t the timestep
+         * @return the state space
+         */
+        std::shared_ptr<Space> getStateSpace(number t = 0) const;
+
+        /**
+         * @brief Get ths action space at timestep t.
+         * 
+         * @param t the timestep
+         * @return the action space
+         */
+        std::shared_ptr<Space> getActionSpace(number t = 0) const;
+
+        /**
+         * @brief Get the reward
+         * 
+         * @param state 
          * @param action 
          * @param t 
          * @return double 
          */
-        double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+        double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+
+        double getMinReward(number t = 0) const;
+
+        double getMaxReward(number t = 0) const;
 
         /**
-         * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
+         * @brief Get the Transition Probability object
          * 
-         * @return the underlying problem 
-         */
-        const std::shared_ptr<MDPInterface> &getUnderlyingProblem() const;
-
-        /**
-         * @brief Check if the problem is serialized.
-         * 
-         * @return true if the problem is serialized.
-         * @return false if the problem is not serialized.
-         */
-        bool isSerialized() const;
-
-        /**
-         * @brief Get the specific discount factor for the problem at hand
-         * 
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getDiscount(number t = 0);
-
-        /**
-         * @brief Get the specific weighted discount factor for the problem at hand
-         * 
-         * @param number decision epoch or any other parameter 
-         * @return double discount factor
-         */
-        double getWeightedDiscount(number t);
-
-        /**
-         * @brief Compute the excess of the HSVI paper. It refers to the termination condition.
-         * 
-         * @param double : incumbent 
-         * @param double : lb value
-         * @param double : ub value
-         * @param double : cost_so_far 
-         * @param double : error 
-         * @param number : horizon 
+         * @param state 
+         * @param action 
+         * @param next_state 
+         * @param t 
          * @return double 
          */
-        double do_excess(double incumbent, double lb_value, double ub_value, double cost_so_far, double error, number horizon);
+        double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
         /**
-         * @brief Select the next action
+         * @brief Get the reachable next states
          * 
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the lower bound
-         * @param const std::shared_ptr<ValueFunction<TState, TAction>>& : the upper bound
-         * @param const TState & s : current state
-         * @param number h : horizon
-         * @return TAction 
+         * @param state the state
+         * @param action the action
+         * @return the set of reachable states
          */
-        std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h);
+        std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
     protected:
-        std::shared_ptr<MDPInterface> underlying_problem;
+        number num_agents_, horizon_;
 
-        const std::shared_ptr<MDPInterface> &getUnderlyingMDP() const;
+        double discount_;
+
+        std::shared_ptr<Space> state_space_;
+
+        std::shared_ptr<Space> action_space_;
+
+        std::shared_ptr<RewardInterface> reward_;
+
+        std::shared_ptr<StateDynamicsInterface> state_dynamics_;
+
+        std::shared_ptr<Distribution<std::shared_ptr<State>>> start_distrib_;
     };
+
 } // namespace sdm

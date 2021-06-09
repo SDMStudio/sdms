@@ -48,11 +48,12 @@ namespace sdm
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
 
-        for (const auto &action : this->getWorld()->getActionSpaceAt(state, t)->getAll())
+        for (const auto &action : *this->getWorld()->getActionSpaceAt(state, t))
         {
-            if (max < (tmp = this->getQValueAt(state, action, t)))
+            auto casted_action = std::static_pointer_cast<Action>(action);
+            if (max < (tmp = this->getQValueAt(state, casted_action, t)))
             {
-                best_action = action;
+                best_action = casted_action;
                 max = tmp;
             }
         }

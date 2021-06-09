@@ -14,7 +14,7 @@
 
 namespace sdm
 {
-  class BaseReward
+  class RewardInterface
   {
   public:
     virtual double getMinReward(number t) const = 0;

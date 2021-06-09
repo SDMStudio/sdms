@@ -42,7 +42,7 @@ namespace sdm
 
         void initialize(number history_length);
         std::tuple<TState, std::vector<double>, bool> step(std::shared_ptr<Action> decision_rule);
-        std::shared_ptr<DiscreteSpace<std::shared_ptr<Action>>> getActionSpaceAt(const TState &occupancy_state);
+        std::shared_ptr<Space> getActionSpaceAt(const TState &occupancy_state);
         std::shared_ptr<BaseOccupancyState> nextState(const std::shared_ptr<BaseOccupancyState> &, const std::shared_ptr<JointDeterministic> &, number, std::shared_ptr<HSVI>, bool) const;
         TState nextState(const TState &, const std::shared_ptr<Action> &, number = 0, std::shared_ptr<HSVI> = nullptr) const;
         double getReward(const TState &occupancy_state, const std::shared_ptr<Action> &decision_rule) const;

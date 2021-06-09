@@ -16,7 +16,7 @@ namespace sdm
     this->initDynamics(num_jactions, num_jobservations, num_states);
   }
 
-  void TabularObservationDynamics::initDynamics(number num_jactions, number num_jobservations, number num_states)
+  void TabularObservationDynamics::initDynamics(number , number , number )
   {
     // number a;
     // number o;
@@ -72,7 +72,7 @@ namespace sdm
   }
 
 
-  void TabularObservationDynamics::setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) 
+  void TabularObservationDynamics::setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) 
   {
     this->successor_observations_[state][action][next_state].insert(observation);
   }
