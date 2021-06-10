@@ -99,11 +99,8 @@ if(JEROME)
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
-		${INCLUDE_DIR}/tools.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
-		${INCLUDE_DIR}/world/belief_mdp.cpp
-
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)

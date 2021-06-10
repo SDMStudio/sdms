@@ -29,7 +29,6 @@
 
 #include <sdm/parser/parser.hpp>
 
-
 #include <sdm/utils/value_function/point_set_value_function.hpp>
 #include <sdm/utils/value_function/tabular_backup.hpp>
 
@@ -50,7 +49,7 @@ int main(int argc, char **argv)
     // }
 
 
-    number horizon = 3;
+    // number horizon = 3;
 
     //Creation of the MMDP
     // auto mdp = std::make_shared<MDP>(state_space, action_space, rew, dynamics ,start_distrib,horizon,1);

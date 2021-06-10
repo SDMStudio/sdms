@@ -219,21 +219,28 @@ namespace sdm
                     {
                         for (const auto &observation : *this->obs_space_)
                         {
+                            std::cout<<"parse 10 "<<std::endl;
+
                             double obs_proba = dynamics->getObservationProbability(std::static_pointer_cast<State>(state),
                                                                                    std::static_pointer_cast<Action>(action),
                                                                                    std::static_pointer_cast<State>(next_state),
                                                                                    std::static_pointer_cast<Observation>(observation));
 
+                            std::cout<<"parse 100 "<<std::endl;
+
                             double transition_proba = state_dynamics->getTransitionProbability(std::static_pointer_cast<State>(state),
                                                                                                std::static_pointer_cast<Action>(action),
                                                                                                std::static_pointer_cast<State>(next_state),
                                                                                                0);
+                            std::cout<<"parse 100 "<<std::endl;
 
                             dynamics->setDynamics(std::static_pointer_cast<State>(state),
                                                   std::static_pointer_cast<Action>(action),
                                                   std::static_pointer_cast<State>(next_state),
                                                   std::static_pointer_cast<Observation>(observation),
                                                   transition_proba * obs_proba);
+                            std::cout<<"parse 101 "<<std::endl;
+
                         }
                     }
                 }

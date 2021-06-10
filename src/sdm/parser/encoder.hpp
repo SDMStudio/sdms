@@ -89,7 +89,13 @@ namespace sdm
 
         // // Encodes the observation dynamics
         obs_dynamics_encoder d_encoder(state_space, agent_space, action_space, obs_space);
+
+        std::cout<<"parse 5 "<<std::endl;
+
         std::shared_ptr<TabularObservationDynamics> obs_dynamics = d_encoder.encode(ast.observation_spec, state_dynamics);
+
+        std::cout<<"parse 3 "<<std::endl;
+
 
         auto parsed_model = std::make_shared<sdm::DecPOMDP>(state_space, action_space, obs_space, rewards, state_dynamics, obs_dynamics, start_distribution, 0, ast.discount_param, (Criterion)(ast.value_param == "reward"));
 
