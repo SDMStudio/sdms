@@ -55,19 +55,15 @@ namespace sdm
 
         // Encodes agent space
         std::shared_ptr<DiscreteSpace> agent_space = boost::apply_visitor(ds_encoder, ast.agent_param);
-        std::cout << *agent_space << std::endl;
 
         // Encodes state space
         std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_encoder, ast.state_param);
-        std::cout << *state_space << std::endl;
 
         // Encodes action space
         std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_encoder, ast.action_param);
-        std::cout << *action_space << std::endl;
 
         // Encodes observation space
         std::shared_ptr<MultiDiscreteSpace> obs_space = boost::apply_visitor(mds_encoder, ast.observation_param);
-        std::cout << *obs_space << std::endl;
 
         // Encodes the reward function
         tabular_rewards_encoder rews_encoder(state_space, agent_space, action_space);

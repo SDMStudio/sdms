@@ -31,4 +31,103 @@ namespace sdm
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(t))->getSpace(agent_id);
     }
 
+    std::string MPOMDP::toStdFormat()
+    {
+        if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
+        {
+
+            auto state_space = std::static_pointer_cast<DiscreteSpace>(this->getStateSpace());
+            auto action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getActionSpace());
+            auto obs_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(0));
+
+            std::ostringstream res;
+            number n_agents = this->getNumAgents();
+
+            res << "agents: " << n_agents << std::endl;
+            res << "discount: " << this->getDiscount() / 1.0 << std::endl;
+            res << "values: \"" << ((this->criterion_ == Criterion::COST_MIN) ? "cost" : "reward") << "\"" << std::endl;
+            res << "states: " << state_space->getNumItems() << std::endl;
+            res << "start: \"uniform\"" << std::endl;
+
+            // Action space
+            res << "actions: \n";
+            for (number ag = 0; ag < n_agents; ag++)
+            {
+                res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(ag))->getNumItems() << "\n";
+            }
+
+            // Observation space
+            res << "observations: \n";
+            for (number ag = 0; ag < n_agents; ag++)
+            {
+                res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(ag))->getNumItems() << "\n";
+            }
+
+            for (const auto &state : *state_space)
+            {
+                for (const auto &action : *action_space)
+                {
+                    for (const auto &next_state : *state_space)
+                    {
+
+                        res << "T: ";
+                        for (number agent = 0; agent < n_agents; ++agent)
+                        {
+                            auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                            res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                        }
+                        res << ": " << state_space->getItemIndex(state)
+                            << " : " << state_space->getItemIndex(next_state)
+                            << " : " << this->getTransitionProbability(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state))
+                            << std::endl;
+                    }
+                }
+            }
+
+            for (const auto &next_state : *state_space)
+            {
+                for (const auto &action : *action_space)
+                {
+                    for (const auto &observation : *obs_space)
+                    {
+                        res << "O: ";
+                        for (number agent = 0; agent < n_agents; ++agent)
+                        {
+                            auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                            res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                        }
+                        res << ": " << state_space->getItemIndex(next_state) << " : ";
+                        for (number agent = 0; agent < n_agents; ++agent)
+                        {
+                            auto obs_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(observation)->get(agent);
+                            res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
+                        }
+                        res << ": " << this->getObservationProbability(nullptr, std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state), std::static_pointer_cast<Observation>(observation), 0) << std::endl;
+                    }
+                }
+            }
+
+            for (const auto &state : *state_space)
+            {
+                for (const auto &action : *action_space)
+                {
+                    res << "R: ";
+                    for (number agent = 0; agent < n_agents; ++agent)
+                    {
+                        auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                        res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                    }
+                    res << ": " << state_space->getItemIndex(state)
+                        << " : " << this->getReward(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action))
+                        << std::endl;
+                }
+            }
+            return res.str();
+        }
+        else
+        {
+            return "No known Standard format for Continuous MDPs.";
+        }
+    }
+
 }

@@ -1,4 +1,6 @@
 #include <sdm/world/mdp.hpp>
+#include <sdm/core/space/discrete_space.hpp>
+#include <regex>
 
 namespace sdm
 {
@@ -35,9 +37,19 @@ namespace sdm
         return this->discount_;
     }
 
+    void MDP::setDiscount(double discount)
+    {
+        this->discount_ = discount;
+    }
+
     number MDP::getHorizon() const
     {
         return this->horizon_;
+    }
+
+    void MDP::setHorizon(number horizon)
+    {
+        this->horizon_ = horizon;
     }
 
     std::shared_ptr<Distribution<std::shared_ptr<State>>> MDP::getStartDistribution() const
@@ -87,5 +99,158 @@ namespace sdm
     std::shared_ptr<Space> MDP::getStateSpace(number) const
     {
         return this->state_space_;
+    }
+
+    std::string MDP::toStdFormat()
+    {
+        if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
+        {
+
+            auto state_space = std::static_pointer_cast<DiscreteSpace>(this->getStateSpace());
+            auto action_space = std::static_pointer_cast<DiscreteSpace>(this->getActionSpace());
+
+            std::ostringstream res;
+            number n_agents = 1;
+
+            res << "agents: " << n_agents << std::endl;
+            res << "discount: " << this->getDiscount() / 1.0 << std::endl;
+            res << "values: \"" << ((this->criterion_ == Criterion::COST_MIN) ? "cost" : "reward") << "\"" << std::endl;
+            res << "states: " << state_space->getNumItems() << std::endl;
+            res << "start: \"uniform\"" << std::endl;
+
+            res << "actions: \n";
+            res << action_space->getNumItems() << "\n";
+
+            for (const auto &state : *state_space)
+            {
+                for (const auto &action : *action_space)
+                {
+                    for (const auto &next_state : *state_space)
+                    {
+                        res << "T: " << action_space->getItemIndex(action)
+                            << " : " << state_space->getItemIndex(state)
+                            << " : " << state_space->getItemIndex(next_state)
+                            << " : " << this->getTransitionProbability(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state))
+                            << std::endl;
+                    }
+                }
+            }
+
+            for (const auto &state : *state_space)
+            {
+                for (const auto &action : *action_space)
+                {
+                    res << "R: " << action_space->getItemIndex(action)
+                        << " : " << state_space->getItemIndex(state)
+                        << " : " << this->getReward(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action))
+                        << std::endl;
+                }
+            }
+            return res.str();
+        }
+        else
+        {
+            return "No known Standard format for Continuous MDPs.";
+        }
+    }
+
+    std::string MDP::toXML()
+    {
+        if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
+        {
+            // std::ostringstream res;
+            // number n_agents = this->getNumAgents();
+
+            // number ag;
+            // res << "<DiscreteMDP>" << std::endl;
+            // res << "\t<preamble>" << std::endl;
+            // // res << "\t\t<soundness>" << this->isSound() << "</soundness>" << std::endl;
+            // res << "\t\t<agents>" << n_agents << "</agents>" << std::endl;
+            // res << "\t\t<discount>" << this->getDiscount() << "</discount>" << std::endl;
+            // res << "\t\t<states>" << std::static_pointer_cast<DiscreteSpace>(this->getStateSpace())->getNumItems() << "</states>" << std::endl;
+            // res << "\t\t<start> [";
+            // for (const auto &state : *this->getStateSpace())
+            // {
+            //     res << this->getStartDistribution()->getProbability(std::static_pointer_cast<State>(state), nullptr) << " ";
+            // }
+            // res << "] </start>" << std::endl;
+
+            // res << "\t\t<actions>" << std::endl;
+            // for (ag = 0; ag < n_agents; ++ag)
+            //     res << "\t\t\t<agent id=\"" << ag << "\">" << this->getActionSpace()->getSpace(ag)->getNumItems() << "</agent>" << std::endl;
+            // res << "\t\t</actions>" << std::endl;
+
+            // res << "\t\t<observations>" << std::endl;
+            // for (ag = 0; ag < n_agents; ++ag)
+            //     res << "\t\t\t<agent id=\"" << ag << "\">" << this->getObsSpace()->getSpace(ag)->getNumItems() << "</agent>" << std::endl;
+            // res << "\t\t</observations>" << std::endl;
+
+            // res << "\t</preamble>" << std::endl;
+            // res << "\t<param>" << std::endl;
+
+            // number ja;
+            // res << "\t\t<reward>" << std::endl;
+            // for (ja = 0; ja < this->getActionSpace()->getNumItems(); ++ja)
+            // {
+            //     std::vector<number> v_ja = this->getActionSpace()->single2joint(ja);
+            //     res << "\t\t\t<reward-entry joint-action=\"";
+            //     for (number ag = 0; ag < n_agents; ++ag)
+            //     {
+            //         res << v_ja[ag] << " ";
+            //     }
+            //     res << "\" >" << std::endl;
+            //     res << "\t\t\t\t" << this->getReward()->getReward(ja) << std::endl;
+            //     res << "\t\t\t</reward-entry>" << std::endl;
+            // }
+
+            // res << "\t\t</reward>" << std::endl;
+
+            // observation jz;
+            // res << "\t\t<dynamics>" << std::endl;
+            // for (ja = 0; ja < this->getActionSpace()->getNumItems(); ++ja)
+            //     for (jz = 0; jz < this->getObsSpace()->getNumItems(); ++jz)
+            //     {
+            //         res << "\t\t\t<dynamics-entry jaction=\"" << ja << "\" jobservation=\"" << jz << "\">" << std::endl;
+            //         res << "\t\t\t\t" << this->getObsDynamics()->getDynamics(ja, jz) << std::endl;
+            //         res << "\t\t\t</dynamics-entry>" << std::endl;
+            //     }
+            // res << "\t\t</dynamics>" << std::endl;
+
+            // res << "\t</param>" << std::endl;
+            // res << "</decpomdp>" << std::endl;
+
+            // return res.str();
+        }
+        else
+        {
+            return "No known XML format for Continuous MDPs.";
+        }
+    }
+
+    std::string MDP::toJSON()
+    {
+        std::cout << "toJSON : Not implemented method" << std::endl;
+        return "Not implemented method";
+    }
+
+    void MDP::generateFile(std::string filename)
+    {
+        std::ofstream myfile;
+        if (regex_match(filename, std::regex(".*\\.json$")) || regex_match(filename, std::regex(".*\\.JSON$")))
+        {
+            myfile = std::ofstream(filename);
+            myfile << this->toJSON();
+        }
+        else if (regex_match(filename, std::regex(".*\\.xml$")) || regex_match(filename, std::regex(".*\\.XML$")))
+        {
+            myfile = std::ofstream(filename);
+            myfile << this->toXML();
+        }
+        else
+        {
+            myfile = std::ofstream(filename);
+            myfile << this->toStdFormat();
+        }
+        myfile.close();
     }
 }

@@ -112,6 +112,14 @@ namespace sdm
     RELAXED_SAWTOOTH_LINER_PROGRAMMING
   };
 
+
+  enum 
+  {
+    STANDARD,
+    XML,
+    JSON
+  };
+
   //using boost::hash_combine
   template <class T>
   inline void hash_combine(std::size_t &seed, T const &v)
