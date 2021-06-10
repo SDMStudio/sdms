@@ -55,11 +55,25 @@ namespace sdm
         double getDiscount(number t = 0) const;
 
         /**
-         * @brief Get the number of agents
+         * @brief Set the discount factor
          * 
-         * @return the number of agents
+         * @param discount the discount factor
+         */
+        void setDiscount(double discount);
+
+        /**
+         * @brief Get the planning horizon
+         * 
+         * @return the planning horizon
          */
         number getHorizon() const;
+
+        /**
+         * @brief Set the planning horizon
+         * 
+         * @param horizon the planning horizon
+         */
+        void setHorizon(number horizon);
 
         /**
          * @brief Get the initial distribution over states.
@@ -92,18 +106,18 @@ namespace sdm
          * @param t the timestep
          * @return the value of the reward
          */
-        double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the reward function
          * 
          * @return the reward function
          */
-        std::shared_ptr<RewardInterface> getReward() const;
+        virtual std::shared_ptr<RewardInterface> getReward() const;
 
-        double getMinReward(number t = 0) const;
+        virtual double getMinReward(number t = 0) const;
 
-        double getMaxReward(number t = 0) const;
+        virtual double getMaxReward(number t = 0) const;
 
         /**
          * @brief Get the Transition Probability object
@@ -114,7 +128,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
+        virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
         /**
          * @brief Get the reachable next states
@@ -123,14 +137,48 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+        virtual std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the state dynamics
          * 
          * @return the state dynamics interface
          */
-        std::shared_ptr<StateDynamicsInterface> getStateDynamics() const;
+        virtual std::shared_ptr<StateDynamicsInterface> getStateDynamics() const;
+
+
+        /**
+         * @brief Encodes MDP class into a string (standard .posg or .dpomdp or .zsposg format).
+         * 
+         * @return the process as XML
+         */
+        virtual std::string toStdFormat();
+
+        /**
+         * @brief Encodes MDP class into a string (XML format).
+         * 
+         * @return the process as XML
+         */
+        virtual std::string toXML();
+
+        /**
+         * @brief Encodes MDP class into a string (JSON format).
+         * 
+         */
+        virtual std::string toJSON();
+
+        /**
+         * @brief Save problem in file with given format (.xml, .json or .{dpomdp, posg, zsposg}).
+         * 
+         * @param filename the file name
+         */
+        void generateFile(std::string);
+
+        friend std::ostream &operator<<(std::ostream &os, MDP &model)
+        {
+            os << model.toStdFormat();
+            return os;
+        }
 
     protected:
         number num_agents_, horizon_;

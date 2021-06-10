@@ -56,6 +56,8 @@ namespace sdm
          * @return the observation space
          */
         virtual std::shared_ptr<Space> getObservationSpace(number t) const;
+        
+        virtual std::string toStdFormat();
     };
 
     using DecPOMDP = MPOMDP;

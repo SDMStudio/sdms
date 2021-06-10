@@ -27,10 +27,18 @@ if(DAVID)
 		${INCLUDE_DIR}/world/mmdp.cpp
 		${INCLUDE_DIR}/world/pomdp.cpp
 		${INCLUDE_DIR}/world/mpomdp.cpp
-		${INCLUDE_DIR}/parser/**
 	)
 	add_library(world SHARED ${lib_world})
 	target_link_libraries(world core)
+
+	# LIB PARSER
+	file(
+		GLOB_RECURSE
+		lib_parser
+		${INCLUDE_DIR}/parser/**
+	)
+	add_library(parser SHARED ${lib_parser})
+	target_link_libraries(parser world)
 
 	# LIB HSVI
 	file(
@@ -38,11 +46,13 @@ if(DAVID)
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
+		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)
+
 	include_directories(${SDMS_INCLUDE_DIRS})
 
 	add_executable(quicktest_david quicktest_david.cpp)
@@ -51,6 +61,7 @@ if(DAVID)
 		${Boost_LIBRARIES}
 		${TORCH_LIBRARIES}
 		${CPLEX_LIBRARIES}
+		parser
 		hsvi
 	)
 endif()
@@ -101,6 +112,8 @@ if(JEROME)
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/initializer/mdp_initializer.tpp>
+
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)

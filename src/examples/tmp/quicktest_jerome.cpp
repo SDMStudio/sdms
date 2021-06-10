@@ -32,27 +32,26 @@
 #include <sdm/utils/value_function/point_set_value_function.hpp>
 #include <sdm/utils/value_function/tabular_backup.hpp>
 
+#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
+
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/mabc.dpomdp");
-    // auto state_space = mdp_tiger->getStateSpace(); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
-    // auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
-    // auto rew = mdp_tiger->getReward(); 
-    // auto dynamics = mdp_tiger->getStateDynamics();
+    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/tiger.dpomdp");
+    auto state_space = mdp_tiger->getStateSpace(); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
+    auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
+    auto rew = mdp_tiger->getReward(); 
+    auto dynamics = mdp_tiger->getStateDynamics();
 
-    // auto start_distrib = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
-    // for (const auto &state : *state_space)
-    // {
-    //     start_distrib->setProbability(std::static_pointer_cast<State>(state), 1. / std::static_pointer_cast<DiscreteSpace>(state_space)->getNumItems());
-    // }
+    auto start_distrib = mdp_tiger->getStartDistribution();
 
 
-    // number horizon = 3;
+    number horizon = 5;
 
     //Creation of the MMDP
-    // auto mdp = std::make_shared<MDP>(state_space, action_space, rew, dynamics ,start_distrib,horizon,1);
+    auto mdp = std::make_shared<MDP>(state_space, action_space, rew, dynamics ,start_distrib,horizon,1.);
 
     // Creation of the Serial MMDP with the MMDP
     // auto serial_mmdp = std::make_shared<SerializedMMDP>(mdp);
@@ -90,22 +89,26 @@ int main(int argc, char **argv)
     // }
 
     // Creation of HSVI problem and Resolution 
-    // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
+    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
 
     // horizon = horizon * mdp->getNumAgents();
-    // auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+    auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
 
-    // auto lb = std::make_shared<PointSetValueFunction>(tabular_backup,horizon,-1000);
-    // auto ub = std::make_shared<PointSetValueFunction>(tabular_backup,horizon,1000);
+    auto init_lb = std::make_shared<BlindInitializer>(hsvi_mdp);
+    auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
+
+
+    auto lb = std::make_shared<PointSetValueFunction>(tabular_backup,horizon,init_lb);
+    auto ub = std::make_shared<PointSetValueFunction>(tabular_backup,horizon,init_ub);
 
     // auto lb = std::make_shared<MappedValueFunction>(hsvi_mdp, horizon, -1000);
     // auto ub = std::make_shared<MappedValueFunction>(hsvi_mdp, horizon, 1000);
 
-    // auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, horizon, 0.01);
-    // algo->do_initialize();
-    // std::cout << *algo->getLowerBound() << std::endl;
-    // std::cout << *algo->getUpperBound() << std::endl;
-    // algo->do_solve();
+    auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, horizon, 0.01);
+    algo->do_initialize();
+    std::cout << *algo->getLowerBound() << std::endl;
+    std::cout << *algo->getUpperBound() << std::endl;
+    algo->do_solve();
     // std::cout << *algo->getLowerBound() << std::endl;
     // std::cout << *algo->getUpperBound() << std::endl;
 

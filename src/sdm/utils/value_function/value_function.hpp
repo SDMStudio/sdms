@@ -5,9 +5,7 @@
 #include <sdm/core/action/action.hpp>
 
 #include <sdm/utils/value_function/base_value_function.hpp>
-#include <sdm/utils/value_function/backup_base.hpp>
-
-// #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/value_function/backup_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -117,11 +115,6 @@ namespace sdm
         }
 
     protected:
-        /**
-         * @brief The problem which incremental value function is evaluated 
-         * 
-         */
-        // std::shared_ptr<SolvableByHSVI> problem_;
 
         /**
          * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.

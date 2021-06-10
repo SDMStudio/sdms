@@ -24,35 +24,30 @@ namespace sdm
 
     double PointSetValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        std::cout<<"getValueAt"<<std::endl;
-        double i_value = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(std::shared_ptr<ValueFunction>(this),state,t).first;
-        // this->updateValueAt(state, t, i_value);
-        return i_value;
+        // double i_value = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(std::shared_ptr<ValueFunction>(this),state,t).first;
+        // // this->updateValueAt(state, t, i_value);
+        // return i_value;
 
-        // if (t < this->getHorizon() && this->init_function_ != nullptr)
-        // {
-        //     if ((this->representation[t].find(state) == this->representation[t].end()))
-        //     {
-        //         double i_value = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(std::make_shared<ValueFunction>(this),state,t).first;
-        //         this->updateValueAt(state, t, i_value);
-        //         return i_value;
-        //     }
-        // }
-        // return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
+        if (t < this->getHorizon() && this->init_function_ != nullptr)
+        {
+            if ((this->representation[t].find(state) == this->representation[t].end()))
+            {
+                double i_value = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(this->getptr(),state,t).first;
+                this->updateValueAt(state, t, i_value);
+                return i_value;
+            }
+        }
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
     }
 
     void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
-        std::cout<<"getValueAt"<<std::endl;
-
         this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
     }
 
     void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        std::cout<<"updateValueAt"<<std::endl;
-
-        this->updateValueAt(state, t,std::static_pointer_cast<BackupBase<double>>(this->backup_)->backup(std::shared_ptr<ValueFunction>(this),state,t) );
+        this->updateValueAt(state, t,std::static_pointer_cast<BackupBase<double>>(this->backup_)->backup(this->getptr(),state,t) );
 
         if (this->last_prunning == this->freq_prune_)
         {
@@ -104,16 +99,12 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> PointSetValueFunction::getSupport(number t)
     {
-        std::cout<<"getSupport"<<std::endl;
-
         return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
     }
 
 
     void PointSetValueFunction::prune(number t)
     {
-        std::cout<<"prune"<<std::endl;
-
         std::vector<std::shared_ptr<State>> to_delete;
 
         for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
@@ -132,9 +123,7 @@ namespace sdm
 
     bool PointSetValueFunction::is_dominated(const std::shared_ptr<State> &state, double value, number t)
     {
-        std::cout<<"is_dominated"<<std::endl;
-
-        auto pair_witness_ostate = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(std::shared_ptr<ValueFunction>(this),state,t);
+        auto pair_witness_ostate = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(this->getptr(),state,t);
         // Faire passer le MaxAt avec le backup
 
         if (pair_witness_ostate.second == state)
