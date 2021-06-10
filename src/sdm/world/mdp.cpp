@@ -3,20 +3,22 @@
 namespace sdm
 {
 
-    MDP::MDP(number horizon,
-             double discount,
-             const std::shared_ptr<Space> &state_space,
+    MDP::MDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
              const std::shared_ptr<RewardInterface> &reward,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib) : num_agents_(1),
-                                                                                           horizon_(horizon),
-                                                                                           discount_(discount),
-                                                                                           state_space_(state_space),
-                                                                                           action_space_(action_space),
-                                                                                           reward_(reward),
-                                                                                           state_dynamics_(state_dynamics),
-                                                                                           start_distrib_(start_distrib)
+             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
+             number horizon,
+             double discount,
+             Criterion criterion) : num_agents_(1),
+                                    horizon_(horizon),
+                                    discount_(discount),
+                                    criterion_(criterion),
+                                    state_space_(state_space),
+                                    action_space_(action_space),
+                                    reward_(reward),
+                                    state_dynamics_(state_dynamics),
+                                    start_distrib_(start_distrib)
 
     {
     }
@@ -46,6 +48,15 @@ namespace sdm
     std::set<std::shared_ptr<State>> MDP::getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
         return this->state_dynamics_->getReachableStates(state, action, t);
+    }
+    std::shared_ptr<StateDynamicsInterface> MDP::getStateDynamics() const
+    {
+        return this->state_dynamics_;
+    }
+
+    std::shared_ptr<RewardInterface> MDP::getReward() const
+    {
+        return this->reward_;
     }
 
     double MDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const

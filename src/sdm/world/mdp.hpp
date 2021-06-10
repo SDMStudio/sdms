@@ -28,13 +28,14 @@ namespace sdm
     class MDP : virtual public MDPInterface
     {
     public:
-        MDP(number horizon,
-            double discount,
-            const std::shared_ptr<Space> &state_space,
+        MDP(const std::shared_ptr<Space> &state_space,
             const std::shared_ptr<Space> &action_space,
             const std::shared_ptr<RewardInterface> &reward,
             const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-            const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
+            const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
+            number horizon = 0,
+            double discount = 0.99,
+            Criterion criterion = Criterion::REW_MAX);
 
         virtual ~MDP();
 
@@ -84,14 +85,21 @@ namespace sdm
         std::shared_ptr<Space> getActionSpace(number t = 0) const;
 
         /**
-         * @brief Get the reward
+         * @brief Get the reward of executing action a in state s at timestep t.
          * 
-         * @param state 
-         * @param action 
-         * @param t 
-         * @return double 
+         * @param state the state
+         * @param action the action
+         * @param t the timestep
+         * @return the value of the reward
          */
         double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+
+        /**
+         * @brief Get the reward function
+         * 
+         * @return the reward function
+         */
+        std::shared_ptr<RewardInterface> getReward() const;
 
         double getMinReward(number t = 0) const;
 
@@ -117,10 +125,19 @@ namespace sdm
          */
         std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
+        /**
+         * @brief Get the state dynamics
+         * 
+         * @return the state dynamics interface
+         */
+        std::shared_ptr<StateDynamicsInterface> getStateDynamics() const;
+
     protected:
         number num_agents_, horizon_;
 
         double discount_;
+
+        Criterion criterion_;
 
         std::shared_ptr<Space> state_space_;
 

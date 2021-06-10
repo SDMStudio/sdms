@@ -21,23 +21,7 @@ namespace sdm
         TabularObservationDynamics();
 
         TabularObservationDynamics(const TabularObservationDynamics &copy);
-
-        //! \param    num_jactions Number of joint actions
-        //! \param    num_jobservations Number of joint observations
-        //! \param    num_states Number of states
-        //! \brief    Instantiate a transition model
-        TabularObservationDynamics(number, number, number);
-
         virtual ~TabularObservationDynamics();
-
-        /**
-         * @brief Inits the dynamics model
-         * 
-         * @param num_actions Number of actions
-         * @param num_observations Number of observations 
-         * @param num_states Number of states
-         */
-        void initDynamics(number num_actions, number num_observations, number num_states);
 
         /**
          * @brief Get the observation probability
@@ -66,7 +50,7 @@ namespace sdm
          * @param next_state a specific state
          * @param proba a probability
          */
-        void setObservationProbability(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba);
+        void setObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba);
 
         /**
          * @brief Set the observation probability

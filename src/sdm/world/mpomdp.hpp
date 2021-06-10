@@ -27,15 +27,17 @@ namespace sdm
     class MPOMDP : public MPOMDPInterface, public POMDP, public MMDP
     {
     public:
-        MPOMDP(double horizon,
-               double discount,
-               const std::shared_ptr<Space> &state_space,
+        MPOMDP(const std::shared_ptr<Space> &state_space,
                const std::shared_ptr<Space> &action_space,
                const std::shared_ptr<Space> &obs_space,
                const std::shared_ptr<RewardInterface> &reward,
                const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
-               const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
+               const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
+               number horizon = 0,
+               double discount = 0.99,
+               Criterion criterion = Criterion::REW_MAX);
+
         virtual ~MPOMDP();
 
         /**
@@ -55,4 +57,6 @@ namespace sdm
          */
         virtual std::shared_ptr<Space> getObservationSpace(number t) const;
     };
+
+    using DecPOMDP = MPOMDP;
 } // namespace sdm

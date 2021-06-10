@@ -7,32 +7,14 @@ namespace sdm
   {
   }
 
-  TabularObservationDynamics::TabularObservationDynamics(const TabularObservationDynamics &copy) : observation_model_(copy.observation_model_), dynamics_(copy.dynamics_), successor_observations_(copy.successor_observations_)
+  TabularObservationDynamics::TabularObservationDynamics(const TabularObservationDynamics &copy)
+      : observation_model_(copy.observation_model_),
+        successor_observations_(copy.successor_observations_),
+        dynamics_(copy.dynamics_)
   {
   }
-
-  TabularObservationDynamics::TabularObservationDynamics(number num_jactions, number num_jobservations, number num_states)
-  {
-    this->initDynamics(num_jactions, num_jobservations, num_states);
-  }
-
+  
   TabularObservationDynamics::~TabularObservationDynamics(){}
-
-  void TabularObservationDynamics::initDynamics(number , number , number )
-  {
-    // number a;
-    // number o;
-
-    // for ; a < num_jactions; ++a)
-    // {
-    //   this->dynamics_.push_back(std::vector<DenseMatrix<number, number>>());
-    //   this->observation_model_.push_back(DenseMatrix<number, number>(num_states, num_jobservations));
-    //   for ; o < num_jobservations; ++o)
-    //   {
-    //     this->dynamics_[a].push_back(DenseMatrix<number, number>(num_states, num_states));
-    //   }
-    // }
-  }
 
 
   /* ############################################### */
@@ -79,7 +61,6 @@ namespace sdm
     this->successor_observations_[state][action][next_state].insert(observation);
   }
 
-
   /* ################################### */
   /* ### DYNAMICS -- P(O, S' | S, A) ### */
   /* ################################### */
@@ -91,13 +72,12 @@ namespace sdm
 
   void TabularObservationDynamics::setDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba, number)
   {
-     this->dynamics_[state][action].setValueAt(next_state, observation, proba);
+    this->dynamics_[state][action].setValueAt(next_state, observation, proba);
   }
 
-  const MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>> &TabularObservationDynamics::getDynamics(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action) const
+  const MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>> &TabularObservationDynamics::getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const
   {
     return this->dynamics_.at(state).at(action);
   }
-
 
 } // namespace sdm

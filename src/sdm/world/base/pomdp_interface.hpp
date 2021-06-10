@@ -24,7 +24,6 @@ namespace sdm
     class POMDPInterface : virtual public MDPInterface
     {
     public:
-
         /**
          * @brief Get ths observation space at timestep t.
          * 
@@ -33,7 +32,6 @@ namespace sdm
          */
         virtual std::shared_ptr<Space> getObservationSpace(number t) const = 0;
 
-      
         /**
          * @brief Get reachable observations
          * 
@@ -41,7 +39,7 @@ namespace sdm
          * @param action the current action
          * @return the set of reachable observations
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t) const = 0;
+        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const = 0;
 
         /**
          * @brief Get the observation probability, i.e. p(o | s', a)

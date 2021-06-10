@@ -131,7 +131,7 @@ namespace sdm
                 vf->initialize(tot, vf->getHorizon());
                 for (number t = vf->getHorizon(); t > 0; t--)
                 {
-                    tot = this->getValue(vf, t) + vf->getWorld()->getUnderlyingProblem()->getDiscount(t) * tot;
+                    // tot = this->getValue(vf, t) + vf->getWorld()->getUnderlyingProblem()->getDiscount(t) * tot;
                     vf->initialize(tot, t - 1);
                 }
             }
@@ -139,23 +139,25 @@ namespace sdm
 
         double getValue(std::shared_ptr<ValueFunction> vf, number t)
         {
-            return (this->callback_value == nullptr) ? this->value_ : ((*vf->getWorld()->getUnderlyingProblem()).*callback_value)(t);
+            return 0;
+            // return (this->callback_value == nullptr) ? this->value_ : ((*vf->getWorld()->getUnderlyingProblem()).*callback_value)(t);
         }
 
         double computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf)
         {
-            auto under_pb = vf->getWorld()->getUnderlyingProblem();
+            // auto under_pb = vf->getWorld()->getUnderlyingProblem();
             // long l = log(1 - this->discount_) * this->error_ / this->reward_->getMaxReward();
-            number t = 0;
-            double value = this->getValue(vf, t), factor = 1.;
-            do
-            {
-                factor *= under_pb->getDiscount(t);
-                value += factor * this->getValue(vf, t + 1);
-                t++;
-            } while (factor < 1.e-10);
-            value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
-            return value;
+            // number t = 0;
+            // double value = this->getValue(vf, t), factor = 1.;
+            // do
+            // {
+            //     factor *= under_pb->getDiscount(t);
+            //     value += factor * this->getValue(vf, t + 1);
+            //     t++;
+            // } while (factor < 1.e-10);
+            // value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
+            // return value;
+            return 0;
         }
     };
 
@@ -209,25 +211,25 @@ namespace sdm
 
         void init(std::shared_ptr<ValueFunction> vf)
         {
-            auto under_pb = vf->getWorld()->getUnderlyingProblem();
-            std::vector<double> ra, rt;
+            // auto under_pb = vf->getWorld()->getUnderlyingProblem();
+            // std::vector<double> ra, rt;
 
-            for (number t = 0; t < vf->getHorizon(); t++)
-            {
-                ra.clear();
-                for (auto &a : *under_pb->getActionSpace(t))
-                {
-                    ra.push_back(std::numeric_limits<double>::max());
-                    for (auto &s : *under_pb->getStateSpace(t))
-                    {
-                        ra.back() = std::min(under_pb->getReward(std::static_pointer_cast<State>(s), std::static_pointer_cast<Action>(a), t), ra.back());
-                    }
-                }
-                rt.push_back(*std::max_element(ra.begin(), ra.end()));
-            }
+            // for (number t = 0; t < vf->getHorizon(); t++)
+            // {
+            //     ra.clear();
+            //     for (auto &a : *under_pb->getActionSpace(t))
+            //     {
+            //         ra.push_back(std::numeric_limits<double>::max());
+            //         for (auto &s : *under_pb->getStateSpace(t))
+            //         {
+            //             ra.back() = std::min(under_pb->getReward(std::static_pointer_cast<State>(s), std::static_pointer_cast<Action>(a), t), ra.back());
+            //         }
+            //     }
+            //     rt.push_back(*std::max_element(ra.begin(), ra.end()));
+            // }
 
-            this->value_ = *std::min_element(rt.begin(), rt.end());
-            BoundInitializer::init(vf);
+            // this->value_ = *std::min_element(rt.begin(), rt.end());
+            // BoundInitializer::init(vf);
         }
     };
 

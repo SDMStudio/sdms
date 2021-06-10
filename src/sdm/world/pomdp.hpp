@@ -26,15 +26,16 @@ namespace sdm
     class POMDP : virtual public MDP, virtual public POMDPInterface
     {
     public:
-        POMDP(double horizon,
-              double discount,
-              const std::shared_ptr<Space> &state_space,
+        POMDP(const std::shared_ptr<Space> &state_space,
               const std::shared_ptr<Space> &action_space,
               const std::shared_ptr<Space> &obs_space,
               const std::shared_ptr<RewardInterface> &reward,
               const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
               const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
-              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
+              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
+              number horizon = 0,
+              double discount = 0.99,
+              Criterion criterion = Criterion::REW_MAX);
 
         /**
          * @brief Get ths observation space at timestep t.
@@ -52,7 +53,7 @@ namespace sdm
          * @param next_state the next state
          * @return the set of reachable observations
          */
-        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t = 0) const;
+        virtual std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
 
         /**
          * @brief Get the observation probability, i.e. p(o | s', a)
@@ -76,6 +77,8 @@ namespace sdm
          * @return the probability
          */
         virtual double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) const;
+
+        std::shared_ptr<ObservationDynamicsInterface> getObservationDynamics() const;
 
     protected:
         std::shared_ptr<Space> obs_space_;

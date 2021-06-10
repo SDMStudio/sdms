@@ -34,7 +34,7 @@ namespace sdm
 
     virtual ~Space() {}
 
-    /**t
+    /**
      * @brief Check if the space is discrete.
      */
     virtual bool isDiscrete() const = 0;

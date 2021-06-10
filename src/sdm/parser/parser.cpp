@@ -26,7 +26,7 @@ namespace sdm
   {
     BOOST_SPIRIT_INSTANTIATE(dpomdp_type, iterator_type, context_type)
 
-    std::shared_ptr<sdm::DiscreteDecPOMDP> parse_string(std::string storage)
+    std::shared_ptr<sdm::DecPOMDP> parse_string(std::string storage)
     {
       using sdm::parser::dpomdp_t; // Our grammar
       sdm::ast::dpomdp_t ast;      // Our tree
@@ -57,7 +57,7 @@ namespace sdm
       }
     }
 
-    std::shared_ptr<sdm::DiscreteDecPOMDP> parse_file(char const *filename)
+    std::shared_ptr<sdm::DecPOMDP> parse_file(char const *filename)
     {
       std::ifstream in(filename, std::ios_base::in);
 
@@ -73,16 +73,17 @@ namespace sdm
           std::istream_iterator<char>(),
           std::back_inserter(storage));
 
-      std::shared_ptr<sdm::DiscreteDecPOMDP> parsed_model = sdm::parser::parse_string(storage);
-      parsed_model->setFileName(filename);
+      std::shared_ptr<sdm::DecPOMDP> parsed_model = sdm::parser::parse_string(storage);
+      // parsed_model->setFileName(filename);
       return parsed_model;
     }
 
-    std::shared_ptr<sdm::DiscreteDecPOMDP> parse_file(std::string filename)
+    std::shared_ptr<sdm::DecPOMDP> parse_file(std::string filename)
     {
       if (regex_match(filename, std::regex(".*\\.ndpomdp$")) || regex_match(filename, std::regex(".*\\.NDPOMDP$")))
       {
-        return std::make_shared<NetworkedDistributedPOMDP>(filename);
+        throw exception::NotImplementedException();
+        // return std::make_shared<NetworkedDistributedPOMDP>(filename);
       }
       else
       {

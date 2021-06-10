@@ -30,13 +30,14 @@ namespace sdm
     class MMDP : virtual public MDP, virtual public MMDPInterface
     {
     public:
-        MMDP(double horizon,
-             double discount,
-             const std::shared_ptr<Space> &state_space,
+        MMDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
              const std::shared_ptr<RewardInterface> &reward,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib);
+             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
+            number horizon = 0,
+            double discount = 0.99,
+            Criterion criterion = Criterion::REW_MAX);
 
         std::shared_ptr<Space> getActionSpace(number t = 0) const;
         std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
