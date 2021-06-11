@@ -59,10 +59,12 @@ namespace sdm
             {
                 for (s = 0; s < rows; ++s)
                 {
-                    matrix->setValueAt(s, s, 1.0);
+                    for (s_ = 0; s_ < cols; ++s_)
+                    {
+                        matrix->setValueAt(s, s_, (s == s_) ? 1.0 : 0.);
+                    }
                 }
             }
-
             return matrix;
         }
 
