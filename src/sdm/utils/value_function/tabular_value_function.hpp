@@ -33,18 +33,19 @@ namespace sdm
     /**
      * @brief Tabular value function are functions of state and action that use a vector representation to store the values. 
      * 
-     * @tparam std::shared_ptr<State> Type of the states 
+     * @tparam std::shared_ptr<Item> Type of the states 
      * @tparam std::shared_ptr<Action> Type of the states
      * @tparam double Type of the values (must be primitive type)
      * @tparam TStruct Type of vector container (MappedVector, DenseVector and SparseVector are common type) 
      */
-    template <class TBackupOperator = ClassicBellmanBackupOperator,
+    template <class TItem,
+              class TBackupOperator = ClassicBellmanBackupOperator,
               template <typename TI, typename TV> class TStruct = MappedVector>
     class TabularValueFunction : public ValueFunction,
-                                 public BoostSerializable<TabularValueFunction<TBackupOperator, TStruct>>
+                                 public BoostSerializable<TabularValueFunction<TItem, TBackupOperator, TStruct>>
     {
     public:
-        using Container = TStruct<std::shared_ptr<State>, double>;
+        using Container = TStruct<TItem, double>;
         using backup_operator_type = TBackupOperator;
 
         TabularValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, std::shared_ptr<Initializer> initializer);
@@ -70,9 +71,9 @@ namespace sdm
          * @param state the state where we want to evaluate the function
          * @return the value
          */
-        double getValueAt(const std::shared_ptr<State> &state, number t = 0);
+        double getValueAt(const std::shared_ptr<Item> &state, number t = 0);
 
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0);
+        std::shared_ptr<Action> getBestAction(const std::shared_ptr<Item> &state, number t = 0);
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -80,8 +81,8 @@ namespace sdm
          * @param state the state
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
-        void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
-        void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
+        void updateValueAt(const std::shared_ptr<Item> &state, number t = 0);
+        void updateValueAt(const std::shared_ptr<Item> &state, number t, double target);
 
         /**
          * @brief Save a value function into a file. 
@@ -99,17 +100,11 @@ namespace sdm
          */
         void load(std::string filename);
 
-        std::string str();
+        virtual std::string str() const;
 
-        std::vector<std::shared_ptr<State>> getSupport(number t);
+        std::vector<std::shared_ptr<Item>> getSupport(number t);
 
         backup_operator_type getBackupOperator();
-
-        friend std::ostream &operator<<(std::ostream &os, TabularValueFunction &vf)
-        {
-            os << vf.str();
-            return os;
-        }
 
     protected:
         /**
@@ -148,11 +143,14 @@ namespace sdm
         }
     };
 
-    using MappedValueFunction = TabularValueFunction<ClassicBellmanBackupOperator, MappedVector>;
+    template <typename TItem>
+    using MappedValueFunction = TabularValueFunction<TItem, ClassicBellmanBackupOperator, MappedVector>;
 
-    using SparseValueFunction = TabularValueFunction<ClassicBellmanBackupOperator, SparseVector>;
+    template <typename TItem>
+    using SparseValueFunction = TabularValueFunction<TItem, ClassicBellmanBackupOperator, SparseVector>;
 
-    using DenseValueFunction = TabularValueFunction<ClassicBellmanBackupOperator, DenseVector>;
+    template <typename TItem>
+    using DenseValueFunction = TabularValueFunction<TItem, ClassicBellmanBackupOperator, DenseVector>;
 
 } // namespace sdm
 #include <sdm/utils/value_function/tabular_value_function.tpp>

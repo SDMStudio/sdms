@@ -29,7 +29,7 @@ namespace sdm
      * @class BaseValueFunction
      * @brief This class is the abstract class of all kind of value functions. All {state,action,q}-value function must derived this class.
      * 
-     * @tparam std::shared_ptr<State> Type of the state.
+     * @tparam std::shared_ptr<Item> Type of the state.
      * @tparam std::shared<Action> Type of the action.
      * @tparam double Type of the value.
      */
@@ -60,7 +60,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+        virtual double getValueAt(const std::shared_ptr<Item> &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-value at a state
@@ -68,7 +68,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<Item> &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action
@@ -77,7 +77,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual double getQValueAt(const std::shared_ptr<Item> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Get the best action to do at a state
@@ -85,7 +85,7 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<Item> &state, number t) = 0;
 
         /**
          * @brief Save a value function into a file. 
@@ -106,7 +106,7 @@ namespace sdm
         /**
          * @brief Define this function in order to be able to display the value function
          */
-        virtual std::string str() = 0;
+        virtual std::string str() const = 0;
 
         /**
          * @brief Get a shared pointer on the current object
@@ -121,8 +121,9 @@ namespace sdm
 
         bool isInfiniteHorizon() const;
 
-        friend std::ostream &operator<<(std::ostream &os, BaseValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, const BaseValueFunction &vf)
         {
+            std::cout << "pass"<< std::endl;
             os << vf.str();
             return os;
         }

@@ -1,4 +1,5 @@
 #include <sdm/utils/struct/iterator/multi_iterator.hpp>
+#include <sdm/exception.hpp>
 
 namespace sdm
 {
@@ -43,8 +44,9 @@ namespace sdm
             return this->shared_from_this();
         }
 
-        std::shared_ptr<ItemIterator> MultiIterator::operator+(number n) const
+        std::shared_ptr<ItemIterator> MultiIterator::operator+(number) const
         {
+            throw exception::NotImplementedException();
         }
 
         bool MultiIterator::operator==(const std::shared_ptr<ItemIterator> &other) const

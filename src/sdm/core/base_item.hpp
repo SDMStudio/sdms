@@ -28,6 +28,15 @@ namespace sdm
             res << static_cast<item_t>(*this);
             return res.str();
         }
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            using boost::serialization::make_nvp;
+
+            archive &boost::serialization::base_object<item_t>(*this);
+        }
     };
 
     using StringItem = BaseItem<std::string>;
@@ -266,3 +275,18 @@ namespace sdm
     // };
 
 } // namespace sdm
+
+namespace std
+{
+
+    template <typename TState>
+    struct hash<sdm::BaseItem<TState>>
+    {
+        typedef sdm::BaseItem<TState> argument_type;
+        typedef std::size_t result_type;
+        inline result_type operator()(const argument_type &in) const
+        {
+            return std::hash<TState>()(in);
+        }
+    };
+}

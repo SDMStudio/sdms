@@ -38,26 +38,39 @@ namespace sdm
 
         std::shared_ptr<State> getInitialState();
 
-        virtual std::shared_ptr<BeliefInterface> nextState(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t) const = 0;
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
 
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, std::shared_ptr<HSVI> hsvi) const = 0;
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &ostate = std::shared_ptr<State>());
+        virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0) const;
 
-        virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t) const = 0;
-
-        double getExpectedNextValue(std::shared_ptr<ValueFunction> value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t) const;
+        double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the Observation Probability p(o | b', a)
          */
-        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t) const = 0;
+        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
 
     protected:
         std::shared_ptr<BeliefInterface> initial_state_;
         std::shared_ptr<BeliefInterface> current_state_;
 
         std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
+
+
+        // ########### This part of the code can be overriden for specifications ###########
+
+        /**
+         * @brief This part of the code can be used to 
+         * 
+         * @param belief 
+         * @param action 
+         * @param obs 
+         * @param t 
+         * @return std::shared_ptr<BeliefInterface> 
+         */
+        virtual std::shared_ptr<BeliefInterface> nextState(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t = 0) const;
+
     };
 
 }

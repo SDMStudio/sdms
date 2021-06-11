@@ -19,7 +19,7 @@ namespace sdm
 
   template <typename TState>
   class BaseState : public State
-                    // public BaseItem<TState>
+  // public BaseItem<TState>
   {
   public:
     BaseState();
@@ -30,6 +30,8 @@ namespace sdm
     virtual void setState(const TState &state);
 
     virtual std::string str() const;
+
+    virtual bool operator==(const BaseState&other);
 
   protected:
     TState state_;
