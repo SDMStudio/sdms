@@ -22,10 +22,15 @@ namespace sdm
         virtual std::string str() const = 0;
     };
 
+    class BeliefInterface;
+
     class State : public Observation
     {
     public:
         virtual ~State() {}
+
+        virtual std::shared_ptr<BeliefInterface> toBelief();
+
         virtual std::string str() const = 0;
     };
 } // namespace sdm
