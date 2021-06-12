@@ -12,9 +12,9 @@
 
 #include <vector>
 
+#include <sdm/types.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/variations.hpp>
-#include <sdm/types.hpp>
 
 namespace sdm
 {
@@ -24,55 +24,51 @@ namespace sdm
      * @tparam TFunction The type of function to generate.
      */
     template <typename TFunction>
-    class FunctionSpace : public DiscreteSpace<TFunction>
+    class FunctionSpace : public DiscreteSpace
     {
     protected:
-
-        typedef boost::bimaps::bimap<number, TFunction> funct_bimap;
-        typedef typename funct_bimap::value_type funct_bimap_value;
+        // typedef boost::bimaps::bimap<number, TFunction> funct_bimap;
+        // typedef typename funct_bimap::value_type funct_bimap_value;
 
         using value_type = TFunction;
         using input_type = typename TFunction::input_type;
         using output_type = typename TFunction::output_type;
 
-        using input_space = DiscreteSpace<input_type>;
-        using output_space = DiscreteSpace<output_type>;
-
         /**
          * @brief The input space 
          */
-        input_space input_space_;
+        std::shared_ptr<Space> input_space_;
 
         /**
          * @brief The vector of output spaces (possibly one output space for each input space). In case output space are similar for all input, use the adequate constructor.
          */
-        std::vector<output_space> output_space_;
+        std::vector<std::shared_ptr<Space>> output_space_;
 
     public:
-        FunctionSpace(input_space input_sp, output_space output_sp);
+        using iterator_type = DiscreteSpace::iterator_type;
+
+        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::shared_ptr<Space> &output_space, bool store_functions = false);
+
         /**
          * @brief Construct a new Function Space object
          * 
          * @param possible_inputs possible inputs
          * @param possible_outputs possible ouputs 
          */
-        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs);
+        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs, bool store_functions = false);
 
         /**
          * @brief Construct a new Function Space object
          * 
          * @param input_space
-         * @param output_sps output spaces, one for each input value (requirements : input_space.size() == output_spaces.size() or output_spaces.size()==1). 
+         * @param output_sps output spaces, one for each input value (requirements : input_space->size() == output_spaces.size() or output_spaces.size()==1). 
          */
-        FunctionSpace(input_space input_space, std::vector<output_space> output_spaces);
+        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::vector<std::shared_ptr<Space>> &output_spaces, bool store_functions = false);
 
-        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs);
+        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs, bool store_functions = false);
 
-        /**
-         * @brief Get all the possible function in this space.
-         * 
-         * @return the list of all possible functions
-         */
-        std::vector<TFunction> getAll();
+        iterator_type begin();
+        iterator_type end();
     };
 } // namespace sdm
+#include <sdm/core/space/function_space.tpp>

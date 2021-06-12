@@ -1,5 +1,6 @@
-#include <sdm/core/space/discrete_space.hpp>
 #include <sdm/common.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/core/space/discrete_space.hpp>
 
 namespace sdm
 {
@@ -36,18 +37,28 @@ namespace sdm
         return true;
     }
 
+    bool DiscreteSpace::isStoringItems() const
+    {
+        return this->store_items_;
+    }
+
+    void DiscreteSpace::storeItems(bool store_items)
+    {
+        this->store_items_ = store_items;
+    }
+
+    bool DiscreteSpace::isGenerated()
+    {
+        return !this->list_items_.empty();
+    }
+
     std::shared_ptr<Item> DiscreteSpace::sample() const
     {
         assert(!this->all_items_.empty());
         std::uniform_int_distribution<int> distr(0, this->all_items_.size() - 1);
         return this->all_items_.left.at(distr(common::global_urng()));
     }
-
-    std::vector<std::shared_ptr<Item>> DiscreteSpace::getAll()
-    {
-        return this->list_items_;
-    }
-
+    
     number DiscreteSpace::getNumItems() const
     {
         return this->num_items_;
@@ -64,7 +75,7 @@ namespace sdm
     }
 
     // template <typename T>
-    // std::shared_ptr<Item> DiscreteSpace::getItemAddress(const T &item_value) 
+    // std::shared_ptr<Item> DiscreteSpace::getItemAddress(const T &item_value)
     // {
     //     for (const auto &item : *this)
     //     {
@@ -79,6 +90,42 @@ namespace sdm
     std::vector<number> DiscreteSpace::getDim() const
     {
         return {1};
+    }
+
+    void DiscreteSpace::generateItems()
+    {
+        if (this->isStoringItems())
+        {
+            this->storeItems(false);
+            this->all_items_.clear();
+            this->list_items_.clear();
+
+            // Generate joint items and store in containers
+            number counter = 0;
+            for (const auto &v : *this)
+            {
+                this->all_items_.insert(items_bimap_value(counter, v));
+                this->list_items_.push_back(v);
+                counter++;
+            }
+            this->storeItems(true);
+        }
+    }
+
+    std::vector<std::shared_ptr<Item>> DiscreteSpace::getAll()
+    {
+        if (!this->store_items_)
+        {
+            throw sdm::exception::Exception("You are trying to generate all items of space with parameter 'store_items=false'\n#> Use for loop on the space or set parameter store items to 'true'\n");
+        }
+        else
+        {
+            if (this->list_items_.empty())
+            {
+                this->generateItems();
+            }
+            return this->list_items_;
+        }
     }
 
     std::string DiscreteSpace::str() const

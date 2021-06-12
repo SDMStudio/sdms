@@ -14,7 +14,7 @@
  */
 namespace sdm
 {
-    class DecisionRule : public Function<std::shared_ptr<State>, std::shared_ptr<Action>>
+    class DecisionRule : public Function<std::shared_ptr<State>, std::shared_ptr<Action>>, public Action
     {
     public:
         /**

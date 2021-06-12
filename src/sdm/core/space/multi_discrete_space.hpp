@@ -71,9 +71,6 @@ namespace sdm
         template <bool TBool = std::is_integral<std::shared_ptr<Item>>::value>
         MultiDiscreteSpace(const std::enable_if_t<TBool, std::vector<std::shared_ptr<Item>>> &num_items);
 
-        bool isStoringItems() const;
-        void storeItems(bool store_items);
-
         /**
          * @brief   Get a specific index of an item for a given agent
          * @param   ag_id index of the agent
@@ -162,12 +159,6 @@ namespace sdm
         using jitems_bimap_value = jitems_bimap::value_type;
 
         /**
-        *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
-        */
-        void generateJointItems();
-        bool isGenerated();
-
-        /**
          * @brief Sets the number of joint items
          * 
          */
@@ -175,7 +166,6 @@ namespace sdm
 
         inline std::shared_ptr<DiscreteSpace> cast(const std::shared_ptr<Space> &space) const;
 
-        bool store_items_;
     };
 
 } // namespace sdm

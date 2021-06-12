@@ -65,7 +65,9 @@ namespace sdm
          * @brief Return true because this is a discrete space
          */
         bool isDiscrete() const;
-
+        bool isStoringItems() const;
+        void storeItems(bool store_items);
+        
         /**
          * @brief Sample a random item from the space
          */
@@ -147,6 +149,14 @@ namespace sdm
 
         /** @brief the list of possible items without their index **/
         std::vector<std::shared_ptr<Item>> list_items_;
+
+        /**
+        *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
+        */
+        void generateItems();
+        bool isGenerated();
+
+        bool store_items_ = true;
     };
 
 } // namespace sdm

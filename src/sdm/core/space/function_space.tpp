@@ -1,80 +1,83 @@
 #include <sdm/core/space/function_space.hpp>
+#include <sdm/utils/struct/iterator/function_iterator.hpp>
 
 namespace sdm
 {
     template <typename TFunction>
-    FunctionSpace<TFunction>::FunctionSpace(input_space input_sp, output_space output_sp) : input_space_(input_sp), output_space_({output_sp})
+    FunctionSpace<TFunction>::FunctionSpace(const std::shared_ptr<Space> &input_sp, const std::shared_ptr<Space> &output_sp, bool store_functions) : input_space_(input_sp), output_space_({output_sp})
     {
+        this->storeItems(store_functions);
     }
 
     template <typename TFunction>
-    FunctionSpace<TFunction>::FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs) : input_space_(possible_inputs)
+    FunctionSpace<TFunction>::FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs, bool store_functions)
     {
-        this->output_space_.push_back(output_space(possible_outputs));
+        this->storeItems(store_functions);
+        this->input_space_ = std::make_shared<DiscreteSpace>(possible_inputs);
+        this->output_space_.push_back(std::make_shared<DiscreteSpace>(possible_outputs));
     }
 
     template <typename TFunction>
-    FunctionSpace<TFunction>::FunctionSpace(input_space input_space, std::vector<output_space> output_spaces) : input_space_(input_space), output_space_(output_spaces)
+    FunctionSpace<TFunction>::FunctionSpace(const std::shared_ptr<Space> &input_space, const std::vector<std::shared_ptr<Space>> &output_spaces, bool store_functions) : input_space_(input_space), output_space_(output_spaces)
     {
-        assert(input_sp.getNumElements() == output_sps.size());
+        this->storeItems(store_functions);
     }
 
     template <typename TFunction>
-    FunctionSpace<TFunction>::FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs) : input_space_(possible_inputs)
+    FunctionSpace<TFunction>::FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs, bool store_functions)
     {
         assert(possible_inputs.size() == possible_outputs.size());
+        this->storeItems(store_functions);
+
+        this->input_space_ = std::make_shared<DiscreteSpace>(possible_inputs);
         for (const auto &v : possible_outputs)
         {
-            this->output_space_.push_back(output_space(v));
+            this->output_space_.push_back(std::make_shared<DiscreteSpace>(v));
         }
     }
 
     template <typename TFunction>
-    std::vector<TFunction> FunctionSpace<TFunction>::getAll()
+    typename FunctionSpace<TFunction>::iterator_type FunctionSpace<TFunction>::begin()
     {
-        assert(this->output_space_.size() > 0);
-        if (this->all_items_.empty())
+        if (this->isStoringItems())
         {
-            // Build appropriate input for Variation (vector of vector of output)
-            std::vector<std::vector<output_type>> tmp;
-            for (std::size_t i = 0; i < input_space_.getAll().size(); i++)
+            if (!this->isGenerated())
             {
-                if (this->output_space_.size() == 1)
-                {
-                    tmp.push_back(this->output_space_[0].getAll());
-                }
-                else
-                {
-                    tmp.push_back(this->output_space_[i].getAll());
-                }
+                this->generateItems();
             }
-
-            // Generate all possible functions
-            Variations<TFunction> funct_generator(input_space_.getAll(), tmp);
-            number idx = 0;
-            for (auto it = funct_generator.begin(); it != funct_generator.end(); it = funct_generator.next())
-            {
-                this->all_items_.insert(funct_bimap_value(idx, *it));
-                idx++;
-                this->list_items_.push_back(*it);
-            }
-            this->num_items_ = this->all_items_.size();
+            return DiscreteSpace::begin();
         }
-        return DiscreteSpace<TFunction>::getAll();
+        else
+        {
+            std::vector<std::shared_ptr<ItemIterator>> out_begin_iterators, out_end_iterators;
+            std::vector<std::shared_ptr<Item>> list_input;
+            number i = 0;
+            for (const auto &input : *this->input_space_)
+            {
+                list_input.push_back(input);
+                out_begin_iterators.push_back(this->output_space_[(this->output_space_.size() == 1) ? 0 : i]->begin());
+                out_end_iterators.push_back(this->output_space_[(this->output_space_.size() == 1) ? 0 : i]->end());
+                i++;
+            }
+            return std::make_shared<sdm::iterator::FunctionIterator<TFunction>>(list_input, out_begin_iterators, out_end_iterators);
+        }
     }
-
 
     template <typename TFunction>
-    FunctionSpace<TFunction>::iterator_type FunctionSpace<TFunction>::begin()
+    typename FunctionSpace<TFunction>::iterator_type FunctionSpace<TFunction>::end()
     {
-        return std::make_shared<iterator::SuperIterator<std::shared_ptr<Item>, decltype(list_items_.begin())>>(this->list_items_.begin());
+        if (this->isStoringItems())
+        {
+            if (!this->isGenerated())
+            {
+                this->generateItems();
+            }
+            return DiscreteSpace::end();
+        }
+        else
+        {
+            return std::make_shared<sdm::iterator::FunctionIterator<TFunction>>();
+        }
     }
-
-    template <typename TFunction>
-    FunctionSpace<TFunction>::iterator_type FunctionSpace<TFunction>::end()
-    {
-        return std::make_shared<iterator::SuperIterator<std::shared_ptr<Item>, decltype(list_items_.end())>>(this->list_items_.end());
-    }
-
 
 } // namespace sdm
