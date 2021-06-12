@@ -1,3 +1,4 @@
+
 #include <iostream>
 
 #include <memory>
@@ -24,6 +25,7 @@
 #include <sdm/parser/parser.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/core/state/belief_state.hpp>
 
 using namespace sdm;
@@ -52,30 +54,29 @@ int main(int argc, char **argv)
     try
     {
 
-        
         number horizon = 3;
 
         auto mdp = sdm::parser::parse_file(filename);
         mdp->setHorizon(horizon);
         mdp->setDiscount(discount);
+        std::cout << "Pass 1" <<std::endl;
 
         std::cout << mdp->toStdFormat() << std::endl;
 
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
-        std::cout << "1" << std::endl;
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
 
-        auto lb = std::make_shared<MappedValueFunction<Belief>>(hsvi_mdp, mdp->getHorizon(), -1000);
-        auto ub = std::make_shared<MappedValueFunction<Belief>>(hsvi_mdp, mdp->getHorizon(), 1000);
-        std::cout << "2" << std::endl;
+        auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+
+        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), -1000, tabular_backup);
+        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), 1000, tabular_backup);
 
         auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
-        std::cout << "3" << std::endl;
+
         algo->do_initialize();
         std::cout << *algo->getLowerBound() << std::endl;
         std::cout << *algo->getUpperBound() << std::endl;
-        std::cout << "4" << std::endl;
         algo->do_solve();
-        std::cout << "5" << std::endl;
+
         std::cout << *algo->getLowerBound() << std::endl;
         std::cout << *algo->getUpperBound() << std::endl;
     }
