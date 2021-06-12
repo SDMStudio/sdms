@@ -219,34 +219,6 @@ namespace sdm
             {
                 boost::apply_visitor(obs_d_encoder, obs);
             }
-
-            for (const auto &state : *this->state_space_)
-            {
-                for (const auto &action : *this->action_space_)
-                {
-                    for (const auto &next_state : *this->state_space_)
-                    {
-                        for (const auto &observation : *this->obs_space_)
-                        {
-                            double obs_proba = dynamics->getObservationProbability(std::static_pointer_cast<State>(state),
-                                                                                   std::static_pointer_cast<Action>(action),
-                                                                                   std::static_pointer_cast<State>(next_state),
-                                                                                   std::static_pointer_cast<Observation>(observation));
-
-                            double transition_proba = state_dynamics->getTransitionProbability(std::static_pointer_cast<State>(state),
-                                                                                               std::static_pointer_cast<Action>(action),
-                                                                                               std::static_pointer_cast<State>(next_state),
-                                                                                               0);
-
-                            dynamics->setDynamics(std::static_pointer_cast<State>(state),
-                                                  std::static_pointer_cast<Action>(action),
-                                                  std::static_pointer_cast<State>(next_state),
-                                                  std::static_pointer_cast<Observation>(observation),
-                                                  transition_proba * obs_proba);
-                        }
-                    }
-                }
-            }
             return dynamics;
         }
     } // namespace ast
