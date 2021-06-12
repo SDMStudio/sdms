@@ -144,7 +144,7 @@ namespace sdm
         {
             std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
                       << std::endl;
-            jdr = this->lower_bound_->getBestAction(ostate);
+            jdr = this->lower_bound_->getBestAction(ostate, i);
             std::cout << "#> State\n"
                       << ostate << "\n"
                       << std::endl;
