@@ -27,7 +27,7 @@ namespace sdm
     class GymInterface
     {
     public:
-        GymInterface(const std::shared_ptr<Space<std::shared_ptr<Observation>>>& observation_space, const std::shared_ptr<Space>& action_space);
+        GymInterface(const std::shared_ptr<Space>& observation_space, const std::shared_ptr<Space>& action_space);
 
         /**
          * @brief Get the action space.
@@ -36,7 +36,7 @@ namespace sdm
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
         virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
-        virtual std::shared_ptr<Space<std::shared_ptr<Observation>>> getObservationSpaceAt(number t) = 0;
+        virtual std::shared_ptr<Space> getObservationSpaceAt(number t) = 0;
 
         /**
          * @brief Reset the environment and return initial observation.

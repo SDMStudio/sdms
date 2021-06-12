@@ -11,12 +11,12 @@ namespace sdm
     {
     }
 
-    double QValueFunction::getValueAt(const std::shared_ptr<Item> &, number)
+    double QValueFunction::getValueAt(const std::shared_ptr<State> &, number)
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    std::shared_ptr<Action> QValueFunction::getBestAction(const std::shared_ptr<Item> &state, number t)
+    std::shared_ptr<Action> QValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
         auto qvalues = this->getQValueAt(state, t);
         return qvalues->argmax();

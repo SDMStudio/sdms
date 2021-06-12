@@ -36,7 +36,7 @@ namespace sdm
     class TabularQValueFunction : public QValueFunction
     {
     protected:
-        using Container = TMatrix<std::shared_ptr<Item>, std::shared_ptr<Action>, double>;
+        using Container = TMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
 
         /**
          * @brief The value function represention.
@@ -73,7 +73,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<Item> &state, number t);
+        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the q-value given state and action
@@ -82,37 +82,37 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        double getQValueAt(const std::shared_ptr<Item> &state, const std::shared_ptr<Action> &action, number t);
+        double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
         /**
          * @brief Update the value at a given state
          */
-        void updateQValueAt(const std::shared_ptr<Item> &state, const std::shared_ptr<Action> &action, number t = 0);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
          * @brief Update the value at a given state (given a target)
          */
-        void updateQValueAt(const std::shared_ptr<Item> &state, const std::shared_ptr<Action> &action, number t, double target);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double target);
 
         /**
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction<std::shared_ptr<Item>, std::shared_ptr<Action>> &vf)
+        friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>> &vf)
         {
             os << vf.str();
             return os;
         }
     };
 
-    template <typename std::shared_ptr<Item>, typename std::shared_ptr<Action>, typename double = double>
-    using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<Item>, std::shared_ptr<Action>, double, MappedMatrix>;
+    template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, MappedMatrix>;
 
-    // template <typename std::shared_ptr<Item>, typename std::shared_ptr<Action>, typename double = double>
-    // using SparseValueFunction = TabularQValueFunction<std::shared_ptr<Item>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, SparseVector>;
+    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    // using SparseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, SparseVector>;
 
-    // template <typename std::shared_ptr<Item>, typename std::shared_ptr<Action>, typename double = double>
-    // using DenseValueFunction = TabularQValueFunction<std::shared_ptr<Item>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, DenseVector>;
+    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    // using DenseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, DenseVector>;
 
 } // namespace sdm
