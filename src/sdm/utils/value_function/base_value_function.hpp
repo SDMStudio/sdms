@@ -16,8 +16,6 @@
 #include <sdm/exception.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/public/boost_serializable.hpp>
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -29,7 +27,7 @@ namespace sdm
      * @class BaseValueFunction
      * @brief This class is the abstract class of all kind of value functions. All {state,action,q}-value function must derived this class.
      * 
-     * @tparam std::shared_ptr<Item> Type of the state.
+     * @tparam std::shared_ptr<State> Type of the state.
      * @tparam std::shared<Action> Type of the action.
      * @tparam double Type of the value.
      */
@@ -60,7 +58,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual double getValueAt(const std::shared_ptr<Item> &state, number t = 0) = 0;
+        virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-value at a state
@@ -85,7 +83,7 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<Item> &state, number t) = 0;
+        // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Save a value function into a file. 

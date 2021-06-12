@@ -1,19 +1,20 @@
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
-    ValueFunction::ValueFunction(std::shared_ptr<BackupInterface> backup, number horizon) : BaseValueFunction(horizon), backup_(backup)
+    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup) 
+    : BaseValueFunction(horizon), backup_(backup), initializer_(initializer)
     {
     }
 
-    std::shared_ptr<BinaryFunction<std::shared_ptr<Item>, number, double>> ValueFunction::getInitFunction()
+    std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
     {
         return this->init_function_;
     }
 
-    double ValueFunction::operator()(const std::shared_ptr<Item> &state, const number &t)
+    double ValueFunction::operator()(const std::shared_ptr<State> &state, const number &t)
     {
         return this->getValueAt(state, t);
     }
@@ -36,21 +37,16 @@ namespace sdm
     //     return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
     // }
 
-    std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<Item> &state, number t)
+    std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
         // Get the best action (i.e. the action that maximizes the q value function)
         return this->backup_->getBestAction(this->getptr(), state->toState(), t);
     }
 
-    void ValueFunction::initialize(std::shared_ptr<BinaryFunction<std::shared_ptr<Item>, number, double>> init_function)
+    void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
     {
         this->init_function_ = init_function;
     }
-
-    // std::shared_ptr<SolvableByHSVI> ValueFunction::getWorld()
-    // {
-    //     return this->problem_;
-    // }
 
     std::shared_ptr<ValueFunction> ValueFunction::getptr()
     {

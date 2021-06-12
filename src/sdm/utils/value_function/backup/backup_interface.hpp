@@ -1,8 +1,5 @@
 #pragma once
 
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
-
 #include <sdm/core/function.hpp>
 
 namespace sdm

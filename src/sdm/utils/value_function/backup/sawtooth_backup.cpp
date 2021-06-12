@@ -1,3 +1,5 @@
+#include <sdm/utils/value_function/backup/sawtooth_backup.hpp>
+
 namespace sdm
 {
     SawtoothBackup::SawtoothBackup() {}
@@ -7,7 +9,7 @@ namespace sdm
         this->world_ = world;
     }
 
-    std::pair<double, std::shared_ptr<State>> SawtoothBackup::getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    std::pair<double, std::shared_ptr<State>> SawtoothBackup::getMaxAt(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         assert(vf->getInitFunction() != nullptr);
 
@@ -18,11 +20,11 @@ namespace sdm
 
         for (const auto &pair_ostate_value : vf->getSupport(t))
         {
-            // A ce niveau, il manque un cast pour parcourir les états. 
+            // A ce niveau, il manque un cast pour parcourir les états.
             // auto occupancy_state = std::static_pointer_cast<State>(action);
 
             auto ostate = pair_ostate_value;
-            double v_kappa = vf->getValueAt(pair_ostate_value,t);
+            double v_kappa = vf->getValueAt(pair_ostate_value, t);
             double v_ub_kappa = vf->getInitFunction()->operator()(ostate, t);
 
             double phi = 1.0;
@@ -45,12 +47,12 @@ namespace sdm
         return std::make_pair(v_ub_state + min_ext, argmin_);
     }
 
-    double getBackup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    double SawtoothBackup::getBackup(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
-        return this->getMaxAt().first;
+        return this->getMaxAt(vf, state, t).first;
     }
 
-    std::shared_ptr<Action> getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    std::shared_ptr<Action> SawtoothBackup::getBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
@@ -58,7 +60,7 @@ namespace sdm
         for (const auto &action : *this->world_->getActionSpaceAt(state, t))
         {
             auto casted_action = std::static_pointer_cast<Action>(action);
-            if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))
+            if (max < (tmp = this->getQValueAt(vf, state, casted_action, t)))
             {
                 best_action = casted_action;
                 max = tmp;
@@ -66,7 +68,5 @@ namespace sdm
         }
         return best_action;
     }
-
-
 
 }

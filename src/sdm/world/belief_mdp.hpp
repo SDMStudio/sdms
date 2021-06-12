@@ -69,8 +69,7 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<BeliefInterface> 
          */
-        virtual std::shared_ptr<BeliefInterface> nextState(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t = 0) const;
-
+        virtual std::shared_ptr<BeliefInterface> nextState(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t = 0) const;   
     };
 
 }

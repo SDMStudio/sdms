@@ -1,8 +1,7 @@
 
 #pragma once
 
-#include <sdm/utils/value_function/backup_base.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/backup/backup_base.hpp>
 
 namespace sdm
 {
@@ -20,4 +19,3 @@ namespace sdm
 
     };
 }
-#include <sdm/utils/value_function/sawtooth_backup.tpp>

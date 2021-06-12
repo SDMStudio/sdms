@@ -1,3 +1,5 @@
+#include <sdm/exception.hpp>
+
 namespace sdm
 {
     // ******************
@@ -62,14 +64,14 @@ namespace sdm
         }
     }
 
-    double BoundInitializer::getValue(std::shared_ptr<ValueFunction> vf, number t)
+    double BoundInitializer::getValue(std::shared_ptr<ValueFunction>, number t)
     {
         return (this->callback_value == nullptr) ? this->value_ : ((*world_->getUnderlyingProblem()).*callback_value)(t);
     }
 
-    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf)
+    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> )
     {
-        auto under_pb = this->world_->getUnderlyingProblem();
+        // auto under_pb = this->world_->getUnderlyingProblem();
 
         // long l = log(1 - this->discount_) * this->error_ / this->reward_->getMaxReward();
         // number t = 0;
@@ -82,6 +84,7 @@ namespace sdm
         // } while (factor < 1.e-10);
         // value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
         // return value;
+        throw exception::NotImplementedException();
     }
 
     // ******************

@@ -1,54 +1,23 @@
+#include <sdm/utils/value_function/point_set_value_function.hpp>
+#include <sdm/utils/value_function/backup/backup_base.hpp>
 
 namespace sdm
 {
-    PointSetValueFunction::PointSetValueFunction(std::shared_ptr<BackupInterface> backup,number horizon, std::shared_ptr<Initializer> initializer)
-        : ValueFunction(backup,horizon), initializer_(initializer)
-    {
-        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
-    }
-
-    PointSetValueFunction::PointSetValueFunction(std::shared_ptr<BackupInterface> backup,number horizon, double default_value)
-        : PointSetValueFunction(backup,horizon, std::make_shared<ValueInitializer>(default_value))
+    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup)
+        : TabularValueFunction(horizon, initializer, backup)
     {
     }
 
-    void PointSetValueFunction::initialize()
+    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterface> &backup)
+        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup)
     {
-        this->initializer_->init(this->getptr());
-    }
-
-    void PointSetValueFunction::initialize(double default_value, number t)
-    {
-        this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
-    }
-
-    double PointSetValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
-    {
-        // double i_value = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(std::shared_ptr<ValueFunction>(this),state,t).first;
-        // // this->updateValueAt(state, t, i_value);
-        // return i_value;
-
-        if (t < this->getHorizon() && this->init_function_ != nullptr)
-        {
-            if ((this->representation[t].find(state) == this->representation[t].end()))
-            {
-                double i_value = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(this->getptr(),state,t).first;
-                this->updateValueAt(state, t, i_value);
-                return i_value;
-            }
-        }
-        return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
     }
 
     void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
-        this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
-    }
+        TabularValueFunction::updateValueAt(state, t, target);
 
-    void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
-    {
-        this->updateValueAt(state, t,std::static_pointer_cast<BackupBase<double>>(this->backup_)->backup(this->getptr(),state,t) );
-
+        // 
         if (this->last_prunning == this->freq_prune_)
         {
             for (number time = 0; time < this->getHorizon(); time++)
@@ -59,16 +28,6 @@ namespace sdm
         }
         this->last_prunning++;
     }
-
-    // void PointSetValueFunction::save(std::string filename)
-    // {
-    //     BoostSerializable<PointSetValueFunction>::save(filename);
-    // }
-
-    // void PointSetValueFunction::load(std::string filename)
-    // {
-    //     BoostSerializable<PointSetValueFunction>::load(filename);
-    // }
 
     std::string PointSetValueFunction::str() const
     {
@@ -96,12 +55,6 @@ namespace sdm
         res << "</point_set_representation>" << std::endl;
         return res.str();
     }
-
-    std::vector<std::shared_ptr<State>> PointSetValueFunction::getSupport(number t)
-    {
-        return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
-    }
-
 
     void PointSetValueFunction::prune(number t)
     {
