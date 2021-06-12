@@ -65,31 +65,5 @@ namespace sdm
     }
   };
 
-  // // Specialisation for the Joint State 
-  // template <>
-  // class Joint<std::shared_ptr<State>> : public BaseJoint<std::shared_ptr<State>>, std::shared_ptr<State>
-  // {
-  // public :
-  //   using value_type = typename BaseJoint<std::shared_ptr<State>>::value_type;
-
-  //   Joint();
-  //   Joint(const std::vector<std::shared_ptr<State>> &joint_item);
-  //   Joint(const std::vector<number> &, const std::vector<std::shared_ptr<State>> &joint_item);
-  //   Joint(std::initializer_list<std::shared_ptr<State>> list_values);
-  // };
-
-  // // Specialisation for the Joint Observation 
-  // template <>
-  // class Joint<std::shared_ptr<Observation>> : public BaseJoint<std::shared_ptr<Observation>>, std::shared_ptr<Observation>
-  // {
-  // public :
-  //   using value_type = typename BaseJoint<std::shared_ptr<Observation>>::value_type;
-
-  //   Joint();
-  //   Joint(const std::vector<std::shared_ptr<Observation>> &joint_item);
-  //   Joint(const std::vector<number> &, const std::vector<std::shared_ptr<Observation>> &joint_item);
-  //   Joint(std::initializer_list<std::shared_ptr<Observation>> list_values);
-  // };
-
 } // namespace sdm
 #include <sdm/core/joint.tpp>

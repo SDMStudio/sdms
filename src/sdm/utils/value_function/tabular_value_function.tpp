@@ -58,6 +58,7 @@ namespace sdm
                 max = tmp;
             }
         }
+
         return best_action;
     }
 

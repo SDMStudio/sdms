@@ -38,6 +38,8 @@ namespace sdm
                double discount = 0.99,
                Criterion criterion = Criterion::REW_MAX);
 
+        virtual ~MPOMDP();
+
         /**
          * @brief Get ths observation space of agent i at timestep t.
          * 

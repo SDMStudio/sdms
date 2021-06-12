@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sdm/types.hpp>
 #include <sdm/core/state/base_state.hpp>
 #include <sdm/core/action/action.hpp>
 
@@ -11,10 +10,11 @@ namespace sdm
 {
   class SerializedState : public BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>  //public Pair<number, std::vector<number>>
   {
-  public:
+  public :
     SerializedState();
     SerializedState(std::shared_ptr<State> state, Joint<std::shared_ptr<Action>> actions);
     SerializedState(const SerializedState &v);
+    virtual ~SerializedState();
 
     std::shared_ptr<State> getHiddenState() const;
 
@@ -46,6 +46,8 @@ namespace sdm
   };
 
 } // namespace sdm
+#include <sdm/core/state/serialized_state.tpp>
+
 
 namespace boost
 {
@@ -61,20 +63,19 @@ namespace boost
 } // namespace boost
 
 
-// namespace std
-// {
-//   template<>
-//   struct hash<sdm::SerializedState>
-//   {
-//     typedef sdm::SerializedState argument_type;
-//     typedef std::size_t result_type;
-//     inline result_type operator()(const argument_type &in) const
-//     {
-//       size_t seed = 0;
-//       //Combine the hash of the current vector with the hashes of the previous ones
-//       sdm::hash_combine(seed, in.first);
-//       sdm::hash_combine(seed, in.second);
-//       return seed;
-//     }
-//   };
-// }
+namespace std
+{
+  template<>
+  struct hash<sdm::SerializedState>
+  {
+    typedef sdm::SerializedState argument_type;
+    typedef std::size_t result_type;
+    inline result_type operator()(const argument_type &in) const
+    {
+      size_t seed = 0;
+      //Combine the hash of the current vector with the hashes of the previous ones
+      sdm::hash_combine(seed, in.getState());
+      return seed;
+    }
+  };
+}

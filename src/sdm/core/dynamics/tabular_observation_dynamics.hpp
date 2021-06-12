@@ -40,7 +40,7 @@ namespace sdm
          * @param action the action
          * @return the observation matrix
          */
-        const MappedVector<std::shared_ptr<Observation>> &getObservationProbabilities(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
+        const MappedVector<std::shared_ptr<Observation>> &getObservationProbabilities(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
         /**
          * @brief Set the observation probability
@@ -59,9 +59,9 @@ namespace sdm
          * @param next_state 
          * @param observation_probas 
          */
-        void setObservationProbabilities(const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const MappedVector<std::shared_ptr<Observation>> &observation_probas);
+        void setObservationProbabilities(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const MappedVector<std::shared_ptr<Observation>> &observation_probas);
 
-        void setObservationModel(const std::unordered_map<std::shared_ptr<Action>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>>> &o_model);
+        void setObservationModel(const std::unordered_map<std::shared_ptr<State>,std::unordered_map<std::shared_ptr<Action>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>>>> &o_model);
 
         /**
          * @brief Get reachable observations from a state, suppose a specific action was executed. 
@@ -72,6 +72,19 @@ namespace sdm
          * @return the list of next reachable observations 
          */
         std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
+
+        /**
+         * @brief Set the the state / observation transition probability (i.e. p(s', o | s, a)).
+         * 
+         * @param state the state 
+         * @param action the action
+         * @param next_state the next state
+         * @param observation the observation
+         * @param proba the probability
+         * @param t the timestep
+         * @return double the probability
+         */
+        void setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0);
 
         /**
          * @brief Get the the state / observation transition probability (i.e. p(s', o | s, a)).
@@ -109,13 +122,12 @@ namespace sdm
 
     protected:
         //! \brief transition and observation matrices
-        std::unordered_map<std::shared_ptr<Action>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>>> observation_model_;
-
-        //! \brief map from next-state, current action pairs to set of next observations
-        std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<State>, std::set<std::shared_ptr<Observation>>>> successor_observations_;
+        std::unordered_map<std::shared_ptr<State>,std::unordered_map<std::shared_ptr<Action>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>>>> observation_model_;
 
         //! \brief dynamics model of the probabilities of state-observation pairs given state-action pairs.
         std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>>>> dynamics_;
 
+        //! \brief map from next-state, current action pairs to set of next observations
+        std::unordered_map<std::shared_ptr<State>,std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<State>, std::set<std::shared_ptr<Observation>>>>> successor_observations_;
     };
 } // namespace sdm

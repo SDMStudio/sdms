@@ -17,8 +17,8 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/utils/logging/logger.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 
 namespace sdm
 {

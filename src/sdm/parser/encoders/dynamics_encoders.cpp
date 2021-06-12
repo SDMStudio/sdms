@@ -150,9 +150,9 @@ namespace sdm
 
             for (const std::shared_ptr<Item> &joint_action : joint_actions)
             {
-                for (const std::shared_ptr<Item> &next_state : next_state_space)
+                for (const std::shared_ptr<Item> &joint_action : joint_actions)
                 {
-                    for (const auto &pair_obs_value : *obs_prob)
+                    for (const std::shared_ptr<Item> &next_state : next_state_space)
                     {
                         this->obs_dynamics_->setObservationProbability(nullptr,
                                                                        std::static_pointer_cast<Action>(joint_action),
@@ -179,9 +179,9 @@ namespace sdm
 
             for (const std::shared_ptr<Item> &joint_action : joint_actions)
             {
-                for (const std::shared_ptr<Item> &next_state : next_state_space)
+                for (const std::shared_ptr<Item> &joint_action : joint_actions)
                 {
-                    for (const std::shared_ptr<Item> &joint_observation : joint_observations)
+                    for (const std::shared_ptr<Item> &next_state : next_state_space)
                     {
                         this->obs_dynamics_->setObservationProbability(nullptr,
                                                                        std::static_pointer_cast<Action>(joint_action),

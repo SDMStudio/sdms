@@ -1,5 +1,4 @@
 #include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/state/private_occupancy_state.hpp>
 
 namespace sdm
 {

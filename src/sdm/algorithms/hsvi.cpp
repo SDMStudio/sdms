@@ -66,7 +66,7 @@ namespace sdm
             //---------------------------------//
             this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             //---------------------------------//
-
+            
             this->do_explore(start_state, 0, 0);
             this->trial++;
         } while (!this->do_stop(start_state, 0, 0));
@@ -93,7 +93,6 @@ namespace sdm
                     this->lower_bound_->updateValueAt(s, h);
                     this->upper_bound_->updateValueAt(s, h);
                 }
-
                 // Select next action and state following search process
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
 

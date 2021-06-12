@@ -68,7 +68,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<Item> &state, number t) = 0;
+        // virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action
@@ -77,7 +77,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        virtual double getQValueAt(const std::shared_ptr<Item> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        // virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Get the best action to do at a state
@@ -123,7 +123,6 @@ namespace sdm
 
         friend std::ostream &operator<<(std::ostream &os, const BaseValueFunction &vf)
         {
-            std::cout << "pass"<< std::endl;
             os << vf.str();
             return os;
         }

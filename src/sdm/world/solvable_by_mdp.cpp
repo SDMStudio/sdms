@@ -49,7 +49,7 @@ namespace sdm
 
     std::shared_ptr<Space> SolvableByMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
-        return std::dynamic_pointer_cast<MDP>(this->underlying_problem)->getActionSpace(t);
+        return std::dynamic_pointer_cast<MDPInterface>(this->underlying_problem)->getActionSpace(t);
     }
 
     double SolvableByMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const

@@ -22,6 +22,9 @@ namespace sdm
         this->num_agents_ = std::static_pointer_cast<MultiDiscreteSpace>(action_space)->getNumSpaces();
     }
 
+    MPOMDP::~MPOMDP() {}
+
+
     std::shared_ptr<Space> MPOMDP::getObservationSpace(number t) const
     {
         return POMDP::getObservationSpace(t);
