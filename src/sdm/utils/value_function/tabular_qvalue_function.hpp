@@ -97,7 +97,7 @@ namespace sdm
         /**
          * @brief Define this function in order to be able to display the value function
          */
-        std::string str();
+        virtual std::string str() const;
 
         friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>> &vf)
         {

@@ -24,7 +24,6 @@ namespace sdm
 
     MPOMDP::~MPOMDP() {}
 
-
     std::shared_ptr<Space> MPOMDP::getObservationSpace(number t) const
     {
         return POMDP::getObservationSpace(t);
@@ -66,6 +65,7 @@ namespace sdm
                 res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(ag))->getNumItems() << "\n";
             }
 
+            std::cout << "1" << std::endl;
             for (const auto &state : *state_space)
             {
                 for (const auto &action : *action_space)
@@ -86,6 +86,7 @@ namespace sdm
                     }
                 }
             }
+            std::cout << "2" << std::endl;
 
             for (const auto &next_state : *state_space)
             {
@@ -105,11 +106,12 @@ namespace sdm
                             auto obs_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(observation)->get(agent);
                             res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
                         }
-                        res << ": " << this->getObservationProbability(nullptr, std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state), std::static_pointer_cast<Observation>(observation), 0) << std::endl;
+                        res << ": " << this->getObservationProbability(std::static_pointer_cast<State>(next_state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state), std::static_pointer_cast<Observation>(observation), 0) << std::endl;
                     }
                 }
             }
 
+            std::cout << "3" << std::endl;
             for (const auto &state : *state_space)
             {
                 for (const auto &action : *action_space)

@@ -1,3 +1,4 @@
+
 #include <iostream>
 
 #include <memory>
@@ -6,6 +7,7 @@
 // #include <sdm/algorithms/hsvi.hpp>
 
 #include <sdm/core/action/action.hpp>
+#include <sdm/core/base_item.hpp>
 #include <sdm/core/action/base_action.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/base_state.hpp>
@@ -22,34 +24,65 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/parser/parser.hpp>
 
-// #include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/core/state/belief_state.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    number horizon = 3;
+    std::string filename;
+    number horizon = 4;
+    double discount = 1.0, error = 0.01, trial = 1000;
 
-    auto mdp = sdm::parser::parse_file("../data/world/dpomdp/mabc.dpomdp");
-    mdp->setHorizon(horizon);
+    if (argc > 1)
+    {
+        filename = argv[1];
 
-    std::cout << mdp->toStdFormat() << std::endl;
+        if (argc > 2)
+        {
+            horizon = std::stoi(argv[2]);
+        }
+    }
+    else
+    {
+        std::cerr << "Error: Require 1 input file." << std::endl;
+        return 1;
+    }
 
-    // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
-    // std::cout << "1" << std::endl;
+    try
+    {
 
-    // auto lb = std::make_shared<MappedValueFunction>(hsvi_mdp, mdp->getHorizon(), -1000);
-    // auto ub = std::make_shared<MappedValueFunction>(hsvi_mdp, mdp->getHorizon(), 1000);
-    // std::cout << "2" << std::endl;
+        number horizon = 3;
 
-    // auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), 0.01);
-    // std::cout << "3" << std::endl;
-    // algo->do_initialize();
-    // std::cout << *algo->getLowerBound() << std::endl;
-    // std::cout << *algo->getUpperBound() << std::endl;
-    // std::cout << "4" << std::endl;
-    // algo->do_solve();
-    // std::cout << *algo->getLowerBound() << std::endl;
-    // std::cout << *algo->getUpperBound() << std::endl;
+        auto mdp = sdm::parser::parse_file(filename);
+        mdp->setHorizon(horizon);
+        mdp->setDiscount(discount);
+        std::cout << "Pass 1" <<std::endl;
+
+        std::cout << mdp->toStdFormat() << std::endl;
+
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
+
+        auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+
+        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), -1000, tabular_backup);
+        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), 1000, tabular_backup);
+
+        auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
+
+        algo->do_initialize();
+        std::cout << *algo->getLowerBound() << std::endl;
+        std::cout << *algo->getUpperBound() << std::endl;
+        algo->do_solve();
+
+        std::cout << *algo->getLowerBound() << std::endl;
+        std::cout << *algo->getUpperBound() << std::endl;
+    }
+    catch (exception::Exception &e)
+    {
+        std::cout << "!!! Exception: " << e.what() << std::endl;
+    }
 
 } // END main

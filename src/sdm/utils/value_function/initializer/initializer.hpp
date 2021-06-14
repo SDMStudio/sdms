@@ -12,11 +12,10 @@
 
 #include <math.h>
 #include <sdm/types.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
-#include <sdm/utils/value_function/qvalue_function.hpp>
-#include <sdm/world/base/mdp_interface.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
 
 namespace sdm
 {
@@ -61,9 +60,7 @@ namespace sdm
         ValueInitializer(double v);
 
         void initBase(std::shared_ptr<BaseValueFunction> vf);
-
         void init(std::shared_ptr<ValueFunction> vf);
-
         void init(std::shared_ptr<QValueFunction> vf);
     };
 
@@ -97,9 +94,7 @@ namespace sdm
         BoundInitializer(std::shared_ptr<SolvableByHSVI> world,double value);
 
         void init(std::shared_ptr<ValueFunction> vf);
-
         double getValue(std::shared_ptr<ValueFunction> vf, number t);
-
         double computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf);
     };
 

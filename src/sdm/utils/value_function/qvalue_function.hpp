@@ -97,7 +97,7 @@ namespace sdm
         /**
          * @brief Define this function in order to be able to display the value function
          */
-        virtual std::string str() = 0;
+        virtual std::string str() const = 0;
 
         /**
          * @brief Get shared pointer on the current QValueFunction

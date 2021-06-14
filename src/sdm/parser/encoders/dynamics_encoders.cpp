@@ -150,6 +150,7 @@ namespace sdm
 
             state_encoder s_encoder(this->state_space_);
             std::vector<std::shared_ptr<Item>> next_state_space = boost::apply_visitor(s_encoder, z2.next_state);
+
             for (const std::shared_ptr<Item> &state : *this->state_space_)
             {
                 for (const std::shared_ptr<Item> &joint_action : joint_actions)
@@ -159,16 +160,15 @@ namespace sdm
                         for (const auto &pair_obs_value : *obs_prob)
                         {
                             this->obs_dynamics_->setObservationProbability(std::static_pointer_cast<State>(state),
-                                                                        std::static_pointer_cast<Action>(joint_action),
-                                                                        std::static_pointer_cast<State>(next_state),
-                                                                        std::static_pointer_cast<Observation>(this->obs_space_->getItem(pair_obs_value.first)),
-                                                                        pair_obs_value.second);
+                                                                           std::static_pointer_cast<Action>(joint_action),
+                                                                           std::static_pointer_cast<State>(next_state),
+                                                                           std::static_pointer_cast<Observation>(this->obs_space_->getItem(pair_obs_value.first)),
+                                                                           pair_obs_value.second);
                         }
                     }
                 }
             }
         }
-
 
         void observation_transition_encoder::operator()(const observation_entry_1_t &z1)
         {
@@ -182,6 +182,7 @@ namespace sdm
             std::vector<std::shared_ptr<Item>> next_state_space = boost::apply_visitor(s_encoder, z1.next_state);
 
             double prob = z1.probability;
+
             for (const std::shared_ptr<Item> &state : *this->state_space_)
             {
                 for (const std::shared_ptr<Item> &joint_action : joint_actions)
@@ -191,16 +192,15 @@ namespace sdm
                         for (const std::shared_ptr<Item> &joint_observation : joint_observations)
                         {
                             this->obs_dynamics_->setObservationProbability(std::static_pointer_cast<State>(state),
-                                                                        std::static_pointer_cast<Action>(joint_action),
-                                                                        std::static_pointer_cast<State>(next_state),
-                                                                        std::static_pointer_cast<Observation>(joint_observation),
-                                                                        prob);
+                                                                           std::static_pointer_cast<Action>(joint_action),
+                                                                           std::static_pointer_cast<State>(next_state),
+                                                                           std::static_pointer_cast<Observation>(joint_observation),
+                                                                           prob);
                         }
                     }
                 }
             }
         }
-
 
         obs_dynamics_encoder::obs_dynamics_encoder(const std::shared_ptr<DiscreteSpace> &state_space, const std::shared_ptr<DiscreteSpace> &agent_space, const std::shared_ptr<MultiDiscreteSpace> &action_space, const std::shared_ptr<MultiDiscreteSpace> &obs_space)
         {
@@ -218,34 +218,6 @@ namespace sdm
             for (observation_entry_t const &obs : observs)
             {
                 boost::apply_visitor(obs_d_encoder, obs);
-            }
-
-            for (const auto &state : *this->state_space_)
-            {
-                for (const auto &action : *this->action_space_)
-                {
-                    for (const auto &next_state : *this->state_space_)
-                    {
-                        for (const auto &observation : *this->obs_space_)
-                        {
-                            double obs_proba = dynamics->getObservationProbability(std::static_pointer_cast<State>(state),
-                                                                                std::static_pointer_cast<Action>(action),
-                                                                                std::static_pointer_cast<State>(next_state),
-                                                                                std::static_pointer_cast<Observation>(observation));
-
-                            double transition_proba = state_dynamics->getTransitionProbability(std::static_pointer_cast<State>(state),
-                                                                                            std::static_pointer_cast<Action>(action),
-                                                                                            std::static_pointer_cast<State>(next_state),
-                                                                                            0);
-
-                            dynamics->setDynamics(std::static_pointer_cast<State>(state),
-                                                std::static_pointer_cast<Action>(action),
-                                                std::static_pointer_cast<State>(next_state),
-                                                std::static_pointer_cast<Observation>(observation),
-                                                transition_proba * obs_proba);
-                        }
-                    }
-                }
             }
             return dynamics;
         }

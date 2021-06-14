@@ -23,6 +23,12 @@
 namespace sdm
 {
 
+  template <class I, class T>
+  std::shared_ptr<T> cast(const std::shared_ptr<I> &item)
+  {
+    return std::static_pointer_cast<T>(item);
+  }
+
   namespace ptr
   {
     template <typename T>
@@ -45,7 +51,6 @@ namespace sdm
 
   typedef boost::bimaps::bimap<std::string, sdm::size_t> bimap;
 
-  
   template <typename TItem>
   using bimap_item_index = boost::bimaps::bimap<TItem, sdm::size_t>;
 
@@ -105,7 +110,7 @@ namespace sdm
     BigM,
     IloIfThenResolution
   };
-  
+
   enum TypeSawtoothLinearProgram
   {
     PLAIN_SAWTOOTH_LINER_PROGRAMMING,

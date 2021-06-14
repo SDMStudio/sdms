@@ -1,10 +1,11 @@
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
-    ValueFunction::ValueFunction(std::shared_ptr<BackupInterface> backup,number horizon) : BaseValueFunction(horizon), backup_(backup)
+    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup) 
+    : BaseValueFunction(horizon), backup_(backup), initializer_(initializer)
     {
     }
 
@@ -39,19 +40,14 @@ namespace sdm
     std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
         // Get the best action (i.e. the action that maximizes the q value function)
-        return this->backup_->getBestAction(this->getptr(),state,t);
+        return this->backup_->getBestAction(this->getptr(), state->toState(), t);
     }
 
-    void ValueFunction::initialize(std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> init_function)
+    void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
     {
         this->init_function_ = init_function;
     }
 
-    // std::shared_ptr<SolvableByHSVI> ValueFunction::getWorld()
-    // {
-    //     return this->problem_;
-    // }
-    
     std::shared_ptr<ValueFunction> ValueFunction::getptr()
     {
         return std::static_pointer_cast<ValueFunction>(this->shared_from_this());

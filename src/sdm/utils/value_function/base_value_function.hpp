@@ -16,8 +16,6 @@
 #include <sdm/exception.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/public/boost_serializable.hpp>
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -85,7 +83,7 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
+        // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Save a value function into a file. 
@@ -121,7 +119,7 @@ namespace sdm
 
         bool isInfiniteHorizon() const;
 
-        friend std::ostream &operator<<(std::ostream &os, BaseValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, const BaseValueFunction &vf)
         {
             os << vf.str();
             return os;

@@ -21,7 +21,12 @@ namespace sdm
     
     void TabularStateDynamics::setTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, double prob, number, bool cumul)
     {
-        if (prob > 0)
+        if (prob <= 0)
+        {
+            this->successor_states[state][action].erase(next_state);
+            this->t_model[action].setValueAt(state, next_state, prob);
+        }
+        else
         {
             this->setReachablesStates(state,action,next_state);
             if (cumul)

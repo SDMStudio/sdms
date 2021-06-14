@@ -19,7 +19,7 @@ namespace sdm
     public:
         double backup(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& s, number t)
         {
-            return vf->getQValueAt(s, t)->max();
+            // return vf->getQValueAt(s, t)->max();
         }
     };
 

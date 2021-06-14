@@ -35,7 +35,7 @@ namespace sdm
 
     double POMDP::getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
     {
-        return this->obs_dynamics_->getDynamics(state, action, next_state, observation, t);
+        return this->getTransitionProbability(state, action, next_state, t) * this->getObservationProbability(state, action, next_state, observation, t);
     }
 
     std::shared_ptr<ObservationDynamicsInterface> POMDP::getObservationDynamics() const

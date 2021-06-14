@@ -45,7 +45,7 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
-    std::string TabularQValueFunction::str()
+    std::string TabularQValueFunction::str() const
     {
         std::ostringstream res;
         res << "<tabular_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;

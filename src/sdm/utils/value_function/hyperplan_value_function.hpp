@@ -109,12 +109,6 @@ namespace sdm
         std::vector<HyperplanSet> representation;
 
         /**
-         * @brief The initializer to use for this value function. 
-         * 
-         */
-        std::shared_ptr<Initializer> initializer_;
-
-        /**
          * @brief the default values, one for each decision epoch.
          */
         std::vector<double> default_values_per_horizon;

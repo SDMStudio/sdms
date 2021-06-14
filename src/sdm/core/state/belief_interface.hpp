@@ -8,7 +8,7 @@ namespace sdm
     class BeliefInterface : public State
     {
     public:
-        virtual std::set<std::shared_ptr<State>> getStates() const = 0;
+        virtual std::vector<std::shared_ptr<State>> getStates() const = 0;
 
         virtual size_t size() const = 0;
 

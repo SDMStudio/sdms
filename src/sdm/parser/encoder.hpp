@@ -20,6 +20,7 @@ Copyright (c) 2016 Jilles Steeve Dibangoye
 #include <sdm/parser/encoders/item_encoders.hpp>
 #include <sdm/parser/encoders/reward_encoders.hpp>
 #include <sdm/parser/encoders/dynamics_encoders.hpp>
+
 ///////////////////////////////////////////////////////////////////////////////
 //  AST processing
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,21 +28,6 @@ namespace sdm
 {
   namespace ast
   {
-    // std::shared_ptr<DiscreteSpace<number>> toNumberedSpace(std::shared_ptr<DiscreteSpace> &old_sp)
-    // {
-    //   return std::make_shared<DiscreteSpace<number>>(old_sp.getNumItems());
-    // }
-
-    // std::shared_ptr<MultiDiscreteSpace<number>> toNumberedSpace(std::shared_ptr<MultiDiscreteSpace> &old_sp)
-    // {
-    //   std::vector<number> vvtmp;
-    //   for (auto &dsp : old_sp.getSpaces())
-    //   {
-    //     vvtmp.push_back(dsp->getNumItems());
-    //   }
-    //   return std::make_shared<MultiDiscreteSpace<number>>(vvtmp);
-    // }
-
     struct dpomdp_encoder : boost::static_visitor<sdm::DecPOMDP>
     {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////

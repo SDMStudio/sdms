@@ -25,7 +25,7 @@ namespace sdm
    * @tparam std::shared_ptr<State> refers to a number
    * @tparam std::shared_ptr<State> refers to a joint histories
    */
-  class BaseOccupancyState : public MappedVector<Pair<std::shared_ptr<BeliefState>, std::shared_ptr<JointHistory>>, double>,
+  class BaseOccupancyState : public MappedVector<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistory>>, double>,
                              public std::enable_shared_from_this<BaseOccupancyState<std::shared_ptr<State>>>
   {
   public:
@@ -35,11 +35,11 @@ namespace sdm
     BaseOccupancyState(number num_agents = 2, double default_value = 0.);
     BaseOccupancyState(const BaseOccupancyState &);
 
-    void setProbabilityAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<JointHistory> &, double);
-    void setProbabilityAt(const Pair<std::shared_ptr<BeliefState>, std::shared_ptr<JointHistory>> &, double);
+    void setProbabilityAt(const std::shared_ptr<State> &, const std::shared_ptr<JointHistory> &, double);
+    void setProbabilityAt(const Pair<std::shared_ptr<State>, std::shared_ptr<JointHistory>> &, double);
 
-    void addProbabilityAt(const std::shared_ptr<BeliefState> &, const std::shared_ptr<JointHistory> &, double);
-    void addProbabilityAt(const Pair<std::shared_ptr<BeliefState>, std::shared_ptr<JointHistory>> &, double);
+    void addProbabilityAt(const std::shared_ptr<State> &, const std::shared_ptr<JointHistory> &, double);
+    void addProbabilityAt(const Pair<std::shared_ptr<State>, std::shared_ptr<JointHistory>> &, double);
 
     void finalize();
 

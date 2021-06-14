@@ -19,6 +19,17 @@ if(DAVID)
 	)
 	add_library(core SHARED ${lib_core})
 
+	file(
+		GLOB_RECURSE
+		lib_value_function
+		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/tabular_backup.cpp
+	)
+	add_library(value_function SHARED ${lib_value_function})
+	target_link_libraries(value_function core)
+
 	# LIB WORLD
 	file(
 		GLOB_RECURSE
@@ -47,8 +58,6 @@ if(DAVID)
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
-		${INCLUDE_DIR}/utils/value_function/value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)
@@ -63,6 +72,7 @@ if(DAVID)
 		${CPLEX_LIBRARIES}
 		parser
 		hsvi
+		value_function
 	)
 endif()
 
