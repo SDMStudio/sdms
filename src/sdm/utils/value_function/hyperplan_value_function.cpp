@@ -1,23 +1,24 @@
+#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/utils/value_function/backup/backup_base.hpp>
 
 namespace sdm
-{    
-    HyperplanValueFunction::HyperplanValueFunction() {}
-    
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, std::shared_ptr<Initializer> initializer, int freq_prunning)
-        : ValueFunctionNewInterface(horizon), initializer_(initializer), freq_prune_(freq_prunning)
+{        
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,const std::shared_ptr<BackupInterface> &backup, int freq_prunning)
+        : ValueFunction(horizon, initializer, backup), freq_prune_(freq_prunning)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, double default_value, int freq_prunning) : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),freq_prunning){}
-    HyperplanValueFunction::~HyperplanValueFunction(){}
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, double default_value,const std::shared_ptr<BackupInterface> &backup, int freq_prunning)
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,freq_prunning){}
 
+    HyperplanValueFunction::~HyperplanValueFunction(){}
 
     void HyperplanValueFunction::initialize(double value, number t)
     {
-        std::shared_ptr<State> new_v(value);
-        this->representation[t].push_back(new_v);
+        // std::shared_ptr<BeliefInterface> new_v(value);
+        // this->representation[t].push_back(new_v);
         this->default_values_per_horizon[t] = value;
     }
 
@@ -26,33 +27,14 @@ namespace sdm
         this->initializer_->init(this->getptr());
     }
 
-    std::pair<double, std::shared_ptr<State>> HyperplanValueFunction::getMaxAt(const std::shared_ptr<State> &state, number t)
-    {
-        double current, max = -std::numeric_limits<double>::max();
-        std::shared_ptr<State> alpha_vector;
-
-        for (const auto &plan : this->representation[t])
-        {
-            current = state ^ plan;
-
-            if (max < current)
-            {
-                max = current;
-                alpha_vector = plan;
-            }
-        }
-
-        return {max, alpha_vector};
-    }
-
     double HyperplanValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        return this->getMaxAt(state, t).first;
+        return std::static_pointer_cast<BackupBase<std::shared_ptr<State>>>(this->backup_)->getMaxAt(this->getptr(), state, t).first;
     }
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        const auto &new_hyperplan = std::static_pointer_cast<BackupBase<std::shared_ptr<State>>>(this->backup_)->backup(std::make_shared<ValueFunctionNewInterface>(this),state,t);
+        const auto &new_hyperplan = std::static_pointer_cast<BackupBase<std::shared_ptr<State>>>(this->backup_)->backup(this->getptr(),state,t);
 
         if (std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
             this->representation[t].push_back(new_hyperplan);
@@ -77,6 +59,61 @@ namespace sdm
     void HyperplanValueFunction::prune(number t)
     {
         this->bounded_prune(t);
+    }
+
+    void HyperplanValueFunction::pairwise_prune(number t)
+    {
+        // std::cout << "List Hyperplan (" << t << ")=" << this->representation[t] << std::endl;
+
+        // std::vector<std::shared_ptr<BeliefInterface>> hyperplan_not_to_be_deleted;
+        // std::vector<std::shared_ptr<BeliefInterface>> hyperplan_to_delete;
+
+        // // Go over all hyperplan
+        // for (const auto &alpha : this->getSupport(t))
+        // {
+        //     bool alpha_dominated = false;
+
+        //     //Go over all hyperplan in hyperplan_not_to_be_deleted
+        //     for (const auto &beta : hyperplan_not_to_be_deleted)
+        //     {
+        //         // If beta dominate alpha, we had alpha to the hyperplan to delete
+        //         if (alpha<beta)
+        //         {
+        //             hyperplan_to_delete.push_back(alpha);
+        //             alpha_dominated = true;
+        //             break;
+        //         }
+        //     }
+        //     // If alpha is dominated, we go to the next hyperplan
+        //     if (alpha_dominated)
+        //     {
+        //         continue;
+        //     }
+
+        //     //Go over all hyperplan in hyperplan_not_to_be_deleted
+        //     std::vector<std::shared_ptr<BeliefInterface>> erase_tempo;
+
+        //     for(const auto &beta : hyperplan_not_to_be_deleted)
+        //     {
+        //         //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
+        //         if (beta<alpha)
+        //         {
+        //             erase_tempo.push_back(beta);
+        //         }
+        //     }
+
+        //     for (const auto &erase : erase_tempo)
+        //     {
+        //         auto it = std::find(hyperplan_not_to_be_deleted.begin(), hyperplan_not_to_be_deleted.end(), erase);
+        //         hyperplan_not_to_be_deleted.erase(it);
+        //     }
+        //     hyperplan_not_to_be_deleted.push_back(alpha);
+        // }
+
+        // for(const auto &to_delete : hyperplan_to_delete)
+        // {
+        //     this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
+        // }
     }
     
     void HyperplanValueFunction::bounded_prune(number t)

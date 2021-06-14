@@ -11,12 +11,13 @@ namespace sdm
 
     std::pair<double, std::shared_ptr<State>> SawtoothBackup::getMaxAt(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
-        // assert(vf->getInitFunction() != nullptr);
+        assert(vf->getInitFunction() != nullptr);
+        assert(state->getTypeState() != TypeState::State_);
 
-        // double min_ext = 0;
-        // double v_ub_state = vf->getInitFunction()->operator()(state, t);
+        double min_ext = 0;
+        double v_ub_state = vf->getInitFunction()->operator()(state, t);
 
-        // std::shared_ptr<State> argmin_ = state;
+        std::shared_ptr<State> argmin_ = state;
 
         // for (const auto &pair_ostate_value : vf->getSupport(t))
         // {
@@ -28,7 +29,7 @@ namespace sdm
         //     double v_ub_kappa = vf->getInitFunction()->operator()(ostate, t);
 
         //     double phi = 1.0;
-        //     for (auto &pair_hidden_state_AND_joint_history_AND_probability : ostate)
+        //     for (auto &pair_hidden_state_AND_joint_history_AND_probability : ostate->toBelief())
         //     {
         //         double v_int = (state.at(pair_hidden_state_AND_joint_history_AND_probability.first) / pair_hidden_state_AND_joint_history_AND_probability.second);
         //         if (v_int < phi)
@@ -44,7 +45,7 @@ namespace sdm
         //         argmin_ = ostate;
         //     }
         // }
-        // return std::make_pair(v_ub_state + min_ext, argmin_);
+        return std::make_pair(v_ub_state + min_ext, argmin_);
     }
 
     double SawtoothBackup::getBackup(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)

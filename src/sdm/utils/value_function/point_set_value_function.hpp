@@ -15,17 +15,9 @@ namespace sdm
     public:
         using Container = MappedVector<std::shared_ptr<State>, double>;
 
-        PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup);
+        PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup, int freq_prunning = 10);
 
-        PointSetValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface> &backup =nullptr);
-
-        /**
-         * @brief Evaluate the value at a state.
-         * 
-         * @param state the state where we want to evaluate the function
-         * @return the value
-         */
-        double getValueAt(const std::shared_ptr<State> &state, number t = 0);
+        PointSetValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface> &backup =nullptr, int freq_prunning = 10);
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -35,8 +27,9 @@ namespace sdm
          */
         void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
 
-        std::string str() const;
+        bool is_dominated(const std::shared_ptr<State> &ostate, double value, number t);
 
+        std::string str() const;
 
         friend std::ostream &operator<<(std::ostream &os, PointSetValueFunction &vf)
         {
@@ -68,7 +61,6 @@ namespace sdm
          */
         void prune(number t = 0);
 
-        bool is_dominated(const std::shared_ptr<State> &ostate, double value, number t);
 
     public:
         friend class boost::serialization::access;

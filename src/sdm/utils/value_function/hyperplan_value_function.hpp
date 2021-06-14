@@ -1,40 +1,17 @@
 #pragma once
-// #include <set>
 
-// #include <sdm/core/state/serialized_state.hpp>
-// #include <sdm/utils/linear_algebra/vector.hpp>
-// #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/utils/value_function/value_function_new_interface.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 
-/**
- * @brief Namespace grouping all tools required for sequential decision making.
- * @namespace  sdm
- */
 namespace sdm
 {
-    class HyperplanValueFunction : public ValueFunctionNewInterface
+    class HyperplanValueFunction : public ValueFunction
     {
     public:
-        HyperplanValueFunction();
+        HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup, int freq_prunning = 10);
 
-        /**
-         * @brief Construct a new Hyperplan Value Function object
-         * 
-         * @param number : horizon 
-         * @param std::shared_ptr<Initializer<TState, TAction>> : initializer 
-         * @param int frequency of the pruning 
-         */
-        HyperplanValueFunction(number, std::shared_ptr<Initializer>, int = 10);
+        HyperplanValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface> &backup =nullptr, int freq_prunning = 10);
 
-        /**
-         * @brief Construct a new Hyerplan Value Function object
-         * 
-         * @param number : horizon 
-         * @param TValue : initializer 
-         * @param int frequency of the pruning 
-         */
-        HyperplanValueFunction(number = 0, double = 0., int = 10);
         ~HyperplanValueFunction();
 
         void initialize();
@@ -127,4 +104,3 @@ namespace sdm
     };
 
 } // namespace sdm
-#include <sdm/utils/value_function/hyperplan_value_function.tpp>

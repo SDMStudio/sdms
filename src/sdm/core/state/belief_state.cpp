@@ -91,6 +91,11 @@ namespace sdm
     return MappedVector<std::shared_ptr<State>, double>::is_equal(other, PRECISION);
   }
 
+  TypeState Belief::getTypeState() const
+  {
+    return TypeState::BeliefState_;
+  }
+
   std::string Belief::str() const
   {
     {

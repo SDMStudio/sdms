@@ -33,6 +33,8 @@ namespace sdm
 
     virtual bool operator==(const BaseState&other) const;
 
+    virtual TypeState getTypeState() const ;
+
   protected:
     TState state_;
   };

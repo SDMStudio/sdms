@@ -14,8 +14,9 @@ namespace sdm
     std::pair<double, std::shared_ptr<State>> TabularBackup::getMaxAt(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         double value;
-        if (std::find(vf->getSupport(t).begin(),vf->getSupport(t).end(),state) == vf->getSupport(t).end())
+        if (std::find(vf->getSupport(t).begin(),vf->getSupport(t).end(),state) == vf->getSupport(t).end() && vf->getInitFunction() != nullptr)
         {
+            std::cout<<"Not found";
             value = vf->getInitFunction()->operator()(state,t);
         }
         else

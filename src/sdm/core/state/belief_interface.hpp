@@ -5,7 +5,7 @@
 
 namespace sdm
 {
-    class BeliefInterface : public State
+    class BeliefInterface : virtual public State
     {
     public:
         virtual std::vector<std::shared_ptr<State>> getStates() const = 0;
@@ -20,6 +20,5 @@ namespace sdm
 
         virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
 
-        virtual std::string str() const = 0;
     };
 }

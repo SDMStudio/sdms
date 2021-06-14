@@ -124,10 +124,11 @@ if(JEROME)
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/point_set_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/hyperplan_value_function.cpp
+
 		${INCLUDE_DIR}/utils/value_function/initializer/**
 		${INCLUDE_DIR}/utils/value_function/backup/**
-
-
 
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
