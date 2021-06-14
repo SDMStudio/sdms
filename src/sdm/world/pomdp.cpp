@@ -7,8 +7,8 @@ namespace sdm
                  const std::shared_ptr<Space> &action_space,
                  const std::shared_ptr<Space> &obs_space,
                  const std::shared_ptr<RewardInterface> &reward,
-                 const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-                 const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
+                 const std::shared_ptr<TabularStateDynamics> &state_dynamics,
+                 const std::shared_ptr<TabularObservationDynamics> &obs_dynamics,
                  const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
                  number horizon,
                  double discount,
@@ -38,9 +38,15 @@ namespace sdm
         return this->getTransitionProbability(state, action, next_state, t) * this->getObservationProbability(state, action, next_state, observation, t);
     }
 
-    std::shared_ptr<ObservationDynamicsInterface> POMDP::getObservationDynamics() const
+    std::shared_ptr<TabularObservationDynamics> POMDP::getObservationDynamics() const
     {
         return this->obs_dynamics_;
+    }
+
+    std::shared_ptr<Observation> POMDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action)
+    {
+        MDP::sampleNextObservation(state, action);
+        this->obs_dynamics_->getNextObservationDistribution(state, action, this->getInternalState())->sample();
     }
 
 }

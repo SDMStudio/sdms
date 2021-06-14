@@ -3,12 +3,11 @@
 namespace sdm
 {
 
-    template <typename TObservation, typename TAction>
-    QLearning<TObservation, TAction>::QLearning(std::shared_ptr<GymInterface<TObservation, TAction>> &env,
-                                                std::shared_ptr<QValueFunction<TObservation, TAction>> q_value,
-                                                std::shared_ptr<QValueFunction<TObservation, TAction>> q_target,
-                                                std::shared_ptr<EpsGreedy<TObservation, TAction>> exploration,
-                                                number planning_horizon,
+    QLearning::QLearning(std::shared_ptr<GymInterface> &env,
+                                                std::shared_ptr<QValueFunction> q_value,
+                                                std::shared_ptr<QValueFunction> q_target,
+                                                std::shared_ptr<EpsGreedy> exploration,
+                                                number horizon,
                                                 double discount,
                                                 double lr,
                                                 double batch_size,
@@ -17,7 +16,7 @@ namespace sdm
                                                                     q_value_(q_value),
                                                                     q_target_(q_target),
                                                                     exploration_process(exploration),
-                                                                    planning_horizon_(planning_horizon),
+                                                                    horizon_(horizon),
                                                                     discount_(discount),
                                                                     lr_(lr),
                                                                     batch_size_(batch_size),
@@ -26,8 +25,7 @@ namespace sdm
     {
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::initLogger()
+    void QLearning::initLogger()
     {
         std::string format = "#> Episode : {}\tStep : {}/?\tQValue : {}\n";
 
@@ -38,8 +36,7 @@ namespace sdm
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_initialize()
+    void QLearning::do_initialize()
     {
         this->initLogger();
 
@@ -47,9 +44,8 @@ namespace sdm
         this->q_target_->initialize();
     }
 
-    // std::shared_ptr<GymInterface> env, long nb_timesteps, number planning_horizon, number test_freq, number save_freq, std::string save_folder, number verbose, long timestep_init, std::string log_file
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_solve()
+    // std::shared_ptr<GymInterface> env, long nb_timesteps, number horizon, number test_freq, number save_freq, std::string save_folder, number verbose, long timestep_init, std::string log_file
+    void QLearning::do_solve()
     {
         this->global_step = 0;
         std::cout << "-------- DO_SOLVE() ---------" << std::endl;
@@ -69,7 +65,7 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log_)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_->getQValueAt(this->env_->reset(), 0)->max(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(this->episode, this->global_step, this->q_value_->getQValuesAt(this->env_->reset(), 0)->max(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
                 this->do_log_ = false;
             }
             if (this->do_test_)
@@ -82,25 +78,22 @@ namespace sdm
         std::cout << "Final QValue :" << *this->q_value_ << std::endl;
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_save()
+    void QLearning::do_save()
     {
         this->q_value_->save(this->name_ + "_qvalue.bin");
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_test()
+    void QLearning::do_test()
     {
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_episode()
+    void QLearning::do_episode()
     {
         this->step = 0;
         this->episode += 1;
         this->current_obs = this->env_->reset();
 
-        unsigned long stop_cond = this->global_step + this->planning_horizon_;
+        unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
         {
             this->do_step();
@@ -117,14 +110,17 @@ namespace sdm
         }
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_step()
+    void QLearning::do_step()
     {
         // Action selection following policy and exploration process
         auto current_action = this->select_action(this->current_obs);
 
         // One step in env and get next observation and rewards
-        auto [next_obs, rewards, done] = this->env_->step(current_action);
+        // auto [next_obs, rewards, done] = this->env_->step(current_action);
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> feedback = this->env_->step(current_action);
+        std::shared_ptr<Observation> next_obs = std::get<0>(feedback);
+        double r = std::get<1>(feedback)[0];
+        bool done = std::get<2>(feedback);
 
         // Store experience in the associated buffer
         // this->experience->store_experience(this->current_obs, action, rewards, next_obs, done);
@@ -136,8 +132,8 @@ namespace sdm
         // Update the model
         // this->update_model();
         double cval = this->q_value_->getQValueAt(this->last_obs, current_action, this->step);
-        double expectval = this->discount_ * this->q_value_->getQValueAt(this->current_obs, this->step + 1)->max();
-        double targetval = rewards[0];
+        double expectval = this->discount_ * this->q_value_->getQValuesAt(this->current_obs, this->step + 1)->max();
+        double targetval = r;
         double target = targetval + expectval - cval;
         this->q_value_->updateQValueAt(this->last_obs, current_action, this->step, target);
 
@@ -145,8 +141,7 @@ namespace sdm
         this->global_step++;
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::update_model()
+    void QLearning::update_model()
     {
         // auto batch = this->experience_->sample(this->batch_size_);
 
@@ -163,13 +158,12 @@ namespace sdm
         // }
     }
 
-    template <typename TObservation, typename TAction>
-    TAction QLearning<TObservation, TAction>::select_action(const TObservation &obs)
+    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &obs)
     {
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
         if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
         {
-            return this->env_->getActionSpaceAt(obs)->sample();
+            return this->env_->getActionSpaceAt(obs, this->step)->sample()->toAction();
         }
         else
         {

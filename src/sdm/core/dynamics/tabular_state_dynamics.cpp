@@ -28,7 +28,7 @@ namespace sdm
         }
         else
         {
-            this->setReachablesStates(state,action,next_state);
+            this->setReachablesStates(state, action, next_state);
             if (cumul)
                 this->t_model[action].setValueAt(state, next_state, this->t_model[action].getValueAt(state, next_state) + prob);
             else
@@ -63,6 +63,17 @@ namespace sdm
         //     }
         // }
         // return {};
+    }
+
+    std::shared_ptr<Distribution<std::shared_ptr<State>>> TabularStateDynamics::getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action)
+    {
+        std::set<std::shared_ptr<State>> reachable_states = this->getReachableStates(state, action);
+        DiscreteDistribution<std::shared_ptr<State>> next_state_distribution;
+        for (std::shared_ptr<State> reachable_state : reachable_states)
+        {
+            next_state_distribution.setProbability(reachable_state, this->getTransitionProbability(state, action, reachable_state));
+        }
+        return std::make_shared<Distribution<std::shared_ptr<State>>>(next_state_distribution);
     }
 
     // void TabularStateDynamics::setTransitions(const std::unordered_map<std::shared_ptr<Action>, matrix_type> &t_model)

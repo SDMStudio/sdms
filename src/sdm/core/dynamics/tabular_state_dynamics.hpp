@@ -13,11 +13,9 @@
 #include <unordered_set>
 
 #include <sdm/types.hpp>
-#include <sdm/exception.hpp>
-#include <sdm/core/state/state.hpp>
-#include <sdm/core/action/action.hpp>
 #include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
+#include <sdm/core/distribution.hpp>
 
 namespace sdm
 {
@@ -74,6 +72,8 @@ namespace sdm
      * @param t Timestep t 
      */
     void setReachablesStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t = 0);
+
+    std::shared_ptr<Distribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action);
 
   protected:
     /** @brief transition and observation matrices */
