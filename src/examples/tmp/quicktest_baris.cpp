@@ -55,10 +55,10 @@ int main(int argc, char **argv)
     number horizon = 5;
 
     // Creation of the MMDP
-    auto mdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
+    auto mdp = std::make_shared<MDP>(state_space, action_space, rew, dynamics,start_distrib,horizon,1.);
 
     // Creation of HSVI problem and Resolution 
-    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
+    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
 
     // horizon = horizon * mdp->getNumAgents();
     auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);

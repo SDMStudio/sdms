@@ -7,22 +7,21 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-#include <sdm/core/dynamics/observation_dynamics_interface.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics_interface.hpp>
 
 namespace sdm
 {
-    // TabularObservationDynamics <|-- TabularObservationDynamics_AS', TabularObservationDynamics_S' , TabularObservationDynamics<|- SAS'
     //!
     //! \class  dynamics  dynamics.hpp
     //!
-    class TabularObservationDynamics : public ObservationDynamicsInterface
+    class TabularObservationDynamicsSAS : public TabularObservationDynamicsInterface
     {
     public:
-        TabularObservationDynamics();
+        TabularObservationDynamicsSAS();
 
-        TabularObservationDynamics(const TabularObservationDynamics &copy);
+        TabularObservationDynamicsSAS(const TabularObservationDynamicsSAS &copy);
         
-        virtual ~TabularObservationDynamics();
+        virtual ~TabularObservationDynamicsSAS();
 
         /**
          * @brief Get the observation probability

@@ -109,7 +109,7 @@ namespace sdm
 
     void SerializedMPOMDP::setReachableObservationSpace(std::shared_ptr<MPOMDPInterface> mpomdp)
     {
-        auto observation_dynamics = std::make_shared<TabularObservationDynamics>();
+        auto observation_dynamics = std::make_shared<TabularObservationDynamicsSAS>();
         // Creation of all reachable Observation Space
 
         // Go over serial states

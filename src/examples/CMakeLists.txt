@@ -17,16 +17,33 @@ endforeach(f)
 
 
 #### This section can be uncommented and rewrite in order to compile only a part of sdms (quicktest.cpp file)
+
 file(
 	GLOB_RECURSE
-	# lib_world
-	# ${INCLUDE_DIR}/*
-	# ${INCLUDE_DIR}/utils/struct/*
-	${INCLUDE_DIR}/core/action/*
-	# ${INCLUDE_DIR}/common.cpp
-	# ${INCLUDE_DIR}/tools.cpp
+	lib_world
+	${INCLUDE_DIR}/algorithms/hsvi.cpp
+	${INCLUDE_DIR}/world/solvable_by_mdp.cpp
+	${INCLUDE_DIR}/world/belief_mdp.cpp
+	${INCLUDE_DIR}/utils/value_function/value_function.cpp
+	${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
+	${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
+	${INCLUDE_DIR}/utils/value_function/initializer/**
+	${INCLUDE_DIR}/utils/value_function/backup/**
+
+	${INCLUDE_DIR}/world/mdp.cpp
+	${INCLUDE_DIR}/world/mmdp.cpp
+	${INCLUDE_DIR}/world/serialized_mmdp.cpp
+	${INCLUDE_DIR}/world/mpomdp.cpp
+	${INCLUDE_DIR}/world/pomdp.cpp
+	${INCLUDE_DIR}/parser/**
+	${INCLUDE_DIR}/world/serialized_mpomdp.cpp
+
+	${INCLUDE_DIR}/core/*
+	${INCLUDE_DIR}/utils/struct/iterator/*
+	${INCLUDE_DIR}/common.cpp
+	${INCLUDE_DIR}/tools.cpp
 )
-# add_library(lib_world SHARED ${lib_world})
+add_library(lib_world SHARED ${lib_world})
 include_directories(${SDMS_INCLUDE_DIRS})
 
 add_executable(quicktest tmp/quicktest.cpp)
@@ -36,7 +53,7 @@ dl
 ${Boost_LIBRARIES}
 ${TORCH_LIBRARIES}
 ${CPLEX_LIBRARIES}
-# lib_world
+lib_world
 )
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest

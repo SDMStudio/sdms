@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_interface.hpp>
 
@@ -17,7 +17,7 @@ namespace sdm
 
         PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup);
 
-        PointSetValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterface> &backup);
+        PointSetValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface> &backup =nullptr);
 
         /**
          * @brief Evaluate the value at a state.

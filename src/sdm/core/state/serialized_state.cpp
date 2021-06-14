@@ -46,5 +46,4 @@ namespace sdm
         return res.str();
     }
 
-
 } // namespace sdm

@@ -4,6 +4,7 @@
 #include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_interface.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 
 namespace sdm
 {

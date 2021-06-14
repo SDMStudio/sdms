@@ -33,13 +33,13 @@ namespace sdm
 
         virtual std::string str() const = 0;
 
-        bool operator==(const State &sp) const
-        {
-            return (this->str() == sp.str());
-        }
-        bool operator!=(const State &sp) const 
-        {
-            return !(this->operator==(sp));
-        }
+        // bool operator==(const State &sp) const
+        // {
+        //     return (this->str() == sp.str());
+        // }
+        // bool operator!=(const State &sp) const 
+        // {
+        //     return !(this->operator==(sp));
+        // }
     };
 } // namespace sdm

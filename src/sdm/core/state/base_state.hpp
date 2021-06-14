@@ -31,7 +31,7 @@ namespace sdm
 
     virtual std::string str() const;
 
-    virtual bool operator==(const BaseState&other);
+    virtual bool operator==(const BaseState&other) const;
 
   protected:
     TState state_;
