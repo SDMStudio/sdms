@@ -73,17 +73,6 @@ namespace sdm
             transition_proba +=  this->underlying_problem->getTransitionProbability(state, action, next_state, t);
             tmp += this->underlying_problem->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
         }
-
-        if(transition_proba>1 )
-        {
-            std::cout<<"Total : "<<transition_proba<<std::endl;
-            std::cout<<"State : "<<state->str()<<", action "<<action->str()<<std::endl;
-            for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
-            {
-                std::cout<<"Reachable State "<<next_state->str()<<", proba "<<this->underlying_problem->getTransitionProbability(state, action, next_state, t);
-            }
-        }
-
         return tmp;
     }
 

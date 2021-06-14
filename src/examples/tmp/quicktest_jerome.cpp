@@ -38,49 +38,42 @@
 
 using namespace sdm;
 
-
-#include <unistd.h>
-#include <ios>
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "sys/types.h"
+#include "sys/sysinfo.h"
 
 using namespace std;
 
-void mem_usage(double& vm_usage, double& resident_set) {
-   vm_usage = 0.0;
-   resident_set = 0.0;
-   ifstream stat_stream("/proc/self/stat",ios_base::in); //get info from proc
-   //create some variables to get info
-   string pid, comm, state, ppid, pgrp, session, tty_nr;
-   string tpgid, flags, minflt, cminflt, majflt, cmajflt;
-   string utime, stime, cutime, cstime, priority, nice;
-   string O, itrealvalue, starttime;
-   unsigned long vsize;
-   long rss;
-   stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
-   >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
-   >> utime >> stime >> cutime >> cstime >> priority >> nice
-   >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care
+long RanMemoryUsed(struct sysinfo memInfo)
+{
+    sysinfo (&memInfo);
 
-   stat_stream.close();
-   long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // for x86-64 is configured
-   vm_usage = vsize / 1024.0;
-   resident_set = rss * page_size_kb;
+    long long totalPhysMem = memInfo.totalram;
+    //Multiply in next statement to avoid int overflow on right hand side...
+    totalPhysMem *= memInfo.mem_unit;
+
+    long long physMemUsed = memInfo.totalram - memInfo.freeram;
+    //Multiply in next statement to avoid int overflow on right hand side...
+    physMemUsed *= memInfo.mem_unit;
+
+    std::cout<<"Total Ran Mem "<<totalPhysMem<<std::endl;
+    std::cout<<"Ran Memory used  "<<physMemUsed<<std::endl;
+
+    std::cout<<"Ratio : "<<100*physMemUsed/totalPhysMem<<std::endl;
+
+    return physMemUsed;
 }
 
 int main(int argc, char **argv)
 {
-    double vm, rss;
-    mem_usage(vm, rss);
-    cout << "Virtual Memory: " << vm << "\nResident set size: " << rss << endl;
-
+    struct sysinfo memInfo;
+    auto start_memory = RanMemoryUsed(memInfo);
 
     auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/tiger.dpomdp");
-    // auto mdp_tiger = sdm::parser::parse_file("../data/world/ndpomdp/example4_3-1.ndpomdp");
 
-    mem_usage(vm, rss);
-    cout << "Virtual Memory: " << vm << "\nResident set size: " << rss << endl;
+    auto end_memory = RanMemoryUsed(memInfo);
+
+    std::cout<<"Used Memory : "<<end_memory-start_memory<<std::endl;
+
     auto state_space = mdp_tiger->getStateSpace(); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
     auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
     auto rew = mdp_tiger->getReward(); 
@@ -96,7 +89,7 @@ int main(int argc, char **argv)
     auto mdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
 
 //     // Creation of the Serial MMDP with the MMDP
-    // auto serial_mmdp = std::make_shared<SerializedMPOMDP>(mdp);
+    auto serial_mmdp = std::make_shared<SerializedMPOMDP>(mdp);
 
 //    mem_usage(vm, rss);
 //    cout << "Virtual Memory: " << vm << "\nResident set size: " << rss << endl;
@@ -134,7 +127,7 @@ int main(int argc, char **argv)
     // }
 
     // Creation of HSVI problem and Resolution 
-    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
+    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
 
     // horizon = horizon * mdp->getNumAgents();
     auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
@@ -154,7 +147,7 @@ int main(int argc, char **argv)
     std::cout << *algo->getLowerBound() << std::endl;
     std::cout << *algo->getUpperBound() << std::endl;
     algo->do_solve();
-    std::cout << *algo->getLowerBound() << std::endl;
-    std::cout << *algo->getUpperBound() << std::endl;
+    // std::cout << *algo->getLowerBound() << std::endl;
+    // std::cout << *algo->getUpperBound() << std::endl;
 
 } // END main
