@@ -1,3 +1,6 @@
+#include <sdm/utils/value_function/initializer/initializer.hpp>
+
+
 namespace sdm
 {
     // ******************
@@ -62,12 +65,12 @@ namespace sdm
         }
     }
 
-    double BoundInitializer::getValue(std::shared_ptr<ValueFunction> vf, number t)
+    double BoundInitializer::getValue(std::shared_ptr<ValueFunction> , number t)
     {
         return (this->callback_value == nullptr) ? this->value_ : ((*world_->getUnderlyingProblem()).*callback_value)(t);
     }
 
-    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf)
+    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> )
     {
         auto under_pb = this->world_->getUnderlyingProblem();
 

@@ -5,7 +5,7 @@
 #include <sdm/core/action/action.hpp>
 
 #include <sdm/utils/value_function/base_value_function.hpp>
-#include <sdm/utils/value_function/backup_interface.hpp>
+#include <sdm/utils/value_function/backup/backup_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.

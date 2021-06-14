@@ -97,7 +97,7 @@ if(JEROME)
 		${INCLUDE_DIR}/world/mpomdp.cpp
 		${INCLUDE_DIR}/world/pomdp.cpp
 		${INCLUDE_DIR}/parser/**
-		# ${INCLUDE_DIR}/world/serialized_mpomdp.cpp
+		${INCLUDE_DIR}/world/serialized_mpomdp.cpp
 
 
 	)
@@ -112,7 +112,10 @@ if(JEROME)
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/initializer/mdp_initializer.tpp>
+		${INCLUDE_DIR}/utils/value_function/initializer/**
+		${INCLUDE_DIR}/utils/value_function/backup/**
+
+
 
 	)
 	add_library(hsvi SHARED ${lib_hsvi})

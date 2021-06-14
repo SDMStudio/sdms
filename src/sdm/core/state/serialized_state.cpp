@@ -1,3 +1,5 @@
+#include <sdm/core/state/serialized_state.hpp>
+
 namespace sdm
 {
 

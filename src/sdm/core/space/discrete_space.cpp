@@ -128,6 +128,18 @@ namespace sdm
         return !(operator==(sp));
     }
 
+    int DiscreteSpace::find(const std::shared_ptr<Item> &item) const
+    {
+        auto find = std::find(this->list_items_.begin(), this->list_items_.end(), item);
+
+        if(find != this->list_items_.end())
+        {
+            return std::distance(this->list_items_.begin(),find);
+        }
+
+        return -1;
+    }
+
     bool DiscreteSpace::contains(const std::shared_ptr<Item> &item) const
     {
         return std::find(this->list_items_.begin(), this->list_items_.end(), item) != this->list_items_.end() ? true : false;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sdm/utils/value_function/backup_interface.hpp>
+#include <sdm/utils/value_function/backup/backup_interface.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
@@ -66,4 +66,4 @@ namespace sdm
     };
 
 } // namespace sdm
-#include <sdm/utils/value_function/backup_base.tpp>
+#include <sdm/utils/value_function/backup/backup_base.tpp>

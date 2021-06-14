@@ -21,6 +21,7 @@
 #include <sdm/world/serialized_mmdp.hpp>
 
 #include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
+#include <sdm/core/base_observation.hpp>
 
 namespace sdm
 {

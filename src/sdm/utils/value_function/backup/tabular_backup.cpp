@@ -1,3 +1,4 @@
+#include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
 namespace sdm
 {
@@ -16,8 +17,8 @@ namespace sdm
         if (std::find(vf->getSupport(t).begin(),vf->getSupport(t).end(),state) == vf->getSupport(t).end())
         {
             value = vf->getInitFunction()->operator()(state,t);
-
-        }else
+        }
+        else
         {
             value = vf->getValueAt(state,t);
         }

@@ -21,7 +21,7 @@
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/algorithms/hsvi.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 using namespace sdm;
 

@@ -2,7 +2,7 @@
 
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
-#include <sdm/utils/value_function/backup_base.hpp>
+#include <sdm/utils/value_function/backup/backup_base.hpp>
 
 namespace sdm
 {
@@ -21,5 +21,3 @@ namespace sdm
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
     };
 }
-#include <sdm/utils/value_function/tabular_backup.tpp>
-

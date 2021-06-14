@@ -17,7 +17,7 @@
 #include <sdm/core/function.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/backup_operator/backup_operator.hpp>
 

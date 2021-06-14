@@ -31,6 +31,7 @@ namespace sdm
          * @brief Get the initial state
          */
         virtual std::shared_ptr<State> getInitialState() = 0;
+        virtual void setInitialState(const std::shared_ptr<State> &) = 0;
 
         /**
          * @brief Get the next occupancy state.

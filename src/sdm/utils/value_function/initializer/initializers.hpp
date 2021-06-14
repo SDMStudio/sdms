@@ -15,7 +15,7 @@
 #include <boost/function.hpp>
 
 #include <sdm/utils/struct/vector.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
 

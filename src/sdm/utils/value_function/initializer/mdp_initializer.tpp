@@ -16,18 +16,18 @@ namespace sdm
     void MDPInitializer::init(std::shared_ptr<ValueFunction> vf)
     {
         // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
-        auto mdp = std::dynamic_pointer_cast<MDPInterface>(this->world_->getUnderlyingProblem());
+        auto mdp = this->world_->getUnderlyingProblem();
         std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
 
         if (this->algo_name_ == "ValueIteration")
         {
-            std::cout<<"Value Iteration";
-            // auto value_iteration = algo::makeValueIteration(mdp, underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon());
+            // std::cout<<"Value Iteration";
+            // auto value_iteration = algo::makeValueIteration(hsvi_mdp, mdp->getDiscount(), this->error_, mdp->getPlanningHorizon());
             
             // value_iteration->do_initialize();
             // value_iteration->do_solve();
 
-            // vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(value_iteration->getResult()));
+            // vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(hsvi_mdp->getInitialState()), TState>>(value_iteration->getResult()));
         }
         else
         {
@@ -41,27 +41,19 @@ namespace sdm
             auto lb = std::make_shared<PointSetValueFunction>(tabular_backup,mdp->getHorizon(),init_lb);
             auto ub = std::make_shared<PointSetValueFunction>(tabular_backup,mdp->getHorizon(),init_ub);
 
-            auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_);
+            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_);
 
+            algorithm->do_initialize();
 
-            // auto initial = underlying_pb->getInternalState();
-            // // Instanciate HSVI for MDP
-            // auto algorithm = std::make_shared<HSVI>(mdp, ....); 
-            
-            
-            // algo::makeHSVI(mdp, "tabular", "tabular", "MaxInitializer", "MinInitializer", underlying_pb->getDiscount(), this->error_, underlying_pb->getPlanningHorizon(), this->trials_, "mdp_init", "BigM",100,"Full");
-            // algorithm->do_initialize();
+            for(const auto &element : *mdp->getStateSpace(0))
+            {
+                auto state = std::static_pointer_cast<State>(element);
+                hsvi_mdp->setInitialState(state);
+                std::cout<<"get Initial State : "<<hsvi_mdp->getInitialState()->str()<<std::endl;
+                algorithm->do_solve();
+            }
 
-            // // Solve HSVI from every possible initial state
-            // for (const auto &s : underlying_pb->getAllStates())
-            // {
-            //     underlying_pb->setInternalState(s);
-            //     algorithm->do_solve();
-            // }
-            
-            // auto ubound = algorithm->getUpperBound();
-
-            // underlying_pb->setInternalState(initial);
+            auto ubound = algorithm->getUpperBound();
 
             // vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
         }

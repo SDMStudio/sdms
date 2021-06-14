@@ -3,8 +3,8 @@
 #include <math.h>
 #include <sdm/public/algorithm.hpp>
 
-#include <sdm/utils/value_function/initializer.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
+#include <sdm/utils/value_function/point_set_value_function.hpp>
 
 namespace sdm
 {
@@ -13,8 +13,8 @@ namespace sdm
     protected:
         std::shared_ptr<SolvableByHSVI> problem_;
 
-        std::shared_ptr<sdm::MappedValueFunction> policy_evaluation_1_;
-        std::shared_ptr<sdm::MappedValueFunction> policy_evaluation_2_;
+        std::shared_ptr<sdm::PointSetValueFunction> policy_evaluation_1_;
+        std::shared_ptr<sdm::PointSetValueFunction> policy_evaluation_2_;
 
         double error_;
         int horizon_;
@@ -41,7 +41,7 @@ namespace sdm
 
         ValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, int horizon);
 
-        std::shared_ptr<typename sdm::MappedValueFunction> getResult();
+        std::shared_ptr<typename sdm::PointSetValueFunction> getResult();
 
         double getResultOpti();
 

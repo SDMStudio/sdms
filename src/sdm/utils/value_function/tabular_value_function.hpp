@@ -22,7 +22,7 @@
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 #include <sdm/utils/backup_operator/backup_operator.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.

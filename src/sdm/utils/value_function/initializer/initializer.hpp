@@ -15,6 +15,8 @@
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
 
 namespace sdm
 {
@@ -143,5 +145,4 @@ namespace sdm
     };
 
 } // namespace sdm
-#include <sdm/utils/value_function/initializer.tpp>
 

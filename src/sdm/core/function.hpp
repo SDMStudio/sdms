@@ -1,5 +1,7 @@
 #pragma once
 #include <sdm/utils/struct/pair.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/core/state/state.hpp>
 
 
 /**
@@ -37,28 +39,26 @@ namespace sdm
         }
     };
 
-    template <typename TOccupancyState>
-    class BaseRelaxedValueFunction : public BinaryFunction<TOccupancyState, number, double>
+    class BaseRelaxedValueFunction : public BinaryFunction<std::shared_ptr<State>, number, double>
     {
     public :
         virtual ~BaseRelaxedValueFunction() {}
 
-        virtual double operator()(const TOccupancyState &ostate, const number &tau) = 0;
+        virtual double operator()(const std::shared_ptr<State> &ostate, const number &tau) = 0;
 
         virtual bool isPomdpAvailable() = 0;
         virtual bool isMdpAvailable() = 0;
 
     };
 
-    template <typename TState, typename TOccupancyState>
-    class RelaxedValueFunction : public BaseRelaxedValueFunction<TOccupancyState>, public BaseRelaxedValueFunction<Pair<TState, number>>
+    class RelaxedValueFunction : public BaseRelaxedValueFunction
     {
     public :
         virtual ~RelaxedValueFunction() {}
 
-        virtual double operator()(const TOccupancyState &ostate, const number &tau) = 0;
+        virtual double operator()(const std::shared_ptr<State> &ostate, const number &tau) = 0;
 
-        virtual double operator()(const Pair<TState, number> &ostate, const number &tau) = 0;
+        virtual double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &ostate, const number &tau) = 0;
 
         virtual bool isPomdpAvailable() = 0;
         virtual bool isMdpAvailable() = 0;
