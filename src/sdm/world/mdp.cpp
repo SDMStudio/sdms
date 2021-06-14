@@ -8,7 +8,7 @@ namespace sdm
     MDP::MDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
              const std::shared_ptr<RewardInterface> &reward,
-             const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
+             const std::shared_ptr<TabularStateDynamics> &state_dynamics,
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
              number horizon,
              double discount,
@@ -99,6 +99,38 @@ namespace sdm
     std::shared_ptr<Space> MDP::getStateSpace(number) const
     {
         return this->state_space_;
+    }
+
+    std::shared_ptr<Observation> MDP::reset()
+    {
+        this->current_timestep_ = 0;
+        this->setInternalState(this->getStartDistribution()->sample());
+        return this->getInternalState();
+    }
+
+    void MDP::setInternalState(std::shared_ptr<State> state)
+    {
+        this->internal_state_ = state;
+    }
+
+    std::shared_ptr<State> MDP::getInternalState() const
+    {
+        return this->internal_state_;
+    }
+
+    std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action) 
+    {
+        this->setInternalState(this->state_dynamics_->getNextStateDistribution(state, action)->sample());
+        return this->getInternalState();
+    }
+
+    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
+    {
+        this->current_timestep_++;
+        auto reward = this->getReward(this->getInternalState(), action);
+        auto observation = this->sampleNextObservation(this->getInternalState(), action);
+        bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
+        return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
     std::string MDP::toStdFormat()

@@ -11,18 +11,16 @@
 namespace sdm
 {
 
-    template <typename TObservation, typename TAction>
     class Exploration
     {
         public:
         virtual ~Exploration(){}
         virtual void reset(unsigned long) = 0;
         virtual void update(unsigned long) = 0;
-        virtual TAction getAction(std::shared_ptr<QValueFunction<TObservation, TAction>>, TObservation, number) = 0;
+        virtual Space getAction(std::shared_ptr<QValueFunction>, std::shared_ptr<Space>, number) = 0;
     };
 
-    template <typename TObservation, typename TAction>
-    class EpsGreedy : public Exploration<TObservation, TAction>
+    class EpsGreedy : public Exploration
     {
     protected:
         double eps_, eps_deb_, eps_fin_, deb_expl_, fin_expl_;
@@ -62,7 +60,7 @@ namespace sdm
             return this->eps_;
         }
 
-        TAction getAction(std::shared_ptr<QValueFunction<TObservation, TAction>>, TObservation, number)
+        Space getAction(std::shared_ptr<QValueFunction>, std::shared_ptr<Space>, number)
         {
             throw sdm::exception::NotImplementedException();
         }

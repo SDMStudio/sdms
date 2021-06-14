@@ -19,17 +19,10 @@
 
 namespace sdm
 {
-  /**
-   * @brief 
-   * 
-   * @tparam TState 
-   * @tparam TAction 
-   */
-  template <typename TObservation, typename TAction>
   class QLearning : public Algorithm
   {
   private:
-    TObservation current_obs, last_obs;
+    std::shared_ptr<Observation> current_obs, last_obs;
     number log_freq = 100, test_freq = 1000, save_freq = 10000;
     bool do_log_ = false, do_test_ = false, do_save_ = false, is_done = false;
 
@@ -38,17 +31,17 @@ namespace sdm
      * @brief The problem to be solved.
      * 
      */
-    std::shared_ptr<GymInterface<TObservation, TAction>> env_;
+    std::shared_ptr<GymInterface> env_;
 
     /**
      * @brief Q-value function. 
      */
-    std::shared_ptr<QValueFunction<TObservation, TAction>> q_value_;
+    std::shared_ptr<QValueFunction> q_value_;
 
     /**
      * @brief Q-value target function. 
      */
-    std::shared_ptr<QValueFunction<TObservation, TAction>> q_target_;
+    std::shared_ptr<QValueFunction> q_target_;
 
     /**
      * @brief Experience Memory. 
@@ -58,7 +51,7 @@ namespace sdm
     /**
      * @brief Exploration process. 
      */
-    std::shared_ptr<EpsGreedy<TObservation, TAction>> exploration_process;
+    std::shared_ptr<EpsGreedy> exploration_process;
 
     /**
      * @brief Logger.
@@ -70,7 +63,7 @@ namespace sdm
      * @brief Some variables for the algorithm.
      * 
      */
-    number planning_horizon_, step, episode;
+    number horizon_, step, episode;
 
     double discount_, lr_, batch_size_;
 
@@ -79,11 +72,11 @@ namespace sdm
     std::string name_ = "qlearning";
 
   public:
-    QLearning(std::shared_ptr<GymInterface<TObservation, TAction>> &env,
-              std::shared_ptr<QValueFunction<TObservation, TAction>> q_value,
-              std::shared_ptr<QValueFunction<TObservation, TAction>> q_target,
-              std::shared_ptr<EpsGreedy<TObservation, TAction>> exploration,
-              number planning_horizon,
+    QLearning(std::shared_ptr<GymInterface> &env,
+              std::shared_ptr<QValueFunction> q_value,
+              std::shared_ptr<QValueFunction> q_target,
+              std::shared_ptr<EpsGreedy> exploration,
+              number horizon,
               double discount = 0.9,
               double lr = 0.001,
               double batch_size = 1,
@@ -132,7 +125,7 @@ namespace sdm
      */
     void update_model();
 
-    TAction select_action(const TObservation &obs);
+    std::shared_ptr<Action> select_action(const std::shared_ptr<Observation> &obs);
 
     void initLogger();
 
@@ -141,4 +134,3 @@ namespace sdm
     int getTrial() { throw sdm::exception::NotImplementedException(); }
   };
 } // namespace sdm
-#include <sdm/algorithms/q_learning.tpp>

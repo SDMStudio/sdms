@@ -27,7 +27,7 @@ namespace sdm
      * @class BaseValueFunction
      * @brief This class is the abstract class of all kind of value functions. All {state,action,q}-value function must derived this class.
      * 
-     * @tparam std::shared_ptr<State> Type of the state.
+     * @tparam std::shared_ptr<Observation> Type of the state.
      * @tparam std::shared<Action> Type of the action.
      * @tparam double Type of the value.
      */
@@ -58,7 +58,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+        virtual double getValueAt(const std::shared_ptr<Observation> &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-value at a state
@@ -66,7 +66,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        // virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<State> &state, number t) = 0;
+        // virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValueAt(const std::shared_ptr<Observation> &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action
@@ -75,7 +75,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        // virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        // virtual double getQValueAt(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Get the best action to do at a state
@@ -83,7 +83,7 @@ namespace sdm
          * @param state the state
          * @return the best action
          */
-        // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
+        // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &state, number t) = 0;
 
         /**
          * @brief Save a value function into a file. 
@@ -127,7 +127,7 @@ namespace sdm
 
     protected:
         /**
-         * @brief The horizon for planning.
+         * @brief The horizon for planning/learning.
          */
         number horizon_;
     };

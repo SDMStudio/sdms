@@ -16,8 +16,11 @@
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/space/space.hpp>
 #include <sdm/core/reward/reward_interface.hpp>
-#include <sdm/core/dynamics/state_dynamics_interface.hpp>
+// #include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
+#include <sdm/world/gym_interface.hpp>
+#include <sdm/core/dynamics/tabular_state_dynamics.hpp>
+
 
 namespace sdm
 {
@@ -25,13 +28,14 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class MDP : virtual public MDPInterface
+    class MDP : virtual public MDPInterface,
+                virtual public GymInterface
     {
     public:
         MDP(const std::shared_ptr<Space> &state_space,
             const std::shared_ptr<Space> &action_space,
             const std::shared_ptr<RewardInterface> &reward,
-            const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
+            const std::shared_ptr<TabularStateDynamics> &state_dynamics,
             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
             number horizon = 0,
             double discount = 0.99,
@@ -130,6 +134,22 @@ namespace sdm
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
+        std::shared_ptr<DiscreteSpace> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) const;
+
+        std::shared_ptr<DiscreteSpace> getActionSpaceAt(number t) const;
+
+        std::shared_ptr<Space> getObservationSpaceAt(number t) const;
+
+        std::shared_ptr<Observation> reset();
+
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+
+        void setInternalState(std::shared_ptr<State>);
+
+        std::shared_ptr<State> getInternalState() const;
+
+        std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
+
         /**
          * @brief Get the reachable next states
          * 
@@ -183,17 +203,21 @@ namespace sdm
     protected:
         number num_agents_, horizon_;
 
+        int current_timestep_;
+
+        std::shared_ptr<State> internal_state_;
+
         double discount_;
 
         Criterion criterion_;
 
         std::shared_ptr<Space> state_space_;
 
-        std::shared_ptr<Space> action_space_;
+        std::shared_ptr<Space> action_space_; // already in gym interface
 
         std::shared_ptr<RewardInterface> reward_;
 
-        std::shared_ptr<StateDynamicsInterface> state_dynamics_;
+        std::shared_ptr<TabularStateDynamics> state_dynamics_;
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> start_distrib_;
     };

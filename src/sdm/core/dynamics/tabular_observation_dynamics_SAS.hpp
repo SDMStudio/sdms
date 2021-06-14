@@ -7,7 +7,8 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-#include <sdm/core/dynamics/tabular_observation_dynamics_interface.hpp>
+#include <sdm/core/dynamics/observation_dynamics_interface.hpp>
+#include <sdm/core/distribution.hpp>
 
 namespace sdm
 {
@@ -85,6 +86,8 @@ namespace sdm
          * @return double the probability
          */
         void setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0);
+
+        std::shared_ptr<Distribution<std::shared_ptr<Observation>>> getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state);
 
     protected:
         //! \brief transition and observation matrices
