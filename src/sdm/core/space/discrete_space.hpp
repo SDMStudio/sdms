@@ -125,6 +125,8 @@ namespace sdm
          */
         bool contains(const std::shared_ptr<Item> &) const;
 
+        int find(const std::shared_ptr<Item> &item) const;
+
         std::string str() const;
         std::string short_str() const;
 

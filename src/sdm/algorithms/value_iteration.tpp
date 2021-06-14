@@ -13,8 +13,10 @@ namespace sdm
     {
         auto under_pb = this->problem_->getUnderlyingProblem();
 
-        policy_evaluation_1_ = std::make_shared<sdm::MappedValueFunction>(this->problem_, this->horizon_,under_pb->getReward()->getMaxReward());
-        policy_evaluation_2_ = std::make_shared<sdm::MappedValueFunction>(this->problem_, this->horizon_,under_pb->getReward()->getMaxReward());
+        auto tabular_backup = std::make_shared<TabularBackup>(this->problem_);
+
+        policy_evaluation_1_ = std::make_shared<sdm::PointSetValueFunction>(tabular_backup, this->horizon_,under_pb->getMaxReward(0));
+        policy_evaluation_2_ = std::make_shared<sdm::PointSetValueFunction>(tabular_backup, this->horizon_,under_pb->getMaxReward(0));
 
         policy_evaluation_1_->initialize();
         policy_evaluation_2_->initialize();
@@ -33,7 +35,7 @@ namespace sdm
 
             for(int t = this->horizon_ -1; t>=0;t--)
             {
-                for(const auto &state : under_pb->getStateSpace(t)->getAll() )
+                for(const auto &state : *under_pb->getStateSpace(t) )
                 {
                     this->policy_evaluation_2_->updateValueAt(state,t,this->policy_evaluation_1_->getQValueAt(state, t)->max());
                 }
@@ -68,7 +70,7 @@ namespace sdm
         }
     }
 
-    std::shared_ptr<typename sdm::MappedValueFunction> ValueIteration::getResult()
+    std::shared_ptr<typename sdm::PointSetValueFunction> ValueIteration::getResult()
     {
         return this->policy_evaluation_2_;
     }

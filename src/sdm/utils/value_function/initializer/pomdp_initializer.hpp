@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 namespace sdm
 {

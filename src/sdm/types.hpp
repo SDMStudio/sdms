@@ -117,7 +117,12 @@ namespace sdm
     RELAXED_SAWTOOTH_LINER_PROGRAMMING
   };
 
-  enum
+  enum TypeState
+  {
+    State_
+  };
+
+  enum 
   {
     STANDARD,
     XML,

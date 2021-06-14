@@ -140,5 +140,4 @@ namespace sdm
     };
 
 } // namespace sdm
-#include <sdm/utils/value_function/initializer.tpp>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/backup/backup_interface.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 

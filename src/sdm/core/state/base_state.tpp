@@ -30,7 +30,7 @@ namespace sdm
     }
 
     template <typename TState>
-    bool BaseState<TState>::operator==(const BaseState &other)
+    bool BaseState<TState>::operator==(const BaseState &other) const
     {
         return (this->getState() == other.getState());
     }

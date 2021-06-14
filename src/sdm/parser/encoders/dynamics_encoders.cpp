@@ -103,7 +103,7 @@ namespace sdm
         // ############ OBSERVATION DYNAMICS ENCODER ######################
         // ################################################################
 
-        observation_transition_encoder::observation_transition_encoder(const std::shared_ptr<DiscreteSpace> &st_space, const std::shared_ptr<DiscreteSpace> &ag_space, const std::shared_ptr<MultiDiscreteSpace> &act_space, const std::shared_ptr<MultiDiscreteSpace> &obs_space, const std::shared_ptr<TabularObservationDynamics> &dynamics)
+        observation_transition_encoder::observation_transition_encoder(const std::shared_ptr<DiscreteSpace> &st_space, const std::shared_ptr<DiscreteSpace> &ag_space, const std::shared_ptr<MultiDiscreteSpace> &act_space, const std::shared_ptr<MultiDiscreteSpace> &obs_space, const std::shared_ptr<TabularObservationDynamicsAS> &dynamics)
             : boost::static_visitor<>(),
               state_space_(st_space),
               agent_space_(ag_space),
@@ -210,9 +210,9 @@ namespace sdm
             this->obs_space_ = obs_space;
         }
 
-        std::shared_ptr<TabularObservationDynamics> obs_dynamics_encoder::encode(const observation_t &observs, std::shared_ptr<StateDynamicsInterface> state_dynamics)
+        std::shared_ptr<TabularObservationDynamicsAS> obs_dynamics_encoder::encode(const observation_t &observs, std::shared_ptr<StateDynamicsInterface> state_dynamics)
         {
-            std::shared_ptr<TabularObservationDynamics> dynamics = std::make_shared<TabularObservationDynamics>();
+            std::shared_ptr<TabularObservationDynamicsAS> dynamics = std::make_shared<TabularObservationDynamicsAS>();
             observation_transition_encoder obs_d_encoder(this->state_space_, this->agent_space_, this->action_space_, this->obs_space_, dynamics);
 
             for (observation_entry_t const &obs : observs)

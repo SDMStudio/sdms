@@ -6,8 +6,8 @@
 // #include <sdm/core/function.hpp>
 
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
-// #include <sdm/utils/value_function/backup/backup_interface.hpp>
+
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 
 /**

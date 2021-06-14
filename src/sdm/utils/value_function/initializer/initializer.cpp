@@ -1,4 +1,5 @@
 #include <sdm/exception.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 namespace sdm
 {

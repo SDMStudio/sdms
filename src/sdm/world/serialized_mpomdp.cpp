@@ -28,12 +28,16 @@ namespace sdm
         auto all_action(serialized_state->getAction());
         all_action.push_back(action);
 
-        auto find = std::find(this->getObservationSpace(serialized_state->getCurrentAgentId())->begin(), this->getObservationSpace(serialized_state->getCurrentAgentId())->end(), observation);
+        std::shared_ptr<Item> item = observation;
+        auto discrete_space =std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serialized_state->getCurrentAgentId()));
 
-        if(find != this->getObservationSpace(serialized_state->getCurrentAgentId())->end() && next_serialized_state->getCurrentAgentId() == 0 && serialized_state->getCurrentAgentId() == this->getNumAgents() -1 && this->getObservationSpace(serialized_state->getCurrentAgentId())[std::distance(this->getObservationSpace(serialized_state->getCurrentAgentId())->begin(),find)] )
+
+        auto index = discrete_space->find(item);
+
+        if(index != -1 && next_serialized_state->getCurrentAgentId() == 0 && serialized_state->getCurrentAgentId() == this->getNumAgents() -1 && discrete_space->getItem(index) )
         {
             // The probability is the same of the decpomdp, if the condition are verified
-            return std::static_pointer_cast<MPOMDPInterface>(this->mmdp_)->getObservationProbability(serialized_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serialized_state->getHiddenState(),observation,t);
+            return std::dynamic_pointer_cast<MPOMDPInterface>(this->mmdp_)->getObservationProbability(serialized_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serialized_state->getHiddenState(),observation,t);
         }else
         {
             // If it is a intermediate agent, the probability is worth 1 only if : the joint_obs is the empty observation,
@@ -50,12 +54,15 @@ namespace sdm
         auto all_action(serialized_state->getAction());
         all_action.push_back(action);
 
-        auto find = std::find(this->getObservationSpace(serialized_state->getCurrentAgentId())->begin(), this->getObservationSpace(serialized_state->getCurrentAgentId())->end(), observation);
+        std::shared_ptr<Item> item = observation;
+        auto discrete_space =std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serialized_state->getCurrentAgentId()));
 
-        if(find != this->getObservationSpace(serialized_state->getCurrentAgentId())->end() && next_serialized_state->getCurrentAgentId() == 0 && serialized_state->getCurrentAgentId() == this->getNumAgents() -1 && this->getObservationSpace(serialized_state->getCurrentAgentId())[std::distance(this->getObservationSpace(serialized_state->getCurrentAgentId())->begin(),find)] )
+        auto index = discrete_space->find(item);
+
+        if(index != -1 && next_serialized_state->getCurrentAgentId() == 0 && serialized_state->getCurrentAgentId() == this->getNumAgents() -1 && discrete_space->getItem(index) )
         {
             // The probability is the same of the decpomdp, if the condition are verified
-            return std::static_pointer_cast<MPOMDPInterface>(this->mmdp_)->getDynamics(serialized_state->getHiddenState(), this->getPointeurJointAction(all_action),next_serialized_state->getHiddenState(),observation,t);
+            return std::dynamic_pointer_cast<MPOMDPInterface>(this->mmdp_)->getDynamics(serialized_state->getHiddenState(), this->getPointeurJointAction(all_action),next_serialized_state->getHiddenState(),observation,t);
         }else
         {
             // If it is a intermediate agent, the probability is worth 1 only if : the joint_obs is the empty observation,
@@ -67,37 +74,42 @@ namespace sdm
     void SerializedMPOMDP::setupObservationSpace(std::shared_ptr<MPOMDPInterface> mpomdp)
     {
         // Set default joint observation : "No Observation"
-        Joint<std::shared_ptr<Observation>> empty_observation;
+        Joint<std::shared_ptr<Observation>> empty_observation_tmp;
 
         // Create the Default Joint Observation
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
-            empty_observation.push_back(std::make_shared<Observation>(sdm::DEFAULT_OBSERVATION));
+            empty_observation_tmp.push_back(std::make_shared<DiscreteObservation>(sdm::DEFAULT_OBSERVATION));
         }
 
+        std::shared_ptr<Observation> empty_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>(empty_observation_tmp);
         // Add the information in the variable empty_serial_observation
-        this->empty_serial_observation = std::make_shared<Observation>(empty_observation);
+        this->empty_serial_observation = empty_observation;
 
         // Create the Serial Observation Space
         std::vector<std::shared_ptr<DiscreteSpace>> all_observation_space;
+
+        std::shared_ptr<DiscreteSpace> space;
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
             //If it's the last agent, then the serial observation space correspond to the mpomdp observation space, else it's the empty observation
             if (this->isLastAgent(ag_id))
             {
-                all_observation_space.push_back(std::make_shared<DiscreteSpace>(mpomdp->getObservationSpace(0)));
+                space = std::static_pointer_cast<DiscreteSpace>(mpomdp->getObservationSpace(0));
             }
             else
             {
-                all_observation_space.push_back(std::make_shared<DiscreteSpace>(this->empty_serial_observation));
+                space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>({this->empty_serial_observation}));
             }
+            all_observation_space.push_back(space);
+
         }
         this->serialized_observation_space_ = all_observation_space;
     }
 
     void SerializedMPOMDP::setReachableObservationSpace(std::shared_ptr<MPOMDPInterface> mpomdp)
     {
-        auto observation_dynamics = std::make_shared<TabularObservationDynamics>();
+        auto observation_dynamics = std::make_shared<TabularObservationDynamicsSAS>();
         // Creation of all reachable Observation Space
 
         // Go over serial states
@@ -144,6 +156,4 @@ namespace sdm
         }
         this->obs_dynamics_ = observation_dynamics;
     }
-
-
 }

@@ -8,7 +8,7 @@
 #include <sdm/utils/value_function/sawtooth_vf.hpp>
 
 #include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
 //! This class provides getter and setter methods to characterize convexhull of points using MILP.

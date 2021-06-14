@@ -1,3 +1,5 @@
+#include <sdm/core/state/serialized_state.hpp>
+
 namespace sdm
 {
 
@@ -43,6 +45,5 @@ namespace sdm
         res << "Serial State(" << *this->getHiddenState()<<","<<this->getAction() << ")";
         return res.str();
     }
-
 
 } // namespace sdm

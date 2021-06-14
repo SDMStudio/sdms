@@ -12,7 +12,7 @@ Copyright (c) 2016 Jilles Steeve Dibangoye
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/reward/tabular_reward.hpp>
 #include <sdm/core/dynamics/tabular_state_dynamics.hpp>
-#include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics_interface.hpp>
 #include <sdm/world/mpomdp.hpp>
 
 #include <sdm/parser/encoders/struct_encoders.hpp>
@@ -71,7 +71,7 @@ namespace sdm
 
         // // Encodes the observation dynamics
         obs_dynamics_encoder d_encoder(state_space, agent_space, action_space, obs_space);
-        std::shared_ptr<TabularObservationDynamics> obs_dynamics = d_encoder.encode(ast.observation_spec, state_dynamics);
+        std::shared_ptr<TabularObservationDynamicsInterface> obs_dynamics = d_encoder.encode(ast.observation_spec, state_dynamics);
 
         auto parsed_model = std::make_shared<sdm::DecPOMDP>(state_space, action_space, obs_space, rewards, state_dynamics, obs_dynamics, start_distribution, 0, ast.discount_param, (Criterion)(ast.value_param == "reward"));
 

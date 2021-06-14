@@ -46,7 +46,6 @@ namespace sdm
   };
 
 } // namespace sdm
-#include <sdm/core/state/serialized_state.tpp>
 
 
 namespace boost

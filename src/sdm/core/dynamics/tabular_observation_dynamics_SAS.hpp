@@ -12,18 +12,17 @@
 
 namespace sdm
 {
-    // TabularObservationDynamics <|-- TabularObservationDynamics_AS', TabularObservationDynamics_S' , TabularObservationDynamics<|- SAS'
     //!
     //! \class  dynamics  dynamics.hpp
     //!
-    class TabularObservationDynamics : public ObservationDynamicsInterface
+    class TabularObservationDynamicsSAS : public TabularObservationDynamicsInterface
     {
     public:
-        TabularObservationDynamics();
+        TabularObservationDynamicsSAS();
 
-        TabularObservationDynamics(const TabularObservationDynamics &copy);
+        TabularObservationDynamicsSAS(const TabularObservationDynamicsSAS &copy);
         
-        virtual ~TabularObservationDynamics();
+        virtual ~TabularObservationDynamicsSAS();
 
         /**
          * @brief Get the observation probability

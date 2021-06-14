@@ -10,15 +10,22 @@ namespace sdm
 
     SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp) : underlying_problem(mdp)
     {
+        this->initial_state_  = std::static_pointer_cast<State>(*this->getUnderlyingProblem()->getStateSpace(0)->begin());
     }
 
     SolvableByMDP::~SolvableByMDP()
     {
     }
 
+    void SolvableByMDP::setInitialState(const std::shared_ptr<State>& state)
+    {
+        this->initial_state_ = state;
+    }
+
+
     std::shared_ptr<State> SolvableByMDP::getInitialState()
     {
-        return std::static_pointer_cast<State>(*this->getUnderlyingProblem()->getStateSpace(0)->begin());
+        return this->initial_state_;
     }
 
     std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi) const
@@ -60,10 +67,23 @@ namespace sdm
     double SolvableByMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
         double tmp = 0;
+        double transition_proba =0;
         for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
         {
+            transition_proba +=  this->underlying_problem->getTransitionProbability(state, action, next_state, t);
             tmp += this->underlying_problem->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
         }
+
+        if(transition_proba>1 )
+        {
+            std::cout<<"Total : "<<transition_proba<<std::endl;
+            std::cout<<"State : "<<state->str()<<", action "<<action->str()<<std::endl;
+            for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
+            {
+                std::cout<<"Reachable State "<<next_state->str()<<", proba "<<this->underlying_problem->getTransitionProbability(state, action, next_state, t);
+            }
+        }
+
         return tmp;
     }
 

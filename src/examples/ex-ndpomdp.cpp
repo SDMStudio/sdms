@@ -8,7 +8,7 @@
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/serialized_occupancy_state.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/max_plan_vf.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/algorithms/hsvi.hpp>

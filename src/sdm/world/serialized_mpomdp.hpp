@@ -20,7 +20,8 @@
 #include <sdm/world/base/mpomdp_interface.hpp>
 #include <sdm/world/serialized_mmdp.hpp>
 
-#include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics_SAS.hpp>
+#include <sdm/core/base_observation.hpp>
 
 namespace sdm
 {

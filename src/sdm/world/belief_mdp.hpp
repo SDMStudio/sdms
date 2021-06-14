@@ -36,7 +36,7 @@ namespace sdm
 
         // std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
 
-        std::shared_ptr<State> getInitialState();
+        // std::shared_ptr<State> getInitialState();
 
         virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
 
@@ -52,8 +52,8 @@ namespace sdm
         virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
 
     protected:
-        std::shared_ptr<BeliefInterface> initial_state_;
-        std::shared_ptr<BeliefInterface> current_state_;
+        // std::shared_ptr<State> initial_state_;
+        std::shared_ptr<State> current_state_;
 
         std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
 

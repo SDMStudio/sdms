@@ -10,17 +10,17 @@ namespace sdm
 
     BeliefMDP::BeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp) : SolvableByMDP(pomdp)
     {
-        this->initial_state_ = std::make_shared<Belief>();
-        this->current_state_ = std::make_shared<Belief>();
         double proba = 0;
+        std::shared_ptr<BeliefInterface> initial_state;
         for (const auto &state : *pomdp->getStateSpace(0))
         {
             proba = pomdp->getStartDistribution()->getProbability(state->toState(), nullptr);
             if (proba > 0)
             {
-                this->initial_state_->setProbability(state->toState(), proba);
+                initial_state->setProbability(state->toState(), proba);
             }
         }
+        this->initial_state_ = initial_state;
         *this->current_state_ = *this->initial_state_;
     }
 
@@ -109,10 +109,10 @@ namespace sdm
         return proba;
     }
 
-    std::shared_ptr<State> BeliefMDP::getInitialState()
-    {
-        return this->initial_state_;
-    }
+    // std::shared_ptr<State> BeliefMDP::getInitialState()
+    // {
+    //     return this->initial_state_;
+    // }
 
     std::shared_ptr<Space> BeliefMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {

@@ -64,6 +64,7 @@ namespace sdm
         {
             if (this->is_dominated(iter->first, iter->second, t))
             {
+                std::cout<<"Delete ?"<<std::endl;
                 to_delete.push_back(iter->first);
             }
         }

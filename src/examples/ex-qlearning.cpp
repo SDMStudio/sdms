@@ -9,7 +9,7 @@
 #include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/discrete_decpomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>

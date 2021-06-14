@@ -28,6 +28,8 @@ namespace sdm
          */
         std::shared_ptr<State> getInitialState();
 
+        void setInitialState(const std::shared_ptr<State>& state);
+
         /**
          * @brief Get the next occupancy state.
          * 
@@ -122,5 +124,7 @@ namespace sdm
         std::shared_ptr<MDPInterface> underlying_problem;
 
         const std::shared_ptr<MDPInterface> &getUnderlyingMDP() const;
+
+        std::shared_ptr<State> initial_state_;
     };
 } // namespace sdm

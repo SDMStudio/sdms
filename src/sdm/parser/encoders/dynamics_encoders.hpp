@@ -6,7 +6,7 @@
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/core/dynamics/tabular_state_dynamics.hpp>
-#include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics_AS.hpp>
 
 #include <sdm/parser/encoders/item_encoders.hpp>
 #include <sdm/parser/encoders/struct_encoders.hpp>
@@ -67,13 +67,13 @@ namespace sdm
             std::shared_ptr<MultiDiscreteSpace> action_space_;
             std::shared_ptr<MultiDiscreteSpace> obs_space_;
 
-            std::shared_ptr<TabularObservationDynamics> obs_dynamics_;
+            std::shared_ptr<TabularObservationDynamicsAS> obs_dynamics_;
 
             observation_transition_encoder(const std::shared_ptr<DiscreteSpace> &st_space,
                                            const std::shared_ptr<DiscreteSpace> &ag_space,
                                            const std::shared_ptr<MultiDiscreteSpace> &act_space,
                                            const std::shared_ptr<MultiDiscreteSpace> &obs_space,
-                                           const std::shared_ptr<TabularObservationDynamics> &dynamics);
+                                           const std::shared_ptr<TabularObservationDynamicsAS> &dynamics);
 
             void operator()(const observation_entry_1_t &z1);
             void operator()(const observation_entry_3_t &z3);
@@ -90,7 +90,7 @@ namespace sdm
 
         public:
             obs_dynamics_encoder(const std::shared_ptr<DiscreteSpace> &state_space, const std::shared_ptr<DiscreteSpace> &agent_space, const std::shared_ptr<MultiDiscreteSpace> &action_space, const std::shared_ptr<MultiDiscreteSpace> &obs_space);
-            std::shared_ptr<TabularObservationDynamics> encode(const observation_t &observs, std::shared_ptr<StateDynamicsInterface> state_dynamics);
+            std::shared_ptr<TabularObservationDynamicsAS> encode(const observation_t &observs, std::shared_ptr<StateDynamicsInterface> state_dynamics);
         };
 
     } // namespace ast
