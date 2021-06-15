@@ -1,9 +1,16 @@
-// #include <iostream>
+#include <iostream>
+#include <memory>
 
-// #include <memory>
-// #include <sdm/exception.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/parser/parser.hpp>
 
-// #include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/q_learning.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
+#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/rl/exploration.hpp>
+
+
+// #include <sdm/world/gym_interface.hpp>
 
 // #include <sdm/core/action/action.hpp>
 // #include <sdm/core/action/base_action.hpp>
@@ -26,7 +33,6 @@
 // #include <sdm/world/pomdp.hpp>
 // #include <sdm/world/belief_mdp.hpp>
 
-// #include <sdm/parser/parser.hpp>
 
 // #include <sdm/utils/value_function/tabular_value_function.hpp>
 // #include <sdm/utils/value_function/backup/tabular_backup.hpp>
@@ -34,45 +40,45 @@
 // #include <sdm/utils/value_function/initializer/initializer.hpp>
 // #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 
-// using namespace sdm;
+using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/tiger.dpomdp");
-    // // auto mdp_tiger = sdm::parser::parse_file("../data/world/ndpomdp/example4_3-1.ndpomdp");
+    auto dpomdp = sdm::parser::parse_file("../data/world/dpomdp/Mars.dpomdp");
 
-    // auto state_space = mdp_tiger->getStateSpace(); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
-    // auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
-    // auto rew = mdp_tiger->getReward(); 
-    // auto dynamics = mdp_tiger->getStateDynamics();
+    auto state_space = dpomdp->getStateSpace();
+    auto action_space = dpomdp->getActionSpace();
+    auto reward_space = dpomdp->getReward(); 
+    auto state_dynamics = dpomdp->getStateDynamics();
 
-    // auto start_distrib = mdp_tiger->getStartDistribution();
-    // auto obs_space = mdp_tiger->getObservationSpace(0);
-    // auto obs_dynamics = mdp_tiger->getObservationDynamics();
+    auto start_distribution = dpomdp->getStartDistribution();
+    auto observation_space = dpomdp->getObservationSpace(0);
+    auto observation_dynamics = dpomdp->getObservationDynamics();
 
-    // number horizon = 5;
+    number horizon = 10;
 
-    // // Creation of the MMDP
-    // auto mdp = std::make_shared<MDP>(state_space, action_space, rew, dynamics,start_distrib,horizon,1.);
+    double discount = 1;
 
-    // // Creation of HSVI problem and Resolution 
-    // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
+    double lr = 0.1;
 
-    // // horizon = horizon * mdp->getNumAgents();
-    // auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+    std::shared_ptr<GymInterface> gym = std::make_shared<MMDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
+    // std::shared_ptr<GymInterface> gym = std::make_shared<POMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
 
-    // auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-    // auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
-    // // auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "Hsvi",0.01,1000);
+    std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
-    // auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup);
-    // auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup);
+    std::shared_ptr<QValueFunction> q_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
-    // auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, horizon, 0.01);
-    // algo->do_initialize();
-    // std::cout << *algo->getLowerBound() << std::endl;
-    // std::cout << *algo->getUpperBound() << std::endl;
-    // algo->do_solve();
+    std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
+
+    std::shared_ptr<QValueFunction> target_q_table = std::make_shared<TabularQValueFunction>(horizon, lr, target_initializer);
+
+    std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
+
+    std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, q_table, target_q_table, exploration, horizon, discount, lr, 1, 100000);
+
+    algorithm->do_initialize();
+
+    algorithm->do_solve();
 
     return 0;
 }
