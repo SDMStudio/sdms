@@ -16,10 +16,9 @@
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/space/space.hpp>
 #include <sdm/core/reward/reward_interface.hpp>
-// #include <sdm/core/dynamics/state_dynamics_interface.hpp>
+#include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
 #include <sdm/world/gym_interface.hpp>
-#include <sdm/core/dynamics/tabular_state_dynamics.hpp>
 
 
 namespace sdm
@@ -35,7 +34,7 @@ namespace sdm
         MDP(const std::shared_ptr<Space> &state_space,
             const std::shared_ptr<Space> &action_space,
             const std::shared_ptr<RewardInterface> &reward,
-            const std::shared_ptr<TabularStateDynamics> &state_dynamics,
+            const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
             number horizon = 0,
             double discount = 0.99,
@@ -217,7 +216,7 @@ namespace sdm
 
         std::shared_ptr<RewardInterface> reward_;
 
-        std::shared_ptr<TabularStateDynamics> state_dynamics_;
+        std::shared_ptr<StateDynamicsInterface> state_dynamics_;
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> start_distrib_;
     };

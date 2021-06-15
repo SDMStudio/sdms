@@ -7,13 +7,14 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/dynamics/observation_dynamics_interface.hpp>
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 
 namespace sdm
 {
     //!
     //! \class  dynamics  dynamics.hpp
     //!
-    class TabularObservationDynamicsInterface : public ObservationDynamicsInterface
+    class TabularObservationDynamics : public ObservationDynamicsInterface
     {
     public:
         /**
@@ -76,6 +77,8 @@ namespace sdm
          * @return double the probability
          */
         virtual void setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) = 0;
+
+        std::shared_ptr<Distribution<std::shared_ptr<Observation>>> getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state);
     };
 } // namespace sdm
 
