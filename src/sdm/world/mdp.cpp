@@ -120,8 +120,8 @@ namespace sdm
 
     std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action) 
     {
-        this->setInternalState(this->state_dynamics_->getNextStateDistribution(state, action)->sample());
-        return this->getInternalState();
+        // this->setInternalState(this->state_dynamics_->getNextStateDistribution(state, action)->sample());
+        // return this->getInternalState();
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
@@ -131,6 +131,21 @@ namespace sdm
         auto observation = this->sampleNextObservation(this->getInternalState(), action);
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
+    }
+
+    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) const
+    {
+        return this->getActionSpace();
+    }
+
+    std::shared_ptr<Space> MDP::getActionSpaceAt(number t) const
+    {
+        return this->getActionSpace();
+    }
+
+    std::shared_ptr<Space> MDP::getObservationSpaceAt(number t) const
+    {
+        return this->getStateSpace();
     }
 
     std::string MDP::toStdFormat()
