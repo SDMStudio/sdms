@@ -13,7 +13,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/core/dynamics/tabular_observation_dynamics_SAS.hpp>
+#include <sdm/core/dynamics/observation_dynamics_interface.hpp>
 
 #include <sdm/world/mdp.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>

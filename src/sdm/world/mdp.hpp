@@ -16,10 +16,9 @@
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/space/space.hpp>
 #include <sdm/core/reward/reward_interface.hpp>
-// #include <sdm/core/dynamics/state_dynamics_interface.hpp>
+#include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
 #include <sdm/world/gym_interface.hpp>
-#include <sdm/core/dynamics/tabular_state_dynamics.hpp>
 
 
 namespace sdm

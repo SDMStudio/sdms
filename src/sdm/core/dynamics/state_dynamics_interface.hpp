@@ -3,6 +3,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
+#include <sdm/core/distribution.hpp>
 
 namespace sdm
 {
@@ -29,5 +30,7 @@ namespace sdm
          * @return double the probability
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const = 0;
+
+        virtual std::shared_ptr<Distribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) = 0;
     };
 } // namespace sdm

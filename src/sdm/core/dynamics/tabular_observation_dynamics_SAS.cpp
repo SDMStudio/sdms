@@ -60,17 +60,6 @@ namespace sdm
     this->successor_observations_[state][action][next_state].insert(observation);
   }
 
-  std::shared_ptr<Distribution<std::shared_ptr<Observation>>> TabularObservationDynamicsSAS::getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state)
-    {
-        std::set<std::shared_ptr<Observation>> reachable_observations = this->getReachableObservations(state, action, next_state);
-        DiscreteDistribution<std::shared_ptr<Observation>> next_observation_distribution;
-        for (std::shared_ptr<Observation> reachable_observation : reachable_observations)
-        {
-            next_observation_distribution.setProbability(reachable_observation, this->getObservationProbability(state, action, next_state, reachable_observation));
-        }
-        return std::make_shared<DiscreteDistribution<std::shared_ptr<Observation>>>(next_observation_distribution);
-    }
-
   /* ################################### */
   /* ### DYNAMICS -- P(O, S' | S, A) ### */
   /* ################################### */

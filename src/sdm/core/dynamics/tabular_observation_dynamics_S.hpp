@@ -7,14 +7,15 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-#include <sdm/core/dynamics/tabular_observation_dynamics_interface.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
+
 
 namespace sdm
 {
     //!
     //! \class  dynamics  dynamics.hpp
     //!
-    class TabularObservationDynamicsS : public TabularObservationDynamicsInterface
+    class TabularObservationDynamicsS : public TabularObservationDynamics
     {
     public:
         TabularObservationDynamicsS();
