@@ -44,7 +44,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    auto dpomdp = sdm::parser::parse_file("../data/world/dpomdp/Mars.dpomdp");
+    auto dpomdp = sdm::parser::parse_file("../data/world/dpomdp/tiger.dpomdp");
 
     auto state_space = dpomdp->getStateSpace();
     auto action_space = dpomdp->getActionSpace();
@@ -61,8 +61,8 @@ int main(int argc, char **argv)
 
     double lr = 0.1;
 
-    std::shared_ptr<GymInterface> gym = std::make_shared<MMDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
-    // std::shared_ptr<GymInterface> gym = std::make_shared<POMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
+    // std::shared_ptr<GymInterface> gym = std::make_shared<MDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
+    std::shared_ptr<GymInterface> gym = std::make_shared<MPOMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
 
     std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
