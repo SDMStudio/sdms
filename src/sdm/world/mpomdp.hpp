@@ -31,8 +31,8 @@ namespace sdm
                const std::shared_ptr<Space> &action_space,
                const std::shared_ptr<Space> &obs_space,
                const std::shared_ptr<RewardInterface> &reward,
-               const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-               const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
+               const std::shared_ptr<TabularStateDynamics> &state_dynamics,
+               const std::shared_ptr<TabularObservationDynamicsSAS> &obs_dynamics,
                const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
                number horizon = 0,
                double discount = 0.99,
@@ -58,6 +58,12 @@ namespace sdm
         virtual std::shared_ptr<Space> getObservationSpace(number t) const;
         
         virtual std::string toStdFormat();
+
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) const;
+
+        std::shared_ptr<Space> getActionSpaceAt(number t) const;
+
+        std::shared_ptr<Space> getObservationSpaceAt(number t) const;
     };
 
     using DecPOMDP = MPOMDP;

@@ -133,6 +133,21 @@ namespace sdm
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
+    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) const
+    {
+        return this->getActionSpace();
+    }
+
+    std::shared_ptr<Space> MDP::getActionSpaceAt(number t) const
+    {
+        return this->getActionSpace();
+    }
+
+    std::shared_ptr<Space> MDP::getObservationSpaceAt(number t) const
+    {
+        return this->getStateSpace();
+    }
+
     std::string MDP::toStdFormat()
     {
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())

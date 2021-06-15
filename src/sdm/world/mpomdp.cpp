@@ -9,8 +9,8 @@ namespace sdm
                    const std::shared_ptr<Space> &action_space,
                    const std::shared_ptr<Space> &obs_space,
                    const std::shared_ptr<RewardInterface> &reward,
-                   const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-                   const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
+                   const std::shared_ptr<TabularStateDynamics> &state_dynamics,
+                   const std::shared_ptr<TabularObservationDynamicsSAS> &obs_dynamics,
                    const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
                    number horizon,
                    double discount,
@@ -31,6 +31,21 @@ namespace sdm
     std::shared_ptr<Space> MPOMDP::getObservationSpace(number agent_id, number t) const
     {
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(t))->getSpace(agent_id);
+    }
+
+    std::shared_ptr<Space> MPOMDP::getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) const
+    {
+        return this->getActionSpace();
+    }
+
+    std::shared_ptr<Space> MPOMDP::getActionSpaceAt(number t) const
+    {
+        return this->getActionSpace();
+    }
+
+    std::shared_ptr<Space> MPOMDP::getObservationSpaceAt(number t) const
+    {
+        return this->getObservationSpace(t);
     }
 
     std::string MPOMDP::toStdFormat()

@@ -73,7 +73,7 @@ namespace sdm
         {
             next_state_distribution.setProbability(reachable_state, this->getTransitionProbability(state, action, reachable_state));
         }
-        return std::make_shared<Distribution<std::shared_ptr<State>>>(next_state_distribution);
+        return std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>(next_state_distribution);
     }
 
     // void TabularStateDynamics::setTransitions(const std::unordered_map<std::shared_ptr<Action>, matrix_type> &t_model)

@@ -27,8 +27,8 @@ namespace sdm
          * 
          * @return the action space. 
          */
-        virtual std::shared_ptr<DiscreteSpace> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
-        virtual std::shared_ptr<DiscreteSpace> getActionSpaceAt(number t) = 0;
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
+        virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
         virtual std::shared_ptr<Space> getObservationSpaceAt(number t) = 0;
 
         /**

@@ -134,9 +134,9 @@ namespace sdm
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
-        std::shared_ptr<DiscreteSpace> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) const;
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) const;
 
-        std::shared_ptr<DiscreteSpace> getActionSpaceAt(number t) const;
+        std::shared_ptr<Space> getActionSpaceAt(number t) const;
 
         std::shared_ptr<Space> getObservationSpaceAt(number t) const;
 
@@ -148,7 +148,7 @@ namespace sdm
 
         std::shared_ptr<State> getInternalState() const;
 
-        std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
+        std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
 
         /**
          * @brief Get the reachable next states

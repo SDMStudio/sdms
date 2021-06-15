@@ -13,7 +13,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics_SAS.hpp>
 
 #include <sdm/world/mdp.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
@@ -31,7 +31,7 @@ namespace sdm
               const std::shared_ptr<Space> &obs_space,
               const std::shared_ptr<RewardInterface> &reward,
               const std::shared_ptr<TabularStateDynamics> &state_dynamics,
-              const std::shared_ptr<TabularObservationDynamics> &obs_dynamics,
+              const std::shared_ptr<TabularObservationDynamicsSAS> &obs_dynamics,
               const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
               number horizon = 0,
               double discount = 0.99,
@@ -78,12 +78,12 @@ namespace sdm
          */
         virtual double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) const;
 
-        std::shared_ptr<TabularObservationDynamics> getObservationDynamics() const;
+        std::shared_ptr<TabularObservationDynamicsSAS> getObservationDynamics() const;
 
         std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
 
     protected:
         std::shared_ptr<Space> obs_space_;
-        std::shared_ptr<TabularObservationDynamics> obs_dynamics_;
+        std::shared_ptr<TabularObservationDynamicsSAS> obs_dynamics_;
     };
 } // namespace sdm

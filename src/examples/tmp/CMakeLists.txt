@@ -169,11 +169,9 @@ if(BARIS)
 		lib_world
 		${INCLUDE_DIR}/world/mdp.cpp
 		${INCLUDE_DIR}/world/mmdp.cpp
-		${INCLUDE_DIR}/world/serialized_mmdp.cpp
 		${INCLUDE_DIR}/world/mpomdp.cpp
 		${INCLUDE_DIR}/world/pomdp.cpp
 		${INCLUDE_DIR}/parser/**
-		${INCLUDE_DIR}/world/serialized_mpomdp.cpp
 
 
 	)
