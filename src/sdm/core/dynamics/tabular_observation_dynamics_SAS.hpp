@@ -7,7 +7,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-#include <sdm/core/dynamics/observation_dynamics_interface.hpp>
+#include <sdm/core/dynamics/tabular_observation_dynamics_interface.hpp>
 #include <sdm/core/distribution.hpp>
 
 namespace sdm
