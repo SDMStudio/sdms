@@ -14,7 +14,7 @@ namespace sdm
         virtual TypeState getTypeState() const =0;
 
         virtual std::shared_ptr<HistoryTreeInterface> getIndividualHistory(number agent_id) const =0;
-        virtual void expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>>&, const std::shared_ptr<Joint<std::shared_ptr<Action>>>&) = 0;
+        virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>>&, const std::shared_ptr<Joint<std::shared_ptr<Action>>>&) = 0;
 
         // virtual std::shared_ptr<HistoryTree<T>> getParent() const = 0;
         // virtual std::shared_ptr<HistoryTree<T>> getOrigin() = 0;

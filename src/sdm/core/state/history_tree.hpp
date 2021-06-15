@@ -73,7 +73,7 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        void expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&);
+        std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&);
 
         /**
          * @brief Get the horizon

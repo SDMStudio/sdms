@@ -24,7 +24,7 @@ namespace sdm
     }
 
     template <typename T>
-    void HistoryTree<T>::expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action);
+    std::shared_ptr<HistoryTreeInterface> HistoryTree<T>::expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &)
     {
         
 
