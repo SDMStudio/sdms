@@ -27,8 +27,8 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class MDP : virtual public MDPInterface,
-                virtual public GymInterface
+    class MDP : virtual public MDPInterface
+                // virtual public GymInterface
     {
     public:
         MDP(const std::shared_ptr<Space> &state_space,

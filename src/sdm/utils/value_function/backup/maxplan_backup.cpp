@@ -1,139 +1,37 @@
+#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 
-#include <sdm/utils/value_function/value_function.hpp>
 namespace sdm
-{    
-    MaxPlanValueFunction::MaxPlanValueFunction() {}
-    
-    MaxPlanValueFunction::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, std::shared_ptr<Initializer> initializer)
-        : ValueFunction(problem, horizon), initializer_(initializer)
+{
+    std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
-        this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
-        this->default_values_per_horizon = std::vector<TValue>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
+        // TValue current, max = -std::numeric_limits<TValue>::max();
+        // std::shared_ptr<BeliefState> alpha_vector;
+
+        // for (const auto &plan : this->representation[t])
+        // {
+        //     current = state ^ plan;
+
+        //     if (max < current)
+        //     {
+        //         max = current;
+        //         alpha_vector = plan;
+        //     }
+        // }
+
+        // return {max, alpha_vector};
     }
 
-    MaxPlanValueFunction::MaxPlanValueFunction(std::shared_ptr<SolvableByHSVI> problem, number horizon, TValue default_value) : MaxPlanValueFunction(problem, horizon, std::make_shared<ValueInitializer>(default_value))
+    std::shared_ptr<Action> getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
+
     }
 
-    void MaxPlanValueFunction::initialize(TValue value, number t)
+    std::shared_ptr<State> getBackup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
-        std::shared_ptr<BeliefState> new_v(value);
-        this->representation[t].push_back(new_v);
-        this->default_values_per_horizon[t] = value;
-    }
 
-    void MaxPlanValueFunction::initialize()
-    {
-        this->initializer_->init(this->getptr());
-    }
-
-    std::pair<TValue, std::shared_ptr<BeliefState>> MaxPlanValueFunction::getMaxAt(const std::shared_ptr<BeliefState> &state, number t)
-    {
-        TValue current, max = -std::numeric_limits<TValue>::max();
-        std::shared_ptr<BeliefState> alpha_vector;
-
-        for (const auto &plan : this->representation[t])
-        {
-            current = state ^ plan;
-
-            if (max < current)
-            {
-                max = current;
-                alpha_vector = plan;
-            }
-        }
-
-        return {max, alpha_vector};
-    }
-
-    TValue MaxPlanValueFunction::getValueAt(const std::shared_ptr<BeliefState> &state, number t)
-    {
-        return this->getMaxAt(state, t).first;
-    }
-
-    void MaxPlanValueFunction::updateValueAt(const std::shared_ptr<BeliefState> &state, number t)
-    {
-        //std::cout<<"\n support ::::::"<<this->representation;
-        const auto &new_hyperplan = this->backup_operator(state, t);
-
-        if (std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
-            this->representation[t].push_back(new_hyperplan);
-
-        if (this->last_prunning == this->freq_prune_)
-        {
-            for (number time = 0; time < this->getHorizon(); time++)
-            {
-                this->prune(time);
-            }
-            this->last_prunning = 0;
-        }
-        this->last_prunning++;
-    }
-
-    
-    std::vector<std::shared_ptr<BeliefState>> MaxPlanValueFunction::getSupport(number t)
-    {
-        return this->representation[t];
-    }
-
-    
-    void MaxPlanValueFunction::prune(number t)
-    {
-        this->bounded_prune(t);
-    }
-
-    
-    void MaxPlanValueFunction::bounded_prune(number t)
-    {
-        std::unordered_map<std::shared_ptr<BeliefState>, number> refCount;
-        auto all_plan = this->isInfiniteHorizon() ? this->representation[0] : this->representation[t];
-
-        // Initialize ref count to 0 for each hyperplan
-        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
-        {
-            refCount.emplace(*iter, 0);
-        }
-
-        //<! update the count
-        std::shared_ptr<BeliefState> max_alpha;
-        TValue max_value = -std::numeric_limits<TValue>::max(), value;
-        for (const auto &hyperplan : all_plan)
-        {
-            for (const auto &alpha : refCount)
-            {
-                if (max_value < (value = (hyperplan) ^ (alpha.first)))
-                {
-                    max_value = value;
-                    max_alpha = alpha.first;
-                }
-            }
-
-            if (refCount.find(max_alpha) != refCount.end())
-            {
-                refCount.at(max_alpha)++;
-            }
-        }
-
-        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
-        {
-            if (refCount.at(*iter) == 0)
-            {
-                this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), *iter));
-            }
-        }
-    }
-
-    number MaxPlanValueFunction::size()
-    {
-        return this->representation.size();
     }
 
 
-    // ---------------------------------------------------------------
-    // ----- DEFINITION FOR OccupancyMDP with Belief FORMALISM -------
-    // ---------------------------------------------------------------
-
-    // Pour le moment pas possible, il faut des classes plus précises pour les states
 
 
     // std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &occupancy_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &joint_decision_rule, number t)
@@ -298,4 +196,5 @@ namespace sdm
 
     //     return new_plan;
     // }
-} // namespace sdm
+}
+

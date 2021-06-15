@@ -35,6 +35,13 @@ namespace sdm
         return (this->getState() == other.getState());
     }
 
+    template <typename TState>
+    TypeState BaseState<TState>::getTypeState() const 
+    {
+      return TypeState::State_;
+    }
+
+
 } // namespace sdm
 
 

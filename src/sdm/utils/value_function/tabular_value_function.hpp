@@ -56,7 +56,7 @@ namespace sdm
          * @param t the timestep
          * @param target the target
          */
-        void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
+        virtual void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
 
         // /**
         //  * @brief Save a value function into a file.

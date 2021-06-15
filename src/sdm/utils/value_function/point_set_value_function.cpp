@@ -3,13 +3,13 @@
 
 namespace sdm
 {
-    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup)
-        : TabularValueFunction(horizon, initializer, backup)
+    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup,int freq_prunning )
+        : TabularValueFunction(horizon, initializer, backup), freq_prune_(freq_prunning)
     {
     }
 
-    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterface> &backup)
-        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup)
+    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value , const std::shared_ptr<BackupInterface> &backup,int freq_prunning)
+        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup),freq_prune_(freq_prunning)
     {
     }
 
@@ -64,7 +64,6 @@ namespace sdm
         {
             if (this->is_dominated(iter->first, iter->second, t))
             {
-                std::cout<<"Delete ?"<<std::endl;
                 to_delete.push_back(iter->first);
             }
         }

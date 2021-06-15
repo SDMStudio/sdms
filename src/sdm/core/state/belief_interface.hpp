@@ -20,6 +20,5 @@ namespace sdm
 
         virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
 
-        virtual std::string str() const = 0;
     };
 }

@@ -120,8 +120,8 @@ namespace sdm
 
     std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action) 
     {
-        this->setInternalState(this->state_dynamics_->getNextStateDistribution(state, action)->sample());
-        return this->getInternalState();
+        // this->setInternalState(this->state_dynamics_->getNextStateDistribution(state, action)->sample());
+        // return this->getInternalState();
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)

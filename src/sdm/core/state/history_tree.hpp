@@ -12,6 +12,7 @@
 #pragma once
 
 #include <sdm/utils/struct/tree.hpp>
+#include <sdm/core/state/history_tree_interface.hpp>
 
 namespace sdm
 {
@@ -25,7 +26,8 @@ namespace sdm
      */
     template <typename T>
     class HistoryTree : public Tree<T>,
-                        public BoostSerializable<HistoryTree<T>>
+                        public BoostSerializable<HistoryTree<T>>, 
+                        public HistoryTreeInterface
     {
     protected:
         /*!
@@ -71,8 +73,7 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        template <typename output = HistoryTree<T>>
-        std::shared_ptr<output> expand(const T &data, bool backup = true);
+        void expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&);
 
         /**
          * @brief Get the horizon
@@ -81,8 +82,8 @@ namespace sdm
          */
         number getHorizon() const;
 
-        std::string str();
-        std::string short_str();
+        std::string str() const;
+        std::string short_str() const;
 
         std::shared_ptr<HistoryTree<T>> getptr();
 
