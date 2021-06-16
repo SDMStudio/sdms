@@ -55,7 +55,7 @@ namespace sdm
   }
 
 
-  void TabularObservationDynamicsSAS::setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) 
+  void TabularObservationDynamicsSAS::setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number ) 
   {
     this->successor_observations_[state][action][next_state].insert(observation);
   }

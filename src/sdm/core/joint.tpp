@@ -108,9 +108,9 @@ namespace sdm
             number ag;
             for (ag = 0; ag < this->getNumAgents() - 1; ++ag)
             {
-                res << *this->get(ag) << ", ";
+                res << this->get(ag) << ", ";
             }
-            res << *this->get(ag);
+            res << this->get(ag);
         }
         res << ")";
         return res.str();

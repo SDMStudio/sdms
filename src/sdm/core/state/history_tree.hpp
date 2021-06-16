@@ -36,8 +36,7 @@ namespace sdm
          *  @param  backup wheter the node is marked or not
          *  @return the truncated expanded tree
          */
-        template <typename output = HistoryTree<T>>
-        std::shared_ptr<output> truncatedExpand(const T &data, bool backup);
+        std::shared_ptr<HistoryTreeInterface> truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup);
 
     public:
         using value_type = typename Tree<T>::value_type;
@@ -73,7 +72,7 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        void expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&);
+        std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&, bool = true);
 
         /**
          * @brief Get the horizon
@@ -100,6 +99,9 @@ namespace sdm
             os << i_hist.str();
             return os;
         }
+
+        TypeState getTypeState() const{return TypeState::State_;}
+
     };
 
 } // namespace sdm

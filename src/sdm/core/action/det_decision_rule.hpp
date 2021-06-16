@@ -53,5 +53,3 @@ namespace sdm
     std::map<std::shared_ptr<State>, std::shared_ptr<Action>> map_state_to_action_;
   };
 } // namespace sdm
-
-#include <sdm/core/action/det_decision_rule.tpp>

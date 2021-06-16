@@ -1,4 +1,5 @@
 #include <sdm/core/action/joint_det_decision_rule.hpp>
+// #include <sdm/core/joint.hpp>
 
 namespace sdm
 {
@@ -9,7 +10,7 @@ namespace sdm
     {
     }
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<State>>> acc_states, std::vector<std::vector<std::shared_ptr<Action>>> actions)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions)
     {
         assert(acc_states.size() == actions.size());
         for (std::size_t ag_id = 0; ag_id < acc_states.size(); ag_id++)

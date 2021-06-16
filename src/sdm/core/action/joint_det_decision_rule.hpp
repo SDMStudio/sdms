@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <sdm/core/joint.hpp>
 #include <sdm/core/function.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
+#include <sdm/core/joint.hpp>
 
 namespace sdm
 {
@@ -17,7 +17,7 @@ namespace sdm
     public:
         JointDeterministicDecisionRule();
         JointDeterministicDecisionRule(const Joint<DeterministicDecisionRule> &individual_decision_rules);
-        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<State>>> acc_states, std::vector<std::vector<std::shared_ptr<Action>>> actions);
+        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions);
 
         Joint<std::shared_ptr<Action>> act(const Joint<std::shared_ptr<State>> &joint_state) const;
 
@@ -59,5 +59,3 @@ namespace sdm
     };
 
 } // namespace sdm
-
-#include <sdm/core/action/joint_det_decision_rule.tpp>

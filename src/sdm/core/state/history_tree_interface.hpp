@@ -9,7 +9,7 @@ namespace sdm
 
     public : 
         // virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Item> &data, bool backup = true) = 0;
-        virtual void expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&) = 0;
+        virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&, bool = true) = 0;
 
         virtual std::string str() const = 0;
         virtual TypeState getTypeState() const =0;

@@ -68,5 +68,3 @@ namespace sdm
     };
 
 } // namespace sdm
-
-#include <sdm/core/action/stochastic_decision_rule.tpp>

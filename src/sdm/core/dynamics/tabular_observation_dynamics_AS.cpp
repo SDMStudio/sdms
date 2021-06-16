@@ -55,7 +55,7 @@ namespace sdm
   }
 
 
-  void TabularObservationDynamicsAS::setReachableObservations(const std::shared_ptr<State> &, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) 
+  void TabularObservationDynamicsAS::setReachableObservations(const std::shared_ptr<State> &, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number ) 
   {
     this->successor_observations_[action][next_state].insert(observation);
   }
