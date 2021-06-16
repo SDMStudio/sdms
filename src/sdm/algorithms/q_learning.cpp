@@ -48,8 +48,8 @@ namespace sdm
     void QLearning::do_solve()
     {
         this->global_step = 0;
-        std::cout << "-------- DO_SOLVE() ---------" << std::endl;
-        std::cout << *this->q_value_ << std::endl;
+        // std::cout << "-------- DO_SOLVE() ---------" << std::endl;
+        // std::cout << *this->q_value_ << std::endl;
         clock_t t_begin = clock();
 
         this->exploration_process->reset(this->max_steps_);
@@ -89,7 +89,6 @@ namespace sdm
 
     void QLearning::do_episode()
     {
-        // std::cout << "-------- do_episode() ---------" << std::endl;
         this->step = 0;
         this->episode += 1;
         this->current_obs = this->env_->reset();
@@ -113,14 +112,11 @@ namespace sdm
 
     void QLearning::do_step()
     {
-        // std::cout << "-------- do_step() ---------" << std::endl;
         // Action selection following policy and exploration process
         auto current_action = this->select_action(this->current_obs);
-
         // One step in env and get next observation and rewards
         // auto [next_obs, rewards, done] = this->env_->step(current_action);
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> feedback = this->env_->step(current_action);
-
         std::shared_ptr<Observation> next_obs = std::get<0>(feedback);
         double r = std::get<1>(feedback)[0];
         bool done = std::get<2>(feedback);
@@ -164,7 +160,7 @@ namespace sdm
     std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &obs)
     {
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
-        if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
+        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_->notSeen(obs, this->step))
         {
             return std::static_pointer_cast<DiscreteSpace>(this->env_->getActionSpaceAt(obs, this->step))->sample()->toAction();
         }

@@ -63,6 +63,8 @@ namespace sdm
          */
         void updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t, double delta);
 
+        bool notSeen(const std::shared_ptr<Observation> &observation, number t);
+
         /**
          * @brief Define this function in order to be able to display the value function
          */

@@ -94,6 +94,8 @@ namespace sdm
          */
         virtual void updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t, double target) = 0;
 
+        virtual bool notSeen(const std::shared_ptr<Observation> &observation, number t) = 0;
+
         /**
          * @brief Define this function in order to be able to display the value function
          */
