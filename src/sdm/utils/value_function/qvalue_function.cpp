@@ -16,11 +16,6 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
-    std::shared_ptr<Action> QValueFunction::getBestAction(const std::shared_ptr<Observation> &observation, number t)
-    {   
-        return this->getQValuesAt(observation, t)->argmax();
-    }
-
 
     std::shared_ptr<QValueFunction> QValueFunction::getptr()
     {

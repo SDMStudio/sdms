@@ -82,7 +82,9 @@ namespace sdm
          */
         virtual double getQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t) = 0;
 
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual double getNextValueAt(const std::shared_ptr<Observation> &observation, number t) = 0;
+
+        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &observation, number t = 0) = 0;
 
         /**
          * @brief Update the value at a given observation
@@ -94,7 +96,7 @@ namespace sdm
          */
         virtual void updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t, double target) = 0;
 
-        virtual bool notSeen(const std::shared_ptr<Observation> &observation, number t) = 0;
+        virtual bool isNotSeen(const std::shared_ptr<Observation> &observation, number t) = 0;
 
         /**
          * @brief Define this function in order to be able to display the value function

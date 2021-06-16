@@ -34,6 +34,16 @@ namespace sdm
         return this->getQValuesAt(observation, t)->at(action);
     }
 
+    double TabularQValueFunction::getNextValueAt(const std::shared_ptr<Observation> &observation, number t)
+    {
+        return this->getQValuesAt(observation, t)->max();
+    }
+
+    std::shared_ptr<Action> TabularQValueFunction::getBestAction(const std::shared_ptr<Observation> &observation, number t)
+    {   
+        return this->getQValuesAt(observation, t)->argmax();
+    }
+
     void TabularQValueFunction::updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t, double delta)
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
@@ -45,7 +55,7 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
-    bool TabularQValueFunction::notSeen(const std::shared_ptr<Observation> &observation, number t)
+    bool TabularQValueFunction::isNotSeen(const std::shared_ptr<Observation> &observation, number t)
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
         return (this->representation[h].find(observation) == this->representation[h].end());

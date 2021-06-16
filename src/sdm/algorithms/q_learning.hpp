@@ -22,7 +22,7 @@ namespace sdm
   class QLearning : public Algorithm
   {
   private:
-    std::shared_ptr<Observation> current_obs, last_obs;
+    std::shared_ptr<Observation> current_observation, next_observation;
     number log_freq = 100, test_freq = 1000, save_freq = 10000;
     bool do_log_ = false, do_test_ = false, do_save_ = false, is_done = false;
 
