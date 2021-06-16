@@ -129,6 +129,8 @@ if(JEROME)
 
 		${INCLUDE_DIR}/utils/value_function/initializer/**
 		${INCLUDE_DIR}/utils/value_function/backup/**
+		${INCLUDE_DIR}/world/gym_interface.cpp
+
 
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
