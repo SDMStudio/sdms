@@ -27,8 +27,8 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class MDP : virtual public MDPInterface
-                // virtual public GymInterface
+    class MDP : virtual public MDPInterface,
+                virtual public GymInterface
     {
     public:
         MDP(const std::shared_ptr<Space> &state_space,
@@ -147,7 +147,7 @@ namespace sdm
 
         std::shared_ptr<State> getInternalState() const;
 
-        std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
+        virtual std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
 
         /**
          * @brief Get the reachable next states

@@ -48,8 +48,8 @@ namespace sdm
     void QLearning::do_solve()
     {
         this->global_step = 0;
-        std::cout << "-------- DO_SOLVE() ---------" << std::endl;
-        std::cout << *this->q_value_ << std::endl;
+        // std::cout << "-------- DO_SOLVE() ---------" << std::endl;
+        // std::cout << *this->q_value_ << std::endl;
         clock_t t_begin = clock();
 
         this->exploration_process->reset(this->max_steps_);
@@ -70,12 +70,12 @@ namespace sdm
             }
             if (this->do_test_)
             {
-                std::cout << "--------- TESTING ---------" << std::endl;
+                // std::cout << "--------- TESTING ---------" << std::endl;
                 this->do_test();
                 this->do_test_ = false;
             }
         }
-        std::cout << "Final QValue :" << *this->q_value_ << std::endl;
+        // std::cout << "Final QValue :" << *this->q_value_ << std::endl;
     }
 
     void QLearning::do_save()
@@ -114,7 +114,6 @@ namespace sdm
     {
         // Action selection following policy and exploration process
         auto current_action = this->select_action(this->current_obs);
-
         // One step in env and get next observation and rewards
         // auto [next_obs, rewards, done] = this->env_->step(current_action);
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> feedback = this->env_->step(current_action);
@@ -161,9 +160,9 @@ namespace sdm
     std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &obs)
     {
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
-        if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
+        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_->notSeen(obs, this->step))
         {
-            return this->env_->getActionSpaceAt(obs, this->step)->sample()->toAction();
+            return std::static_pointer_cast<DiscreteSpace>(this->env_->getActionSpaceAt(obs, this->step))->sample()->toAction();
         }
         else
         {

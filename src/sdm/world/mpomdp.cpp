@@ -17,7 +17,8 @@ namespace sdm
                    Criterion criterion)
         : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
           POMDP(state_space, action_space, obs_space, reward, state_dynamics, obs_dynamics, start_distrib, horizon, discount, criterion),
-          MMDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion)
+          MMDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
+          GymInterface(obs_space, action_space)
     {
         this->num_agents_ = std::static_pointer_cast<MultiDiscreteSpace>(action_space)->getNumSpaces();
     }

@@ -13,6 +13,7 @@ namespace sdm
                  number horizon,
                  double discount,
                  Criterion criterion) : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
+                                        GymInterface(obs_space, action_space),
                                         obs_space_(obs_space),
                                         obs_dynamics_(obs_dynamics)
     {
@@ -45,8 +46,8 @@ namespace sdm
 
     std::shared_ptr<Observation> POMDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action)
     {
-        // MDP::sampleNextObservation(state, action);
-        // return this->obs_dynamics_->getNextObservationDistribution(state, action, this->getInternalState())->sample();
+        MDP::sampleNextObservation(state, action);
+        return this->obs_dynamics_->getNextObservationDistribution(state, action, this->getInternalState())->sample();
     }
 
 }

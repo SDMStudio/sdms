@@ -72,7 +72,7 @@ namespace sdm
      */
     void setReachablesStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t = 0);
 
-    std::shared_ptr<Distribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action);
+    std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action);
 
   protected:
     /** @brief transition and observation matrices */

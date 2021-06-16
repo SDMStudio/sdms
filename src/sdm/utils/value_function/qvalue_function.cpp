@@ -17,9 +17,8 @@ namespace sdm
     }
 
     std::shared_ptr<Action> QValueFunction::getBestAction(const std::shared_ptr<Observation> &observation, number t)
-    {
-        auto qvalues = this->getQValuesAt(observation, t);
-        return qvalues->argmax();
+    {   
+        return this->getQValuesAt(observation, t)->argmax();
     }
 
 

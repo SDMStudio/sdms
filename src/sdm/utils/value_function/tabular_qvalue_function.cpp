@@ -25,8 +25,8 @@ namespace sdm
     std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValuesAt(const std::shared_ptr<Observation> &observation, number t)
     {
         using v_type = typename MappedMatrix<std::shared_ptr<Observation>, std::shared_ptr<Action>, double>::value_type::second_type;
-
-        return std::make_shared<v_type>(this->representation[this->isInfiniteHorizon() ? 0 : t].at(observation));
+        auto h = this->isInfiniteHorizon() ? 0 : t;
+        return std::make_shared<v_type>(this->representation[h].at(observation));
     }
 
     double TabularQValueFunction::getQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t)
@@ -45,6 +45,12 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
+    bool TabularQValueFunction::notSeen(const std::shared_ptr<Observation> &observation, number t)
+    {
+        auto h = this->isInfiniteHorizon() ? 0 : t;
+        return (this->representation[h].find(observation) == this->representation[h].end());
+    }
+
     std::string TabularQValueFunction::str() const
     {
         std::ostringstream res;
@@ -54,10 +60,10 @@ namespace sdm
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (auto pair_st_val : this->representation[i])
             {
-                res << "\t\t<observation id=\"" << pair_st_val.first << "\">" << std::endl;
+                res << "\t\t<observation id=\"" << pair_st_val.first << " observation: " << *(pair_st_val.first) << "\">" << std::endl;
                 for (auto pair_act_val : pair_st_val.second)
                 {
-                    res << "\t\t\t<action id=\"" << pair_act_val.first << "\">" << std::endl;
+                    res << "\t\t\t<action id=\"" << pair_act_val.first << " action: " << *(pair_act_val.first) << "\">" << std::endl;
                     res << "\t\t\t\t" << pair_act_val.second << std::endl;
                     res << "\t\t\t</action>" << std::endl;
                 }

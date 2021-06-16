@@ -20,7 +20,8 @@ namespace sdm
                                     action_space_(action_space),
                                     reward_(reward),
                                     state_dynamics_(state_dynamics),
-                                    start_distrib_(start_distrib)
+                                    start_distrib_(start_distrib),
+                                    GymInterface(state_space, action_space)
 
     {
     }
@@ -120,16 +121,22 @@ namespace sdm
 
     std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action) 
     {
-        // this->setInternalState(this->state_dynamics_->getNextStateDistribution(state, action)->sample());
-        // return this->getInternalState();
+        auto next_state_distribution = this->state_dynamics_->getNextStateDistribution(state, action);
+        auto next_state = next_state_distribution->sample();
+        this->setInternalState(next_state);
+        return this->getInternalState();
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
     {
         this->current_timestep_++;
+
         auto reward = this->getReward(this->getInternalState(), action);
+
         auto observation = this->sampleNextObservation(this->getInternalState(), action);
+
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
+
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
