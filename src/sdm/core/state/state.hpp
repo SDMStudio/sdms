@@ -23,13 +23,26 @@ namespace sdm
     };
 
     class BeliefInterface;
+    class OccupancyStateInterface;
 
     class State : public Observation
     {
     public:
         virtual ~State() {}
 
+        /**
+         * @brief Transform the State in a BeliefInterface
+         * 
+         * @return std::shared_ptr<BeliefInterface> 
+         */
         virtual std::shared_ptr<BeliefInterface> toBelief();
+
+        /**
+         * @brief Transform the State in a OccupancyStateInterface
+         * 
+         * @return std::shared_ptr<OccupancyStateInterface> 
+         */
+        virtual std::shared_ptr<OccupancyStateInterface> toOccupancyState();
 
         virtual std::string str() const = 0;
 

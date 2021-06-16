@@ -139,6 +139,7 @@ namespace sdm
     template <typename T>
     std::shared_ptr<Tree<T>> Tree<T>::getptr()
     {
+        std::cout<<"Test !!!!!!!!!"<<std::endl; 
         return this->shared_from_this();
     }
 

@@ -24,59 +24,57 @@ namespace sdm
     }
 
     template <typename T>
-    std::shared_ptr<HistoryTreeInterface> HistoryTree<T>::expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &)
+    std::shared_ptr<HistoryTreeInterface> HistoryTree<T>::expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup )
     {
-        
+        if (backup && (this->children_.find(observation) != this->children_.end()))
+        {
+            return std::static_pointer_cast<HistoryTree<T>>(this->getChild(observation));
+        }
+        if (backup && (this->getDepth() >= this->getMaxDepth()))
+        {
+            return this->truncatedExpand(observation,action, backup);
+        }
+        if (backup)
+        {
+            this->children_.emplace(observation, std::make_shared<HistoryTree<T>>(this->getptr(), observation));
 
+            return std::static_pointer_cast<HistoryTree<T>>(this->getChild(observation));
+        }
+        return std::make_shared<HistoryTree<T>>(this->getptr(), observation);
 
-        // if (backup && (this->children_.find(data) != this->children_.end()))
-        // {
-        //     return std::static_pointer_cast<output>(this->getChild(data));
-        // }
-        // if (backup && (this->getDepth() >= this->getMaxDepth()))
-        // {
-        //     return this->truncatedExpand<output>(data, backup);
-        // }
-        // if (backup)
-        // {
-        //     this->children_.emplace(data, std::make_shared<output>(std::static_pointer_cast<output>(this->shared_from_this()), data));
-        //     return std::static_pointer_cast<output>(this->getChild(data));
-        // }
-        // return std::make_shared<output>(std::static_pointer_cast<output>(this->shared_from_this()), data);
     }
 
     template <typename T>
-    template <typename output>
-    std::shared_ptr<output> HistoryTree<T>::truncatedExpand(const T &item, bool backup)
+    std::shared_ptr<HistoryTreeInterface> HistoryTree<T>::truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup)
     {
-        // std::list<T> items;
+        std::list<T> items;
 
-        // //<! fill in the vector of observation to simulate
-        // items.push_front(item);
-        // auto parent = this->shared_from_this();
-        // while (items.size() < this->getMaxDepth())
-        // {
-        //     items.push_front(parent->getData());
-        //     parent = std::static_pointer_cast<output>(parent->getParent());
-        // }
+        //<! fill in the vector of observation to simulate
+        items.push_front(observation);
+        auto parent = this->getptr();
+        while (items.size() < this->getMaxDepth())
+        {
+            items.push_front(parent->getData());
+            parent = std::static_pointer_cast<HistoryTree<T>>(parent->getParent());
+        }
 
-        // //<! iteratively expands the base_graph
-        // auto trace = std::static_pointer_cast<HistoryTree<T>>(parent->getOrigin());
+        //<! iteratively expands the base_graph
+        auto trace = std::static_pointer_cast<HistoryTree<T>>(parent->getOrigin());
 
-        // for (auto it = items.begin(); it != items.end(); ++it)
-        // {
-        //     trace = trace->template expand<output>(*it, backup);
-        // }
+        for (auto it = items.begin(); it != items.end(); ++it)
+        {
+            trace = std::static_pointer_cast<HistoryTree<T>>(trace->expand(*it,action, backup));
+        }
 
-        // return std::static_pointer_cast<output>(trace);
+        return std::static_pointer_cast<HistoryTree<T>>(trace);
     }
 
     template <typename T>
-    std::string HistoryTree<T>::short_str()
+    std::string HistoryTree<T>::short_str() const
     {
         // std::ostringstream res;
         // std::list<T> list_items;
-        // std::shared_ptr<Tree<T>> chistory = this->shared_from_this(), origin = this->getOrigin();
+        // std::shared_ptr<Tree<T>> chistory = this->getptr(), origin = this->getOrigin();
         // while (chistory != origin)
         // {
         //     list_items.push_front(chistory->getData());
@@ -100,44 +98,45 @@ namespace sdm
     std::string HistoryTree<T>::str() const
     {
         std::ostringstream res;
-        res << "<history id=\"" << this->shared_from_this() << "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str() << "\"/>";
+        res << "<history id=\"" /* << this->getptr() */<< "\"  horizon=\"" << this->getDepth() << "\" value=\"" << /*this->short_str() <<*/ "\"/>";
         return res.str();
     }
 
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getptr()
     {
-        return std::static_pointer_cast<HistoryTree<T>>(this->shared_from_this());
+        std::cout<<"Test !"<<std::endl;
+        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getptr());
     }
 
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getParent() const
     {
-        // return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getParent());
+        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getParent());
     }
 
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getOrigin()
     {
-        // return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getOrigin());
+        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getOrigin());
     }
 
     template <typename T>
     std::vector<std::shared_ptr<HistoryTree<T>>> HistoryTree<T>::getChildren() const
     {
-        // std::vector<std::shared_ptr<HistoryTree<T>>> vector;
-        // for (const auto &children : Tree<T>::getChildren())
-        // {
-        //     std::cout << "\n children " << *children << std::endl;
-        //     vector.push_back(std::static_pointer_cast<HistoryTree<T>>(children));
-        // }
-        // return vector;
+        std::vector<std::shared_ptr<HistoryTree<T>>> vector;
+        for (const auto &children : Tree<T>::getChildren())
+        {
+            std::cout << "\n children " << *children << std::endl;
+            vector.push_back(std::static_pointer_cast<HistoryTree<T>>(children));
+        }
+        return vector;
     }
 
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getChild(const T &child_item) const
     {
-        // return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getChild(child_item));
+        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getChild(child_item));
     }
 
     template <typename T>
