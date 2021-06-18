@@ -53,6 +53,10 @@ namespace sdm
          */
         double getQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t);
 
+        double getNextValueAt(const std::shared_ptr<Observation> &observation, number t);
+
+        std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &observation, number t = 0);
+
         /**
          * @brief Update the value at a given observation
          */
@@ -63,7 +67,7 @@ namespace sdm
          */
         void updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t, double delta);
 
-        bool notSeen(const std::shared_ptr<Observation> &observation, number t);
+        bool isNotSeen(const std::shared_ptr<Observation> &observation, number t);
 
         /**
          * @brief Define this function in order to be able to display the value function

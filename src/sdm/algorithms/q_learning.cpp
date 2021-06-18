@@ -27,11 +27,11 @@ namespace sdm
 
     void QLearning::initLogger()
     {
-        std::string format = "#> Episode : {}\tStep : {}/?\tQValue : {}\n";
+        std::string format = "#> Episode : {}\tStep : {}/?\tValue : {}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "QValue", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "Value", "Time"});
 
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
@@ -91,7 +91,7 @@ namespace sdm
     {
         this->step = 0;
         this->episode += 1;
-        this->current_obs = this->env_->reset();
+        this->current_observation = this->env_->reset();
 
         unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
@@ -113,29 +113,26 @@ namespace sdm
     void QLearning::do_step()
     {
         // Action selection following policy and exploration process
-        auto current_action = this->select_action(this->current_obs);
+        auto current_action = this->select_action(this->current_observation);
         // One step in env and get next observation and rewards
-        // auto [next_obs, rewards, done] = this->env_->step(current_action);
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> feedback = this->env_->step(current_action);
-        std::shared_ptr<Observation> next_obs = std::get<0>(feedback);
+        this->next_observation = std::get<0>(feedback);
         double r = std::get<1>(feedback)[0];
-        bool done = std::get<2>(feedback);
+        this->is_done = std::get<2>(feedback);
 
         // Store experience in the associated buffer
-        // this->experience->store_experience(this->current_obs, action, rewards, next_obs, done);
+        // this->experience->store_experience(this->current_observation, action, rewards, next_obs, done);
 
-        this->last_obs = this->current_obs;
-        this->current_obs = next_obs;
-        this->is_done = done;
 
         // Update the model
         // this->update_model();
-        double cval = this->q_value_->getQValueAt(this->last_obs, current_action, this->step);
-        double expectval = this->discount_ * this->q_value_->getQValuesAt(this->current_obs, this->step + 1)->max();
-        double targetval = r;
-        double target = targetval + expectval - cval;
-        this->q_value_->updateQValueAt(this->last_obs, current_action, this->step, target);
+        double q_value = this->q_value_->getQValueAt(this->current_observation, current_action, this->step);
+        double next_value = this->q_value_->getNextValueAt(this->next_observation, this->step + 1);
+        double target_q_value = r + this->discount_ * next_value;
+        double delta = target_q_value - q_value;
+        this->q_value_->updateQValueAt(this->current_observation, current_action, this->step, delta);
 
+        this->current_observation = this->next_observation;
         this->step++;
         this->global_step++;
     }
@@ -160,7 +157,7 @@ namespace sdm
     std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &obs)
     {
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
-        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_->notSeen(obs, this->step))
+        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_->isNotSeen(obs, this->step))
         {
             return std::static_pointer_cast<DiscreteSpace>(this->env_->getActionSpaceAt(obs, this->step))->sample()->toAction();
         }
@@ -168,7 +165,7 @@ namespace sdm
         {
             return this->q_value_->getBestAction(obs, this->step);
         }
-        // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(current_obs)
+        // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(current_observation)
     }
 
 } // namespace sdm
