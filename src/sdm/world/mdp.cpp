@@ -183,7 +183,7 @@ namespace sdm
                         res << "T: " << action_space->getItemIndex(action)
                             << " : " << state_space->getItemIndex(state)
                             << " : " << state_space->getItemIndex(next_state)
-                            << " : " << this->getTransitionProbability(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state))
+                            << " : " << this->getTransitionProbability(state->toState(), action->toAction(), next_state->toState())
                             << std::endl;
                     }
                 }
@@ -195,7 +195,7 @@ namespace sdm
                 {
                     res << "R: " << action_space->getItemIndex(action)
                         << " : " << state_space->getItemIndex(state)
-                        << " : " << this->getReward(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action))
+                        << " : " << this->getReward(state->toState(), action->toAction())
                         << std::endl;
                 }
             }

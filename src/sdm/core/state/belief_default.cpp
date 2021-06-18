@@ -53,6 +53,11 @@ namespace sdm
         return this->getDefaultValue() * other->getDefaultValue();
     }
 
+    double BeliefDefault::norm_1() const
+    {
+        return 0;
+    }
+
     std::string BeliefDefault::str() const
     {
         std::ostringstream res;

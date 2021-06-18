@@ -1,14 +1,7 @@
 #pragma once
-
-// #include <sdm/types.hpp>
-// #include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-
-// #include <sdm/core/joint.hpp>
-// #include <sdm/core/state/history.hpp>
-// #include <sdm/core/state/base/base_occupancy_state.hpp>
-#include <sdm/core/state/occupancy_state_interface.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
 
 namespace sdm
 {
@@ -121,11 +114,14 @@ namespace sdm
 
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+    double norm_1() const;
 
     void setDefaultValue(double default_value);
     double getDefaultValue() const; 
 
     std::shared_ptr<State> HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryTreeInterface>&) const;
+    const std::shared_ptr<BeliefInterface> createBelief(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const;
+    const std::shared_ptr<BeliefInterface> createBeliefWeighted(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const;
 
 
   protected:

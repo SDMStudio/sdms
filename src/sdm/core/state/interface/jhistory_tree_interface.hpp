@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/core/state/state.hpp>
-#include <sdm/core/state/history_tree_interface.hpp>
+#include <sdm/core/state/interface/history_tree_interface.hpp>
 #include <sdm/core/joint.hpp>
 
 namespace sdm
@@ -18,7 +18,7 @@ namespace sdm
 
         virtual Joint<std::shared_ptr<State>> JointHistoryTreeToJointState(const Joint<std::shared_ptr<HistoryTreeInterface>>&) =0;
 
-        virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>>&, const std::shared_ptr<Joint<std::shared_ptr<Action>>>&, bool = true) = 0;
+        virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>>&, const std::shared_ptr<Joint<std::shared_ptr<Action>>>& = nullptr, bool = true) = 0;
 
         // virtual std::shared_ptr<HistoryTree<T>> getParent() const = 0;
         // virtual std::shared_ptr<HistoryTree<T>> getOrigin() = 0;

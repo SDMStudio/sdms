@@ -15,7 +15,7 @@
 
 namespace sdm
 {
-    class Observation : public Item
+    class Observation : virtual public Item
     {
     public:
         virtual ~Observation() {}
@@ -27,7 +27,7 @@ namespace sdm
     class HistoryTreeInterface;
     class JointHistoryTreeInterface;
 
-    class State : public Observation
+    class State : virtual public Observation
     {
     public:
         virtual ~State() {}

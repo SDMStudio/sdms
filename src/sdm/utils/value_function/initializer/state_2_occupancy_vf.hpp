@@ -45,5 +45,3 @@ namespace sdm
 
     // };
 } // namespace sdm
-
-#include <sdm/utils/value_function/state_2_occupancy_vf.tpp>

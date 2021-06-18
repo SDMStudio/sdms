@@ -12,7 +12,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
-#include <sdm/core/state/belief_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>

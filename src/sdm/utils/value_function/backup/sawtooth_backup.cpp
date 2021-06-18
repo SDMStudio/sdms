@@ -1,5 +1,5 @@
 #include <sdm/utils/value_function/backup/sawtooth_backup.hpp>
-#include <sdm/core/state/belief_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 
 namespace sdm
 {
@@ -24,16 +24,16 @@ namespace sdm
 
         for (const auto &element : vf->getSupport(t))
         {
-            
             auto element_belief_state = element->toBelief();
 
             double v_kappa = vf->getValueAt(element, t);
             double v_ub_kappa = vf->getInitFunction()->operator()(element, t);
 
             double phi = 1.0;
-            for (auto &pair_hidden_state_AND_joint_history : element_belief_state->getStates())
+            
+            for (auto &state_element : element_belief_state->getStates())
             {
-                double v_int = (belief_state->getProbability(pair_hidden_state_AND_joint_history) / vf->getValueAt(pair_hidden_state_AND_joint_history));
+                double v_int = (belief_state->getProbability(state_element) / element_belief_state->getProbability(state_element));
                 if (v_int < phi)
                 {
                     phi = v_int;

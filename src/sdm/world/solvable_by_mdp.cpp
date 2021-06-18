@@ -10,7 +10,7 @@ namespace sdm
 
     SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp) : underlying_problem(mdp)
     {
-        this->initial_state_  = std::static_pointer_cast<State>(*this->getUnderlyingProblem()->getStateSpace(0)->begin());
+        this->initial_state_  = (*this->getUnderlyingProblem()->getStateSpace(0)->begin())->toState();
     }
 
     SolvableByMDP::~SolvableByMDP()

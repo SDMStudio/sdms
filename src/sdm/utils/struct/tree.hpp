@@ -41,7 +41,7 @@ namespace sdm
      * 
      */
     template <typename T>
-    class Tree : public std::enable_shared_from_this<Tree<T>>
+    class Tree : virtual public std::enable_shared_from_this<Tree<T>>
                  //public BoostSerializable<Tree<T>>
     {
     protected:

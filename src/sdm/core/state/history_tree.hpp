@@ -12,7 +12,7 @@
 #pragma once
 
 #include <sdm/utils/struct/tree.hpp>
-#include <sdm/core/state/history_tree_interface.hpp>
+#include <sdm/core/state/interface/history_tree_interface.hpp>
 
 namespace sdm
 {
@@ -25,7 +25,7 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class HistoryTree :virtual  public HistoryTreeInterface, public Tree<T>,private std::enable_shared_from_this<HistoryTree<T>>
+    class HistoryTree : virtual public HistoryTreeInterface, virtual public Tree<T>
                         //public BoostSerializable<HistoryTree<T>>, 
     {
     protected:

@@ -1,27 +1,11 @@
-#include <sdm/utils/value_function/state_2_occupancy_vf.hpp>
-#include <sdm/core/state/belief_interface.hpp>
+#include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 
 namespace sdm
 {
     State2OccupancyValueFunction::State2OccupancyValueFunction(std::shared_ptr<ValueFunction> vf) : mdp_vf_(vf)
     {
     }
-    // template <bool is_mdp>
-    // std::enable_if_t<!is_mdp, double>
-    // State2OccupancyValueFunction::operator()(const TOccupancyState &ostate, const number &tau)
-    // {
-
-        
-
-    //     double value = 0;
-    //     for (auto &ost : ostate)
-    //     {
-    //         auto state = ostate.getState(ost.first);
-    //         auto proba = ost.second;
-    //         value += proba * this->mdp_vf_->operator()(state, tau);
-    //     }
-    //     return value;
-    // }
 
     double State2OccupancyValueFunction::operatorMdp(const std::shared_ptr<State> &state, const number &tau)
     {
@@ -35,7 +19,7 @@ namespace sdm
 
         for (auto &ost : ostate->getStates())
         {
-            value += ostate->getProbability(ost) * this->mdp_vf_->operator()(state, tau);
+            value += ostate->getProbability(ost) * this->mdp_vf_->operator()(ost, tau);
         }
         return value;
     }

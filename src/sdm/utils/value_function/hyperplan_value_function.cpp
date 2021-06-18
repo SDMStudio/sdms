@@ -1,6 +1,6 @@
 #include <sdm/utils/value_function/hyperplan_value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_base.hpp>
-#include <sdm/core/state/belief_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/state/belief_default.hpp>
 
 namespace sdm
@@ -172,7 +172,7 @@ namespace sdm
             for (auto plan : this->representation[i])
             {
                 res << "\t\t<plan>" << std::endl;
-                res << "\t\t\t" << plan << std::endl;
+                res << "\t\t\t" << plan->str() << std::endl;
                 res << "\t\t</plan>" << std::endl;
             }
             res << "\t</value>" << std::endl;

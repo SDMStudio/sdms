@@ -556,6 +556,37 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
+    double OccupancyState::norm_1() const
+    {
+        return MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>>::norm_1();
+    }
+
+
+    const std::shared_ptr<BeliefInterface> OccupancyState::createBelief(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    {
+        std::shared_ptr<BeliefInterface> belief;
+
+        //Go over all hidden state conditionning to a joint history
+        for (auto hidden_state : this->getStatesAt(joint_history))
+        {
+            belief->addProbability(hidden_state,this->getProbability(this->HiddenStateAndJointHistoryToState(hidden_state, joint_history)));
+        }
+        return belief;
+    }
+
+    const std::shared_ptr<BeliefInterface> OccupancyState::createBeliefWeighted(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    {
+        auto belief = this->createBelief(joint_history);
+
+        double sum = belief->norm_1();
+        for (const auto &state : belief->getStates())
+        {
+            belief->setProbability(state,belief->getProbability(state) / sum);
+        }
+        return belief;
+    }
+
+
 } // namespace sdm
 
 namespace std

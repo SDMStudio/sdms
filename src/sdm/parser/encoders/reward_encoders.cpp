@@ -28,7 +28,7 @@ namespace sdm
             {
                 for (std::shared_ptr<Item> &joint_action : joint_actions)
                 {
-                    this->rewards_->setReward(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(joint_action), reward);
+                    this->rewards_->setReward(state->toState(), joint_action->toAction(), reward);
                 }
             }
         }
@@ -45,8 +45,8 @@ namespace sdm
             {
                 for (std::shared_ptr<Item> &joint_action : joint_actions)
                 {
-                    this->rewards_->setReward(std::static_pointer_cast<State>(state),
-                                              std::static_pointer_cast<Action>(joint_action),
+                    this->rewards_->setReward(state->toState(),
+                                              joint_action->toAction(),
                                               vector_of_rewards->getValueAt(this->state_space_->getItemIndex(state)));
                 }
             }

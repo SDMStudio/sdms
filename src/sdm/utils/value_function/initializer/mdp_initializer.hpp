@@ -11,10 +11,7 @@
 #pragma once
 
 #include <sdm/algorithms/hsvi.hpp>
-// #include <sdm/algorithms.hpp>
-// #include <sdm/algorithms/value_iteration.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
 namespace sdm
 {
@@ -37,4 +34,3 @@ namespace sdm
         void init(std::shared_ptr<ValueFunction> vf);
     };
 } // namespace sdm
-#include <sdm/utils/value_function/initializer/mdp_initializer.tpp>

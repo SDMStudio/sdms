@@ -15,7 +15,7 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/state/state.hpp>
-#include <sdm/core/state/belief_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
@@ -50,6 +50,7 @@ namespace sdm
     std::string str() const;
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+    double norm_1() const;
 
     virtual TypeState getTypeState() const ;
 

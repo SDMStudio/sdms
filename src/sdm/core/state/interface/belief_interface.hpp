@@ -20,6 +20,7 @@ namespace sdm
 
         virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
         virtual double operator^(const std::shared_ptr<BeliefInterface> &other) const = 0;
+        virtual double norm_1() const = 0;
 
         virtual void setDefaultValue(double) =0; 
         virtual double getDefaultValue()const =0; 

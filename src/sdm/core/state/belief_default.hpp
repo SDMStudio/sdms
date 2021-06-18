@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sdm/core/state/belief_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 
 namespace sdm
 {
@@ -31,6 +31,7 @@ namespace sdm
 
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
         double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+        double norm_1() const;
 
         std::string str() const;
 

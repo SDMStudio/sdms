@@ -16,7 +16,6 @@ namespace sdm
         double value;
         if (std::find(vf->getSupport(t).begin(),vf->getSupport(t).end(),state) == vf->getSupport(t).end() && vf->getInitFunction() != nullptr)
         {
-            std::cout<<"Not found";
             value = vf->getInitFunction()->operator()(state,t);
         }
         else

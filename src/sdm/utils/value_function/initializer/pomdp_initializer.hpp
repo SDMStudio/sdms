@@ -23,16 +23,15 @@ namespace sdm
      * @param error the maximal error
      * @param trials the maximal number of trials
      */
-    template <typename TState, typename TAction>
-    class POMDPInitializer : public Initializer<TState, TAction>
+    class POMDPInitializer : public Initializer
     {
     public:
         std::string algo_name_;
         double error_, trials_;
+        std::shared_ptr<SolvableByHSVI> world_;
 
     public:
-        POMDPInitializer(std::string algo_name, double error = 0.01, int trials = 10000);
-        void init(std::shared_ptr<ValueFunction<TState, TAction>> vf);
+        POMDPInitializer(std::shared_ptr<SolvableByHSVI> world,std::string algo_name, double error = 0.01, int trials = 10000);
+        void init(std::shared_ptr<ValueFunction> vf);
     };
 } // namespace sdm
-#include <sdm/utils/value_function/initializer/pomdp_initializer.tpp>

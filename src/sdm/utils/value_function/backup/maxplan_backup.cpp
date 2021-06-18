@@ -16,7 +16,7 @@ namespace sdm
 
     MaxPlanBackup::MaxPlanBackup(){}
 
-    MaxPlanBackup::MaxPlanBackup(std::shared_ptr<SolvableByHSVI> world)
+    MaxPlanBackup::MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& world)
     {
         this->world_ = world;
     }

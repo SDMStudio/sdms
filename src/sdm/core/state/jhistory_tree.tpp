@@ -49,7 +49,7 @@ namespace sdm
     }
 
     template <typename T>
-    std::shared_ptr<JointHistoryTree<T>> JointHistoryTree<T>::expand(const Joint<T> &data, bool backup)
+    std::shared_ptr<HistoryTreeInterface> JointHistoryTree<T>::expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>>&data, const std::shared_ptr<Joint<std::shared_ptr<Action>>>&, bool backup)
     {
         std::shared_ptr<JointHistoryTree<T>> h_joint;
 
@@ -73,28 +73,27 @@ namespace sdm
     }
 
     template <typename T>
-    std::shared_ptr<HistoryTree<T>> JointHistoryTree<T>::getIndividualHistory(number ag_id) const
+    std::shared_ptr<HistoryTreeInterface> JointHistoryTree<T>::getIndividualHistory(number ag_id) const
     {
         assert((ag_id < this->getNumAgents()) && (ag_id >= 0));
         return this->get(ag_id);
     }
 
     template <typename T>
-    Joint<std::shared_ptr<HistoryTree<T>>> JointHistoryTree<T>::getIndividualHistories() const
+    Joint<std::shared_ptr<HistoryTreeInterface>> JointHistoryTree<T>::getIndividualHistories() const
     {
         return *this;
     }
 
+    template <typename T>
     Joint<std::shared_ptr<State>> JointHistoryTree<T>::JointHistoryTreeToJointState(const Joint<std::shared_ptr<HistoryTreeInterface>>&)
     {
         Joint<std::shared_ptr<State>> joint_state;
-
 
         for(number agent_id = 0; agent_id < this->size(); agent_id++)
         {
             joint_state.push_back(std::make_shared<State>(this->getIndividualHistory(agent_id)));
         }
-
 
         return joint_state;
     }

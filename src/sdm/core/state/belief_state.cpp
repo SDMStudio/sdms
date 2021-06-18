@@ -105,6 +105,12 @@ namespace sdm
     return MappedVector<std::shared_ptr<State>, double>::is_equal(other, PRECISION);
   }
 
+  double Belief::norm_1() const
+  {
+    return  MappedVector<std::shared_ptr<State>, double>::norm_1();
+  }
+ 
+
   TypeState Belief::getTypeState() const
   {
     return TypeState::BeliefState_;

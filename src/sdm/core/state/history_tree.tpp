@@ -28,7 +28,7 @@ namespace sdm
     {
         if (backup && (this->children_.find(observation) != this->children_.end()))
         {
-            return std::static_pointer_cast<HistoryTree<T>>(this->getChild(observation));
+            return std::dynamic_pointer_cast<HistoryTree<T>>(this->getChild(observation));
         }
         if (backup && (this->getDepth() >= this->getMaxDepth()))
         {
@@ -38,7 +38,7 @@ namespace sdm
         {
             this->children_.emplace(observation, std::make_shared<HistoryTree<T>>(this->getptr(), observation));
 
-            return std::static_pointer_cast<HistoryTree<T>>(this->getChild(observation));
+            return std::dynamic_pointer_cast<HistoryTree<T>>(this->getChild(observation));
         }
         return std::make_shared<HistoryTree<T>>(this->getptr(), observation);
 
@@ -66,7 +66,7 @@ namespace sdm
             trace = std::dynamic_pointer_cast<HistoryTree<T>>(trace->expand(*it,action, backup));
         }
 
-        return std::static_pointer_cast<HistoryTree<T>>(trace);
+        return std::dynamic_pointer_cast<HistoryTree<T>>(trace);
     }
 
     template <typename T>
@@ -117,19 +117,19 @@ namespace sdm
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getptr()
     {
-        return std::dynamic_pointer_cast<HistoryTree<T>>(HistoryTreeInterface::shared_from_this());
+        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::shared_from_this());
     }
 
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getParent() const
     {
-        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getParent());
+        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::getParent());
     }
 
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getOrigin()
     {
-        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getOrigin());
+        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::getOrigin());
     }
 
     template <typename T>
@@ -139,7 +139,7 @@ namespace sdm
         for (const auto &children : Tree<T>::getChildren())
         {
             std::cout << "\n children " << *children << std::endl;
-            vector.push_back(std::static_pointer_cast<HistoryTree<T>>(children));
+            vector.push_back(std::dynamic_pointer_cast<HistoryTree<T>>(children));
         }
         return vector;
     }
@@ -147,7 +147,7 @@ namespace sdm
     template <typename T>
     std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getChild(const T &child_item) const
     {
-        return std::static_pointer_cast<HistoryTree<T>>(Tree<T>::getChild(child_item));
+        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::getChild(child_item));
     }
 
     template <typename T>
