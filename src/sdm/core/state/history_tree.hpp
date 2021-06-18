@@ -25,9 +25,8 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class HistoryTree : public Tree<T>,
-                        public BoostSerializable<HistoryTree<T>>, 
-                        public HistoryTreeInterface
+    class HistoryTree :virtual  public HistoryTreeInterface, public Tree<T>,private std::enable_shared_from_this<HistoryTree<T>>
+                        //public BoostSerializable<HistoryTree<T>>, 
     {
     protected:
         /*!
@@ -82,7 +81,8 @@ namespace sdm
         number getHorizon() const;
 
         std::string str() const;
-        std::string short_str() const;
+        std::string str_not_const();
+        std::string short_str();
 
         std::shared_ptr<HistoryTree<T>> getptr();
 

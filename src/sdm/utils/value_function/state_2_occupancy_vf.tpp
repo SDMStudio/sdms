@@ -1,16 +1,11 @@
 #include <sdm/utils/value_function/state_2_occupancy_vf.hpp>
+#include <sdm/core/state/belief_interface.hpp>
 
 namespace sdm
 {
     State2OccupancyValueFunction::State2OccupancyValueFunction(std::shared_ptr<ValueFunction> vf) : mdp_vf_(vf)
     {
     }
-    // template <bool is_mdp>
-    // std::enable_if_t<is_mdp, double>
-    // State2OccupancyValueFunction::operator()(const TOccupancyState &ostate, const number &tau)
-    // {
-    //     return this->mdp_vf_->operator()(ostate, tau);
-    // }
     // template <bool is_mdp>
     // std::enable_if_t<!is_mdp, double>
     // State2OccupancyValueFunction::operator()(const TOccupancyState &ostate, const number &tau)
@@ -28,9 +23,44 @@ namespace sdm
     //     return value;
     // }
 
-
-    double State2OccupancyValueFunction::operator()(const std::shared_ptr<State> &ostate, const number &tau)
+    double State2OccupancyValueFunction::operatorMdp(const std::shared_ptr<State> &state, const number &tau)
     {
+        return this->mdp_vf_->operator()(state, tau);
+    }
+
+    double State2OccupancyValueFunction::operatorNotMdp(const std::shared_ptr<State> &state, const number &tau)
+    {
+        double value = 0;
+        auto ostate = state->toBelief();
+
+        for (auto &ost : ostate->getStates())
+        {
+            value += ostate->getProbability(ost) * this->mdp_vf_->operator()(state, tau);
+        }
+        return value;
+    }
+
+
+    double State2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
+    {
+        switch (state->getTypeState())
+        {
+        case TypeState::State_ :
+            return operatorMdp(state,tau);
+            break;
+
+        case TypeState::BeliefState_ :
+            return operatorNotMdp(state,tau);
+            break;
+
+        case TypeState::OccupancyState_ :
+            return operatorNotMdp(state,tau);
+            break;
+
+        default:
+            return operatorMdp(state,tau);
+            break;
+        }
         // return this->operator()<>(ostate, tau);
     }
 

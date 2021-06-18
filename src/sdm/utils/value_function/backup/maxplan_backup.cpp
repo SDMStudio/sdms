@@ -1,200 +1,189 @@
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
+#include <sdm/core/state/belief_state.hpp>
+#include <sdm/exception.hpp>
+
+#include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/world/base/mpomdp_interface.hpp>
+
+#include <sdm/world/belief_mdp.hpp>
+#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/core/state/occupancy_state_v2.hpp>
+
+#include <sdm/core/action/decision_rule.hpp>
 
 namespace sdm
 {
-    std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+
+    MaxPlanBackup::MaxPlanBackup(){}
+
+    MaxPlanBackup::MaxPlanBackup(std::shared_ptr<SolvableByHSVI> world)
     {
-        // TValue current, max = -std::numeric_limits<TValue>::max();
-        // std::shared_ptr<BeliefState> alpha_vector;
-
-        // for (const auto &plan : this->representation[t])
-        // {
-        //     current = state ^ plan;
-
-        //     if (max < current)
-        //     {
-        //         max = current;
-        //         alpha_vector = plan;
-        //     }
-        // }
-
-        // return {max, alpha_vector};
+        this->world_ = world;
     }
 
-    std::shared_ptr<Action> getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    std::pair<double, std::shared_ptr<State>> MaxPlanBackup::getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
+        double current, max = -std::numeric_limits<double>::max();
+        std::shared_ptr<BeliefInterface> alpha_vector;
 
+        auto belief_state = state->toBelief();
+
+        for (const auto &plan : vf->getSupport(t))
+        {            
+            auto belief_plan = plan->toBelief();
+
+            current = belief_state->operator^(belief_plan);
+
+            if (max < current)
+            {
+                max = current;
+                alpha_vector = belief_plan;
+            }
+        }
+        return {max, alpha_vector};
     }
 
-    std::shared_ptr<State> getBackup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<Action> MaxPlanBackup::getBestAction(const std::shared_ptr<ValueFunction>& , const std::shared_ptr<State>& , number )
     {
-
+        std::cout<<"Action"<<std::endl;
     }
 
+    std::shared_ptr<State> MaxPlanBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    {
+        switch (state->getTypeState())
+        {
+        case TypeState::BeliefState_ :
+            return this->backupBeliefState(vf,state,t);
+            break;
+        case TypeState ::OccupancyState_ :
+            return this->backupOccupancyState(vf,state,t);
+        default:
+            throw sdm::exception::Exception("MaxPlan Backup with a state that is not a Belief State or an Occupancy State is impossible");
+            break;
+        }
+    }
+
+    std::shared_ptr<State> MaxPlanBackup::backupOccupancyState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    {
+        auto occupancy_state = state->toBelief();
+
+        std::shared_ptr<BeliefInterface> v_max;
+
+        double value_max = -std::numeric_limits<double>::max(), tmp;
+
+        // Go over the hyperplanes of decision step t+1
+        for (const auto &next_hyperplan : vf->getSupport(t + 1))
+        {
+            // Go over all joint decision rules at occupancy occupancy_state
+            for (const auto &joint_decision_rule : *this->world_->getActionSpaceAt(state,t))
+            {
+                const std::shared_ptr<BeliefInterface> new_hyperplan = this->getHyperplanAt(vf,state, next_hyperplan->toBelief(), joint_decision_rule->toAction(), t)->toBelief();
+                if (value_max < (tmp = occupancy_state->operator^(new_hyperplan)))
+                {
+                    value_max = tmp;
+                    v_max = new_hyperplan;
+                }
+            }
+        }
+        return v_max;
+    }
+
+    std::shared_ptr<State> MaxPlanBackup::backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    {
+        auto belief_mdp = std::static_pointer_cast<BeliefMDP>(this->world_);
+        auto under_pb = belief_mdp->getUnderlyingPOMDP();
+
+        std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<Observation>,std::shared_ptr<BeliefInterface>>> beta_a_o;
+        std::unordered_map<std::shared_ptr<Action>, std::shared_ptr<BeliefInterface>> beta_a;
+
+        // beta_a_o = argmax_alpha ( alpha * belief_t+1)
+        for (const auto &action : *under_pb->getActionSpace(t))
+        {
+            beta_a_o.emplace(action->toAction(),std::unordered_map<std::shared_ptr<Observation>,std::shared_ptr<BeliefInterface>>());
+            beta_a.emplace(action->toAction(),std::make_shared<Belief>(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t)));
+            for (const auto &observation : *under_pb->getObservationSpace(t))
+            {
+                auto next_belief = belief_mdp->nextState(state->toBelief(), action->toAction() , observation->toObservation(),t);
+                beta_a_o[action->toAction()].emplace(observation->toObservation(),this->getMaxAt(vf,state, t + 1).second->toBelief());
+            }
+        }
+
+        // \beta_a = R(s,a) + \gamma * \sum_{o, s'} [ \beta_{a,o}(s') * O(s', a, o) * T(s,a,s') ]
+        for (const auto &action : *under_pb->getActionSpace(t))
+        {
+            for (const auto &state : *under_pb->getStateSpace(t))
+            {
+                double tmp = 0;
+                for(const auto &next_state : under_pb->getReachableStates(state->toState(),action->toAction(),t) )
+                {
+                    for(const auto &observation : under_pb->getReachableObservations(state->toState(),action->toAction(),next_state->toState(),t))
+                    {
+                        tmp += beta_a_o[action->toAction()][observation->toObservation()]->getProbability(next_state) * under_pb->getDynamics(state->toState(), action->toAction(), next_state->toState(),observation->toObservation(),t);
+                    }
+                }
+                beta_a[action->toAction()]->addProbability(state->toState(), under_pb->getReward(state->toState(), action->toAction(),t) + this->world_->getDiscount(t) * tmp);
+
+            }
+        }
+
+        std::shared_ptr<Action> a_max;
+        double current, max_v = -std::numeric_limits<double>::max();
+        for (const auto &action : *under_pb->getActionSpace(t))
+        {
+            current = state->toBelief()->operator^(beta_a.at(action->toAction()));
+            if (current > max_v)
+            {
+                max_v = current;
+                a_max = action->toAction();
+            }
+        }
+        auto new_plan = beta_a[a_max];
+        return new_plan;
+    }
+
+    std::shared_ptr<State> MaxPlanBackup::getHyperplanAt(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &next_hyperplan, const std::shared_ptr<Action> &action, number t)
+    {
+        auto hyperplan_representation = std::static_pointer_cast<HyperplanValueFunction>(vf);
+        auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
+
+        auto occupancy_state = state->toOccupancyState();
+        auto joint_decision_rule = action->toDecisionRule();
+
+        std::shared_ptr<OccupancyStateInterface> new_hyperplan = std::make_shared<OccupancyState> (hyperplan_representation->getDefaultValue(t));
 
 
+        // Go over all occupancy state
+        for (const auto &uncompressed_joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
+        {
+            //Get information from uncompressed_s_o
+            auto compressed_joint_history = occupancy_state->getCompressedJointHistory(uncompressed_joint_history);
 
-    // std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &occupancy_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &joint_decision_rule, number t)
-    // {
-    //     std::shared_ptr<BeliefState> new_hyperplan(this->default_values_per_horizon[t]);
-    //     auto under_pb = this->getWorld()->getUnderlyingProblem();
+            std::shared_ptr<State> joint_indiv_histories = std::make_shared<Joint<std::shared_ptr<State>>>(compressed_joint_history->JointHistoryTreeToJointState(compressed_joint_history->getIndividualHistories()));
 
-    //     // Go over all occupancy state
-    //     for (const auto &uncompressed_belief_history_proba : *occupancy_state.getFullyUncompressedOccupancy())
-    //     {
-    //         //Get information from uncompressed_belief_history_proba
-    //         auto uncompressed_belief = uncompressed_belief_history_proba.first.first;
-    //         auto uncompressed_joint_history = uncompressed_belief_history_proba.first.second;
-    //         auto compressed_joint_history = occupancy_state.getCompressedJointHistory(uncompressed_joint_history);
+            // Get the serial action from the serial_decision_rule
+            auto action = joint_decision_rule->act(joint_indiv_histories);
 
-    //         // Get the serial action from the serial_decision_rule
-    //         auto joint_action = joint_decision_rule.act(compressed_joint_history->getIndividualHistories());
+            for (const auto &uncompressed_hidden_state : occupancy_state->getFullyUncompressedOccupancy()->getStatesAt(uncompressed_joint_history))
+            {
+                auto uncompressed_state = occupancy_state->HiddenStateAndJointHistoryToState(uncompressed_hidden_state,uncompressed_joint_history);
+                // Add the reward of the hyperplan
+                new_hyperplan->addProbability(uncompressed_state, this->world_->getReward(uncompressed_hidden_state,action,t));
 
-    //         // Add the reward of the hyperplan
-    //         new_hyperplan.addProbabilityAt(uncompressed_belief_history_proba.first, (uncompressed_belief->getData() ^ under_pb->getReward()->getReward(under_pb->getActionSpace()->joint2single(joint_action))));
+                //Go ober all Reachable State
+                for (const auto &next_hidden_state : under_pb->getReachableStates(uncompressed_hidden_state, action,t))
+                {
+                    //Go ober all Reachable Observation
+                    for (const auto &next_observation : under_pb->getReachableObservations(uncompressed_hidden_state, action, next_hidden_state,t))
+                    {
 
-    //         //Go over all Reachable Observation
-    //         for (const auto &next_observation : under_pb->getObsSpace()->getAll())
-    //         {
-    //             auto next_joint_history = compressed_joint_history->expand(next_observation);
-    //             auto next_belief = uncompressed_belief->expand(under_pb->getActionSpace()->joint2single(joint_action), under_pb->getObsSpace()->joint2single(next_observation));
-    //             new_hyperplan.addProbabilityAt(uncompressed_belief_history_proba.first, under_pb->getDiscount() * uncompressed_belief->getProbability(under_pb->getActionSpace()->joint2single(joint_action), under_pb->getObsSpace()->joint2single(next_observation)) * next_hyperplan.at({next_belief, next_joint_history}));
-    //         }
-    //     }
-    //     return new_hyperplan;
-    // }
+                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistoryTree();
+                        new_hyperplan->addProbability(uncompressed_state, this->world_->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_state, action,next_hidden_state,next_observation,t) * next_hyperplan->getProbability(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, next_joint_history)));
+                    }
+                }
 
-    // // ---------------------------------------------------------------
-    // // --------- DEFINITION FOR OccupancyMDP FORMALISM ---------------
-    // // ---------------------------------------------------------------
-
-    // std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &occupancy_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &joint_decision_rule, number t)
-    // {
-    //     std::shared_ptr<BeliefState> new_hyperplan(this->default_values_per_horizon[t]);
-    //     auto under_pb = this->getWorld()->getUnderlyingProblem();
-
-    //     // Go over all occupancy state
-    //     for (const auto &uncompressed_s_o : *occupancy_state.getFullyUncompressedOccupancy())
-    //     {
-    //         //Get information from uncompressed_s_o
-    //         auto uncompressed_hidden_state = uncompressed_s_o.first.first;
-    //         auto uncompressed_joint_history = uncompressed_s_o.first.second;
-    //         auto compressed_joint_history = occupancy_state.getCompressedJointHistory(uncompressed_joint_history);
-
-    //         // Get the serial action from the serial_decision_rule
-    //         auto action = joint_decision_rule.act(compressed_joint_history->getIndividualHistories());
-
-    //         // Add the reward of the hyperplan
-    //         new_hyperplan.addProbabilityAt(uncompressed_s_o.first, under_pb->getReward()->getReward(uncompressed_hidden_state, under_pb->getActionSpace()->joint2single(action)));
-
-    //         //Go ober all Reachable State
-    //         for (const auto &next_hidden_state : under_pb->getReachableStates(uncompressed_hidden_state, action))
-    //         {
-    //             //Go ober all Reachable Observation
-    //             for (const auto &next_observation : under_pb->getReachableObservations(uncompressed_hidden_state, action, next_hidden_state))
-    //             {
-    //                 auto next_joint_history = compressed_joint_history->expand(next_observation);
-    //                 new_hyperplan.addProbabilityAt(uncompressed_s_o.first, under_pb->getDiscount() * under_pb->getObsDynamics()->getDynamics(uncompressed_hidden_state, under_pb->getActionSpace()->joint2single(action), under_pb->getObsSpace()->joint2single(next_observation), next_hidden_state) * next_hyperplan.at({next_hidden_state, next_joint_history}));
-    //             }
-    //         }
-    //     }
-    //     return new_hyperplan;
-    // }
-
-    // // ---------------------------------------------------------------
-    // // ------- DEFINITION FOR SerializedOccupancyMDP FORMALISM -------
-    // // ---------------------------------------------------------------
-
-    // std::shared_ptr<BeliefState> MaxPlanValueFunction::getHyperplanAt(const std::shared_ptr<BeliefState> &serial_occupancy_state, const std::shared_ptr<BeliefState> &next_hyperplan, const TAction &serial_decision_rule, number t)
-    // {
-    //     auto under_pb = this->getWorld()->getUnderlyingProblem();
-
-    //     std::shared_ptr<BeliefState> new_hyperplan(this->default_values_per_horizon[t]);
-    //     number ag_id = serial_occupancy_state.getCurrentAgentId();
-    //     new_hyperplan.setAgent(ag_id);
-
-    //     // Go over all serial occupancy state
-    //     for (const auto &uncompressed_s_o : *serial_occupancy_state.getFullyUncompressedOccupancy())
-    //     {
-    //         //Get information from uncompressed_s_o
-    //         auto uncompressed_hidden_serial_state = serial_occupancy_state.getState(uncompressed_s_o.first);
-    //         auto uncompressed_joint_history = serial_occupancy_state.getHistory(uncompressed_s_o.first);
-    //         auto compressed_joint_history = serial_occupancy_state.getCompressedJointHistory(uncompressed_joint_history);
-
-    //         // Get the serial action from the serial_decision_rule
-    //         auto serial_action = serial_decision_rule.act(compressed_joint_history->getIndividualHistory(ag_id));
-
-    //         // Add the reward of the hyperplan
-    //         new_hyperplan.addProbabilityAt(uncompressed_s_o.first, under_pb->getReward(uncompressed_hidden_serial_state, serial_action));
-
-    //         // Go over all Reachable Serial State
-    //         for (const auto &next_hidden_serial_state : under_pb->getReachableSerialStates(uncompressed_hidden_serial_state, serial_action))
-    //         {
-    //             // Go over all Reachable Observation
-    //             for (const auto &next_serial_observation : under_pb->getReachableObservations(uncompressed_hidden_serial_state, serial_action, next_hidden_serial_state))
-    //             {
-    //                 auto next_joint_history = compressed_joint_history->expand(next_serial_observation);
-    //                 new_hyperplan.addProbabilityAt(uncompressed_s_o.first, under_pb->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_serial_state, serial_action, next_serial_observation, next_hidden_serial_state) * next_hyperplan.at({next_hidden_serial_state, next_joint_history}));
-    //             }
-    //         }
-    //     }
-    //     return new_hyperplan;
-    // }
-
-    // BeliefState<> MaxPlanValueFunction<BeliefState<>, number, double>::backup_operator(const BeliefState<> &state, number t)
-    // {
-    //     std::cout << "in backup"<<std::endl;
-    //     auto beliefMDP = std::static_pointer_cast<BeliefMDP<BeliefState<>, number, number>>(this->getWorld());
-    //     auto under_pb = this->getWorld()->getUnderlyingProblem();
-
-    //     number n_obs = under_pb->getObsSpace()->getNumItems();
-    //     number n_actions = under_pb->getActionSpace()->getNumItems();
-    //     number n_states = under_pb->getStateSpace()->getNumItems();
-
-    //     std::vector<std::vector<BeliefState<>>> beta_a_o(n_actions, std::vector<BeliefState<>>(n_obs, BeliefState<>(n_states)));
-    //     std::vector<BeliefState<>> beta_a(n_actions, BeliefState<>(n_states));
-
-    //     // beta_a_o = argmax_alpha ( alpha * belief_t+1)
-    //     for (number a = 0; a < n_actions; a++)
-    //     {
-    //         for (number o = 0; o < n_obs; o++)
-    //         {
-    //             auto next_belief = beliefMDP->nextState(state, a, o);
-    //             beta_a_o[a][o] = this->getMaxAt(next_belief, t + 1).second;
-    //         }
-    //     }
-
-    //     // \beta_a = R(s,a) + \gamma * \sum_{o, s'} [ \beta_{a,o}(s') * O(s', a, o) * T(s,a,s') ]
-    //     for (number a = 0; a < n_actions; a++)
-    //     {
-    //         for (number s = 0; s < n_states; s++)
-    //         {
-    //             double tmp = 0;
-    //             for (number o = 0; o < n_obs; o++)
-    //             {
-    //                 for (number s_ = 0; s_ < n_states; s_++)
-    //                 {
-    //                     tmp += beta_a_o[a][o].at(s_) * under_pb->getObsDynamics()->getDynamics(s, a, o, s_);
-    //                 }
-    //             }
-    //             beta_a[a][s] = under_pb->getReward(s, a) + under_pb->getDiscount() * tmp;
-    //         }
-    //     }
-
-    //     number a_max;
-    //     double current, max_v = -std::numeric_limits<double>::max();
-    //     for (number a = 0; a < n_actions; a++)
-    //     {
-    //         current = state ^ beta_a.at(a);
-    //         if (current > max_v)
-    //         {
-    //             max_v = current;
-    //             a_max = a;
-    //         }
-    //     }
-    //     auto new_plan = beta_a[a_max];
-
-    //     return new_plan;
-    // }
+            }
+        }
+        return new_hyperplan;
+    }
 }
 

@@ -120,6 +120,13 @@ namespace sdm
     std::vector<std::shared_ptr<State>> getStates() const;
 
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
+    double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+
+    void setDefaultValue(double default_value);
+    double getDefaultValue() const; 
+
+    std::shared_ptr<State> HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryTreeInterface>&) const;
+
 
   protected:
     /** @brief This representation of occupancy states consists of private occupancy states for each agent*/

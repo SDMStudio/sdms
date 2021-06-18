@@ -21,6 +21,8 @@ namespace sdm
     // class JointDeterministicDecisionRule;
     // class DeterministicDecisionRule;
 
+    class DecisionRule;
+
 
     class Action : public Item
     {
@@ -42,7 +44,7 @@ namespace sdm
         //  */
         // virtual std::shared_ptr<JointAction> toJointAction();
 
-        //         /**
+        // /**
         //  * @brief Transform the State in a StochasticDecisionRule
         //  * 
         //  * @return std::shared_ptr<StochasticDecisionRule> 
@@ -62,6 +64,9 @@ namespace sdm
         //  * @return std::shared_ptr<DeterministicDecisionRule> 
         //  */
         // virtual std::shared_ptr<DeterministicDecisionRule> toDeterministicDecisionRule();
+
+        virtual std::shared_ptr<DecisionRule> toDecisionRule();
+
 
     };
 } // namespace sdm

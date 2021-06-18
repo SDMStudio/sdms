@@ -74,7 +74,7 @@ namespace sdm
         assert(this->getDepth() < this->getMaxDepth());
         if (this->children_.find(child_item) == this->children_.end())
         {
-            this->children_.emplace(child_item, std::make_shared<Tree<T>>(this->shared_from_this(), child_item));
+            this->children_.emplace(child_item, std::make_shared<Tree<T>>(this->getptr(), child_item));
         }
     }
 
@@ -92,7 +92,7 @@ namespace sdm
     {
         if (this->isOrigin())
         {
-            return this->shared_from_this();
+            return this->getptr();
         }
         else
         {
@@ -140,7 +140,11 @@ namespace sdm
     std::shared_ptr<Tree<T>> Tree<T>::getptr()
     {
         std::cout<<"Test !!!!!!!!!"<<std::endl; 
-        return this->shared_from_this();
+        // auto a = this->shared_from_this();
+        throw sdm::exception::NotImplementedException();
+        // return a;
+
+        // return this->shared_from_this();
     }
 
     template <typename T>

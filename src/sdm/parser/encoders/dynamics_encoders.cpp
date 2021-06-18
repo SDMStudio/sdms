@@ -210,7 +210,7 @@ namespace sdm
             this->obs_space_ = obs_space;
         }
 
-        std::shared_ptr<TabularObservationDynamicsAS> obs_dynamics_encoder::encode(const observation_t &observs, std::shared_ptr<StateDynamicsInterface> state_dynamics)
+        std::shared_ptr<TabularObservationDynamicsAS> obs_dynamics_encoder::encode(const observation_t &observs, std::shared_ptr<StateDynamicsInterface> )
         {
             std::shared_ptr<TabularObservationDynamicsAS> dynamics = std::make_shared<TabularObservationDynamicsAS>();
             observation_transition_encoder obs_d_encoder(this->state_space_, this->agent_space_, this->action_space_, this->obs_space_, dynamics);

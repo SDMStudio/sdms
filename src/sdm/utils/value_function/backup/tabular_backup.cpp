@@ -38,7 +38,7 @@ namespace sdm
 
         for (const auto &action : *this->world_->getActionSpaceAt(state, t))
         {
-            auto casted_action = std::static_pointer_cast<Action>(action);
+            auto casted_action = action->toAction();
             if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))
             {
                 best_action = casted_action;

@@ -50,15 +50,8 @@ namespace sdm
          * @brief Get the Observation Probability p(o | b', a)
          */
         virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
-
-    protected:
-        // std::shared_ptr<State> initial_state_;
-        std::shared_ptr<State> current_state_;
-
+        
         std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
-
-
-        // ########### This part of the code can be overriden for specifications ###########
 
         /**
          * @brief This part of the code can be used to 
@@ -70,6 +63,12 @@ namespace sdm
          * @return std::shared_ptr<BeliefInterface> 
          */
         virtual std::shared_ptr<BeliefInterface> nextState(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t = 0) const;   
+
+    protected:
+        // std::shared_ptr<State> initial_state_;
+        std::shared_ptr<State> current_state_;
+
+        // ########### This part of the code can be overriden for specifications ###########
     };
 
 }

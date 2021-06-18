@@ -98,6 +98,8 @@ namespace sdm
          */
         std::shared_ptr<HistoryTree<T>> getIndividualHistory(number agent_id) const;
 
+        Joint<std::shared_ptr<State>> JointHistoryTreeToJointState(const Joint<std::shared_ptr<HistoryTreeInterface>>&);
+
         /**
          * @brief Get the address of the individual histories of all agents
          * 

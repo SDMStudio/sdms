@@ -31,31 +31,31 @@ namespace sdm
         }
         else
         {
-            // std::cout<<"MDP Iteration";
+            std::cout<<"MDP Iteration";
 
-            // auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+            auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
 
-            // auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-            // auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
+            auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
+            auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-            // auto lb = std::make_shared<PointSetValueFunction>(tabular_backup,mdp->getHorizon(),init_lb);
-            // auto ub = std::make_shared<PointSetValueFunction>(tabular_backup,mdp->getHorizon(),init_ub);
+            auto lb = std::make_shared<PointSetValueFunction>(tabular_backup,mdp->getHorizon(),init_lb);
+            auto ub = std::make_shared<PointSetValueFunction>(tabular_backup,mdp->getHorizon(),init_ub);
 
-            // auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_);
+            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_);
 
-            // algorithm->do_initialize();
+            algorithm->do_initialize();
 
-            // for(const auto &element : *mdp->getStateSpace(0))
-            // {
-            //     auto state = std::static_pointer_cast<State>(element);
-            //     hsvi_mdp->setInitialState(state);
-            //     std::cout<<"get Initial State : "<<hsvi_mdp->getInitialState()->str()<<std::endl;
-            //     algorithm->do_solve();
-            // }
+            for(const auto &element : *mdp->getStateSpace(0))
+            {
+                auto state = std::static_pointer_cast<State>(element);
+                hsvi_mdp->setInitialState(state);
+                std::cout<<"get Initial State : "<<hsvi_mdp->getInitialState()->str()<<std::endl;
+                algorithm->do_solve();
+            }
 
-            // auto ubound = algorithm->getUpperBound();
+            auto ubound = algorithm->getUpperBound();
 
-            // vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
+            vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(mdp->getInitialState()), TState>>(ubound));
         }
         // Set the function that will be used to get interactively upper bounds
     }

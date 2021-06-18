@@ -85,6 +85,21 @@ namespace sdm
         return *this;
     }
 
+    Joint<std::shared_ptr<State>> JointHistoryTree<T>::JointHistoryTreeToJointState(const Joint<std::shared_ptr<HistoryTreeInterface>>&)
+    {
+        Joint<std::shared_ptr<State>> joint_state;
+
+
+        for(number agent_id = 0; agent_id < this->size(); agent_id++)
+        {
+            joint_state.push_back(std::make_shared<State>(this->getIndividualHistory(agent_id)));
+        }
+
+
+        return joint_state;
+    }
+
+
     template <typename T>
     std::string JointHistoryTree<T>::str()
     {

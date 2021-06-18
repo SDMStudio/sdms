@@ -76,6 +76,15 @@ namespace sdm
 
         std::string str() const;
 
+        /**
+         * @brief Get the Default Value at time step t
+         * 
+         * @param number : timestep
+         * 
+         * @return double 
+         */
+        double getDefaultValue(number );
+
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;
 

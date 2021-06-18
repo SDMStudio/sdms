@@ -1,6 +1,7 @@
 #include <sdm/config.hpp>
 #include <sdm/core/state/belief_state.hpp>
 #include <iomanip>
+#include <sdm/exception.hpp>
 
 namespace sdm
 {
@@ -86,6 +87,19 @@ namespace sdm
     return true;
   }
 
+  double Belief::operator^(const std::shared_ptr<BeliefInterface> &other) const
+  {
+    double product = 0;
+
+    for (const auto &item : *this)
+    {
+      product += item.second * other->getProbability(item.first);
+    }
+
+    return product;
+    // throw sdm::exception::NotImplementedException();
+  }
+
   bool Belief::operator==(const Belief &other) const
   {
     return MappedVector<std::shared_ptr<State>, double>::is_equal(other, PRECISION);
@@ -94,6 +108,16 @@ namespace sdm
   TypeState Belief::getTypeState() const
   {
     return TypeState::BeliefState_;
+  }
+
+  void Belief::setDefaultValue(double default_value)
+  {
+    this->setDefault(default_value);
+  }
+
+  double Belief::getDefaultValue() const
+  {
+    return this->getDefault();
   }
 
   std::string Belief::str() const

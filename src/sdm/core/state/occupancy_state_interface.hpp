@@ -51,6 +51,8 @@ namespace sdm
         virtual const double &getProbabilityOverIndividualHistories(number, const std::shared_ptr<HistoryTreeInterface>&) const = 0;
         virtual std::shared_ptr<OccupancyStateInterface> compress() = 0;
 
+        virtual std::shared_ptr<State> HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryTreeInterface>&)const =0;
+
 
         // virtual void setAllIndividualHistories() = 0;
         // virtual void setJointHistories() =0 ;
