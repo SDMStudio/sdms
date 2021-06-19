@@ -41,7 +41,7 @@ int learn(int argv, char **args)
         ("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")
         ("precision,r", po::value<double>(&precision)->default_value(0.000001), "the precision of hierarchical private occupancy states (occupancy states) ")
         ("precision2,w", po::value<double>(&precision2)->default_value(0.000001), "the precision of private occupancy states (private occupancy states)")
-        ("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")
+        ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")
         ("batch_size,b", po::value<number>(&batch_size)->default_value(10), "batch size, that is K from the paper")
@@ -97,11 +97,11 @@ int learn(int argv, char **args)
 
         if (formalism == "MDP")
         {
-            gym = std::make_shared<MDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
+            gym = std::make_shared<MDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
         }
         else if (formalism == "MMDP")
         {
-            gym = std::make_shared<MMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
+            gym = std::make_shared<MMDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
         }
         else if (formalism == "POMDP")
         {
