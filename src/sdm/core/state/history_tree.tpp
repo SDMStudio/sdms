@@ -24,7 +24,7 @@ namespace sdm
     }
 
     template <typename T>
-    std::shared_ptr<HistoryTreeInterface> HistoryTree<T>::expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup )
+    std::shared_ptr<HistoryInterface> HistoryTree<T>::expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup )
     {
         if (backup && (this->children_.find(observation) != this->children_.end()))
         {
@@ -45,7 +45,7 @@ namespace sdm
     }
 
     template <typename T>
-    std::shared_ptr<HistoryTreeInterface> HistoryTree<T>::truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup)
+    std::shared_ptr<HistoryInterface> HistoryTree<T>::truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup)
     {
         std::list<T> items;
 

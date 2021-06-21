@@ -113,7 +113,7 @@ namespace sdm
 
   TypeState Belief::getTypeState() const
   {
-    return TypeState::BeliefState_;
+    return TypeState::BELIEF_STATE;
   }
 
   void Belief::setDefaultValue(double default_value)

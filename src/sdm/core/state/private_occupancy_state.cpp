@@ -61,19 +61,19 @@ namespace sdm
     //     return res.str();
     // }
 
-    std::vector<std::shared_ptr<HistoryTreeInterface>> PrivateOccupancyState::getPartialJointHistory(const std::vector<std::shared_ptr<HistoryTreeInterface>> &joint_history) const
+    std::vector<std::shared_ptr<HistoryInterface>> PrivateOccupancyState::getPartialJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &joint_history) const
     {
         auto partial_jhist = joint_history;
         partial_jhist.erase(partial_jhist.begin() + this->getAgentId());
         return partial_jhist;
     }
 
-    const std::vector<std::shared_ptr<HistoryTreeInterface>> &PrivateOccupancyState::getPartialJointHistory(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    const std::vector<std::shared_ptr<HistoryInterface>> &PrivateOccupancyState::getPartialJointHistory(const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
         return bimap_jhist_partial_jhist.left.at(joint_history);
     }
 
-    std::shared_ptr<JointHistoryTreeInterface> PrivateOccupancyState::getJointHistory(const std::vector<std::shared_ptr<HistoryTreeInterface>> &partial_joint_history) const
+    std::shared_ptr<JointHistoryInterface> PrivateOccupancyState::getJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &partial_joint_history) const
     {
         return bimap_jhist_partial_jhist.right.at(partial_joint_history);
     }
@@ -128,11 +128,11 @@ namespace sdm
             for (const auto &hidden_state : this->getStatesAt(current_joint_history))
             {
                 // Get value in the current private occupancy state
-                const auto &current_pair_state_joint_history = std::make_shared<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>(std::make_pair(hidden_state, current_joint_history));
+                const auto &current_pair_state_joint_history = std::make_shared<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryInterface>>>>(std::make_pair(hidden_state, current_joint_history));
                 const auto &current_value = this->at(current_pair_state_joint_history);
 
                 // Get corresponding value in the other private occupancy state
-                const auto &other_pair_state_joint_history = std::make_shared<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>(std::make_pair(hidden_state, other_joint_history));
+                const auto &other_pair_state_joint_history = std::make_shared<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryInterface>>>>(std::make_pair(hidden_state, other_joint_history));
                 const auto &other_value = other.at(other_pair_state_joint_history);
 
                 if (other_value == 0)

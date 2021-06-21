@@ -22,22 +22,22 @@ namespace sdm
     PrivateOccupancyState(const OccupancyState &);
 
     number getAgentId() const;
-    const std::vector<std::shared_ptr<HistoryTreeInterface>> &getPartialJointHistory(const std::shared_ptr<JointHistoryTreeInterface> &) const;
-    std::shared_ptr<JointHistoryTreeInterface> getJointHistory(const std::vector<std::shared_ptr<HistoryTreeInterface>> &) const;
+    const std::vector<std::shared_ptr<HistoryInterface>> &getPartialJointHistory(const std::shared_ptr<JointHistoryInterface> &) const;
+    std::shared_ptr<JointHistoryInterface> getJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &) const;
 
     void finalize(bool = true);
 
     bool operator==(const PrivateOccupancyState &) const;
 
   protected:
-    std::vector<std::shared_ptr<HistoryTreeInterface>> getPartialJointHistory(const std::vector<std::shared_ptr<HistoryTreeInterface>> &) const;
+    std::vector<std::shared_ptr<HistoryInterface>> getPartialJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &) const;
 
     /**
      * @brief The agent's identifier 
      */
     number agent_id_;
 
-    typedef boost::bimaps::bimap<std::shared_ptr<JointHistoryTreeInterface>, Joint<std::shared_ptr<HistoryTreeInterface>>> bimap_type;
+    typedef boost::bimaps::bimap<std::shared_ptr<JointHistoryInterface>, Joint<std::shared_ptr<HistoryInterface>>> bimap_type;
     typedef typename bimap_type::value_type bimap_value;
 
     /**

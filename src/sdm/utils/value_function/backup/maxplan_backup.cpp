@@ -52,10 +52,10 @@ namespace sdm
     {
         switch (state->getTypeState())
         {
-        case TypeState::BeliefState_ :
+        case TypeState::BELIEF_STATE :
             return this->backupBeliefState(vf,state,t);
             break;
-        case TypeState ::OccupancyState_ :
+        case TypeState ::OCCUPANCY_STATE :
             return this->backupOccupancyState(vf,state,t);
         default:
             throw sdm::exception::Exception("MaxPlan Backup with a state that is not a Belief State or an Occupancy State is impossible");

@@ -13,7 +13,7 @@ namespace sdm
     std::pair<double, std::shared_ptr<State>> SawtoothBackup::getMaxAt(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         assert(vf->getInitFunction() != nullptr);
-        assert(state->getTypeState() != TypeState::State_);
+        assert(state->getTypeState() != TypeState::STATE);
 
         auto belief_state = state->toBelief();
 
