@@ -126,7 +126,7 @@ int learn(int argv, char **args)
 
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
 
-        std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, q_table, target_q_table, exploration, horizon, discount, lr, 1, max_steps);
+        std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, q_table, target_q_table, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
 

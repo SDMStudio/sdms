@@ -63,11 +63,11 @@ namespace sdm
      * @brief Some variables for the algorithm.
      * 
      */
-    number horizon_, step, episode;
+    number horizon_, step;
 
     double discount_, lr_, batch_size_;
 
-    unsigned long global_step, max_steps_;
+    unsigned long global_step, max_steps_, episode;
 
     std::string name_ = "qlearning";
 

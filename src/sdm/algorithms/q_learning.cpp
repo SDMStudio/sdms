@@ -48,6 +48,7 @@ namespace sdm
     void QLearning::do_solve()
     {
         this->global_step = 0;
+        this->episode = 0;
         // std::cout << "-------- DO_SOLVE() ---------" << std::endl;
         // std::cout << *this->q_value_ << std::endl;
         clock_t t_begin = clock();
