@@ -119,9 +119,9 @@ namespace sdm
 
   enum TypeState
   {
-    State_,
-    BeliefState_,
-    OccupancyState_
+    STATE,
+    BELIEF_STATE,
+    OCCUPANCY_STATE
   };
 
   enum 

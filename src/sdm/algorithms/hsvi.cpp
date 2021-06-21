@@ -103,6 +103,7 @@ namespace sdm
 
                 // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
+
                 this->upper_bound_->updateValueAt(s, h);
             }
 

@@ -38,7 +38,7 @@ namespace sdm
     template <typename TState>
     TypeState BaseState<TState>::getTypeState() const 
     {
-      return TypeState::State_;
+      return TypeState::STATE;
     }
 
 

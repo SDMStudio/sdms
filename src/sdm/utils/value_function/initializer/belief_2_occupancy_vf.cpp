@@ -33,15 +33,15 @@ namespace sdm
     {
         switch (state->getTypeState())
         {
-        case TypeState::State_ :
+        case TypeState::STATE :
             return operatorNotMPOMDP(state,tau);
             break;
 
-        case TypeState::BeliefState_ :
+        case TypeState::BELIEF_STATE :
             return operatorNotMPOMDP(state,tau);
             break;
 
-        case TypeState::OccupancyState_ :
+        case TypeState::OCCUPANCY_STATE :
             return operatorMPOMDP(state,tau);
             break;
 

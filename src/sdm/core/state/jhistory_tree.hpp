@@ -14,7 +14,7 @@
 #include <sdm/core/state/history_tree.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/types.hpp>
-#include <sdm/core/state/interface/jhistory_tree_interface.hpp>
+#include <sdm/core/state/interface/jhistory_interface.hpp>
 
 namespace sdm
 {
@@ -30,7 +30,7 @@ namespace sdm
     class JointHistoryTree : public HistoryTree<Joint<T>>,
                              public Joint<std::shared_ptr<HistoryTree<T>>>,
                              public BoostSerializable<JointHistoryTree<T>>,
-                             public JointHistoryTreeInterface
+                             public JointHistoryInterface
 
     {
     protected:
@@ -90,7 +90,7 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>>&, const std::shared_ptr<Joint<std::shared_ptr<Action>>>& = nullptr, bool = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>>&, const std::shared_ptr<Joint<std::shared_ptr<Action>>>& = nullptr, bool = true);
 
         /**
          * @brief Get the address of the individual history of agent 'agent_id' 
@@ -98,16 +98,16 @@ namespace sdm
          * @param agent_id the agent id  
          * @return the address of the individual history of agent 'agent_id' 
          */
-        std::shared_ptr<HistoryTreeInterface> getIndividualHistory(number agent_id) const;
+        std::shared_ptr<HistoryInterface> getIndividualHistory(number agent_id) const;
 
-        Joint<std::shared_ptr<State>> JointHistoryTreeToJointState(const Joint<std::shared_ptr<HistoryTreeInterface>>&);
+        Joint<std::shared_ptr<State>> JointHistoryTreeToJointState(const Joint<std::shared_ptr<HistoryInterface>>&);
 
         /**
          * @brief Get the address of the individual histories of all agents
          * 
          * @return a vector that contains all individual histories
          */
-        Joint<std::shared_ptr<HistoryTreeInterface>> getIndividualHistories() const;
+        Joint<std::shared_ptr<HistoryInterface>> getIndividualHistories() const;
 
         std::string str();
 

@@ -40,7 +40,7 @@ namespace sdm
     std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
         // Get the best action (i.e. the action that maximizes the q value function)
-        return this->backup_->getBestAction(this->getptr(), state->toState(), t);
+        return this->backup_->getBestAction(this->getptr(), state, t);
     }
 
     void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)

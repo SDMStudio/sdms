@@ -12,7 +12,7 @@
 #pragma once
 
 #include <sdm/utils/struct/tree.hpp>
-#include <sdm/core/state/interface/history_tree_interface.hpp>
+#include <sdm/core/state/interface/history_interface.hpp>
 
 namespace sdm
 {
@@ -25,7 +25,7 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class HistoryTree : virtual public HistoryTreeInterface, virtual public Tree<T>
+    class HistoryTree : virtual public HistoryInterface, virtual public Tree<T>
                         //public BoostSerializable<HistoryTree<T>>, 
     {
     protected:
@@ -35,7 +35,7 @@ namespace sdm
          *  @param  backup wheter the node is marked or not
          *  @return the truncated expanded tree
          */
-        std::shared_ptr<HistoryTreeInterface> truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup);
+        std::shared_ptr<HistoryInterface> truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup);
 
     public:
         using value_type = typename Tree<T>::value_type;
@@ -71,7 +71,7 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&, bool = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&, bool = true);
 
         /**
          * @brief Get the horizon
@@ -100,7 +100,7 @@ namespace sdm
             return os;
         }
 
-        TypeState getTypeState() const{return TypeState::State_;}
+        TypeState getTypeState() const{return TypeState::STATE;}
 
     };
 

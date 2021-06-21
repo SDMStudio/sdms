@@ -10,7 +10,7 @@ namespace sdm
     {
     }
 
-    OccupancyState::OccupancyState(number num_agents, double default_value) : MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>, double>(default_value), num_agents_(num_agents)
+    OccupancyState::OccupancyState(number num_agents, double default_value) : MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryInterface>>>>, double>(default_value), num_agents_(num_agents)
     {
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
@@ -21,7 +21,7 @@ namespace sdm
     }
 
     OccupancyState::OccupancyState(const OccupancyState &occupancy_state)
-        : MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>, double>(occupancy_state),
+        : MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryInterface>>>>, double>(occupancy_state),
           tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.tuple_of_maps_from_histories_to_private_occupancy_states_),
           fully_uncompressed_occupancy_state(occupancy_state.fully_uncompressed_occupancy_state),
           one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
@@ -39,12 +39,12 @@ namespace sdm
     {
     }
 
-    const Joint<RecursiveMap<std::shared_ptr<HistoryTreeInterface>, std::shared_ptr<PrivateOccupancyState>>> &OccupancyState::getPrivateOccupancyStates() const
+    const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> &OccupancyState::getPrivateOccupancyStates() const
     {
         return this->tuple_of_maps_from_histories_to_private_occupancy_states_;
     }
 
-    const std::shared_ptr<PrivateOccupancyState> &OccupancyState::getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryTreeInterface> &ihistory) const
+    const std::shared_ptr<PrivateOccupancyState> &OccupancyState::getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const
     {
         return this->tuple_of_maps_from_histories_to_private_occupancy_states_.at(agent_id).at(ihistory);
     }
@@ -59,7 +59,7 @@ namespace sdm
         this->fully_uncompressed_occupancy_state = fully_uncompressed_ostate;
     }
 
-    std::shared_ptr<HistoryTreeInterface> OccupancyState::getLabel(const std::shared_ptr<HistoryTreeInterface> &ihistory, number agent_id) const
+    std::shared_ptr<HistoryInterface> OccupancyState::getLabel(const std::shared_ptr<HistoryInterface> &ihistory, number agent_id) const
     {
         if (this->private_ihistory_map_.at(agent_id).find(ihistory) == this->private_ihistory_map_.at(agent_id).end())
         {
@@ -73,9 +73,9 @@ namespace sdm
         }
     }
 
-    std::vector<std::shared_ptr<HistoryTreeInterface>> OccupancyState::getJointLabels(const std::vector<std::shared_ptr<HistoryTreeInterface>> &list_ihistories) const
+    std::vector<std::shared_ptr<HistoryInterface>> OccupancyState::getJointLabels(const std::vector<std::shared_ptr<HistoryInterface>> &list_ihistories) const
     {
-        std::vector<std::shared_ptr<HistoryTreeInterface>> new_list_ihistories;
+        std::vector<std::shared_ptr<HistoryInterface>> new_list_ihistories;
         for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
         {
             // if the ihistory was never compressed
@@ -84,7 +84,7 @@ namespace sdm
         return new_list_ihistories;
     }
 
-    void OccupancyState::updateLabel(number agent_id, const std::shared_ptr<HistoryTreeInterface> &ihistory, const std::shared_ptr<HistoryTreeInterface> &label)
+    void OccupancyState::updateLabel(number agent_id, const std::shared_ptr<HistoryInterface> &ihistory, const std::shared_ptr<HistoryInterface> &label)
     {
         // if there is a label for ihistory
         if (this->private_ihistory_map_[agent_id].find(ihistory) != this->private_ihistory_map_[agent_id].end())
@@ -112,7 +112,7 @@ namespace sdm
         }
     }
 
-    void OccupancyState::updateJointLabels(const std::vector<std::shared_ptr<HistoryTreeInterface>> &list_ihistories, const std::vector<std::shared_ptr<HistoryTreeInterface>> &list_labels)
+    void OccupancyState::updateJointLabels(const std::vector<std::shared_ptr<HistoryInterface>> &list_ihistories, const std::vector<std::shared_ptr<HistoryInterface>> &list_labels)
     {
         for (number agent_id = 0; agent_id < this->num_agents_; ++agent_id)
         {
@@ -141,13 +141,13 @@ namespace sdm
         this->compressed_occupancy_state = compress_ostate;
     }
 
-    std::shared_ptr<JointHistoryTreeInterface> OccupancyState::getCompressedJointHistory(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    std::shared_ptr<JointHistoryInterface> OccupancyState::getCompressedJointHistory(const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
         const auto &labels = this->getJointLabels(joint_history->getIndividualHistories());
         return this->jhistory_map_.at(labels);
     }
 
-    bool OccupancyState::areIndividualHistoryLPE(const std::shared_ptr<HistoryTreeInterface> &ihistory_1, const std::shared_ptr<HistoryTreeInterface> &ihistory_2, number agent_identifier)
+    bool OccupancyState::areIndividualHistoryLPE(const std::shared_ptr<HistoryInterface> &ihistory_1, const std::shared_ptr<HistoryInterface> &ihistory_2, number agent_identifier)
     {
         return this->getPrivateOccupancyState(agent_identifier, ihistory_1) == this->getPrivateOccupancyState(agent_identifier, ihistory_2);
     }
@@ -255,7 +255,7 @@ namespace sdm
         return std::static_pointer_cast<OccupancyState>(this->shared_from_this()->toState()->toOccupancyState());
     }
 
-    const double &OccupancyState::getProbabilityOverIndividualHistories(number agent, const std::shared_ptr<HistoryTreeInterface> &ihistory) const
+    const double &OccupancyState::getProbabilityOverIndividualHistories(number agent, const std::shared_ptr<HistoryInterface> &ihistory) const
     {
         return this->probability_ihistories.at(agent).at(ihistory);
     }
@@ -290,18 +290,18 @@ namespace sdm
     void OccupancyState::setProbability(const std::shared_ptr<State> &state, double proba)
     {
         // Set the new occupancy measure
-        auto pair_state_hist = std::static_pointer_cast<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(state);
+        auto pair_state_hist = std::static_pointer_cast<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>>(state);
         (*this)[pair_state_hist] = proba;
     }
 
-    void OccupancyState::setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryTreeInterface> &jhist, double proba)
+    void OccupancyState::setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &jhist, double proba)
     {
         this->setProbability(this->HiddenStateAndJointHistoryToState(state, jhist), proba);
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<State> &state, double proba)
     {
-        auto pair_state_hist = std::static_pointer_cast<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(state);
+        auto pair_state_hist = std::static_pointer_cast<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>>(state);
         if (this->find(pair_state_hist) != this->end())
         {
             (*this)[pair_state_hist] += proba;
@@ -312,12 +312,12 @@ namespace sdm
         }
     }
 
-    void OccupancyState::addProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryTreeInterface> &jhist, double proba)
+    void OccupancyState::addProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &jhist, double proba)
     {
         this->addProbability(this->HiddenStateAndJointHistoryToState(state, jhist), proba);
     }
 
-    double OccupancyState::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryTreeInterface> &jhist) const
+    double OccupancyState::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &jhist) const
     {
         // Set the new occupancy measure
         return this->getProbability(this->HiddenStateAndJointHistoryToState(state, jhist));
@@ -326,18 +326,18 @@ namespace sdm
     double OccupancyState::getProbability(const std::shared_ptr<State> &state) const
     {
         // Set the new occupancy measure
-        auto pair_state_hist = std::static_pointer_cast<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(state);
+        auto pair_state_hist = std::static_pointer_cast<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>>(state);
 
         return this->at(pair_state_hist);
     }
 
-    std::shared_ptr<State> OccupancyState::HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&state, const std::shared_ptr<JointHistoryTreeInterface>&jhist) const
+    std::shared_ptr<State> OccupancyState::HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&state, const std::shared_ptr<JointHistoryInterface>&jhist) const
     {
-        return std::make_shared<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(std::make_pair(state, jhist));
+        return std::make_shared<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>>(std::make_pair(state, jhist));
     }
 
 
-    const std::vector<std::set<std::shared_ptr<HistoryTreeInterface>>> &OccupancyState::getAllIndividualHistories() const
+    const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &OccupancyState::getAllIndividualHistories() const
     {
         return this->all_list_ihistories;
     }
@@ -362,7 +362,7 @@ namespace sdm
         }
     }
 
-    const std::set<std::shared_ptr<JointHistoryTreeInterface>> &OccupancyState::getJointHistories() const
+    const std::set<std::shared_ptr<JointHistoryInterface>> &OccupancyState::getJointHistories() const
     {
         // Get the set of joint histories that are in the support of the OccupancyState
         return this->list_jhistories;
@@ -378,7 +378,7 @@ namespace sdm
         }
     }
 
-    const std::set<std::shared_ptr<State>> &OccupancyState::getStatesAt(const std::shared_ptr<JointHistoryTreeInterface> &jhistory) const
+    const std::set<std::shared_ptr<State>> &OccupancyState::getStatesAt(const std::shared_ptr<JointHistoryInterface> &jhistory) const
     {
         return this->list_jhistory_states.at(jhistory);
     }
@@ -400,22 +400,22 @@ namespace sdm
         }
     }
 
-    const std::set<std::shared_ptr<HistoryTreeInterface>> &OccupancyState::getIndividualHistories(number ag_id) const
+    const std::set<std::shared_ptr<HistoryInterface>> &OccupancyState::getIndividualHistories(number ag_id) const
     {
         return this->all_list_ihistories[ag_id];
     }
 
-    std::shared_ptr<State> OccupancyState::getHiddenState(const std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>> &pair_state_hist) const
+    std::shared_ptr<State> OccupancyState::getHiddenState(const std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>> &pair_state_hist) const
     {
         return pair_state_hist->getState().first;
     }
 
-    std::shared_ptr<JointHistoryTreeInterface> OccupancyState::getHistory(const std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>> &pair_state_hist) const
+    std::shared_ptr<JointHistoryInterface> OccupancyState::getHistory(const std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>> &pair_state_hist) const
     {
         return pair_state_hist->getState().second;
     }
 
-    const std::set<std::shared_ptr<JointHistoryTreeInterface>> &OccupancyState::getJointHistoryOverIndividualHistories(number agent_id, const std::shared_ptr<HistoryTreeInterface> &indiv_history) const
+    const std::set<std::shared_ptr<JointHistoryInterface>> &OccupancyState::getJointHistoryOverIndividualHistories(number agent_id, const std::shared_ptr<HistoryInterface> &indiv_history) const
     {
         return this->ihistories_to_jhistory.at(agent_id).at(indiv_history);
     }
@@ -424,11 +424,11 @@ namespace sdm
     {
         for (number ag_id = 0; ag_id < this->num_agents_; ag_id++)
         {
-            this->ihistories_to_jhistory.emplace(ag_id, std::unordered_map<std::shared_ptr<HistoryTreeInterface>, std::set<std::shared_ptr<JointHistoryTreeInterface>>>());
+            this->ihistories_to_jhistory.emplace(ag_id, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>());
 
             for (const auto &ihistory : this->getIndividualHistories(ag_id))
             {
-                this->ihistories_to_jhistory.at(ag_id).emplace(ihistory, std::set<std::shared_ptr<JointHistoryTreeInterface>>());
+                this->ihistories_to_jhistory.at(ag_id).emplace(ihistory, std::set<std::shared_ptr<JointHistoryInterface>>());
                 for (const auto &joint_history : this->getJointHistories())
                 {
                     if (joint_history->getIndividualHistory(ag_id) == ihistory)
@@ -440,7 +440,7 @@ namespace sdm
         }
     }
 
-    const double &OccupancyState::getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryTreeInterface>&joint_history) const
+    const double &OccupancyState::getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface>&joint_history) const
     {
         return this->probability_jhistories.at(joint_history);
     }
@@ -455,12 +455,12 @@ namespace sdm
 
     TypeState OccupancyState::getTypeState() const
     {
-        return TypeState::OccupancyState_;
+        return TypeState::OCCUPANCY_STATE;
     }
 
     size_t OccupancyState::size() const
     {
-        return MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>>::size();
+        return MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryInterface>>>>>::size();
     }
 
     void OccupancyState::setDefaultValue(double default_value)
@@ -477,7 +477,7 @@ namespace sdm
 
         // std::ostringstream res, tmp;
         // number horizon;
-        // std::unordered_map<std::shared_ptr<JointHistoryTreeInterface>, std::pair<double, MappedVector<std::shared_ptr<State>, double>>> map;
+        // std::unordered_map<std::shared_ptr<JointHistoryInterface>, std::pair<double, MappedVector<std::shared_ptr<State>, double>>> map;
         // for (const auto &pair_x_o_p : *this)
         // {
         //     if (map.find(pair_x_o_p.first.second) == map.end())
@@ -546,7 +546,7 @@ namespace sdm
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &) const
     {
         // auto state = std::static_pointer_cast<OccupancyState>(other->toOccupancyState());
-        // return MappedVector<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>, double>::is_equal(state, PRECISION);
+        // return MappedVector<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>, double>::is_equal(state, PRECISION);
         throw sdm::exception::NotImplementedException();
 
     }
@@ -558,11 +558,11 @@ namespace sdm
 
     double OccupancyState::norm_1() const
     {
-        return MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>>::norm_1();
+        return MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryInterface>>>>>::norm_1();
     }
 
 
-    const std::shared_ptr<BeliefInterface> OccupancyState::createBelief(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    const std::shared_ptr<BeliefInterface> OccupancyState::createBelief(const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
         std::shared_ptr<BeliefInterface> belief;
 
@@ -574,7 +574,7 @@ namespace sdm
         return belief;
     }
 
-    const std::shared_ptr<BeliefInterface> OccupancyState::createBeliefWeighted(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    const std::shared_ptr<BeliefInterface> OccupancyState::createBeliefWeighted(const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
         auto belief = this->createBelief(joint_history);
 
