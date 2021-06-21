@@ -63,7 +63,7 @@ namespace sdm
         /**
          * @brief Get the value at a given observation
          */
-        double getValueAt(const std::shared_ptr<Observation> &observation, number t = 0);
+        double getValueAt(const std::shared_ptr<State> &observation, number t = 0);
 
         /**
          * @brief Get the q-values for all actions at a observation

@@ -120,13 +120,17 @@ namespace sdm
         this->next_observation = std::get<0>(feedback);
         double r = std::get<1>(feedback)[0];
         this->is_done = std::get<2>(feedback);
+        // std::vector<double> rs;
+        // auto [this->next_observation, rs, this->is_done] = this->env_->step(current_action);
+        // auto [next_obs, rs, done] = this->env_->step(current_action);
 
-        // Store experience in the associated buffer
-        // this->experience->store_experience(this->current_observation, action, rewards, next_obs, done);
 
+        // this->backup_->store_experience(this->current_observation, current_action, r, this->next_observation, this->step);
+        // this->backup_();
 
-        // Update the model
-        // this->update_model();
+        // this->experience_memory->store(this->current_observation, current_action, r, this->next_observation, this->step);
+        // this->backup_();
+
         double q_value = this->q_value_->getQValueAt(this->current_observation, current_action, this->step);
         double next_value = this->q_value_->getNextValueAt(this->next_observation, this->step + 1);
         double target_q_value = r + this->discount_ * next_value;

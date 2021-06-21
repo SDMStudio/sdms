@@ -245,12 +245,10 @@ if(QLEARNING)
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
 		${INCLUDE_DIR}/world/gym_interface.cpp
-		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/tabular_qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/qvalue_function.cpp
-		${INCLUDE_DIR}/utils/value_function/initializer/**
-		${INCLUDE_DIR}/utils/value_function/backup/**
+		${INCLUDE_DIR}/utils/value_function/tabular_qvalue_function.cpp
+		${INCLUDE_DIR}/utils/value_function/initializer/initializer.cpp
 
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
