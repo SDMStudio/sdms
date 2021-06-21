@@ -1,13 +1,3 @@
-/**
- * @file max_plan_vf.hpp
- * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
- * @version 0.1
- * @date 18/12/2020
- * 
- * @copyright Copyright (c) 2020
- * 
- */
 #pragma once
 #include <set>
 

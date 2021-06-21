@@ -16,7 +16,6 @@ namespace sdm
         double value;
         if (std::find(vf->getSupport(t).begin(),vf->getSupport(t).end(),state) == vf->getSupport(t).end() && vf->getInitFunction() != nullptr)
         {
-            std::cout<<"Not found";
             value = vf->getInitFunction()->operator()(state,t);
         }
         else
@@ -38,7 +37,7 @@ namespace sdm
 
         for (const auto &action : *this->world_->getActionSpaceAt(state, t))
         {
-            auto casted_action = std::static_pointer_cast<Action>(action);
+            auto casted_action = action->toAction();
             if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))
             {
                 best_action = casted_action;

@@ -15,11 +15,7 @@
 
 namespace sdm
 {
-    // class DiscreteAction;
-    // class StochasticDecisionRule;
-    // class JointAction;
-    // class JointDeterministicDecisionRule;
-    // class DeterministicDecisionRule;
+    class DecisionRule;
 
 
     class Action : public Item
@@ -28,40 +24,8 @@ namespace sdm
         virtual ~Action() {}
         virtual std::string str() const = 0;
 
-        // /**
-        //  * @brief Transform the State in a DiscreteAction
-        //  * 
-        //  * @return std::shared_ptr<OccupancyStateInterface> 
-        //  */
-        // virtual std::shared_ptr<DiscreteAction> toDiscreteAction();
+        virtual std::shared_ptr<DecisionRule> toDecisionRule();
 
-        // /**
-        //  * @brief Transform the State in a JointAction
-        //  * 
-        //  * @return std::shared_ptr<JointAction> 
-        //  */
-        // virtual std::shared_ptr<JointAction> toJointAction();
-
-        //         /**
-        //  * @brief Transform the State in a StochasticDecisionRule
-        //  * 
-        //  * @return std::shared_ptr<StochasticDecisionRule> 
-        //  */
-        // virtual std::shared_ptr<StochasticDecisionRule> toStochasticDecisionRule();
-
-        //         /**
-        //  * @brief Transform the State in a JointDeterministicDecisionRule
-        //  * 
-        //  * @return std::shared_ptr<JointDeterministicDecisionRule> 
-        //  */
-        // virtual std::shared_ptr<JointDeterministicDecisionRule> toJointDeterministicDecisionRule();
-
-        // /**
-        //  * @brief Transform the State in a DeterministicDecisionRule
-        //  * 
-        //  * @return std::shared_ptr<DeterministicDecisionRule> 
-        //  */
-        // virtual std::shared_ptr<DeterministicDecisionRule> toDeterministicDecisionRule();
 
     };
 } // namespace sdm

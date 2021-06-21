@@ -1,8 +1,8 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/core/state/belief_interface.hpp>
-#include <sdm/core/state/jhistory_tree_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/core/state/interface/jhistory_tree_interface.hpp>
 #include <sdm/core/state/base_state.hpp>
 
 namespace sdm
@@ -10,28 +10,6 @@ namespace sdm
     class OccupancyStateInterface : public BeliefInterface
     {
     public:
-
-        // Ancienne fonction de Belief Interface 
-        // Faudrait que Belief INterface possède des templates, et comme cela, on peut avoir setProbability(const Pair<State*,Obs*>&) / etc
-        // Ou alors faire comme pour JOint<State*>, c'est à dire faire une spéciafication de Pair avec Pair qui hérite de state si (State,Obs) 
-
-        virtual std::vector<std::shared_ptr<State>> getStates() const = 0;
-
-        virtual size_t size() const = 0;
-
-        virtual double getProbability(const std::shared_ptr<State> &state) const = 0;
-
-        virtual void setProbability(const std::shared_ptr<State> &state, double proba) = 0;
-
-        virtual void addProbability(const std::shared_ptr<State> &, double proba) = 0;
-
-        virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
-
-        virtual std::string str() const = 0;
-
-        virtual TypeState getTypeState() const =0;
-
-        // Nouvelle fonction 
 
         virtual const std::vector<std::set<std::shared_ptr<HistoryTreeInterface>>> &getAllIndividualHistories() const =0;
         virtual const std::set<std::shared_ptr<State>> &getStatesAt(const std::shared_ptr<JointHistoryTreeInterface> &jhistory) const =0;
@@ -51,6 +29,9 @@ namespace sdm
         virtual const double &getProbabilityOverIndividualHistories(number, const std::shared_ptr<HistoryTreeInterface>&) const = 0;
         virtual std::shared_ptr<OccupancyStateInterface> compress() = 0;
 
+        virtual std::shared_ptr<State> HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryTreeInterface>&)const =0;
+        virtual const std::shared_ptr<BeliefInterface> createBelief(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const =0;
+        virtual const std::shared_ptr<BeliefInterface> createBeliefWeighted(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const = 0;
 
         // virtual void setAllIndividualHistories() = 0;
         // virtual void setJointHistories() =0 ;

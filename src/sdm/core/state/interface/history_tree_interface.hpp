@@ -4,12 +4,12 @@
 
 namespace sdm
 {
-    class HistoryTreeInterface : public State
+    class HistoryTreeInterface : virtual public State
     {
 
     public : 
         // virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Item> &data, bool backup = true) = 0;
-        virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&, bool = true) = 0;
+        virtual std::shared_ptr<HistoryTreeInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>& = nullptr, bool = true) = 0;
 
         virtual std::string str() const = 0;
         virtual TypeState getTypeState() const =0;

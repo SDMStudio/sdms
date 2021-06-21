@@ -10,6 +10,7 @@
  */
 #include <sdm/types.hpp>
 #include <sdm/world/serialized_mmdp.hpp>
+#include <sdm/core/state/interface/serial_interface.hpp>
 
 namespace sdm
 {
@@ -82,7 +83,7 @@ namespace sdm
         }
         else
         {            
-            std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
+            std::shared_ptr<SerialInterface> serialized_state = std::dynamic_pointer_cast<SerialInterface>(state);
             auto joint_action = serialized_state->getAction();
             joint_action.push_back(serial_action);
 
@@ -92,8 +93,8 @@ namespace sdm
 
     double SerializedMMDP::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const
     {
-        std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
-        std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
+        std::shared_ptr<SerialInterface> serialized_state = std::dynamic_pointer_cast<SerialInterface>(state);
+        std::shared_ptr<SerialInterface> next_serialized_state = std::dynamic_pointer_cast<SerialInterface>(next_state);
         
         auto all_action = serialized_state->getAction();
         all_action.push_back(action);
@@ -140,7 +141,7 @@ namespace sdm
                         //Current action
                         auto temp_action = action;
                         //Add new action 
-                        temp_action.push_back(std::static_pointer_cast<Action>(action_agent_i));
+                        temp_action.push_back(action_agent_i->toAction());
                         // Add new possibility in the vector
                         all_new_action.push_back(temp_action);
                     }
@@ -158,11 +159,12 @@ namespace sdm
                 for(const auto &action : all_new_action)
                 {
                     // Add new serial state with the state of the problem and vector of action
-                    auto next_serial_state = SerializedState(std::static_pointer_cast<State>(state),action);
-                    std::shared_ptr<State> next_serial_state_str = std::make_shared<SerializedState>(next_serial_state);
+                    auto next_serial_state = std::make_shared<SerializedState>(state->toState(),action);
+                    // std::shared_ptr<SerialInterface> next_serial_state_str = next_serial_state;
+                    std::shared_ptr<State> next_serial_state_str = std::shared_ptr<SerialInterface>(next_serial_state);
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
-                    this->map_serialized_state_to_pointeur[next_serial_state] = next_serial_state_str;
+                    this->map_serialized_state_to_pointeur[*next_serial_state] = next_serial_state_str;
 
                     serialized_state_i.push_back(next_serial_state_str);
                 }
@@ -195,7 +197,7 @@ namespace sdm
         {
             for(const auto &state : *this->getStateSpace(agent_id))
             {
-                std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
+                std::shared_ptr<SerialInterface> serialized_state = std::dynamic_pointer_cast<SerialInterface>(state);
 
                 auto hidden_state = serialized_state->getHiddenState();
                 auto action = serialized_state->getAction();
@@ -203,7 +205,7 @@ namespace sdm
 
                 for(auto action_tmp : *this->getActionSpace(agent_id))
                 {
-                    auto serial_action = std::static_pointer_cast<Action>(action_tmp);
+                    auto serial_action = action_tmp->toAction();
 
                     auto next_action = action;
 

@@ -12,7 +12,8 @@ namespace sdm
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
              number horizon,
              double discount,
-             Criterion criterion) : num_agents_(1),
+             Criterion criterion) : GymInterface(state_space, action_space), 
+                                    num_agents_(1),
                                     horizon_(horizon),
                                     discount_(discount),
                                     criterion_(criterion),
@@ -20,9 +21,7 @@ namespace sdm
                                     action_space_(action_space),
                                     reward_(reward),
                                     state_dynamics_(state_dynamics),
-                                    start_distrib_(start_distrib),
-                                    GymInterface(state_space, action_space)
-
+                                    start_distrib_(start_distrib)
     {
     }
 
@@ -140,19 +139,19 @@ namespace sdm
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
-    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
     {
-        return this->getActionSpace();
+        return this->getActionSpace(t);
     }
 
     std::shared_ptr<Space> MDP::getActionSpaceAt(number t)
     {
-        return this->getActionSpace();
+        return this->getActionSpace(t);
     }
 
     std::shared_ptr<Space> MDP::getObservationSpaceAt(number t)
     {
-        return this->getStateSpace();
+        return this->getStateSpace(t);
     }
 
     std::string MDP::toStdFormat()
@@ -184,7 +183,7 @@ namespace sdm
                         res << "T: " << action_space->getItemIndex(action)
                             << " : " << state_space->getItemIndex(state)
                             << " : " << state_space->getItemIndex(next_state)
-                            << " : " << this->getTransitionProbability(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action), std::static_pointer_cast<State>(next_state))
+                            << " : " << this->getTransitionProbability(state->toState(), action->toAction(), next_state->toState())
                             << std::endl;
                     }
                 }
@@ -196,7 +195,7 @@ namespace sdm
                 {
                     res << "R: " << action_space->getItemIndex(action)
                         << " : " << state_space->getItemIndex(state)
-                        << " : " << this->getReward(std::static_pointer_cast<State>(state), std::static_pointer_cast<Action>(action))
+                        << " : " << this->getReward(state->toState(), action->toAction())
                         << std::endl;
                 }
             }

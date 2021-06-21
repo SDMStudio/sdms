@@ -15,7 +15,7 @@
 
 namespace sdm
 {
-    class Observation : public Item
+    class Observation : virtual public Item
     {
     public:
         virtual ~Observation() {}
@@ -24,8 +24,10 @@ namespace sdm
 
     class BeliefInterface;
     class OccupancyStateInterface;
+    class HistoryTreeInterface;
+    class JointHistoryTreeInterface;
 
-    class State : public Observation
+    class State : virtual public Observation
     {
     public:
         virtual ~State() {}
@@ -44,8 +46,22 @@ namespace sdm
          */
         virtual std::shared_ptr<OccupancyStateInterface> toOccupancyState();
 
+        /**
+         * @brief Transform the State in a HistoryTreeInterface
+         * 
+         * @return std::shared_ptr<BeliefInterface> 
+         */
+        virtual std::shared_ptr<HistoryTreeInterface> toHistoryTree();
+
+        /**
+         * @brief Transform the State in a JointHistoryTreeInterface
+         * 
+         * @return std::shared_ptr<OccupancyStateInterface> 
+         */
+        virtual std::shared_ptr<JointHistoryTreeInterface> toJointHistoryTree();
+
         virtual std::string str() const = 0;
 
-        virtual TypeState getTypeState() const =0;
+        virtual TypeState getTypeState() const;
     };
 } // namespace sdm

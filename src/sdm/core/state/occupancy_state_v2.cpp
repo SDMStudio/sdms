@@ -1,5 +1,6 @@
 #include <sdm/core/state/occupancy_state_v2.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
+#include <sdm/exception.hpp>
 
 namespace sdm
 {
@@ -295,7 +296,7 @@ namespace sdm
 
     void OccupancyState::setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryTreeInterface> &jhist, double proba)
     {
-        this->setProbability(std::make_shared<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(std::make_pair(state, jhist)), proba);
+        this->setProbability(this->HiddenStateAndJointHistoryToState(state, jhist), proba);
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<State> &state, double proba)
@@ -313,13 +314,13 @@ namespace sdm
 
     void OccupancyState::addProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryTreeInterface> &jhist, double proba)
     {
-        this->addProbability(std::make_shared<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(std::make_pair(state, jhist)), proba);
+        this->addProbability(this->HiddenStateAndJointHistoryToState(state, jhist), proba);
     }
 
     double OccupancyState::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryTreeInterface> &jhist) const
     {
         // Set the new occupancy measure
-        return this->getProbability(std::make_shared<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(std::make_pair(state, jhist)));
+        return this->getProbability(this->HiddenStateAndJointHistoryToState(state, jhist));
     }
 
     double OccupancyState::getProbability(const std::shared_ptr<State> &state) const
@@ -329,6 +330,12 @@ namespace sdm
 
         return this->at(pair_state_hist);
     }
+
+    std::shared_ptr<State> OccupancyState::HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&state, const std::shared_ptr<JointHistoryTreeInterface>&jhist) const
+    {
+        return std::make_shared<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>>>(std::make_pair(state, jhist));
+    }
+
 
     const std::vector<std::set<std::shared_ptr<HistoryTreeInterface>>> &OccupancyState::getAllIndividualHistories() const
     {
@@ -453,9 +460,17 @@ namespace sdm
 
     size_t OccupancyState::size() const
     {
-        return this->size();
+        return MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>>::size();
     }
 
+    void OccupancyState::setDefaultValue(double default_value)
+    {
+        this->setDefault(default_value);
+    }
+    double OccupancyState::getDefaultValue() const
+    {
+        this->getDefault();
+    }
 
     std::string OccupancyState::str() const
     {
@@ -528,11 +543,49 @@ namespace sdm
         // return res.str();
     }
 
-    bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
+    bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &) const
     {
         // auto state = std::static_pointer_cast<OccupancyState>(other->toOccupancyState());
         // return MappedVector<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryTreeInterface>>, double>::is_equal(state, PRECISION);
+        throw sdm::exception::NotImplementedException();
+
     }
+
+    double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &) const
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    double OccupancyState::norm_1() const
+    {
+        return MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>,std::shared_ptr<JointHistoryTreeInterface>>>>>::norm_1();
+    }
+
+
+    const std::shared_ptr<BeliefInterface> OccupancyState::createBelief(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    {
+        std::shared_ptr<BeliefInterface> belief;
+
+        //Go over all hidden state conditionning to a joint history
+        for (auto hidden_state : this->getStatesAt(joint_history))
+        {
+            belief->addProbability(hidden_state,this->getProbability(this->HiddenStateAndJointHistoryToState(hidden_state, joint_history)));
+        }
+        return belief;
+    }
+
+    const std::shared_ptr<BeliefInterface> OccupancyState::createBeliefWeighted(const std::shared_ptr<JointHistoryTreeInterface> &joint_history) const
+    {
+        auto belief = this->createBelief(joint_history);
+
+        double sum = belief->norm_1();
+        for (const auto &state : belief->getStates())
+        {
+            belief->setProbability(state,belief->getProbability(state) / sum);
+        }
+        return belief;
+    }
+
 
 } // namespace sdm
 
@@ -545,7 +598,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            return std::hash<sdm::OccupancyState>()(in);
+            // return std::hash<sdm::MappedVector()(in);
         }
     };
 }

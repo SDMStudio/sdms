@@ -57,11 +57,15 @@ namespace sdm
                 next_belief->setProbability(next_state->toState(), obs_proba * tmp);
             }
         }
+
         // Normalize the belief
         double sum = std::dynamic_pointer_cast<Belief>(next_belief)->norm_1();
-        for (const auto &state : *this->getUnderlyingProblem()->getStateSpace(t))
+        if(sum>0)
         {
-            next_belief->setProbability(state->toState(), next_belief->getProbability(state->toState()) / sum);
+            for (const auto &state : *this->getUnderlyingProblem()->getStateSpace(t))
+            {
+                next_belief->setProbability(state->toState(), next_belief->getProbability(state->toState()) / sum);
+            }
         }
         return next_belief;
     }
@@ -71,10 +75,12 @@ namespace sdm
         // Select o* as in the paper
         double max_o = -std::numeric_limits<double>::max(), tmp;
         std::shared_ptr<BeliefInterface> select_next_state;
+        // std::cout<<"****** Current belief"<<belief->str()<<std::endl;
+
         for (const auto &observation : *this->getUnderlyingPOMDP()->getObservationSpace(t))
         {
             const auto &next_belief = this->nextState(belief->toBelief(), action, observation->toObservation(), t);
-            tmp = this->getObservationProbability(belief, action, next_belief, observation->toObservation(), t) * hsvi->do_excess(next_belief, 0, t + 1);
+            tmp = this->getObservationProbability(belief, action, nullptr, observation->toObservation(), t) * hsvi->do_excess(next_belief, 0, t + 1);
             if (tmp > max_o)
             {
                 max_o = tmp;
@@ -95,9 +101,10 @@ namespace sdm
         return reward;
     }
 
-    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &observation, number t) const
+    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &observation, number t) const
     {
         double proba = 0, tmp;
+
         for (const auto &state : *this->getUnderlyingProblem()->getStateSpace(t))
         {
             tmp = 0;
@@ -126,7 +133,7 @@ namespace sdm
         for (const auto &observation : *this->getUnderlyingPOMDP()->getObservationSpace(t))
         {
             const auto &next_belief = this->nextState(belief->toBelief(), action, observation->toObservation(), t);
-            exp_next_v += this->getObservationProbability(belief->toBelief(), action, next_belief->toBelief(), observation->toObservation(), t) * value_function->getValueAt(next_belief->toBelief(), t + 1);
+            exp_next_v += this->getObservationProbability(belief->toBelief(), action, nullptr, observation->toObservation(), t) * value_function->getValueAt(next_belief->toBelief(), t + 1);
         }
         return exp_next_v;
     }

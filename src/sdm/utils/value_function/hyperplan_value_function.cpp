@@ -1,5 +1,7 @@
 #include <sdm/utils/value_function/hyperplan_value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_base.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/core/state/belief_default.hpp>
 
 namespace sdm
 {        
@@ -17,8 +19,8 @@ namespace sdm
 
     void HyperplanValueFunction::initialize(double value, number t)
     {
-        // std::shared_ptr<BeliefInterface> new_v(value);
-        // this->representation[t].push_back(new_v);
+        auto new_v = std::make_shared<BeliefDefault>(value);
+        this->representation[t].push_back(new_v);
         this->default_values_per_horizon[t] = value;
     }
 
@@ -55,68 +57,71 @@ namespace sdm
     {
         return this->representation[t];
     }
-    
-    void HyperplanValueFunction::prune(number t)
+
+    double HyperplanValueFunction::getDefaultValue(number t)
     {
-        this->bounded_prune(t);
+        return this->default_values_per_horizon[t];
+    }
+    
+    void HyperplanValueFunction::prune(number )
+    {
+        // this->pairwise_prune(t);
     }
 
     void HyperplanValueFunction::pairwise_prune(number t)
     {
-        // std::cout << "List Hyperplan (" << t << ")=" << this->representation[t] << std::endl;
+        std::vector<std::shared_ptr<BeliefInterface>> hyperplan_not_to_be_deleted;
+        std::vector<std::shared_ptr<BeliefInterface>> hyperplan_to_delete;
 
-        // std::vector<std::shared_ptr<BeliefInterface>> hyperplan_not_to_be_deleted;
-        // std::vector<std::shared_ptr<BeliefInterface>> hyperplan_to_delete;
+        // Go over all hyperplan
+        for (const auto &alpha : this->getSupport(t))
+        {
+            bool alpha_dominated = false;
 
-        // // Go over all hyperplan
-        // for (const auto &alpha : this->getSupport(t))
-        // {
-        //     bool alpha_dominated = false;
+            //Go over all hyperplan in hyperplan_not_to_be_deleted
+            for (const auto &beta : hyperplan_not_to_be_deleted)
+            {
+                // If beta dominate alpha, we had alpha to the hyperplan to delete
+                if (alpha<beta)
+                {
+                    hyperplan_to_delete.push_back(alpha->toBelief());
+                    alpha_dominated = true;
+                    break;
+                }
+            }
+            // If alpha is dominated, we go to the next hyperplan
+            if (alpha_dominated)
+            {
+                continue;
+            }
 
-        //     //Go over all hyperplan in hyperplan_not_to_be_deleted
-        //     for (const auto &beta : hyperplan_not_to_be_deleted)
-        //     {
-        //         // If beta dominate alpha, we had alpha to the hyperplan to delete
-        //         if (alpha<beta)
-        //         {
-        //             hyperplan_to_delete.push_back(alpha);
-        //             alpha_dominated = true;
-        //             break;
-        //         }
-        //     }
-        //     // If alpha is dominated, we go to the next hyperplan
-        //     if (alpha_dominated)
-        //     {
-        //         continue;
-        //     }
+            //Go over all hyperplan in hyperplan_not_to_be_deleted
+            std::vector<std::shared_ptr<BeliefInterface>> erase_tempo;
 
-        //     //Go over all hyperplan in hyperplan_not_to_be_deleted
-        //     std::vector<std::shared_ptr<BeliefInterface>> erase_tempo;
+            for(const auto &beta : hyperplan_not_to_be_deleted)
+            {
+                //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
+                if (beta<alpha)
+                {
+                    erase_tempo.push_back(beta);
+                }
+            }
 
-        //     for(const auto &beta : hyperplan_not_to_be_deleted)
-        //     {
-        //         //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
-        //         if (beta<alpha)
-        //         {
-        //             erase_tempo.push_back(beta);
-        //         }
-        //     }
+            for (const auto &erase : erase_tempo)
+            {
+                auto it = std::find(hyperplan_not_to_be_deleted.begin(), hyperplan_not_to_be_deleted.end(), erase);
+                hyperplan_not_to_be_deleted.erase(it);
+            }
+            hyperplan_not_to_be_deleted.push_back(alpha->toBelief());
+        }
 
-        //     for (const auto &erase : erase_tempo)
-        //     {
-        //         auto it = std::find(hyperplan_not_to_be_deleted.begin(), hyperplan_not_to_be_deleted.end(), erase);
-        //         hyperplan_not_to_be_deleted.erase(it);
-        //     }
-        //     hyperplan_not_to_be_deleted.push_back(alpha);
-        // }
-
-        // for(const auto &to_delete : hyperplan_to_delete)
-        // {
-        //     this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
-        // }
+        for(const auto &to_delete : hyperplan_to_delete)
+        {
+            this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
+        }
     }
     
-    void HyperplanValueFunction::bounded_prune(number t)
+    void HyperplanValueFunction::bounded_prune(number )
     {
         // std::unordered_map<std::shared_ptr<State>, number> refCount;
         // auto all_plan = this->isInfiniteHorizon() ? this->representation[0] : this->representation[t];
@@ -167,7 +172,7 @@ namespace sdm
             for (auto plan : this->representation[i])
             {
                 res << "\t\t<plan>" << std::endl;
-                res << "\t\t\t" << plan << std::endl;
+                res << "\t\t\t" << plan->str() << std::endl;
                 res << "\t\t</plan>" << std::endl;
             }
             res << "\t</value>" << std::endl;

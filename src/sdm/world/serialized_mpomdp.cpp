@@ -22,8 +22,8 @@ namespace sdm
 
     double SerializedMPOMDP::getObservationProbability(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
     {
-        std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
-        std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
+        std::shared_ptr<SerializedState> serialized_state = std::dynamic_pointer_cast<SerializedState>(state);
+        std::shared_ptr<SerializedState> next_serialized_state = std::dynamic_pointer_cast<SerializedState>(next_state);
 
         auto all_action(serialized_state->getAction());
         all_action.push_back(action);
@@ -48,8 +48,8 @@ namespace sdm
 
     double SerializedMPOMDP::getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
     {
-        std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
-        std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
+        std::shared_ptr<SerializedState> serialized_state = std::dynamic_pointer_cast<SerializedState>(state);
+        std::shared_ptr<SerializedState> next_serialized_state = std::dynamic_pointer_cast<SerializedState>(next_state);
 
         auto all_action(serialized_state->getAction());
         all_action.push_back(action);
@@ -117,18 +117,18 @@ namespace sdm
         {
             for(const auto &state : *this->getStateSpace(agent_id))
             {
-                std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
+                std::shared_ptr<SerializedState> serialized_state = std::dynamic_pointer_cast<SerializedState>(state);
 
                 // Go over serial action
                 for (const auto action_tmp : *this->getActionSpace(agent_id))
                 {
-                    auto serial_action = std::static_pointer_cast<Action>(action_tmp);
+                    auto serial_action = action_tmp->toAction();
 
 
                     // Go over joint_obs
-                    for (const auto next_state : this->getReachableStates(serialized_state,serial_action,0) )
+                    for (const auto next_state : this->getReachableStates(state->toState(),serial_action,0) )
                     {
-                        std::shared_ptr<SerializedState> next_serialized_state = std::static_pointer_cast<SerializedState>(next_state);
+                        std::shared_ptr<SerializedState> next_serialized_state = std::dynamic_pointer_cast<SerializedState>(next_state);
 
                         //Update action
                         auto joint_action(serialized_state->getAction());
@@ -142,13 +142,13 @@ namespace sdm
                             for (const auto obs : mpomdp->getReachableObservations(serialized_state->getHiddenState(), this->getPointeurJointAction(joint_action), next_serialized_state->getHiddenState(),0))
                             {
                                 // all_obs.insert(obs);
-                                observation_dynamics->setReachableObservations(serialized_state,serial_action,next_state,obs);
+                                observation_dynamics->setReachableObservations(state->toState(),serial_action,next_state,obs);
                             }
                         }
                         else
                         {
                             // all_obs.insert(this->empty_serial_observation);
-                            observation_dynamics->setReachableObservations(serialized_state,serial_action,next_state,this->empty_serial_observation);
+                            observation_dynamics->setReachableObservations(state->toState(),serial_action,next_state,this->empty_serial_observation);
                         }
                     }
                 }

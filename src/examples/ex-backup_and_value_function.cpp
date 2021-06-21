@@ -2,11 +2,16 @@
 
 #include <sdm/world/mdp.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
+#include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/parser/parser.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/point_set_value_function.hpp>
+#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+
+#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 
 using namespace sdm;
 
@@ -62,8 +67,43 @@ int main(int argc, char **argv)
     algorithm->do_initialize();
     algorithm->do_solve();
 
+    // Test Hyperplan ! 
 
-    // std::cout<<"state dominate a balue of 10000  "<<ub->is_dominated(state,10000,0)
+    // Creation of the MMDP
+    auto pomdp = std::make_shared<POMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
+
+    // Creation of HSVI problem and Resolution 
+    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(pomdp);
+
+    // horizon = horizon * mdp->getNumAgents();
+    auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
+    auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
+
+    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup);
+    lb->initialize();
+
+    std::cout<<lb->str()<<std::endl;
+
+    auto state = hsvi_mdp->getInitialState();
+
+    std::cout<<"state : "<<state->str()<<std::endl;
+
+    std::cout<<" ******* Hyerplan Value Function ******"<<std::endl;
+
+    std::cout<<"Get Support size"<<lb->getSupport(0).size()<<std::endl;
+    std::cout<<"Get isFinite "<<lb->isFiniteHorizon()<<std::endl;
+
+    std::cout<<"Max At before update, value :"<<maxplan_backup->getMaxAt(lb,state,0).first<<", state : "<<maxplan_backup->getMaxAt(lb,state,0).second->str()<<std::endl;
+    std::cout<<"Backup "<<maxplan_backup->backup(lb,state,0)->str()<<std::endl;
+    lb->updateValueAt(state);
+    std::cout<<"Max At before update, value :"<<maxplan_backup->getMaxAt(lb,state,0).first<<", state : "<<maxplan_backup->getMaxAt(lb,state,0).second->str()<<std::endl;
+    std::cout<<"Get Support size"<<lb->getSupport(0).size()<<std::endl;
+
+    std::cout<<lb->str()<<std::endl;
+
+
+    std::cout<<"Best Action "<<maxplan_backup->getBestAction(lb,state,0)->str()<<std::endl;
+
 
 
 } // END main

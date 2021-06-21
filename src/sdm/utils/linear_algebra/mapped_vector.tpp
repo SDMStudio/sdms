@@ -271,6 +271,13 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
+    void MappedVector<TIndex, T>::setDefault(double default_value)
+    {
+        this->default_value_ = default_value;
+    }
+
+
+    template <typename TIndex, typename T>
     void MappedVector<TIndex, T>::setIndexes()
     {
         if (this->v_indexes.size() == 0)

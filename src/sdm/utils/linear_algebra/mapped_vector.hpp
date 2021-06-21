@@ -89,6 +89,7 @@ namespace sdm
         T dot(const MappedVector &) const;
 
         T getDefault() const;
+        void setDefault(double default_value);
 
         void setIndexes();
 

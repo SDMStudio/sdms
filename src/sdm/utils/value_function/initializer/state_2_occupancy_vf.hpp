@@ -3,7 +3,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/function.hpp>
 #include <sdm/utils/struct/pair.hpp>
-
+#include <sdm/utils/value_function/value_function.hpp>
 
 namespace sdm
 {
@@ -13,19 +13,15 @@ namespace sdm
         std::shared_ptr<ValueFunction> mdp_vf_;
 
     public:
-        State2OccupancyValueFunction(std::shared_ptr<ValueFunction> vf);
+        State2OccupancyValueFunction(std::shared_ptr<ValueFunction> );
 
-        // template <bool is_mdp = std::is_any<typename WorldType<TOccupancyState>::type, DiscreteMDP, SerializedMMDP>::value>
-        // std::enable_if_t<is_mdp, double>
-        // operator()(const TOccupancyState &ostate, const number &tau);
+        double operatorMdp(const std::shared_ptr<State> &, const number &);
 
-        // template <bool is_mdp = std::is_any<typename WorldType<TOccupancyState>::type, DiscreteMDP, SerializedMMDP>::value>
-        // std::enable_if_t<!is_mdp, double>
-        // operator()(const TOccupancyState &ostate, const number &tau);
+        double operatorNotMdp(const std::shared_ptr<State> &, const number &);
 
-        double operator()(const std::shared_ptr<State> &ostate, const number &tau);
+        double operator()(const std::shared_ptr<State> &, const number &);
 
-        double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action> > &ostate, const number &tau);
+        double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action> > &, const number &);
 
         bool isPomdpAvailable();
         bool isMdpAvailable();
@@ -49,5 +45,3 @@ namespace sdm
 
     // };
 } // namespace sdm
-
-#include <sdm/utils/value_function/state_2_occupancy_vf.tpp>

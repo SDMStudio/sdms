@@ -6,9 +6,11 @@
 #include <sdm/utils/struct/vector.hpp>
 #include <sdm/utils/struct/pair.hpp>
 
+#include <sdm/core/state/interface/serial_interface.hpp>
+
 namespace sdm
 {
-  class SerializedState : public BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>  //public Pair<number, std::vector<number>>
+  class SerializedState : public SerialInterface, public BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>  //public Pair<number, std::vector<number>>
   {
   public :
     SerializedState();
@@ -16,6 +18,11 @@ namespace sdm
     SerializedState(const SerializedState &v);
     virtual ~SerializedState();
 
+    /**
+     * @brief Get the Hidden State of the serial object
+     * 
+     * @return std::shared_ptr<State> 
+     */
     std::shared_ptr<State> getHiddenState() const;
 
     /**
