@@ -4,13 +4,13 @@
 
 namespace sdm
 {
-    class MaxPlanSerialBackup : public MaxPlanBackup
+    class MaxPlanLPBackup : public MaxPlanBackup
     {
     public:
         using TData = std::shared_ptr<State>;
 
-        MaxPlanSerialBackup();
-        MaxPlanSerialBackup(const std::shared_ptr<SolvableByHSVI>& );
+        MaxPlanLPBackup();
+        MaxPlanLPBackup(const std::shared_ptr<SolvableByHSVI>& );
 
         virtual TData backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
         virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
@@ -24,6 +24,6 @@ namespace sdm
          * @param number : t 
          * @return double 
          */
-        double getMaxPlanValueAt(const std::shared_ptr<SerialOccupancyInterface> &serial_occupancy_state, const std::shared_ptr<Action>& action, const std::shared_ptr<SerialOccupancyInterface>& next_step_hyperplan, number t);
+        // double getMaxPlanValueAt(const std::shared_ptr<SerialOccupancyInterface> &serial_occupancy_state, const std::shared_ptr<Action>& action, const std::shared_ptr<SerialOccupancyInterface>& next_step_hyperplan, number t);
     };
 }

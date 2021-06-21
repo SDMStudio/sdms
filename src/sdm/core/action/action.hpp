@@ -25,6 +25,7 @@ namespace sdm
         virtual std::string str() const = 0;
 
         virtual std::shared_ptr<DecisionRule> toDecisionRule();
+        virtual TypeAction getTypeAction() const;
 
 
     };

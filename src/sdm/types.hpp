@@ -121,8 +121,17 @@ namespace sdm
   {
     STATE,
     BELIEF_STATE,
-    OCCUPANCY_STATE
+    OCCUPANCY_STATE,
+    SERIAL_OCCUPANCY_STATE,
+    SERIAL_STATE
   };
+
+  enum TypeAction
+  {
+    ACTION,
+    DECISION_RULE
+  };
+
 
   enum 
   {
