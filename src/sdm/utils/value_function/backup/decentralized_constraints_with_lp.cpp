@@ -44,7 +44,7 @@ namespace sdm
         joint_histories[agent].push_back(ihistory);
         for(const auto& action : *under_pb->getActionSpace(agent,t))
         {
-          // index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent));
+          index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), ihistory, agent));
           
           if( cplex.getValue(var[index]) + .5 >= 1 )
           {
@@ -71,7 +71,7 @@ namespace sdm
       indiv_histories.push_back(ihistory);
       for(const auto& action : *under_pb->getActionSpace(agent,t))
       {
-        // index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent));
+        index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), ihistory, agent));
         
         if( cplex.getValue(var[index]) + .5 >= 1 )
         {
@@ -112,9 +112,9 @@ namespace sdm
       for (const auto& action : *under_pb->getActionSpace(t))
       {
         //< 0.b Build variables a(u|o)
-        // VarName = this->getVarNameJointHistoryDecisionRule(action, joint_history);
+        VarName = this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history);
         var.add(IloNumVar(env, 0.0, +IloInfinity, VarName.c_str()));
-        // this->setNumber(VarName, index++);
+        this->setNumber(VarName, index++);
       }
     }
 
@@ -125,9 +125,9 @@ namespace sdm
         for (const auto& action : *under_pb->getActionSpace(agent,t))
         {
           //<! 0.c Build variables a_i(u_i|o_i)
-          // VarName = this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent);
+          VarName = this->getVarNameIndividualHistoryDecisionRule(action->toAction(), ihistory, agent);
           var.add(IloBoolVar(env, VarName.c_str()));
-          // this->setNumber(VarName, index++);
+          this->setNumber(VarName, index++);
         }
       }
     }
@@ -147,9 +147,9 @@ namespace sdm
       for (const auto& serial_action : *under_pb->getActionSpace(agent_id,t))
       {
         //<! 0.c Build variables a_i(u_i|o_i)
-        // VarName = this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id);
+        VarName = this->getVarNameIndividualHistoryDecisionRule(serial_action->toAction(), indiv_history, agent_id);
         var.add(IloBoolVar(env, VarName.c_str()));
-        // this->setNumber(VarName, index++);
+        this->setNumber(VarName, index++);
       }
     }
   }
@@ -186,13 +186,13 @@ namespace sdm
         //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
         con.add(IloRange(env, 1 - under_pb->getNumAgents(), +IloInfinity));
         //<! 3.a.1 get variable a(u|o)
-        // recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, jhistory));
+        recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), jhistory->toJointHistoryTree()));
         //<! 3.a.2 set coefficient of variable a(u|o)
         con[index].setLinearCoef(var[recover], +1.0);
         for (number agent = 0; agent < under_pb->getNumAgents(); ++agent)
         {
           //<! 3.a.3 get variables a_i(u_i|o_i)
-          // recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent), jhistory->getIndividualHistory(agent), agent));
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent)->toAction(), jhistory->getIndividualHistory(agent), agent));
           //<! 3.a.4 set coefficient of variable a_i(u_i|o_i)
           con[index].setLinearCoef(var[recover], -1.0);
         } // for all agent
@@ -213,11 +213,11 @@ namespace sdm
           //<! 3.b set constraint a(u|o) <= a_i(u_i|o_i)
           con.add(IloRange(env, -IloInfinity, 0.0));
           //<! 3.b.1 get variable a(u|o)
-          // recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(, jhistory));
+          recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(joint_action->toAction(), jhistory));
           //<! 3.b.2 set coefficient of variable a(u|o)
           con[index].setLinearCoef(var[recover], +1.0);
           //<! 3.b.3 get variable a_i(u_i|o_i)action
-          // recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent), jhistory->getIndividualHistory(agent), agent));
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent)->toAction(), jhistory->getIndividualHistory(agent), agent));
           //<! 3.b.4 set coefficient of variable a_i(u_i|o_i)
           con[index].setLinearCoef(var[recover], -1.0);
           //<! increment constraints
@@ -235,7 +235,7 @@ namespace sdm
         con.add(IloRange(env, 1.0, 1.0));
         for (const auto& iaction : *under_pb->getActionSpace(agent,t))
         {
-          // recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iaction, ihistory, agent));
+          recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(iaction->toAction(), ihistory, agent));
           con[index].setLinearCoef(var[recover], +1.0);
         }
         //<! increment constraints
@@ -259,7 +259,7 @@ namespace sdm
       con.add(IloRange(env, 1.0, 1.0));
       for (const auto& serial_action : *under_pb->getActionSpace(t))
       {
-        // recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
+        recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action->toAction(), indiv_history, agent_id));
         con[index].setLinearCoef(var[recover], +1.0);
       }
       //<! increment constraints

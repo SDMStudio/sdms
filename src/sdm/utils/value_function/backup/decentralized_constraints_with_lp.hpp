@@ -1,7 +1,7 @@
 #pragma once
 #include <ilcplex/ilocplex.h>
 // #include <sdm/utils/linear_algebra/vector.hpp>
-// #include <sdm/utils/value_function/variable_naming.hpp>
+#include <sdm/utils/value_function/backup/variable_naming.hpp>
 // #include <sdm/core/states.hpp>
 // #include <sdm/exception.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
@@ -9,7 +9,7 @@
 
 namespace sdm
 {
-    class DecentralizedConstraintsLP  //: public VarNaming<TVector, TAction, TValue>
+    class DecentralizedConstraintsLP : public VarNaming
     {
     public:
         DecentralizedConstraintsLP(const std::shared_ptr<SolvableByHSVI>&);
