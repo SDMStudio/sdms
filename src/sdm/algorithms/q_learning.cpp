@@ -94,10 +94,13 @@ namespace sdm
     }
 
     void QLearning::do_episode()
-    {
+    {   
+        // Le update marche pas, du coup pour le moment j'utilise le meme QVF pour le target depuis le debut
+        // if (this->episode % target_update_ == 0)
+        //     this->update_target();
         this->step = 0;
         this->episode += 1;
-        this->current_observation = this->env_->reset();
+        this->observation = this->env_->reset();
 
         unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
@@ -119,15 +122,15 @@ namespace sdm
     void QLearning::do_step()
     {   
         // Action selection following policy and exploration process
-        auto current_action = this->select_action(this->current_observation);
+        this->action = this->select_action(this->observation);
         // One step in env and get next observation and rewards
-        std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(current_action);
+        std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
         // Push experience to memory
-        this->experience_memory_->push(this->current_observation, current_action, this->rewards_[0], this->next_observation, this->step);
+        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->step);
         // Backup and get Q Value Error
         double delta = this->backup_->backup(this->step);
-        // Prepare for next step
-        this->current_observation = this->next_observation;
+
+        this->observation = this->next_observation;
         this->step++;
         this->global_step++;
     }
@@ -165,7 +168,7 @@ namespace sdm
         {
             return this->q_value_table_->getBestAction(obs, this->step);
         }
-        // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(current_observation)
+        // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(observation)
     }
 
 } // namespace sdm
