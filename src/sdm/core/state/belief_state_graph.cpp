@@ -23,12 +23,7 @@ namespace sdm
         : Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(predecessor, belief), belief_space(predecessor->belief_space)
     {
     }
-
-    void BeliefStateGraph::initialize()
-    {
-        this->belief_space->emplace(this->getData(), this->getptr());
-    }
-
+    
     std::shared_ptr<BeliefStateGraph> BeliefStateGraph::getNode(const Belief &belief)
     {
         return this->belief_space->at(belief);

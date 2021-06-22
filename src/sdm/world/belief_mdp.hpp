@@ -22,29 +22,15 @@
 namespace sdm
 {
     /**
-     * @brief The BeliefMDP class is the interface that enables solving Discret POMDP using HSVI algorithm.
-     * 
-     * @tparam std::shared_ptr<State> the belief type
-     * @tparam std::shared_ptr<Action> the action type
+     * @brief The BeliefMDP class is the interface contains the transformation of a the POMDP formalism in BeliefMDP formalism.
      */
     class BeliefMDP : public SolvableByMDP
     {
     public:
         BeliefMDP();
-
         BeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp);
 
-        BeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, const Belief &initial_belief);
-
-        // std::shared_ptr<State> reset();
-
-        // std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-
-        // std::shared_ptr<State> getInitialState();
-
         virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
-
-        std::shared_ptr<Distribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t) const;
 
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
@@ -57,12 +43,12 @@ namespace sdm
          */
         virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
 
-        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
 
     protected:
-        // std::shared_ptr<State> initial_state_;
         std::shared_ptr<State> current_state_;
 
+        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
+        
         /**
          * @brief This part of the code can be used to 
          * 
@@ -73,12 +59,8 @@ namespace sdm
          * @return std::shared_ptr<BeliefInterface> 
          */
         static Pair<std::shared_ptr<BeliefInterface>, double> nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t = 0);
+        
         std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t) const;
-
-        /**
-         * @brief A pointer on the bag containing all nodes.
-         */
-        RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, double> belief_proba;
     };
 
 }

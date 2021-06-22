@@ -80,7 +80,7 @@ namespace std
   {
     typedef sdm::Belief argument_type;
     typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in) const
+    inline result_type operator()(const argument_type &) const
     {
       return 0;//std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in);
     }

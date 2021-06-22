@@ -49,11 +49,6 @@ namespace sdm
         BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief);
 
         /**
-         * @brief Initialize the graph of belief.
-         */
-        void initialize();
-
-        /**
          * @brief Get the node associated to a given belief.
          * 
          * @param belief a specific belief
