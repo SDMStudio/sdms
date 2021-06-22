@@ -7,16 +7,19 @@ namespace sdm
     class HistoryInterface : public State
     {
 
-    public : 
+    public:
         // virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Item> &data, bool backup = true) = 0;
-        virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>& = nullptr, bool = true) = 0;
+        virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action = nullptr, bool backup = true) = 0;
+        
+        virtual std::shared_ptr<HistoryInterface> getPreviousHistory() = 0;
+
+        // virtual std::shared_ptr<Action> getLastAction() = 0;
+        // virtual std::shared_ptr<Observation> getLastObservation() = 0;
+
+        // virtual std::shared_ptr<Action> getActionAt(number t) = 0;
+        // virtual std::shared_ptr<Observation> getObservationAt(number t) = 0;
 
         virtual std::string str() const = 0;
-        virtual TypeState getTypeState() const =0;
-
-        // virtual std::shared_ptr<HistoryInterface> getParent() const = 0;
-        // virtual std::shared_ptr<HistoryInterface> getOrigin() = 0;
-        // virtual std::vector<std::shared_ptr<HistoryInterface>> getChildren() const = 0;
-        // virtual std::shared_ptr<HistoryInterface> getChild(const T &child_item) const = 0;
+        virtual TypeState getTypeState() const = 0;
     };
 }

@@ -9,7 +9,7 @@ namespace sdm
     class Action;
     class Observation;
 
-    class Item : public std::enable_shared_from_this<Item>
+    class Item : public std::inheritable_enable_shared_from_this<Item>
     {
     public:
         virtual std::string str() const = 0;

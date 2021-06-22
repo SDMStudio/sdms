@@ -27,8 +27,7 @@ namespace sdm
      * 
      */
     template <typename TNode, typename TEdge>
-    class Graph : public TNode,
-                  public std::enable_shared_from_this<Graph<TNode, TEdge>>,
+    class Graph : public std::inheritable_enable_shared_from_this<Graph<TNode, TEdge>>,
                   public BoostSerializable<Graph<TNode, TEdge>>
     {
     public:
@@ -63,6 +62,7 @@ namespace sdm
          * @return the address of the value
          */
         const TNode &getData() const;
+        TNode &&data() const;
 
         void setData(const TNode &data);
 
@@ -87,7 +87,7 @@ namespace sdm
 
         void addSuccessor(const TEdge &edge, const TNode &node);
 
-        std::string str();
+        std::string str() const;
 
         std::shared_ptr<Graph<TNode, TEdge>> getptr();
 
@@ -102,7 +102,7 @@ namespace sdm
 
     protected:
         /** @brief data of the current node */
-        // TNode data_;
+        TNode data_;
 
         /**
          * @brief The map from edge value to successor

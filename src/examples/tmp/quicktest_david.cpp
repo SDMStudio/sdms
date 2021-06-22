@@ -53,17 +53,13 @@ int main(int argc, char **argv)
 
     try
     {
-
-        number horizon = 3;
-
         auto mdp = sdm::parser::parse_file(filename);
         mdp->setHorizon(horizon);
         mdp->setDiscount(discount);
-        std::cout << "Pass 1" <<std::endl;
 
         std::cout << mdp->toStdFormat() << std::endl;
 
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
 
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
 

@@ -22,6 +22,7 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_value_function
+		${INCLUDE_DIR}/utils/value_function/initializer/initializer.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
@@ -38,6 +39,7 @@ if(DAVID)
 		${INCLUDE_DIR}/world/mmdp.cpp
 		${INCLUDE_DIR}/world/pomdp.cpp
 		${INCLUDE_DIR}/world/mpomdp.cpp
+		${INCLUDE_DIR}/world/gym_interface.cpp
 	)
 	add_library(world SHARED ${lib_world})
 	target_link_libraries(world core)

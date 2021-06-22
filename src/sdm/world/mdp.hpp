@@ -147,7 +147,7 @@ namespace sdm
 
         std::shared_ptr<State> getInternalState() const;
 
-        virtual std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
+        virtual std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t);
 
         /**
          * @brief Get the reachable next states

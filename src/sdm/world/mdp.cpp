@@ -118,9 +118,9 @@ namespace sdm
         return this->internal_state_;
     }
 
-    std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action) 
+    std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t) 
     {
-        auto next_state_distribution = this->state_dynamics_->getNextStateDistribution(state, action);
+        auto next_state_distribution = this->state_dynamics_->getNextStateDistribution(state, action, t);
         auto next_state = next_state_distribution->sample();
         this->setInternalState(next_state);
         return this->getInternalState();
@@ -128,13 +128,13 @@ namespace sdm
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
     {
-        this->current_timestep_++;
-
         auto reward = this->getReward(this->getInternalState(), action);
 
-        auto observation = this->sampleNextObservation(this->getInternalState(), action);
+        auto observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
 
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
+        
+        this->current_timestep_++;
 
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }

@@ -51,14 +51,14 @@ namespace sdm
          * 
          * @return std::shared_ptr<BeliefInterface> 
          */
-        virtual std::shared_ptr<HistoryInterface> toHistoryTree();
+        virtual std::shared_ptr<HistoryInterface> toHistory();
 
         /**
          * @brief Transform the State in a JointHistoryInterface
          * 
          * @return std::shared_ptr<OccupancyStateInterface> 
          */
-        virtual std::shared_ptr<JointHistoryInterface> toJointHistoryTree();
+        virtual std::shared_ptr<JointHistoryInterface> toJointHistory();
 
         virtual std::string str() const = 0;
 

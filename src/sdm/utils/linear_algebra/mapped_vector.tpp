@@ -276,7 +276,6 @@ namespace sdm
         this->default_value_ = default_value;
     }
 
-
     template <typename TIndex, typename T>
     void MappedVector<TIndex, T>::setIndexes()
     {

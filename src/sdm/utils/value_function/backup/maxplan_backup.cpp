@@ -176,7 +176,7 @@ namespace sdm
                     for (const auto &next_observation : under_pb->getReachableObservations(uncompressed_hidden_state, action, next_hidden_state,t))
                     {
 
-                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistoryTree();
+                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistory();
                         new_hyperplan->addProbability(uncompressed_state, this->world_->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_state, action,next_hidden_state,next_observation,t) * next_hyperplan->getProbability(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, next_joint_history)));
                     }
                 }

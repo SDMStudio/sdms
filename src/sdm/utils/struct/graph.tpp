@@ -8,7 +8,7 @@ namespace sdm
     }
 
     template <typename TNode, typename TEdge>
-    Graph<TNode, TEdge>::Graph(const TNode &data) : TNode(data)
+    Graph<TNode, TEdge>::Graph(const TNode &data) : data_(data)
     {
     }
 
@@ -24,17 +24,24 @@ namespace sdm
     }
 
     template <typename TNode, typename TEdge>
+    TNode &&Graph<TNode, TEdge>::data() const
+    {
+        // return *this;
+        return this->data_;
+    }
+
+    template <typename TNode, typename TEdge>
     const TNode &Graph<TNode, TEdge>::getData() const
     {
-        return *this;
-        // return this->data_;
+        // return *this;
+        return this->data_;
     }
 
     template <typename TNode, typename TEdge>
     void Graph<TNode, TEdge>::setData(const TNode &data)
     {
-        *this = data;
-        // this->data_ = data;
+        // *this = data;
+        this->data_ = data;
     }
 
     template <typename TNode, typename TEdge>
@@ -82,14 +89,14 @@ namespace sdm
     {
         using boost::serialization::make_nvp;
 
-        // archive &make_nvp("data", data_);
-        archive &boost::serialization::base_object<TNode>(*this);
+        archive &make_nvp("data", data_);
+        // archive &boost::serialization::base_object<TNode>(*this);
         archive &make_nvp("successors", successors);
         archive &make_nvp("predecessors", predecessors);
     }
 
     template <typename TNode, typename TEdge>
-    std::string Graph<TNode, TEdge>::str()
+    std::string Graph<TNode, TEdge>::str() const
     {
         std::ostringstream str_result;
         str_result << "<graph data=\"" << this->getData() << "\" address=\"" << this->getptr() << "\" num_succ=" << this->getNumSuccessors() << "\" num_pred=\"" << this->getNumPredecessors() << "\"/>";

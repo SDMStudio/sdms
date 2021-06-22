@@ -80,7 +80,7 @@ namespace sdm
 
         std::shared_ptr<ObservationDynamicsInterface> getObservationDynamics() const;
 
-        std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action);
+        std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t);
 
     protected:
         std::shared_ptr<Space> obs_space_;
