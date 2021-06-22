@@ -4,7 +4,9 @@
 #include <sdm/world/serialized_mpomdp.hpp>
 
 namespace sdm
-{
+{  
+  DecentralizedConstraintsLP::DecentralizedConstraintsLP() {}
+
   DecentralizedConstraintsLP::DecentralizedConstraintsLP(const std::shared_ptr<SolvableByHSVI>& problem) : world_(problem)
   {
   }

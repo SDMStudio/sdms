@@ -17,12 +17,12 @@ namespace sdm
          */
         void setNumber(const std::string &, number);
 
-        // /**
-        //  * @brief Get the name of a free variable  
-        //  * @param number identifier of a variable 
-        //  * @return std::string  name 
-        //  */
-        // std::string getVarNameWeight(number);
+        /**
+         * @brief Get the name of a free variable  
+         * @param number identifier of a variable 
+         * @return std::string  name 
+         */
+        std::string getVarNameWeight(number);
 
         // /**
         //  * @brief Get the name of a free variable  

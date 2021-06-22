@@ -12,9 +12,9 @@ namespace sdm
     MaxPlanSerialBackup::MaxPlanSerialBackup(const std::shared_ptr<SolvableByHSVI> &world) : MaxPlanBackup(world)
     {}
 
-    std::shared_ptr<State> MaxPlanSerialBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<State>,std::shared_ptr<Action>> MaxPlanSerialBackup::getBestActionAndMaxHyperplan(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
-         double max = -std::numeric_limits<double>::max(), value; 
+        double max = -std::numeric_limits<double>::max(), value; 
 
         //Determine the determinitic decision rule
         auto action = this->getBestAction(vf,state,t);
@@ -31,7 +31,12 @@ namespace sdm
                 max_next_step_hyperplan = hyperplan;
             }
         }
-        return this->setHyperplan(vf,state, max_next_step_hyperplan->toBelief(),action, t);
+    }
+
+    std::shared_ptr<State> MaxPlanSerialBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    {
+        auto pair_hyperplan_action = this->getBestActionAndMaxHyperplan(vf,state,t);
+        return this->setHyperplan(vf,state, pair_hyperplan_action.first->toBelief(),pair_hyperplan_action.second, t);
     }
 
     std::shared_ptr<Action> MaxPlanSerialBackup::getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)

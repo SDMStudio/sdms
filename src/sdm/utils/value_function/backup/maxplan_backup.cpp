@@ -11,6 +11,8 @@
 
 #include <sdm/core/action/decision_rule.hpp>
 
+#include <sdm/exception.hpp>
+
 namespace sdm
 {
 
@@ -19,6 +21,11 @@ namespace sdm
     MaxPlanBackup::MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& world)
     {
         this->world_ = world;
+    }
+
+    Pair<std::shared_ptr<State>,std::shared_ptr<Action>> MaxPlanBackup::getBestActionAndMaxHyperplan(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, number )
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
     std::pair<double, std::shared_ptr<State>> MaxPlanBackup::getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)

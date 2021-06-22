@@ -12,6 +12,7 @@ namespace sdm
     class DecentralizedConstraintsLP : public VarNaming
     {
     public:
+        DecentralizedConstraintsLP();
         DecentralizedConstraintsLP(const std::shared_ptr<SolvableByHSVI>&);
 
         /**
