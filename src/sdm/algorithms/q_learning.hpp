@@ -16,6 +16,9 @@
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
+#include <sdm/utils/value_function/backup/qvalue_backup_interface.hpp>
+#include <sdm/utils/rl/experience_memory.hpp>
+
 
 namespace sdm
 {
@@ -25,6 +28,7 @@ namespace sdm
     std::shared_ptr<Observation> current_observation, next_observation;
     number log_freq = 100, test_freq = 1000, save_freq = 10000;
     bool do_log_ = false, do_test_ = false, do_save_ = false, is_done = false;
+    unsigned long target_update_;
 
   protected:
     /**
@@ -33,15 +37,19 @@ namespace sdm
      */
     std::shared_ptr<GymInterface> env_;
 
+    std::shared_ptr<ExperienceMemory> experience_memory_;
+
     /**
      * @brief Q-value function. 
      */
-    std::shared_ptr<QValueFunction> q_value_;
+    std::shared_ptr<QValueFunction> q_value_table_;
 
     /**
      * @brief Q-value target function. 
      */
-    std::shared_ptr<QValueFunction> q_target_;
+    std::shared_ptr<QValueFunction> q_value_table_target_;
+
+    std::shared_ptr<QValueBackupInterface> backup_;
 
     /**
      * @brief Experience Memory. 
@@ -73,8 +81,10 @@ namespace sdm
 
   public:
     QLearning(std::shared_ptr<GymInterface> &env,
-              std::shared_ptr<QValueFunction> q_value,
-              std::shared_ptr<QValueFunction> q_target,
+              std::shared_ptr<ExperienceMemory> experience_memory,
+              std::shared_ptr<QValueFunction> q_value_table,
+              std::shared_ptr<QValueFunction> q_value_table_target,
+              std::shared_ptr<QValueBackupInterface> backup,
               std::shared_ptr<EpsGreedy> exploration,
               number horizon,
               double discount = 0.9,
@@ -124,6 +134,8 @@ namespace sdm
      * 
      */
     void update_model();
+
+    void update_target();
 
     std::shared_ptr<Action> select_action(const std::shared_ptr<Observation> &obs);
 

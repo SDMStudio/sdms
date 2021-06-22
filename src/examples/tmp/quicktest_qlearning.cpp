@@ -13,6 +13,8 @@
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 #include <sdm/utils/rl/exploration.hpp>
+#include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
+#include <sdm/utils/rl/experience_memory.hpp>
 
 using namespace sdm;
 using namespace std;
@@ -118,15 +120,19 @@ int learn(int argv, char **args)
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
-        std::shared_ptr<QValueFunction> q_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        std::shared_ptr<QValueFunction> q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
-        std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
+        // std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
 
-        std::shared_ptr<QValueFunction> target_q_table = std::make_shared<TabularQValueFunction>(horizon, lr, target_initializer);
+        // std::shared_ptr<QValueFunction> target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, target_initializer);
 
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
 
-        std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, q_table, target_q_table, exploration, horizon, discount, lr, 1, max_steps, name);
+        std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
+
+        std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+
+        std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
 

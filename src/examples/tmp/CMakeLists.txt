@@ -249,6 +249,7 @@ if(QLEARNING)
 		${INCLUDE_DIR}/utils/value_function/qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/initializer/initializer.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
 
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
