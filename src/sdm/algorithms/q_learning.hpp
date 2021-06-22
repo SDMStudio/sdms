@@ -75,6 +75,8 @@ namespace sdm
 
     double discount_, lr_, batch_size_;
 
+    std::vector<double> rewards_;
+
     unsigned long global_step, max_steps_, episode;
 
     std::string name_ = "qlearning";

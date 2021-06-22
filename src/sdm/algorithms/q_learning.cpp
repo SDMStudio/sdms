@@ -118,25 +118,15 @@ namespace sdm
 
     void QLearning::do_step()
     {   
-
         // Action selection following policy and exploration process
         auto current_action = this->select_action(this->current_observation);
         // One step in env and get next observation and rewards
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> feedback = this->env_->step(current_action);
-        this->next_observation = std::get<0>(feedback);
-        double r = std::get<1>(feedback)[0];
-        this->is_done = std::get<2>(feedback);
-
-        // std::vector<double> rs;
-        // auto [this->next_observation, rs, this->is_done] = this->env_->step(current_action);
-        // cette ligne donne une erreur:
-        // auto [next_obs, rs, done] = this->env_->step(current_action);
-
-
-        this->experience_memory_->push(this->current_observation, current_action, r, this->next_observation, this->step);
-    
+        std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(current_action);
+        // Push experience to memory
+        this->experience_memory_->push(this->current_observation, current_action, this->rewards_[0], this->next_observation, this->step);
+        // Backup and get Q Value Error
         double delta = this->backup_->backup(this->step);
-
+        // Prepare for next step
         this->current_observation = this->next_observation;
         this->step++;
         this->global_step++;
