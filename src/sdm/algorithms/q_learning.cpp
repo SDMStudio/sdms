@@ -4,7 +4,7 @@ namespace sdm
 {
 
     QLearning::QLearning(std::shared_ptr<GymInterface> &env,
-                         std::shared_ptr<ExperienceMemory> experience_memory,
+                         std::shared_ptr<ExperienceMemoryInterface> experience_memory,
                          std::shared_ptr<QValueFunction> q_value_table,
                          std::shared_ptr<QValueFunction> q_value_table_target,
                          std::shared_ptr<QValueBackupInterface> backup,
