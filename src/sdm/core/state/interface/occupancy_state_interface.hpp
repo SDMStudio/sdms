@@ -7,6 +7,8 @@
 
 namespace sdm
 {
+    class PrivateOccupancyState;
+
     class OccupancyStateInterface : public BeliefInterface
     {
     public:
@@ -117,5 +119,8 @@ namespace sdm
         virtual const std::shared_ptr<BeliefInterface> createBelief(const std::shared_ptr<JointHistoryInterface> &joint_history) const = 0;
         
         virtual const std::shared_ptr<BeliefInterface> createBeliefWeighted(const std::shared_ptr<JointHistoryInterface> &joint_history) const = 0;
+
+        virtual const std::shared_ptr<PrivateOccupancyState> &getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const = 0;
+
     };
 }

@@ -11,4 +11,10 @@ namespace sdm
     {
         return std::static_pointer_cast<DecisionRule>(this->shared_from_this()->toAction());
     }
+
+    TypeAction Action::getTypeAction() const
+    {
+        return TypeAction::ACTION;
+    }
+
 } // namespace sdm

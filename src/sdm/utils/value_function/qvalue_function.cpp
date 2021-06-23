@@ -11,7 +11,7 @@ namespace sdm
     {
     }
 
-    double QValueFunction::getValueAt(const std::shared_ptr<Observation> &, number)
+    double QValueFunction::getValueAt(const std::shared_ptr<State> &, number)
     {
         throw sdm::exception::NotImplementedException();
     }

@@ -18,8 +18,8 @@ namespace sdm
 
         // virtual std::shared_ptr<Action> getActionAt(number t) = 0;
         // virtual std::shared_ptr<Observation> getObservationAt(number t) = 0;
-
         virtual std::string str() const = 0;
-        virtual TypeState getTypeState() const = 0;
+        virtual std::string short_str() const = 0;
+        virtual TypeState getTypeState() const =0;
     };
 }

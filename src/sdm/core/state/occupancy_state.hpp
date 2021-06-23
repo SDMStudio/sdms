@@ -19,7 +19,7 @@ namespace sdm
      * @tparam TJointHistory_p refers to a joint histories
      */
     class OccupancyState : public OccupancyStateInterface,
-                           public BeliefState
+                           public Belief
     {
     public:
         static double PRECISION;
@@ -126,6 +126,35 @@ namespace sdm
 
         TypeState getTypeState() const;
 
+        //Provient de Base Occupancy State
+
+        /**
+     * @brief Create the State associated with a precise joint history tree
+     * 
+     */
+        void setStatesAt();
+        void setStates();
+
+        /**
+     * @brief Set the Joint Histories  of the Occupancy State
+     * 
+     */
+        void setJointHistories();
+
+        /**
+     * @brief Get all Joint History associated with a precise agent and an individual history
+     * 
+     * @param number :Agent Id
+     * @param typename jhistory_type::element_type::ihistory_type : Individual History
+     */
+        const std::set<std::shared_ptr<JointHistoryInterface>> &getJointHistoryOverIndividualHistories(number, const std::shared_ptr<HistoryInterface> &) const;
+        void setJointHistoryOverIndividualHistories();
+
+        void setProbabilityOverJointHistory();
+
+        void setAllIndividualHistories();
+
+        /**
     protected:
         /**
          * @brief the number of agents 
