@@ -67,12 +67,12 @@ int main(int argc, char **argv)
     // Creation of the MMDP
     auto mmdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
 
-    auto serial_mmdp = std::make_shared<SerializedMPOMDP>(mmdp);
+    // auto serial_mmdp = std::make_shared<SerializedMPOMDP>(mmdp);
 
     // Creation of HSVI problem and Resolution 
-    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(serial_mmdp);
+    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mmdp);
 
-    horizon = horizon * serial_mmdp->getNumAgents();
+    // horizon = horizon * serial_mmdp->getNumAgents();
     auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
     // auto sawtooth_backup = std::make_shared<SawtoothBackup>(hsvi_mdp);
     // auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
@@ -91,8 +91,8 @@ int main(int argc, char **argv)
 
     algorithm->do_solve();
 
-    std::cout << *algorithm->getLowerBound() << std::endl;
-    std::cout << *algorithm->getUpperBound() << std::endl;
+    // std::cout << *algorithm->getLowerBound() << std::endl;
+    // std::cout << *algorithm->getUpperBound() << std::endl;
 
     // for(const auto &state : *serial_mmdp->getStateSpace(1))
     // {

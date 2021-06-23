@@ -52,7 +52,8 @@ namespace sdm
     {
         std::shared_ptr<Belief> next_belief = std::make_shared<Belief>();
         double proba_next_state;
-        for (const auto &next_state : *pomdp->getStateSpace(t))
+
+        for (const auto &next_state : *pomdp->getStateSpace(t+1))
         {
             proba_next_state = 0;
             for (const auto &state : *pomdp->getStateSpace(t))
