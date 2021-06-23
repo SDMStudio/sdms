@@ -60,6 +60,6 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Action> 
          */
-        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<OccupancyStateInterface> &occupancy_state,const IloCplex &cplex, const IloNumVarArray &var, number t) =0;
+        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<State> &occupancy_state,const IloCplex &cplex, const IloNumVarArray &var, number t) =0;
     }
 }

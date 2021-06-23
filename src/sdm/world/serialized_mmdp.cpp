@@ -17,6 +17,7 @@ namespace sdm
     SerializedMMDP::SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp) : mmdp_(mmdp)
     {
         this->createInitSerializedStateSpace();
+        this->createDistribution();
         this->createInitReachableStateSpace();
     }
 
@@ -50,7 +51,18 @@ namespace sdm
 
     std::shared_ptr<Distribution<std::shared_ptr<State>>> SerializedMMDP::getStartDistribution() const
     {
-        return this->mmdp_->getStartDistribution();
+        return this->distribution_serial;
+    }
+
+    void SerializedMMDP::createDistribution()
+    {
+        auto discrete_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
+        auto mmdp_distribution = this->mmdp_->getStartDistribution();
+        for(const auto &state : *this->getStateSpace(0))
+        {
+            discrete_distribution->setProbability(state->toState(),mmdp_distribution->getProbability(state->toState()->toSerial()->getHiddenState(),nullptr));
+        }
+        this->distribution_serial = discrete_distribution;
     }
 
     std::shared_ptr<Space> SerializedMMDP::getStateSpace(number t) const
@@ -68,7 +80,7 @@ namespace sdm
         return this->mmdp_->getActionSpace(this->getAgentId(t),t);
     }
 
-    std::shared_ptr<Space> SerializedMMDP::getActionSpace(number agent_id, number t) const
+    std::shared_ptr<Space> SerializedMMDP::getActionSpace(number, number t) const
     {
         return this->getActionSpace(t);
     }
@@ -183,7 +195,6 @@ namespace sdm
             std::shared_ptr<Action> jaction = joint_action;
             this->map_joint_action_to_pointeur[*joint_action] =jaction;
         }
-
     }
 
     void SerializedMMDP::createInitReachableStateSpace()

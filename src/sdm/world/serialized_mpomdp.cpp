@@ -3,14 +3,17 @@
 namespace sdm
 {   
     SerializedMPOMDP::SerializedMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp) : SerializedMMDP(mpomdp)
-    {}
+    {
+        setupObservationSpace(mpomdp);
+        setReachableObservationSpace(mpomdp);
+    }
 
     std::shared_ptr<Space> SerializedMPOMDP::getObservationSpace(number t) const
     {
         return this->serialized_observation_space_.at(this->getAgentId(t));
     }
 
-    std::shared_ptr<Space> SerializedMPOMDP::getObservationSpace(number agent_id,number t) const
+    std::shared_ptr<Space> SerializedMPOMDP::getObservationSpace(number,number t) const
     {
         return this->getObservationSpace(t);
     }
@@ -85,7 +88,6 @@ namespace sdm
         std::shared_ptr<Observation> empty_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>(empty_observation_tmp);
         // Add the information in the variable empty_serial_observation
         this->empty_serial_observation = empty_observation;
-
         // Create the Serial Observation Space
         std::vector<std::shared_ptr<DiscreteSpace>> all_observation_space;
 

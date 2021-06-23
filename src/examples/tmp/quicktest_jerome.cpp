@@ -91,6 +91,36 @@ int main(int argc, char **argv)
 
     algorithm->do_solve();
 
+    std::cout << *algorithm->getLowerBound() << std::endl;
+    std::cout << *algorithm->getUpperBound() << std::endl;
+
+    // for(const auto &state : *serial_mmdp->getStateSpace(1))
+    // {
+    //     auto serialized_state = state->toState()->toSerial();
+    //     number agent_identifier = serialized_state->getCurrentAgentId();
+
+    //     for(auto action_tmp : *serial_mmdp->getActionSpace(agent_identifier))
+    //     {
+    //         auto serial_action = action_tmp->toAction();
+
+    //         // std::cout<<"Reward = " << serial_mmdp->getReward(state->toState(), serial_action,agent_identifier) << std::endl;
+
+    //         for(const auto &next_state : serial_mmdp->getReachableStates(state->toState(),serial_action, agent_identifier+1))
+    //         {
+    //             // std::cout<<"Reachable State "<<next_state->str()<<", Transition Probability : "<<serial_mmdp->getTransitionProbability(state->toState(),serial_action,next_state->toState(),agent_identifier)<<std::endl;
+    //             std::cout<<serialized_state->str()<<" , "<<serial_action->str()<<", "<<next_state->str()<<std::endl;
+
+    //             for(const auto &next_obs : serial_mmdp->getReachableObservations(state->toState(),serial_action,next_state->toState(),agent_identifier+1))
+    //             {
+    //                 std::cout<<"Reachable Obs "<<next_obs->str()<<std::endl;
+    //                 std::cout<<"Obs Probability : "<<serial_mmdp->getObservationProbability(state->toState(),serial_action,next_state->toState(),next_obs->toObservation(),agent_identifier)<<std::endl;
+    //                 std::cout<<"Dynamics Probability : "<<serial_mmdp->getDynamics(state->toState(),serial_action,next_state->toState(),next_obs->toObservation(),agent_identifier)<<std::endl;
+
+    //             }
+    //         }
+    //     }
+    // }
+
     // std::cout << *algo->getLowerBound() << std::endl;
     // std::cout << *algo->getUpperBound() << std::endl;
 
