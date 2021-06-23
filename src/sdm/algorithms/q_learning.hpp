@@ -17,7 +17,7 @@
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/backup/qvalue_backup_interface.hpp>
-#include <sdm/utils/rl/experience_memory.hpp>
+#include <sdm/utils/rl/experience_memory_interface.hpp>
 
 
 namespace sdm
@@ -38,7 +38,7 @@ namespace sdm
      */
     std::shared_ptr<GymInterface> env_;
 
-    std::shared_ptr<ExperienceMemory> experience_memory_;
+    std::shared_ptr<ExperienceMemoryInterface> experience_memory_;
 
     /**
      * @brief Q-value function. 
@@ -84,7 +84,7 @@ namespace sdm
 
   public:
     QLearning(std::shared_ptr<GymInterface> &env,
-              std::shared_ptr<ExperienceMemory> experience_memory,
+              std::shared_ptr<ExperienceMemoryInterface> experience_memory,
               std::shared_ptr<QValueFunction> q_value_table,
               std::shared_ptr<QValueFunction> q_value_table_target,
               std::shared_ptr<QValueBackupInterface> backup,

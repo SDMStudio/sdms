@@ -21,7 +21,7 @@ namespace sdm
 
     double TabularQValueBackup::backup(number t)
     {   
-        sars_transition transition = this->experience_memory_->sample(t)[0];
+        typename ExperienceMemory::sars_transition transition = this->experience_memory_->sample(t)[0];
 
         std::shared_ptr<Observation> observation = std::get<0>(transition);
         std::shared_ptr<Action> action = std::get<1>(transition);

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <sdm/utils/value_function/backup/qvalue_backup_interface.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/action/action.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 
 namespace sdm
