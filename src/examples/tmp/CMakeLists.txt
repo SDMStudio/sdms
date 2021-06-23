@@ -39,6 +39,8 @@ if(DAVID)
 		${INCLUDE_DIR}/world/mmdp.cpp
 		${INCLUDE_DIR}/world/pomdp.cpp
 		${INCLUDE_DIR}/world/mpomdp.cpp
+		${INCLUDE_DIR}/world/serialized_mmdp.cpp
+		${INCLUDE_DIR}/world/serialized_mpomdp.cpp
 		${INCLUDE_DIR}/world/gym_interface.cpp
 	)
 	add_library(world SHARED ${lib_world})
