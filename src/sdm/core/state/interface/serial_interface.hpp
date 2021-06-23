@@ -3,6 +3,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/joint.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
 
 namespace sdm
 {
@@ -36,4 +37,7 @@ namespace sdm
          */
         virtual void setAgentId(number) = 0;
     };
+
+    class SerialOccupancyInterface : public SerialInterface, public OccupancyStateInterface
+    {};
 }

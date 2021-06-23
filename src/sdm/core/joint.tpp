@@ -38,9 +38,9 @@
                 number ag;                                                                                                                             \
                 for (ag = 0; ag < this->getNumAgents() - 1; ++ag)                                                                                      \
                 {                                                                                                                                      \
-                    res << this->get(ag)->str() << ", ";                                                                                                      \
+                    res << this->get(ag)->str() << ", ";                                                                                               \
                 }                                                                                                                                      \
-                res << this->get(ag)->str();                                                                                                                  \
+                res << this->get(ag)->str();                                                                                                           \
             }                                                                                                                                          \
             res << ")";                                                                                                                                \
             return res.str();                                                                                                                          \
@@ -57,13 +57,12 @@ namespace sdm
 
     // Specialisation for the Joint Action
     DEFINE_JOINT(Action);
-    
+
     // Specialisation for the Joint State
     DEFINE_JOINT(State);
 
     // Specialisation for the Joint Observation
     DEFINE_JOINT(Observation);
-
 
     template <typename T>
     Joint<T>::Joint() {}

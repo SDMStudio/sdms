@@ -14,11 +14,11 @@ namespace sdm
     {
     }
 
-    void TabularStateDynamics::setReachablesStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number )
+    void TabularStateDynamics::setReachablesStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number)
     {
         this->successor_states[state][action].insert(next_state);
     }
-    
+
     void TabularStateDynamics::setTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, double prob, number, bool cumul)
     {
         if (prob <= 0)
@@ -65,32 +65,14 @@ namespace sdm
         // return {};
     }
 
-    std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>> TabularStateDynamics::getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action)
+    std::shared_ptr<Distribution<std::shared_ptr<State>>> TabularStateDynamics::getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
-        std::set<std::shared_ptr<State>> reachable_states = this->getReachableStates(state, action);
-        std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>> next_state_distribution;
-        DiscreteDistribution<std::shared_ptr<State>> next_state_distribution2;
-        for (std::shared_ptr<State> reachable_state : reachable_states)
+        auto next_state_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
+        for (const auto &reachable_state : this->getReachableStates(state, action, t))
         {
-            auto tp = this->getTransitionProbability(state, action, reachable_state);
-            next_state_distribution2.setProbability(reachable_state, tp);
-            // next_state_distribution->setProbability(reachable_state, tp); // <------ Illegal instruction ???
+            next_state_distribution->setProbability(reachable_state, this->getTransitionProbability(state, action, reachable_state, t));
         }
-        return std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>(next_state_distribution2);
+        return next_state_distribution;
     }
 
-    // void TabularStateDynamics::setTransitions(const std::unordered_map<std::shared_ptr<Action>, matrix_type> &t_model)
-    // {
-    //     this->t_model = t_model;
-    // }
-
-    // std::unordered_map<std::shared_ptr<Action>, TabularStateDynamics::matrix_type> TabularStateDynamics::getTransitions()
-    // {
-    //     return this->t_model;
-    // }
-
-    // const TabularStateDynamics::matrix_type &TabularStateDynamics::getTransitions(const std::shared_ptr<Action> &action)
-    // {
-    //     return this->t_model[action];
-    // }
 } // namespace sdm

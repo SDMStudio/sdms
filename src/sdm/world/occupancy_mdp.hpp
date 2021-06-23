@@ -42,7 +42,5 @@ namespace sdm
     protected : 
         std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
         std::shared_ptr<OccupancyStateInterface> nextState(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number, std::shared_ptr<HSVI>, bool) const;
-
-
     };
 } // namespace sdm

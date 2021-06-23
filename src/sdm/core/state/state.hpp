@@ -26,6 +26,8 @@ namespace sdm
     class OccupancyStateInterface;
     class HistoryInterface;
     class JointHistoryInterface;
+    class SerialInterface;
+    class SerialOccupancyInterface;
 
     class State : public Observation
     {
@@ -49,16 +51,30 @@ namespace sdm
         /**
          * @brief Transform the State in a HistoryInterface
          * 
-         * @return std::shared_ptr<BeliefInterface> 
+         * @return std::shared_ptr<HistoryInterface> 
          */
-        virtual std::shared_ptr<HistoryInterface> toHistoryTree();
+        virtual std::shared_ptr<HistoryInterface> toHistory();
 
         /**
          * @brief Transform the State in a JointHistoryInterface
          * 
-         * @return std::shared_ptr<OccupancyStateInterface> 
+         * @return std::shared_ptr<JointHistoryInterface> 
          */
-        virtual std::shared_ptr<JointHistoryInterface> toJointHistoryTree();
+        virtual std::shared_ptr<JointHistoryInterface> toJointHistory();
+
+        /**
+         * @brief Transform the State in a Serial Interface
+         * 
+         * @return std::shared_ptr<SerialInterface> 
+         */
+        virtual std::shared_ptr<SerialInterface> toSerial();
+
+        /**
+         * @brief Transform the State in a Serial Occupancy Interface
+         * 
+         * @return std::shared_ptr<SerialInterface> 
+         */
+        virtual std::shared_ptr<SerialOccupancyInterface> toSerialOccupancyState();
 
         virtual std::string str() const = 0;
 

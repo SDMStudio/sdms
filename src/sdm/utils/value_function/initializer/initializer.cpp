@@ -89,7 +89,7 @@ namespace sdm
     }
 
     // ******************
-    // MinI Initializer
+    // Min Initializer
     // ****************** 
     MinInitializer::MinInitializer(std::shared_ptr<SolvableByHSVI> world)
     {

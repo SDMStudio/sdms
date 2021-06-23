@@ -44,10 +44,9 @@ namespace sdm
         return this->obs_dynamics_;
     }
 
-    std::shared_ptr<Observation> POMDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action)
+    std::shared_ptr<Observation> POMDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t)
     {
-        MDP::sampleNextObservation(state, action);
-        return this->obs_dynamics_->getNextObservationDistribution(state, action, this->getInternalState())->sample();
+        MDP::sampleNextObservation(state, action, t);
+        return this->obs_dynamics_->getNextObservationDistribution(state, action, this->getInternalState(), t)->sample();
     }
-
 }

@@ -52,6 +52,9 @@ namespace sdm
         virtual void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba) = 0;
 
         virtual std::string str() const = 0;
+
+        virtual TypeAction getTypeAction() const{return TypeAction::DECISION_RULE;}
+
     };
 
 } // namespace sdm

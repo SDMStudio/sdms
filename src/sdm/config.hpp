@@ -4,6 +4,7 @@ namespace sdm
 {
     namespace config
     {
+        /** Precision used to compare elements */
         const double PRECISION_SDMS_VECTOR = 1e-9;
         const double PRECISION_MAPPED_VECTOR = 0.00001;
         const double PRECISION_BELIEF = 0.0001;
@@ -11,7 +12,7 @@ namespace sdm
 
 
         /** Number of decimal to display */
-        const unsigned short BELIEF_DECIMAL_PRINT = 2;
+        const unsigned short BELIEF_DECIMAL_PRINT = 5;
         const unsigned short VALUE_DECIMAL_PRINT = 4;
         
     } // namespace config

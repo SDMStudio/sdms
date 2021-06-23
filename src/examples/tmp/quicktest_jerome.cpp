@@ -35,6 +35,8 @@
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/backup/sawtooth_backup.hpp>
+#include <sdm/utils/value_function/backup/maxplan_serial_backup.hpp>
+#include <sdm/utils/value_function/backup/maxplan_lp_backup.hpp>
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>

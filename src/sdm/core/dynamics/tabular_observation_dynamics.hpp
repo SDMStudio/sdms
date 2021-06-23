@@ -78,7 +78,16 @@ namespace sdm
          */
         virtual void setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0) = 0;
 
-        std::shared_ptr<Distribution<std::shared_ptr<Observation>>> getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state);
+        /**
+         * @brief Get the distribution over next observations.
+         * 
+         * @param state the state
+         * @param action the action
+         * @param next_state the next state
+         * @param t the timestep
+         * @return the distribution over observations
+         */
+        virtual std::shared_ptr<Distribution<std::shared_ptr<Observation>>> getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0);
     };
 } // namespace sdm
 

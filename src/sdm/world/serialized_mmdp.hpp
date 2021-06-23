@@ -26,7 +26,6 @@
 #include <sdm/core/dynamics/tabular_state_dynamics.hpp>
 #include <sdm/core/state/interface/serial_interface.hpp>
 
-
 namespace sdm
 {
     class SerializedMMDP : virtual public MMDPInterface

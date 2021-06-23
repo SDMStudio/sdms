@@ -7,9 +7,11 @@
 
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/utils/value_function/hyperplan_value_function.hpp>
-#include <sdm/core/state/occupancy_state_v2.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 #include <sdm/core/action/decision_rule.hpp>
+
+#include <sdm/exception.hpp>
 
 namespace sdm
 {
@@ -19,6 +21,11 @@ namespace sdm
     MaxPlanBackup::MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& world)
     {
         this->world_ = world;
+    }
+
+    Pair<std::shared_ptr<State>,std::shared_ptr<Action>> MaxPlanBackup::getBestActionAndMaxHyperplan(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, number )
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
     std::pair<double, std::shared_ptr<State>> MaxPlanBackup::getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
@@ -77,7 +84,7 @@ namespace sdm
             // Go over all joint decision rules at occupancy occupancy_state
             for (const auto &joint_decision_rule : *this->world_->getActionSpaceAt(state,t))
             {
-                const std::shared_ptr<BeliefInterface> new_hyperplan = this->getHyperplanAt(vf,state, next_hyperplan->toBelief(), joint_decision_rule->toAction(), t)->toBelief();
+                const std::shared_ptr<BeliefInterface> new_hyperplan = this->setHyperplan(vf,state, next_hyperplan->toBelief(), joint_decision_rule->toAction(), t)->toBelief();
                 if (value_max < (tmp = occupancy_state->operator^(new_hyperplan)))
                 {
                     value_max = tmp;
@@ -141,16 +148,28 @@ namespace sdm
         return new_plan;
     }
 
-    std::shared_ptr<State> MaxPlanBackup::getHyperplanAt(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &next_hyperplan, const std::shared_ptr<Action> &action, number t)
+    std::shared_ptr<State> MaxPlanBackup::setHyperplan(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &next_hyperplan, const std::shared_ptr<Action> &action, number t)
     {
         auto hyperplan_representation = std::static_pointer_cast<HyperplanValueFunction>(vf);
         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
 
         auto occupancy_state = state->toOccupancyState();
-        auto joint_decision_rule = action->toDecisionRule();
+        auto decision_rule = action->toDecisionRule();
 
-        std::shared_ptr<OccupancyStateInterface> new_hyperplan = std::make_shared<OccupancyState> (hyperplan_representation->getDefaultValue(t));
+        std::shared_ptr<OccupancyStateInterface> new_hyperplan;
 
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE : 
+            new_hyperplan = std::make_shared<OccupancyState>(hyperplan_representation->getDefaultValue(t));
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE : 
+            // new_hyperplan = std::make_shared<SerialOccupancyState>(hyperplan_representation->getDefaultValue(t));
+            break;
+        
+        default:
+            break;
+        }
 
         // Go over all occupancy state
         for (const auto &uncompressed_joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
@@ -158,10 +177,25 @@ namespace sdm
             //Get information from uncompressed_s_o
             auto compressed_joint_history = occupancy_state->getCompressedJointHistory(uncompressed_joint_history);
 
-            std::shared_ptr<State> joint_indiv_histories = std::make_shared<Joint<std::shared_ptr<State>>>(compressed_joint_history->JointHistoryTreeToJointState(compressed_joint_history->getIndividualHistories()));
+            // Determine the history used for the decision rules
+            std::shared_ptr<State> history_for_decision_rule;
+            switch (state->getTypeState())
+            {
+            // If it's a occupancy state, we need the JOint histories
+            case TypeState::OCCUPANCY_STATE : 
+                history_for_decision_rule = std::make_shared<Joint<std::shared_ptr<State>>>(compressed_joint_history->JointHistoryTreeToJointState(compressed_joint_history->getIndividualHistories()));
+                break;
+            // If it's a Serial Occupancy State, we need the individal history
+            case TypeState::SERIAL_OCCUPANCY_STATE : 
+                // history_for_decision_rule = compressed_joint_history->getIndividualHistory(state->toSerial()->getCurrentAgentId());
+                break;
+            
+            default:
+                break;
+            }
 
             // Get the serial action from the serial_decision_rule
-            auto action = joint_decision_rule->act(joint_indiv_histories);
+            auto action = decision_rule->act(history_for_decision_rule);
 
             for (const auto &uncompressed_hidden_state : occupancy_state->getFullyUncompressedOccupancy()->getStatesAt(uncompressed_joint_history))
             {
@@ -176,7 +210,7 @@ namespace sdm
                     for (const auto &next_observation : under_pb->getReachableObservations(uncompressed_hidden_state, action, next_hidden_state,t))
                     {
 
-                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistoryTree();
+                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistory();
                         new_hyperplan->addProbability(uncompressed_state, this->world_->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_state, action,next_hidden_state,next_observation,t) * next_hyperplan->getProbability(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, next_joint_history)));
                     }
                 }

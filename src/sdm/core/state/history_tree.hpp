@@ -25,8 +25,7 @@ namespace sdm
      * @tparam T 
      */
     template <typename T>
-    class HistoryTree : virtual public HistoryInterface, virtual public Tree<T>
-                        //public BoostSerializable<HistoryTree<T>>, 
+    class HistoryTree : public HistoryInterface, virtual public Tree<T>
     {
     protected:
         /*!
@@ -71,7 +70,7 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation>&, const std::shared_ptr<Action>&, bool = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &, const std::shared_ptr<Action> &, bool = true);
 
         /**
          * @brief Get the horizon
@@ -100,8 +99,7 @@ namespace sdm
             return os;
         }
 
-        TypeState getTypeState() const{return TypeState::STATE;}
-
+        TypeState getTypeState() const { return TypeState::STATE; }
     };
 
 } // namespace sdm
