@@ -73,7 +73,7 @@ namespace sdm
             res << "\t<value_function t=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (const auto &pair_state_val : this->representation[i])
             {
-                res << "\t\t<value state=\"" << pair_state_val.first->str() << "\" value=\"" << std::setprecision(config::VALUE_DECIMAL_PRINT) << pair_state_val.second << "\" />" << std::endl;
+                res << "\t\t<value state=\"" << pair_state_val.first->str() << "\"> " << std::setprecision(config::VALUE_DECIMAL_PRINT) << std::fixed << pair_state_val.second << " </value>" << std::endl;
             }
             res << "\t</value_function>" << std::endl;
         }

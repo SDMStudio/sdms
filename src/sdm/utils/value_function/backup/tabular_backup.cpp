@@ -32,21 +32,21 @@ namespace sdm
 
     std::shared_ptr<Action> TabularBackup::getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
-        return this->getQValueAt(vf,state, t)->argmax();
+        // return this->getQValueAt(vf,state, t)->argmax();
 
-        // std::shared_ptr<Action> best_action;
-        // double max = -std::numeric_limits<double>::max(), tmp;
+        std::shared_ptr<Action> best_action;
+        double max = -std::numeric_limits<double>::max(), tmp;
 
-        // for (const auto &action : *this->world_->getActionSpaceAt(state, t))
-        // {
-        //     auto casted_action = action->toAction();
-        //     if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))
-        //     {
-        //         best_action = casted_action;
-        //         max = tmp;
-        //     }
-        // }
-        // return best_action;
+        for (const auto &action : *this->world_->getActionSpaceAt(state, t))
+        {
+            auto casted_action = action->toAction();
+            if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))
+            {
+                best_action = casted_action;
+                max = tmp;
+            }
+        }
+        return best_action;
     }
 
 }

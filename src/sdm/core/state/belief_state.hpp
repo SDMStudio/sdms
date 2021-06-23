@@ -35,6 +35,7 @@ namespace sdm
     Belief(const MappedVector<std::shared_ptr<State>> &);
     // Belief(std::initializer_list<value_type>);
     Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
+    
     virtual ~Belief();
 
     std::vector<std::shared_ptr<State>> getStates() const;
@@ -81,9 +82,9 @@ namespace std
   {
     typedef sdm::Belief argument_type;
     typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in) const
+    inline result_type operator()(const argument_type &) const
     {
-      return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in);
+      return 0;//std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in);
     }
   };
 }

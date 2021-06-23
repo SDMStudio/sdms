@@ -10,30 +10,35 @@
  */
 #pragma once
 
-#include <sdm/public/boost_serializable.hpp>
+#include <sdm/utils/struct/pair.hpp>
 #include <sdm/utils/struct/graph.hpp>
-#include <sdm/utils/linear_algebra/sdms_matrix.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
+#include <sdm/core/state/belief_state.hpp>
+#include <sdm/public/boost_serializable.hpp>
 
 namespace sdm
 {
+
+    class POMDPInterface;
+
     /**
      * @brief A graph that keep all beliefs
      * 
-     * @tparam TBeliefState 
-     * @tparam TAction 
-     * @tparam TObservation 
      */
-    template <typename TBeliefState, typename TAction, typename TObservation>
-    class BeliefStateGraph : public Graph<TBeliefState, Pair<TAction, TObservation>>,
-                             public BoostSerializable<BeliefStateGraph<TBeliefState, TAction, TObservation>>
+    class BeliefStateGraph : public Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>,
+                             public BeliefInterface,
+                             public BoostSerializable<BeliefStateGraph>
     {
     public:
-        using action_type = TAction;
-        using state_type = TBeliefState;
+        using TransitionFunction = Pair<std::shared_ptr<BeliefInterface>, double>(const std::shared_ptr<POMDPInterface> &,
+                                                                                  const std::shared_ptr<BeliefInterface> &,
+                                                                                  const std::shared_ptr<Action> &,
+                                                                                  const std::shared_ptr<Observation> &,
+                                                                                  number);
 
         BeliefStateGraph();
-        BeliefStateGraph(const std::vector<typename TBeliefState::state_type> &list_states, const std::vector<double> &list_proba,  const std::vector<std::vector<DenseMatrix<number, number>>> &dynamics = {});
-        BeliefStateGraph(const TBeliefState &data, const std::vector<std::vector<DenseMatrix<number, number>>> &dynamics = {});
+        BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
+        BeliefStateGraph(const Belief &data);
 
         /**
          * @brief Construct a new belief 
@@ -41,12 +46,7 @@ namespace sdm
          * @param predecessor 
          * @param belief 
          */
-        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const TBeliefState &belief);
-
-        /**
-         * @brief Initialize the graph of belief.
-         */
-        void initialize();
+        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief);
 
         /**
          * @brief Get the node associated to a given belief.
@@ -54,14 +54,7 @@ namespace sdm
          * @param belief a specific belief
          * @return the address of the node 
          */
-        std::shared_ptr<BeliefStateGraph> getNode(const TBeliefState &belief);
-
-        /**
-         * @brief Set the dynamics that is used to compute the next belief.
-         * 
-         * @param dynamics the matrix of state transition for each (action, observation) pair. 
-         */
-        void setDynamics(std::vector<std::vector<DenseMatrix<number, number>>> dynamics);
+        std::shared_ptr<BeliefStateGraph> getNode(const Belief &belief);
 
         /**
          * @brief Get the probability of associated belief.
@@ -71,7 +64,7 @@ namespace sdm
          * @param belief 
          * @return the corresponding probability 
          */
-        double getProbability(const TAction &action, const TObservation &observation) const;
+        double getProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation) const;
 
         /**
          * @brief Expands the graph
@@ -81,18 +74,31 @@ namespace sdm
          * @param backup if true, we store the expanded belief in the graph.
          * @return the next belief
          */
-        template <typename output = BeliefStateGraph<TBeliefState, TAction, TObservation>>
-        std::shared_ptr<output> expand(const TAction &action, const TObservation &observation, bool backup = true);
+        std::shared_ptr<BeliefStateGraph> next(TransitionFunction transition_function, const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup = true);
 
         /**
          * @brief Return a 
          */
-        std::string str();
+        std::string str() const;
 
         /**
          * @brief Return a the pointer on this object
          */
-        std::shared_ptr<BeliefStateGraph<TBeliefState, TAction, TObservation>> getptr();
+        std::shared_ptr<BeliefStateGraph> getptr();
+
+        std::vector<std::shared_ptr<State>> getStates() const;
+        double getProbability(const std::shared_ptr<State> &state) const;
+        void setProbability(const std::shared_ptr<State> &state, double proba);
+        void addProbability(const std::shared_ptr<State> &, double proba);
+        bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
+        double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+        double norm_1() const;
+        size_t size() const;
+
+        std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
+
+        void setDefaultValue(double);
+        double getDefaultValue() const;
 
         template <class Archive>
         void serialize(Archive &archive, const unsigned int);
@@ -105,31 +111,14 @@ namespace sdm
 
     protected:
         /**
-         * @brief Return the successor node. Given an action and an observation, this function will return the next belief.
-         * 
-         * @param action the action
-         * @param observation the observation
-         * @return the next belief state 
+         * @brief A pointer on the bag containing all nodes.
          */
-        std::pair<TBeliefState, double> computeNextBelief(const TAction &action, const TObservation &observation);
-
-        /**
-         * @brief The dynamics of states. 
-         */
-        std::shared_ptr<std::vector<std::vector<DenseMatrix<typename TBeliefState::state_type, typename TBeliefState::state_type>>>> dynamics_;
-
-        // std::shared_ptr<BinaryFunction<TAction, TObservation, std::shared_ptr<MatrixInterface<TBeliefState::state_type, TBeliefState::state_type>>>> dynamics_;
+        std::shared_ptr<std::unordered_map<Belief, std::shared_ptr<BeliefStateGraph>>> belief_space;
 
         /**
          * @brief A pointer on the bag containing all nodes.
          */
-        std::shared_ptr<std::unordered_map<TBeliefState, std::shared_ptr<BeliefStateGraph>>> belief_space;
-
-        /**
-         * @brief A pointer on the bag containing all nodes.
-         */
-        RecursiveMap<TAction, TObservation, double> belief_proba;
+        RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, double> belief_proba;
     };
 
 } // namespace sdm
-#include <sdm/core/state/belief_state_graph.tpp>

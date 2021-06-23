@@ -188,7 +188,7 @@ namespace sdm
         //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
         con.add(IloRange(env, 1 - under_pb->getNumAgents(), +IloInfinity));
         //<! 3.a.1 get variable a(u|o)
-        recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), jhistory->toJointHistoryTree()));
+        recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), jhistory->toJointHistory()));
         //<! 3.a.2 set coefficient of variable a(u|o)
         con[index].setLinearCoef(var[recover], +1.0);
         for (number agent = 0; agent < under_pb->getNumAgents(); ++agent)

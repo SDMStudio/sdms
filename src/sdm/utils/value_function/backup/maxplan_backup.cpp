@@ -7,7 +7,7 @@
 
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/utils/value_function/hyperplan_value_function.hpp>
-#include <sdm/core/state/occupancy_state_v2.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 #include <sdm/core/action/decision_rule.hpp>
 
@@ -98,7 +98,7 @@ namespace sdm
     std::shared_ptr<State> MaxPlanBackup::backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
         auto belief_mdp = std::static_pointer_cast<BeliefMDP>(this->world_);
-        auto under_pb = belief_mdp->getUnderlyingPOMDP();
+        auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
 
         std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<Observation>,std::shared_ptr<BeliefInterface>>> beta_a_o;
         std::unordered_map<std::shared_ptr<Action>, std::shared_ptr<BeliefInterface>> beta_a;
@@ -161,7 +161,7 @@ namespace sdm
         switch (state->getTypeState())
         {
         case TypeState::OCCUPANCY_STATE : 
-            new_hyperplan = std::make_shared<OccupancyState>(hyperplan_representation->getDefaultValue(t));
+            // new_hyperplan = std::make_shared<OccupancyState>(hyperplan_representation->getDefaultValue(t));
             break;
         case TypeState::SERIAL_OCCUPANCY_STATE : 
             // new_hyperplan = std::make_shared<SerialOccupancyState>(hyperplan_representation->getDefaultValue(t));
@@ -210,7 +210,7 @@ namespace sdm
                     for (const auto &next_observation : under_pb->getReachableObservations(uncompressed_hidden_state, action, next_hidden_state,t))
                     {
 
-                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistoryTree();
+                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistory();
                         new_hyperplan->addProbability(uncompressed_state, this->world_->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_state, action,next_hidden_state,next_observation,t) * next_hyperplan->getProbability(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, next_joint_history)));
                     }
                 }

@@ -51,7 +51,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/mabc.dpomdp");
+    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/recycling.dpomdp");
 
     auto state_space = std::static_pointer_cast<DiscreteSpace>(mdp_tiger->getStateSpace()); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
     auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
@@ -65,12 +65,14 @@ int main(int argc, char **argv)
     number horizon = 5;
 
     // Creation of the MMDP
-    auto mpodp = std::make_shared<MDP>(state_space, action_space, rew, dynamics,start_distrib,horizon,1.);
+    auto mmdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
+
+    auto serial_mmdp = std::make_shared<SerializedMPOMDP>(mmdp);
 
     // Creation of HSVI problem and Resolution 
-    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mpodp);
+    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(serial_mmdp);
 
-    // horizon = horizon * mdp->getNumAgents();
+    horizon = horizon * serial_mmdp->getNumAgents();
     auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
     // auto sawtooth_backup = std::make_shared<SawtoothBackup>(hsvi_mdp);
     // auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
@@ -83,10 +85,19 @@ int main(int argc, char **argv)
 
     auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, horizon, 0.01);
     algorithm->do_initialize();
+
+    std::cout << *algorithm->getLowerBound() << std::endl;
+    std::cout << *algorithm->getUpperBound() << std::endl;
+
     algorithm->do_solve();
 
-    std::cout<<algorithm->getUpperBound()->str()<<std::endl;
-    std::cout<<algorithm->getLowerBound()->str()<<std::endl;
+    // std::cout << *algo->getLowerBound() << std::endl;
+    // std::cout << *algo->getUpperBound() << std::endl;
+
+    
+
+    // std::cout<<algorithm->getUpperBound()->str()<<std::endl;
+    // std::cout<<algorithm->getLowerBound()->str()<<std::endl;
 
 
     //  std::cout << "----- Usage : class Joint ( sdm/core/state/history_tree.hpp ) ---------" << std::endl
@@ -134,9 +145,9 @@ int main(int argc, char **argv)
     // std::cout << "\n#> List of pointer on individual histories = " << history->getIndividualHistories() << std::endl;
 
     // for (number agent_id = 0; agent_id < history->getNumAgents(); ++agent_id)
-    {
-        // std::cout << "#> IndividualHistory(" << agent_id << ") = " << *history->getIndividualHistory(agent_id) << std::endl; // equivalent to history->get(agent_id)
-    }
+    // {
+    //     // std::cout << "#> IndividualHistory(" << agent_id << ") = " << *history->getIndividualHistory(agent_id) << std::endl; // equivalent to history->get(agent_id)
+    // }
 
     return 0;
 

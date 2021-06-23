@@ -33,6 +33,15 @@ namespace sdm
          */
         virtual double getObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const = 0;
 
-        virtual std::shared_ptr<Distribution<std::shared_ptr<Observation>>> getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state) = 0;
+        /**
+         * @brief Get the distribution over next observations.
+         * 
+         * @param state the state
+         * @param action the action
+         * @param next_state the next state
+         * @param t the timestep
+         * @return the distribution over observations
+         */
+        virtual std::shared_ptr<Distribution<std::shared_ptr<Observation>>> getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) = 0;
     };
 } // namespace sdm

@@ -63,7 +63,7 @@ namespace sdm
             {
                 double argmax_local = -std::numeric_limits<double>::max(); 
 
-                std::shared_ptr<SerialOccupancyInterface> private_serial_occupancy_state = serial_occupancy_state->getPrivateOccupancyState(agent,private_history)->toSerialOccupancyState();
+                std::shared_ptr<SerialOccupancyInterface> private_serial_occupancy_state;// = serial_occupancy_state->getPrivateOccupancyState(agent,private_history)->toSerialOccupancyState();
                 
                 // Go over all action possible for the current agent
                 for (const auto &private_action : *under_pb->getActionSpace(agent))
@@ -130,7 +130,7 @@ namespace sdm
                     {
                         auto joint_serial_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(serial_observation);
                         
-                        auto history_next = compressed_joint_history->expand(joint_serial_observation)->toJointHistoryTree();
+                        auto history_next = compressed_joint_history->expand(joint_serial_observation)->toJointHistory();
                         next_value += next_step_hyperplan->getProbability(next_step_hyperplan->HiddenStateAndJointHistoryToState(serialized_underlying_next_state, history_next)) * under_pb->getDynamics(compressed_serial_occupancy_state,serial_action,serialized_underlying_next_state,serial_observation,t);
                     }
                 }

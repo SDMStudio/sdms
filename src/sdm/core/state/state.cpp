@@ -17,19 +17,19 @@ namespace sdm
         return std::static_pointer_cast<OccupancyStateInterface>(this->toBelief());
     }
 
-    std::shared_ptr<HistoryInterface> State::toHistoryTree()
+    std::shared_ptr<HistoryInterface> State::toHistory()
     {
         return std::static_pointer_cast<HistoryInterface>(this->shared_from_this());
     }
 
-    std::shared_ptr<JointHistoryInterface> State::toJointHistoryTree()
+    std::shared_ptr<JointHistoryInterface> State::toJointHistory()
     {
-        return std::static_pointer_cast<JointHistoryInterface>(this->toHistoryTree());
+        return std::static_pointer_cast<JointHistoryInterface>(this->toHistory());
     }
 
     std::shared_ptr<SerialInterface> State::toSerial()
     {
-        return std::static_pointer_cast<SerialInterface>(this->shared_from_this()); 
+        return std::dynamic_pointer_cast<SerialInterface>(this->shared_from_this()); 
     }
 
     std::shared_ptr<SerialOccupancyInterface> State::toSerialOccupancyState()

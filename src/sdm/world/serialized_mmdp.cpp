@@ -50,8 +50,6 @@ namespace sdm
 
     std::shared_ptr<Distribution<std::shared_ptr<State>>> SerializedMMDP::getStartDistribution() const
     {
-        std::cout<<"***** "<<std::endl;
-        std::cout<<"Start distribution "<<this->mmdp_->getStartDistribution()<<std::endl;
         return this->mmdp_->getStartDistribution();
     }
 
@@ -160,7 +158,6 @@ namespace sdm
                 {
                     // Add new serial state with the state of the problem and vector of action
                     auto next_serial_state = std::make_shared<SerializedState>(state->toState(),action);
-                    // std::shared_ptr<SerialInterface> next_serial_state_str = next_serial_state;
                     std::shared_ptr<State> next_serial_state_str = std::shared_ptr<SerialInterface>(next_serial_state);
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
@@ -197,7 +194,7 @@ namespace sdm
         {
             for(const auto &state : *this->getStateSpace(agent_id))
             {
-                std::shared_ptr<SerialInterface> serialized_state = std::dynamic_pointer_cast<SerialInterface>(state);
+                auto serialized_state = state->toState()->toSerial();
 
                 auto hidden_state = serialized_state->getHiddenState();
                 auto action = serialized_state->getAction();

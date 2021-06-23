@@ -77,8 +77,6 @@ int main(int argc, char **argv)
         }
     }
 
-    std::cout << *rew << std::endl;
-
     auto dynamics = std::make_shared<TabularStateDynamics>();
 
     double proba = 1. / state_space->getNumItems();
@@ -97,7 +95,7 @@ int main(int argc, char **argv)
     number horizon = 3;
 
     //Creation of the MMDP
-    auto mdp = std::make_shared<MMDP>(horizon, 0.9, state_space, action_space, rew, dynamics, start_distrib);
+    auto mdp = std::make_shared<MMDP>(state_space, action_space, rew, dynamics,start_distrib,horizon,1.);
 
     //Creation of the Serial MMDP with the MMDP
     auto serial_mmdp = std::make_shared<SerializedMMDP>(mdp);
@@ -107,41 +105,26 @@ int main(int argc, char **argv)
     std::cout << "#> Discount = " << serial_mmdp->getDiscount() << std::endl;
     std::cout << "#> isLastAgent(0)"<<serial_mmdp->isLastAgent(0) << std::endl;
     std::cout << "#> getAgentId( t = 3)"<<serial_mmdp->getAgentId(3) << std::endl;
-    std::cout << "#> Initial Distribution "<<serial_mmdp->getStartDistribution() << std::endl;
-
+    // std::cout << "#> Initial Distribution "<<serial_mmdp->getStartDistribution() << std::endl;
 
     for(const auto &state : *serial_mmdp->getStateSpace(1))
     {
-        std::shared_ptr<SerializedState> serialized_state = std::static_pointer_cast<SerializedState>(state);
+        auto serialized_state = state->toState()->toSerial();
         number agent_identifier = serialized_state->getCurrentAgentId();
 
         for(auto action_tmp : *serial_mmdp->getActionSpace(agent_identifier))
         {
-            auto serial_action = std::static_pointer_cast<Action>(action_tmp);
+            std::cout<<"action "<<action_tmp->str()<<std::endl;
+            auto serial_action = action_tmp->toAction();
 
-            std::cout<<serialized_state->str()<<" , "<<serial_action->str()<<" , Reward = " << serial_mmdp->getReward(serialized_state, serial_action,agent_identifier) << std::endl;
+            std::cout<<serialized_state->str()<<" , "<<serial_action->str()<<std::endl;
+            std::cout<<"Reward = " << serial_mmdp->getReward(state->toState(), serial_action,agent_identifier) << std::endl;
 
-            for(const auto &next_state : serial_mmdp->getReachableStates(serialized_state,serial_action))
+            for(const auto &next_state : serial_mmdp->getReachableStates(state->toState(),serial_action))
             {
-                auto next_serial_state = std::static_pointer_cast<SerializedState>(next_state);
-                std::cout<<"Reachable State "<<next_serial_state->str()<<", Transition Probability : "<<serial_mmdp->getTransitionProbability(serialized_state,serial_action,next_serial_state,agent_identifier)<<std::endl;
+                std::cout<<"Reachable State "<<next_state->str()<<", Transition Probability : "<<serial_mmdp->getTransitionProbability(state->toState(),serial_action,next_state->toState(),agent_identifier)<<std::endl;
             }
         }
     }
-
-    // Creation of HSVI problem and Resolution 
-    std::shared_ptr<SolvableByHSVI> hsvi_serial_mmdp = std::make_shared<SolvableByMDP>(serial_mmdp);
-
-    horizon = horizon * serial_mmdp->getNumAgents();
-    auto lb = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, -1000);
-    auto ub = std::make_shared<MappedValueFunction>(hsvi_serial_mmdp, horizon, 1000);
-
-    auto algo = std::make_shared<HSVI>(hsvi_serial_mmdp, lb, ub, horizon, 0.01);
-    algo->do_initialize();
-    std::cout << *algo->getLowerBound() << std::endl;
-    std::cout << *algo->getUpperBound() << std::endl;
-    algo->do_solve();
-    // std::cout << *algo->getLowerBound() << std::endl;
-    // std::cout << *algo->getUpperBound() << std::endl;
 
 } // END main

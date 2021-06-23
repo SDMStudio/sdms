@@ -53,14 +53,14 @@ namespace sdm
          * 
          * @return std::shared_ptr<HistoryInterface> 
          */
-        virtual std::shared_ptr<HistoryInterface> toHistoryTree();
+        virtual std::shared_ptr<HistoryInterface> toHistory();
 
         /**
          * @brief Transform the State in a JointHistoryInterface
          * 
          * @return std::shared_ptr<JointHistoryInterface> 
          */
-        virtual std::shared_ptr<JointHistoryInterface> toJointHistoryTree();
+        virtual std::shared_ptr<JointHistoryInterface> toJointHistory();
 
         /**
          * @brief Transform the State in a Serial Interface

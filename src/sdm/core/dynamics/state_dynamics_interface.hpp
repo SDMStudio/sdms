@@ -31,6 +31,14 @@ namespace sdm
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const = 0;
 
-        virtual std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) = 0;
+        /**
+         * @brief Get the distribution over next states
+         * 
+         * @param state the current state
+         * @param action the current action
+         * @param t the timestep
+         * @return the distribution over next states
+         */
+        virtual std::shared_ptr<Distribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
     };
 } // namespace sdm

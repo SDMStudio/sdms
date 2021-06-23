@@ -154,7 +154,7 @@ namespace sdm
                             {
                                 auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation);
 
-                                auto joint_history_next = joint_history->expand(joint_observation)->toJointHistoryTree();
+                                auto joint_history_next = joint_history->expand(joint_observation)->toJointHistory();
                                 factor += under_pb->getDynamics(hidden_state->toState(), action->toAction(),next_hidden_state,next_observation,t) * this->tmp_representation->getValueAt(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, joint_history_next));
                             }
                         }

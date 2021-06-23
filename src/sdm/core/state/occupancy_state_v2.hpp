@@ -13,11 +13,10 @@ namespace sdm
    * @tparam TState refers to a number
    * @tparam TJointHistory_p refers to a joint histories
    */
-  class OccupancyState :public MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>>, double>,
-                        public OccupancyStateInterface
+  class OccupancyState : public MappedVector<std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>>, double>,
+                         public OccupancyStateInterface
   {
   public:
-
     OccupancyState(double default_value);
     OccupancyState(number num_agents = 2, double default_value = 0.);
     OccupancyState(const OccupancyState &);
@@ -75,9 +74,8 @@ namespace sdm
      * @param number Agent Id
      * @param typename jhistory_type::element_type::ihistory_type : Individual History
      */
-    const double &getProbabilityOverIndividualHistories(number, const std::shared_ptr<HistoryInterface> &) const ;
+    const double &getProbabilityOverIndividualHistories(number, const std::shared_ptr<HistoryInterface> &) const;
     void setProbabilityOverIndividualHistories();
-
 
     /**
      * @brief Get the set of states that are in the support of the occupancy state for a precise joint historiy.
@@ -108,7 +106,7 @@ namespace sdm
      * 
      * @param std::shared_ptr<JointHistoryInterface> : Joint History
      */
-    const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface>&) const;
+    const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &) const;
 
     static double PRECISION;
 
@@ -116,7 +114,7 @@ namespace sdm
      * @brief Return the state of a precise occupancy state
      */
     std::shared_ptr<State> getHiddenState(const std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>> &) const;
-    
+
     /**
      * @brief Return the history of a precise occupancy state
      */
@@ -129,11 +127,10 @@ namespace sdm
     double getProbability(const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &) const;
     double getProbability(const std::shared_ptr<State> &) const;
 
-
     std::string str() const;
     std::string str_hyperplan() const;
     TypeState getTypeState() const;
-    size_t size() const ;
+    size_t size() const;
     std::vector<std::shared_ptr<State>> getStates() const;
 
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
@@ -141,14 +138,13 @@ namespace sdm
     double norm_1() const;
 
     void setDefaultValue(double default_value);
-    double getDefaultValue() const; 
+    double getDefaultValue() const;
 
     std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
 
     std::shared_ptr<State> HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryInterface>&) const;
     const std::shared_ptr<BeliefInterface> createBelief(const std::shared_ptr<JointHistoryInterface> &joint_history) const;
     const std::shared_ptr<BeliefInterface> createBeliefWeighted(const std::shared_ptr<JointHistoryInterface> &joint_history) const;
-
 
   protected:
     /** @brief This representation of occupancy states consists of private occupancy states for each agent*/
@@ -168,7 +164,6 @@ namespace sdm
 
     /** @brief probability of a private history space for a precise agent */
     std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, double>> probability_ihistories;
-
 
     bool areIndividualHistoryLPE(const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<HistoryInterface> &, number);
 
@@ -215,7 +210,6 @@ namespace sdm
     void setStatesAt();
     void setStates();
 
-
     /**
      * @brief Set the Joint Histories  of the Occupancy State
      * 
@@ -228,7 +222,7 @@ namespace sdm
      * @param number :Agent Id
      * @param typename jhistory_type::element_type::ihistory_type : Individual History
      */
-    const std::set<std::shared_ptr<JointHistoryInterface>> &getJointHistoryOverIndividualHistories(number, const std::shared_ptr<HistoryInterface>&) const;
+    const std::set<std::shared_ptr<JointHistoryInterface>> &getJointHistoryOverIndividualHistories(number, const std::shared_ptr<HistoryInterface> &) const;
     void setJointHistoryOverIndividualHistories();
 
     void setProbabilityOverJointHistory();

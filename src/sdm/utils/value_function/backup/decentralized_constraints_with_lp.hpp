@@ -1,9 +1,6 @@
 #pragma once
 #include <ilcplex/ilocplex.h>
-// #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/value_function/backup/variable_naming.hpp>
-// #include <sdm/core/states.hpp>
-// #include <sdm/exception.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/core/states.hpp>
 #include <sdm/utils/linear_algebra/vector_interface.hpp>

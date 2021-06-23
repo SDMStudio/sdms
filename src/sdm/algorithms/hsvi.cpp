@@ -97,7 +97,6 @@ namespace sdm
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
 
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
-
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
