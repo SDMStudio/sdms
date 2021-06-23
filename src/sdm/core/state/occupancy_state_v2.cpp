@@ -586,6 +586,11 @@ namespace sdm
         return belief;
     }
 
+    std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> OccupancyState::getVectorInferface()
+    {
+        return std::dynamic_pointer_cast<MappedVector<std::shared_ptr<State>>>(std::static_pointer_cast<OccupancyState>(this->toOccupancyState()));
+    }
+
 
 } // namespace sdm
 

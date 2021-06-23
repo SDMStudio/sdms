@@ -31,6 +31,7 @@ namespace sdm
                 max_next_step_hyperplan = hyperplan;
             }
         }
+        return std::make_pair(max_next_step_hyperplan,action);
     }
 
     std::shared_ptr<State> MaxPlanSerialBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)

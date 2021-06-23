@@ -35,6 +35,9 @@ namespace sdm
 
         std::string str() const;
 
+        std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
+
+
     protected : 
         double default_value_;
 

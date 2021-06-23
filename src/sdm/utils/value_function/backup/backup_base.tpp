@@ -4,7 +4,7 @@ namespace sdm
     BackupBase<TData>::BackupBase(){}
 
     template<typename TData>
-    BackupBase<TData>::BackupBase(std::shared_ptr<SolvableByHSVI> world): world_(world){}
+    BackupBase<TData>::BackupBase(const std::shared_ptr<SolvableByHSVI>& world): world_(world){}
 
     template<typename TData>
     BackupBase<TData>::~BackupBase(){}

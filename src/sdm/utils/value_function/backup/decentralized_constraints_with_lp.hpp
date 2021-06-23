@@ -6,6 +6,7 @@
 // #include <sdm/exception.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/core/states.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
@@ -14,6 +15,10 @@ namespace sdm
     public:
         DecentralizedConstraintsLP();
         DecentralizedConstraintsLP(const std::shared_ptr<SolvableByHSVI>&);
+
+        virtual Pair<std::shared_ptr<Action>,double> getGreedy(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t) = 0;
+        virtual void setGreedyVariables(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t) = 0;
+        virtual void setGreedyObjective(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t) = 0;
 
         /**
          * @brief Get the decentralized decision rule from the result
@@ -48,33 +53,13 @@ namespace sdm
          */
         void setDecentralizedConstraints(const std::shared_ptr<OccupancyStateInterface>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
-        // /**
-        //  * @brief Set decentralized constraints 
-        //  * @param const TVector& 
-        //  * @param IloEnv& 
-        //  * @param IloRangeArray&
-        //  * @param IloNumVarArray&
-        //  * @param number&
-        //  * @param number : time step
-        //  */
-        // template <typename T, std::enable_if_t<std::is_any<T, OccupancyState<>, OccupancyState<BeliefStateGraph_p<number, number>, JointHistoryTree_p<number>>>::value, int> = 0>
-        // void setDecentralizedConstraints(const TVector&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&, number);
-
-
-        // /**
-        //  * @brief Set decentralized constraints 
-        //  * @param const TVector& 
-        //  * @param IloEnv& 
-        //  * @param IloRangeArray&
-        //  * @param IloNumVarArray&
-        //  * @param number&
-        //  * @param number : time step
-        //  */
-        // template <typename T, std::enable_if_t<std::is_same_v<SerializedOccupancyState<>, T>, int> = 0>
-        // void setDecentralizedConstraints(const TVector&, IloEnv&, IloRangeArray&, IloNumVarArray&, number&, number);
-
     protected : 
         std::shared_ptr<SolvableByHSVI> world_;
+
+        /**
+         * @brief The temporary one-stage value function represention.
+         */
+        std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> tmp_representation;
 
         std::shared_ptr<Action> getDecentralizedVariablesOccupancy(const IloCplex &cplex, const IloNumVarArray &var, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t);
         std::shared_ptr<Action> getDecentralizedVariablesSerialOccupancy(const IloCplex &cplex, const IloNumVarArray &var, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t);

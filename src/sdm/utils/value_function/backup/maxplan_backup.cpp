@@ -36,7 +36,7 @@ namespace sdm
         auto belief_state = state->toBelief();
 
         for (const auto &plan : vf->getSupport(t))
-        {            
+        {
             auto belief_plan = plan->toBelief();
 
             current = belief_state->operator^(belief_plan);

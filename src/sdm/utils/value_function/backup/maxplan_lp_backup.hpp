@@ -33,7 +33,7 @@ namespace sdm
         * 
         * @return Pair<std::shared_ptr<Action>,double> : action and the value associated 
         */
-        Pair<std::shared_ptr<Action>,double> greedyMaxPlane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &hyperplan, number t);
+        Pair<std::shared_ptr<Action>,double> getGreedy(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t);
 
         /**
          * @brief Set the variable used in greedyMaxPlane
@@ -54,7 +54,7 @@ namespace sdm
          * @param number : time steps
          * 
          */
-        void setGreedyObjective(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, IloNumVarArray &var, IloObjective &obj, const std::shared_ptr<OccupancyStateInterface> &hyperplan, number t);
+        void setGreedyObjective(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
 
     };
 }

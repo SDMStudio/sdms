@@ -65,4 +65,10 @@ namespace sdm
         return res.str();
     }
 
+    std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> BeliefDefault::getVectorInferface()
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+
 }

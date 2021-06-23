@@ -143,6 +143,8 @@ namespace sdm
     void setDefaultValue(double default_value);
     double getDefaultValue() const; 
 
+    std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
+
     std::shared_ptr<State> HiddenStateAndJointHistoryToState(const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryInterface>&) const;
     const std::shared_ptr<BeliefInterface> createBelief(const std::shared_ptr<JointHistoryInterface> &joint_history) const;
     const std::shared_ptr<BeliefInterface> createBeliefWeighted(const std::shared_ptr<JointHistoryInterface> &joint_history) const;

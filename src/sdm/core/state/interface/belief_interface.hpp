@@ -2,6 +2,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
@@ -24,6 +25,8 @@ namespace sdm
 
         virtual void setDefaultValue(double) =0; 
         virtual double getDefaultValue()const =0; 
+
+        virtual std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface() = 0;
 
     };
 }

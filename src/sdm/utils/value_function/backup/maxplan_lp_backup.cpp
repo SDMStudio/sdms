@@ -25,7 +25,8 @@ namespace sdm
 
         for (const auto &hyperplan : vf->getSupport(t + 1))
         {
-            auto pair_action_value = this->greedyMaxPlane(state->toOccupancyState(), hyperplan->toOccupancyState(), t);
+            this->tmp_representation = hyperplan->toBelief()->getVectorInferface();
+            auto pair_action_value = this->getGreedy(state->toOccupancyState(), t);
 
             joint_decision_rule = pair_action_value.first;
             value = pair_action_value.second;
@@ -40,7 +41,7 @@ namespace sdm
         return std::make_pair(next_hyperplan,max_decision_rule);
     }
 
-    Pair<std::shared_ptr<Action>,double> MaxPlanLPBackup::greedyMaxPlane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &hyperplan, number t)
+    Pair<std::shared_ptr<Action>,double> MaxPlanLPBackup::getGreedy(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
     {
         //Identifiant, compteur des contraintes
         number index = 0;
@@ -66,7 +67,7 @@ namespace sdm
             this->setGreedyVariables(occupancy_state, env, var, t);
 
             // 1. Build objective function \sum_{o,u} A(u|o) \sum_x s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \hyperplan_i(x_,o_) ]
-            this->setGreedyObjective(occupancy_state, var, obj, hyperplan, t);
+            this->setGreedyObjective(occupancy_state, var, obj, t);
 
             // 3. Build decentralized control constraints [  a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n ] ---- and ---- [ a(u|o) <= a_i(u_i|o_i) ]
             this->setDecentralizedConstraints(occupancy_state, env, con, var, index, t);
@@ -127,7 +128,7 @@ namespace sdm
         this->setDecentralizedVariables(occupancy_state, env, var, index, t);
     }
 
-    void MaxPlanLPBackup::setGreedyObjective(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, IloNumVarArray &var, IloObjective &obj, const std::shared_ptr<OccupancyStateInterface> &hyperplan, number t)
+    void MaxPlanLPBackup::setGreedyObjective(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(MaxPlanBackup::world_->getUnderlyingProblem());
 
@@ -154,7 +155,7 @@ namespace sdm
                                 auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation);
 
                                 auto joint_history_next = joint_history->expand(joint_observation)->toJointHistoryTree();
-                                factor += under_pb->getDynamics(hidden_state->toState(), action->toAction(),next_hidden_state,next_observation,t) * hyperplan->getProbability(hyperplan->HiddenStateAndJointHistoryToState(next_hidden_state, joint_history_next));
+                                factor += under_pb->getDynamics(hidden_state->toState(), action->toAction(),next_hidden_state,next_observation,t) * this->tmp_representation->getValueAt(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, joint_history_next));
                             }
                         }
                     }

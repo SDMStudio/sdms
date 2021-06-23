@@ -5,7 +5,7 @@ namespace sdm
 {
     SawtoothBackup::SawtoothBackup() {}
 
-    SawtoothBackup::SawtoothBackup(std::shared_ptr<SolvableByHSVI> world)
+    SawtoothBackup::SawtoothBackup(const std::shared_ptr<SolvableByHSVI>& world)
     {
         this->world_ = world;
     }
@@ -57,19 +57,21 @@ namespace sdm
 
     std::shared_ptr<Action> SawtoothBackup::getBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
-        std::shared_ptr<Action> best_action;
-        double max = -std::numeric_limits<double>::max(), tmp;
+        return this->getQValueAt(vf,state, t)->argmax();
 
-        for (const auto &action : *this->world_->getActionSpaceAt(state, t))
-        {
-            auto casted_action = std::static_pointer_cast<Action>(action);
-            if (max < (tmp = this->getQValueAt(vf, state, casted_action, t)))
-            {
-                best_action = casted_action;
-                max = tmp;
-            }
-        }
-        return best_action;
+    //     std::shared_ptr<Action> best_action;
+    //     double max = -std::numeric_limits<double>::max(), tmp;
+
+    //     for (const auto &action : *this->world_->getActionSpaceAt(state, t))
+    //     {
+    //         auto casted_action = std::static_pointer_cast<Action>(action);
+    //         if (max < (tmp = this->getQValueAt(vf, state, casted_action, t)))
+    //         {
+    //             best_action = casted_action;
+    //             max = tmp;
+    //         }
+    //     }
+    //     return best_action;
     }
 
 }
