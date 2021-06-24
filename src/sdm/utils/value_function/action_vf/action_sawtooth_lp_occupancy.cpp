@@ -2,6 +2,9 @@
 
 namespace sdm
 {
+    ActionVFSawtoothLPOccupancy::ActionVFSawtoothLPOccupancy();{}
+    ActionVFSawtoothLPOccupancy::ActionVFSawtoothLPOccupancy(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution) : ActionVFSawtoothLP(world,current_type_of_resolution,bigM_value,type_sawtooth_resolution)
+    
     void ActionVFSawtoothLPOccupancy::createDecentralizedVariables(const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = this->world_->getUnderlyingProblem();
