@@ -34,7 +34,7 @@ namespace sdm
         return this->getQValuesAt(observation, t)->at(action);
     }
 
-    double TabularQValueFunction::getNextValueAt(const std::shared_ptr<Observation> &observation, number t)
+    double TabularQValueFunction::getValueAt(const std::shared_ptr<Observation> &observation, number t)
     {
         return this->getQValuesAt(observation, t)->max();
     }
