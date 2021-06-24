@@ -38,6 +38,6 @@ namespace sdm
         virtual void setAgentId(number) = 0;
     };
 
-    class SerialOccupancyInterface : public SerialInterface, public OccupancyStateInterface
+    class SerialOccupancyInterface :virtual public SerialInterface,virtual public OccupancyStateInterface
     {};
 }

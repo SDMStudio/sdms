@@ -53,7 +53,7 @@ namespace sdm
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
     double norm_1() const;
 
-    virtual TypeState getTypeState() const ;
+    TypeState getTypeState() const ;
 
     void setDefaultValue(double); 
     double getDefaultValue() const; 

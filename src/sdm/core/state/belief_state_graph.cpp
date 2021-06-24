@@ -149,6 +149,12 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
+    TypeState BeliefStateGraph::getTypeState() const
+    {
+        return TypeState::BELIEF_STATE;
+    }
+
+
     void BeliefStateGraph::setDefaultValue(double value)
     {
         this->data_.setDefaultValue(value);

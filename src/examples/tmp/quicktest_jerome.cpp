@@ -75,24 +75,24 @@ int main(int argc, char **argv)
     // horizon = horizon * serial_mmdp->getNumAgents();
     auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
     // auto sawtooth_backup = std::make_shared<SawtoothBackup>(hsvi_mdp);
-    // auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
+    auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
 
     auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
     auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
     auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup);
-    auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup);
+    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup);
 
-    auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, horizon, 0.01);
+    auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, horizon, 0.01,5);
     algorithm->do_initialize();
 
     std::cout << *algorithm->getLowerBound() << std::endl;
     std::cout << *algorithm->getUpperBound() << std::endl;
 
-    algorithm->do_solve();
+    algorithm->do_solve(); 
 
-    // std::cout << *algorithm->getLowerBound() << std::endl;
-    // std::cout << *algorithm->getUpperBound() << std::endl;
+    std::cout << *algorithm->getLowerBound() << std::endl;
+    std::cout << *algorithm->getUpperBound() << std::endl;
 
     // for(const auto &state : *serial_mmdp->getStateSpace(1))
     // {

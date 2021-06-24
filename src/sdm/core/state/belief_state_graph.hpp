@@ -100,6 +100,8 @@ namespace sdm
         void setDefaultValue(double);
         double getDefaultValue() const;
 
+        TypeState getTypeState() const;
+
         template <class Archive>
         void serialize(Archive &archive, const unsigned int);
 
