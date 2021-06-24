@@ -1,302 +1,422 @@
-// #include <sdm/core/state/occupancy_state.hpp>
-// #include <sdm/core/state/private_occupancy_state.hpp>
-// #include <sdm/exception.hpp>
+#include <iomanip>
+#include <sdm/config.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
 
-// namespace sdm
-// {
-//     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
+namespace sdm
+{
+    double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
 
-//     OccupancyState::OccupancyState(double default_value) : OccupancyState(2, default_value)
-//     {
-//     }
+    OccupancyState::OccupancyState() : OccupancyState(2)
+    {
+    }
 
-//     OccupancyState::OccupancyState(number num_agents, double default_value) : Belief(default_value), num_agents_(num_agents)
-//     {
-//         for (number agent_id = 0; agent_id < num_agents; agent_id++)
-//         {
-//             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
-//             this->private_ihistory_map_.push_back({});
-//             this->map_label_to_pointer.push_back({});
-//         }
-//     }
+    OccupancyState::OccupancyState(number num_agents) : num_agents_(num_agents)
+    {
+        for (number agent_id = 0; agent_id < num_agents; agent_id++)
+        {
+            this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
+            this->private_ihistory_map_.push_back({});
+            this->map_label_to_pointer.push_back({});
+        }
+    }
 
-//     // OccupancyState::OccupancyState(const OccupancyState &occupancy_state)
-//     //     : MappedVector<std::shared_ptr<State>>, double>(occupancy_state),
-//     //       tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.tuple_of_maps_from_histories_to_private_occupancy_states_),
-//     //       fully_uncompressed_occupancy_state(occupancy_state.fully_uncompressed_occupancy_state),
-//     //       one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
-//     //       private_ihistory_map_(occupancy_state.private_ihistory_map_),
-//     //       map_label_to_pointer(occupancy_state.map_label_to_pointer),
-//     //       jhistory_map_(occupancy_state.jhistory_map_),
-//     //       probability_ihistories(occupancy_state.probability_ihistories),
-//     //       list_states(occupancy_state.list_states),
-//     //       list_jhistories(occupancy_state.list_jhistories),
-//     //       list_jhistory_states(occupancy_state.list_jhistory_states),
-//     //       num_agents_(occupancy_state.num_agents_),
-//     //       all_list_ihistories(occupancy_state.all_list_ihistories),
-//     //       ihistories_to_jhistory(occupancy_state.ihistories_to_jhistory),
-//     //       probability_jhistories(occupancy_state.probability_jhistories)
-//     // {
-//     // }
+    OccupancyState::OccupancyState(const OccupancyState &occupancy_state)
+        : Belief(occupancy_state),
+          tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.tuple_of_maps_from_histories_to_private_occupancy_states_),
+          fully_uncompressed_occupancy_state(occupancy_state.fully_uncompressed_occupancy_state),
+          one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
+          private_ihistory_map_(occupancy_state.private_ihistory_map_),
+          map_label_to_pointer(occupancy_state.map_label_to_pointer),
+          jhistory_map_(occupancy_state.jhistory_map_),
+          probability_ihistories(occupancy_state.probability_ihistories),
+          list_beliefs_(occupancy_state.list_beliefs_),
+          list_joint_histories_(occupancy_state.list_joint_histories_),
+          map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
+          num_agents_(occupancy_state.num_agents_),
+          all_list_ihistories_(occupancy_state.all_list_ihistories_),
+          ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
+          map_pair_to_pointer_(occupancy_state.map_pair_to_pointer_)
+    {
+    }
 
-//     // ###################################
-//     // ###### MANIPULATE DATA ############
-//     // ###################################
+    double OccupancyState::getProbability(const std::shared_ptr<State> &pair_history_belief) const
+    {
+        return Belief::getProbability(pair_history_belief);
+    }
 
-//     const std::set<std::shared_ptr<JointHistoryInterface>> &OccupancyState::getJointHistories() const
-//     {
-//         return this->list_joint_histories_;
-//     }
+    double OccupancyState::getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const
+    {
+        auto iterator_on_pair_history_belief = this->map_pair_to_pointer_.find({joint_history, belief});
+        return this->getProbability(iterator_on_pair_history_belief->second);
+    }
 
-//     const std::shared_ptr<BeliefInterface> &OccupancyState::getBeliefAt(const std::shared_ptr<JointHistoryInterface> &jhistory) const
-//     {
-//         return this->map_joint_history_to_belief_.at(jhistory);
-//     }
+    void OccupancyState::setProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
+    {
+        return Belief::setProbability(pair_history_belief, proba);
+    }
 
-//     const std::set<std::shared_ptr<HistoryInterface>> &OccupancyState::getIndividualHistories(number agent_id) const
-//     {
-//         return this->all_list_ihistories[agent_id];
-//     }
+    void OccupancyState::setProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
+    {
+        auto iterator_on_pair_history_belief = this->map_pair_to_pointer_.find({joint_history, belief});
+        if (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end())
+        {
+            auto pair_hist_belief = std::make_shared<JointHistoryBeliefPair>(joint_history, belief);
+            this->map_pair_to_pointer_[{joint_history, belief}] = pair_hist_belief;
+            return this->setProbability(pair_hist_belief, proba);
+        }
+        else
+        {
+            return this->setProbability(this->getPairPointer(joint_history, belief), proba);
+        }
+    }
 
-//     const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &OccupancyState::getAllIndividualHistories() const
-//     {
-//         return this->all_list_ihistories;
-//     }
+    void OccupancyState::addProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
+    {
+        return Belief::addProbability(pair_history_belief, proba);
+    }
 
-//     TypeState OccupancyState::getTypeState() const
-//     {
-//         return TypeState::OCCUPANCY_STATE;
-//     }
+    void OccupancyState::addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
+    {
+        auto iterator_on_pair_history_belief = this->map_pair_to_pointer_.find({joint_history, belief});
+        if (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end())
+        {
+            auto pair_hist_belief = std::make_shared<JointHistoryBeliefPair>(joint_history, belief);
+            this->map_pair_to_pointer_[{joint_history, belief}] = pair_hist_belief;
+            return this->addProbability(pair_hist_belief, proba);
+        }
+        else
+        {
+            return this->addProbability(joint_history, belief, proba);
+        }
+    }
 
-//     void finalize()
-//     {
-//     }
+    std::shared_ptr<JointHistoryBeliefPair> OccupancyState::getPairPointer(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief)
+    {
+        return this->map_pair_to_pointer_.at({joint_history, belief});
+    }
 
-//     // #############################################
-//     // ###### MANIPULATE REPRESENTATION ############
-//     // #############################################
+    // ###################################
+    // ###### MANIPULATE DATA ############
+    // ###################################
 
-//     const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> &OccupancyState::getPrivateOccupancyStates() const
-//     {
-//         return this->tuple_of_maps_from_histories_to_private_occupancy_states_;
-//     }
+    const std::set<std::shared_ptr<JointHistoryInterface>> &OccupancyState::getJointHistories() const
+    {
+        return this->list_joint_histories_;
+    }
 
-//     const std::shared_ptr<PrivateOccupancyState> &OccupancyState::getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const
-//     {
-//         return this->tuple_of_maps_from_histories_to_private_occupancy_states_.at(agent_id).at(ihistory);
-//     }
+    const std::set<std::shared_ptr<BeliefInterface>> &OccupancyState::getBeliefs() const
+    {
+        return this->list_beliefs_;
+    }
 
-//     std::shared_ptr<OccupancyStateInterface> OccupancyState::getFullyUncompressedOccupancy() const
-//     {
-//         return this->fully_uncompressed_occupancy_state;
-//     }
+    const std::set<std::shared_ptr<BeliefInterface>> &OccupancyState::getBeliefsAt(const std::shared_ptr<JointHistoryInterface> &jhistory) const
+    {
+        return this->map_joint_history_to_belief_.at(jhistory);
+    }
 
-//     void OccupancyState::setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &fully_uncompressed_ostate)
-//     {
-//         this->fully_uncompressed_occupancy_state = fully_uncompressed_ostate;
-//     }
+    const std::set<std::shared_ptr<HistoryInterface>> &OccupancyState::getIndividualHistories(number agent_id) const
+    {
+        return this->all_list_ihistories_[agent_id];
+    }
 
-//     std::shared_ptr<OccupancyStateInterface> OccupancyState::getOneStepUncompressedOccupancy() const
-//     {
-//         return this->one_step_left_compressed_occupancy_state;
-//     }
+    const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &OccupancyState::getAllIndividualHistories() const
+    {
+        return this->all_list_ihistories_;
+    }
 
-//     void OccupancyState::setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &one_step_uncompress_ostate)
-//     {
-//         this->one_step_left_compressed_occupancy_state = one_step_uncompress_ostate;
-//         std::static_pointer_cast<OccupancyState>(one_step_uncompress_ostate)->setCompressedOccupancy(this->getptr());
-//     }
+    TypeState OccupancyState::getTypeState() const
+    {
+        return TypeState::OCCUPANCY_STATE;
+    }
 
-//     std::shared_ptr<OccupancyStateInterface> OccupancyState::getCompressedOccupancy() const
-//     {
-//         return this->compressed_occupancy_state;
-//     }
+    void OccupancyState::setupIndividualHistories()
+    {
+        this->all_list_ihistories_.clear();
+        bool first_passage = true;
+        for (const auto &jhist : this->getJointHistories())
+        {
+            const auto &ihists = jhist->getIndividualHistories();
+            for (std::size_t i = 0; i < ihists.size(); i++)
+            {
+                if (first_passage)
+                {
+                    this->all_list_ihistories_.push_back({});
+                }
 
-//     void OccupancyState::setCompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &compress_ostate)
-//     {
-//         this->compressed_occupancy_state = compress_ostate;
-//     }
+                this->all_list_ihistories_[i].insert(ihists[i]);
+            }
+            first_passage = false;
+        }
+    }
 
-//     // #####################################
-//     // ###### MANIPULATE LABELS ############
-//     // #####################################
+    void OccupancyState::setupBeliefsAndHistories()
+    {
+        // Get the set of joint histories that are in the support of the OccupancyState
+        this->list_joint_histories_.clear();
+        for (const auto &pair_history_belief : this->getStates())
+        {
+            auto history = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief)->first;
+            auto belief = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief)->second;
+            this->list_joint_histories_.insert(history);
+            this->list_beliefs_.insert(belief);
+            this->map_joint_history_to_belief_[history].insert(belief);
+        }
+    }
 
-//     std::shared_ptr<HistoryInterface> OccupancyState::getLabel(const std::shared_ptr<HistoryInterface> &ihistory, number agent_id) const
-//     {
-//         if (this->private_ihistory_map_.at(agent_id).find(ihistory) == this->private_ihistory_map_.at(agent_id).end())
-//         {
-//             // if the ihistory was never compressed
-//             return ihistory;
-//         }
-//         else
-//         {
-//             // if the ihistory was compressed
-//             return this->private_ihistory_map_.at(agent_id).at(ihistory);
-//         }
-//     }
+    void OccupancyState::setup()
+    {
+        this->setupBeliefsAndHistories();
+        this->setupIndividualHistories();
+    }
 
-//     std::vector<std::shared_ptr<HistoryInterface>> getJointLabels(const std::vector<std::shared_ptr<HistoryInterface>> &) const
-//     {
-//         std::vector<std::shared_ptr<HistoryInterface>> new_list_ihistories;
-//         for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
-//         {
-//             // if the ihistory was never compressed
-//             new_list_ihistories.push_back(this->getLabel(list_ihistories.at(agent_id), agent_id));
-//         }
-//         return new_list_ihistories;
-//     }
+    // #############################################
+    // ###### MANIPULATE REPRESENTATION ############
+    // #############################################
 
-//     void OccupancyState::updateLabel(number agent_id, const std::shared_ptr<HistoryInterface> &ihistory, const std::shared_ptr<HistoryInterface> &label)
-//     {
-//         // if there is a label for ihistory
-//         if (this->private_ihistory_map_[agent_id].find(ihistory) != this->private_ihistory_map_[agent_id].end())
-//         {
-//             // Get the old label
-//             auto &&old_label = this->private_ihistory_map_[agent_id].at(ihistory);
-//             // Change every labels of ihistories that have old_label as label
+    const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> &OccupancyState::getPrivateOccupancyStates() const
+    {
+        return this->tuple_of_maps_from_histories_to_private_occupancy_states_;
+    }
 
-//             old_label = label;
-//         }
-//         else
-//         {
-//             // Check if the label is already used for another indiv history
-//             if (this->map_label_to_pointer[agent_id].find(label) != this->map_label_to_pointer[agent_id].end())
-//             {
-//                 this->private_ihistory_map_[agent_id][ihistory] = this->map_label_to_pointer[agent_id].at(label);
-//             }
-//             else
-//             {
-//                 // If no such label is already used, create a pointer on it and store it
-//                 auto &&new_ptr_on_label = label;
-//                 this->map_label_to_pointer[agent_id][label] = new_ptr_on_label;
-//                 this->private_ihistory_map_[agent_id][ihistory] = new_ptr_on_label;
-//             }
-//         }
-//     }
+    const std::shared_ptr<PrivateOccupancyState> &OccupancyState::getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const
+    {
+        return this->tuple_of_maps_from_histories_to_private_occupancy_states_.at(agent_id).at(ihistory);
+    }
 
-//     void OccupancyState::updateJointLabels(const std::vector<std::shared_ptr<HistoryInterface>> &list_ihistories, const std::vector<std::shared_ptr<HistoryInterface>> &list_labels)
-//     {
-//         for (number agent_id = 0; agent_id < this->num_agents_; ++agent_id)
-//         {
-//             this->updateLabel(agent_id, list_ihistories.at(agent_id), list_labels.at(agent_id));
-//         }
-//     }
+    std::shared_ptr<OccupancyStateInterface> OccupancyState::getFullyUncompressedOccupancy() const
+    {
+        return this->fully_uncompressed_occupancy_state;
+    }
 
-//     // #############################################
-//     // ######### MANIPULATE COMPRESSION ############
-//     // #############################################
+    void OccupancyState::setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &fully_uncompressed_ostate)
+    {
+        this->fully_uncompressed_occupancy_state = fully_uncompressed_ostate;
+    }
 
-//     std::shared_ptr<JointHistoryInterface> OccupancyState::getCompressedJointHistory(const std::shared_ptr<JointHistoryInterface> &joint_history) const
-//     {
-//         const auto &labels = this->getJointLabels(joint_history->getIndividualHistories());
-//         return this->jhistory_map_.at(labels);
-//     }
+    std::shared_ptr<OccupancyStateInterface> OccupancyState::getOneStepUncompressedOccupancy() const
+    {
+        return this->one_step_left_compressed_occupancy_state;
+    }
 
-//     bool OccupancyState::areIndividualHistoryLPE(const std::shared_ptr<HistoryInterface> &ihistory_1, const std::shared_ptr<HistoryInterface> &ihistory_2, number agent_identifier)
-//     {
-//         return this->getPrivateOccupancyState(agent_identifier, ihistory_1) == this->getPrivateOccupancyState(agent_identifier, ihistory_2);
-//     }
+    void OccupancyState::setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &one_step_uncompress_ostate)
+    {
+        this->one_step_left_compressed_occupancy_state = one_step_uncompress_ostate;
+        std::static_pointer_cast<OccupancyState>(one_step_uncompress_ostate)->setCompressedOccupancy(this->getptr());
+    }
 
-//     std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
-//     {
-//         OccupancyState current_compact_ostate(this->num_agents_);
-//         OccupancyState previous_compact_ostate = *this;
+    std::shared_ptr<OccupancyStateInterface> OccupancyState::getCompressedOccupancy() const
+    {
+        return this->compressed_occupancy_state;
+    }
 
-//         for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
-//         {
-//             // Get support (a set of individual histories for agent i)
-//             const auto &support_set = this->getIndividualHistories(agent_id);
-//             auto &&support = tools::set2vector(support_set);
+    void OccupancyState::setCompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &compress_ostate)
+    {
+        this->compressed_occupancy_state = compress_ostate;
+    }
 
-//             // Sort support
-//             std::sort(support.begin(), support.end());
+    // #####################################
+    // ###### MANIPULATE LABELS ############
+    // #####################################
 
-//             for (auto iter_first = support.begin(); iter_first != support.end();)
-//             {
-//                 auto ihistory_label = *iter_first;      // Get the ihistory "label"
-//                 iter_first = support.erase(iter_first); // Erase the ihistory "label" from the support
+    std::shared_ptr<HistoryInterface> OccupancyState::getLabel(const std::shared_ptr<HistoryInterface> &ihistory, number agent_id) const
+    {
+        if (this->private_ihistory_map_.at(agent_id).find(ihistory) == this->private_ihistory_map_.at(agent_id).end())
+        {
+            // if the ihistory was never compressed
+            return ihistory;
+        }
+        else
+        {
+            // if the ihistory was compressed
+            return this->private_ihistory_map_.at(agent_id).at(ihistory);
+        }
+    }
 
-//                 // Set probability of labels
-//                 for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_label))
-//                 {
-//                     current_compact_ostate.setProbability(pair_s_o_prob.first, pair_s_o_prob.second);
-//                 }
-//                 for (auto iter_second = iter_first; iter_second != support.end();)
-//                 {
-//                     auto ihistory_one_step_left = *iter_second; // Get the ihistory we want check the equivalence
-//                     if (this->areIndividualHistoryLPE(ihistory_label, ihistory_one_step_left, agent_id))
-//                     {
-//                         // Store new label
-//                         this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label);
+    Joint<std::shared_ptr<HistoryInterface>> OccupancyState::getJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &list_ihistories) const
+    {
+        Joint<std::shared_ptr<HistoryInterface>> new_list_ihistories;
+        for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
+        {
+            // if the ihistory was never compressed
+            new_list_ihistories.push_back(this->getLabel(list_ihistories.at(agent_id), agent_id));
+        }
+        return new_list_ihistories;
+    }
 
-//                         // Erase unecessary equivalent individual history
-//                         iter_second = support.erase(iter_second);
-//                         for (const auto &pair_s_o_prob : *previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_one_step_left))
-//                         {
-//                             auto partial_jhist = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getPartialJointHistory(this->getHistory(pair_s_o_prob.first));
-//                             auto joint_history = previous_compact_ostate.getPrivateOccupancyState(agent_id, ihistory_label)->getJointHistory(partial_jhist);
-//                             current_compact_ostate.addProbability(this->getHiddenState(pair_s_o_prob.first), joint_history, pair_s_o_prob.second);
-//                         }
-//                     }
-//                     else
-//                     {
-//                         iter_second++;
-//                     }
-//                 }
-//             }
+    void OccupancyState::updateLabel(number agent_id, const std::shared_ptr<HistoryInterface> &ihistory, const std::shared_ptr<HistoryInterface> &label)
+    {
+        // if there is a label for ihistory
+        if (this->private_ihistory_map_[agent_id].find(ihistory) != this->private_ihistory_map_[agent_id].end())
+        {
+            // Get the old label
+            auto &&old_label = this->private_ihistory_map_[agent_id].at(ihistory);
+            // Change every labels of ihistories that have old_label as label
 
-//             previous_compact_ostate = current_compact_ostate;
-//             previous_compact_ostate.private_ihistory_map_ = this->private_ihistory_map_;
-//             previous_compact_ostate.finalize();
-//             current_compact_ostate.clear();
-//         }
-//         return std::shared_ptr<OccupancyStateInterface>(std::make_shared<OccupancyState>(previous_compact_ostate));
-//     }
+            old_label = label;
+        }
+        else
+        {
+            // Check if the label is already used for another indiv history
+            if (this->map_label_to_pointer[agent_id].find(label) != this->map_label_to_pointer[agent_id].end())
+            {
+                this->private_ihistory_map_[agent_id][ihistory] = this->map_label_to_pointer[agent_id].at(label);
+            }
+            else
+            {
+                // If no such label is already used, create a pointer on it and store it
+                auto &&new_ptr_on_label = label;
+                this->map_label_to_pointer[agent_id][label] = new_ptr_on_label;
+                this->private_ihistory_map_[agent_id][ihistory] = new_ptr_on_label;
+            }
+        }
+    }
 
-//     void OccupancyState::finalize()
-//     {
-//         this->setStates();
-//         this->setJointHistories();
-//         this->setAllIndividualHistories();
-//         this->setJointHistoryOverIndividualHistories();
-//         this->setProbabilityOverJointHistory();
+    void OccupancyState::updateJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &list_ihistories, const Joint<std::shared_ptr<HistoryInterface>> &list_labels)
+    {
+        for (number agent_id = 0; agent_id < this->num_agents_; ++agent_id)
+        {
+            this->updateLabel(agent_id, list_ihistories.at(agent_id), list_labels.at(agent_id));
+        }
+    }
 
-//         for (const auto &jhist : this->getJointHistories())
-//         {
-//             for (const auto &state : this->getStatesAt(jhist))
-//             {
-//                 const auto &proba = this->getProbability(state, jhist);
+    // #############################################
+    // ######### MANIPULATE COMPRESSION ############
+    // #############################################
 
-//                 // Store relation between joint history and list of individual histories
-//                 this->jhistory_map_.emplace(jhist->getIndividualHistories(), jhist);
+    std::shared_ptr<JointHistoryInterface> OccupancyState::getCompressedJointHistory(const std::shared_ptr<JointHistoryInterface> &joint_history) const
+    {
+        const auto &labels = this->getJointLabels(joint_history->getIndividualHistories());
+        return this->jhistory_map_.at(labels);
+    }
 
-//                 // For each agent we update its private occupancy state
-//                 for (number agent_id = 0; agent_id < this->num_agents_; agent_id++)
-//                 {
-//                     // std::cout << "agent_id=" << agent_id << std::endl;
-//                     // Instanciation empty private occupancy state associated to ihistory and agent i if not exists
-//                     if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
-//                     {
-//                         this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState>(agent_id, this->num_agents_, this->default_value_));
-//                     }
-//                     // Set private occupancy measure
-//                     this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id][jhist->getIndividualHistory(agent_id)]->addProbability(state, jhist, proba);
-//                 }
-//             }
-//         }
-//         for (number agent_id = 0; agent_id < this->num_agents_; agent_id++)
-//         {
-//             for (const auto &pair_ihist_private_occupancy_state : this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id])
-//             {
-//                 pair_ihist_private_occupancy_state.second->finalize(false);
-//             }
-//         }
+    bool OccupancyState::areIndividualHistoryLPE(const std::shared_ptr<HistoryInterface> &ihistory_1, const std::shared_ptr<HistoryInterface> &ihistory_2, number agent_identifier)
+    {
+        return this->getPrivateOccupancyState(agent_identifier, ihistory_1)->check_equivalence(*this->getPrivateOccupancyState(agent_identifier, ihistory_2));
+    }
 
-//         this->setProbabilityOverIndividualHistories();
-//     }
+    std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
+    {
+        auto current_compact_ostate = std::make_shared<OccupancyState>(this->num_agents_);
+        auto previous_compact_ostate = std::make_shared<OccupancyState>(*this);
 
-//     std::shared_ptr<OccupancyState> OccupancyState::getptr()
-//     {
-//         return std::static_pointer_cast<OccupancyState>(this->shared_from_this()->toState()->toOccupancyState());
-//     }
-// } // namespace sdm
+        for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
+        {
+            // Get support (a set of individual histories for agent i)
+            const auto &support_set = this->getIndividualHistories(agent_id);
+            auto &&support = tools::set2vector(support_set);
+
+            // Sort support
+            std::sort(support.begin(), support.end());
+
+            for (auto iter_first = support.begin(); iter_first != support.end();)
+            {
+                auto ihistory_label = *iter_first;      // Get the ihistory "label"
+                iter_first = support.erase(iter_first); // Erase the ihistory "label" from the support
+
+                // Set probability of labels
+                for (const auto &pair_history_belief : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getStates())
+                {
+                    current_compact_ostate->setProbability(pair_history_belief, previous_compact_ostate->getProbability(pair_history_belief));
+                }
+                for (auto iter_second = iter_first; iter_second != support.end();)
+                {
+                    auto ihistory_one_step_left = *iter_second; // Get the ihistory we want check the equivalence
+                    if (this->areIndividualHistoryLPE(ihistory_label, ihistory_one_step_left, agent_id))
+                    {
+                        // Store new label
+                        this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label);
+
+                        // Erase unecessary equivalent individual history
+                        iter_second = support.erase(iter_second);
+                        for (const auto &pair_history_belief : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getStates())
+                        {
+                            auto private_joint_history = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief)->first;
+                            auto belief = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief)->second;
+                            double probability = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getProbability(pair_history_belief);
+
+                            auto partial_jhist = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getPartialJointHistory(private_joint_history);
+                            auto joint_history = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getJointHistory(partial_jhist);
+
+                            current_compact_ostate->addProbability(joint_history, belief, probability);
+                        }
+                    }
+                    else
+                    {
+                        iter_second++;
+                    }
+                }
+            }
+
+            previous_compact_ostate = current_compact_ostate;
+            previous_compact_ostate->private_ihistory_map_ = this->private_ihistory_map_;
+            previous_compact_ostate->finalize();
+            current_compact_ostate->clear();
+        }
+        return previous_compact_ostate;
+    }
+
+    void OccupancyState::finalize()
+    {
+        this->setup();
+
+        for (const auto &jhist : this->getJointHistories())
+        {
+            for (const auto &belief : this->getBeliefsAt(jhist))
+            {
+                const auto &proba = this->getProbability(jhist, belief);
+
+                // Store relation between joint history and list of individual histories
+                this->jhistory_map_.emplace(jhist->getIndividualHistories(), jhist);
+
+                // For each agent we update its private occupancy state
+                for (number agent_id = 0; agent_id < this->num_agents_; agent_id++)
+                {
+                    // Instanciation empty private occupancy state associated to ihistory and agent i if not exists
+                    if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
+                    {
+                        this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState>(agent_id, this->num_agents_));
+                    }
+                    // Set private occupancy measure
+                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id][jhist->getIndividualHistory(agent_id)]->addProbability(jhist, belief, proba);
+                }
+            }
+        }
+        for (number agent_id = 0; agent_id < this->num_agents_; agent_id++)
+        {
+            for (const auto &pair_ihist_private_occupancy_state : this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id])
+            {
+                pair_ihist_private_occupancy_state.second->finalize(false);
+            }
+        }
+    }
+
+    std::shared_ptr<OccupancyState> OccupancyState::getptr()
+    {
+        return std::static_pointer_cast<OccupancyState>(this->toState()->toOccupancyState());
+    }
+
+    std::string OccupancyState::str() const
+    {
+        std::ostringstream res;
+        res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
+
+        res << "<occupancy-state size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
+        int i = 0;
+        for (const auto &pair_state_proba : *this)
+        {
+            auto history = std::static_pointer_cast<JointHistoryBeliefPair>(pair_state_proba.first)->first;
+            auto belief = std::static_pointer_cast<JointHistoryBeliefPair>(pair_state_proba.first)->second;
+
+            res << "\t<probability";
+            res << " history=" << history->short_str() << "";
+            res << " belief=" << belief->str() << ">\n";
+            res << "\t\t\t" << pair_state_proba.second << "\n";
+            res << "\t</probability \n";
+        }
+        res << "</occupancy-state>";
+        return res.str();
+    }
+
+} // namespace sdm

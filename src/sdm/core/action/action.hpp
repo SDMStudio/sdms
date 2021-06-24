@@ -17,7 +17,6 @@ namespace sdm
 {
     class DecisionRule;
 
-
     class Action : public Item
     {
     public:

@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
 #include <sdm/core/item.hpp>
 #include <sdm/utils/struct/iterator.hpp>
 
@@ -48,6 +49,11 @@ namespace sdm
      * @brief Get the dimension of the space.
      */
     virtual std::vector<number> getDim() const = 0;
+
+    /**
+     * @brief Sample a random item from the space
+     */
+    virtual std::shared_ptr<Item> sample() const { throw sdm::exception::NotImplementedException(); }
 
     virtual iterator_type begin() = 0;
     virtual iterator_type end() = 0;

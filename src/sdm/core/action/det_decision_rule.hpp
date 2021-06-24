@@ -13,6 +13,7 @@ namespace sdm
   {
   public:
     DeterministicDecisionRule();
+    DeterministicDecisionRule(const DeterministicDecisionRule &copy);
     DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions);
 
     /**

@@ -1,21 +1,17 @@
-#include <sdm/config.hpp>
-#include <sdm/core/state/belief_state.hpp>
 #include <iomanip>
+#include <sdm/config.hpp>
 #include <sdm/exception.hpp>
+#include <sdm/core/state/belief_state.hpp>
 
 namespace sdm
 {
   double Belief::PRECISION = config::PRECISION_BELIEF;
 
-  Belief::Belief()
+  Belief::Belief() : MappedVector<std::shared_ptr<State>>(0.)
   {
   }
 
-  Belief::Belief(double default_value) : MappedVector<std::shared_ptr<State>>(default_value)
-  {
-  }
-
-  Belief::Belief(std::size_t size, double default_value) : MappedVector<std::shared_ptr<State>>(size, default_value)
+  Belief::Belief(std::size_t size) : MappedVector<std::shared_ptr<State>>(size, 0.)
   {
     // this->container = std::make_shared<SparseVector<std::shared_ptr<State>>>(size, default_value);
   }
@@ -107,9 +103,8 @@ namespace sdm
 
   double Belief::norm_1() const
   {
-    return  MappedVector<std::shared_ptr<State>, double>::norm_1();
+    return MappedVector<std::shared_ptr<State>, double>::norm_1();
   }
- 
 
   TypeState Belief::getTypeState() const
   {
@@ -128,21 +123,19 @@ namespace sdm
 
   std::string Belief::str() const
   {
+    std::ostringstream res;
+    res << std::setprecision(config::BELIEF_DECIMAL_PRINT) << std::fixed;
+
+    res << "BeliefState[" << MappedVector<std::shared_ptr<State>>::size() << "]( ";
+    int i = 0;
+    for (const auto &pair_state_proba : *this)
     {
-      std::ostringstream res;
-      res << std::setprecision(config::BELIEF_DECIMAL_PRINT) << std::fixed;
-      
-      res << "BeliefState[" << MappedVector<std::shared_ptr<State>>::size() << "]( ";
-      int i = 0;
-      for (const auto &pair_state_proba : *this)
-      {
-        res << ((i == 0) ? "" : " | ");
-        res << pair_state_proba.first->str() << " : " << pair_state_proba.second;
-        i++;
-      }
-      res << " )";
-      return res.str();
+      res << ((i == 0) ? "" : " | ");
+      res << pair_state_proba.first->str() << " : " << pair_state_proba.second;
+      i++;
     }
+    res << " )";
+    return res.str();
   }
 
 } // namespace sdm

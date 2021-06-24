@@ -3,7 +3,7 @@
 // #include <unordered_map>
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/core/state/interface/jhistory_interface.hpp>
+#include <sdm/core/state/interface/joint_history_interface.hpp>
 
 namespace sdm
 {

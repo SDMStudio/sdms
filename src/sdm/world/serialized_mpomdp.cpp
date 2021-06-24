@@ -79,7 +79,7 @@ namespace sdm
         // Create the Default Joint Observation
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
-            empty_observation_tmp.push_back(std::make_shared<DiscreteObservation>(sdm::DEFAULT_OBSERVATION));
+            empty_observation_tmp.push_back(sdm::DEFAULT_OBSERVATION);
         }
 
         std::shared_ptr<Observation> empty_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>(empty_observation_tmp);

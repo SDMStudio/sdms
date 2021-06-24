@@ -50,7 +50,12 @@ namespace sdm
         DiscreteSpace(const std::vector<std::shared_ptr<Item>> &items);
 
         template <typename T>
-        DiscreteSpace(const std::vector<T> &items);
+        DiscreteSpace(const std::vector<T> &items)
+        {
+            std::vector<std::shared_ptr<Item>> titems(items.begin(), items.end());
+            *this = DiscreteSpace(titems);
+        }
+
         /**
          * @brief Construct a new Discrete Space object from a list initializer
          */
@@ -67,7 +72,7 @@ namespace sdm
         bool isDiscrete() const;
         bool isStoringItems() const;
         void storeItems(bool store_items);
-        
+
         /**
          * @brief Sample a random item from the space
          */

@@ -22,11 +22,16 @@
 #include <sdm/world/mmdp.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/parser/parser.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/core/state/belief_state.hpp>
+#include <sdm/core/state/belief_state_graph.hpp>
+#include <sdm/core/state/history_tree.hpp>
+#include <sdm/core/state/jhistory_tree.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 using namespace sdm;
 
@@ -59,7 +64,7 @@ int main(int argc, char **argv)
 
         std::cout << mdp->toStdFormat() << std::endl;
 
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp);
 
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
 

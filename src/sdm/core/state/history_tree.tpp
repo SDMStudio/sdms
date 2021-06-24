@@ -2,52 +2,57 @@
 
 namespace sdm
 {
-    template <typename T>
-    HistoryTree<T>::HistoryTree() : Tree<T>()
+    HistoryTree::HistoryTree() : Tree<std::shared_ptr<Observation>>()
     {
     }
 
-    template <typename T>
-    HistoryTree<T>::HistoryTree(number max_depth) : Tree<T>(max_depth)
+    HistoryTree::HistoryTree(number max_depth) : Tree<std::shared_ptr<Observation>>(max_depth)
     {
     }
 
-    template <typename T>
-    HistoryTree<T>::HistoryTree(std::shared_ptr<HistoryTree<T>> parent, const T &item) : Tree<T>(parent, item)
+    HistoryTree::HistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item) : Tree<std::shared_ptr<Observation>>(parent, item)
     {
     }
 
-    template <typename T>
-    number HistoryTree<T>::getHorizon() const
+    number HistoryTree::getHorizon() const
     {
         return this->getDepth();
     }
 
-    template <typename T>
-    std::shared_ptr<HistoryInterface> HistoryTree<T>::expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup )
+    std::shared_ptr<HistoryInterface> HistoryTree::getPreviousHistory()
+    {
+        return this->getParent();
+    }
+
+    template <typename output>
+    std::shared_ptr<output> HistoryTree::expand(const std::shared_ptr<Observation> &observation, bool backup)
     {
         if (backup && (this->children_.find(observation) != this->children_.end()))
         {
-            return std::dynamic_pointer_cast<HistoryTree<T>>(this->getChild(observation));
+            return std::dynamic_pointer_cast<output>(this->getChild(observation));
         }
         if (backup && (this->getDepth() >= this->getMaxDepth()))
         {
-            return this->truncatedExpand(observation,action, backup);
+            return this->truncatedExpand<output>(observation, backup);
         }
         if (backup)
         {
-            this->children_.emplace(observation, std::make_shared<HistoryTree<T>>(this->getptr(), observation));
+            this->children_.emplace(observation, std::make_shared<output>(this->getptr(), observation));
 
-            return std::dynamic_pointer_cast<HistoryTree<T>>(this->getChild(observation));
+            return std::dynamic_pointer_cast<output>(this->getChild(observation));
         }
-        return std::make_shared<HistoryTree<T>>(this->getptr(), observation);
-
+        return std::make_shared<output>(this->getptr(), observation);
     }
 
-    template <typename T>
-    std::shared_ptr<HistoryInterface> HistoryTree<T>::truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup)
+    std::shared_ptr<HistoryInterface> HistoryTree::expand(const std::shared_ptr<Observation> &observation, bool backup)
     {
-        std::list<T> items;
+        return this->expand<HistoryTree>(observation, backup);
+    }
+
+    template <typename output>
+    std::shared_ptr<output> HistoryTree::truncatedExpand(const std::shared_ptr<Observation> &observation, bool backup)
+    {
+        std::list<std::shared_ptr<Observation>> items;
 
         //<! fill in the vector of observation to simulate
         items.push_front(observation);
@@ -63,99 +68,96 @@ namespace sdm
 
         for (auto it = items.begin(); it != items.end(); ++it)
         {
-            trace = std::dynamic_pointer_cast<HistoryTree<T>>(trace->expand(*it,action, backup));
+            trace = std::dynamic_pointer_cast<output>(trace->expand(*it, backup));
         }
 
-        return std::dynamic_pointer_cast<HistoryTree<T>>(trace);
+        return std::dynamic_pointer_cast<output>(trace);
     }
 
-    template <typename T>
-    std::string HistoryTree<T>::short_str()
+    std::string HistoryTree::short_str() const
     {
         std::ostringstream res;
-        std::list<T> list_items;
-        
-        std::shared_ptr<Tree<T>> chistory = this->getptr(), origin = this->getOrigin();
 
-
-        while (chistory != origin)
+        if (this->isOrigin())
         {
-            list_items.push_front(chistory->getData());
-            chistory = chistory->getParent();
+            res << "()";
         }
-        res << '(';
-        for (auto item_it = list_items.begin(); item_it != list_items.end();)
+        else
         {
-            res << *item_it;
-            item_it++;
-            if (item_it != list_items.end())
+            std::list<std::shared_ptr<Observation>> list_items;
+
+            list_items.push_front(this->getData());
+
+            auto chistory = this->getParent();
+            while (chistory != this->origin_)
             {
-                res << ", ";
+                list_items.push_front(chistory->getData());
+                chistory = chistory->getParent();
             }
+            res << '(';
+            for (auto item_it = list_items.begin(); item_it != list_items.end();)
+            {
+                res << (*item_it)->str();
+                item_it++;
+                if (item_it != list_items.end())
+                {
+                    res << ", ";
+                }
+            }
+            res << ')';
         }
-        res << ')';
 
         return res.str();
     }
 
-    template <typename T>
-    std::string HistoryTree<T>::str() const
+    std::string HistoryTree::str() const
     {
         std::ostringstream res;
-        res << "<history \"/>";
+        res << "<history id=\"" << this << "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str() << "\"/>";
         return res.str();
     }
 
-    template <typename T>
-    std::string HistoryTree<T>::str_not_const()
+    std::shared_ptr<Item> HistoryTree::getPointer()
     {
-        std::ostringstream res;
-        res << "<history id=\"" << /*this->getptr()<<*/ "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str() << "\"/>";
-        return res.str();
+        return this->getptr();
     }
 
-    template <typename T>
-    std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getptr()
+    std::shared_ptr<HistoryTree> HistoryTree::getptr()
     {
-        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::shared_from_this());
+        return Tree<std::shared_ptr<Observation>>::downcasted_shared_from_this<HistoryTree>();
     }
 
-    template <typename T>
-    std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getParent() const
+    std::shared_ptr<HistoryTree> HistoryTree::getParent() const
     {
-        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::getParent());
+        return std::static_pointer_cast<HistoryTree>(Tree<std::shared_ptr<Observation>>::getParent());
     }
 
-    template <typename T>
-    std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getOrigin()
+    std::shared_ptr<HistoryTree> HistoryTree::getOrigin()
     {
-        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::getOrigin());
+        return std::static_pointer_cast<HistoryTree>(Tree<std::shared_ptr<Observation>>::getOrigin());
     }
 
-    template <typename T>
-    std::vector<std::shared_ptr<HistoryTree<T>>> HistoryTree<T>::getChildren() const
+    std::vector<std::shared_ptr<HistoryTree>> HistoryTree::getChildren() const
     {
-        std::vector<std::shared_ptr<HistoryTree<T>>> vector;
-        for (const auto &children : Tree<T>::getChildren())
+        std::vector<std::shared_ptr<HistoryTree>> vector;
+        for (const auto &children : Tree<std::shared_ptr<Observation>>::getChildren())
         {
             std::cout << "\n children " << *children << std::endl;
-            vector.push_back(std::dynamic_pointer_cast<HistoryTree<T>>(children));
+            vector.push_back(std::static_pointer_cast<HistoryTree>(children));
         }
         return vector;
     }
 
-    template <typename T>
-    std::shared_ptr<HistoryTree<T>> HistoryTree<T>::getChild(const T &child_item) const
+    std::shared_ptr<HistoryTree> HistoryTree::getChild(const std::shared_ptr<Observation> &child_item) const
     {
-        return std::dynamic_pointer_cast<HistoryTree<T>>(Tree<T>::getChild(child_item));
+        return std::static_pointer_cast<HistoryTree>(Tree<std::shared_ptr<Observation>>::getChild(child_item));
     }
 
-    template <typename T>
     template <class Archive>
-    void HistoryTree<T>::serialize(Archive &archive, const unsigned int)
+    void HistoryTree::serialize(Archive &, const unsigned int)
     {
         // using boost::serialization::make_nvp;
-        // archive &boost::serialization::base_object<Tree<T>>(*this);
+        // archive &boost::serialization::base_object<Tree<std::shared_ptr<Observation>>>(*this);
     }
 
 } // namespace sdm

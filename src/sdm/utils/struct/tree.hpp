@@ -41,30 +41,9 @@ namespace sdm
      * 
      */
     template <typename T>
-    class Tree : public std::enable_shared_from_this<Tree<T>>
-                 //public BoostSerializable<Tree<T>>
+    class Tree : public std::inheritable_enable_shared_from_this<Tree<T>>
+    //public BoostSerializable<Tree<T>>
     {
-    protected:
-        //! @brief depth of the tree
-        number depth_ = 0;
-
-        //! @brief maximum length of the tree
-        number max_depth_ = std::numeric_limits<number>::max();
-
-        //! @brief data of the current node
-        T data_;
-
-        //! @brief the root of the tree
-        std::shared_ptr<Tree<T>> origin_;
-
-        //! @brief the parent node
-        std::weak_ptr<Tree<T>> parent_;
-
-        //! @brief mapping of items to successor trees
-        std::map<T, std::shared_ptr<Tree<T>>> children_;
-
-        bool is_origin = false;
-
     public:
         using value_type = T;
         /**
@@ -121,7 +100,7 @@ namespace sdm
 
         void setMaxDepth(number) const;
 
-        std::string str();
+        std::string str() const;
 
         std::shared_ptr<Tree<T>> getptr();
 
@@ -134,6 +113,26 @@ namespace sdm
             return os;
         }
 
+    protected:
+        //! @brief depth of the tree
+        number depth_ = 0;
+
+        //! @brief maximum length of the tree
+        number max_depth_ = std::numeric_limits<number>::max();
+
+        //! @brief data of the current node
+        T data_;
+
+        //! @brief the root of the tree
+        std::shared_ptr<Tree<T>> origin_;
+
+        //! @brief the parent node
+        std::weak_ptr<Tree<T>> parent_;
+
+        //! @brief mapping of items to successor trees
+        std::map<T, std::shared_ptr<Tree<T>>> children_;
+
+        bool is_origin = false;
     };
 
 } // namespace sdm
