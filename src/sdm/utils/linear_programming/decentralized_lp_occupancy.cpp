@@ -36,7 +36,7 @@ namespace sdm
         std::vector<std::vector<std::shared_ptr<Item>>> actions;
         std::vector<std::vector<std::shared_ptr<Item>>> joint_histories;
 
-        auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
+        auto under_pb = this->world_->getUnderlyingProblem();
 
         for (number agent = 0; agent < under_pb->getNumAgents(); agent++)
         {
