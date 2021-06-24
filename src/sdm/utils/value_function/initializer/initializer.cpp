@@ -59,7 +59,7 @@ namespace sdm
             vf->initialize(tot, vf->getHorizon());
             for (number t = vf->getHorizon(); t > 0; t--)
             {
-                tot = this->getValue(vf, t) + this->world_->getUnderlyingProblem()->getDiscount(t) * tot;
+                tot = this->getValue(vf, t-1) + this->world_->getUnderlyingProblem()->getDiscount(t) * tot;
                 vf->initialize(tot, t - 1);
             }
         }

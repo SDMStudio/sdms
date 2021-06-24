@@ -67,10 +67,8 @@ namespace sdm
     double SolvableByMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
         double tmp = 0;
-        double transition_proba =0;
         for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
         {
-            transition_proba +=  this->underlying_problem->getTransitionProbability(state, action, next_state, t);
             tmp += this->underlying_problem->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
         }
         return tmp;

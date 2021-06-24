@@ -17,6 +17,7 @@ namespace sdm
     SerializedMMDP::SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp) : mmdp_(mmdp)
     {
         this->createInitSerializedStateSpace();
+        this->createDistribution();
         this->createInitReachableStateSpace();
     }
 
@@ -50,9 +51,18 @@ namespace sdm
 
     std::shared_ptr<Distribution<std::shared_ptr<State>>> SerializedMMDP::getStartDistribution() const
     {
-        std::cout<<"***** "<<std::endl;
-        std::cout<<"Start distribution "<<this->mmdp_->getStartDistribution()<<std::endl;
-        return this->mmdp_->getStartDistribution();
+        return this->distribution_serial;
+    }
+
+    void SerializedMMDP::createDistribution()
+    {
+        auto discrete_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
+        auto mmdp_distribution = this->mmdp_->getStartDistribution();
+        for(const auto &state : *this->getStateSpace(0))
+        {
+            discrete_distribution->setProbability(state->toState(),mmdp_distribution->getProbability(state->toState()->toSerial()->getHiddenState(),nullptr));
+        }
+        this->distribution_serial = discrete_distribution;
     }
 
     std::shared_ptr<Space> SerializedMMDP::getStateSpace(number t) const
@@ -70,7 +80,7 @@ namespace sdm
         return this->mmdp_->getActionSpace(this->getAgentId(t),t);
     }
 
-    std::shared_ptr<Space> SerializedMMDP::getActionSpace(number agent_id, number t) const
+    std::shared_ptr<Space> SerializedMMDP::getActionSpace(number, number t) const
     {
         return this->getActionSpace(t);
     }
@@ -160,7 +170,6 @@ namespace sdm
                 {
                     // Add new serial state with the state of the problem and vector of action
                     auto next_serial_state = std::make_shared<SerializedState>(state->toState(),action);
-                    // std::shared_ptr<SerialInterface> next_serial_state_str = next_serial_state;
                     std::shared_ptr<State> next_serial_state_str = std::shared_ptr<SerialInterface>(next_serial_state);
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
@@ -186,7 +195,6 @@ namespace sdm
             std::shared_ptr<Action> jaction = joint_action;
             this->map_joint_action_to_pointeur[*joint_action] =jaction;
         }
-
     }
 
     void SerializedMMDP::createInitReachableStateSpace()
@@ -197,7 +205,7 @@ namespace sdm
         {
             for(const auto &state : *this->getStateSpace(agent_id))
             {
-                std::shared_ptr<SerialInterface> serialized_state = std::dynamic_pointer_cast<SerialInterface>(state);
+                auto serialized_state = state->toState()->toSerial();
 
                 auto hidden_state = serialized_state->getHiddenState();
                 auto action = serialized_state->getAction();

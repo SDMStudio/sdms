@@ -57,6 +57,8 @@ namespace sdm
     void setDefaultValue(double);
     double getDefaultValue() const;
 
+    std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
+
     friend std::ostream &operator<<(std::ostream &os, const Belief &belief)
     {
       os << belief.str();

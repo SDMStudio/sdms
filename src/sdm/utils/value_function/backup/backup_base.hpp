@@ -15,7 +15,7 @@ namespace sdm
     public:
 
         BackupBase();
-        BackupBase(std::shared_ptr<SolvableByHSVI> world);
+        BackupBase(const std::shared_ptr<SolvableByHSVI>& world);
         
         virtual ~BackupBase();
         /**

@@ -4,7 +4,7 @@ namespace sdm
 {
 
     QLearning::QLearning(std::shared_ptr<GymInterface> &env,
-                         std::shared_ptr<ExperienceMemory> experience_memory,
+                         std::shared_ptr<ExperienceMemoryInterface> experience_memory,
                          std::shared_ptr<QValueFunction> q_value_table,
                          std::shared_ptr<QValueFunction> q_value_table_target,
                          std::shared_ptr<QValueBackupInterface> backup,
@@ -71,7 +71,7 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log_)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_table_->getQValuesAt(this->env_->reset(), 0)->max(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(this->episode, this->global_step, this->q_value_table_->getValueAt(this->env_->reset(), 0), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
                 this->do_log_ = false;
             }
             if (this->do_test_)

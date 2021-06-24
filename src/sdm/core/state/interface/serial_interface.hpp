@@ -7,7 +7,7 @@
 
 namespace sdm
 {
-    class SerialInterface : public State
+    class SerialInterface : virtual public State
     {
     public:
         /**

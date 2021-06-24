@@ -4,7 +4,6 @@
 
 namespace sdm
 {
-    class SolvableByHSVI;
     class ValueFunction;
 
     class BackupInterface

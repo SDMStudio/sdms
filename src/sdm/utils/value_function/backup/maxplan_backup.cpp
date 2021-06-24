@@ -36,7 +36,7 @@ namespace sdm
         auto belief_state = state->toBelief();
 
         for (const auto &plan : vf->getSupport(t))
-        {            
+        {
             auto belief_plan = plan->toBelief();
 
             current = belief_state->operator^(belief_plan);
@@ -98,7 +98,7 @@ namespace sdm
     std::shared_ptr<State> MaxPlanBackup::backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
         auto belief_mdp = std::static_pointer_cast<BeliefMDP>(this->world_);
-        auto under_pb = belief_mdp->getUnderlyingPOMDP();
+        auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
 
         std::unordered_map<std::shared_ptr<Action>, std::unordered_map<std::shared_ptr<Observation>,std::shared_ptr<BeliefInterface>>> beta_a_o;
         std::unordered_map<std::shared_ptr<Action>, std::shared_ptr<BeliefInterface>> beta_a;
@@ -161,7 +161,7 @@ namespace sdm
         switch (state->getTypeState())
         {
         case TypeState::OCCUPANCY_STATE : 
-            new_hyperplan = std::make_shared<OccupancyState>(hyperplan_representation->getDefaultValue(t));
+            // new_hyperplan = std::make_shared<OccupancyState>(hyperplan_representation->getDefaultValue(t));
             break;
         case TypeState::SERIAL_OCCUPANCY_STATE : 
             // new_hyperplan = std::make_shared<SerialOccupancyState>(hyperplan_representation->getDefaultValue(t));

@@ -1,4 +1,5 @@
 #include <sdm/core/state/belief_state_graph.hpp>
+#include <sdm/exception.hpp>
 
 namespace sdm
 {
@@ -141,6 +142,11 @@ namespace sdm
     double BeliefStateGraph::norm_1() const
     {
         return this->getData().norm_1();
+    }
+
+    std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> BeliefStateGraph::getVectorInferface()
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
     void BeliefStateGraph::setDefaultValue(double value)

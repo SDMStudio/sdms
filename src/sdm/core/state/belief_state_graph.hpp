@@ -95,6 +95,8 @@ namespace sdm
         double norm_1() const;
         size_t size() const;
 
+        std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
+
         void setDefaultValue(double);
         double getDefaultValue() const;
 

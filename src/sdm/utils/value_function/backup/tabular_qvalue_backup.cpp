@@ -21,7 +21,7 @@ namespace sdm
 
     double TabularQValueBackup::backup(number t)
     {   
-        sars_transition transition = this->experience_memory_->sample(t)[0];
+        typename ExperienceMemory::sars_transition transition = this->experience_memory_->sample(t)[0];
 
         std::shared_ptr<Observation> observation = std::get<0>(transition);
         std::shared_ptr<Action> action = std::get<1>(transition);
@@ -29,7 +29,7 @@ namespace sdm
         std::shared_ptr<Observation> next_observation = std::get<3>(transition);
 
         double q_value = this->q_value_table_->getQValueAt(observation, action, t);
-        double next_value = this->target_q_value_table_->getNextValueAt(next_observation, t + 1);
+        double next_value = this->target_q_value_table_->getValueAt(next_observation, t + 1);
         double target_q_value = reward + this->discount_ * next_value;
         double delta = target_q_value - q_value;
         this->q_value_table_->updateQValueAt(observation, action, t, delta);

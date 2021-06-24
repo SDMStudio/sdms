@@ -161,6 +161,8 @@ namespace sdm
 
         std::unordered_map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
 
+        std::shared_ptr<Distribution<std::shared_ptr<State>>> distribution_serial;
+
         /**
          * @brief Initialize Serial State Space
          * 
@@ -188,6 +190,8 @@ namespace sdm
          * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
          */
         const std::shared_ptr<State> getPointeurState(SerializedState &) const;
+
+        void createDistribution();
 
     };
 

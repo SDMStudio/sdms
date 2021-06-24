@@ -120,6 +120,11 @@ namespace sdm
   {
     return this->getDefault();
   }
+  
+  std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> Belief::getVectorInferface()
+  {
+    return std::static_pointer_cast<MappedVector<std::shared_ptr<State>>>(std::dynamic_pointer_cast<Belief>(this->toBelief()));
+  }
 
   std::string Belief::str() const
   {

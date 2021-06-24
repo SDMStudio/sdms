@@ -53,7 +53,7 @@ namespace sdm
          */
         double getQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t);
 
-        double getNextValueAt(const std::shared_ptr<Observation> &observation, number t);
+        double getValueAt(const std::shared_ptr<Observation> &observation, number t);
 
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &observation, number t = 0);
 

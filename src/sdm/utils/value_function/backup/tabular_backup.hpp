@@ -10,7 +10,7 @@ namespace sdm
         using TData = double;
 
         TabularBackup();
-        TabularBackup(std::shared_ptr<SolvableByHSVI> world);
+        TabularBackup(const std::shared_ptr<SolvableByHSVI>& world);
 
         virtual ~TabularBackup();
 

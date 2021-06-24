@@ -18,7 +18,7 @@ namespace sdm
 {
 
   template <typename TState>
-  class BaseState : public State
+  class BaseState : virtual public State
   // public BaseItem<TState>
   {
   public:
