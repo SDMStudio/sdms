@@ -32,6 +32,9 @@ namespace sdm
         std::shared_ptr<QValueFunction> q_value_table_;
         std::shared_ptr<QValueFunction> target_q_value_table_;
         double discount_;
+        std::shared_ptr<Observation> observation, next_observation;
+        std::shared_ptr<Action> action;
+        double reward;
     };
     
 

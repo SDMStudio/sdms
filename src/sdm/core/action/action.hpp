@@ -18,6 +18,7 @@ namespace sdm
     class DecisionRule;
 
 
+    // Action from the P.O.V. of the central agent.
     class Action : public Item
     {
     public:

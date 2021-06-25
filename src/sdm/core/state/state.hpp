@@ -14,7 +14,8 @@
 #include <sdm/core/item.hpp>
 
 namespace sdm
-{
+{   
+    // Observation from the P.O.V. of the central agent.
     class Observation : public Item
     {
     public:
