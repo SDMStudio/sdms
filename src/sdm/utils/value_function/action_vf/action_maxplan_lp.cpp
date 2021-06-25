@@ -17,7 +17,7 @@ namespace sdm
         for (const auto &hyperplan : vf->getSupport(t + 1))
         {
             this->tmp_representation = hyperplan->toBelief()->getVectorInferface();
-            auto pair_action_value = this->createLP(state, t);
+            auto pair_action_value = this->createLP(vf,state, t);
 
             if (pair_action_value.second > max)
             {
@@ -29,7 +29,7 @@ namespace sdm
         return std::make_pair(max_decision_rule,next_hyperplan);
     }
 
-    void ActionVFMaxplanLP::createVariables(const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t)
+    void ActionVFMaxplanLP::createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t)
     {
         //<! counter for constraints
         number index = 0;
@@ -46,10 +46,10 @@ namespace sdm
         this->setNumber(VarName, index++);
 
         //<! set decentralized decision rule variables
-        this->createDecentralizedVariables(occupancy_state, env, var, index, t);
+        this->createDecentralizedVariables(vf,occupancy_state, env, var, index, t);
     }
 
-    void ActionVFMaxplanLP::createObjectiveFunction(const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
+    void ActionVFMaxplanLP::createObjectiveFunction(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -93,5 +93,5 @@ namespace sdm
         }   // for all o
     }
     
-    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) {}
+    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State>&, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number ) {}
 }

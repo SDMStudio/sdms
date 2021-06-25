@@ -263,6 +263,13 @@ namespace sdm
 
         return product;
     }
+    
+    template <typename TIndex, typename T>
+    size_t MappedVector<TIndex, T>::size() const 
+    {
+        return RecursiveMap<TIndex, T>::size();
+    }
+
 
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::getDefault() const

@@ -5,6 +5,9 @@
 
 namespace sdm
 {        
+
+    double HyperplanValueFunction::PRECISION = config::PRECISION_SDMS_VECTOR;
+
     HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate, int freq_prunning)
         : ValueFunction(horizon, initializer, evaluate), freq_prune_(freq_prunning) ,backup_(backup), action_vf_(action_vf)
     {
@@ -41,9 +44,9 @@ namespace sdm
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        const auto &new_hyperplan = this->backup_->backup(this->getptr(),state,this->getBestAction(state,t),t);
+        const auto &new_hyperplan = this->backup_->backup(this->getptr(),state,this->getBestAction(state,t),t)->toBelief();
 
-        if (std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
+        if (!this->exist(new_hyperplan->getVectorInferface(),t))
             this->representation[t].push_back(new_hyperplan);
 
         if (this->last_prunning == this->freq_prune_)
@@ -165,6 +168,36 @@ namespace sdm
         //     }
         // }
     }
+
+    bool HyperplanValueFunction::exist(const std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>& new_vector,number t, double precision)
+    {
+        for(const auto& element : this->representation[t])
+        {
+            auto vecto = element->toBelief()->getVectorInferface();
+
+            if(vecto->size() != new_vector->size())
+            {
+                continue;
+            }
+
+            bool same_as_vecto = true;
+            for (const auto &index : vecto->getIndexes())
+            {
+                if(new_vector->getValueAt(index) != vecto->getValueAt(index))
+                {
+                    same_as_vecto = false;
+                    break;
+                }
+            }
+
+            if(same_as_vecto== true)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     std::string HyperplanValueFunction::str() const
     {

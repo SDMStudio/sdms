@@ -44,7 +44,7 @@ namespace sdm
     // virtual T norm_1() const = 0;
     // virtual T norm_2() const = 0;
 
-    // virtual std::string str() const = 0;
+    virtual std::string str() const = 0;
 
     // bool operator<=(const VectorInterface &) const;
     // bool operator==(const VectorInterface &) const;
@@ -54,7 +54,9 @@ namespace sdm
     // T dot(const VectorInterface &other) const;
     // T operator^(const VectorInterface &other) const;
 
-    // virtual size_t size() const = 0;
+    virtual size_t size() const = 0;
+    virtual std::vector<I> getIndexes() const;
+
 
     // T operator[](const I &) const;
 

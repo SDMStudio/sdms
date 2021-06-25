@@ -5,7 +5,7 @@ namespace sdm
     DecentralizedLP::DecentralizedLP(){}
     DecentralizedLP::DecentralizedLP(const std::shared_ptr<SolvableByHSVI>& world) : LPBase(world) {}
 
-    void DecentralizedLP::createDecentralizedConstraintsIndividual(const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id)
+    void DecentralizedLP::createDecentralizedConstraintsIndividual(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -27,7 +27,7 @@ namespace sdm
         }
     }
 
-    void DecentralizedLP::createDecentralizedVariablesIndividual(const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t, number agent_id)
+    void DecentralizedLP::createDecentralizedVariablesIndividual(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<ValueFunction>&vfconst std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t, number agent_id)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -48,7 +48,7 @@ namespace sdm
         }
     }
 
-    void DecentralizedLP::createDecentralizedConstraintsJoint(const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLP::createDecentralizedConstraintsJoint(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -80,7 +80,7 @@ namespace sdm
         }   // for all o
     }
 
-    void DecentralizedLP::createDecentralizedControlConstraints(const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLP::createDecentralizedControlConstraints(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -113,7 +113,7 @@ namespace sdm
         }     // for all o
     }
 
-    void DecentralizedLP::createDecentralizedVariablesJoint(const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLP::createDecentralizedVariablesJoint(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -134,7 +134,7 @@ namespace sdm
         }
     }
 
-    Pair<std::vector<std::shared_ptr<Item>>,std::vector<std::shared_ptr<Item>>> DecentralizedLP::getVariableResultIndividual(const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t, number agent_id)
+    Pair<std::vector<std::shared_ptr<Item>>,std::vector<std::shared_ptr<Item>>> DecentralizedLP::getVariableResultIndividual(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t, number agent_id)
     {
         number index = 0;
         std::vector<std::shared_ptr<Item>> actions;

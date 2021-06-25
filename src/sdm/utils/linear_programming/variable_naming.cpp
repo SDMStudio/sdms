@@ -73,16 +73,13 @@ namespace sdm
       return this->variables.at(name);
     }
 
-//   /**
-//    * @warning : deprecated !!!
-//    */
-//   std::string VarNaming::getVarNameWeightedStateJointHistory(const TVector &i, const typename TVector::state_type &s, const typename TVector::jhistory_type &jh)
-//   {
-//     std::ostringstream oss;
-//     oss << "wsh"
-//         << "." << &i << "." << s << "." << jh->short_str();
-//     return oss.str();
-//   }
+    std::string VarNaming::getVarNameWeightedStateJointHistory(const std::shared_ptr<State>&i, const std::shared_ptr<State>&s, const std::shared_ptr<JointHistoryInterface> &jh)
+    {
+      std::ostringstream oss;
+      oss << "wsh"
+          << "." << &i->str() << "." << s->str() << "." << jh->short_str();
+      return oss.str();
+    }
 
 //   std::string VarNaming::getVarNameWeightedStateJointHistory(const std::shared_ptr<TVector> &i, const typename TVector::state_type &s, const typename TVector::jhistory_type &jh)
 //   {

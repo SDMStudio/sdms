@@ -1,4 +1,5 @@
 #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
+#include <sdm/world/base/mpomdp_interface.hpp>
 
 namespace sdm
 {
@@ -8,6 +9,9 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>,std::shared_ptr<State>> ActionVFMaxplan::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
+        // auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(this->world_->getUnderlyingProblem());
+
+
         // Definie local Variable
         double argmax_global = -std::numeric_limits<double>::max();  
         std::shared_ptr<Action> decision_max;
@@ -26,6 +30,19 @@ namespace sdm
         //         best_hyperplan = hyperplan;
         //     }
         // }
+        // for (const auto &action : *under_pb->getActionSpace(t))
+        // {
+        //     auto decision_and_value = this->selectHyperplanKnowingAction(vf,state,action->toAction(),t);
+
+        //     if(argmax_global < decision_and_value.second)
+        //     {
+        //         argmax_global = decision_and_value.second;
+        //         decision_max = decision_and_value.first;
+        //         best_hyperplan = hyperplan;
+        //     }
+        // }
+
+
         return std::make_pair(decision_max,best_hyperplan);
     }
 }

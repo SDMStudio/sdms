@@ -31,7 +31,7 @@ namespace sdm
          * @param var 
          * @param t 
          */
-        void createVariables(const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t);
+        void createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t);
         
         /**
          * @brief Create a Objective Constraint of the LP
@@ -41,7 +41,7 @@ namespace sdm
          * @param obj 
          * @param t 
          */
-        void createObjectiveFunction(const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
+        void createObjectiveFunction(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
         
         /**
          * @brief Create the constraints of the LP
@@ -53,6 +53,6 @@ namespace sdm
          * @param index 
          * @param t 
          */
-        void createConstraints(const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
     };
 }

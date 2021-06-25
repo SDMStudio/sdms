@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular,evaluate_sawtooth);
     auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan,evaluate_maxplan);
 
-    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01,5);
+    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01);
     algorithm->do_initialize();
 
     std::cout << *algorithm->getLowerBound() << std::endl;

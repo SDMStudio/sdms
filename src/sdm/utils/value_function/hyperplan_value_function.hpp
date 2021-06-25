@@ -4,12 +4,14 @@
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_interface.hpp>
 #include <sdm/utils/value_function/action_vf/action_vf_interface.hpp>
-
+#include <sdm/config.hpp>
 namespace sdm
 {
     class HyperplanValueFunction : public ValueFunction
     {
     public:
+        static double PRECISION;
+
         HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr, int freq_prunning = 10);
 
         HyperplanValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr, int freq_prunning = 10);
@@ -88,6 +90,8 @@ namespace sdm
         double getDefaultValue(number );
 
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
+
+        bool exist(const std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>&,number t, double precision = PRECISION);
 
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;

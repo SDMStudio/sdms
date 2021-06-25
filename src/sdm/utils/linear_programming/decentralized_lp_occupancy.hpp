@@ -18,7 +18,7 @@ namespace sdm
          * @param const number& : index variable
          * @param number : time step
          */
-        void createDecentralizedVariables(const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
+        void createDecentralizedVariables(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Set decentralized constraints 
@@ -29,7 +29,7 @@ namespace sdm
          * @param number&
          * @param number : time step
          */
-        void createDecentralizedConstraints(const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Get the result of the variable created
@@ -40,6 +40,6 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Action> 
          */
-        std::shared_ptr<Action> getVariableResult(const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t);
+        std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t);
     };
 }

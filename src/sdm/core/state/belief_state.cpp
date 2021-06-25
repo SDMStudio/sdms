@@ -95,7 +95,6 @@ namespace sdm
     {
       product += item.second * other->getProbability(item.first);
     }
-
     return product;
     // throw sdm::exception::NotImplementedException();
   }

@@ -98,6 +98,8 @@ namespace sdm
         static void setPrecision(double);
 
         std::string str() const;
+        size_t size() const;
+
 
         friend std::ostream &operator<<(std::ostream &os, const MappedVector &vect)
         {

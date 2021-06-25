@@ -5,7 +5,7 @@ namespace sdm
     DecentralizedLPSerialOccupancy::DecentralizedLPSerialOccupancy() {}
     DecentralizedLPSerialOccupancy::DecentralizedLPSerialOccupancy(const std::shared_ptr<SolvableByHSVI>& world) : DecentralizedLP(world) {}
 
-    void DecentralizedLPSerialOccupancy::createDecentralizedVariables(const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLPSerialOccupancy::createDecentralizedVariables(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerializedMPOMDP>(this->world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
@@ -13,7 +13,7 @@ namespace sdm
         this->createDecentralizedVariablesIndividual(state, env, var, index, t,agent_id);
     }
 
-    void DecentralizedLPSerialOccupancy::createDecentralizedConstraints(const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLPSerialOccupancy::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerializedMPOMDP>(this->world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
@@ -21,7 +21,7 @@ namespace sdm
         this->createDecentralizedConstraintsIndividual(state, env, con, var, index, t,agent_id);
     }
 
-    std::shared_ptr<Action> DecentralizedLPSerialOccupancy::getVariableResult(const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
+    std::shared_ptr<Action> DecentralizedLPSerialOccupancy::getVariableResult(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerializedMPOMDP>(this->world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);

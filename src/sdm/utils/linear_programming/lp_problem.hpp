@@ -20,7 +20,7 @@ namespace sdm
          * @param t 
          * @return Pair<std::shared_ptr<Action>,double> 
          */
-        Pair<std::shared_ptr<Action>,double> createLP(const std::shared_ptr<State> &occupancy_state, number t);
+        Pair<std::shared_ptr<Action>,double> createLP(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, number t);
 
 
     protected : 

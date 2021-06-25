@@ -5,7 +5,7 @@ namespace sdm
     DecentralizedLPOccupancy::DecentralizedLPOccupancy() {}
     DecentralizedLPOccupancy::DecentralizedLPOccupancy(const std::shared_ptr<SolvableByHSVI>& world) : DecentralizedLP(world) {}
 
-    void DecentralizedLPOccupancy::createDecentralizedVariables(const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLPOccupancy::createDecentralizedVariables(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = this->world_->getUnderlyingProblem();
 
@@ -17,7 +17,7 @@ namespace sdm
         }
     }
 
-    void DecentralizedLPOccupancy::createDecentralizedConstraints(const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLPOccupancy::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = this->world_->getUnderlyingProblem();
 
@@ -30,7 +30,7 @@ namespace sdm
         }
     }
 
-    std::shared_ptr<Action> DecentralizedLPOccupancy::getVariableResult(const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
+    std::shared_ptr<Action> DecentralizedLPOccupancy::getVariableResult(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         number index = 0;
         std::vector<std::vector<std::shared_ptr<Item>>> actions;

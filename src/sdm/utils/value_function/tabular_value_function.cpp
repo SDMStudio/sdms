@@ -92,4 +92,9 @@ namespace sdm
         return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
     }
 
+    MappedVector<std::shared_ptr<State>, double> TabularValueFunction::getRepresentation(number t)
+    {
+        return this->representation[this->isInfiniteHorizon() ? 0 : t];
+    }
+
 } // namespace sdm

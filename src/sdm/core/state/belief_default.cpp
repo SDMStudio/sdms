@@ -5,26 +5,29 @@ namespace sdm
 {
     BeliefDefault::BeliefDefault(){}
 
-    BeliefDefault::BeliefDefault(double default_value) : default_value_(default_value) {}
+    BeliefDefault::BeliefDefault(double default_value)
+    {
+        this->map_nul = std::make_shared<MappedVector<std::shared_ptr<State>,double>>(default_value);
+    }
 
     double BeliefDefault::getProbability(const std::shared_ptr<State> &) const
     {
-        return this->default_value_;
+        return this->getDefaultValue();
     }
 
     void BeliefDefault::setDefaultValue(double default_value)
     {
-        this->default_value_ = default_value;
+        this->map_nul->setDefault(default_value);
     }
 
     double BeliefDefault::getDefaultValue() const
     {
-        return this->default_value_;
+        return this->map_nul->getDefault();
     }
 
     std::vector<std::shared_ptr<State>> BeliefDefault::getStates() const
     {
-        return std::vector<std::shared_ptr<State>>();
+        return this->map_nul->getIndexes();
     }
 
     size_t BeliefDefault::size() const
@@ -45,7 +48,7 @@ namespace sdm
 
     bool BeliefDefault::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        return this->default_value_ == other->getDefaultValue() ;
+        return this->getDefaultValue() == other->getDefaultValue() ;
     }
 
     double BeliefDefault::operator^(const std::shared_ptr<BeliefInterface> &other) const
@@ -67,7 +70,7 @@ namespace sdm
 
     std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> BeliefDefault::getVectorInferface()
     {
-        throw sdm::exception::NotImplementedException();
+        return this->map_nul;
     }
 
 

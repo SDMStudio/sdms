@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/core/state/interface/belief_interface.hpp>
-
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 namespace sdm
 {
     class BeliefDefault : public BeliefInterface
@@ -40,6 +40,8 @@ namespace sdm
 
     protected : 
         double default_value_;
+
+        std::shared_ptr<MappedVector<std::shared_ptr<State>,double>> map_nul;
 
     };
 }

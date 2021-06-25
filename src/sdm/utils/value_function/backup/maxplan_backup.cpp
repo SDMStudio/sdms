@@ -20,48 +20,46 @@ namespace sdm
 
     MaxPlanBackup::MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& world) : BackupBase<std::shared_ptr<State>>(world) {}
 
-    std::shared_ptr<State> MaxPlanBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>&, number t)
+    std::shared_ptr<State> MaxPlanBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>&action, number t)
     {
         switch (state->getTypeState())
         {
         case TypeState::BELIEF_STATE :
-            return this->backupBeliefState(vf,state,t);
+            return this->backupBeliefState(vf,state,action,t);
             break;
         case TypeState ::OCCUPANCY_STATE :
-            return this->backupOccupancyState(vf,state,t);
+            return this->backupOccupancyState(vf,state,action,t);
         default:
             throw sdm::exception::Exception("MaxPlan Backup with a state that is not a Belief State or an Occupancy State is impossible");
             break;
         }
     }
 
-    std::shared_ptr<State> MaxPlanBackup::backupOccupancyState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<State> MaxPlanBackup::backupOccupancyState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>&, number t)
     {
-        auto occupancy_state = state->toBelief();
+        double max = -std::numeric_limits<double>::max(), value; 
 
-        std::shared_ptr<BeliefInterface> v_max;
+        //Get the best action
+        auto action = vf->getBestAction(state,t);
 
-        double value_max = -std::numeric_limits<double>::max(), tmp;
+        std::shared_ptr<State> max_next_step_hyperplan;
 
-        // Go over the hyperplanes of decision step t+1
-        for (const auto &next_hyperplan : vf->getSupport(t + 1))
+        // // Go other the hyperplanes of decision step t+1
+        for(const auto &hyperplan : vf->getSupport(t+1))
         {
-            // Go over all joint decision rules at occupancy occupancy_state
-            for (const auto &joint_decision_rule : *this->world_->getActionSpaceAt(state,t))
+            // Determine the max next hyperplan
+            if(max < (value = state->toBelief()->operator^(this->setHyperplan(vf,state->toState(), hyperplan->toBelief(),action, t)->toBelief())))
             {
-                const std::shared_ptr<BeliefInterface> new_hyperplan = this->setHyperplan(vf,state, next_hyperplan->toBelief(), joint_decision_rule->toAction(), t)->toBelief();
-                if (value_max < (tmp = occupancy_state->operator^(new_hyperplan)))
-                {
-                    value_max = tmp;
-                    v_max = new_hyperplan;
-                }
+                max = value;
+                max_next_step_hyperplan = hyperplan;
             }
         }
-        return v_max;
+        return max_next_step_hyperplan;
     }
 
-    std::shared_ptr<State> MaxPlanBackup::backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<State> MaxPlanBackup::backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t)
     {
+
         auto belief_mdp = std::static_pointer_cast<BeliefMDP>(this->world_);
         auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
 
@@ -76,7 +74,7 @@ namespace sdm
             for (const auto &observation : *under_pb->getObservationSpace(t))
             {
                 auto next_belief = belief_mdp->nextState(state->toBelief(), action->toAction() , observation->toObservation(),t);
-                beta_a_o[action->toAction()].emplace(observation->toObservation(),vf->evaluate(state, t + 1).first->toBelief());
+                beta_a_o[action->toAction()].emplace(observation->toObservation(),vf->evaluate(next_belief, t + 1).first->toBelief());
             }
         }
 
@@ -93,8 +91,7 @@ namespace sdm
                         tmp += beta_a_o[action->toAction()][observation->toObservation()]->getProbability(next_state) * under_pb->getDynamics(state->toState(), action->toAction(), next_state->toState(),observation->toObservation(),t);
                     }
                 }
-                beta_a[action->toAction()]->addProbability(state->toState(), under_pb->getReward(state->toState(), action->toAction(),t) + this->world_->getDiscount(t) * tmp);
-
+                beta_a[action->toAction()]->setProbability(state->toState(), under_pb->getReward(state->toState(), action->toAction(),t) + this->world_->getDiscount(t) * tmp);
             }
         }
 
@@ -116,7 +113,7 @@ namespace sdm
     std::shared_ptr<State> MaxPlanBackup::setHyperplan(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &next_hyperplan, const std::shared_ptr<Action> &action, number t)
     {
         auto hyperplan_representation = std::static_pointer_cast<HyperplanValueFunction>(vf);
-        auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
 
         auto occupancy_state = state->toOccupancyState();
         auto decision_rule = action->toDecisionRule();

@@ -19,8 +19,8 @@ namespace sdm
     protected : 
 
         // For the moment, both were write in different function, but in the futur we will regroup them
-        TData backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
-        TData backupOccupancyState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
+        TData backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t);
+        TData backupOccupancyState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t);
 
     };
 }

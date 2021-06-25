@@ -87,11 +87,9 @@ namespace sdm
 
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
 
+        Container getRepresentation(number t);
+
     protected:
-        /**
-         * @brief The temporary one-stage value function represention.
-         */
-        Container tmp_representation;
 
         /**
          * @brief The value function represention.

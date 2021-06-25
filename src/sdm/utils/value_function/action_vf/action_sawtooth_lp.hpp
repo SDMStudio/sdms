@@ -31,7 +31,7 @@ namespace sdm
          * @param var 
          * @param t 
          */
-        void createVariables(const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t);
+        void createVariables(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t);
         
         /**
          * @brief Create the constraints of the LP
@@ -43,7 +43,7 @@ namespace sdm
          * @param index 
          * @param t 
          */
-        void createConstraints(const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
     protected : 
 
@@ -62,12 +62,16 @@ namespace sdm
         Pair<std::shared_ptr<Action>,double> createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
         Pair<std::shared_ptr<Action>,double> createFullSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
 
-        virtual void createInitialConstrainte(const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) =0;
-        virtual void createSawtoothBigM(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
-        virtual void createSawtoothIloIfThen(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var,number t) = 0;
+        virtual void createInitialConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) =0;
+        virtual void createSawtoothBigM(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
+        virtual void createSawtoothIloIfThen(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var,number t) = 0;
         
-        double getQValueRealistic(const std::shared_ptr<State> &compressed_occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, std::shared_ptr<State> next_hidden_state, const std::shared_ptr<Observation> next_observation, double denominator, double difference);
-        double getSawtoothMinimumRatio(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, const std::shared_ptr<State>& next_hidden_state, const std::shared_ptr<Observation>& next_observation, double denominator);
+        double getQValueRealistic(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &compressed_occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, std::shared_ptr<State> next_hidden_state, const std::shared_ptr<Observation> next_observation, double denominator, double difference,number t);
+        double getSawtoothMinimumRatio(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, const std::shared_ptr<State>& next_hidden_state, const std::shared_ptr<Observation>& next_observation, double denominator, number t);
+        double getQValueRelaxation(const std::shared_ptr<ValueFunction>&vf,const  std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> joint_history, std::shared_ptr<Action> action, number t);
+
+        TypeSawtoothLinearProgram getSawtoothType();
+        void setSawtoothType(const TypeSawtoothLinearProgram &);
 
     };
 }
