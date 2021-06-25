@@ -131,8 +131,6 @@ namespace sdm
                 begin_iterators.push_back(this->getSpace(space_id)->begin());
                 end_iterators.push_back(this->getSpace(space_id)->end());
             }
-            // std::cout << "begin iterators=" << begin_iterators << std::endl;
-            // std::cout << "end iterators=" << end_iterators << std::endl;
             return std::make_shared<sdm::iterator::CombinationIterator>(begin_iterators, end_iterators);
         }
     }

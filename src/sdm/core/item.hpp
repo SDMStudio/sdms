@@ -18,6 +18,8 @@ namespace sdm
         virtual std::shared_ptr<Action> toAction();
         virtual std::shared_ptr<Observation> toObservation();
 
+        virtual std::shared_ptr<Item> getPointer();
+
         template <typename T>
         std::shared_ptr<T> to()
         {

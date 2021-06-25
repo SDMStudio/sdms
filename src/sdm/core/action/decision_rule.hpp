@@ -14,7 +14,7 @@
  */
 namespace sdm
 {
-    class DecisionRule : public Function<std::shared_ptr<State>, std::shared_ptr<Action>>, public Action
+    class DecisionRule : public Action, public Function<std::shared_ptr<State>, std::shared_ptr<Action>>
     {
     public:
         /**
@@ -25,13 +25,13 @@ namespace sdm
          */
         virtual std::shared_ptr<Action> act(const std::shared_ptr<State> &state) const = 0;
 
-        /**
+        /***
          * @brief Apply the DecisionRule function (similar to `act`)
          * 
          * @param state the generic states
          * @return the corresponding action
          */
-        std::shared_ptr<Action> operator()(const std::shared_ptr<State> &s) { return this->act(s);}
+        std::shared_ptr<Action> operator()(const std::shared_ptr<State> &s) { return this->act(s); }
 
         /**
          * @brief Get the probability of action 'action' in state 'state'
@@ -40,7 +40,7 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        virtual double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action)const = 0;
+        virtual double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const = 0;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -53,8 +53,7 @@ namespace sdm
 
         virtual std::string str() const = 0;
 
-        virtual TypeAction getTypeAction() const{return TypeAction::DECISION_RULE;}
-
+        virtual TypeAction getTypeAction() const { return TypeAction::DECISION_RULE; }
     };
 
 } // namespace sdm

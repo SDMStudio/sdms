@@ -11,15 +11,19 @@ namespace sdm
      * @brief The joint deterministic decision rule class. This class is a function that maps joint generic states to joint generic actions. 
      */
     class JointDeterministicDecisionRule
-        : public Joint<DeterministicDecisionRule>,
+        : public Joint<std::shared_ptr<DeterministicDecisionRule>>,
           public DeterministicDecisionRule
     {
     public:
-        JointDeterministicDecisionRule();
-        JointDeterministicDecisionRule(const Joint<DeterministicDecisionRule> &individual_decision_rules);
-        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions);
+        using input_type = typename DeterministicDecisionRule::input_type;
+        using output_type = typename DeterministicDecisionRule::output_type;
 
-        Joint<std::shared_ptr<Action>> act(const Joint<std::shared_ptr<State>> &joint_state) const;
+        JointDeterministicDecisionRule();
+        JointDeterministicDecisionRule(const Joint<std::shared_ptr<DeterministicDecisionRule>> &individual_decision_rules);
+        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions);
+        JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr);
+
+        std::shared_ptr<Action> act(const std::shared_ptr<State> &joint_state) const;
 
         /**
          * @brief Get the probability of joint action 'action' in joint state 'state'

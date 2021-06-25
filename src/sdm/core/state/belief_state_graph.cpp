@@ -50,7 +50,7 @@ namespace sdm
             auto [next_belief_p, proba_belief] = transition_function(pomdp, this->getptr(), action, observation, t);
 
 
-            auto next_belief = *std::static_pointer_cast<Belief>(next_belief_p);
+            auto next_belief = *std::dynamic_pointer_cast<Belief>(next_belief_p);
 
             // Store the probability of next belief
             this->belief_proba[action][observation] = proba_belief;
@@ -80,7 +80,7 @@ namespace sdm
         }
         // Return next belief without storing its value in the graph
         auto [next_belief_p, proba_belief] = transition_function(pomdp, this->getptr(), action, observation, t);
-        auto next_belief = *std::static_pointer_cast<Belief>(next_belief_p);
+        auto next_belief = *std::dynamic_pointer_cast<Belief>(next_belief_p);
         return std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
     }
 

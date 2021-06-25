@@ -56,8 +56,6 @@ namespace sdm
 
   typedef typename bimap::value_type name2index;
 
-  const number DEFAULT_OBSERVATION = std::numeric_limits<number>::max();
-
   enum TState_t
   {
     COMPRESSED,
@@ -123,7 +121,8 @@ namespace sdm
     BELIEF_STATE,
     OCCUPANCY_STATE,
     SERIAL_OCCUPANCY_STATE,
-    SERIAL_STATE
+    SERIAL_STATE,
+    UNKNOWN
   };
 
   enum TypeAction

@@ -14,12 +14,12 @@ namespace sdm
         }
     }
 
-    template <typename T>
-    DiscreteSpace::DiscreteSpace(const std::vector<T> &items)
-    {
-        std::vector<std::shared_ptr<Item>> titems(items.begin(), items.end());
-        *this = DiscreteSpace(titems);
-    }
+    // template <typename T>
+    // DiscreteSpace::DiscreteSpace(const std::vector<T> &items)
+    // {
+    //     std::vector<std::shared_ptr<Item>> titems(items.begin(), items.end());
+    //     *this = DiscreteSpace(titems);
+    // }
 
     DiscreteSpace::DiscreteSpace(std::initializer_list<std::shared_ptr<Item>> vals) : DiscreteSpace(std::vector<std::shared_ptr<Item>>(vals))
     {
