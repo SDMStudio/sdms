@@ -5,15 +5,15 @@
 
 namespace sdm
 {        
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,const std::shared_ptr<BackupInterface> &backup, int freq_prunning)
-        : ValueFunction(horizon, initializer, backup), freq_prune_(freq_prunning)
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate, int freq_prunning)
+        : ValueFunction(horizon, initializer, evaluate), freq_prune_(freq_prunning) ,backup_(backup), action_vf_(action_vf)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, double default_value,const std::shared_ptr<BackupInterface> &backup, int freq_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,freq_prunning){}
+    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate, int freq_prunning)
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,evaluate,freq_prunning){}
 
     HyperplanValueFunction::~HyperplanValueFunction(){}
 
@@ -24,6 +24,11 @@ namespace sdm
         this->default_values_per_horizon[t] = value;
     }
 
+    std::shared_ptr<Action> HyperplanValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
+    {
+        return this->action_vf_->selectBestAction(this->getptr(),state,t).first;
+    }
+
     void HyperplanValueFunction::initialize()
     {
         this->initializer_->init(this->getptr());
@@ -31,12 +36,12 @@ namespace sdm
 
     double HyperplanValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        return std::static_pointer_cast<BackupBase<std::shared_ptr<State>>>(this->backup_)->getMaxAt(this->getptr(), state, t).first;
+        return this->evaluate(state, t).second;
     }
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        const auto &new_hyperplan = std::static_pointer_cast<BackupBase<std::shared_ptr<State>>>(this->backup_)->backup(this->getptr(),state,t);
+        const auto &new_hyperplan = this->backup_->backup(this->getptr(),state,this->getBestAction(state,t),t);
 
         if (std::find(this->representation[t].begin(), this->representation[t].end(), new_hyperplan) == this->representation[t].end())
             this->representation[t].push_back(new_hyperplan);

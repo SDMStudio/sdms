@@ -34,9 +34,15 @@
 
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/backup/sawtooth_backup.hpp>
 #include <sdm/utils/value_function/backup/maxplan_serial_backup.hpp>
-#include <sdm/utils/value_function/backup/maxplan_lp_backup.hpp>
+
+#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
+
+#include <sdm/utils/value_function/evaluate_vf/evaluate_tabulair.hpp>
+#include <sdm/utils/value_function/evaluate_vf/evaluate_sawtooth.hpp>
+#include <sdm/utils/value_function/evaluate_vf/evaluate_maxplan.hpp>
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -51,7 +57,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/recycling.dpomdp");
+    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/tiger.dpomdp");
 
     auto state_space = std::static_pointer_cast<DiscreteSpace>(mdp_tiger->getStateSpace()); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
     auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
@@ -65,25 +71,34 @@ int main(int argc, char **argv)
     number horizon = 5;
 
     // Creation of the MMDP
-    auto mmdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
+    auto mpomdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
+    // auto mmdp = std::make_shared<MMDP>(state_space, action_space, rew, dynamics,start_distrib,horizon,1.);
 
     // auto serial_mmdp = std::make_shared<SerializedMPOMDP>(mmdp);
 
     // Creation of HSVI problem and Resolution 
-    std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mmdp);
+    // std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<SolvableByMDP>(mmdp);
+    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<BeliefMDP>(mpomdp);
 
     // horizon = horizon * serial_mmdp->getNumAgents();
-    auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
-    // auto sawtooth_backup = std::make_shared<SawtoothBackup>(hsvi_mdp);
-    auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
+    auto tabular_backup = std::make_shared<TabularBackup>(hsvi);
+    auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi);
 
-    auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-    auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
+    auto evaluate_tabular = std::make_shared<EvaluateTabulaire>();
+    auto evaluate_sawtooth = std::make_shared<EvaluateSawtooth>();
+    auto evaluate_maxplan = std::make_shared<EvaluateMaxplan>();
 
-    auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup);
-    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup);
+    auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi);
+    // auto action_sawtooth = std::make_shared<>(hsvi);
+    auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi);
 
-    auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, horizon, 0.01,5);
+    auto init_lb = std::make_shared<MinInitializer>(hsvi);
+    auto init_ub = std::make_shared<MaxInitializer>(hsvi);
+
+    auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular,evaluate_sawtooth);
+    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan,evaluate_maxplan);
+
+    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01,5);
     algorithm->do_initialize();
 
     std::cout << *algorithm->getLowerBound() << std::endl;

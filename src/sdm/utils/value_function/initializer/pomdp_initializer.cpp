@@ -45,6 +45,6 @@ namespace sdm
 
         auto ubound = algorithm->getUpperBound();
 
-        vf->initialize(std::make_shared<Belief2OccupancyValueFunction>(this->world_,ubound));
+        vf->initialize(std::make_shared<Belief2OccupancyValueFunction>(ubound));
     }
 } // namespace sdm

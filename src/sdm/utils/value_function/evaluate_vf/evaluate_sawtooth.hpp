@@ -4,9 +4,11 @@
 
 namespace sdm
 {
-    class EvaluateSawtoothInterface : public EvaluateVFInterface
+    class EvaluateSawtooth : public EvaluateVFInterface
     {
     public:
+        EvaluateSawtooth();
+        virtual ~EvaluateSawtooth();
 
         /**
          * @brief Evaluation of a state at a precise time

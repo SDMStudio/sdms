@@ -2,15 +2,17 @@
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/backup/backup_interface.hpp>
+#include <sdm/utils/value_function/action_vf/action_vf_interface.hpp>
 
 namespace sdm
 {
     class HyperplanValueFunction : public ValueFunction
     {
     public:
-        HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup, int freq_prunning = 10);
+        HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr, int freq_prunning = 10);
 
-        HyperplanValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface> &backup =nullptr, int freq_prunning = 10);
+        HyperplanValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr, int freq_prunning = 10);
 
         ~HyperplanValueFunction();
 
@@ -85,6 +87,8 @@ namespace sdm
          */
         double getDefaultValue(number );
 
+        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
+
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;
 
@@ -110,6 +114,16 @@ namespace sdm
          * 
          */
         number last_prunning = 0;
+
+        /**
+         * @brief The backup operator.
+         */
+        std::shared_ptr<BackupInterface<std::shared_ptr<State>>> backup_;
+
+        /**
+         * @brief The backup operator.
+         */
+        std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> action_vf_;
     };
 
 } // namespace sdm

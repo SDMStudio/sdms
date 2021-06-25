@@ -5,15 +5,20 @@
 
 namespace sdm
 {
-    TabularValueFunction::TabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup)
-        : ValueFunction(horizon, initializer, backup)
+    TabularValueFunction::TabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate)
+        : ValueFunction(horizon, initializer, evaluate), backup_(backup), action_vf_(action_vf)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
-    TabularValueFunction::TabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterface> &backup)
-        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup)
+    TabularValueFunction::TabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate)
+        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf,evaluate)
     {
+    }
+
+    std::shared_ptr<Action> TabularValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
+    {
+        return this->action_vf_->selectBestAction(this->getptr(),state,t).first;
     }
 
     void TabularValueFunction::initialize()
@@ -32,7 +37,7 @@ namespace sdm
         {
             if ((this->representation[t].find(state) == this->representation[t].end()))
             {
-                double i_value = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(this->getptr(), state, t).first;
+                double i_value = this->evaluate(state, t).second;
                 this->updateValueAt(state, t, i_value);
 
                 // double i_value = this->init_function_->operator()(state, t);
@@ -50,7 +55,7 @@ namespace sdm
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        this->updateValueAt(state, t, std::static_pointer_cast<BackupBase<double>>(this->backup_)->backup(this->getptr(), state, t));
+        this->updateValueAt(state, t, this->backup_->backup(this->getptr(), state,this->getBestAction(state,t), t));
     }
 
     // void TabularValueFunction::save(std::string filename)

@@ -12,10 +12,9 @@ namespace sdm
     {
     protected:
         std::shared_ptr<ValueFunction> pomdp_vf_;
-        std::shared_ptr<BackupInterface> backup_;
 
     public:
-        Belief2OccupancyValueFunction(std::shared_ptr<SolvableByHSVI> world,std::shared_ptr<ValueFunction> pomdp_vf);
+        Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction> pomdp_vf);
 
         double operatorMPOMDP(const std::shared_ptr<State> &, const number &);
 

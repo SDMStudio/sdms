@@ -3,13 +3,13 @@
 
 namespace sdm
 {
-    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup,int freq_prunning )
-        : TabularValueFunction(horizon, initializer, backup), freq_prune_(freq_prunning)
+    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate,int freq_prunning )
+        : TabularValueFunction(horizon, initializer, backup,action_vf,evaluate), freq_prune_(freq_prunning)
     {
     }
 
-    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value , const std::shared_ptr<BackupInterface> &backup,int freq_prunning)
-        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup),freq_prune_(freq_prunning)
+    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate,int freq_prunning)
+        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf,evaluate),freq_prune_(freq_prunning)
     {
     }
 
@@ -76,16 +76,15 @@ namespace sdm
 
     bool PointSetValueFunction::is_dominated(const std::shared_ptr<State> &state, double value, number t)
     {
-        auto pair_witness_ostate = std::static_pointer_cast<BackupBase<double>>(this->backup_)->getMaxAt(this->getptr(),state,t);
-        // Faire passer le MaxAt avec le backup
+        auto pair_witness_ostate = this->evaluate(state,t);
 
-        if (pair_witness_ostate.second == state)
+        if (pair_witness_ostate.first == state)
         {
             return false;
         }
         else
         {
-            return (pair_witness_ostate.first <= value + this->epsilon_prunning);
+            return (pair_witness_ostate.second <= value + this->epsilon_prunning);
         }
     }
 

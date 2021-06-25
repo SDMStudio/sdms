@@ -18,44 +18,9 @@ namespace sdm
 
     MaxPlanBackup::MaxPlanBackup(){}
 
-    MaxPlanBackup::MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& world)
-    {
-        this->world_ = world;
-    }
+    MaxPlanBackup::MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& world) : BackupBase<std::shared_ptr<State>>(world) {}
 
-    Pair<std::shared_ptr<State>,std::shared_ptr<Action>> MaxPlanBackup::getBestActionAndMaxHyperplan(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, number )
-    {
-        throw sdm::exception::NotImplementedException();
-    }
-
-    std::pair<double, std::shared_ptr<State>> MaxPlanBackup::getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
-    {
-        double current, max = -std::numeric_limits<double>::max();
-        std::shared_ptr<BeliefInterface> alpha_vector;
-
-        auto belief_state = state->toBelief();
-
-        for (const auto &plan : vf->getSupport(t))
-        {
-            auto belief_plan = plan->toBelief();
-
-            current = belief_state->operator^(belief_plan);
-
-            if (max < current)
-            {
-                max = current;
-                alpha_vector = belief_plan;
-            }
-        }
-        return {max, alpha_vector};
-    }
-
-    std::shared_ptr<Action> MaxPlanBackup::getBestAction(const std::shared_ptr<ValueFunction>& , const std::shared_ptr<State>& , number )
-    {
-        std::cout<<"Action"<<std::endl;
-    }
-
-    std::shared_ptr<State> MaxPlanBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<State> MaxPlanBackup::backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>&, number t)
     {
         switch (state->getTypeState())
         {
@@ -111,7 +76,7 @@ namespace sdm
             for (const auto &observation : *under_pb->getObservationSpace(t))
             {
                 auto next_belief = belief_mdp->nextState(state->toBelief(), action->toAction() , observation->toObservation(),t);
-                beta_a_o[action->toAction()].emplace(observation->toObservation(),this->getMaxAt(vf,state, t + 1).second->toBelief());
+                beta_a_o[action->toAction()].emplace(observation->toObservation(),vf->evaluate(state, t + 1).first->toBelief());
             }
         }
 
@@ -214,7 +179,6 @@ namespace sdm
                         new_hyperplan->addProbability(uncompressed_state, this->world_->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_state, action,next_hidden_state,next_observation,t) * next_hyperplan->getProbability(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, next_joint_history)));
                     }
                 }
-
             }
         }
         return new_hyperplan;

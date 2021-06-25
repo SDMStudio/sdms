@@ -1,13 +1,11 @@
 #include <sdm/utils/value_function/initializer/belief_2_occupancy_vf.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
-#include <sdm/utils/value_function/backup/sawtooth_backup.hpp>
 
 namespace sdm
 {
 
-    Belief2OccupancyValueFunction::Belief2OccupancyValueFunction(std::shared_ptr<SolvableByHSVI> world,std::shared_ptr<ValueFunction> pomdp_vf) : pomdp_vf_(pomdp_vf)
+    Belief2OccupancyValueFunction::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction> pomdp_vf) : pomdp_vf_(pomdp_vf)
     {
-        this->backup_= std::make_shared<SawtoothBackup>(world);
     }
 
     double Belief2OccupancyValueFunction::operatorMPOMDP(const std::shared_ptr<State> &state, const number &tau)

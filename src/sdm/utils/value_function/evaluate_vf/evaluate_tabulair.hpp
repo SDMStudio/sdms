@@ -4,10 +4,11 @@
 
 namespace sdm
 {
-    class EvaluateTabulaireInterface : public EvaluateVFInterface
+    class EvaluateTabulaire : public EvaluateVFInterface
     {
     public:
-
+        EvaluateTabulaire();
+        virtual ~EvaluateTabulaire();
         /**
          * @brief Evaluation of a state at a precise time
          * 

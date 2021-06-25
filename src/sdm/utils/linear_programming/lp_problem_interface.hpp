@@ -61,5 +61,5 @@ namespace sdm
          * @return std::shared_ptr<Action> 
          */
         virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<State> &occupancy_state,const IloCplex &cplex, const IloNumVarArray &var, number t) =0;
-    }
+    };
 }

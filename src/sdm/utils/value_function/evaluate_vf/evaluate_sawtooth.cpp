@@ -4,7 +4,10 @@
 
 namespace sdm
 {
-    Pair<std::shared_ptr<State>,double> EvaluateSawtoothInterface::evaluate(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    EvaluateSawtooth::EvaluateSawtooth() {}
+    EvaluateSawtooth::~EvaluateSawtooth(){}
+
+    Pair<std::shared_ptr<State>,double> EvaluateSawtooth::evaluate(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         assert(vf->getInitFunction() != nullptr);
         assert(state->getTypeState() != TypeState::STATE);
@@ -12,10 +15,12 @@ namespace sdm
         auto belief_state = state->toBelief();
 
         double min_ext = 0;
+
         double v_ub_state = vf->getInitFunction()->operator()(state, t);
 
         std::shared_ptr<State> argmin_ = state;
 
+        // Go over all element in the support
         for (const auto &element : vf->getSupport(t))
         {
             auto element_belief_state = element->toBelief();
@@ -28,12 +33,14 @@ namespace sdm
             for (auto &state_element : element_belief_state->getStates())
             {
                 double v_int = (belief_state->getProbability(state_element) / element_belief_state->getProbability(state_element));
+                // determine the min int
                 if (v_int < phi)
                 {
                     phi = v_int;
                 }
             }
 
+            // determine the min ext
             double min_int = phi * (v_kappa - v_ub_kappa);
             if (min_int < min_ext)
             {

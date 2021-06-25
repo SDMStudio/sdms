@@ -4,7 +4,10 @@
 
 namespace sdm
 {
-    Pair<std::shared_ptr<State>,double> EvaluateMaxplanInterface::evaluate(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    EvaluateMaxplan::EvaluateMaxplan() {}
+    EvaluateMaxplan::~EvaluateMaxplan(){}
+
+    Pair<std::shared_ptr<State>,double> EvaluateMaxplan::evaluate(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         double current, max = -std::numeric_limits<double>::max();
         std::shared_ptr<BeliefInterface> alpha_vector;

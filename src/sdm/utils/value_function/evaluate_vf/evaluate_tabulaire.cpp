@@ -1,9 +1,12 @@
-#include <sdm/utils/value_function/evaluate_vf/evaluate_maxplan.hpp>
+#include <sdm/utils/value_function/evaluate_vf/evaluate_tabulair.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
 namespace sdm
 {
-    Pair<std::shared_ptr<State>,double> EvaluateMaxplanInterface::evaluate(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    EvaluateTabulaire::EvaluateTabulaire() {}
+    EvaluateTabulaire::~EvaluateTabulaire(){}
+
+    Pair<std::shared_ptr<State>,double> EvaluateTabulaire::evaluate(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         double value;
 

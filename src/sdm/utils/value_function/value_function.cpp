@@ -4,8 +4,8 @@
 
 namespace sdm
 {
-    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface> &backup) 
-    : BaseValueFunction(horizon), backup_(backup), initializer_(initializer)
+    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<EvaluateVFInterface> &evaluate) 
+    : BaseValueFunction(horizon), evaluate_(evaluate), initializer_(initializer)
     {
     }
 
@@ -37,11 +37,11 @@ namespace sdm
     //     return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
     // }
 
-    std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
-    {
-        // Get the best action (i.e. the action that maximizes the q value function)
-        return this->backup_->getBestAction(this->getptr(), state, t);
-    }
+    // std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
+    // {
+    //     // Get the best action (i.e. the action that maximizes the q value function)
+    //     return this->backup_->getBestAction(this->getptr(), state, t);
+    // }
 
     void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
     {
@@ -52,5 +52,11 @@ namespace sdm
     {
         return std::static_pointer_cast<ValueFunction>(this->shared_from_this());
     }
+
+    Pair<std::shared_ptr<State>,double> ValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
+    {
+        return this->evaluate_->evaluate(this->getptr(),state,t);
+    }
+
 
 } // namespace sdm

@@ -13,15 +13,11 @@ namespace sdm
         MaxPlanBackup();
         MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& );
 
-        virtual TData backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
-        virtual std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
-        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
-
-        virtual TData setHyperplan(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &next_hyperplan, const std::shared_ptr<Action> &action, number t);
+        virtual TData backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t);
+        TData setHyperplan(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &next_hyperplan, const std::shared_ptr<Action> &action, number t);
 
     protected : 
-        virtual Pair<std::shared_ptr<State>,std::shared_ptr<Action>> getBestActionAndMaxHyperplan(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
-        
+
         // For the moment, both were write in different function, but in the futur we will regroup them
         TData backupBeliefState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
         TData backupOccupancyState(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);

@@ -32,7 +32,7 @@ namespace sdm
          * 
          * @return  Pair<std::shared_ptr<Action>,double> : best action and the value associated
          */
-        Pair<std::shared_ptr<Action>,double> ActionVFMaxplanSerial::selectBestActionKnowingNextHyperplan(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, const std::shared_ptr<State>& next_hyperplan, number t);
+        Pair<std::shared_ptr<Action>,double> selectBestActionKnowingNextHyperplan(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, const std::shared_ptr<State>& next_hyperplan, number t);
 
         double evaluationOfHyperplanKnowingNextHyperplanAndDiscreteAction(const std::shared_ptr<State> &serial_occupancy_state, const std::shared_ptr<Action>& action, const std::shared_ptr<State>& next_step_hyperplan, number t);
 

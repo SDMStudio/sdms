@@ -1,5 +1,5 @@
 #include <sdm/utils/linear_programming/lp_problem.hpp>
-#include <sdm/utils/value_function/backup/variable_naming.hpp>
+#include <sdm/utils/linear_programming/variable_naming.hpp>
 
 namespace sdm
 {

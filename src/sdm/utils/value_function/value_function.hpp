@@ -2,7 +2,7 @@
 
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
-#include <sdm/utils/value_function/backup/backup_interface.hpp>
+#include <sdm/utils/value_function/evaluate_vf/evaluate_vf_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -34,7 +34,7 @@ namespace sdm
          * @param backup 
          * @param default_value 
          */
-        ValueFunction(number horizon = 0, const std::shared_ptr<Initializer> &intializer = nullptr, const std::shared_ptr<BackupInterface> &backup = nullptr);
+        ValueFunction(number horizon = 0, const std::shared_ptr<Initializer> &intializer = nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate = nullptr);
 
         /**
          * @brief Destroy the value function
@@ -90,7 +90,9 @@ namespace sdm
 
         std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
         
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
+        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
+
+        Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State> &state, number t);
 
     protected:
         /**
@@ -101,7 +103,7 @@ namespace sdm
         /**
          * @brief The backup operator.
          */
-        std::shared_ptr<BackupInterface> backup_;
+        std::shared_ptr<EvaluateVFInterface> evaluate_;
 
         /**
          * @brief The initializer to use for this value function. 

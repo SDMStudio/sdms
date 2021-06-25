@@ -4,9 +4,11 @@
 
 namespace sdm
 {
-    class EvaluateMaxplanInterface : public EvaluateVFInterface
+    class EvaluateMaxplan : public EvaluateVFInterface
     {
     public:
+        EvaluateMaxplan();
+        virtual ~EvaluateMaxplan();
 
         /**
          * @brief Evaluation of a state at a precise time
