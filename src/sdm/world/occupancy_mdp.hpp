@@ -28,6 +28,7 @@ namespace sdm
     protected:
         std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
         std::shared_ptr<OccupancyStateInterface> nextState(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number, const std::shared_ptr<HSVI> &, bool) const;
+        std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
 
         std::shared_ptr<HistoryInterface> initial_history_, current_history_;
     };

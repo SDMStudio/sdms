@@ -24,18 +24,19 @@ namespace sdm
 
     OccupancyState::OccupancyState(const OccupancyState &occupancy_state)
         : Belief(occupancy_state),
+          num_agents_(occupancy_state.num_agents_),
           tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.tuple_of_maps_from_histories_to_private_occupancy_states_),
           fully_uncompressed_occupancy_state(occupancy_state.fully_uncompressed_occupancy_state),
           one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
+          compressed_occupancy_state(occupancy_state.compressed_occupancy_state),
           private_ihistory_map_(occupancy_state.private_ihistory_map_),
           map_label_to_pointer(occupancy_state.map_label_to_pointer),
           jhistory_map_(occupancy_state.jhistory_map_),
           probability_ihistories(occupancy_state.probability_ihistories),
           list_beliefs_(occupancy_state.list_beliefs_),
           list_joint_histories_(occupancy_state.list_joint_histories_),
-          map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
-          num_agents_(occupancy_state.num_agents_),
           all_list_ihistories_(occupancy_state.all_list_ihistories_),
+          map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
           map_pair_to_pointer_(occupancy_state.map_pair_to_pointer_)
     {
@@ -49,11 +50,13 @@ namespace sdm
     double OccupancyState::getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const
     {
         auto iterator_on_pair_history_belief = this->map_pair_to_pointer_.find({joint_history, belief});
-        return this->getProbability(iterator_on_pair_history_belief->second);
+        return (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end()) ? 0 : this->getProbability(iterator_on_pair_history_belief->second);
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
     {
+        const auto &casted_pair = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief);
+        this->map_pair_to_pointer_[{casted_pair->first, casted_pair->second}] = casted_pair;
         return Belief::setProbability(pair_history_belief, proba);
     }
 
@@ -64,16 +67,18 @@ namespace sdm
         {
             auto pair_hist_belief = std::make_shared<JointHistoryBeliefPair>(joint_history, belief);
             this->map_pair_to_pointer_[{joint_history, belief}] = pair_hist_belief;
-            return this->setProbability(pair_hist_belief, proba);
+            return Belief::setProbability(pair_hist_belief, proba);
         }
         else
         {
-            return this->setProbability(this->getPairPointer(joint_history, belief), proba);
+            return Belief::setProbability(this->getPairPointer(joint_history, belief), proba);
         }
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
     {
+        const auto &casted_pair = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief);
+        this->map_pair_to_pointer_[{casted_pair->first, casted_pair->second}] = casted_pair;
         return Belief::addProbability(pair_history_belief, proba);
     }
 
@@ -84,15 +89,15 @@ namespace sdm
         {
             auto pair_hist_belief = std::make_shared<JointHistoryBeliefPair>(joint_history, belief);
             this->map_pair_to_pointer_[{joint_history, belief}] = pair_hist_belief;
-            return this->addProbability(pair_hist_belief, proba);
+            return Belief::addProbability(pair_hist_belief, proba);
         }
         else
         {
-            return this->addProbability(joint_history, belief, proba);
+            return Belief::addProbability(this->getPairPointer(joint_history, belief), proba);
         }
     }
 
-    std::shared_ptr<JointHistoryBeliefPair> OccupancyState::getPairPointer(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief)
+    std::shared_ptr<JointHistoryBeliefPair> OccupancyState::getPairPointer(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const
     {
         return this->map_pair_to_pointer_.at({joint_history, belief});
     }
@@ -222,16 +227,8 @@ namespace sdm
 
     std::shared_ptr<HistoryInterface> OccupancyState::getLabel(const std::shared_ptr<HistoryInterface> &ihistory, number agent_id) const
     {
-        if (this->private_ihistory_map_.at(agent_id).find(ihistory) == this->private_ihistory_map_.at(agent_id).end())
-        {
-            // if the ihistory was never compressed
-            return ihistory;
-        }
-        else
-        {
-            // if the ihistory was compressed
-            return this->private_ihistory_map_.at(agent_id).at(ihistory);
-        }
+        auto iterator = this->private_ihistory_map_.at(agent_id).find(ihistory);
+        return (iterator == this->private_ihistory_map_.at(agent_id).end()) ? ihistory : *iterator->second;
     }
 
     Joint<std::shared_ptr<HistoryInterface>> OccupancyState::getJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &list_ihistories) const
@@ -248,25 +245,27 @@ namespace sdm
     void OccupancyState::updateLabel(number agent_id, const std::shared_ptr<HistoryInterface> &ihistory, const std::shared_ptr<HistoryInterface> &label)
     {
         // if there is a label for ihistory
-        if (this->private_ihistory_map_[agent_id].find(ihistory) != this->private_ihistory_map_[agent_id].end())
+        auto iterator = this->private_ihistory_map_[agent_id].find(ihistory);
+        if (iterator != this->private_ihistory_map_[agent_id].end())
         {
             // Get the old label
-            auto &&old_label = this->private_ihistory_map_[agent_id].at(ihistory);
-            // Change every labels of ihistories that have old_label as label
+            auto &&old_label_ptr = iterator->second;
 
-            old_label = label;
+            // Change every labels of ihistories that have old_label_ptr as label
+            *old_label_ptr = label;
         }
         else
         {
+            auto iterator_on_label_to_ptr = this->map_label_to_pointer[agent_id].find(label);
             // Check if the label is already used for another indiv history
-            if (this->map_label_to_pointer[agent_id].find(label) != this->map_label_to_pointer[agent_id].end())
+            if (iterator_on_label_to_ptr != this->map_label_to_pointer[agent_id].end())
             {
-                this->private_ihistory_map_[agent_id][ihistory] = this->map_label_to_pointer[agent_id].at(label);
+                this->private_ihistory_map_[agent_id][ihistory] = iterator_on_label_to_ptr->second;
             }
             else
             {
                 // If no such label is already used, create a pointer on it and store it
-                auto &&new_ptr_on_label = label;
+                auto &&new_ptr_on_label = std::make_shared<std::shared_ptr<HistoryInterface>>(label);
                 this->map_label_to_pointer[agent_id][label] = new_ptr_on_label;
                 this->private_ihistory_map_[agent_id][ihistory] = new_ptr_on_label;
             }
@@ -306,6 +305,7 @@ namespace sdm
             // Get support (a set of individual histories for agent i)
             const auto &support_set = this->getIndividualHistories(agent_id);
             auto &&support = tools::set2vector(support_set);
+            // std::cout << "#> Agent " << agent_id << " : indiv_histories=" << support << std::endl;
 
             // Sort support
             std::sort(support.begin(), support.end());
@@ -316,15 +316,23 @@ namespace sdm
                 iter_first = support.erase(iter_first); // Erase the ihistory "label" from the support
 
                 // Set probability of labels
-                for (const auto &pair_history_belief : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getStates())
+                for (const auto &joint_history : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getJointHistories())
                 {
-                    current_compact_ostate->setProbability(pair_history_belief, previous_compact_ostate->getProbability(pair_history_belief));
+                    for (const auto &belief : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getBeliefsAt(joint_history))
+                    {
+                        current_compact_ostate->setProbability(joint_history, belief, previous_compact_ostate->getProbability(joint_history, belief));
+                    }
                 }
+                // std::cout << "Previous Compact Private Occupancy State : \n"
+                //           << previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->str() << std::endl;
+
                 for (auto iter_second = iter_first; iter_second != support.end();)
                 {
                     auto ihistory_one_step_left = *iter_second; // Get the ihistory we want check the equivalence
+                    // std::cout << "Check Equivalence : " << ihistory_label->str() << " - " << ihistory_one_step_left->str() << std::endl;
                     if (this->areIndividualHistoryLPE(ihistory_label, ihistory_one_step_left, agent_id))
                     {
+                        // std::cout << "Are Equivalent" << std::endl;
                         // Store new label
                         this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label);
 
@@ -338,18 +346,18 @@ namespace sdm
 
                             auto partial_jhist = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getPartialJointHistory(private_joint_history);
                             auto joint_history = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getJointHistory(partial_jhist);
-
                             current_compact_ostate->addProbability(joint_history, belief, probability);
                         }
                     }
                     else
                     {
+                        // std::cout << "Are Not Equivalent" << std::endl;
                         iter_second++;
                     }
                 }
             }
 
-            previous_compact_ostate = current_compact_ostate;
+            *previous_compact_ostate = *current_compact_ostate;
             previous_compact_ostate->private_ihistory_map_ = this->private_ihistory_map_;
             previous_compact_ostate->finalize();
             current_compact_ostate->clear();
@@ -403,7 +411,6 @@ namespace sdm
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
         res << "<occupancy-state size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
-        int i = 0;
         for (const auto &pair_state_proba : *this)
         {
             auto history = std::static_pointer_cast<JointHistoryBeliefPair>(pair_state_proba.first)->first;

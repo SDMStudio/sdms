@@ -66,6 +66,31 @@ int main(int argc, char **argv)
 
         std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp);
 
+        // auto state = hsvi_mdp->getInitialState();
+
+        // std::cout << "COMPRESSED \n"
+        //           << state->str() << std::endl;
+
+        // for (int i = 0; i < 5; i++)
+        // {
+        //     std::shared_ptr<Item> action;
+        //     auto space = hsvi_mdp->getActionSpaceAt(state, i);
+        //     for (const auto &decision_rule : *space)
+        //     {
+        //         action = decision_rule;
+        //     }
+
+        //     std::cout << "\n---- DECISION RULE ----- \n"
+        //               << action->str() << std::endl;
+        //     state = hsvi_mdp->nextState(state, action->toAction(), i);
+        //     std::cout << "\n---- COMPRESSED ----- \n"
+        //               << state->str() << std::endl;
+        //     std::cout << "\n ----- ONE STEP UNCOMPRESSED -----\n"
+        //               << state->toOccupancyState()->getOneStepUncompressedOccupancy()->str() << std::endl;
+
+        //     std::cout << "\n ----- FULLY UNCOMPRESSED -----\n"
+        //               << state->toOccupancyState()->getFullyUncompressedOccupancy()->str() << std::endl;
+        // }
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
 
         auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), -1000, tabular_backup);

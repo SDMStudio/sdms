@@ -4,7 +4,7 @@ namespace sdm
 {
     TabularBackup::TabularBackup() {}
 
-    TabularBackup::TabularBackup(const std::shared_ptr<SolvableByHSVI>& world)
+    TabularBackup::TabularBackup(const std::shared_ptr<SolvableByHSVI> &world)
     {
         this->world_ = world;
     }
@@ -27,7 +27,10 @@ namespace sdm
 
     double TabularBackup::backup(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
-        return this->getQValueAt(vf, state, t)->max();
+        auto value_max = this->getQValueAt(vf, state, this->getBestAction(vf, state, t), t);
+        std::cout << "VMAX " << value_max << std::endl;
+
+        return value_max;
     }
 
     std::shared_ptr<Action> TabularBackup::getBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)

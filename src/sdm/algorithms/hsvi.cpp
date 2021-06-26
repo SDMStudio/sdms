@@ -96,7 +96,7 @@ namespace sdm
                 // Select next action and state following search process
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
-                
+
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
@@ -104,6 +104,8 @@ namespace sdm
                 this->lower_bound_->updateValueAt(s, h);
 
                 this->upper_bound_->updateValueAt(s, h);
+
+                std::cout << "Lower Bound\n" << *this->lower_bound_ << std::endl;
             }
 
             //---------------DEBUG-----------------//

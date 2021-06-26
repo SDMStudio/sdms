@@ -20,7 +20,6 @@ namespace sdm
     {
         double proba = 0;
         this->initial_state_ = std::make_shared<BeliefStateGraph>();
-        this->current_state_ = std::make_shared<BeliefStateGraph>();
 
         // Setup initial belief
         for (const auto &state : *pomdp->getStateSpace(0))
@@ -31,6 +30,8 @@ namespace sdm
                 std::static_pointer_cast<BeliefInterface>(this->initial_state_)->setProbability(state->toState(), proba);
             }
         }
+
+        std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->initialize();
         this->current_state_ = this->initial_state_;
     }
 
@@ -53,7 +54,7 @@ namespace sdm
         std::shared_ptr<Belief> next_belief = std::make_shared<Belief>();
         double proba_next_state;
 
-        for (const auto &next_state : *pomdp->getStateSpace(t+1))
+        for (const auto &next_state : *pomdp->getStateSpace(t + 1))
         {
             proba_next_state = 0;
             for (const auto &state : *pomdp->getStateSpace(t))

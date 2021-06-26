@@ -48,6 +48,8 @@ namespace sdm
          */
         BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief);
 
+        void initialize();
+
         /**
          * @brief Get the node associated to a given belief.
          * 
@@ -95,7 +97,7 @@ namespace sdm
         double norm_1() const;
         size_t size() const;
 
-        std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
+        std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> getVectorInferface();
 
         void setDefaultValue(double);
         double getDefaultValue() const;

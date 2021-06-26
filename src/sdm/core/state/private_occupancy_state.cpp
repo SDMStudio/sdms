@@ -122,6 +122,11 @@ namespace sdm
                 // Get value in the current private occupancy state
                 const auto &current_value = this->getProbability(current_joint_history, belief);
 
+                // std::cout << "6 -  this=" << this->str() << std::endl;
+                // std::cout << "6 -  other=" << other.str() << std::endl;
+                // std::cout << "6.0 -  other.map_pair=" << other.map_pair_to_pointer_ << std::endl;
+                // std::cout << "6.1 -  other_joint_history=" << other_joint_history << std::endl;
+                // std::cout << "6.2 -  belief=" << belief->str() << std::endl;
                 // Get corresponding value in the other private occupancy state -----------> !!!!!!!!!!!! ATTENTION: Ici make_shared ne donnera pas la bonne addresse
                 const auto &other_value = other.getProbability(other_joint_history, belief);
 

@@ -55,7 +55,7 @@ namespace sdm
         res << "<decision-rule type=\"deterministic\">" << std::endl;
         for (const auto &pair_s_a : this->map_state_to_action_)
         {
-            res << "\t<decision state=\"" << pair_s_a.first << "\" action=\"" << pair_s_a.second << "/>" << std::endl;
+            res << "\t<decision state=\"" << pair_s_a.first << "\" action=\"" << *pair_s_a.second << "/>" << std::endl;
         }
         res << "<decision-rule/>" << std::endl;
         return res.str();

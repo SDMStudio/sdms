@@ -45,6 +45,8 @@ namespace sdm
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
+        std::cout << "STATE = " << state->str() << std::endl;
+        std::cout << "UPDATE t=" << t << ", target=" << target << std::endl;
         this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
     }
 
