@@ -15,7 +15,8 @@
 #include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
-{
+{   
+    // Observation from the P.O.V. of the central agent.
     class Observation : public Item
     {
     public:
