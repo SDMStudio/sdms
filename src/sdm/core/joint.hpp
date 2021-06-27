@@ -16,7 +16,7 @@ namespace sdm
    * @tparam The type of item.
    */
   template <class T>
-  class Joint : public Item, public std::vector<T>, public Function<number, T>
+  class Joint : public std::vector<T>, public Function<number, T>
   {
   public:
     using value_type = T;
@@ -41,6 +41,9 @@ namespace sdm
      * @brief Get the element for agent i
      */
     T operator()(const number &);
+
+    template <typename TOutput>
+    std::shared_ptr<Joint<std::shared_ptr<TOutput>>> toJoint(); 
     
     std::string str() const;
 

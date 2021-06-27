@@ -15,6 +15,7 @@ namespace sdm
 
         /** Number of decimal to display */
         const unsigned short BELIEF_DECIMAL_PRINT = 5;
+        const unsigned short OCCUPANCY_DECIMAL_PRINT = 5;
         const unsigned short VALUE_DECIMAL_PRINT = 4;
         
     } // namespace config

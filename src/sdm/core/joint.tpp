@@ -24,6 +24,19 @@
             return this->size();                                                                                                                       \
         }                                                                                                                                              \
                                                                                                                                                        \
+        template <typename TOutput>                                                                                                                    \
+        std::shared_ptr<Joint<std::shared_ptr<TOutput>>> toJoint()                                                                                     \
+        {                                                                                                                                              \
+            auto joint_output = std::make_shared<Joint<std::shared_ptr<TOutput>>>();                                                                   \
+                                                                                                                                                       \
+            for (const auto &item : *this)                                                                                                             \
+            {                                                                                                                                          \
+                joint_output->push_back(std::static_pointer_cast<TOutput>(item));                                                                      \
+            }                                                                                                                                          \
+                                                                                                                                                       \
+            return joint_output;                                                                                                                       \
+        }                                                                                                                                              \
+                                                                                                                                                       \
         std::shared_ptr<CLASS> operator()(const number &i)                                                                                             \
         {                                                                                                                                              \
             return (*this)[i];                                                                                                                         \
@@ -54,6 +67,9 @@
 
 namespace sdm
 {
+
+    // Specialisation for the Joint Action
+    DEFINE_JOINT(Item);
 
     // Specialisation for the Joint Action
     DEFINE_JOINT(Action);
@@ -89,6 +105,20 @@ namespace sdm
     number Joint<T>::getNumAgents() const
     {
         return this->size();
+    }
+
+    template <typename T>
+    template <typename TOutput>
+    std::shared_ptr<Joint<std::shared_ptr<TOutput>>> Joint<T>::toJoint()
+    {
+        auto joint_output = std::make_shared<Joint<std::shared_ptr<TOutput>>>();
+
+        for (const auto &item : *this)
+        {
+            joint_output->push_back(std::static_pointer_cast<TOutput>(item));
+        }
+
+        return joint_output;
     }
 
     template <typename T>

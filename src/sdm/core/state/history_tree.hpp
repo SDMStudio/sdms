@@ -11,6 +11,7 @@
  */
 #pragma once
 
+#include <sdm/core/state/state.hpp>
 #include <sdm/utils/struct/tree.hpp>
 #include <sdm/core/state/interface/history_interface.hpp>
 
@@ -22,10 +23,8 @@ namespace sdm
      * 
      * @brief 
      * 
-     * @tparam T 
      */
-    template <typename T>
-    class HistoryTree : public HistoryInterface, virtual public Tree<T>
+    class HistoryTree : virtual public HistoryInterface, public Tree<std::shared_ptr<Observation>>
     {
     protected:
         /*!
@@ -34,10 +33,11 @@ namespace sdm
          *  @param  backup wheter the node is marked or not
          *  @return the truncated expanded tree
          */
-        std::shared_ptr<HistoryInterface> truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup);
+        template <typename output>
+        std::shared_ptr<output> truncatedExpand(const std::shared_ptr<Observation> &observation, bool backup);
 
     public:
-        using value_type = typename Tree<T>::value_type;
+        using value_type = typename Tree<std::shared_ptr<Observation>>::value_type;
         /*!
          *  @brief  Default constructor.
          *  This constructor builds a default and empty tree.
@@ -58,7 +58,9 @@ namespace sdm
          *  @param  backup wheter the node is marked or not
          *  This constructor builds a tree with a given parent and item.
          */
-        HistoryTree(std::shared_ptr<HistoryTree<T>> parent, const T &item);
+        HistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item);
+
+        std::shared_ptr<HistoryInterface> getPreviousHistory();
 
         /*!
          *  @brief  Expands the tree
@@ -70,7 +72,9 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &, const std::shared_ptr<Action> &, bool = true);
+        template <typename output = HistoryTree>
+        std::shared_ptr<output> expand(const std::shared_ptr<Observation> &observation, bool backup = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, bool backup = true);
 
         /**
          * @brief Get the horizon
@@ -80,18 +84,15 @@ namespace sdm
         number getHorizon() const;
 
         std::string str() const;
-        std::string str_not_const();
-        std::string short_str();
+        std::string short_str() const;
 
-        std::shared_ptr<HistoryTree<T>> getptr();
+        std::shared_ptr<Item> getPointer();
+        std::shared_ptr<HistoryTree> getptr();
 
-        template <class Archive>
-        void serialize(Archive &archive, const unsigned int);
-
-        std::shared_ptr<HistoryTree<T>> getParent() const;
-        std::shared_ptr<HistoryTree<T>> getOrigin();
-        std::vector<std::shared_ptr<HistoryTree<T>>> getChildren() const;
-        std::shared_ptr<HistoryTree<T>> getChild(const T &child_item) const;
+        std::shared_ptr<HistoryTree> getParent() const;
+        std::shared_ptr<HistoryTree> getOrigin();
+        std::vector<std::shared_ptr<HistoryTree>> getChildren() const;
+        std::shared_ptr<HistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
 
         friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
         {
@@ -99,7 +100,8 @@ namespace sdm
             return os;
         }
 
-        TypeState getTypeState() const { return TypeState::STATE; }
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
     };
 
 } // namespace sdm

@@ -16,8 +16,13 @@ namespace sdm
 
         for (const auto &joint_history : ostate->getJointHistories())
         {
-            std::shared_ptr<BeliefInterface> belief = ostate->createBeliefWeighted(joint_history);
-            value += ostate->getProbabilityOverJointHistory(joint_history) * this->pomdp_vf_->getValueAt(belief, tau);
+            // std::shared_ptr<BeliefInterface> belief = ostate->createBeliefWeighted(joint_history);
+            // value += ostate->getProbabilityOverJointHistory(joint_history) * this->pomdp_vf_->getValueAt(belief, tau);
+            for(const auto &belief : ostate->getBeliefsAt(joint_history))
+            {
+                value += ostate->getProbability(joint_history,belief) * this->pomdp_vf_->getValueAt(belief, tau);
+            }
+
         }
         return value;
     }

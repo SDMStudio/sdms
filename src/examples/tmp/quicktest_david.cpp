@@ -22,11 +22,16 @@
 #include <sdm/world/mmdp.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/parser/parser.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/core/state/belief_state.hpp>
+#include <sdm/core/state/belief_state_graph.hpp>
+#include <sdm/core/state/history_tree.hpp>
+#include <sdm/core/state/jhistory_tree.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 using namespace sdm;
 
@@ -59,8 +64,33 @@ int main(int argc, char **argv)
 
         std::cout << mdp->toStdFormat() << std::endl;
 
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp);
 
+        // auto state = hsvi_mdp->getInitialState();
+
+        // std::cout << "COMPRESSED \n"
+        //           << state->str() << std::endl;
+
+        // for (int i = 0; i < 5; i++)
+        // {
+        //     std::shared_ptr<Item> action;
+        //     auto space = hsvi_mdp->getActionSpaceAt(state, i);
+        //     for (const auto &decision_rule : *space)
+        //     {
+        //         action = decision_rule;
+        //     }
+
+        //     std::cout << "\n---- DECISION RULE ----- \n"
+        //               << action->str() << std::endl;
+        //     state = hsvi_mdp->nextState(state, action->toAction(), i);
+        //     std::cout << "\n---- COMPRESSED ----- \n"
+        //               << state->str() << std::endl;
+        //     std::cout << "\n ----- ONE STEP UNCOMPRESSED -----\n"
+        //               << state->toOccupancyState()->getOneStepUncompressedOccupancy()->str() << std::endl;
+
+        //     std::cout << "\n ----- FULLY UNCOMPRESSED -----\n"
+        //               << state->toOccupancyState()->getFullyUncompressedOccupancy()->str() << std::endl;
+        // }
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
 
         auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), -1000, tabular_backup);

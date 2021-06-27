@@ -2,7 +2,7 @@
 
 namespace sdm
 {
-    TabularBackup::TabularBackup(){}
+    TabularBackup::TabularBackup() {}
 
     TabularBackup::TabularBackup(const std::shared_ptr<SolvableByHSVI>& world) : BackupBase<double>(world) {}
 

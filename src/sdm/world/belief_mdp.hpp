@@ -30,26 +30,21 @@ namespace sdm
         BeliefMDP();
         BeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp);
 
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
+        std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
 
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
-        virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0) const;
+        double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0) const;
 
         double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0) const;
 
         /**
          * @brief Get the Observation Probability p(o | b', a)
          */
-        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
+        double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
 
         std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t) const;
 
-    protected:
-        std::shared_ptr<State> current_state_;
-
-        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
-        
         /**
          * @brief This part of the code can be used to 
          * 
@@ -60,6 +55,12 @@ namespace sdm
          * @return std::shared_ptr<BeliefInterface> 
          */
         static Pair<std::shared_ptr<BeliefInterface>, double> nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t = 0);
+
+    protected:
+        std::shared_ptr<State> current_state_;
+
+        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
+        
     };
 
 }

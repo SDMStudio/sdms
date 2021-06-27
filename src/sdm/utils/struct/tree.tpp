@@ -1,3 +1,4 @@
+#include <sdm/exception.hpp>
 #include <sdm/utils/struct/tree.hpp>
 
 namespace sdm
@@ -119,7 +120,7 @@ namespace sdm
     }
 
     template <typename T>
-    std::string Tree<T>::str()
+    std::string Tree<T>::str() const
     {
         std::ostringstream res;
         res << sdm::tools::addIndent("", this->getDepth());
@@ -139,12 +140,7 @@ namespace sdm
     template <typename T>
     std::shared_ptr<Tree<T>> Tree<T>::getptr()
     {
-        std::cout<<"Test !!!!!!!!!"<<std::endl; 
-        // auto a = this->shared_from_this();
-        throw sdm::exception::NotImplementedException();
-        // return a;
-
-        // return this->shared_from_this();
+        return this->shared_from_this();
     }
 
     template <typename T>

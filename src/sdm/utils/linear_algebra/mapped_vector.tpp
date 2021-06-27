@@ -61,7 +61,8 @@ namespace sdm
     {
         if (this->find(i) != this->end())
         {
-            return RecursiveMap<TIndex, T>::at(i);
+            auto value = RecursiveMap<TIndex, T>::at(i);
+            return value;
         }
         else
         {

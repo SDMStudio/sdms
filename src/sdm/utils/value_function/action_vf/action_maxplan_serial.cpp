@@ -82,9 +82,9 @@ namespace sdm
         {
             std::shared_ptr<Action> serial_action = action->toDecisionRule()->act(joint_history->getIndividualHistory(agent));
 
-            for(const auto &hidden_state : serial_occupancy_state->getStatesAt(joint_history))
+            for(const auto &hidden_state : serial_occupancy_state->getBeliefsAt(joint_history))
             {
-                auto probability = serial_occupancy_state->getProbability(serial_occupancy_state->HiddenStateAndJointHistoryToState(hidden_state,joint_history));
+                auto probability = serial_occupancy_state->getProbability(joint_history,hidden_state);
 
                 // Determine the reward 
                 double immediate_reward = under_pb->getReward(hidden_state, serial_action,t);
@@ -93,17 +93,17 @@ namespace sdm
                 double next_value = 0;
 
                 // Go over all Reachable Serial State
-                for(const auto &next_hidden_state: under_pb->getReachableStates(hidden_state, serial_action,t))
-                {
-                    // Go over all Reachable Observation
-                    for(const auto &serial_observation :under_pb->getReachableObservations(hidden_state, serial_action, next_hidden_state,t))
-                    {
-                        auto joint_serial_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(serial_observation);
+                // for(const auto &next_hidden_state: under_pb->getReachableStates(hidden_state, serial_action,t))
+                // {
+                //     // Go over all Reachable Observation
+                //     for(const auto &serial_observation :under_pb->getReachableObservations(hidden_state, serial_action, next_hidden_state,t))
+                //     {
+                //         auto joint_serial_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(serial_observation);
                         
-                        auto history_next = joint_history->expand(joint_serial_observation)->toJointHistory();
-                        next_value += next_hyperplan->getProbability(next_hyperplan->HiddenStateAndJointHistoryToState(next_hidden_state, history_next)) * under_pb->getDynamics(hidden_state,serial_action,next_hidden_state,serial_observation,t);
-                    }
-                }
+                //         auto history_next = joint_history->expand(joint_serial_observation)->toJointHistory();
+                //         next_value += next_hyperplan->getProbability(history_next,next_hidden_state) * under_pb->getDynamics(hidden_state,serial_action,next_hidden_state,serial_observation,t);
+                //     }
+                // }
                 value += probability * (immediate_reward + under_pb->getDiscount(t) * next_value);
 
             }

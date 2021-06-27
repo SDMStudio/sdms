@@ -2,16 +2,22 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
-#include <sdm/core/state/interface/jhistory_interface.hpp>
+#include <sdm/core/state/interface/joint_history_interface.hpp>
 #include <sdm/core/state/base_state.hpp>
 
 namespace sdm
 {
-    class PrivateOccupancyState;
-
-    class OccupancyStateInterface : public BeliefInterface
+    class OccupancyStateInterface : virtual public BeliefInterface
     {
     public:
+        virtual double getProbability(const std::shared_ptr<State> &pair_history_belief) const = 0;
+        virtual double getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const = 0;
+
+        virtual void setProbability(const std::shared_ptr<State> &pair_history_belief, double proba) = 0;
+        virtual void setProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba) = 0;
+
+        virtual void addProbability(const std::shared_ptr<State> &pair_history_belief, double proba) = 0;
+        virtual void addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba) = 0;
 
         /**
          * @brief Get the set of joint histories that are in the support of the occupancy state.
@@ -24,14 +30,15 @@ namespace sdm
 
          * @return the possible states
          */
-        // virtual const std::set<std::shared_ptr<BeliefInterface>> &getBeliefAt(const std::shared_ptr<JointHistoryInterface> &jhistory) const = 0;
+        virtual const std::set<std::shared_ptr<BeliefInterface>> &getBeliefs() const = 0;
 
         /**
-         * @brief Get the set of states that are in the support of the occupancy state for a precise joint historiy.
-
-         * @return the possible states
+         * @brief Get the set of beliefs at a given joint history
+         * 
+         * @param jhistory 
+         * @return const std::set<std::shared_ptr<BeliefInterface>>& 
          */
-        virtual const std::set<std::shared_ptr<State>> &getStatesAt(const std::shared_ptr<JointHistoryInterface> &jhistory) const = 0;
+        virtual const std::set<std::shared_ptr<BeliefInterface>> &getBeliefsAt(const std::shared_ptr<JointHistoryInterface> &jhistory) const = 0;
 
         /**
          * @brief Get the set of individual histories that are in the support of the occupancy state (for a given agent).
@@ -43,18 +50,6 @@ namespace sdm
          * @brief Get the set of individual histories that are in the support of the occupancy state (for all agents).
          */
         virtual const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &getAllIndividualHistories() const = 0;
-
-        /**
-         * @brief Return the state of a precise occupancy state
-         */
-        virtual std::shared_ptr<State> getHiddenState(const std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>> &) const = 0;
-
-        /**
-         * @brief Return the history of a precise occupancy state
-         */
-        virtual std::shared_ptr<JointHistoryInterface> getHistory(const std::shared_ptr<BaseState<Pair<std::shared_ptr<State>, std::shared_ptr<JointHistoryInterface>>>> &) const = 0;
-
-        virtual void finalize() = 0;
 
         /**
          * @brief Get the fully uncompressed occupancy state.
@@ -79,19 +74,19 @@ namespace sdm
         /**
          * @brief Get the list of labels that corresponds to the list of ihistories.
          */
-        virtual std::vector<std::shared_ptr<HistoryInterface>> getJointLabels(const std::vector<std::shared_ptr<HistoryInterface>> &) const = 0;
+        virtual Joint<std::shared_ptr<HistoryInterface>> getJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &) const = 0;
 
         /**
          * @brief Get all the probability conditionning to a Joint History
          * 
          * @param std::shared_ptr<JointHistoryInterface> : Joint History
          */
-        virtual const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &) const = 0;
+        // virtual const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &) const = 0;
 
         /**
          * @brief Update the labels of multiple individual histories
          */
-        virtual void updateJointLabels(const std::vector<std::shared_ptr<HistoryInterface>> &, const std::vector<std::shared_ptr<HistoryInterface>> &) = 0;
+        virtual void updateJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &, const Joint<std::shared_ptr<HistoryInterface>> &) = 0;
 
         /**
          * @brief Get the Compressed Joint History. 
@@ -114,13 +109,6 @@ namespace sdm
          */
         virtual std::shared_ptr<OccupancyStateInterface> compress() = 0;
 
-        virtual std::shared_ptr<State> HiddenStateAndJointHistoryToState(const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &) const = 0;
-
-        virtual const std::shared_ptr<BeliefInterface> createBelief(const std::shared_ptr<JointHistoryInterface> &joint_history) const = 0;
-        
-        virtual const std::shared_ptr<BeliefInterface> createBeliefWeighted(const std::shared_ptr<JointHistoryInterface> &joint_history) const = 0;
-
-        virtual const std::shared_ptr<PrivateOccupancyState> &getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const = 0;
-
+        virtual void finalize() = 0;
     };
 }

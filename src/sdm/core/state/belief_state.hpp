@@ -22,20 +22,19 @@
 
 namespace sdm
 {
-  class Belief : public BeliefInterface,
+  class Belief : virtual public BeliefInterface,
                  public MappedVector<std::shared_ptr<State>>
   {
   public:
     static double PRECISION;
 
     Belief();
-    Belief(double);
-    Belief(std::size_t, double);
+    Belief(std::size_t);
     Belief(const Belief &);
     Belief(const MappedVector<std::shared_ptr<State>> &);
     // Belief(std::initializer_list<value_type>);
     Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
-    
+
     virtual ~Belief();
 
     std::vector<std::shared_ptr<State>> getStates() const;
@@ -55,8 +54,8 @@ namespace sdm
 
     TypeState getTypeState() const ;
 
-    void setDefaultValue(double); 
-    double getDefaultValue() const; 
+    void setDefaultValue(double);
+    double getDefaultValue() const;
 
     std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
 
@@ -76,7 +75,6 @@ namespace sdm
 
 namespace std
 {
-
   template <>
   struct hash<sdm::Belief>
   {

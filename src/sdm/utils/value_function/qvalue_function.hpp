@@ -63,6 +63,8 @@ namespace sdm
         /**
          * @brief Get the value at a given observation
          */
+        virtual double getValueAt(const std::shared_ptr<Observation> &observation, number t = 0) = 0;
+
         double getValueAt(const std::shared_ptr<State> &observation, number t = 0);
 
         /**
@@ -81,8 +83,6 @@ namespace sdm
          * @return the q-value
          */
         virtual double getQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t) = 0;
-
-        virtual double getNextValueAt(const std::shared_ptr<Observation> &observation, number t) = 0;
 
         virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &observation, number t = 0) = 0;
 

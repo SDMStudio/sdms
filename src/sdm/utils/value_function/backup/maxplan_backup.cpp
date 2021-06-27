@@ -145,7 +145,7 @@ namespace sdm
             {
             // If it's a occupancy state, we need the JOint histories
             case TypeState::OCCUPANCY_STATE : 
-                history_for_decision_rule = std::make_shared<Joint<std::shared_ptr<State>>>(compressed_joint_history->JointHistoryTreeToJointState(compressed_joint_history->getIndividualHistories()));
+                history_for_decision_rule = compressed_joint_history->getIndividualHistories().template toJoint<State>();
                 break;
             // If it's a Serial Occupancy State, we need the individal history
             case TypeState::SERIAL_OCCUPANCY_STATE : 
@@ -159,23 +159,26 @@ namespace sdm
             // Get the serial action from the serial_decision_rule
             auto action = decision_rule->act(history_for_decision_rule);
 
-            for (const auto &uncompressed_hidden_state : occupancy_state->getFullyUncompressedOccupancy()->getStatesAt(uncompressed_joint_history))
+            for (const auto &uncompressed_belief_state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefsAt(uncompressed_joint_history))
             {
-                auto uncompressed_state = occupancy_state->HiddenStateAndJointHistoryToState(uncompressed_hidden_state,uncompressed_joint_history);
                 // Add the reward of the hyperplan
-                new_hyperplan->addProbability(uncompressed_state, this->world_->getReward(uncompressed_hidden_state,action,t));
+                new_hyperplan->setProbability(uncompressed_joint_history,uncompressed_belief_state, this->world_->getReward(uncompressed_belief_state,action,t));
 
-                //Go ober all Reachable State
-                for (const auto &next_hidden_state : under_pb->getReachableStates(uncompressed_hidden_state, action,t))
-                {
-                    //Go ober all Reachable Observation
-                    for (const auto &next_observation : under_pb->getReachableObservations(uncompressed_hidden_state, action, next_hidden_state,t))
-                    {
 
-                        auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation),std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action))->toJointHistory();
-                        new_hyperplan->addProbability(uncompressed_state, this->world_->getDiscount(t) * under_pb->getDynamics(uncompressed_hidden_state, action,next_hidden_state,next_observation,t) * next_hyperplan->getProbability(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, next_joint_history)));
-                    }
-                }
+
+                // Est ce que cela est possible ? Je ne pense pas
+                 
+                // //Go ober all Reachable State
+                // for (const auto &next_hidden_state : under_pb->getReachableStates(uncompressed_belief_state, action,t))
+                // {
+                //     //Go ober all Reachable Observation
+                //     for (const auto &next_observation : under_pb->getReachableObservations(uncompressed_belief_state, action, next_hidden_state,t))
+                //     {
+
+                //         auto next_joint_history = compressed_joint_history->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation))->toJointHistory();
+                //         new_hyperplan->addProbability(uncompressed_joint_history, uncompressed_belief_state, this->world_->getDiscount(t) * under_pb->getDynamics(uncompressed_belief_state, action,next_hidden_state,next_observation,t) * next_hyperplan->getProbability(next_hidden_state, next_joint_history));
+                //     }
+                // }
             }
         }
         return new_hyperplan;
