@@ -18,13 +18,16 @@
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/world/gym_interface.hpp>
+#include <sdm/world/mdp.hpp>
 
 namespace sdm
 {
     /**
      * @brief The BeliefMDP class is the interface contains the transformation of a the POMDP formalism in BeliefMDP formalism.
      */
-    class BeliefMDP : public SolvableByMDP
+    class BeliefMDP : public SolvableByMDP,
+                      public GymInterface
     {
     public:
         BeliefMDP();
@@ -32,7 +35,17 @@ namespace sdm
 
         std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
 
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
+
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
+
+        std::shared_ptr<Space> getActionSpaceAt(number t = 0);
+
+        std::shared_ptr<Space> getObservationSpaceAt(number t = 0);
+
+        std::shared_ptr<Observation> reset();
+
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
 
         double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0) const;
 
@@ -59,7 +72,11 @@ namespace sdm
     protected:
         std::shared_ptr<State> current_state_;
 
+        int step_;
+
         std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
+
+        std::shared_ptr<GymInterface> getUnderlyingGym() const;
         
     };
 
