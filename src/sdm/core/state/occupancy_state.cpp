@@ -38,7 +38,8 @@ namespace sdm
           all_list_ihistories_(occupancy_state.all_list_ihistories_),
           map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
-          map_pair_to_pointer_(occupancy_state.map_pair_to_pointer_)
+          map_pair_to_pointer_(occupancy_state.map_pair_to_pointer_),
+          probability_jhistories(occupancy_state.probability_jhistories)
     {
     }
 
@@ -398,6 +399,8 @@ namespace sdm
                 pair_ihist_private_occupancy_state.second->finalize(false);
             }
         }
+        this->setProbabilityOverJointHistory();
+        this->setProbabilityOverIndividualHistories();
     }
 
     std::shared_ptr<OccupancyState> OccupancyState::getptr()
@@ -430,6 +433,41 @@ namespace sdm
     {
         return this->probability_ihistories.at(agent).at(ihistory);
     }
+
+    const double &OccupancyState::getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface>&joint_history) const
+    {
+        return this->probability_jhistories.at(joint_history);
+    }
+
+    void OccupancyState::setProbabilityOverJointHistory()
+    {
+        for (const auto &joint_history : this->getJointHistories())
+        {
+            for(const auto &belief : this->getBeliefsAt(joint_history))
+            {
+                this->probability_jhistories[joint_history] += this->getProbability(joint_history,belief);
+            }
+        }
+    }
+
+    void OccupancyState::setProbabilityOverIndividualHistories()
+    {
+        for (number ag_id = 0; ag_id < this->num_agents_; ag_id++)
+        {
+            for (const auto &ihistory : this->getIndividualHistories(ag_id))
+            {
+                double prob = 0;
+                for (const auto &pair_hidden_state_history_proba : *this->getPrivateOccupancyState(ag_id, ihistory))
+                {
+                    prob += pair_hidden_state_history_proba.second;
+                }
+                this->probability_ihistories[ag_id][ihistory] = prob;
+            }
+        }
+    }
+
+
+
 
 
 } // namespace sdm

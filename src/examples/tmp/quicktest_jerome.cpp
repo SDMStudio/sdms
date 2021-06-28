@@ -25,6 +25,7 @@
 #include <sdm/world/mpomdp.hpp>
 #include <sdm/world/pomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 #include <sdm/parser/parser.hpp>
 
@@ -34,7 +35,6 @@
 
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/backup/maxplan_serial_backup.hpp>
 
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     auto obs_space = mdp_tiger->getObservationSpace(0);
     auto obs_dynamics = mdp_tiger->getObservationDynamics();
 
-    number horizon = 5;
+    number horizon = 2;
 
     // Creation of the MMDP
     auto mpomdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
@@ -78,36 +78,63 @@ int main(int argc, char **argv)
 
     // Creation of HSVI problem and Resolution 
     // std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<SolvableByMDP>(mmdp);
-    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<BeliefMDP>(mpomdp);
+    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<OccupancyMDP>(mpomdp);
+
+    // auto state = hsvi->getInitialState();
+
+    // std::cout << "COMPRESSED \n"
+    //             << state->str() << std::endl;
+
+    // for (int i = 0; i < 2; i++)
+    // {
+    //     std::shared_ptr<Item> action;
+    //     auto space = hsvi->getActionSpaceAt(state, i);
+    //     for (const auto &decision_rule : *space)
+    //     {
+    //         action = decision_rule;
+    //         std::cout<<"action"<<action->str()<<std::endl;
+    //     }
+
+    //     std::cout << "\n---- DECISION RULE ----- \n"
+    //                 << action->str() << std::endl;
+    //     state = hsvi->nextState(state, action->toAction(), i);
+    //     std::cout << "\n---- COMPRESSED ----- \n"
+    //                 << state->str() << std::endl;
+    //     std::cout << "\n ----- ONE STEP UNCOMPRESSED -----\n"
+    //                 << state->toOccupancyState()->getOneStepUncompressedOccupancy()->str() << std::endl;
+
+    //     std::cout << "\n ----- FULLY UNCOMPRESSED -----\n"
+    //                 << state->toOccupancyState()->getFullyUncompressedOccupancy()->str() << std::endl;
+    // }
 
     // horizon = horizon * serial_mmdp->getNumAgents();
-    auto tabular_backup = std::make_shared<TabularBackup>(hsvi);
-    auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi);
+    // auto tabular_backup = std::make_shared<TabularBackup>(hsvi);
+    // auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi);
 
-    auto evaluate_tabular = std::make_shared<EvaluateTabulaire>();
-    auto evaluate_sawtooth = std::make_shared<EvaluateSawtooth>();
-    auto evaluate_maxplan = std::make_shared<EvaluateMaxplan>();
+    // auto evaluate_tabular = std::make_shared<EvaluateTabulaire>();
+    // auto evaluate_sawtooth = std::make_shared<EvaluateSawtooth>();
+    // auto evaluate_maxplan = std::make_shared<EvaluateMaxplan>();
 
-    auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi);
-    // auto action_sawtooth = std::make_shared<>(hsvi);
-    auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi);
+    // auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi);
+    // // auto action_sawtooth = std::make_shared<>(hsvi);
+    // auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi);
 
-    auto init_lb = std::make_shared<MinInitializer>(hsvi);
-    auto init_ub = std::make_shared<MaxInitializer>(hsvi);
+    // auto init_lb = std::make_shared<MinInitializer>(hsvi);
+    // auto init_ub = std::make_shared<MaxInitializer>(hsvi);
 
-    auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular,evaluate_sawtooth);
-    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan,evaluate_maxplan);
+    // auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular,evaluate_tabular);
+    // auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular,evaluate_tabular);
 
-    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01);
-    algorithm->do_initialize();
+    // auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01,2);
+    // algorithm->do_initialize();
 
-    std::cout << *algorithm->getLowerBound() << std::endl;
-    std::cout << *algorithm->getUpperBound() << std::endl;
+    // // std::cout << *algorithm->getLowerBound() << std::endl;
+    // // std::cout << *algorithm->getUpperBound() << std::endl;
 
-    algorithm->do_solve(); 
+    // algorithm->do_solve(); 
 
-    std::cout << *algorithm->getLowerBound() << std::endl;
-    std::cout << *algorithm->getUpperBound() << std::endl;
+    // std::cout << *algorithm->getLowerBound() << std::endl;
+    // std::cout << *algorithm->getUpperBound() << std::endl;
 
     // for(const auto &state : *serial_mmdp->getStateSpace(1))
     // {

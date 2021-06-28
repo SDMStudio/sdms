@@ -81,7 +81,7 @@ namespace sdm
          * 
          * @param std::shared_ptr<JointHistoryInterface> : Joint History
          */
-        // virtual const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &) const = 0;
+        virtual const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &) const = 0;
 
         /**
          * @brief Update the labels of multiple individual histories

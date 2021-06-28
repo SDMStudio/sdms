@@ -41,7 +41,7 @@ namespace sdm
         return this->belief_proba.at(action).at(observation);
     }
 
-    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(TransitionFunction transition_function, const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup)
+    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(TransitionFunction transition_function, const std::shared_ptr<MPOMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup)
     {
         auto pair_action_observation = std::make_pair(action, observation);
         // If already in the successor list

@@ -10,8 +10,9 @@ namespace sdm
     {
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
-
-        for (const auto &action : *this->world_->getActionSpaceAt(state, t))
+        
+        auto space = this->world_->getActionSpaceAt(state, t);
+        for (const auto &action : *space)
         {
             auto casted_action = action->toAction();
             if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))

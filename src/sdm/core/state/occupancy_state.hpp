@@ -114,7 +114,7 @@ namespace sdm
          * 
          * @param std::shared_ptr<JointHistoryInterface> : Joint History
          */
-        // const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &) const;
+        const double &getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &) const;
 
         /**
          * @brief Get the probability over individual histories and precise agent
@@ -179,6 +179,8 @@ namespace sdm
         /** @brief probability of a private history space for a precise agent */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, double>> probability_ihistories;
 
+        RecursiveMap<std::shared_ptr<JointHistoryInterface>, double> probability_jhistories;
+
         /**
          * @brief space of all reachable states, those in the support of the occupancy state
          * @comment: Should not be used since there are to much possible wrt each joint history, belief states whould have been a better choice.
@@ -225,5 +227,8 @@ namespace sdm
         void setup();
 
         std::shared_ptr<JointHistoryBeliefPair> getPairPointer(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const;
+
+        void setProbabilityOverJointHistory();
+        void setProbabilityOverIndividualHistories();
     };
 } // namespace sdm

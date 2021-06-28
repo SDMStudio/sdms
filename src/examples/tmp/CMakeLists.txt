@@ -113,6 +113,8 @@ if(JEROME)
 		${INCLUDE_DIR}/world/pomdp.cpp
 		${INCLUDE_DIR}/parser/**
 		${INCLUDE_DIR}/world/serialized_mpomdp.cpp
+		${INCLUDE_DIR}/world/occupancy_mdp.cpp
+
 	)
 	add_library(world SHARED ${lib_world})
 	target_link_libraries(world core)

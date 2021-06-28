@@ -21,5 +21,12 @@ namespace sdm
          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
          */
         Pair<std::shared_ptr<Action>,TData> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+
+    protected : 
+        Pair<std::shared_ptr<Action>,TData> selectBestActionBelief(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+        Pair<std::shared_ptr<Action>,TData> selectBestActionOccupancy(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+
+        TData selectHyperplanKnowingAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state,const std::shared_ptr<Action>&, number t);
+
     };
 }

@@ -16,6 +16,8 @@
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/public/boost_serializable.hpp>
 
+#include <sdm/world/base/mpomdp_interface.hpp>
+
 namespace sdm
 {
 
@@ -30,11 +32,11 @@ namespace sdm
                              public BoostSerializable<BeliefStateGraph>
     {
     public:
-        using TransitionFunction = Pair<std::shared_ptr<BeliefInterface>, double>(const std::shared_ptr<POMDPInterface> &,
+        using TransitionFunction = std::function<Pair<std::shared_ptr<BeliefInterface>, double>(const std::shared_ptr<MPOMDPInterface> &,
                                                                                   const std::shared_ptr<BeliefInterface> &,
                                                                                   const std::shared_ptr<Action> &,
                                                                                   const std::shared_ptr<Observation> &,
-                                                                                  number);
+                                                                                  number)>;
 
         BeliefStateGraph();
         BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
@@ -76,7 +78,7 @@ namespace sdm
          * @param backup if true, we store the expanded belief in the graph.
          * @return the next belief
          */
-        std::shared_ptr<BeliefStateGraph> next(TransitionFunction transition_function, const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup = true);
+        std::shared_ptr<BeliefStateGraph> next(TransitionFunction transition_function, const std::shared_ptr<MPOMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup = true);
 
         /**
          * @brief Return a 
