@@ -71,7 +71,7 @@ namespace sdm
 
     std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &action_tmp, number t, const std::shared_ptr<HSVI> &, bool compression) const
     {
-        return std::static_pointer_cast<BeliefStateGraph>(state_tmp)->next(, this->getUnderlyingMPOMDP(), action_tmp, nullptr, t);
+        return std::static_pointer_cast<BeliefStateGraph>(state_tmp)->next(OccupancyMDP::nextOccupancy, this->getUnderlyingMPOMDP(), action_tmp, nullptr, t);
     }
 
     std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &joint_idr, number h, const std::shared_ptr<HSVI> &hsvi) const
@@ -79,7 +79,7 @@ namespace sdm
         return this->nextState(ostate, joint_idr, h, hsvi, true);
     }
 
-    Pair<std::shared_ptr<BeliefInterface>, double> OccupancyMDP::nextOccupancy(const std::shared_ptr<MPOMDPInterface> &mpomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
+    Pair<std::shared_ptr<BeliefInterface>, double> OccupancyMDP::nextOccupancy(const std::shared_ptr<POMDPInterface> &mpomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
         try
         {
@@ -102,7 +102,17 @@ namespace sdm
             for (const auto &joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
             {
                 // std::cout << "2" << std::endl;
-                auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
+                // auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
+                auto joint_hist = ostate->toOccupancyState()->getJointLabels(joint_history->getIndividualHistories()).toJoint<State>();
+
+                // Get selected joint action
+                auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_hist);
+
+                // Transform selected joint action into joint action address
+                auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action);
+                auto joint_action_address = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*joint_action->toJoint<Item>());
+                joint_action=  joint_action_address->toAction()
+                
                 // std::cout << "3" << std::endl;
 
                 for (const auto &belief : occupancy_state->getFullyUncompressedOccupancy()->getBeliefsAt(joint_history))

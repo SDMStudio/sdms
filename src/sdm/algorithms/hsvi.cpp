@@ -103,17 +103,13 @@ namespace sdm
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
 
                 // std::cout<<"Test 3"<<std::endl;
-                std::cout<<"next state "<<s_<<std::endl;
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
                 // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
-
                 this->upper_bound_->updateValueAt(s, h);
-
-                std::cout<<this->upper_bound_->str()<<std::endl;
             }
 
             //---------------DEBUG-----------------//

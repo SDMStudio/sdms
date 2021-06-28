@@ -30,7 +30,7 @@ namespace sdm
         std::shared_ptr<State> nextState(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number, const std::shared_ptr<HSVI> &, bool) const;
         std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
 
-        Pair<std::shared_ptr<BeliefInterface>, double> nextOccupancy(const std::shared_ptr<MPOMDPInterface> &mpomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t);
+        static Pair<std::shared_ptr<BeliefInterface>, double> nextOccupancy(const std::shared_ptr<POMDPInterface> &mpomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t);
 
 
         std::shared_ptr<HistoryInterface> initial_history_, current_history_;
