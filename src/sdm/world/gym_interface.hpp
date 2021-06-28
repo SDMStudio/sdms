@@ -20,6 +20,7 @@ namespace sdm
     class GymInterface
     {
     public:
+        GymInterface();
         GymInterface(const std::shared_ptr<Space>& observation_space, const std::shared_ptr<Space>& action_space);
 
         /**
