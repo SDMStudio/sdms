@@ -35,20 +35,6 @@ namespace sdm
         this->current_state_ = this->initial_state_;
     }
 
-    // std::shared_ptr<Observation> BeliefMDP::reset()
-    // {
-    //     this->current_state_ = this->initial_state_;
-    //     this->getUnderlyingProblem()->reset();
-    //     return this->current_state_;
-    // }
-
-    // std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BeliefMDP::step(std::shared_ptr<Action> action)
-    // {
-    //     auto [next_obs, rewards, done] = this->getUnderlyingProblem()->step(action);
-    //     this->current_state_ = this->nextState(this->current_state_, action, next_obs);
-    //     return std::make_tuple(this->current_state_, rewards, done);
-    // }
-
     Pair<std::shared_ptr<BeliefInterface>, double> BeliefMDP::nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t)
     {
         std::shared_ptr<Belief> next_belief = std::make_shared<Belief>();

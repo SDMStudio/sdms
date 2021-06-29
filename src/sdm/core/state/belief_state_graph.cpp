@@ -43,17 +43,25 @@ namespace sdm
 
     std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(TransitionFunction transition_function, const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup)
     {
+        std::cout<<"Next "<<std::endl;
         auto pair_action_observation = std::make_pair(action, observation);
+        std::cout<<"Next 1"<<std::endl;
+
         // If already in the successor list
         if (backup && (this->successors.find(pair_action_observation) != this->successors.end()))
         {
+            std::cout<<"Next 2"<<std::endl;
+
             // Return the successor node
             return std::static_pointer_cast<BeliefStateGraph>(this->getSuccessor(pair_action_observation));
         }
         if (backup)
         {
+            std::cout<<"Next 3"<<std::endl;
+
             // Build next belief and proba
             auto [next_belief_p, proba_belief] = transition_function(pomdp, this->getptr(), action, observation, t);
+            std::cout<<"Next 4"<<std::endl;
 
             auto next_belief = *std::dynamic_pointer_cast<Belief>(next_belief_p);
 

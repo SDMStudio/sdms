@@ -19,7 +19,7 @@ namespace sdm
         OccupancyMDP(std::shared_ptr<MPOMDPInterface> dpomdp, number max_history_length = -1);
 
         void initialize(number history_length);
-        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> decision_rule);
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
         std::shared_ptr<State> nextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
         double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0) const;
