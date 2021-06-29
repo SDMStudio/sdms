@@ -25,7 +25,7 @@
 #include <sdm/world/mpomdp.hpp>
 #include <sdm/world/pomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
+// #include <sdm/world/occupancy_mdp.hpp>
 
 #include <sdm/parser/parser.hpp>
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
     // Creation of HSVI problem and Resolution 
     // std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<SolvableByMDP>(mmdp);
-    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<OccupancyMDP>(mpomdp);
+    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<BeliefMDP>(mpomdp);
 
     // auto state = hsvi->getInitialState();
 
