@@ -27,13 +27,10 @@ namespace sdm
         initial_state->toOccupancyState()->setFullyUncompressedOccupancy(initial_state);
         initial_state->toOccupancyState()->setOneStepUncompressedOccupancy(initial_state);
 
-        std::cout<<"initial state "<<initial_state->str()<<std::endl;
-
-        this->initial_state_ = std::make_shared<BeliefStateGraph>(*initial_state);
+        this->initial_state_ = std::make_shared<BeliefStateGraph>(initial_state);
         std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->initialize();
 
-        std::cout<<"initial state "<<std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->getData().str()<<std::endl;
-
+        std::cout<<std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->getData()->toOccupancyState()->str()<<std::endl;
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> OccupancyMDP::step(std::shared_ptr<Action> action)
@@ -58,6 +55,7 @@ namespace sdm
     {
         std::vector<std::shared_ptr<Space>> vector_indiv_space;
         std::cout<<ostate->str()<<std::endl;
+
         for (int agent_id = 0; agent_id < this->getUnderlyingProblem()->getNumAgents(); agent_id++)
         {
             // Get history space of agent i
@@ -68,6 +66,8 @@ namespace sdm
             // Add individual decision rule space of agent i
             vector_indiv_space.push_back(std::make_shared<FunctionSpace<DeterministicDecisionRule>>(history_space_i, action_space_i, false));
         }
+        std::cout<<"Erreur ?" <<std::endl;
+
 
         // Now we can return a discrete space of all joint decision rules
         std::shared_ptr<Space> null_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)});
