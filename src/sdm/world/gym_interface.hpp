@@ -20,35 +20,25 @@ namespace sdm
     class GymInterface
     {
     public:
-        GymInterface();
-        GymInterface(const std::shared_ptr<Space>& observation_space, const std::shared_ptr<Space>& action_space);
-
         /**
          * @brief Get the action space.
-         * 
+         * @param observation the observation in consideration
+         * @param t time step
          * @return the action space. 
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
-        virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
-        virtual std::shared_ptr<Space> getObservationSpaceAt(number t) = 0;
 
         /**
          * @brief Reset the environment and return initial observation.
-         * 
          * @return the initial observation
          */
         virtual std::shared_ptr<Observation> reset() = 0;
 
         /**
          * @brief Do a step on the environment.
-         * 
          * @param action the action to execute
          * @return the information produced. Include : next observation, rewards, episode done  
          */
         virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
-
-    protected:
-        std::shared_ptr<Space> observation_space_, action_space_;
-
     };
 } // namespace sdm

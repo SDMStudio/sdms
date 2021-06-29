@@ -260,7 +260,6 @@ if(QLEARNING)
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/world/gym_interface.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp

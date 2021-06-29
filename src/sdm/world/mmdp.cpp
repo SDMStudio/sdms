@@ -13,8 +13,7 @@ namespace sdm
                number horizon,
                double discount,
                Criterion criterion)
-        : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
-          GymInterface(state_space, action_space)
+        : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion)
     {
         this->num_agents_ = std::static_pointer_cast<MultiDiscreteSpace>(action_space)->getNumSpaces();
     }

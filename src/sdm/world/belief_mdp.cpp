@@ -21,11 +21,13 @@ namespace sdm
         double proba = 0;
         auto initial_state = std::make_shared<Belief>();
 
-        // Setup initial belief
+        // For each state at t=0:
         for (const auto &state : *pomdp->getStateSpace(0))
         {
-            proba = pomdp->getStartDistribution()->getProbability(state->toState(), nullptr);
-            if (proba > 0)
+            // Get the state's probability
+            double probability = pomdp->getStartDistribution()->getProbability(state->toState(), nullptr);
+            // If the state is possible:
+            if (probability > 0)
             {
                 std::static_pointer_cast<BeliefInterface>(initial_state)->setProbability(state->toState(), proba);
             }
@@ -35,21 +37,22 @@ namespace sdm
         this->current_state_ = this->initial_state_;
     }
 
-    Pair<std::shared_ptr<BeliefInterface>, double> BeliefMDP::nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &obs, number t)
+    Pair<std::shared_ptr<BeliefInterface>, double> BeliefMDP::nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         std::shared_ptr<Belief> next_belief = std::make_shared<Belief>();
-        double proba_next_state;
 
+        // For each state at t+1:
         for (const auto &next_state : *pomdp->getStateSpace(t + 1))
         {
-            proba_next_state = 0;
+            double probability = 0;
             for (const auto &state : *pomdp->getStateSpace(t))
             {
-                proba_next_state += pomdp->getDynamics(state->toState(), action, next_state->toState(), obs, t) * belief->getProbability(state->toState());
+                probability += pomdp->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->getProbability(state->toState());
             }
-            if (proba_next_state > 0)
+            //  If the state is possible:
+            if (probability > 0)
             {
-                next_belief->setProbability(next_state->toState(), proba_next_state);
+                next_belief->setProbability(next_state->toState(), probability);
             }
         }
 
@@ -102,7 +105,7 @@ namespace sdm
         return reward;
     }
 
-    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &observation, number)
+    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &observation, number) const
     {
         return std::static_pointer_cast<BeliefStateGraph>(belief)->getProbability(action, observation);
     }
@@ -115,17 +118,6 @@ namespace sdm
     std::shared_ptr<Space> BeliefMDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
     {
         return this->getUnderlyingPOMDP()->getActionSpace(t);
-    }
-
-    std::shared_ptr<Space> BeliefMDP::getActionSpaceAt(number t)
-    {
-        return this->getUnderlyingPOMDP()->getActionSpace(t);
-    }
-
-    std::shared_ptr<Space> BeliefMDP::getObservationSpaceAt(number t)
-    {
-        return this->getUnderlyingPOMDP()->getStateSpace(t);
-        // ?
     }
 
     std::shared_ptr<Observation> BeliefMDP::reset()
@@ -161,10 +153,5 @@ namespace sdm
     {
         return std::dynamic_pointer_cast<POMDPInterface>(this->getUnderlyingMDP());
     }
-
-    // std::shared_ptr<GymInterface> BeliefMDP::getUnderlyingGym() const
-    // {
-    //     return std::static_pointer_cast<GymInterface>(*this);
-    // }
 
 } // namespace sdm

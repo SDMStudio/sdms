@@ -15,8 +15,7 @@ namespace sdm
                    number horizon,
                    double discount,
                    Criterion criterion)
-        : GymInterface(obs_space, action_space),
-          MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
+        : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
           POMDP(state_space, action_space, obs_space, reward, state_dynamics, obs_dynamics, start_distrib, horizon, discount, criterion),
           MMDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion)
     {
@@ -32,21 +31,6 @@ namespace sdm
     std::shared_ptr<Space> MPOMDP::getObservationSpace(number agent_id, number t) const
     {
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(t))->getSpace(agent_id);
-    }
-
-    std::shared_ptr<Space> MPOMDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
-    {
-        return this->getActionSpace(t);
-    }
-
-    std::shared_ptr<Space> MPOMDP::getActionSpaceAt(number t)
-    {
-        return this->getActionSpace(t);
-    }
-
-    std::shared_ptr<Space> MPOMDP::getObservationSpaceAt(number t)
-    {
-        return this->getObservationSpace(t);
     }
 
     std::string MPOMDP::toStdFormat()
