@@ -63,7 +63,6 @@ namespace sdm
 
         std::shared_ptr<Space> getActionSpaceAt(number t);
 
-        std::shared_ptr<Space> getObservationSpaceAt(number t);
     };
 
     using DecPOMDP = MPOMDP;

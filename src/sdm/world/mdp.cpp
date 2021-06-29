@@ -12,8 +12,7 @@ namespace sdm
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
              number horizon,
              double discount,
-             Criterion criterion) : GymInterface(state_space, action_space), 
-                                    num_agents_(1),
+             Criterion criterion) : num_agents_(1),
                                     horizon_(horizon),
                                     discount_(discount),
                                     criterion_(criterion),
@@ -147,11 +146,6 @@ namespace sdm
     std::shared_ptr<Space> MDP::getActionSpaceAt(number t)
     {
         return this->getActionSpace(t);
-    }
-
-    std::shared_ptr<Space> MDP::getObservationSpaceAt(number t)
-    {
-        return this->getStateSpace(t);
     }
 
     std::string MDP::toStdFormat()

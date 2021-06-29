@@ -12,8 +12,7 @@ namespace sdm
                  const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
                  number horizon,
                  double discount,
-                 Criterion criterion) : GymInterface(obs_space, action_space),
-                                        MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
+                 Criterion criterion) : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
                                         obs_space_(obs_space),
                                         obs_dynamics_(obs_dynamics)
     {
