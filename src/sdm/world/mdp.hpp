@@ -33,9 +33,9 @@ namespace sdm
     public:
         MDP(const std::shared_ptr<Space> &state_space,
             const std::shared_ptr<Space> &action_space,
-            const std::shared_ptr<RewardInterface> &reward,
+            const std::shared_ptr<RewardInterface> &reward_space,
             const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-            const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
+            const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distribution,
             number horizon = 0,
             double discount = 0.99,
             Criterion criterion = Criterion::REW_MAX);
@@ -208,13 +208,13 @@ namespace sdm
 
         std::shared_ptr<Space> state_space_;
 
-        std::shared_ptr<Space> action_space_; // already in gym interface
+        std::shared_ptr<Space> action_space_;
 
-        std::shared_ptr<RewardInterface> reward_;
+        std::shared_ptr<RewardInterface> reward_space_;
 
         std::shared_ptr<StateDynamicsInterface> state_dynamics_;
 
-        std::shared_ptr<Distribution<std::shared_ptr<State>>> start_distrib_;
+        std::shared_ptr<Distribution<std::shared_ptr<State>>> start_distribution_;
     };
 
 } // namespace sdm

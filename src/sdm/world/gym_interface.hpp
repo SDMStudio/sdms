@@ -22,21 +22,20 @@ namespace sdm
     public:
         /**
          * @brief Get the action space.
-         * 
+         * @param observation the observation in consideration
+         * @param t time step
          * @return the action space. 
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
 
         /**
          * @brief Reset the environment and return initial observation.
-         * 
          * @return the initial observation
          */
         virtual std::shared_ptr<Observation> reset() = 0;
 
         /**
          * @brief Do a step on the environment.
-         * 
          * @param action the action to execute
          * @return the information produced. Include : next observation, rewards, episode done  
          */
