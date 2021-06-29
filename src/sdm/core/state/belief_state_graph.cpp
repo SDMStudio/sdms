@@ -4,24 +4,24 @@
 namespace sdm
 {
     BeliefStateGraph::BeliefStateGraph()
-        : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>()
+        : Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>()
     {
-        this->belief_space = std::make_shared<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>>();
+        this->belief_space = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefStateGraph>>>();
     }
 
-    BeliefStateGraph::BeliefStateGraph(const std::shared_ptr<BeliefInterface> &data)
-        : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(data)
+    BeliefStateGraph::BeliefStateGraph(const Belief &data)
+        : Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(data)
     {
-        this->belief_space = std::make_shared<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>>();
+        this->belief_space = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefStateGraph>>>();
     }
 
-    // BeliefStateGraph::BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba)
-    //     : BeliefStateGraph(Belief(list_states, list_proba))
-    // {
-    // }
+    BeliefStateGraph::BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba)
+        : BeliefStateGraph(Belief(list_states, list_proba))
+    {
+    }
 
-    BeliefStateGraph::BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const std::shared_ptr<BeliefInterface> &belief)
-        : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(predecessor, belief), belief_space(predecessor->belief_space)
+    BeliefStateGraph::BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief)
+        : Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(predecessor, belief), belief_space(predecessor->belief_space)
     {
     }
 
@@ -31,7 +31,7 @@ namespace sdm
     }
 
 
-    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::getNode(const std::shared_ptr<BeliefInterface> &belief)
+    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::getNode(const Belief &belief)
     {
         return this->belief_space->at(belief);
     }
@@ -61,9 +61,9 @@ namespace sdm
 
             // Build next belief and proba
             auto [next_belief_p, proba_belief] = transition_function(pomdp, this->getptr(), action, observation, t);
-            std::cout<<"Next "<<std::endl;
+            // std::cout<<"Next 4"<<std::endl;
 
-            auto next_belief = std::shared_ptr<BeliefInterface>(next_belief_p);
+            auto next_belief = *std::dynamic_pointer_cast<Belief>(next_belief_p);
 
             // Store the probability of next belief
             this->belief_proba[action][observation] = proba_belief;
@@ -93,20 +93,20 @@ namespace sdm
         }
         // Return next belief without storing its value in the graph
         auto [next_belief_p, proba_belief] = transition_function(pomdp, this->getptr(), action, observation, t);
-        auto next_belief = std::shared_ptr<BeliefInterface>(next_belief_p);
+        auto next_belief = *std::dynamic_pointer_cast<Belief>(next_belief_p);
         return std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
     }
 
     std::string BeliefStateGraph::str() const
     {
         std::ostringstream str_result;
-        str_result << this->getData()->str();
+        str_result << this->getData().str();
         return str_result.str();
     }
 
     std::shared_ptr<BeliefStateGraph> BeliefStateGraph::getptr()
     {
-        return Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>::downcasted_shared_from_this<BeliefStateGraph>();
+        return Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>::downcasted_shared_from_this<BeliefStateGraph>();
     }
 
     template <class Archive>
@@ -121,40 +121,40 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> BeliefStateGraph::getStates() const
     {
-        return this->getData()->getStates();
+        return this->getData().getStates();
     }
 
     size_t BeliefStateGraph::size() const
     {
-        return this->getData()->size();
+        return this->getData().size();
     }
 
     double BeliefStateGraph::getProbability(const std::shared_ptr<State> &state) const
     {
-        return this->getData()->getProbability(state);
+        return this->getData().getProbability(state);
     }
 
     void BeliefStateGraph::setProbability(const std::shared_ptr<State> &state, double proba)
     {
-        this->data_->setProbability(state, proba);
+        this->data_.setProbability(state, proba);
     }
 
     void BeliefStateGraph::addProbability(const std::shared_ptr<State> &state, double proba)
     {
-        this->data_->addProbability(state, proba);
+        this->data_.addProbability(state, proba);
     }
 
     bool BeliefStateGraph::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        return this->getData()->operator==(other);
+        return this->getData().operator==(other);
     }
     double BeliefStateGraph::operator^(const std::shared_ptr<BeliefInterface> &other) const
     {
-        return this->getData()->operator^(other);
+        return this->getData().operator^(other);
     }
     double BeliefStateGraph::norm_1() const
     {
-        return this->getData()->norm_1();
+        return this->getData().norm_1();
     }
 
     std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> BeliefStateGraph::getVectorInferface()
@@ -170,11 +170,11 @@ namespace sdm
 
     void BeliefStateGraph::setDefaultValue(double value)
     {
-        this->data_->setDefaultValue(value);
+        this->data_.setDefaultValue(value);
     }
     double BeliefStateGraph::getDefaultValue() const
     {
-        return this->getData()->getDefaultValue();
+        return this->getData().getDefaultValue();
     }
 
 } // namespace sdm

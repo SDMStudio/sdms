@@ -18,8 +18,7 @@ namespace sdm
 
     BeliefMDP::BeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp) : SolvableByMDP(pomdp)
     {
-        double proba = 0;
-        auto initial_state = std::make_shared<Belief>();
+        this->initial_state_ = std::make_shared<BeliefStateGraph>();
 
         // For each state at t=0:
         for (const auto &state : *pomdp->getStateSpace(0))
@@ -29,10 +28,11 @@ namespace sdm
             // If the state is possible:
             if (probability > 0)
             {
-                std::static_pointer_cast<BeliefInterface>(initial_state)->setProbability(state->toState(), proba);
+                // Set the probability
+                std::static_pointer_cast<BeliefInterface>(this->initial_state_)->setProbability(state->toState(), probability);
             }
         }
-        this->initial_state_ = std::make_shared<BeliefStateGraph>(initial_state);
+
         std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->initialize();
         this->current_state_ = this->initial_state_;
     }

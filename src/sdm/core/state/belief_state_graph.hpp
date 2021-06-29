@@ -27,7 +27,7 @@ namespace sdm
      * @brief A graph that keep all beliefs
      * 
      */
-    class BeliefStateGraph : public Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>,
+    class BeliefStateGraph : public Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>,
                              public BeliefInterface,
                              public BoostSerializable<BeliefStateGraph>
     {
@@ -39,8 +39,8 @@ namespace sdm
                                                                                   number);
 
         BeliefStateGraph();
-        // BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
-        BeliefStateGraph(const std::shared_ptr<BeliefInterface> &data);
+        BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
+        BeliefStateGraph(const Belief &data);
 
         /**
          * @brief Construct a new belief 
@@ -48,7 +48,7 @@ namespace sdm
          * @param predecessor 
          * @param belief 
          */
-        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const std::shared_ptr<BeliefInterface> &belief);
+        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief);
 
         void initialize();
 
@@ -58,7 +58,7 @@ namespace sdm
          * @param belief a specific belief
          * @return the address of the node 
          */
-        std::shared_ptr<BeliefStateGraph> getNode(const std::shared_ptr<BeliefInterface> &belief);
+        std::shared_ptr<BeliefStateGraph> getNode(const Belief &belief);
 
         /**
          * @brief Get the probability of associated belief.
@@ -119,7 +119,7 @@ namespace sdm
         /**
          * @brief A pointer on the bag containing all nodes.
          */
-        std::shared_ptr<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>> belief_space;
+        std::shared_ptr<std::unordered_map<Belief, std::shared_ptr<BeliefStateGraph>>> belief_space;
 
         /**
          * @brief A pointer on the bag containing all nodes.
