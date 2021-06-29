@@ -105,7 +105,7 @@ namespace sdm
         return reward;
     }
 
-    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &observation, number) const
+    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &observation, number)
     {
         return std::static_pointer_cast<BeliefStateGraph>(belief)->getProbability(action, observation);
     }

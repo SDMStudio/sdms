@@ -32,7 +32,6 @@ namespace sdm
 
         static Pair<std::shared_ptr<BeliefInterface>, double> nextOccupancy(const std::shared_ptr<POMDPInterface> &mpomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t);
 
-
         std::shared_ptr<HistoryInterface> initial_history_, current_history_;
     };
 } // namespace sdm

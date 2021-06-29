@@ -1,23 +1,7 @@
-/**
- * @file belief_state_graph.hpp
- * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
- * @version 1.0
- * @date 05/05/2021
- * 
- * @copyright Copyright (c) 2021
- * 
- */
 #pragma once
 
-#include <sdm/utils/struct/pair.hpp>
-#include <sdm/utils/struct/graph.hpp>
-#include <sdm/utils/struct/recursive_map.hpp>
-#include <sdm/core/state/belief_state.hpp>
-#include <sdm/public/boost_serializable.hpp>
-
-#include <sdm/world/base/mpomdp_interface.hpp>
-
+#include <sdm/core/state/belief_state_graph.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
 namespace sdm
 {
 
@@ -27,20 +11,18 @@ namespace sdm
      * @brief A graph that keep all beliefs
      * 
      */
-    class BeliefStateGraph : public Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>,
-                             public BeliefInterface,
-                             public BoostSerializable<BeliefStateGraph>
+    class OccupancyStateGraph : public BeliefStateGraph, public OccupancyStateInterface
     {
     public:
-        using TransitionFunction = Pair<std::shared_ptr<BeliefInterface>, double>(const std::shared_ptr<POMDPInterface> &,
-                                                                                  const std::shared_ptr<BeliefInterface> &,
+        using TransitionFunction = Pair<std::shared_ptr<OccupancyStateInterface>, double>(const std::shared_ptr<POMDPInterface> &,
+                                                                                  const std::shared_ptr<OccupancyStateInterface> &,
                                                                                   const std::shared_ptr<Action> &,
                                                                                   const std::shared_ptr<Observation> &,
                                                                                   number);
 
-        BeliefStateGraph();
-        BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
-        BeliefStateGraph(const Belief &data);
+        OccupancyStateGraph();
+        OccupancyStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
+        OccupancyStateGraph(const Belief &data);
 
         /**
          * @brief Construct a new belief 
@@ -48,7 +30,7 @@ namespace sdm
          * @param predecessor 
          * @param belief 
          */
-        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief);
+        OccupancyStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief);
 
         void initialize();
 

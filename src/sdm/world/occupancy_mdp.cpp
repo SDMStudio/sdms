@@ -11,7 +11,10 @@
 namespace sdm
 {
 
-    OccupancyMDP::OccupancyMDP() {}
+    OccupancyMDP::OccupancyMDP() 
+    {
+
+    }
 
     OccupancyMDP::OccupancyMDP(std::shared_ptr<MPOMDPInterface> underlying_dpomdp, number max_history_length)
         : BeliefMDP(underlying_dpomdp)
@@ -27,7 +30,7 @@ namespace sdm
         initial_state->toOccupancyState()->setFullyUncompressedOccupancy(initial_state);
         initial_state->toOccupancyState()->setOneStepUncompressedOccupancy(initial_state);
 
-        std::cout<<"initial state "<<initial_state->str()<<std::endl;
+        std::cout << "initial state "<< initial_state->str() << std::endl;
 
         this->initial_state_ = std::make_shared<BeliefStateGraph>(*initial_state);
         std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->initialize();
