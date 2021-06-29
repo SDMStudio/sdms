@@ -38,63 +38,62 @@ namespace sdm
 
     double BeliefStateGraph::getProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation) const
     {
-        return this->belief_proba.at(action).at(observation);
+        return this->belief_probability.at(action).at(observation);
     }
 
     std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(TransitionFunction transition_function, const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup)
     {
-        // std::cout<<"Next "<<std::endl;
-        auto pair_action_observation = std::make_pair(action, observation);
-        // std::cout<<"Next 1"<<std::endl;
+        auto action_observation = std::make_pair(action, observation);
 
-        // If already in the successor list
-        if (backup && (this->successors.find(pair_action_observation) != this->successors.end()))
-        {
-            // std::cout<<"Next 2"<<std::endl;
-
-            // Return the successor node
-            return std::static_pointer_cast<BeliefStateGraph>(this->getSuccessor(pair_action_observation));
-        }
         if (backup)
-        {
-            // std::cout<<"Next 3"<<std::endl;
-
-            // Build next belief and proba
-            auto [next_belief_p, proba_belief] = transition_function(pomdp, this->getptr(), action, observation, t);
-            // std::cout<<"Next 4"<<std::endl;
-
-            auto next_belief = *std::dynamic_pointer_cast<Belief>(next_belief_p);
-
-            // Store the probability of next belief
-            this->belief_proba[action][observation] = proba_belief;
-
-            std::shared_ptr<BeliefStateGraph> node_ptr;
-
-            // Get node on the next belief
-            auto iterator = this->belief_space->find(next_belief);
-            if (iterator == this->belief_space->end())
+        {   
+            // If already in the successor list
+            if ((this->successors.find(action_observation) != this->successors.end()))
             {
-                // Create a successor node
-                node_ptr = std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
-
-                // Add the belief in the space of beliefs
-                this->belief_space->emplace(next_belief, node_ptr);
+                // Return the successor node
+                return std::static_pointer_cast<BeliefStateGraph>(this->getSuccessor(action_observation));
             }
             else
             {
-                // Get the successor node
-                node_ptr = iterator->second;
+                // Build next belief and proba
+                auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
+
+                auto next_belief = *std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
+
+                // Store the probability of next belief
+                this->belief_probability[action][observation] = std::get<1>(next_belief__eta);
+
+                std::shared_ptr<BeliefStateGraph> node_ptr;
+
+                // Get node on the next belief
+                auto iterator = this->belief_space->find(next_belief);
+                if (iterator == this->belief_space->end())
+                {
+                    // Create a successor node
+                    node_ptr = std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
+
+                    // Add the belief in the space of beliefs
+                    this->belief_space->emplace(next_belief, node_ptr);
+                }
+                else
+                {
+                    // Get the successor node
+                    node_ptr = iterator->second;
+                }
+
+                // Add the sucessor in the list of successors
+                this->successors.emplace(action_observation, node_ptr);
+                return std::static_pointer_cast<BeliefStateGraph>(this->getSuccessor(action_observation));
             }
-
-            // Add the sucessor in the list of successors
-            this->successors.emplace(pair_action_observation, node_ptr);
-
-            return std::static_pointer_cast<BeliefStateGraph>(this->getSuccessor(pair_action_observation));
+            
         }
-        // Return next belief without storing its value in the graph
-        auto [next_belief_p, proba_belief] = transition_function(pomdp, this->getptr(), action, observation, t);
-        auto next_belief = *std::dynamic_pointer_cast<Belief>(next_belief_p);
-        return std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
+        else
+        {
+            // Return next belief without storing its value in the graph
+            auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
+            auto next_belief = *std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
+            return std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
+        }
     }
 
     std::string BeliefStateGraph::str() const
@@ -116,7 +115,7 @@ namespace sdm
 
         archive &boost::serialization::base_object<Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>>(*this);
         archive &make_nvp("belief_space", belief_space);
-        archive &make_nvp("belief_proba", belief_proba);
+        archive &make_nvp("belief_probability", belief_probability);
     }
 
     std::vector<std::shared_ptr<State>> BeliefStateGraph::getStates() const
