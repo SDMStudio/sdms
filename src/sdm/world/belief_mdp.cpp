@@ -117,11 +117,6 @@ namespace sdm
         return this->getUnderlyingPOMDP()->getActionSpace(t);
     }
 
-    std::shared_ptr<Space> BeliefMDP::getActionSpaceAt(number t)
-    {
-        return this->getUnderlyingPOMDP()->getActionSpace(t);
-    }
-
     std::shared_ptr<Observation> BeliefMDP::reset()
     {
         this->step_ = 0;

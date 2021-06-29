@@ -59,10 +59,6 @@ namespace sdm
         
         virtual std::string toStdFormat();
 
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
-
-        std::shared_ptr<Space> getActionSpaceAt(number t);
-
     };
 
     using DecPOMDP = MPOMDP;

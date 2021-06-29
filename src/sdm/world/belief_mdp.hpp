@@ -39,8 +39,6 @@ namespace sdm
 
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
-        std::shared_ptr<Space> getActionSpaceAt(number t = 0);
-
         std::shared_ptr<Observation> reset();
 
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);

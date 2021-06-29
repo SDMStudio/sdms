@@ -33,16 +33,6 @@ namespace sdm
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(t))->getSpace(agent_id);
     }
 
-    std::shared_ptr<Space> MPOMDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
-    {
-        return this->getActionSpace(t);
-    }
-
-    std::shared_ptr<Space> MPOMDP::getActionSpaceAt(number t)
-    {
-        return this->getActionSpace(t);
-    }
-
     std::string MPOMDP::toStdFormat()
     {
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())

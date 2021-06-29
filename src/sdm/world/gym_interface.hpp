@@ -26,7 +26,6 @@ namespace sdm
          * @return the action space. 
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
-        virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
 
         /**
          * @brief Reset the environment and return initial observation.
@@ -42,9 +41,5 @@ namespace sdm
          * @return the information produced. Include : next observation, rewards, episode done  
          */
         virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
-
-    protected:
-        std::shared_ptr<Space> observation_space_, action_space_;
-
     };
 } // namespace sdm

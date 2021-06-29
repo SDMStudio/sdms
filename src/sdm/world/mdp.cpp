@@ -143,11 +143,6 @@ namespace sdm
         return this->getActionSpace(t);
     }
 
-    std::shared_ptr<Space> MDP::getActionSpaceAt(number t)
-    {
-        return this->getActionSpace(t);
-    }
-
     std::string MDP::toStdFormat()
     {
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
