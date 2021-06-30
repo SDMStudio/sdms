@@ -45,6 +45,16 @@ namespace sdm
                 return i_value;
             }
         }
+        if(t>0)
+        {
+            std::cout<<"SUpport "<<std::endl;
+            for(const auto& support : this->getSupport(t))
+            {
+                std::cout<<support->str()<<std::endl;
+            }
+            std::cout<<"State to test "<<state->str()<<std::endl;
+            std::cout<<"At : "<<this->representation[this->isInfiniteHorizon() ? 0 : t].at(state)<<std::endl;
+        }
         return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
     }
 

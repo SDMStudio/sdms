@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular,evaluate_tabular);
     auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular,evaluate_tabular);
 
-    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01);
+    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01,1);
     algorithm->do_initialize();
 
     // std::cout << *algorithm->getLowerBound() << std::endl;

@@ -135,7 +135,7 @@ namespace sdm
     for (const auto &pair_state_proba : *this)
     {
       res << ((i == 0) ? "" : " | ");
-      res << pair_state_proba.first->str() << " : " << pair_state_proba.second;
+      res << pair_state_proba.first << " : " << pair_state_proba.second;
       i++;
     }
     res << " )";
