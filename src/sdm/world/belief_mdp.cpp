@@ -18,7 +18,7 @@ namespace sdm
 
     BeliefMDP::BeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp) : SolvableByMDP(pomdp)
     {
-        this->initial_state_ = std::make_shared<BeliefStateGraph>();
+        auto initial_state = std::make_shared<Belief>();
 
         // For each state at t=0:
         for (const auto &state : *pomdp->getStateSpace(0))
@@ -29,15 +29,16 @@ namespace sdm
             if (probability > 0)
             {
                 // Set the probability
-                std::static_pointer_cast<BeliefInterface>(this->initial_state_)->setProbability(state->toState(), probability);
+                std::static_pointer_cast<BeliefInterface>(initial_state)->setProbability(state->toState(), probability);
             }
         }
 
-        std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->initialize();
+        this->initial_state_ = std::make_shared<BeliefStateGraph>(initial_state);
+        std::dynamic_pointer_cast<BeliefStateGraph>(this->initial_state_)->initialize();
         this->current_state_ = this->initial_state_;
     }
 
-    Pair<std::shared_ptr<BeliefInterface>, double> BeliefMDP::nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<BeliefInterface>, double> BeliefMDP::nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t) const
     {
         std::shared_ptr<Belief> next_belief = std::make_shared<Belief>();
 
@@ -55,7 +56,6 @@ namespace sdm
                 next_belief->setProbability(next_state->toState(), probability);
             }
         }
-
         // Compute the coefficient of normalization (eta)
         double eta = next_belief->norm_1();
         if (eta > 0)
@@ -72,7 +72,8 @@ namespace sdm
     std::shared_ptr<State> BeliefMDP::nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t) const
     {
         // Get next belief from the belief graph, given a belief transition function
-        return std::static_pointer_cast<BeliefStateGraph>(belief)->next(BeliefMDP::nextBelief, this->getUnderlyingPOMDP(), action, observation, t);
+        auto belief_and_eta = this->nextBelief(this->getUnderlyingPOMDP(),belief->toBelief(),action,observation,t);
+        return std::dynamic_pointer_cast<BeliefStateGraph>(belief)->next(belief_and_eta.first,belief_and_eta.second, this->getUnderlyingPOMDP(), action, observation, t);
     }
 
     std::shared_ptr<State> BeliefMDP::nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi) const
@@ -105,9 +106,9 @@ namespace sdm
         return reward;
     }
 
-    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &observation, number)
+    double BeliefMDP::getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &observation, number) const
     {
-        return std::static_pointer_cast<BeliefStateGraph>(belief)->getProbability(action, observation);
+        return std::dynamic_pointer_cast<BeliefStateGraph>(belief)->getProbability(action, observation);
     }
 
     std::shared_ptr<Space> BeliefMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)

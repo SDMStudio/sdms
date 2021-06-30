@@ -53,14 +53,14 @@ namespace sdm
         {
             double tmp = 0;
 
-            for(const auto &next_state : under_pb->getReachableStates(state->toState(),action->toAction(),t) )
-            {
-                for(const auto &observation : under_pb->getReachableObservations(state->toState(),action->toAction(),next_state->toState(),t))
-                {
-                    auto tempo_belief = BeliefMDP::nextBelief(under_pb,belief, action->toAction() , observation->toObservation(),t);
-                    tmp += vf->evaluate(tempo_belief.first, t + 1).first->toBelief()->getProbability(next_state) * under_pb->getDynamics(state->toState(), action->toAction(), next_state->toState(),observation->toObservation(),t);
-                }
-            }
+            // for(const auto &next_state : under_pb->getReachableStates(state->toState(),action->toAction(),t) )
+            // {
+            //     for(const auto &observation : under_pb->getReachableObservations(state->toState(),action->toAction(),next_state->toState(),t))
+            //     {
+            //         auto tempo_belief = BeliefMDP::nextBelief(under_pb,belief, action->toAction() , observation->toObservation(),t);
+            //         tmp += vf->evaluate(tempo_belief.first, t + 1).first->toBelief()->getProbability(next_state) * under_pb->getDynamics(state->toState(), action->toAction(), next_state->toState(),observation->toObservation(),t);
+            //     }
+            // }
             next_belief->setProbability(state->toState(), under_pb->getReward(state->toState(), action->toAction(),t) + this->world_->getDiscount(t) * tmp) ;
         }
         return next_belief;

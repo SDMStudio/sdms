@@ -25,7 +25,7 @@
 #include <sdm/world/mpomdp.hpp>
 #include <sdm/world/pomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
-// #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 #include <sdm/parser/parser.hpp>
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
     // Creation of HSVI problem and Resolution 
     // std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<SolvableByMDP>(mmdp);
-    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<BeliefMDP>(mpomdp);
+    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<OccupancyMDP>(mpomdp);
 
     // auto state = hsvi->getInitialState();
 
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular,evaluate_tabular);
     auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular,evaluate_tabular);
 
-    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01,2);
+    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01);
     algorithm->do_initialize();
 
     // std::cout << *algorithm->getLowerBound() << std::endl;

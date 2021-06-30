@@ -27,20 +27,20 @@ namespace sdm
      * @brief A graph that keep all beliefs
      * 
      */
-    class BeliefStateGraph : public Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>,
-                             public BeliefInterface,
+    class BeliefStateGraph : public Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>,
+                             virtual public BeliefInterface,
                              public BoostSerializable<BeliefStateGraph>
     {
     public:
-        using TransitionFunction = Pair<std::shared_ptr<BeliefInterface>, double>(const std::shared_ptr<POMDPInterface> &,
-                                                                                  const std::shared_ptr<BeliefInterface> &,
-                                                                                  const std::shared_ptr<Action> &,
-                                                                                  const std::shared_ptr<Observation> &,
-                                                                                  number);
+        // using TransitionFunction = Pair<std::shared_ptr<BeliefInterface>, double>(const std::shared_ptr<POMDPInterface> &,
+        //                                                                           const std::shared_ptr<BeliefInterface> &,
+        //                                                                           const std::shared_ptr<Action> &,
+        //                                                                           const std::shared_ptr<Observation> &,
+        //                                                                           number);
 
         BeliefStateGraph();
-        BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
-        BeliefStateGraph(const Belief &data);
+        // BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
+        BeliefStateGraph(const std::shared_ptr<BeliefInterface> &data);
 
         /**
          * @brief Construct a new belief 
@@ -48,7 +48,7 @@ namespace sdm
          * @param predecessor 
          * @param belief 
          */
-        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief);
+        BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const std::shared_ptr<BeliefInterface> &belief);
 
         void initialize();
 
@@ -78,7 +78,7 @@ namespace sdm
          * @param backup if true, we store the expanded belief in the graph.
          * @return the next belief
          */
-        std::shared_ptr<BeliefStateGraph> next(TransitionFunction transition_function, const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup = true);
+        std::shared_ptr<BeliefStateGraph> next(const std::shared_ptr<BeliefInterface>&belief, double probability , const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup = true);
 
         /**
          * @brief Return a 
@@ -117,9 +117,15 @@ namespace sdm
 
     protected:
         /**
+         * @brief A pointer on the bag which associated a belief to a precise pointer
+         */
+        std::shared_ptr<std::unordered_map<Belief, std::shared_ptr<BeliefInterface>>> belief_pointer;
+
+
+        /**
          * @brief A pointer on the bag containing all nodes.
          */
-        std::shared_ptr<std::unordered_map<Belief, std::shared_ptr<BeliefStateGraph>>> belief_space;
+        std::shared_ptr<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>> belief_space;
 
         /**
          * @brief A pointer on the bag containing all nodes.

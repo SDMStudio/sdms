@@ -4,24 +4,27 @@
 namespace sdm
 {
     BeliefStateGraph::BeliefStateGraph()
-        : Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>()
+        : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>()
     {
-        this->belief_space = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefStateGraph>>>();
+        this->belief_space = std::make_shared<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>>();
+        this->belief_pointer = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefInterface>>>();
+
     }
 
-    BeliefStateGraph::BeliefStateGraph(const Belief &data)
-        : Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(data)
+    BeliefStateGraph::BeliefStateGraph(const std::shared_ptr<BeliefInterface> &data)
+        : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(data)
     {
-        this->belief_space = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefStateGraph>>>();
+        this->belief_space = std::make_shared<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>>();
+        this->belief_pointer = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefInterface>>>();
     }
 
-    BeliefStateGraph::BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba)
-        : BeliefStateGraph(Belief(list_states, list_proba))
-    {
-    }
+    // BeliefStateGraph::BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba)
+    //     : BeliefStateGraph(Belief(list_states, list_proba))
+    // {
+    // }
 
-    BeliefStateGraph::BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const Belief &belief)
-        : Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(predecessor, belief), belief_space(predecessor->belief_space)
+    BeliefStateGraph::BeliefStateGraph(const std::shared_ptr<BeliefStateGraph> &predecessor, const std::shared_ptr<BeliefInterface> &belief)
+        : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(predecessor, belief), belief_space(predecessor->belief_space), belief_pointer(predecessor->belief_pointer)
     {
     }
 
@@ -33,7 +36,7 @@ namespace sdm
 
     std::shared_ptr<BeliefStateGraph> BeliefStateGraph::getNode(const Belief &belief)
     {
-        return this->belief_space->at(belief);
+        return this->belief_space->at(this->belief_pointer->at(belief));
     }
 
     double BeliefStateGraph::getProbability(const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation) const
@@ -41,7 +44,7 @@ namespace sdm
         return this->belief_probability.at(action).at(observation);
     }
 
-    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(TransitionFunction transition_function, const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup)
+    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(const std::shared_ptr<BeliefInterface>&belief, double probability , const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup )
     {
         auto action_observation = std::make_pair(action, observation);
 
@@ -56,24 +59,36 @@ namespace sdm
             else
             {
                 // Build next belief and proba
-                auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
+                // auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
 
-                auto next_belief = *std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
+                auto next_belief = std::dynamic_pointer_cast<Belief>(belief); //std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
 
                 // Store the probability of next belief
-                this->belief_probability[action][observation] = std::get<1>(next_belief__eta);
+                this->belief_probability[action][observation] = probability;//std::get<1>(next_belief__eta);
+
+                // Get node on the next belief
+                auto iterator_belief_pointer = this->belief_pointer->find(*next_belief);
+                std::shared_ptr<BeliefInterface> pointer_next_belief;
+
+                if(iterator_belief_pointer == this->belief_pointer->end())
+                {
+                    this->belief_pointer->emplace(*next_belief,next_belief);
+                    pointer_next_belief = next_belief;
+                }else
+                {
+                    pointer_next_belief = this->belief_pointer->at(*next_belief);
+                }
 
                 std::shared_ptr<BeliefStateGraph> node_ptr;
 
-                // Get node on the next belief
-                auto iterator = this->belief_space->find(next_belief);
+                auto iterator = this->belief_space->find(pointer_next_belief);
                 if (iterator == this->belief_space->end())
                 {
                     // Create a successor node
-                    node_ptr = std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
+                    node_ptr = std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), pointer_next_belief);
 
                     // Add the belief in the space of beliefs
-                    this->belief_space->emplace(next_belief, node_ptr);
+                    this->belief_space->emplace(pointer_next_belief, node_ptr);
                 }
                 else
                 {
@@ -90,8 +105,8 @@ namespace sdm
         else
         {
             // Return next belief without storing its value in the graph
-            auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
-            auto next_belief = *std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
+            // auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
+            auto next_belief = std::dynamic_pointer_cast<Belief>(belief); //std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
             return std::make_shared<BeliefStateGraph>(std::static_pointer_cast<BeliefStateGraph>(this->getptr()), next_belief);
         }
     }
@@ -99,13 +114,13 @@ namespace sdm
     std::string BeliefStateGraph::str() const
     {
         std::ostringstream str_result;
-        str_result << this->getData().str();
+        str_result <<"Belief State Graph - " <<this->getData()->str();
         return str_result.str();
     }
 
     std::shared_ptr<BeliefStateGraph> BeliefStateGraph::getptr()
     {
-        return Graph<Belief, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>::downcasted_shared_from_this<BeliefStateGraph>();
+        return Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>::downcasted_shared_from_this<BeliefStateGraph>();
     }
 
     template <class Archive>
@@ -120,40 +135,40 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> BeliefStateGraph::getStates() const
     {
-        return this->getData().getStates();
+        return this->getData()->getStates();
     }
 
     size_t BeliefStateGraph::size() const
     {
-        return this->getData().size();
+        return this->getData()->size();
     }
 
     double BeliefStateGraph::getProbability(const std::shared_ptr<State> &state) const
     {
-        return this->getData().getProbability(state);
+        return this->getData()->getProbability(state);
     }
 
     void BeliefStateGraph::setProbability(const std::shared_ptr<State> &state, double proba)
     {
-        this->data_.setProbability(state, proba);
+        this->data_->setProbability(state, proba);
     }
 
     void BeliefStateGraph::addProbability(const std::shared_ptr<State> &state, double proba)
     {
-        this->data_.addProbability(state, proba);
+        this->data_->addProbability(state, proba);
     }
 
     bool BeliefStateGraph::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        return this->getData().operator==(other);
+        return this->getData()->operator==(other);
     }
     double BeliefStateGraph::operator^(const std::shared_ptr<BeliefInterface> &other) const
     {
-        return this->getData().operator^(other);
+        return this->getData()->operator^(other);
     }
     double BeliefStateGraph::norm_1() const
     {
-        return this->getData().norm_1();
+        return this->getData()->norm_1();
     }
 
     std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> BeliefStateGraph::getVectorInferface()
@@ -169,11 +184,11 @@ namespace sdm
 
     void BeliefStateGraph::setDefaultValue(double value)
     {
-        this->data_.setDefaultValue(value);
+        this->data_->setDefaultValue(value);
     }
     double BeliefStateGraph::getDefaultValue() const
     {
-        return this->getData().getDefaultValue();
+        return this->getData()->getDefaultValue();
     }
 
 } // namespace sdm
