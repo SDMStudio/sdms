@@ -16,6 +16,7 @@
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 
 using namespace sdm;
@@ -118,6 +119,10 @@ int learn(int argv, char **args)
         else if (formalism == "BeliefMDP")
         {
             gym = std::make_shared<BeliefMDP>(std::make_shared<MPOMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.));
+        }
+        else if (formalism == "OccupancyMDP")
+        {
+            gym = std::make_shared<OccupancyMDP>(std::make_shared<MPOMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.));
         }
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
