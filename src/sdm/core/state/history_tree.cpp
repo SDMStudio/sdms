@@ -24,55 +24,55 @@ namespace sdm
         return this->getParent();
     }
 
-    template <typename output>
-    std::shared_ptr<output> HistoryTree::expand(const std::shared_ptr<Observation> &observation, bool backup)
-    {
-        if (backup && (this->children_.find(observation) != this->children_.end()))
-        {
-            return std::dynamic_pointer_cast<output>(this->getChild(observation));
-        }
-        if (backup && (this->getDepth() >= this->getMaxDepth()))
-        {
-            return this->truncatedExpand<output>(observation, backup);
-        }
-        if (backup)
-        {
-            this->children_.emplace(observation, std::make_shared<output>(this->getptr(), observation));
+    // template <typename output>
+    // std::shared_ptr<output> HistoryTree::expand(const std::shared_ptr<Observation> &observation, bool backup)
+    // {
+    //     if (backup && (this->children_.find(observation) != this->children_.end()))
+    //     {
+    //         return std::dynamic_pointer_cast<output>(this->getChild(observation));
+    //     }
+    //     if (backup && (this->getDepth() >= this->getMaxDepth()))
+    //     {
+    //         return this->truncatedExpand<output>(observation, backup);
+    //     }
+    //     if (backup)
+    //     {
+    //         this->children_.emplace(observation, std::make_shared<output>(this->getptr(), observation));
 
-            return std::dynamic_pointer_cast<output>(this->getChild(observation));
-        }
-        return std::make_shared<output>(this->getptr(), observation);
-    }
+    //         return std::dynamic_pointer_cast<output>(this->getChild(observation));
+    //     }
+    //     return std::make_shared<output>(this->getptr(), observation);
+    // }
 
     std::shared_ptr<HistoryInterface> HistoryTree::expand(const std::shared_ptr<Observation> &observation, bool backup)
     {
         return this->expand<HistoryTree>(observation, backup);
     }
 
-    template <typename output>
-    std::shared_ptr<output> HistoryTree::truncatedExpand(const std::shared_ptr<Observation> &observation, bool backup)
-    {
-        std::list<std::shared_ptr<Observation>> items;
+    // template <typename output>
+    // std::shared_ptr<output> HistoryTree::truncatedExpand(const std::shared_ptr<Observation> &observation, bool backup)
+    // {
+    //     std::list<std::shared_ptr<Observation>> items;
 
-        //<! fill in the vector of observation to simulate
-        items.push_front(observation);
-        auto parent = this->getptr();
-        while (items.size() < this->getMaxDepth())
-        {
-            items.push_front(parent->getData());
-            parent = parent->getParent();
-        }
+    //     //<! fill in the vector of observation to simulate
+    //     items.push_front(observation);
+    //     auto parent = this->getptr();
+    //     while (items.size() < this->getMaxDepth())
+    //     {
+    //         items.push_front(parent->getData());
+    //         parent = parent->getParent();
+    //     }
 
-        //<! iteratively expands the base_graph
-        auto trace = parent->getOrigin();
+    //     //<! iteratively expands the base_graph
+    //     auto trace = parent->getOrigin();
 
-        for (auto it = items.begin(); it != items.end(); ++it)
-        {
-            trace = std::dynamic_pointer_cast<output>(trace->expand(*it, backup));
-        }
+    //     for (auto it = items.begin(); it != items.end(); ++it)
+    //     {
+    //         trace = std::dynamic_pointer_cast<output>(trace->expand(*it, backup));
+    //     }
 
-        return std::dynamic_pointer_cast<output>(trace);
-    }
+    //     return std::dynamic_pointer_cast<output>(trace);
+    // }
 
     std::string HistoryTree::short_str() const
     {

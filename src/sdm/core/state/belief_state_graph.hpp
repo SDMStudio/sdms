@@ -58,7 +58,7 @@ namespace sdm
          * @param belief a specific belief
          * @return the address of the node 
          */
-        std::shared_ptr<BeliefStateGraph> getNode(const Belief &belief);
+        std::shared_ptr<BeliefStateGraph> getNode(const std::shared_ptr<BeliefInterface> &belief);
 
         /**
          * @brief Get the probability of associated belief.
@@ -119,7 +119,7 @@ namespace sdm
         /**
          * @brief A pointer on the bag which associated a belief to a precise pointer
          */
-        std::shared_ptr<std::unordered_map<Belief, std::shared_ptr<BeliefInterface>>> belief_pointer;
+        // std::shared_ptr<std::unordered_map<Belief, std::shared_ptr<BeliefInterface>>> belief_pointer;
 
 
         /**
@@ -131,6 +131,8 @@ namespace sdm
          * @brief A pointer on the bag containing all nodes.
          */
         RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, double> belief_probability;
+
+        virtual std::shared_ptr<BeliefInterface> exist(const std::shared_ptr<BeliefInterface>&);
     };
 
 } // namespace sdm

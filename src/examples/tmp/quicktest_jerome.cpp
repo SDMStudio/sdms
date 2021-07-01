@@ -57,7 +57,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/tiger.dpomdp");
+    auto mdp_tiger = sdm::parser::parse_file("../data/world/dpomdp/recycling.dpomdp");
 
     auto state_space = std::static_pointer_cast<DiscreteSpace>(mdp_tiger->getStateSpace()); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
     auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     auto obs_space = mdp_tiger->getObservationSpace(0);
     auto obs_dynamics = mdp_tiger->getObservationDynamics();
 
-    number horizon = 2;
+    number horizon = 3;
 
     // Creation of the MMDP
     auto mpomdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular,evaluate_tabular);
     auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular,evaluate_tabular);
 
-    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01,1);
+    auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01);
     algorithm->do_initialize();
 
     // std::cout << *algorithm->getLowerBound() << std::endl;

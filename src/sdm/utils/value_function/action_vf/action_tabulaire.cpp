@@ -14,7 +14,6 @@ namespace sdm
         auto space = this->world_->getActionSpaceAt(state, t);
         for (const auto &action : *space)
         {
-            // std::cout<<"action "<<action->str()<<std::endl;
             auto casted_action = action->toAction();
             // std::cout<<"max value "<<max<<std::endl;
             if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))
