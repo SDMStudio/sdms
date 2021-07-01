@@ -13,12 +13,7 @@ namespace sdm
     class OccupancyStateGraph : public OccupancyStateInterface, public BeliefStateGraph
     {
     public:
-        using TransitionFunction = Pair<std::shared_ptr<BeliefInterface>, double>(const std::shared_ptr<POMDPInterface> &,
-                                                                                  const std::shared_ptr<BeliefInterface> &,
-                                                                                  const std::shared_ptr<Action> &,
-                                                                                  const std::shared_ptr<Observation> &,
-                                                                                  number);
-
+    
         OccupancyStateGraph();
         // OccupancyStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
         OccupancyStateGraph(const std::shared_ptr<BeliefInterface> &data);
@@ -161,6 +156,10 @@ namespace sdm
         std::shared_ptr<OccupancyStateInterface> compress();
 
         void finalize();
+
+        std::shared_ptr<BeliefInterface> exist(const std::shared_ptr<BeliefInterface>&belief);
+
+
     };
 
 } // namespace sdm

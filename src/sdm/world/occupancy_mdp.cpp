@@ -247,6 +247,7 @@ namespace sdm
 
     double OccupancyMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t) const
     {
+        // std::cout<<"Next state "<<this->nextState(occupancy_state, joint_decision_rule, t)<<std::endl;
         return value_function->getValueAt(this->nextState(occupancy_state, joint_decision_rule, t), t + 1);
     }
 

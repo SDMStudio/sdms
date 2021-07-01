@@ -108,7 +108,7 @@ namespace sdm
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
                 // Update bounds
-                // std::cout<<"Test 4"<<std::endl;
+                // std::cout<<"Test 4"<<s->str()<< std::endl;
 
                 this->lower_bound_->updateValueAt(s, h);
                 // std::cout<<"Test 5"<<std::endl;

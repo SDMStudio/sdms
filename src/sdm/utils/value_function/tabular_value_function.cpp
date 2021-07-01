@@ -47,13 +47,9 @@ namespace sdm
         }
         if(t>0)
         {
-            std::cout<<"SUpport "<<std::endl;
-            for(const auto& support : this->getSupport(t))
-            {
-                std::cout<<support->str()<<std::endl;
-            }
-            std::cout<<"State to test "<<state->str()<<std::endl;
-            std::cout<<"At : "<<this->representation[this->isInfiniteHorizon() ? 0 : t].at(state)<<std::endl;
+            // std::cout<<"SUpport "<<this->getSupport(t)<<std::endl;
+            // std::cout<<"State to test "<<state  <<std::endl;
+            // std::cout<<"At : "<<this->representation[this->isInfiniteHorizon() ? 0 : t].at(state)<<std::endl;
         }
         return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
     }
@@ -65,6 +61,7 @@ namespace sdm
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
+        // std::cout<<"Best action "<<this->getBestAction(state,t)<<std::endl;
         this->updateValueAt(state, t, this->backup_->backup(this->getptr(), state,this->getBestAction(state,t), t));
     }
 

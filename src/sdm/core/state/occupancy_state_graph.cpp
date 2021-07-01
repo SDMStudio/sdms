@@ -1,11 +1,15 @@
 #include <sdm/core/state/occupancy_state_graph.hpp>
 #include <sdm/exception.hpp>
-
+#include <sdm/core/state/jhistory_tree.hpp>
 namespace sdm
 {
-    OccupancyStateGraph::OccupancyStateGraph() : BeliefStateGraph() {}
+    OccupancyStateGraph::OccupancyStateGraph() : BeliefStateGraph()
+    {
+    }
 
-    OccupancyStateGraph::OccupancyStateGraph(const std::shared_ptr<BeliefInterface> &data) : BeliefStateGraph(data){}
+    OccupancyStateGraph::OccupancyStateGraph(const std::shared_ptr<BeliefInterface> &data) : BeliefStateGraph(data)
+    {
+    }
 
     // OccupancyStateGraph::OccupancyStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba)
     //     : BeliefStateGraph(Belief(list_states, list_proba))
@@ -13,7 +17,7 @@ namespace sdm
     // }
 
     OccupancyStateGraph::OccupancyStateGraph(const std::shared_ptr<OccupancyStateGraph> &predecessor, const std::shared_ptr<BeliefInterface> &belief)
-        : BeliefStateGraph(predecessor, belief) {}
+        : BeliefStateGraph(predecessor, belief){}
 
     std::shared_ptr<BeliefStateGraph> OccupancyStateGraph::next(const std::shared_ptr<BeliefInterface>&belief, double probability , const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup )
     {
@@ -30,41 +34,24 @@ namespace sdm
             else
             {
                 // Build next belief and proba
-                // auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
-
-                auto next_belief = std::dynamic_pointer_cast<Belief>(belief); //std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
+                auto next_belief = std::dynamic_pointer_cast<OccupancyState>(belief); //std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
 
                 // Store the probability of next belief
                 this->belief_probability[action][observation] = probability;//std::get<1>(next_belief__eta);
 
-                // Get node on the next belief
-                auto iterator_belief_pointer = this->belief_pointer->find(*next_belief);
-                std::shared_ptr<BeliefInterface> pointer_next_belief;
-
-                if(iterator_belief_pointer == this->belief_pointer->end())
-                {
-                    this->belief_pointer->emplace(*next_belief,next_belief);
-                    pointer_next_belief = next_belief;
-                }else
-                {
-                    pointer_next_belief = this->belief_pointer->at(*next_belief);
-                }
-
                 std::shared_ptr<BeliefStateGraph> node_ptr;
-
-                auto iterator = this->belief_space->find(pointer_next_belief);
-                if (iterator == this->belief_space->end())
+                std::shared_ptr<BeliefInterface> new_address_belief = this->exist(next_belief);
+                if(new_address_belief == nullptr)
                 {
                     // Create a successor node
-                    node_ptr = std::make_shared<OccupancyStateGraph>(std::static_pointer_cast<OccupancyStateGraph>(this->getptr()), pointer_next_belief);
+                    node_ptr = std::make_shared<OccupancyStateGraph>(std::static_pointer_cast<OccupancyStateGraph>(this->getptr()), next_belief);
 
                     // Add the belief in the space of beliefs
-                    this->belief_space->emplace(pointer_next_belief, node_ptr);
-                }
-                else
+                    this->belief_space->emplace(next_belief, node_ptr);
+                }else
                 {
                     // Get the successor node
-                    node_ptr = iterator->second;
+                    node_ptr = this->belief_space->at(new_address_belief);
                 }
 
                 // Add the sucessor in the list of successors
@@ -269,6 +256,40 @@ namespace sdm
     void OccupancyStateGraph::finalize()
     {
         this->data_->toOccupancyState()->finalize();
+    }
+
+    std::shared_ptr<BeliefInterface> OccupancyStateGraph::exist(const std::shared_ptr<BeliefInterface>&current_belief)
+    {
+        for(const auto element : *this->belief_space)
+        {
+            bool same_element = true;
+            for(const auto &state : element.first->getStates())
+            {
+                auto history_belief = std::static_pointer_cast<JointHistoryBeliefPair>(state);
+
+                bool state_found = false;
+                for(const auto& state_in_current_belief: current_belief->getStates())
+                {
+                    auto history_belief_in_current_belief = std::static_pointer_cast<JointHistoryBeliefPair>(state_in_current_belief);
+                    if((*std::static_pointer_cast<JointHistoryTree>(history_belief_in_current_belief->first) == *std::static_pointer_cast<JointHistoryTree>(history_belief->first)) and 
+                        (*std::dynamic_pointer_cast<BeliefStateGraph>(history_belief_in_current_belief->second) == std::dynamic_pointer_cast<BeliefStateGraph>(history_belief->second)))
+                        {
+                            state_found =true;
+                            break;
+                        }
+                }
+                if(state_found == false)
+                {
+                    same_element = false;
+                    break;
+                }
+            }
+            if(same_element==true)
+            {
+                return element.first;
+            }
+        }
+        return nullptr;
     }
 
 } // namespace sdm
