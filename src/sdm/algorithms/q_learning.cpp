@@ -54,7 +54,7 @@ namespace sdm
     {
         this->global_step = 0;
         this->episode = 0;
-        // std::cout << "-------- DO_SOLVE() ---------" << std::endl;
+        std::cout << "-------- DO_SOLVE() ---------" << std::endl;
         // std::cout << *this->q_value_table_ << std::endl;
         clock_t t_begin = clock();
 
@@ -95,6 +95,7 @@ namespace sdm
 
     void QLearning::do_episode()
     {   
+        std::cout << "-------- do_episode() ---------" << std::endl;
         // Le update marche pas, du coup pour le moment j'utilise le meme QVF pour le target depuis le debut
         // if (this->episode % target_update_ == 0)
         //     this->update_target();
@@ -121,6 +122,8 @@ namespace sdm
 
     void QLearning::do_step()
     {   
+        std::cout << "-------- do_step() ---------" << std::endl;
+        
         // Action selection following policy and exploration process
         this->action = this->select_action(this->observation);
         // One step in env and get next observation and rewards
