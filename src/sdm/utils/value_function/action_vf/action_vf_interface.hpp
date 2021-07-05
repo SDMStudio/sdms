@@ -6,7 +6,6 @@ namespace sdm
 {
     class ValueFunction;
 
-    template <class TData>
     class ActionVFInterface
     {
     public:
@@ -19,6 +18,6 @@ namespace sdm
          * @param number t : time step
          * @return std::shared_ptr<Action> : Action
          */
-        virtual Pair<std::shared_ptr<Action>,TData> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t) = 0;
+        virtual std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t) = 0;
     };
 }

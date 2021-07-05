@@ -15,9 +15,9 @@ namespace sdm
     public:
         State2OccupancyValueFunction(std::shared_ptr<ValueFunction> );
 
-        double operatorMdp(const std::shared_ptr<State> &, const number &);
-
-        double operatorNotMdp(const std::shared_ptr<State> &, const number &);
+        double operatorState(const std::shared_ptr<State> &, const number &);
+        double operatorBelief(const std::shared_ptr<State> &, const number &);
+        double operatorOccupancy(const std::shared_ptr<State> &, const number &);
 
         double operator()(const std::shared_ptr<State> &, const number &);
 

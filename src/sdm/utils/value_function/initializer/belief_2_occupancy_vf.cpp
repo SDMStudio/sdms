@@ -1,11 +1,13 @@
 #include <sdm/utils/value_function/initializer/belief_2_occupancy_vf.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 namespace sdm
 {
 
     Belief2OccupancyValueFunction::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction> pomdp_vf) : pomdp_vf_(pomdp_vf)
     {
+        std::cout<<"pomdp "<<pomdp_vf_->str()<<std::endl;
     }
 
     double Belief2OccupancyValueFunction::operatorMPOMDP(const std::shared_ptr<State> &state, const number &tau)
@@ -16,40 +18,25 @@ namespace sdm
 
         for (const auto &joint_history : ostate->getJointHistories())
         {
-            // std::shared_ptr<BeliefInterface> belief = ostate->createBeliefWeighted(joint_history);
-            // value += ostate->getProbabilityOverJointHistory(joint_history) * this->pomdp_vf_->getValueAt(belief, tau);
             for(const auto &belief : ostate->getBeliefsAt(joint_history))
             {
+                // std::cout<<"adress "<<belief<<" belief "<< belief->str()<<std::endl;
                 value += ostate->getProbability(joint_history,belief) * this->pomdp_vf_->getValueAt(belief, tau);
             }
-
         }
         return value;
     }
-
-    double Belief2OccupancyValueFunction::operatorNotMPOMDP(const std::shared_ptr<State> &, const number &)
-    {
-        throw sdm::exception::Exception("The initializer used is not available for this formalism !");
-    }
-
+    
     double Belief2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
     {
         switch (state->getTypeState())
         {
-        case TypeState::STATE :
-            return operatorNotMPOMDP(state,tau);
-            break;
-
-        case TypeState::BELIEF_STATE :
-            return operatorNotMPOMDP(state,tau);
-            break;
-
         case TypeState::OCCUPANCY_STATE :
             return operatorMPOMDP(state,tau);
             break;
 
         default:
-            return operatorNotMPOMDP(state,tau);
+            throw sdm::exception::Exception("The initializer used is not available for this formalism !");
             break;
         }
     }

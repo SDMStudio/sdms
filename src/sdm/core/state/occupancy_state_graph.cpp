@@ -262,29 +262,7 @@ namespace sdm
     {
         for(const auto element : *this->belief_space)
         {
-            bool same_element = true;
-            for(const auto &state : element.first->getStates())
-            {
-                auto history_belief = std::static_pointer_cast<JointHistoryBeliefPair>(state);
-
-                bool state_found = false;
-                for(const auto& state_in_current_belief: current_belief->getStates())
-                {
-                    auto history_belief_in_current_belief = std::static_pointer_cast<JointHistoryBeliefPair>(state_in_current_belief);
-                    if((*std::static_pointer_cast<JointHistoryTree>(history_belief_in_current_belief->first) == *std::static_pointer_cast<JointHistoryTree>(history_belief->first)) and 
-                        (*std::dynamic_pointer_cast<BeliefStateGraph>(history_belief_in_current_belief->second) == std::dynamic_pointer_cast<BeliefStateGraph>(history_belief->second)))
-                        {
-                            state_found =true;
-                            break;
-                        }
-                }
-                if(state_found == false)
-                {
-                    same_element = false;
-                    break;
-                }
-            }
-            if(same_element==true)
+            if(current_belief->operator==(element.first))
             {
                 return element.first;
             }

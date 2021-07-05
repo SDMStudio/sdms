@@ -11,7 +11,7 @@
 #pragma once
 
 #include <sdm/core/state/belief_state.hpp>
-#include <sdm/core/state/belief_state_vector.hpp>
+// #include <sdm/core/state/belief_state_vector.hpp>
 #include <sdm/core/state/belief_state_graph.hpp>
 
 namespace sdm

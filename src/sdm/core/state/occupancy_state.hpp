@@ -155,6 +155,10 @@ namespace sdm
 
         std::string str() const;
 
+        double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+        bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
+
+
     protected:
         /**
          * @brief the number of agents 

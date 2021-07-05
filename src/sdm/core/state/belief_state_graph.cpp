@@ -7,15 +7,12 @@ namespace sdm
         : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>()
     {
         this->belief_space = std::make_shared<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>>();
-        // this->belief_pointer = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefInterface>>>();
-
     }
 
     BeliefStateGraph::BeliefStateGraph(const std::shared_ptr<BeliefInterface> &data)
         : Graph<std::shared_ptr<BeliefInterface>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>(data)
     {
         this->belief_space = std::make_shared<std::unordered_map<std::shared_ptr<BeliefInterface>, std::shared_ptr<BeliefStateGraph>>>();
-        // this->belief_pointer = std::make_shared<std::unordered_map<Belief, std::shared_ptr<BeliefInterface>>>();
     }
 
     // BeliefStateGraph::BeliefStateGraph(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba)
@@ -36,7 +33,6 @@ namespace sdm
 
     std::shared_ptr<BeliefStateGraph> BeliefStateGraph::getNode(const std::shared_ptr<BeliefInterface> &belief)
     {
-        std::cout<<"Ici "<<std::endl;
         return this->belief_space->at(this->exist(belief));
     }
 
@@ -45,7 +41,7 @@ namespace sdm
         return this->belief_probability.at(action).at(observation);
     }
 
-    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(const std::shared_ptr<BeliefInterface>&belief, double probability , const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup )
+    std::shared_ptr<BeliefStateGraph> BeliefStateGraph::next(const std::shared_ptr<BeliefInterface>&belief, double probability , const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup )
     {
         auto action_observation = std::make_pair(action, observation);
 
@@ -60,12 +56,10 @@ namespace sdm
             else
             {
                 // Build next belief and proba
-                // auto next_belief__eta = transition_function(pomdp, this->getptr(), action, observation, t);
-
-                auto next_belief = std::dynamic_pointer_cast<Belief>(belief); //std::dynamic_pointer_cast<Belief>(std::get<0>(next_belief__eta));
+                auto next_belief = std::dynamic_pointer_cast<Belief>(belief);
 
                 // Store the probability of next belief
-                this->belief_probability[action][observation] = probability;//std::get<1>(next_belief__eta);
+                this->belief_probability[action][observation] = probability;
 
                 std::shared_ptr<BeliefStateGraph> node_ptr;
                 std::shared_ptr<BeliefInterface> new_address_belief = this->exist(next_belief);

@@ -4,9 +4,9 @@ namespace sdm
 {
     ActionVFTabulaire::ActionVFTabulaire(){}
 
-    ActionVFTabulaire::ActionVFTabulaire(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase<double>(world) {}
+    ActionVFTabulaire::ActionVFTabulaire(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase(world) {}
 
-    Pair<std::shared_ptr<Action>,double> ActionVFTabulaire::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    std::shared_ptr<Action> ActionVFTabulaire::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
@@ -16,21 +16,13 @@ namespace sdm
         {
             auto casted_action = action->toAction();
             // std::cout<<"max value "<<max<<std::endl;
-            if (max < (tmp = this->getQValueAt(vf,state, casted_action, t)))
+            if (max < (tmp = vf->template backup<double>(state, casted_action, t)))
             {
                 best_action = casted_action;
                 max = tmp;
             }
         }
         // std::cout<<"best action "<<best_action->str()<<", max value "<<max<<std::endl;
-        return std::make_pair(best_action,max);
-    }
-
-    double ActionVFTabulaire::getQValueAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-    {
-        // std::cout<<"reward "<<this->world_->getReward(state, action, t)<<std::endl;
-        // std::cout<<"discount "<<this->world_->getDiscount(t)<<std::endl;
-        // std::cout<<"expected "<<this->world_->getExpectedNextValue(vf->getptr(), state, action, t)<<std::endl;
-        return this->world_->getReward(state, action, t) + this->world_->getDiscount(t) * this->world_->getExpectedNextValue(vf->getptr(), state, action, t);
+        return best_action;
     }
 }

@@ -4,8 +4,8 @@
 
 namespace sdm
 {
-    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<EvaluateVFInterface> &evaluate) 
-    : BaseValueFunction(horizon), evaluate_(evaluate), initializer_(initializer)
+    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action)
+    : BaseValueFunction(horizon), backup_(backup),action_(action), initializer_(initializer)
     {
     }
 
@@ -53,10 +53,8 @@ namespace sdm
         return std::static_pointer_cast<ValueFunction>(this->shared_from_this());
     }
 
-    Pair<std::shared_ptr<State>,double> ValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State>& state, number t)
     {
-        return this->evaluate_->evaluate(this->getptr(),state,t);
+        return this->action_->selectBestAction(this->getptr(),state,t);
     }
-
-
 } // namespace sdm

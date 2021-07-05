@@ -3,6 +3,8 @@
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
 #include <sdm/utils/value_function/evaluate_vf/evaluate_vf_interface.hpp>
+#include <sdm/utils/value_function/action_vf/action_vf_interface.hpp>
+#include <sdm/utils/value_function/backup/backup_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -34,7 +36,7 @@ namespace sdm
          * @param backup 
          * @param default_value 
          */
-        ValueFunction(number horizon = 0, const std::shared_ptr<Initializer> &intializer = nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate = nullptr);
+        ValueFunction(number horizon = 0, const std::shared_ptr<Initializer> &intializer = nullptr, const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action = nullptr);
 
         /**
          * @brief Destroy the value function
@@ -90,9 +92,15 @@ namespace sdm
 
         std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
         
-        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t) = 0;
+        virtual Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
 
-        Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State> &state, number t);
+        template <typename TData>
+        TData backup(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t)
+        {
+            return std::static_pointer_cast<BackupInterface<TData>>(this->backup_)->backup(this->getptr(),state,action,t);
+        }
+
+        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State>& state, number t);
 
     protected:
         /**
@@ -101,9 +109,19 @@ namespace sdm
         std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> init_function_ = nullptr;
 
         /**
+         * @brief The evaluate operator.
+         */
+        // std::shared_ptr<EvaluateVFInterface> evaluate_;
+
+        /**
          * @brief The backup operator.
          */
-        std::shared_ptr<EvaluateVFInterface> evaluate_;
+        std::shared_ptr<BackupInterfaceForValueFunction> backup_;
+
+        /**
+         * @brief The action operator.
+         */
+        std::shared_ptr<ActionVFInterface> action_;
 
         /**
          * @brief The initializer to use for this value function. 

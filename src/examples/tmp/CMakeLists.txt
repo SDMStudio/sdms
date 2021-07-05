@@ -137,9 +137,10 @@ if(JEROME)
 		${INCLUDE_DIR}/utils/value_function/backup/**
 		${INCLUDE_DIR}/utils/value_function/evaluate_vf/**
 		# ${INCLUDE_DIR}/utils/value_function/action_vf/**
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan_serial.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
+		${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
+
 
 
 		${INCLUDE_DIR}/world/gym_interface.cpp

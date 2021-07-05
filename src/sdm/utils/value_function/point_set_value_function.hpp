@@ -15,9 +15,9 @@ namespace sdm
     public:
         using Container = MappedVector<std::shared_ptr<State>, double>;
 
-        PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<double>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<double>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr, int freq_prunning = 10);
+        PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning = 10);
 
-        PointSetValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterface<double>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<double>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr, int freq_prunning = 10);
+        PointSetValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = 10);
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -30,6 +30,8 @@ namespace sdm
         bool is_dominated(const std::shared_ptr<State> &ostate, double value, number t);
 
         std::string str() const;
+
+        Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State>& state, number t);
 
         friend std::ostream &operator<<(std::ostream &os, PointSetValueFunction &vf)
         {

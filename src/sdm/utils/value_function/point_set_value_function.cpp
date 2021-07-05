@@ -1,15 +1,16 @@
 #include <sdm/utils/value_function/point_set_value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_base.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 
 namespace sdm
 {
-    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate,int freq_prunning )
-        : TabularValueFunction(horizon, initializer, backup,action_vf,evaluate), freq_prune_(freq_prunning)
+    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf,int freq_prunning )
+        : TabularValueFunction(horizon, initializer, backup,action_vf), freq_prune_(freq_prunning)
     {
     }
 
-    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate,int freq_prunning)
-        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf,evaluate),freq_prune_(freq_prunning)
+    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf,int freq_prunning)
+        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf),freq_prune_(freq_prunning)
     {
     }
 
@@ -87,5 +88,50 @@ namespace sdm
             return (pair_witness_ostate.second <= value + this->epsilon_prunning);
         }
     }
+
+    Pair<std::shared_ptr<State>,double> PointSetValueFunction::evaluate(const std::shared_ptr<State>& state, number t)
+    {
+        assert(this->getInitFunction() != nullptr);
+        assert(state->getTypeState() != TypeState::STATE);
+
+        auto belief_state = state->toBelief();
+
+        double min_ext = 0;
+
+        double v_ub_state = this->getInitFunction()->operator()(state, t);
+
+        std::shared_ptr<State> argmin_ = state;
+
+        // Go over all element in the support
+        for (const auto &element : this->getSupport(t))
+        {
+            auto element_belief_state = element->toBelief();
+
+            double v_kappa = this->getValueAt(element, t);
+            double v_ub_kappa = this->getInitFunction()->operator()(element, t);
+
+            double phi = 1.0;
+            
+            for (auto &state_element : element_belief_state->getStates())
+            {
+                double v_int = (belief_state->getProbability(state_element) / element_belief_state->getProbability(state_element));
+                // determine the min int
+                if (v_int < phi)
+                {
+                    phi = v_int;
+                }
+            }
+
+            // determine the min ext
+            double min_int = phi * (v_kappa - v_ub_kappa);
+            if (min_int < min_ext)
+            {
+                min_ext = min_int;
+                argmin_ = element_belief_state;
+            }
+        }
+        return std::make_pair(argmin_,v_ub_state + min_ext);
+    }
+
 
 } // namespace sdm

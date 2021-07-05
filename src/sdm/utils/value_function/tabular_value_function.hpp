@@ -5,7 +5,6 @@
 #include <sdm/utils/value_function/value_function.hpp>
 
 #include <sdm/utils/value_function/backup/backup_interface.hpp>
-#include <sdm/utils/value_function/action_vf/action_vf_interface.hpp>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
@@ -17,9 +16,9 @@ namespace sdm
     public:
         using Container = MappedVector<std::shared_ptr<State>, double>;
 
-        TabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<double>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<double>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr);
+        TabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf);
 
-        TabularValueFunction(number horizon = 0, double default_value = 0., const std::shared_ptr<BackupInterface<double>> &backup =nullptr, const std::shared_ptr<ActionVFInterface<double>> &action_vf =nullptr, const std::shared_ptr<EvaluateVFInterface> &evaluate =nullptr);
+        TabularValueFunction(number horizon = 0, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup =nullptr, const std::shared_ptr<ActionVFInterface> &action_vf =nullptr);
 
         /**
          * @brief Initialize the value function according using initializer.
@@ -41,6 +40,9 @@ namespace sdm
          * @return the value
          */
         double getValueAt(const std::shared_ptr<State> &state, number t = 0);
+
+        virtual Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State>& state, number t);
+
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -84,9 +86,6 @@ namespace sdm
             os << vf.str();
             return os;
         }
-
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
-
         Container getRepresentation(number t);
 
     protected:
@@ -96,16 +95,6 @@ namespace sdm
          * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          */
         std::vector<Container> representation;
-
-        /**
-         * @brief The backup operator.
-         */
-        std::shared_ptr<BackupInterface<double>> backup_;
-
-        /**
-         * @brief The backup operator.
-         */
-        std::shared_ptr<ActionVFInterface<double>> action_vf_;
 
     public:
         friend class boost::serialization::access;

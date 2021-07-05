@@ -4,7 +4,7 @@
 
 namespace sdm
 {
-    class ActionVFTabulaire : public ActionVFBase<double>
+    class ActionVFTabulaire : public ActionVFBase
     {
     public:
         using TData = double;
@@ -20,9 +20,6 @@ namespace sdm
          * @param number t : time step
          * @return std::shared_ptr<Action> : Action
          */
-        Pair<std::shared_ptr<Action>,TData> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
-
-    protected : 
-        double getQValueAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+        std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
     };
 }

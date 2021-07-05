@@ -16,10 +16,7 @@ namespace sdm
     public:
         Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction> pomdp_vf);
 
-        double operatorMPOMDP(const std::shared_ptr<State> &, const number &);
-
-        double operatorNotMPOMDP(const std::shared_ptr<State> &, const number &);
-        
+        double operatorMPOMDP(const std::shared_ptr<State> &, const number &);        
         double operator()(const std::shared_ptr<State> &, const number &);
 
         double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &, const number &);

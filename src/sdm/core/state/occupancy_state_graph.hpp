@@ -25,9 +25,7 @@ namespace sdm
          * @param belief 
          */
         OccupancyStateGraph(const std::shared_ptr<OccupancyStateGraph> &predecessor, const std::shared_ptr<BeliefInterface> &belief);
-
-        void initialize();
-
+        
         /**
          * @brief Expands the graph
          * 

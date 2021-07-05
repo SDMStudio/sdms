@@ -5,20 +5,15 @@
 
 namespace sdm
 {
-    TabularValueFunction::TabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate)
-        : ValueFunction(horizon, initializer, evaluate), backup_(backup), action_vf_(action_vf)
+    TabularValueFunction::TabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf)
+        : ValueFunction(horizon, initializer, backup,action_vf)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
-    TabularValueFunction::TabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterface<double>> &backup, const std::shared_ptr<ActionVFInterface<double>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate)
-        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf,evaluate)
+    TabularValueFunction::TabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf)
+        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf)
     {
-    }
-
-    std::shared_ptr<Action> TabularValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
-    {
-        return this->action_vf_->selectBestAction(this->getptr(),state,t).first;
     }
 
     void TabularValueFunction::initialize()
@@ -39,19 +34,15 @@ namespace sdm
             {
                 double i_value = this->evaluate(state, t).second;
                 this->updateValueAt(state, t, i_value);
-
-                // double i_value = this->init_function_->operator()(state, t);
-                // this->updateValueAt(state, t, i_value);
                 return i_value;
             }
         }
-        if(t>0)
-        {
-            // std::cout<<"SUpport "<<this->getSupport(t)<<std::endl;
-            // std::cout<<"State to test "<<state  <<std::endl;
-            // std::cout<<"At : "<<this->representation[this->isInfiniteHorizon() ? 0 : t].at(state)<<std::endl;
-        }
         return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
+    }
+
+    Pair<std::shared_ptr<State>,double> TabularValueFunction::evaluate(const std::shared_ptr<State>& state, number t)
+    {
+        return std::make_pair(state,this->getInitFunction()->operator()(state,t));
     }
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
@@ -61,8 +52,7 @@ namespace sdm
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        // std::cout<<"Best action "<<this->getBestAction(state,t)<<std::endl;
-        this->updateValueAt(state, t, this->backup_->backup(this->getptr(), state,this->getBestAction(state,t), t));
+        this->updateValueAt(state, t, this->template backup<double>(state,this->getBestAction(state,t), t));
     }
 
     // void TabularValueFunction::save(std::string filename)
@@ -85,7 +75,8 @@ namespace sdm
             res << "\t<value_function t=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (const auto &pair_state_val : this->representation[i])
             {
-                res << "\t\t<value state=\"" << pair_state_val.first << "\"> " << std::setprecision(config::VALUE_DECIMAL_PRINT) << std::fixed << pair_state_val.second << " </value>" << std::endl;
+                res<< "\t adress "<<pair_state_val.first;
+                res << "\t\t<value state=\"" << pair_state_val.first->str() << "\"> " << std::setprecision(config::VALUE_DECIMAL_PRINT) << std::fixed << pair_state_val.second << " </value>" << std::endl;
             }
             res << "\t</value_function>" << std::endl;
         }
