@@ -135,6 +135,7 @@ namespace sdm
         auto feedback = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(action);
         auto next_obs = std::get<0>(feedback);
         this->current_state_ = this->nextState(this->current_state_, action, next_obs, this->step_);
+        // this->current_state_ = this->nextBelief(this->getUnderlyingPOMDP(), this->current_state_->toBelief(), action, next_obs, this->step_).first;
         return std::make_tuple(this->current_state_, std::get<1>(feedback), std::get<2>(feedback));
 
     }
