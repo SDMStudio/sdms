@@ -174,7 +174,9 @@ namespace sdm
         res << "[";
         for (number i = 0; i < this->getNumSpaces(); i++)
         {
-            res << "\n\t" << i << " : " << *this->getSpace(i);
+            // res << "\n\t" << i << " : " << *this->getSpace(i);
+            res << "\n" << i << " : " << "\n";
+            res << *this->getSpace(i);
         }
         res << "\n]";
         return res.str();
