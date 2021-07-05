@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     auto obs_space = mdp_tiger->getObservationSpace(0);
     auto obs_dynamics = mdp_tiger->getObservationDynamics();
 
-    number horizon = 2;
+    number horizon = 3;
 
     // Creation of the MMDP
     auto mpomdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);

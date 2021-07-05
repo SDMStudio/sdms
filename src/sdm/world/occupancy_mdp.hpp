@@ -32,6 +32,9 @@ namespace sdm
 
         double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t) const;
 
+        void setInitialState(const std::shared_ptr<State>& state);
+
+
     protected:
         std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 

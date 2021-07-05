@@ -7,7 +7,6 @@ namespace sdm
 
     Belief2OccupancyValueFunction::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction> pomdp_vf) : pomdp_vf_(pomdp_vf)
     {
-        std::cout<<"pomdp "<<pomdp_vf_->str()<<std::endl;
     }
 
     double Belief2OccupancyValueFunction::operatorMPOMDP(const std::shared_ptr<State> &state, const number &tau)
