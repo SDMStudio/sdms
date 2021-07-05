@@ -20,6 +20,8 @@ namespace sdm
     OccupancyMDP::OccupancyMDP(std::shared_ptr<MPOMDPInterface> underlying_dpomdp, number max_history_length)
         : BeliefMDP(underlying_dpomdp)
     {
+        // std::cout<<"OccupancyState "<<std::endl;
+
         // Initialize history
         this->initial_history_ = std::make_shared<JointHistoryTree>(this->getUnderlyingMPOMDP()->getNumAgents(), (max_history_length > 0) ? max_history_length : -1);
 
@@ -217,7 +219,8 @@ namespace sdm
 
     double OccupancyMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t) const
     {
-        // std::cout<<"Next state "<<this->nextState(occupancy_state, joint_decision_rule, t)<<std::endl;
+        // std::cout<<"Action "<<joint_decision_rule->str()<<std::endl;
+        // std::cout<<"Next state "<<this->nextState(occupancy_state, joint_decision_rule, t)->str()<<std::endl;
         return value_function->getValueAt(this->nextState(occupancy_state, joint_decision_rule, t), t + 1);
     }
 

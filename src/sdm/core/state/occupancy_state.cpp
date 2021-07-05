@@ -98,6 +98,55 @@ namespace sdm
         }
     }
 
+    bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
+    {
+        if (this->size() != other->size())
+        {
+            return false;
+        }
+
+        for(const auto &jhistory : this->getJointHistories())
+        {
+            for(const auto &belief : this->getBeliefsAt(jhistory))
+            {
+                if(this->getProbability(jhistory,belief) != other->toOccupancyState()->getProbability(jhistory,belief))
+                {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &other) const
+    {
+        double product = 0;
+
+        // std::shared_ptr<OccupancyStateInterface> occupancy_bigger;
+        // std::shared_ptr<OccupancyStateInterface> occupancy_smaller;
+
+        // if(this->size() < other->size())
+        // {
+        //     occupancy_smaller = this->getPointer()->toState()->toOccupancyState();
+        //     occupancy_bigger = other->toOccupancyState();
+        // }else
+        // {
+        //     occupancy_bigger = this->getPointer()->toState()->toOccupancyState();
+        //     occupancy_smaller = other->toOccupancyState();
+        // }
+
+
+        for(const auto &jhistory : this->getJointHistories())
+        {
+            for(const auto &belief : this->getBeliefsAt(jhistory))
+            {
+                product += this->getProbability(jhistory,belief) * other->toOccupancyState()->getProbability(jhistory,belief);
+            }
+        }
+        return product;
+    }
+
     std::shared_ptr<JointHistoryBeliefPair> OccupancyState::getPairPointer(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const
     {
         return this->map_pair_to_pointer_.at({joint_history, belief});

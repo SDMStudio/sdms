@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 
     // Creation of HSVI problem and Resolution 
     // std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<SolvableByMDP>(mmdp);
-    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<OccupancyMDP>(mpomdp);
+    std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<OccupancyMDP>(mpomdp,2);
 
     // horizon = horizon * serial_mmdp->getNumAgents();
     auto tabular_backup = std::make_shared<TabularBackup>(hsvi);
@@ -83,10 +83,10 @@ int main(int argc, char **argv)
     auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi);
 
     auto init_lb = std::make_shared<MinInitializer>(hsvi);
-    auto init_ub = std::make_shared<MDPInitializer>(hsvi,"");
+    auto init_ub = std::make_shared<POMDPInitializer>(hsvi,"");
 
-    auto ub = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup,action_tabular);
-    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan);
+    auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular);
+    auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular);
 
     auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01);
     algorithm->do_initialize();

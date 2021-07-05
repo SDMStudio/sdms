@@ -91,7 +91,7 @@ namespace sdm
                     auto next_belief = occupancy_mdp->nextBelief(belief, action , observation->toObservation(),t);
                     auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
 
-                    tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory,next_belief->toBelief()) * std::dynamic_pointer_cast<BeliefStateGraph>(belief)->getProbability(action,observation->toObservation());
+                    tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory,next_belief->toBelief()) * occupancy_mdp->getObservationProbability(belief,action,nullptr,observation->toObservation(),t);
                 }
                 next_occupancy->setProbability(jhistory,belief,occupancy_mdp->getRewardBelief(belief,action,t)+  this->world_->getDiscount(t) * tmp) ;
             }

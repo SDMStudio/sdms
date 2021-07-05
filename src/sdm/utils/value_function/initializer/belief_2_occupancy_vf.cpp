@@ -1,5 +1,6 @@
 #include <sdm/utils/value_function/initializer/belief_2_occupancy_vf.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 namespace sdm
 {
@@ -19,6 +20,7 @@ namespace sdm
         {
             for(const auto &belief : ostate->getBeliefsAt(joint_history))
             {
+                // std::cout<<"adress "<<belief<<" belief "<< belief->str()<<std::endl;
                 value += ostate->getProbability(joint_history,belief) * this->pomdp_vf_->getValueAt(belief, tau);
             }
         }
