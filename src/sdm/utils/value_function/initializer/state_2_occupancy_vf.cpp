@@ -1,5 +1,6 @@
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
 
 namespace sdm
 {
@@ -7,12 +8,12 @@ namespace sdm
     {
     }
 
-    double State2OccupancyValueFunction::operatorMdp(const std::shared_ptr<State> &state, const number &tau)
+    double State2OccupancyValueFunction::operatorState(const std::shared_ptr<State> &state, const number &tau)
     {
         return this->mdp_vf_->operator()(state, tau);
     }
 
-    double State2OccupancyValueFunction::operatorNotMdp(const std::shared_ptr<State> &state, const number &tau)
+    double State2OccupancyValueFunction::operatorBelief(const std::shared_ptr<State> &state, const number &tau)
     {
         double value = 0;
         auto ostate = state->toBelief();
@@ -24,25 +25,42 @@ namespace sdm
         return value;
     }
 
+    double State2OccupancyValueFunction::operatorOccupancy(const std::shared_ptr<State> &state, const number &tau)
+    {
+        double value = 0;
+        auto ostate = state->toOccupancyState();
+
+        for (auto &jhistory : ostate->getJointHistories())
+        {
+            double tmp = 0;
+            for(const auto &belief : ostate->getBeliefsAt(jhistory))
+            {
+                tmp += this->operator()(belief, tau);
+            }
+            value += ostate->getProbabilityOverJointHistory(jhistory) *tmp;
+        }
+        return value;
+    }
+
 
     double State2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
     {
         switch (state->getTypeState())
         {
         case TypeState::STATE :
-            return operatorMdp(state,tau);
+            return operatorState(state,tau);
             break;
 
         case TypeState::BELIEF_STATE :
-            return operatorNotMdp(state,tau);
+            return operatorBelief(state,tau);
             break;
 
         case TypeState::OCCUPANCY_STATE :
-            return operatorNotMdp(state,tau);
+            return operatorOccupancy(state,tau);
             break;
 
         default:
-            return operatorMdp(state,tau);
+            return operatorState(state,tau);
             break;
         }
         // return this->operator()<>(ostate, tau);

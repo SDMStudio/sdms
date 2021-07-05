@@ -19,7 +19,6 @@ namespace sdm
         {
             value = vf->getValueAt(state,t);
         }
-
         return std::make_pair(state,value);
     }
 }

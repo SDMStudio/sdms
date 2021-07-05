@@ -3,6 +3,7 @@
 #include <sdm/world/belief_mdp.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -29,16 +30,16 @@ namespace sdm
         auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
         std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::make_shared<BeliefMDP>(pomdp);
 
-
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_pomdp);
+        auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_pomdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp,"HSVI");
 
-        auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(),init_lb,tabular_backup);
-        auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(),init_ub,tabular_backup);
+        auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(),init_lb,tabular_backup,action_tabular);
+        auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(),init_ub,tabular_backup,action_tabular);
 
-        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_);
+        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_,10000,"POMDP_Initialisation");
 
         algorithm->do_initialize();
         algorithm->do_solve();

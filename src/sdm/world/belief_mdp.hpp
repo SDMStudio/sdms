@@ -52,7 +52,14 @@ namespace sdm
          */
         double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
 
-        std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t) const;
+        std::shared_ptr<State> nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t) const;
+
+    protected:
+        std::shared_ptr<State> current_state_;
+
+        int step_;
+
+        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
 
         /**
          * @brief This part of the code can be used to 
@@ -63,14 +70,8 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<BeliefInterface> 
          */
-        Pair<std::shared_ptr<BeliefInterface>, double> nextBelief(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0) const;
+        virtual Pair<std::shared_ptr<BeliefInterface>, double> nextElementBelief(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0) const;
 
-    protected:
-        std::shared_ptr<State> current_state_;
-
-        int step_;
-
-        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
         
     };
 

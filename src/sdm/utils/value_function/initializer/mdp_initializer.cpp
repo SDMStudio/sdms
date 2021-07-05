@@ -1,7 +1,11 @@
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
+
 #include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/evaluate_vf/evaluate_tabulair.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
+
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 
@@ -42,14 +46,15 @@ namespace sdm
             std::cout<<"MDP Iteration";
 
             auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+            auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
             auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
             auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-            auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(),init_lb,tabular_backup);
-            auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(),init_ub,tabular_backup);
+            auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(),init_lb,tabular_backup,action_tabular);
+            auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(),init_ub,tabular_backup,action_tabular);
 
-            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_);
+            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_,10000,"MDP_Initialisation");
 
             algorithm->do_initialize();
 

@@ -78,7 +78,7 @@ namespace sdm
          * @param backup if true, we store the expanded belief in the graph.
          * @return the next belief
          */
-        std::shared_ptr<BeliefStateGraph> next(const std::shared_ptr<BeliefInterface>&belief, double probability , const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup = true);
+        std::shared_ptr<BeliefStateGraph> next(const std::shared_ptr<BeliefInterface>&belief, double probability, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup = true);
 
         /**
          * @brief Return a 

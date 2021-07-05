@@ -1,37 +1,32 @@
 #include <sdm/utils/value_function/hyperplan_value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_base.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
-#include <sdm/core/state/belief_default.hpp>
+
+#include <sdm/core/state/belief_state.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 
 namespace sdm
 {        
 
     double HyperplanValueFunction::PRECISION = config::PRECISION_SDMS_VECTOR;
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate, int freq_prunning)
-        : ValueFunction(horizon, initializer, evaluate), freq_prune_(freq_prunning) ,backup_(backup), action_vf_(action_vf)
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
+        : ValueFunction(horizon, initializer,backup,action_vf), freq_prune_(freq_prunning)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterface<std::shared_ptr<State>>> &backup, const std::shared_ptr<ActionVFInterface<std::shared_ptr<State>>> &action_vf, const std::shared_ptr<EvaluateVFInterface> &evaluate, int freq_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,evaluate,freq_prunning){}
+    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,freq_prunning){}
 
     HyperplanValueFunction::~HyperplanValueFunction(){}
 
     void HyperplanValueFunction::initialize(double value, number t)
     {
-        auto new_v = std::make_shared<BeliefDefault>(value);
-        this->representation[t].push_back(new_v);
         this->default_values_per_horizon[t] = value;
     }
-
-    std::shared_ptr<Action> HyperplanValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
-    {
-        return this->action_vf_->selectBestAction(this->getptr(),state,t).first;
-    }
-
+    
     void HyperplanValueFunction::initialize()
     {
         this->initializer_->init(this->getptr());
@@ -44,7 +39,7 @@ namespace sdm
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        const auto &new_hyperplan = this->backup_->backup(this->getptr(),state,this->getBestAction(state,t),t)->toBelief();
+        const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state,this->getBestAction(state,t),t)->toBelief();
 
         if (!this->exist(new_hyperplan->getVectorInferface(),t))
             this->representation[t].push_back(new_hyperplan);
@@ -198,6 +193,50 @@ namespace sdm
         return false;
     }
 
+    Pair<std::shared_ptr<State>,double> HyperplanValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
+    {
+        double current, max = -std::numeric_limits<double>::max();
+        std::shared_ptr<BeliefInterface> alpha_vector;
+
+        auto belief_state = state->toBelief();
+
+        for (const auto &plan : this->getSupport(t))
+        {
+            // std::cout<<"plan "<<plan->str()<<std::endl;
+            // std::cout<<"belief_state "<<belief_state->str()<<std::endl;
+
+            auto belief_plan = plan->toBelief();
+
+            current = belief_state->operator^(belief_plan);
+
+            if (max < current)
+            {
+                max = current;
+                alpha_vector = belief_plan;
+            }
+        }
+        
+        // std::cout<<"Value "<<max<<std::endl;
+
+        if(max == -std::numeric_limits<double>::max())
+        {
+            switch (state->getTypeState())
+            {
+            case TypeState::BELIEF_STATE:
+                alpha_vector = std::make_shared<Belief>();
+                break;
+            case TypeState::OCCUPANCY_STATE:
+                alpha_vector = std::make_shared<OccupancyState>();
+                break;
+            default:
+                break;
+            }
+            max = this->getDefaultValue(t);
+            alpha_vector->setDefaultValue(max);
+
+        }
+        return {alpha_vector,max};
+    }
 
     std::string HyperplanValueFunction::str() const
     {

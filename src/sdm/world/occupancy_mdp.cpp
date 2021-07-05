@@ -32,7 +32,7 @@ namespace sdm
         initial_state->toOccupancyState()->setOneStepUncompressedOccupancy(initial_state);
 
         this->initial_state_ = std::static_pointer_cast<State>(std::make_shared<OccupancyStateGraph>(initial_state));
-        // std::static_pointer_cast<BeliefStateGraph>(this->initial_state_)->initialize();
+        std::dynamic_pointer_cast<OccupancyStateGraph>(this->initial_state_)->initialize();
     }
 
     std::shared_ptr<Observation> OccupancyMDP::reset()
@@ -96,30 +96,32 @@ namespace sdm
         return function_space;
     }
 
-    std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &action_tmp, number t, const std::shared_ptr<HSVI> &, bool compression) const
+    std::shared_ptr<State> OccupancyMDP::nextOccupancy(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &action_tmp, const std::shared_ptr<Observation>&, number t, bool compression) const
     {
-        auto belief_and_eta = this->nextOccupancy(this->getUnderlyingPOMDP(),state_tmp->toBelief(),action_tmp,nullptr,t);
+        auto belief_and_eta = this->nextElement(state_tmp->toBelief(),action_tmp,nullptr,t,compression);
         return std::static_pointer_cast<OccupancyStateGraph>(state_tmp->toOccupancyState())->next(belief_and_eta.first,belief_and_eta.second, this->getUnderlyingMPOMDP(), action_tmp, nullptr, t);
     }
 
-    std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &joint_idr, number h, const std::shared_ptr<HSVI> &hsvi) const
+    std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &joint_idr, number h, const std::shared_ptr<HSVI> &) const
     {
-        return this->nextState(ostate, joint_idr, h, hsvi, true);
+        return this->nextOccupancy(ostate, joint_idr,nullptr, h, true);
     }
 
-    Pair<std::shared_ptr<BeliefInterface>, double> OccupancyMDP::nextOccupancy(const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<BeliefInterface> &belief_tmp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t) const
+    Pair<std::shared_ptr<BeliefInterface>, double> OccupancyMDP::nextElement(const std::shared_ptr<BeliefInterface> &belief_tmp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t,bool compression) const
     {
         try
         {
+            auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->getUnderlyingProblem());
+
             auto occupancy_state = belief_tmp->toOccupancyState();
             auto decision_rule = action->toDecisionRule();
 
             // The new compressed occupancy state
             std::shared_ptr<OccupancyStateInterface> new_compressed_occupancy_state;
             // The new fully uncompressed occupancy state
-            std::shared_ptr<OccupancyStateInterface> new_fully_uncompressed_occupancy_state = std::make_shared<OccupancyState>(pomdp->getNumAgents());
+            std::shared_ptr<OccupancyStateInterface> new_fully_uncompressed_occupancy_state = std::make_shared<OccupancyState>(under_pb->getNumAgents());
             // The new one step left occupancy state
-            std::shared_ptr<OccupancyStateInterface> new_one_step_left_compressed_occupancy_state = std::make_shared<OccupancyState>(pomdp->getNumAgents());
+            std::shared_ptr<OccupancyStateInterface> new_one_step_left_compressed_occupancy_state = std::make_shared<OccupancyState>(under_pb->getNumAgents());
 
             for (const auto &joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
             {
@@ -127,10 +129,10 @@ namespace sdm
                 
                 for (const auto &belief : occupancy_state->getFullyUncompressedOccupancy()->getBeliefsAt(joint_history))
                 {
-                    for (auto &joint_observation : *pomdp->getObservationSpace(t))
+                    for (auto &joint_observation : *under_pb->getObservationSpace(t))
                     {
                         auto next_joint_history = joint_history->expand(joint_observation->toObservation());
-                        auto next_belief = BeliefMDP::nextState(belief, joint_action, joint_observation->toObservation(), t);
+                        auto next_belief = BeliefMDP::nextBelief(belief, joint_action, joint_observation->toObservation(), t);
 
                         // p(o') = p(o) * p(z | b, a)
                         double proba_next_history = occupancy_state->getFullyUncompressedOccupancy()->getProbability(joint_history, belief) * BeliefMDP::getObservationProbability(belief, joint_action, nullptr, joint_observation->toObservation(), t);
@@ -157,7 +159,7 @@ namespace sdm
             new_one_step_left_compressed_occupancy_state->finalize();
             new_fully_uncompressed_occupancy_state->finalize();
 
-            if (true)
+            if (compression)
             {
                 // Compress the occupancy state
                 new_compressed_occupancy_state = new_one_step_left_compressed_occupancy_state->compress();
@@ -202,14 +204,15 @@ namespace sdm
             {
                 auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
                 reward += occupancy_state->toOccupancyState()->getProbability(joint_history, belief) * BeliefMDP::getReward(belief, joint_action, t);
-                // for (const auto &state : ostate->getStatesAt(joint_history))
-                // {
-                //     reward += ostate->toOccupancyState()->getProbability({state, joint_history}) * this->getUnderlyingMPOMDP()->getReward(state, jaction);
-                // }
             }
         }
 
         return reward;
+    }
+
+    double OccupancyMDP::getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t) const
+    {
+        return BeliefMDP::getReward(state,action,t);
     }
 
     double OccupancyMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t) const

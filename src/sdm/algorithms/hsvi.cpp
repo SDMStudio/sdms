@@ -94,28 +94,15 @@ namespace sdm
                     this->upper_bound_->updateValueAt(s, h);
                 }
                 // Select next action and state following search process
-                // std::cout<<"Test "<<std::endl;
-
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
-
-                // std::cout<<"Test 2"<<std::endl;
-
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
-
-                // std::cout<<"Test 3"<<std::endl;
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
                 // Update bounds
-                // std::cout<<"Test 4"<<s->str()<< std::endl;
-
                 this->lower_bound_->updateValueAt(s, h);
-                // std::cout<<"Test 5"<<std::endl;
-
                 this->upper_bound_->updateValueAt(s, h);
-                // std::cout<<"Test 6"<<std::endl;
-
             }
 
             //---------------DEBUG-----------------//

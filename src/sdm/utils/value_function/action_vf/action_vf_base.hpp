@@ -6,8 +6,7 @@
 
 namespace sdm
 {
-    template <class TData>
-    class ActionVFBase : public ActionVFInterface<TData>
+    class ActionVFBase : public ActionVFInterface
     {
     public:
         
@@ -23,9 +22,8 @@ namespace sdm
          * @param number t : time step
          * @return std::shared_ptr<Action> : Action
          */
-        virtual Pair<std::shared_ptr<Action>,TData> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t) = 0;
+        virtual std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t) = 0;
     protected : 
         std::shared_ptr<SolvableByHSVI> world_;
     };
 }
-#include <sdm/utils/value_function/action_vf/action_vf_base.tpp>

@@ -6,8 +6,12 @@ namespace sdm
 {
     class ValueFunction;
 
+    class BackupInterfaceForValueFunction
+    {
+    };
+
     template <class TData>
-    class BackupInterface
+    class BackupInterface : public BackupInterfaceForValueFunction
     {
     public:
 
