@@ -15,8 +15,8 @@ namespace sdm
     {
     public:
         OccupancyMDP();
-        OccupancyMDP(std::string dpomdp_name, number max_history_length = -1);
-        OccupancyMDP(std::shared_ptr<MPOMDPInterface> dpomdp, number max_history_length = -1);
+        OccupancyMDP(std::string dpomdp_name, number memory = -1, bool store_action_spaces = true);
+        OccupancyMDP(std::shared_ptr<MPOMDPInterface> dpomdp, number memory = -1, bool store_action_spaces = true);
 
         void initialize(number history_length);
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
@@ -37,6 +37,7 @@ namespace sdm
 
 
     protected:
+        bool store_action_spaces_;
         std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 
         std::shared_ptr<HistoryInterface> initial_history_, current_history_;
