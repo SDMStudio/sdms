@@ -1,5 +1,10 @@
 #include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
 
+#include <sdm/world/base/mmdp_interface.hpp>
+#include <sdm/world/serialized_mmdp.hpp>
+
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/core/action/joint_det_decision_rule.hpp>
 namespace sdm
 {
     DecentralizedLP::DecentralizedLP(){}
@@ -27,7 +32,7 @@ namespace sdm
         }
     }
 
-    void DecentralizedLP::createDecentralizedVariablesIndividual(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<ValueFunction>&vfconst std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t, number agent_id)
+    void DecentralizedLP::createDecentralizedVariablesIndividual(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t, number agent_id)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -163,4 +168,133 @@ namespace sdm
         return std::make_pair(actions,indiv_histories);
     }
 
+
+    void DecentralizedLP::createDecentralizedVariables(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    {
+        //Specialisation for type of state
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            this->createDecentralizedVariablesOccupancy(vf,state,env,var,index,t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            this->createDecentralizedVariablesSerial(vf,state,env,var,index,t);
+        
+        default:
+            break;
+        }
+    }
+
+    void DecentralizedLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        //Specialisation for type of state
+
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            this->createDecentralizedConstraintsOccupancy(vf,state,env,con,var,index,t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            this->createDecentralizedConstraintsSerial(vf,state,env,con,var,index,t);
+        
+        default:
+            break;
+        }
+    }
+
+    std::shared_ptr<Action> DecentralizedLP::getVariableResult(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
+    {
+        //Specialisation for type of state
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            return this->getVariableResultOccupancy(vf,state,cplex,var,t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            return this->getVariableResultSerial(vf,state,cplex,var,t);
+
+        default:
+            break;
+        }
+    }
+
+    void DecentralizedLP::createDecentralizedVariablesSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    {
+        //Determine the Agent
+        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(this->world_->getUnderlyingProblem());
+        number agent_id = under_pb->getAgentId(t);
+
+        //Create Individual Decentralized Variable
+        this->createDecentralizedVariablesIndividual(vf,state, env, var, index, t,agent_id);
+    }
+    
+    void DecentralizedLP::createDecentralizedVariablesOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    {
+        auto under_pb = this->world_->getUnderlyingProblem();
+
+        //Create Joint Decentralized Variable
+        this->createDecentralizedVariablesJoint(vf,state, env, var, index, t);
+
+        for (auto agent = 0; agent < under_pb->getNumAgents(); ++agent)
+        {
+            //Create Individual Decentralized Variable
+            this->createDecentralizedVariablesIndividual(vf,state, env, var, index, t,agent);
+        }
+    }
+
+    void DecentralizedLP::createDecentralizedConstraintsSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        //Determine the Agent
+        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(this->world_->getUnderlyingProblem());
+        number agent_id = under_pb->getAgentId(t);
+
+        //Create Individual Decentralized Constraints
+        this->createDecentralizedConstraintsIndividual(vf,state, env, con, var, index, t,agent_id);
+    }
+
+    void DecentralizedLP::createDecentralizedConstraintsOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        auto under_pb = this->world_->getUnderlyingProblem();
+
+        //Create Joint Decentralized Constraints and Control Constraints
+        this->createDecentralizedConstraintsJoint(vf,state, env, con, var, index, t);
+        this->createDecentralizedControlConstraints(vf,state, env, con, var, index, t);
+
+        for (number agent = 0; agent < under_pb->getNumAgents(); ++agent)
+        {
+            //Create Individual Decentralized Constraints
+            this->createDecentralizedConstraintsIndividual(vf,state, env, con, var, index, t,agent);
+        }
+    }
+    std::shared_ptr<Action> DecentralizedLP::getVariableResultSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
+    {
+        //Determine the Agent
+        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(this->world_->getUnderlyingProblem());
+        number agent_id = under_pb->getAgentId(t);
+
+        //Determine the element useful for create a DeterminiticDecisionRule
+        auto action_and_history_individual = this->getVariableResultIndividual(vf,state,cplex,var,t,agent_id);
+        
+        //Create the DeterminiticDecisionRule
+        return std::make_shared<DeterministicDecisionRule>(action_and_history_individual.second,action_and_history_individual.first);
+    }
+
+    std::shared_ptr<Action> DecentralizedLP::getVariableResultOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
+    {
+        std::vector<std::vector<std::shared_ptr<Item>>> actions;
+        std::vector<std::vector<std::shared_ptr<Item>>> joint_histories;
+
+        auto under_pb = this->world_->getUnderlyingProblem();
+
+        //Determine the element useful for create a JointDeterminiticDecisionRule
+        for (number agent = 0; agent < under_pb->getNumAgents(); agent++)
+        {
+            auto action_and_history_individual = this->getVariableResultIndividual(vf,state,cplex,var,t,agent);
+
+            actions.push_back(action_and_history_individual.first);
+            joint_histories.push_back(action_and_history_individual.second);
+        }
+        //Create the JointDeterminiticDecisionRule
+        return std::make_shared<JointDeterministicDecisionRule>(joint_histories,actions);
+    }
 }

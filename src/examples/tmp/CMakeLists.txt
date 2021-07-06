@@ -140,6 +140,9 @@ if(JEROME)
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
+		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan_lp.cpp
+
+		${INCLUDE_DIR}/utils/linear_programming/**
 
 
 

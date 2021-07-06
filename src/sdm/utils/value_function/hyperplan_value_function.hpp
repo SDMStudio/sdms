@@ -93,6 +93,7 @@ namespace sdm
 
         Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State> &state, number t);
 
+        void createDefault(const std::shared_ptr<State>& state, number t);
 
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;

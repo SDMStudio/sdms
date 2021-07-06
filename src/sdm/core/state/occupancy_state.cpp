@@ -12,7 +12,7 @@ namespace sdm
     {
     }
 
-    OccupancyState::OccupancyState(number num_agents) : num_agents_(num_agents)
+    OccupancyState::OccupancyState(number num_agents) : num_agents_(num_agents), Belief(num_agents)
     {
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
@@ -51,7 +51,7 @@ namespace sdm
     double OccupancyState::getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const
     {
         auto iterator_on_pair_history_belief = this->map_pair_to_pointer_.find({joint_history, belief});
-        return (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end()) ? 0 : this->getProbability(iterator_on_pair_history_belief->second);
+        return (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end()) ? this->getDefaultValue() : this->getProbability(iterator_on_pair_history_belief->second);
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
@@ -135,8 +135,7 @@ namespace sdm
         //     occupancy_bigger = this->getPointer()->toState()->toOccupancyState();
         //     occupancy_smaller = other->toOccupancyState();
         // }
-
-
+        
         for(const auto &jhistory : this->getJointHistories())
         {
             for(const auto &belief : this->getBeliefsAt(jhistory))
@@ -144,6 +143,7 @@ namespace sdm
                 product += this->getProbability(jhistory,belief) * other->toOccupancyState()->getProbability(jhistory,belief);
             }
         }
+        
         return product;
     }
 

@@ -2,7 +2,8 @@
 
 #include <sdm/utils/linear_programming/lp_problem_interface.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
+// #include <sdm/utils/linear_algebra/vector_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 
 namespace sdm
 {
@@ -30,6 +31,6 @@ namespace sdm
         /**
          * @brief The temporary one-stage value function represention.
          */
-        std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> tmp_representation;
+        std::shared_ptr<BeliefInterface> tmp_representation;
     };
 }

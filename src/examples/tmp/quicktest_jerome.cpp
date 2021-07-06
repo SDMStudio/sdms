@@ -38,6 +38,7 @@
 
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -47,6 +48,8 @@
 
 #include <sdm/core/state/history_tree.hpp>
 // #include <sdm/core/state/jhistory_tree.hpp>
+
+#include <sdm/utils/value_function/initializer/initializers.hpp>
 
 using namespace sdm;
 
@@ -68,10 +71,8 @@ int main(int argc, char **argv)
 
     // Creation of the MMDP
     auto mpomdp = std::make_shared<MPOMDP>(state_space, action_space,obs_space, rew, dynamics,obs_dynamics,start_distrib,horizon,1.);
-    // auto mmdp = std::make_shared<MMDP>(state_space, action_space, rew, dynamics,start_distrib,horizon,1.);
 
     // Creation of HSVI problem and Resolution 
-    // std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<SolvableByMDP>(mmdp);
     std::shared_ptr<SolvableByHSVI> hsvi = std::make_shared<OccupancyMDP>(mpomdp,2);
 
     // horizon = horizon * serial_mmdp->getNumAgents();
@@ -79,112 +80,22 @@ int main(int argc, char **argv)
     auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi);
 
     auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi);
-    // auto action_sawtooth = std::make_shared<>(hsvi);
     auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi);
+    auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(hsvi);
 
-    auto init_lb = std::make_shared<MinInitializer>(hsvi);
-    auto init_ub = std::make_shared<POMDPInitializer>(hsvi,"");
+    // auto init_lb = std::make_shared<MinInitializer>(hsvi);
+    // auto init_ub = std::make_shared<POMDPInitializer>(hsvi,"");
 
-    auto ub = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup,action_tabular);
-    auto lb = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular);
+    auto init_lb = sdm::makeInitializer("Min",hsvi);
+    auto init_ub = sdm::makeInitializer("PomdpHsvi",hsvi);
+
+    auto ub = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup,action_tabular);
+    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_lp); 
 
     auto algorithm = std::make_shared<HSVI>(hsvi, lb, ub, horizon, 0.01);
     algorithm->do_initialize();
 
-    // std::cout << *algorithm->getLowerBound() << std::endl;
-    // std::cout << *algorithm->getUpperBound() << std::endl;
-
     algorithm->do_solve(); 
 
-    // std::cout << *algorithm->getLowerBound() << std::endl;
-    // std::cout << *algorithm->getUpperBound() << std::endl;
-
-    // for(const auto &state : *serial_mmdp->getStateSpace(1))
-    // {
-    //     auto serialized_state = state->toState()->toSerial();
-    //     number agent_identifier = serialized_state->getCurrentAgentId();
-
-    //     for(auto action_tmp : *serial_mmdp->getActionSpace(agent_identifier))
-    //     {
-    //         auto serial_action = action_tmp->toAction();
-
-    //         // std::cout<<"Reward = " << serial_mmdp->getReward(state->toState(), serial_action,agent_identifier) << std::endl;
-
-    //         for(const auto &next_state : serial_mmdp->getReachableStates(state->toState(),serial_action, agent_identifier+1))
-    //         {
-    //             // std::cout<<"Reachable State "<<next_state->str()<<", Transition Probability : "<<serial_mmdp->getTransitionProbability(state->toState(),serial_action,next_state->toState(),agent_identifier)<<std::endl;
-    //             std::cout<<serialized_state->str()<<" , "<<serial_action->str()<<", "<<next_state->str()<<std::endl;
-
-    //             for(const auto &next_obs : serial_mmdp->getReachableObservations(state->toState(),serial_action,next_state->toState(),agent_identifier+1))
-    //             {
-    //                 std::cout<<"Reachable Obs "<<next_obs->str()<<std::endl;
-    //                 std::cout<<"Obs Probability : "<<serial_mmdp->getObservationProbability(state->toState(),serial_action,next_state->toState(),next_obs->toObservation(),agent_identifier)<<std::endl;
-    //                 std::cout<<"Dynamics Probability : "<<serial_mmdp->getDynamics(state->toState(),serial_action,next_state->toState(),next_obs->toObservation(),agent_identifier)<<std::endl;
-
-    //             }
-    //         }
-    //     }
-    // }
-
-    // std::cout << *algo->getLowerBound() << std::endl;
-    // std::cout << *algo->getUpperBound() << std::endl;
-
-    
-
-    // std::cout<<algorithm->getUpperBound()->str()<<std::endl;
-    // std::cout<<algorithm->getLowerBound()->str()<<std::endl;
-
-
-    //  std::cout << "----- Usage : class Joint ( sdm/core/state/history_tree.hpp ) ---------" << std::endl
-    //           << std::endl;
-
-    // using TObservation = std::shared_ptr<Observation>;
-
-    // number max_depth = 3;
-
-    // std::shared_ptr<HistoryTree<TObservation>> history = std::make_shared<HistoryTree<TObservation>>(max_depth);
-
-    // // Get basic elements of joint histories
-    // std::cout << "\n--- 1) Basic access" << std::endl;
-
-    // std::cout << "#> Horizon = " << history->getHorizon() << std::endl; // equivalent to history->getDepth()
-    // std::cout << "#> MaxDepth = " << history->getMaxDepth() << std::endl;
-    // std::cout << "#> Initial Joint history : " << history->str_not_const() << std::endl;
-
-    // std::cout<<"getPtr : "<<history->getptr()<<std::endl;
-
-    // // How to expand a joint history
-    // std::cout << "\n--- 2) Instanciate and expand a history" << std::endl;
-
-    // // List of joint observation for the example
-    // auto obs_1 = std::make_shared<DiscreteObservation>(1);
-    // auto obs_2 = std::make_shared<DiscreteObservation>(2);
-    // std::shared_ptr<Action> action;
-
-    // std::vector<std::shared_ptr<DiscreteObservation>> vec_obs = {obs_1,obs_2};
-
-    // for (const auto &obs : vec_obs)
-    // {
-    //     std::cout << "\n#> Expand with observation " << obs->str() << std::endl;
-    //     history = std::dynamic_pointer_cast<HistoryTree<TObservation>>(history->expand(obs, action));
-    //     std::cout << "#> Expanded joint history --> " << history->str_not_const() << std::endl;
-    // }
-
-    // std::cout<<"\n get Last Observation "<<history->getData()<<std::endl;
-
-    // std::cout<<"\n Get Parent of Joint History "<<history->getOrigin()->str_not_const()<<std::endl;
-
-    // // How to access individual histories and expand them
-    // std::cout << "\n--- 3) Access individual histories" << std::endl;
-
-    // std::cout << "\n#> List of pointer on individual histories = " << history->getIndividualHistories() << std::endl;
-
-    // for (number agent_id = 0; agent_id < history->getNumAgents(); ++agent_id)
-    // {
-    //     // std::cout << "#> IndividualHistory(" << agent_id << ") = " << *history->getIndividualHistory(agent_id) << std::endl; // equivalent to history->get(agent_id)
-    // }
-
     return 0;
-
-
 } // END main

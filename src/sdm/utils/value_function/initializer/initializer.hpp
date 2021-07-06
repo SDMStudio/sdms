@@ -73,7 +73,7 @@ namespace sdm
     class ZeroInitializer : public ValueInitializer
     {
     public:
-        ZeroInitializer();
+        ZeroInitializer(std::shared_ptr<SolvableByHSVI> world);
     };
 
     /**
