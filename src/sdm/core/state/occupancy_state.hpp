@@ -158,6 +158,8 @@ namespace sdm
         double operator^(const std::shared_ptr<BeliefInterface> &other) const;
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
 
+        std::shared_ptr<Space> getActionSpaceAt(number t);
+        void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
 
     protected:
         /**
@@ -234,5 +236,7 @@ namespace sdm
 
         void setProbabilityOverJointHistory();
         void setProbabilityOverIndividualHistories();
+
+        std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
     };
 } // namespace sdm

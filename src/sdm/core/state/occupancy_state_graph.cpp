@@ -3,11 +3,11 @@
 #include <sdm/core/state/jhistory_tree.hpp>
 namespace sdm
 {
-    OccupancyStateGraph::OccupancyStateGraph() : BeliefStateGraph()
+    OccupancyStateGraph::OccupancyStateGraph() : BeliefStateGraph(), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
     }
 
-    OccupancyStateGraph::OccupancyStateGraph(const std::shared_ptr<BeliefInterface> &data) : BeliefStateGraph(data)
+    OccupancyStateGraph::OccupancyStateGraph(const std::shared_ptr<BeliefInterface> &data) : BeliefStateGraph(data), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
     }
 
@@ -17,7 +17,7 @@ namespace sdm
     // }
 
     OccupancyStateGraph::OccupancyStateGraph(const std::shared_ptr<OccupancyStateGraph> &predecessor, const std::shared_ptr<BeliefInterface> &belief)
-        : BeliefStateGraph(predecessor, belief){}
+        : BeliefStateGraph(predecessor, belief), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>()){}
 
     std::shared_ptr<BeliefStateGraph> OccupancyStateGraph::next(const std::shared_ptr<BeliefInterface>&belief, double probability , const std::shared_ptr<POMDPInterface> &pomdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t, bool backup )
     {
@@ -268,6 +268,23 @@ namespace sdm
             }
         }
         return nullptr;
+    }
+
+    std::shared_ptr<Space> OccupancyStateGraph::getActionSpaceAt(number t)
+    {
+        if(this->action_space_map->find(t) != this->action_space_map->end())
+        {
+            return this->action_space_map->at(t);
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    void OccupancyStateGraph::setActionSpaceAt(number t, std::shared_ptr<Space> action_space)
+    {
+        this->action_space_map->emplace(t, action_space);
     }
 
 } // namespace sdm

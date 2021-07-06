@@ -12,7 +12,7 @@ namespace sdm
     {
     }
 
-    OccupancyState::OccupancyState(number num_agents) : num_agents_(num_agents)
+    OccupancyState::OccupancyState(number num_agents) : num_agents_(num_agents), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
@@ -39,7 +39,8 @@ namespace sdm
           map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
           map_pair_to_pointer_(occupancy_state.map_pair_to_pointer_),
-          probability_jhistories(occupancy_state.probability_jhistories)
+          probability_jhistories(occupancy_state.probability_jhistories), 
+          action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
     }
 
@@ -515,8 +516,26 @@ namespace sdm
         }
     }
 
+    // #############################################
+    // ######### ACTION SPACE ######################
+    // #############################################
 
 
+    std::shared_ptr<Space> OccupancyState::getActionSpaceAt(number t)
+    {
+        if(this->action_space_map->find(t) != this->action_space_map->end())
+        {
+            return this->action_space_map->at(t);
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
 
+    void OccupancyState::setActionSpaceAt(number t, std::shared_ptr<Space> action_space)
+    {
+        this->action_space_map->emplace(t, action_space);
+    }
 
 } // namespace sdm

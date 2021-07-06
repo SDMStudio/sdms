@@ -135,6 +135,8 @@ namespace sdm
 
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
 
+        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+
         std::shared_ptr<Observation> reset();
 
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);

@@ -96,6 +96,7 @@ namespace sdm
     void QLearning::do_episode()
     {   
         // std::cout << "-------- do_episode() ---------" << std::endl;
+        // std::cout << *this->q_value_table_ << std::endl;
         // Le update marche pas, du coup pour le moment j'utilise le meme QVF pour le target depuis le debut
         // if (this->episode % target_update_ == 0)
         //     this->update_target();
@@ -160,18 +161,18 @@ namespace sdm
         *this->q_value_table_target_ = *this->q_value_table_;
     }
 
-    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &obs)
+    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation)
     {
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
-        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(obs, this->step))
+        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation, this->step))
         {
-            return std::static_pointer_cast<DiscreteSpace>(this->env_->getActionSpaceAt(obs, this->step))->sample()->toAction();
+            return this->env_->getRandomAction(observation, this->step);
         }
         else
         {
-            return this->q_value_table_->getBestAction(obs, this->step);
+            return this->q_value_table_->getBestAction(observation, this->step);
         }
-        // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(observation)
+        // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
     }
 
 } // namespace sdm

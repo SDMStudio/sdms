@@ -20,7 +20,6 @@ namespace sdm
     OccupancyMDP::OccupancyMDP(std::shared_ptr<MPOMDPInterface> underlying_dpomdp, number max_history_length)
         : BeliefMDP(underlying_dpomdp)
     {
-        // std::cout<<"OccupancyState "<<std::endl;
 
         // Initialize history
         this->initial_history_ = std::make_shared<JointHistoryTree>(this->getUnderlyingMPOMDP()->getNumAgents(), (max_history_length > 0) ? max_history_length : -1);
@@ -79,48 +78,59 @@ namespace sdm
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
     {
-        std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
-        for (int agent_id = 0; agent_id < this->getUnderlyingProblem()->getNumAgents(); agent_id++)
+        if (ostate->toState()->toOccupancyState()->getActionSpaceAt(t) == nullptr)
         {
-            // Get history space of agent i
-            std::set<std::shared_ptr<HistoryInterface>> individual_histories = ostate->toState()->toOccupancyState()->getIndividualHistories(agent_id);
-            // Get individual history space of agent i
-            std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
-            // Get action space of agent i
-            std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent_id);
-            // Get individual ddr of agent i
-            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, true);
-            // Add it to the corresponding vector
-            individual_ddr_spaces.push_back(individual_ddr_space);
+            // Vector of individual deterministic decision rules of each agent
+            std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
+            for (int agent_id = 0; agent_id < this->getUnderlyingProblem()->getNumAgents(); agent_id++)
+            {
+                // Get history space of agent i
+                std::set<std::shared_ptr<HistoryInterface>> individual_histories = ostate->toState()->toOccupancyState()->getIndividualHistories(agent_id);
+                // Get individual history space of agent i
+                std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
+                // Get action space of agent i
+                std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent_id);
+                // Get individual ddr of agent i
+                std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, true);
+                // Add it to the corresponding vector
+                individual_ddr_spaces.push_back(individual_ddr_space);
+            }
+
+            // Now we can return a discrete space of all joint decision rules
+            std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
+                std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)}), 
+                std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, true), 
+                true
+            );
+            ostate->toState()->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
         }
-
-        // Now we can return a discrete space of all joint decision rules
-        std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
-            std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)}), 
-            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, true), 
-            true
-        );
-        return joint_ddr_space;
+        
+        return ostate->toState()->toOccupancyState()->getActionSpaceAt(t);
     }
 
-    std::shared_ptr<State> OccupancyMDP::nextOccupancy(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &action_tmp, const std::shared_ptr<Observation>&, number t, bool compression) const
+    std::shared_ptr<Action> OccupancyMDP::getRandomAction(const std::shared_ptr<Observation> &observation, number t)
+    {   
+        return this->getActionSpaceAt(observation, t)->sample()->toAction();
+    }
+
+    std::shared_ptr<State> OccupancyMDP::nextOccupancy(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>&, number t, bool compression) const
     {
-        auto belief_and_eta = this->nextElement(state_tmp->toBelief(),action_tmp,nullptr,t,compression);
-        return std::static_pointer_cast<OccupancyStateGraph>(state_tmp->toOccupancyState())->next(belief_and_eta.first,belief_and_eta.second, this->getUnderlyingMPOMDP(), action_tmp, nullptr, t);
+        auto belief_eta = this->nextElement(state->toBelief(), action, nullptr, t, compression);
+        return std::static_pointer_cast<OccupancyStateGraph>(state->toOccupancyState())->next(belief_eta.first, belief_eta.second, this->getUnderlyingMPOMDP(), action, nullptr, t);
     }
 
-    std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &joint_idr, number h, const std::shared_ptr<HSVI> &) const
+    std::shared_ptr<State> OccupancyMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &joint_idr, number h, const std::shared_ptr<HSVI> &) const
     {
-        return this->nextOccupancy(ostate, joint_idr,nullptr, h, true);
+        return this->nextOccupancy(state, joint_idr, nullptr, h, true);
     }
 
-    Pair<std::shared_ptr<BeliefInterface>, double> OccupancyMDP::nextElement(const std::shared_ptr<BeliefInterface> &belief_tmp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t,bool compression) const
+    Pair<std::shared_ptr<BeliefInterface>, double> OccupancyMDP::nextElement(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t,bool compression) const
     {
         try
         {
             auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->getUnderlyingProblem());
 
-            auto occupancy_state = belief_tmp->toOccupancyState();
+            auto occupancy_state = belief->toOccupancyState();
             auto decision_rule = action->toDecisionRule();
 
             // The new compressed occupancy state
@@ -233,4 +243,5 @@ namespace sdm
     {
         return std::dynamic_pointer_cast<MPOMDPInterface>(this->getUnderlyingMDP());
     }
+
 } // namespace sdm
