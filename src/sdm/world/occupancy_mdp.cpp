@@ -20,20 +20,11 @@ namespace sdm
     OccupancyMDP::OccupancyMDP(std::shared_ptr<MPOMDPInterface> underlying_dpomdp, number max_history_length)
         : BeliefMDP(underlying_dpomdp)
     {
-
         // Initialize history
         this->initial_history_ = std::make_shared<JointHistoryTree>(this->getUnderlyingMPOMDP()->getNumAgents(), (max_history_length > 0) ? max_history_length : -1);
 
         // Initialize empty state
-        auto initial_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
-        initial_state->toOccupancyState()->setProbability(this->initial_history_->toJointHistory(), this->initial_state_->toBelief(), 1);
-
-        initial_state->toOccupancyState()->finalize();
-        initial_state->toOccupancyState()->setFullyUncompressedOccupancy(initial_state);
-        initial_state->toOccupancyState()->setOneStepUncompressedOccupancy(initial_state);
-
-        this->initial_state_ = std::static_pointer_cast<State>(std::make_shared<OccupancyStateGraph>(initial_state));
-        std::dynamic_pointer_cast<OccupancyStateGraph>(this->initial_state_)->initialize();
+        this->setInitialState(this->initial_state_);
     }
 
     std::shared_ptr<Observation> OccupancyMDP::reset()
@@ -244,4 +235,17 @@ namespace sdm
         return std::dynamic_pointer_cast<MPOMDPInterface>(this->getUnderlyingMDP());
     }
 
+    void OccupancyMDP::setInitialState(const std::shared_ptr<State>& state)
+    {
+        // Initialize empty state
+        auto initial_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
+        initial_state->toOccupancyState()->setProbability(this->initial_history_->toJointHistory(), state->toBelief(), 1);
+
+        initial_state->toOccupancyState()->finalize();
+        initial_state->toOccupancyState()->setFullyUncompressedOccupancy(initial_state);
+        initial_state->toOccupancyState()->setOneStepUncompressedOccupancy(initial_state);
+
+        this->initial_state_ = std::static_pointer_cast<State>(std::make_shared<OccupancyStateGraph>(initial_state));
+        std::dynamic_pointer_cast<OccupancyStateGraph>(this->initial_state_)->initialize();
+    }
 } // namespace sdm
