@@ -121,7 +121,7 @@ namespace sdm
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
-                    auto oMDP = std::make_shared<OccupancyMDP>(file, (truncation > 0) ? truncation : horizon);
+                    auto oMDP = std::make_shared<OccupancyMDP>(file, (truncation > 0) ? truncation : horizon,false);
                     p_algo = makeHSVI(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
@@ -139,7 +139,7 @@ namespace sdm
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
                     auto serialized_pomdp = std::make_shared<SerializedMPOMDP>(file);
-                    auto s_oMDP = std::make_shared<OccupancyMDP>(serialized_pomdp, (truncation > 0) ? truncation : horizon);
+                    auto s_oMDP = std::make_shared<OccupancyMDP>(serialized_pomdp, (truncation > 0) ? truncation : horizon,false);
                     p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
                 }
             }
