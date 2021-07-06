@@ -174,4 +174,9 @@ namespace sdm
     {
         return this->trial;
     }
+
+    double HSVI::getResult()
+    {
+        return this->lower_bound_->getValueAt(this->world_->getInitialState());
+    }
 } // namespace sdm

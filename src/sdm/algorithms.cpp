@@ -11,7 +11,7 @@
 
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
-// #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
 
 #include <sdm/parser/parser.hpp>
 
@@ -40,7 +40,7 @@ namespace sdm
 
             auto action_tabular = std::make_shared<ActionVFTabulaire>(problem);
             auto action_maxplan = std::make_shared<ActionVFMaxplan>(problem);
-            // auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
+            auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
 
             // Instanciate initializers
             auto lb_init = sdm::makeInitializer(lb_init_name,problem);
@@ -60,7 +60,7 @@ namespace sdm
             }
             else if (lower_bound_name == "maxplan_lp")
             {
-                // lower_bound = std::make_shared<HyperplanValueFunction>(horizon,lb_init,maxplan_backup,action_maxplan_lp);
+                lower_bound = std::make_shared<HyperplanValueFunction>(horizon,lb_init,maxplan_backup,action_maxplan_lp);
             }
             else
             {                
@@ -69,7 +69,7 @@ namespace sdm
 
             if (upper_bound_name == "sawtooth")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(horizon,lb_init,tabular_backup,action_tabular);
+                upper_bound = std::make_shared<PointSetValueFunction>(horizon,ub_init,tabular_backup,action_tabular);
             }
             else if (upper_bound_name == "sawtooth_lp")
             {

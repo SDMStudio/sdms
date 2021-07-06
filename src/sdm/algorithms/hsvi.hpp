@@ -150,5 +150,7 @@ namespace sdm
     std::shared_ptr<ValueFunction> getUpperBound() const;
 
     int getTrial();
+
+    double getResult();
   };
 } // namespace sdm
