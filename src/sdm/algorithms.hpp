@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/algorithms/hsvi.hpp>
-#include <sdm/algorithms/value_iteration.hpp>
+// #include <sdm/algorithms/value_iteration.hpp>
 
 namespace sdm
 {
@@ -28,9 +28,10 @@ namespace sdm
                                             number horizon = 0,
                                             int trials = 1000,
                                             std::string name = "",
-                                            std::string current_type_of_resolution,
-                                            number BigM,
-                                            std::string type_sawtooth_linear_programming);
+                                            double time_max = 2000,
+                                            std::string current_type_of_resolution = "BigM" ,
+                                            number BigM = 100,
+                                            std::string type_sawtooth_linear_programming = "Full");
 
 
         /**
@@ -44,10 +45,10 @@ namespace sdm
          * @param horizon the planning horizon
          * @return pointer on HSVI instance
          */
-        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
-                                                                double discount,
-                                                                double error,
-                                                                number horizon);
+        // std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
+        //                                                         double discount,
+        //                                                         double error,
+        //                                                         number horizon);
 
 
         /**
@@ -76,6 +77,7 @@ namespace sdm
                                         int trials = 1000,
                                         int truncation = -1,
                                         std::string name = "",
+                                        double time_max = 2000,
                                         std::string current_type_of_resolution = "BigM",
                                         number BigM = 100,
                                         std::string type_sawtooth_linear_programming = "Full");

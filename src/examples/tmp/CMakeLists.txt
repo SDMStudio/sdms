@@ -123,6 +123,8 @@ if(JEROME)
 	file(
 		GLOB_RECURSE
 		lib_hsvi
+		${INCLUDE_DIR}/algorithms.cpp
+
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp

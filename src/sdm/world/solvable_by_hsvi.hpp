@@ -82,8 +82,7 @@ namespace sdm
          * @return false if the problem is not serialized.
          */
         virtual bool isSerialized() const = 0;
-
-
+        
         /**
          * @brief Get the specific discount factor for the problem at hand
          * 
