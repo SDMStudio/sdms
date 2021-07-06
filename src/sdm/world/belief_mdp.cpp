@@ -123,6 +123,11 @@ namespace sdm
         return this->getUnderlyingPOMDP()->getActionSpace(t);
     }
 
+    std::shared_ptr<Action> BeliefMDP::getRandomAction(const std::shared_ptr<Observation> &observation, number t)
+    {
+        return this->getActionSpaceAt(observation, t)->sample()->toAction();
+    }
+
     std::shared_ptr<Observation> BeliefMDP::reset()
     {
         this->step_ = 0;

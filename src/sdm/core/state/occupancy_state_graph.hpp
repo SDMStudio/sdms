@@ -157,6 +157,12 @@ namespace sdm
 
         std::shared_ptr<BeliefInterface> exist(const std::shared_ptr<BeliefInterface>&belief);
 
+        std::shared_ptr<Space> getActionSpaceAt(number t);
+        void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
+
+        std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
+        
+
 
     };
 
