@@ -473,7 +473,7 @@ namespace sdm
             auto belief = std::static_pointer_cast<JointHistoryBeliefPair>(pair_state_proba.first)->second;
 
             res << "\t<probability";
-            res << " history=" << history->str() << "";
+            res << " history=" << history->short_str() << "";
             res << " belief=" << belief->str() << ">\n";
             res << "\t\t\t" << pair_state_proba.second << "\n";
             res << "\t</probability \n";

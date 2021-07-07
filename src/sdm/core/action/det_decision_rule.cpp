@@ -57,7 +57,7 @@ namespace sdm
         {
             res << "\t<decision state=\"" << pair_s_a.first->str() << "\" action=\"" << *pair_s_a.second << "/>" << std::endl;
         }
-        res << "<decision-rule/>" << std::endl;
+        res << "<decision-rule/>";
         return res.str();
     }
 
