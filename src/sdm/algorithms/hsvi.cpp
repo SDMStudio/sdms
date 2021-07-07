@@ -10,12 +10,14 @@ namespace sdm
                number planning_horizon,
                double error,
                number num_max_trials,
-               std::string name) : world_(world),
+               std::string name, 
+               double time_max) : world_(world),
                                    lower_bound_(lower_bound),
                                    upper_bound_(upper_bound),
                                    error_(error),
                                    planning_horizon_(planning_horizon),
-                                   name_(name)
+                                   name_(name),
+                                   time_max_(time_max)
     {
         this->MAX_TRIALS = num_max_trials;
     }
@@ -69,7 +71,7 @@ namespace sdm
 
             this->do_explore(start_state, 0, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0, 0));
+        } while (!this->do_stop(start_state, 0, 0) && (this->time_max_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)) );
 
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -172,5 +174,10 @@ namespace sdm
     int HSVI::getTrial()
     {
         return this->trial;
+    }
+
+    double HSVI::getResult()
+    {
+        return this->lower_bound_->getValueAt(this->world_->getInitialState());
     }
 } // namespace sdm

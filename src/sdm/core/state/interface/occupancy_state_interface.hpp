@@ -4,6 +4,8 @@
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/state/interface/joint_history_interface.hpp>
 #include <sdm/core/state/base_state.hpp>
+#include <sdm/core/space/space.hpp>
+
 
 namespace sdm
 {
@@ -110,5 +112,8 @@ namespace sdm
         virtual std::shared_ptr<OccupancyStateInterface> compress() = 0;
 
         virtual void finalize() = 0;
+
+        virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
+        virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space) = 0;
     };
 }

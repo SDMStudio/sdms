@@ -13,7 +13,7 @@ namespace sdm
     {
     }
 
-    OccupancyState::OccupancyState(number num_agents) : num_agents_(num_agents)
+    OccupancyState::OccupancyState(number num_agents) : num_agents_(num_agents), Belief(num_agents), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
@@ -39,7 +39,8 @@ namespace sdm
           all_list_ihistories_(occupancy_state.all_list_ihistories_),
           map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
-          probability_jhistories(occupancy_state.probability_jhistories)
+          probability_jhistories(occupancy_state.probability_jhistories), 
+          action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
     }
 
@@ -57,7 +58,7 @@ namespace sdm
     double OccupancyState::getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const
     {
         auto iterator_on_pair_history_belief = this->map_pair_to_pointer_.find({joint_history, belief});
-        return (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end()) ? 0 : this->getProbability(iterator_on_pair_history_belief->second);
+        return (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end()) ? this->getDefaultValue() : this->getProbability(iterator_on_pair_history_belief->second);
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
@@ -102,6 +103,55 @@ namespace sdm
         {
             return Belief::addProbability(this->getPairPointer(joint_history, belief), proba);
         }
+    }
+
+    bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
+    {
+        if (this->size() != other->size())
+        {
+            return false;
+        }
+
+        for(const auto &jhistory : this->getJointHistories())
+        {
+            for(const auto &belief : this->getBeliefsAt(jhistory))
+            {
+                if(this->getProbability(jhistory,belief) != other->toOccupancyState()->getProbability(jhistory,belief))
+                {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &other) const
+    {
+        double product = 0;
+
+        // std::shared_ptr<OccupancyStateInterface> occupancy_bigger;
+        // std::shared_ptr<OccupancyStateInterface> occupancy_smaller;
+
+        // if(this->size() < other->size())
+        // {
+        //     occupancy_smaller = this->getPointer()->toState()->toOccupancyState();
+        //     occupancy_bigger = other->toOccupancyState();
+        // }else
+        // {
+        //     occupancy_bigger = this->getPointer()->toState()->toOccupancyState();
+        //     occupancy_smaller = other->toOccupancyState();
+        // }
+        
+        for(const auto &jhistory : this->getJointHistories())
+        {
+            for(const auto &belief : this->getBeliefsAt(jhistory))
+            {
+                product += this->getProbability(jhistory,belief) * other->toOccupancyState()->getProbability(jhistory,belief);
+            }
+        }
+        
+        return product;
     }
 
     std::shared_ptr<JointHistoryBeliefPair> OccupancyState::getPairPointer(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const
@@ -467,6 +517,28 @@ namespace sdm
                 this->probability_ihistories[ag_id][ihistory] = prob;
             }
         }
+    }
+
+    // #############################################
+    // ######### ACTION SPACE ######################
+    // #############################################
+
+
+    std::shared_ptr<Space> OccupancyState::getActionSpaceAt(number t)
+    {
+        if(this->action_space_map->find(t) != this->action_space_map->end())
+        {
+            return this->action_space_map->at(t);
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    void OccupancyState::setActionSpaceAt(number t, std::shared_ptr<Space> action_space)
+    {
+        this->action_space_map->emplace(t, action_space);
     }
 
 } // namespace sdm

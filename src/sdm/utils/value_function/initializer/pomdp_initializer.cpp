@@ -45,7 +45,9 @@ namespace sdm
         algorithm->do_solve();
 
         auto ubound = algorithm->getUpperBound();
+        std::cout<<"POMDP initializer "<<std::endl;
 
         vf->initialize(std::make_shared<Belief2OccupancyValueFunction>(ubound));
+        this->world_->setInitialState(hsvi_pomdp->getInitialState());
     }
 } // namespace sdm

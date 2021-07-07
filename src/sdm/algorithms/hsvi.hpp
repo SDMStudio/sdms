@@ -60,7 +60,7 @@ namespace sdm
      * 
      */
     int trial, MAX_TRIALS;
-    double error_;
+    double error_,time_max_;
     number planning_horizon_;
     std::string name_ = "hsvi";
 
@@ -84,7 +84,8 @@ namespace sdm
          number planning_horizon,
          double epsilon,
          number num_max_trials = 10000,
-         std::string name = "hsvi");
+         std::string name = "hsvi",
+        double time_max = 1000);
 
     std::shared_ptr<HSVI> getptr();
 
@@ -149,5 +150,7 @@ namespace sdm
     std::shared_ptr<ValueFunction> getUpperBound() const;
 
     int getTrial();
+
+    double getResult();
   };
 } // namespace sdm

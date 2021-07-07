@@ -50,7 +50,29 @@ namespace sdm
       return os;
     }
 
+    std::map<std::shared_ptr<State>, std::shared_ptr<Action>> getMap() const;
+
   protected:
     std::map<std::shared_ptr<State>, std::shared_ptr<Action>> map_state_to_action_;
   };
 } // namespace sdm
+
+namespace std
+{
+    template <>
+    struct hash<sdm::DeterministicDecisionRule>
+    {
+        typedef sdm::DeterministicDecisionRule argument_type;
+        typedef std::size_t result_type;
+        inline result_type operator()(const argument_type &in) const
+        {
+            size_t seed = 0;
+            for (auto &state_action : in.getMap())
+            {
+                sdm::hash_combine(seed, state_action.first);
+                sdm::hash_combine(seed, state_action.second);
+            }
+            return seed;
+        }
+    };
+}

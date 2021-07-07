@@ -100,22 +100,3 @@ namespace sdm
     }
 }
 
-namespace std
-{
-    // template <typename S, typename A>
-    // struct hash<sdm::JointDeterministicDecisionRule<S, A>>
-    // {
-    //     typedef sdm::JointDeterministicDecisionRule<S, A> argument_type;
-    //     typedef std::size_t result_type;
-    //     inline result_type operator()(const argument_type &in) const
-    //     {
-    //         size_t seed = 0;
-    //         for (auto &input : in)
-    //         {
-    //             //Combine the hash of the current vector with the hashes of the previous ones
-    //             sdm::hash_combine(seed, input);
-    //         }
-    //         return seed;
-    //     }
-    // };
-}

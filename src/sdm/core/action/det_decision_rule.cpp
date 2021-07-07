@@ -61,24 +61,10 @@ namespace sdm
         return res.str();
     }
 
+    std::map<std::shared_ptr<State>, std::shared_ptr<Action>> DeterministicDecisionRule::getMap() const
+    {
+        return this->map_state_to_action_;
+    }
+
 } // namespace sdm
 
-namespace std
-{
-    // template <>
-    // struct hash<sdm::DeterministicDecisionRule>
-    // {
-    //     typedef sdm::DeterministicDecisionRule argument_type;
-    //     typedef std::size_t result_type;
-    //     inline result_type operator()(const argument_type &in) const
-    //     {
-    //         size_t seed = 0;
-    //         for (auto &input : in)
-    //         {
-    //             sdm::hash_combine(seed, input.first);
-    //             sdm::hash_combine(seed, input.second);
-    //         }
-    //         return seed;
-    //     }
-    // };
-}

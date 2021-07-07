@@ -4,11 +4,11 @@ namespace sdm
 {
     LPBase::LPBase() {}
 
-    LPBase::LPBase(const std::shared_ptr<SolvableByHSVI>&) : world_(world){}
+    LPBase::LPBase(const std::shared_ptr<SolvableByHSVI>&world) : world_(world){}
 
     LPBase::~LPBase() {}
 
-    Pair<std::shared_ptr<Action>,double> createLP(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>,double> LPBase::createLP(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
     {
         number index = 0;
 
@@ -33,7 +33,7 @@ namespace sdm
 
             this->createObjectiveFunction(vf, state, var, obj, t);
 
-            this->createConstraints(vf, occupancy_state, env, con, var, index, t);
+            this->createConstraints(vf, state, env, con, var, index, t);
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
@@ -46,14 +46,14 @@ namespace sdm
             if (!cplex.solve())
             {
                 env.error() << "Failed to optimize MILP" << std::endl;
-                // cplex.exportModel("lb_bellman_op.lp");
-                // system("cat lb_bellman_op.lp");
+                cplex.exportModel("lb_bellman_op.lp");
+                system("cat lb_bellman_op.lp");
                 // throw(-1);
             }
             else
             {
                 value = cplex.getObjValue();
-                action = this->getVariableResult(vf,occupancy_state, cplex,var,t);
+                action = this->getVariableResult(vf,state, cplex,var,t);
             }
         }
         catch (IloException &e)

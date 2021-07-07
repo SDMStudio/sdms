@@ -5,7 +5,7 @@
 
 namespace sdm
 {
-    class ActionVFMaxplanLP : public ActionVFBase<std::shared_ptr<State>>, public DecentralizedLP
+    class ActionVFMaxplanLP : public ActionVFBase, public DecentralizedLP
     {
     public:
         using TData = std::shared_ptr<State>;
@@ -21,7 +21,7 @@ namespace sdm
          * @param number t : time step
          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
          */
-        Pair<std::shared_ptr<Action>,TData> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+        std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
 
         /**
          * @brief Create the variable which will be used to resolve the LP

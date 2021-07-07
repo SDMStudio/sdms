@@ -39,6 +39,9 @@ namespace sdm
         std::shared_ptr<State> nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
 
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
+
+        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
         std::shared_ptr<Observation> reset();

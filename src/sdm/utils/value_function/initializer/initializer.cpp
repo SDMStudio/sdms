@@ -38,7 +38,7 @@ namespace sdm
     // ******************
     // Zero Initializer
     // ****************** 
-    ZeroInitializer::ZeroInitializer() : ValueInitializer(0){}
+    ZeroInitializer::ZeroInitializer(std::shared_ptr<SolvableByHSVI>) : ValueInitializer(0){}
 
     // ******************
     // Bound Initializer

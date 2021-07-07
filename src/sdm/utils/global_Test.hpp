@@ -7,7 +7,6 @@
 
 #include <sdm/algorithms.hpp>
 
-
 namespace sdm
 {
     /**
@@ -76,9 +75,8 @@ namespace sdm
                                             
                                             try
                                             {
-                                                auto algo = sdm::algo::make("hsvi",filepath_,formalism,upper_bound,lower_bound,upper_bound_init,lower_bound_init,discount,0,horizon,10000,name);
+                                                auto algo = sdm::algo::make("hsvi",filepath_,formalism,upper_bound,lower_bound,upper_bound_init,lower_bound_init,discount,0.01,horizon,10000,2,name);
 
-                                                //auto value = sdm::ValueIteration<TState,TAction>(smdp,discount,0,horizon);
                                                 t_begin = clock();
 
                                                 algo->do_initialize();
@@ -87,11 +85,15 @@ namespace sdm
                                                 t_end = clock();
                                                 times.push_back((float)(t_end - t_begin) / CLOCKS_PER_SEC);
                                                 trials.push_back(algo->getTrial());
-                                                results.push_back(algo->getResultOpti());
+                                                results.push_back(algo->getResult());
                                             }
-                                            catch (sdm::exception::Exception &e)
+                                            catch (...)
                                             {
-                                                std::cout << "!!! Exception: " << e.what() << std::endl;
+                                                std::cout << "!!! Exception: " << std::endl;
+
+                                                // times.push_back(-1);
+                                                // trials.push_back(algo->getTrial());
+                                                // results.push_back(algo->getResult());
                                             }
                                         }
 

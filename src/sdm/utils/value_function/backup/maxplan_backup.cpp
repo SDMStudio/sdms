@@ -1,8 +1,6 @@
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
-#include <sdm/exception.hpp>
 
 #include <sdm/world/base/pomdp_interface.hpp>
-#include <sdm/world/base/mpomdp_interface.hpp>
 
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
@@ -11,10 +9,8 @@
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/belief_state.hpp>
 
-#include <sdm/core/action/decision_rule.hpp>
-#include <sdm/core/action/joint_det_decision_rule.hpp>
-
-#include <sdm/exception.hpp>
+// #include <sdm/core/action/decision_rule.hpp>
+// #include <sdm/core/action/joint_det_decision_rule.hpp>
 
 namespace sdm
 {
@@ -47,7 +43,8 @@ namespace sdm
         auto belief_mdp = std::static_pointer_cast<BeliefMDP>(this->world_);
         auto belief = belief_state->toState()->toBelief();
 
-        auto next_belief = std::make_shared<Belief>(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
+        auto next_belief = std::make_shared<Belief>();
+        next_belief->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
 
         for (const auto &state : belief->getStates())
         {
@@ -72,7 +69,9 @@ namespace sdm
         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
 
         auto occupancy = belief_state->toState()->toOccupancyState();
-        auto next_occupancy = std::make_shared<OccupancyState>(*std::dynamic_pointer_cast<OccupancyState>(belief_state->toState()->toOccupancyState()));
+        
+        auto next_occupancy = std::make_shared<OccupancyState>(under_pb->getNumAgents());
+        next_occupancy->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
 
         for (const auto &jhistory : occupancy->getFullyUncompressedOccupancy()->getJointHistories())
         {
@@ -90,7 +89,6 @@ namespace sdm
                     auto next_belief = occupancy_mdp->nextBelief(belief, action, observation->toObservation(), t);
                     auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
 
-                    // tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory, next_belief->toBelief()) * belief->toBelief()->getProbability(action, observation->toObservation());
                     tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory, next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief, action, next_belief->toBelief(), observation->toObservation(), t);
                 }
                 next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);

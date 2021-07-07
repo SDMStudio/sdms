@@ -3,6 +3,8 @@
 #include <sdm/core/state/interface/belief_interface.hpp>
 
 #include <sdm/core/state/belief_state.hpp>
+#include <sdm/core/state/belief_default.hpp>
+
 #include <sdm/core/state/occupancy_state.hpp>
 
 namespace sdm
@@ -200,42 +202,42 @@ namespace sdm
 
         auto belief_state = state->toBelief();
 
+        this->createDefault(state,t);
+
         for (const auto &plan : this->getSupport(t))
         {
-            // std::cout<<"plan "<<plan->str()<<std::endl;
-            // std::cout<<"belief_state "<<belief_state->str()<<std::endl;
-
             auto belief_plan = plan->toBelief();
 
-            current = belief_state->operator^(belief_plan);
-
-            if (max < current)
+            if (max < (current = belief_state->operator^(belief_plan) ))
             {
                 max = current;
                 alpha_vector = belief_plan;
             }
         }
-        
-        // std::cout<<"Value "<<max<<std::endl;
+        return {alpha_vector,max};
+    }
 
-        if(max == -std::numeric_limits<double>::max())
+    void HyperplanValueFunction::createDefault(const std::shared_ptr<State>& state, number t)
+    {
+        if(this->representation[t].size() == 0)
         {
+            std::shared_ptr<BeliefInterface> default_state;
+
             switch (state->getTypeState())
             {
             case TypeState::BELIEF_STATE:
-                alpha_vector = std::make_shared<Belief>();
+                default_state =  std::make_shared<Belief>();
                 break;
             case TypeState::OCCUPANCY_STATE:
-                alpha_vector = std::make_shared<OccupancyState>();
+                default_state =  std::make_shared<OccupancyState>();
                 break;
             default:
                 break;
             }
-            max = this->getDefaultValue(t);
-            alpha_vector->setDefaultValue(max);
 
+            default_state->setDefaultValue(this->getDefaultValue(t));
+            this->representation[t].push_back(default_state);
         }
-        return {alpha_vector,max};
     }
 
     std::string HyperplanValueFunction::str() const

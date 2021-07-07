@@ -1,16 +1,7 @@
 #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
 
-#include <sdm/world/base/mpomdp_interface.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
-#include <sdm/world/belief_mdp.hpp>
-
-#include <sdm/core/state/interface/occupancy_state_interface.hpp>
-#include <sdm/core/state/belief_state.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
-
-#include <sdm/core/action/joint_det_decision_rule.hpp>
-
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 
 namespace sdm
 {
@@ -30,7 +21,7 @@ namespace sdm
         for (const auto &action : *action_space)
         {
             auto hyperplan = vf->template backup<std::shared_ptr<State>>(state,action->toAction(),t);
-
+            // std::cout<<"Hyperplan "<<hyperplan->str()<<std::endl;
             if(argmax_global < (value = state->toBelief()->operator^(hyperplan->toBelief())) )
             {
                 argmax_global = value;

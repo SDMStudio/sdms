@@ -2,31 +2,31 @@
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/world/base/mpomdp_interface.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
+
 namespace sdm
 {
         
     ActionVFMaxplanLP::ActionVFMaxplanLP() {}
-    ActionVFMaxplanLP::ActionVFMaxplanLP(const std::shared_ptr<SolvableByHSVI>& world) : ActionVFBase<std::shared_ptr<State>>(world), DecentralizedLP(world) {}
+    ActionVFMaxplanLP::ActionVFMaxplanLP(const std::shared_ptr<SolvableByHSVI>& world) : ActionVFBase(world), DecentralizedLP(world) {}
     
-    Pair<std::shared_ptr<Action>,std::shared_ptr<State>> ActionVFMaxplanLP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    std::shared_ptr<Action> ActionVFMaxplanLP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
-        std::shared_ptr<State> next_hyperplan;
         std::shared_ptr<Action> max_decision_rule;
         double max = -std::numeric_limits<double>::max();
 
         for (const auto &hyperplan : vf->getSupport(t + 1))
         {
-            this->tmp_representation = hyperplan->toBelief()->getVectorInferface();
+            this->tmp_representation = hyperplan->toBelief();
             auto pair_action_value = this->createLP(vf,state, t);
 
             if (pair_action_value.second > max)
             {
                 max_decision_rule = pair_action_value.first;
-                next_hyperplan = hyperplan;
                 max = pair_action_value.second;
             }
         }
-        return std::make_pair(max_decision_rule,next_hyperplan);
+        return max_decision_rule;
     }
 
     void ActionVFMaxplanLP::createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t)
@@ -52,6 +52,7 @@ namespace sdm
     void ActionVFMaxplanLP::createObjectiveFunction(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
+        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
         auto occupancy_state = state->toOccupancyState();
 
         number recover = 0;
@@ -63,25 +64,17 @@ namespace sdm
             {
                 weight = 0.0;
 
-                for (const auto &hidden_state : *under_pb->getStateSpace(t))
+                for(const auto &belief : occupancy_state->getBeliefsAt(joint_history))
                 {
-                    //<! 1.a compute factor
-                    factor = under_pb->getReward(hidden_state->toState(), action->toAction(),t);
-
-                    if (t < under_pb->getHorizon() - 1)
+                    factor = occupancy_mdp->getRewardBelief(belief,action->toAction(),t);
+                    for(const auto &observation : *under_pb->getObservationSpace(t))
                     {
-                        for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state->toState(), action->toAction(),t))
-                        {
-                            for (const auto &next_observation : under_pb->getReachableObservations(hidden_state->toState(), action->toAction(), next_hidden_state->toState(),t))
-                            {
-                                auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation);
+                        auto next_belief = occupancy_mdp->nextBelief(belief, action->toAction() , observation->toObservation(),t);
+                        auto next_joint_history = joint_history->expand(observation->toObservation())->toJointHistory();
 
-                                auto joint_history_next = joint_history->expand(joint_observation)->toJointHistory();
-                                factor += under_pb->getDynamics(hidden_state->toState(), action->toAction(),next_hidden_state,next_observation,t) * this->tmp_representation->getValueAt(occupancy_state->HiddenStateAndJointHistoryToState(next_hidden_state, joint_history_next));
-                            }
-                        }
+                        factor += this->tmp_representation->toOccupancyState()->getProbability(next_joint_history,next_belief->toBelief()) * occupancy_mdp->getObservationProbability(belief,action->toAction(),nullptr,observation->toObservation(),t);
                     }
-                    weight += occupancy_state->getProbability(occupancy_state->HiddenStateAndJointHistoryToState(hidden_state->toState(), joint_history)) * factor * under_pb->getDiscount(t);
+                    weight +=  occupancy_state->getProbability(joint_history,belief) * ActionVFBase::world_->getDiscount(t) * factor ;
                 }
 
                 //<! 1.b get variable a(u|o)
@@ -93,5 +86,8 @@ namespace sdm
         }   // for all o
     }
     
-    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State>&, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number ) {}
+    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>&state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        this->createDecentralizedConstraints(vf,state, env, con, var, index, t);
+    }
 }

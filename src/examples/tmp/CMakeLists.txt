@@ -128,6 +128,8 @@ if(JEROME)
 	file(
 		GLOB_RECURSE
 		lib_hsvi
+		${INCLUDE_DIR}/algorithms.cpp
+
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
@@ -145,6 +147,9 @@ if(JEROME)
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
+		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan_lp.cpp
+
+		${INCLUDE_DIR}/utils/linear_programming/**
 
 
 
@@ -271,6 +276,7 @@ if(QLEARNING)
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/qvalue_function.cpp
+		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/initializer/initializer.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
