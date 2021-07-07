@@ -76,6 +76,7 @@ namespace sdm
     {
         auto action_observation = std::make_pair(action, observation);
 
+        // If we store data in the graph
         if (this->backup)
         {
             // Get the successor
@@ -116,20 +117,10 @@ namespace sdm
         }
         else
         {
-            // Return next belief without storing its value in the graph
+            // Return next belief without storing its value in the graph 
+            // **WARNING** : The returned action will be different even for similar states.
             auto [computed_next_belief, proba_belief] = this->computeNextStateAndProba(belief, action, observation, t);
-            // Check if the next belief is already in the graph
-            TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
-            auto iterator_on_belief = this->state_space_.find(b);
-            if (iterator_on_belief == this->state_space_.end())
-            {
-                // Add the belief in the space of beliefs
-                this->state_space_.emplace(b, computed_next_belief);
-            }
-
-            // Get the next belief
-            auto next_belief = this->state_space_.at(b);
-            return next_belief;
+            return computed_next_belief;
         }
     }
 

@@ -112,35 +112,42 @@ namespace sdm
             auto occupancy_state = ostate->toOccupancyState();
             auto decision_rule = action->toDecisionRule();
 
-            // The new compressed occupancy state
+            // New compressed occupancy state
             std::shared_ptr<OccupancyStateInterface> new_compressed_occupancy_state;
-            // The new fully uncompressed occupancy state
+            // New fully uncompressed occupancy state
             std::shared_ptr<OccupancyStateInterface> new_fully_uncompressed_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
-            // The new one step left occupancy state
+            // New one step left occupancy state
             std::shared_ptr<OccupancyStateInterface> new_one_step_left_compressed_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
 
+            // For each joint history in the support of the fully uncompressed occupancy state
             for (const auto &joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
             {
+                // Apply the joint decision rule at joint_history to get the joint_action
                 auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
 
+                // For each accessible belief at joint_history
                 for (const auto &belief : occupancy_state->getFullyUncompressedOccupancy()->getBeliefsAt(joint_history))
                 {
+                    // For each observation in
                     for (auto &joint_observation : *this->getUnderlyingMPOMDP()->getObservationSpace(t))
                     {
+                        // Get the next joint history
                         auto next_joint_history = joint_history->expand(joint_observation->toObservation());
+
+                        // Get the next belief
                         auto next_belief = this->getUnderlyingBeliefMDP()->nextBelief(belief, joint_action, joint_observation->toObservation(), t);
 
-                        // p(o') = p(o) * p(z | b, a)
+                        // Compute the probability of next history, i.e. p(o') = p(o) * p(z | b, a)
                         double proba_next_history = occupancy_state->getFullyUncompressedOccupancy()->getProbability(joint_history, belief) * this->getUnderlyingBeliefMDP()->getObservationProbability(belief, joint_action, next_belief->toBelief(), joint_observation->toObservation(), t);
 
+                        // If the next history probability is not zero
                         if (proba_next_history > 0)
                         {
-                            // Build fully uncompressed occupancy state*
+                            // Update the probability of being in this this next history (for the fully uncompressed occupancy state)
                             new_fully_uncompressed_occupancy_state->addProbability(next_joint_history->toJointHistory(), next_belief->toBelief(), proba_next_history);
 
-                            // Build one step left uncompressed occupancy state
+                            // Update the probability of being in this next history (for the one step left uncompressed occupancy state)
                             auto compressed_joint_history = occupancy_state->getCompressedJointHistory(joint_history);
-
                             auto next_compressed_joint_history = compressed_joint_history->expand(joint_observation->toObservation());
                             new_one_step_left_compressed_occupancy_state->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), proba_next_history);
 
@@ -153,8 +160,11 @@ namespace sdm
 
             // Finalize the one step left compressed occupancy state
             new_one_step_left_compressed_occupancy_state->finalize();
+
+            // Finalize the fully uncompressed occupancy state
             new_fully_uncompressed_occupancy_state->finalize();
 
+            // If we do compression
             if (this->compression_)
             {
                 // Compress the occupancy state
@@ -162,11 +172,14 @@ namespace sdm
                 new_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state);
                 new_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state);
 
+                // Return the next compressed occupancy state and the associated transition probability (=1 when solving DecPOMDP).
                 return std::make_pair(new_compressed_occupancy_state, 1);
             }
 
             new_one_step_left_compressed_occupancy_state->setFullyUncompressedOccupancy(new_fully_uncompressed_occupancy_state);
             new_one_step_left_compressed_occupancy_state->setOneStepUncompressedOccupancy(new_one_step_left_compressed_occupancy_state);
+
+            // Return the next uncompressed occupancy state and the associated transition probability (=1 when solving DecPOMDP).
             return std::make_pair(new_one_step_left_compressed_occupancy_state, 1);
         }
         catch (const std::exception &exc)
@@ -190,13 +203,13 @@ namespace sdm
 
     std::shared_ptr<Action> OccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
-        // Get list of individual history labels
+        // Get the list of individual history labels
         auto joint_labels = ostate->toOccupancyState()->getJointLabels(joint_history->getIndividualHistories()).toJoint<State>();
 
-        // Get selected joint action
+        // Get the selected joint action
         auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_labels);
 
-        // Transform selected joint action into joint action address
+        // Transform the selected joint action into joint action address
         auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action);
         auto joint_action_address = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*joint_action->toJoint<Item>());
         return joint_action_address->toAction();
