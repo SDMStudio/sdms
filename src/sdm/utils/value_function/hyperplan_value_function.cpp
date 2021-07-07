@@ -197,24 +197,32 @@ namespace sdm
 
     Pair<std::shared_ptr<State>,double> HyperplanValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
     {
-        double current, max = -std::numeric_limits<double>::max();
-        std::shared_ptr<BeliefInterface> alpha_vector;
-
-        auto belief_state = state->toBelief();
-
-        this->createDefault(state,t);
-
-        for (const auto &plan : this->getSupport(t))
+        try
         {
-            auto belief_plan = plan->toBelief();
+            double current, max = -std::numeric_limits<double>::max();
+            std::shared_ptr<BeliefInterface> alpha_vector;
 
-            if (max < (current = belief_state->operator^(belief_plan) ))
+            auto belief_state = state->toBelief();
+
+            this->createDefault(state,t);
+
+            for (const auto &plan : this->getSupport(t))
             {
-                max = current;
-                alpha_vector = belief_plan;
+                auto belief_plan = plan->toBelief();
+
+                if (max < (current = belief_state->operator^(belief_plan) ))
+                {
+                    max = current;
+                    alpha_vector = belief_plan;
+                }
             }
+            return {alpha_vector,max};
         }
-        return {alpha_vector,max};
+        catch(const std::exception& e)
+        {
+            std::cerr <<"HyperplanValueFunction::evaluate error"<< e.what() << '\n';
+            exit(-1);
+        }
     }
 
     void HyperplanValueFunction::createDefault(const std::shared_ptr<State>& state, number t)

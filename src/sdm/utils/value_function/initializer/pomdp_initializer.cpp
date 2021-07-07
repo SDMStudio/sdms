@@ -1,6 +1,6 @@
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
 #include <sdm/utils/value_function/initializer/belief_2_occupancy_vf.hpp>
-#include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
@@ -27,8 +27,8 @@ namespace sdm
     void POMDPInitializer::init(std::shared_ptr<ValueFunction> vf)
     {
         // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
-        auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
-        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::make_shared<BeliefMDP>(pomdp);
+        auto pomdp = this->world_->getUnderlyingProblem();
+        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::static_pointer_cast<OccupancyMDP>(this->world_)->getUnderlyingBeliefMDP();
 
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_pomdp);
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_pomdp);
@@ -48,6 +48,6 @@ namespace sdm
         std::cout<<"POMDP initializer "<<std::endl;
 
         vf->initialize(std::make_shared<Belief2OccupancyValueFunction>(ubound));
-        this->world_->setInitialState(hsvi_pomdp->getInitialState());
+        // this->world_->setInitialState(hsvi_pomdp->getInitialState());
     }
 } // namespace sdm

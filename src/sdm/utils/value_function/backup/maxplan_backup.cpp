@@ -65,35 +65,42 @@ namespace sdm
 
     std::shared_ptr<State> MaxPlanBackup::setHyperplanOccupancy(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &belief_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
-        auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
-
-        auto occupancy = belief_state->toState()->toOccupancyState();
-        
-        auto next_occupancy = std::make_shared<OccupancyState>(under_pb->getNumAgents());
-        next_occupancy->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
-
-        for (const auto &jhistory : occupancy->getFullyUncompressedOccupancy()->getJointHistories())
+        try
         {
-            // Get selected joint action
-            auto action = occupancy_mdp->applyDecisionRule(occupancy->toOccupancyState(), jhistory, decision_rule, t);
-            //Create next occupancy state
-            auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, nullptr, t);
+            auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
+            auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
 
-            for (const auto &belief : occupancy->getFullyUncompressedOccupancy()->getBeliefsAt(jhistory))
+            auto occupancy = belief_state->toState()->toOccupancyState();
+            
+            auto next_occupancy = std::make_shared<OccupancyState>(under_pb->getNumAgents());
+            next_occupancy->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
+
+            for (const auto &jhistory : occupancy->getFullyUncompressedOccupancy()->getJointHistories())
             {
-                double tmp = 0;
+                // Get selected joint action
+                auto action = occupancy_mdp->applyDecisionRule(occupancy->toOccupancyState(), jhistory, decision_rule, t);
+                //Create next occupancy state
+                auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, nullptr, t);
 
-                for (const auto &observation : *under_pb->getObservationSpace(t))
+                for (const auto &belief : occupancy->getFullyUncompressedOccupancy()->getBeliefsAt(jhistory))
                 {
-                    auto next_belief = occupancy_mdp->nextBelief(belief, action, observation->toObservation(), t);
-                    auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
+                    double tmp = 0;
 
-                    tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory, next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief, action, next_belief->toBelief(), observation->toObservation(), t);
+                    for (const auto &observation : *under_pb->getObservationSpace(t))
+                    {
+                        auto next_belief = occupancy_mdp->getUnderlyingBeliefMDP()->nextBelief(belief, action, observation->toObservation(), t);
+                        auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
+
+                        tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory, next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief, action, next_belief->toBelief(), observation->toObservation(), t);
+                    }
+                    next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
                 }
-                next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
             }
+            return next_occupancy;
         }
-        return next_occupancy;
+        catch(const std::exception& e)
+        {
+            std::cerr <<"MaxPlanBackup::setHyperplanOccupancy error "<< e.what() << '\n';
+        }
     }
 }

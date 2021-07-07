@@ -69,10 +69,10 @@ namespace sdm
                     factor = occupancy_mdp->getRewardBelief(belief,action->toAction(),t);
                     for(const auto &observation : *under_pb->getObservationSpace(t))
                     {
-                        auto next_belief = occupancy_mdp->nextBelief(belief, action->toAction() , observation->toObservation(),t);
+                        auto next_belief = occupancy_mdp->getUnderlyingBeliefMDP()->nextBelief(belief, action->toAction() , observation->toObservation(),t);
                         auto next_joint_history = joint_history->expand(observation->toObservation())->toJointHistory();
 
-                        factor += this->tmp_representation->toOccupancyState()->getProbability(next_joint_history,next_belief->toBelief()) * occupancy_mdp->getObservationProbability(belief,action->toAction(),nullptr,observation->toObservation(),t);
+                        factor += this->tmp_representation->toOccupancyState()->getProbability(next_joint_history,next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief,action->toAction(),nullptr,observation->toObservation(),t);
                     }
                     weight +=  occupancy_state->getProbability(joint_history,belief) * ActionVFBase::world_->getDiscount(t) * factor ;
                 }

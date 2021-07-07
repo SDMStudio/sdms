@@ -33,5 +33,7 @@ namespace sdm
     virtual void do_save() = 0;
 
     virtual int getTrial() = 0;
+
+    virtual double getResult() =0;
   };
 } // namespace sdm

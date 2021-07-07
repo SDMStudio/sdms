@@ -10,10 +10,10 @@ int main(int argc, char **argv)
     std::vector<std::string> all_problem={"mabc"};
     std::vector<int> all_horizon={100};
     std::vector<double> all_discount={1};
-    std::vector<std::string> upper_bound_name = {"","sawtooth"};
-    std::vector<std::string> lower_bound_name={"","maxplan","maxplan_lp"};
+    std::vector<std::string> upper_bound_name = {"sawtooth"};
+    std::vector<std::string> lower_bound_name={"maxplan","maxplan_lp"};
     std::vector<std::string> all_lower__init_name={"Min"};
-    std::vector<std::string> all_upper_init_name= {"PomdpHsvi"};
+    std::vector<std::string> all_upper_init_name= {"MdpHsvi"};
     int mean = 2;
     std::string filepath = "../data/world/dpomdp/";
     std::string save_path = "../run/Resultat/NewSDMS/resultat.csv";
