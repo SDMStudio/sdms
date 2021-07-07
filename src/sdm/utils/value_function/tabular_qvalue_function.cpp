@@ -67,24 +67,24 @@ namespace sdm
         res << "<tabular_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
         for (sdm::size_t i = 0; i < this->representation.size(); i++)
         {
-            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
-            for (auto pair_st_val : this->representation[i])
+            res << "\t<timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
+            for (auto state__actions_values : this->representation[i])
             {
-                res << "\t\t<state id=\"" << pair_st_val.first << "\"" << std::endl;
-                tools::indentedOutput(res, pair_st_val.first->str().c_str(), 3);
-                res << "\t\t/>" << std::endl;
-                for (auto pair_act_val : pair_st_val.second)
+                res << "\t\t<state id=\"" << state__actions_values.first << "\">" << std::endl;
+                tools::indentedOutput(res, state__actions_values.first->str().c_str(), 3);
+                res << std::endl;
+                res << "\t\t</state>" << std::endl;
+                res << "\t\t<actions>" << std::endl;
+                for (auto action_value : state__actions_values.second)
                 {
-                    res << "\t\t\t<action id=\"" << pair_act_val.first << "\"" << std::endl;
-                    tools::indentedOutput(res, pair_act_val.first->str().c_str(), 4);
-                    res << "\t\t\t/>" << std::endl;
-                    res << "\t\t\t\t" << pair_act_val.second << std::endl;
+                    res << "\t\t\t<action id=\"" << action_value.first << "\" value=" << action_value.second << ">" << std::endl;
+                    tools::indentedOutput(res, action_value.first->str().c_str(), 4);
                     res << "\t\t\t</action>" << std::endl;
                 }
-                // res << "\t\t\t" << pair_st_val.second << std::endl;
-                res << "\t\t</state>" << std::endl;
+                // res << "\t\t\t" << state__actions_values.second << std::endl;
+                res << "\t\t</actions>" << std::endl;
             }
-            res << "\t</value>" << std::endl;
+            res << "\t</timestep>" << std::endl;
         }
 
         res << "</tabular_qvalue_function>" << std::endl;
