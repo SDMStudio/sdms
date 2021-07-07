@@ -27,7 +27,7 @@ namespace sdm
      * 
      */
     template <typename TNode, typename TEdge>
-    class Graph : public std::inheritable_enable_shared_from_this<Graph<TNode, TEdge>>,
+    class Graph : public std::enable_shared_from_this<Graph<TNode, TEdge>>,
                   public BoostSerializable<Graph<TNode, TEdge>>
     {
     public:
@@ -37,7 +37,12 @@ namespace sdm
          */
         Graph();
 
-        Graph(const TNode &data);
+        /**
+         * @brief Construct a graph with an initial node*
+         * 
+         * @param data 
+         */
+        Graph(const TNode &data, const std::shared_ptr<std::unordered_map<TNode, std::shared_ptr<Graph>>> &node_space);
 
         /**
          * @brief Construct a new Graph object
@@ -48,20 +53,36 @@ namespace sdm
          */
         Graph(std::shared_ptr<Graph> predecessor, const TNode &data);
 
-        /*!
-         *  @fn     ~Tree()
-         *  @brief  Destructor of Tree (that's bad). 
+        /**
+         *  @fn     ~Graph()
+         *  @brief  Destructor of Graph (that's bad). 
          *
          *  This destructor recursively all, children and the item from the tree, bottom up.
          */
         virtual ~Graph();
 
         /**
+         * @brief Get the node associated to a given node's value .
+         * 
+         * @param node_value a specific node value
+         * @return the address of the node 
+         */
+        std::shared_ptr<Graph> getNode(const TNode &belief) const;
+
+        /**
+         * @brief Add a node in the graph.
+         * 
+         * @param node_value the value of the node
+         */
+        void addNode(const TNode &node_value);
+
+        /**
          * @brief Get the value of the current node
          * 
          * @return the address of the value
          */
-        const TNode &getData() const;
+        TNode getData() const;
+
         TNode &&data() const;
 
         void setData(const TNode &data);
@@ -82,23 +103,45 @@ namespace sdm
          * @param edge a specific edge
          * @return the address of the successor's node
          */
-        const std::shared_ptr<Graph<TNode, TEdge>> &getSuccessor(const TEdge &edge) const;
-        const std::set<std::shared_ptr<Graph<TNode, TEdge>>> &getPredecessors() const;
+        std::shared_ptr<Graph> getSuccessor(const TEdge &edge) const;
 
-        void addSuccessor(const TEdge &edge, const TNode &node);
+        /**
+         * @brief Get the set of all predecessors
+         * 
+         * @return the set of predecessors 
+         */
+        std::set<std::shared_ptr<Graph>> getPredecessors() const;
+
+        /**
+         * @brief Add a successor node.
+         * 
+         * @param edge the edge
+         * @param node the successor node value
+         */
+        void addSuccessor(const TEdge &edge_value, const TNode &node_value);
+
+        /**
+         * @brief Add a predecessor to the current node.
+         * 
+         * @param node_value the predecessor node value
+         */
+        void addPredecessor(const TNode &node_value);
 
         std::string str() const;
+        std::string node_str() const;
 
-        std::shared_ptr<Graph<TNode, TEdge>> getptr();
+        std::shared_ptr<Graph> getptr();
 
         template <class Archive>
         void serialize(Archive &archive, const unsigned int);
 
-        friend std::ostream &operator<<(std::ostream &os, Graph<TNode, TEdge> &graph)
+        friend std::ostream &operator<<(std::ostream &os, Graph &graph)
         {
             os << graph.str();
             return os;
         }
+
+        bool contains(const TNode &node_value) const;
 
     protected:
         /** @brief data of the current node */
@@ -113,6 +156,11 @@ namespace sdm
          * @brief List of predecessors 
          */
         std::set<std::shared_ptr<Graph>> predecessors;
+
+        /**
+         * @brief Space of nodes
+         */
+        std::shared_ptr<std::unordered_map<TNode, std::shared_ptr<Graph>>> node_space_;
     };
 
 } // namespace sdm

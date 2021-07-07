@@ -12,21 +12,26 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_core
-		${INCLUDE_DIR}/core/*
-		${INCLUDE_DIR}/utils/struct/iterator/*
-		${INCLUDE_DIR}/common.cpp
 		${INCLUDE_DIR}/tools.cpp
+		${INCLUDE_DIR}/common.cpp
+		${INCLUDE_DIR}/utils/struct/**
+		${INCLUDE_DIR}/core/**
 	)
 	add_library(core SHARED ${lib_core})
 
 	file(
 		GLOB_RECURSE
 		lib_value_function
-		${INCLUDE_DIR}/utils/value_function/initializer/initializer.cpp
+		${INCLUDE_DIR}/utils/value_function/initializer/**
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/backup/tabular_backup.cpp
+		${INCLUDE_DIR}/utils/value_function/point_set_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/hyperplan_value_function.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/**
+		${INCLUDE_DIR}/utils/value_function/evaluate_vf/**
+		${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
+		${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
 	)
 	add_library(value_function SHARED ${lib_value_function})
 	target_link_libraries(value_function core)

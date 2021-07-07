@@ -52,12 +52,12 @@ namespace sdm
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
     double norm_1() const;
 
-    TypeState getTypeState() const ;
+    TypeState getTypeState() const;
 
     void setDefaultValue(double);
     double getDefaultValue() const;
 
-    std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
+    std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> getVectorInferface();
 
     friend std::ostream &operator<<(std::ostream &os, const Belief &belief)
     {
@@ -82,7 +82,7 @@ namespace std
     typedef std::size_t result_type;
     inline result_type operator()(const argument_type &in) const
     {
-      return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in);
+      return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::Belief::PRECISION);
     }
   };
 }

@@ -2,15 +2,15 @@
 
 namespace sdm
 {
-    ActionVFTabulaire::ActionVFTabulaire(){}
+    ActionVFTabulaire::ActionVFTabulaire() {}
 
-    ActionVFTabulaire::ActionVFTabulaire(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase(world) {}
+    ActionVFTabulaire::ActionVFTabulaire(const std::shared_ptr<SolvableByHSVI> &world) : ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFTabulaire::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    std::shared_ptr<Action> ActionVFTabulaire::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
-        
+
         auto space = this->world_->getActionSpaceAt(state, t);
         for (const auto &action : *space)
         {

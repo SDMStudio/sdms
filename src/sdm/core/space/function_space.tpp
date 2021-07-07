@@ -6,6 +6,7 @@ namespace sdm
     template <typename TFunction>
     FunctionSpace<TFunction>::FunctionSpace(const std::shared_ptr<Space> &input_sp, const std::shared_ptr<Space> &output_sp, bool store_functions) : input_space_(input_sp), output_space_({output_sp})
     {
+        // Set the 'store_items_' parameter to true or false
         this->storeItems(store_functions);
     }
 

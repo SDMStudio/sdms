@@ -95,6 +95,7 @@ namespace sdm
                 }
                 // Select next action and state following search process
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
 
                 // Recursive explore

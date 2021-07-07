@@ -18,9 +18,7 @@ namespace sdm
     {
     public:
         SolvableByMDP();
-
         SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp);
-
         ~SolvableByMDP();
 
         /**
@@ -28,7 +26,7 @@ namespace sdm
          */
         std::shared_ptr<State> getInitialState();
 
-        void setInitialState(const std::shared_ptr<State>& state);
+        void setInitialState(const std::shared_ptr<State> &state);
 
         /**
          * @brief Get the next occupancy state.
@@ -39,7 +37,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next occupancy state
          */
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) const;
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
 
         /**
          * @brief Get the actions availables at a specific state
@@ -52,7 +50,7 @@ namespace sdm
         /**
          * @brief Get the reward at a given occupancy state and occupancy action 
          */
-        double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+        double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
          * @brief Get the expected next value
@@ -63,7 +61,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
+        double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
          * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
@@ -121,10 +119,13 @@ namespace sdm
         std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h);
 
     protected:
-        std::shared_ptr<MDPInterface> underlying_problem;
-
+        /** @brief Get the underlying mdp */
         const std::shared_ptr<MDPInterface> &getUnderlyingMDP() const;
 
+        /** @brief The underlying fully defined problem */
+        std::shared_ptr<MDPInterface> underlying_problem;
+
+        /** @brief The initial state */
         std::shared_ptr<State> initial_state_;
     };
 } // namespace sdm

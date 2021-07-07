@@ -42,7 +42,8 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next occupancy state
          */
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI>& hsvi = nullptr) const = 0;
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr) = 0;
+        // virtual std::shared_ptr<State> nextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const = 0;
 
         /**
          * @brief Get the actions availables at a specific state
@@ -55,7 +56,7 @@ namespace sdm
         /**
          * @brief Get the reward at a given occupancy state and occupancy action 
          */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Get the expected next value
@@ -66,7 +67,7 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
+        virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
@@ -82,7 +83,6 @@ namespace sdm
          * @return false if the problem is not serialized.
          */
         virtual bool isSerialized() const = 0;
-
 
         /**
          * @brief Get the specific discount factor for the problem at hand
@@ -123,6 +123,5 @@ namespace sdm
          * @return TAction 
          */
         virtual std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &state, number t) = 0;
-
     };
 } // namespace sdm

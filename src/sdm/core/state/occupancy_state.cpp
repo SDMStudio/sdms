@@ -7,6 +7,7 @@
 namespace sdm
 {
     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
+    RecursiveMap<std::pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>, std::shared_ptr<JointHistoryBeliefPair>> OccupancyState::map_pair_to_pointer_ = {};
 
     OccupancyState::OccupancyState() : OccupancyState(2)
     {
@@ -38,9 +39,14 @@ namespace sdm
           all_list_ihistories_(occupancy_state.all_list_ihistories_),
           map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
-          map_pair_to_pointer_(occupancy_state.map_pair_to_pointer_),
           probability_jhistories(occupancy_state.probability_jhistories)
     {
+    }
+
+    bool OccupancyState::operator==(const OccupancyState &other) const
+    {
+        bool are_equal = MappedVector<std::shared_ptr<State>, double>::is_equal(other, PRECISION);
+        return are_equal;
     }
 
     double OccupancyState::getProbability(const std::shared_ptr<State> &pair_history_belief) const
@@ -306,7 +312,6 @@ namespace sdm
             // Get support (a set of individual histories for agent i)
             const auto &support_set = this->getIndividualHistories(agent_id);
             auto &&support = tools::set2vector(support_set);
-            // std::cout << "#> Agent " << agent_id << " : indiv_histories=" << support << std::endl;
 
             // Sort support
             std::sort(support.begin(), support.end());
@@ -324,20 +329,16 @@ namespace sdm
                         current_compact_ostate->setProbability(joint_history, belief, previous_compact_ostate->getProbability(joint_history, belief));
                     }
                 }
-                // std::cout << "Previous Compact Private Occupancy State : \n"
-                //           << previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->str() << std::endl;
 
                 for (auto iter_second = iter_first; iter_second != support.end();)
                 {
                     auto ihistory_one_step_left = *iter_second; // Get the ihistory we want check the equivalence
-                    // std::cout << "Check Equivalence : " << ihistory_label->str() << " - " << ihistory_one_step_left->str() << std::endl;
                     if (this->areIndividualHistoryLPE(ihistory_label, ihistory_one_step_left, agent_id))
                     {
-                        // std::cout << "Are Equivalent" << std::endl;
                         // Store new label
                         this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label);
 
-                        // Erase unecessary equivalent individual history
+                        // Erase uncessary equivalent individual history
                         iter_second = support.erase(iter_second);
                         for (const auto &pair_history_belief : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getStates())
                         {
@@ -352,7 +353,6 @@ namespace sdm
                     }
                     else
                     {
-                        // std::cout << "Are Not Equivalent" << std::endl;
                         iter_second++;
                     }
                 }
@@ -363,6 +363,9 @@ namespace sdm
             previous_compact_ostate->finalize();
             current_compact_ostate->clear();
         }
+
+        previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
+        previous_compact_ostate->setOneStepUncompressedOccupancy(this->getptr());
         return previous_compact_ostate;
     }
 
@@ -429,12 +432,12 @@ namespace sdm
         return res.str();
     }
 
-    const double &OccupancyState::getProbabilityOverIndividualHistories(number agent, const std::shared_ptr<HistoryInterface> &ihistory) const 
+    const double &OccupancyState::getProbabilityOverIndividualHistories(number agent, const std::shared_ptr<HistoryInterface> &ihistory) const
     {
         return this->probability_ihistories.at(agent).at(ihistory);
     }
 
-    const double &OccupancyState::getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface>&joint_history) const
+    const double &OccupancyState::getProbabilityOverJointHistory(const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
         return this->probability_jhistories.at(joint_history);
     }
@@ -443,9 +446,9 @@ namespace sdm
     {
         for (const auto &joint_history : this->getJointHistories())
         {
-            for(const auto &belief : this->getBeliefsAt(joint_history))
+            for (const auto &belief : this->getBeliefsAt(joint_history))
             {
-                this->probability_jhistories[joint_history] += this->getProbability(joint_history,belief);
+                this->probability_jhistories[joint_history] += this->getProbability(joint_history, belief);
             }
         }
     }
@@ -465,9 +468,5 @@ namespace sdm
             }
         }
     }
-
-
-
-
 
 } // namespace sdm
