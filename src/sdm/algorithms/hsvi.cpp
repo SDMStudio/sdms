@@ -108,7 +108,7 @@ namespace sdm
             }
 
             //---------------DEBUG-----------------//
-            std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
+            // std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
             //-----------------DEBUG----------------//
         }
         catch (const std::exception &exc)

@@ -33,7 +33,7 @@ namespace sdm
     }
 
 
-    Pair<std::shared_ptr<Action>,double> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    std::shared_ptr<Action> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         switch (this->getSawtoothType())
         {
@@ -46,7 +46,7 @@ namespace sdm
         }
     }
 
-    Pair<std::shared_ptr<Action>,double> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<Action> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action, action;
         double value;
@@ -78,10 +78,10 @@ namespace sdm
             //     }
             // }
         }
-        return std::make_pair(best_action,value);
+        return best_action;
     }
 
-    Pair<std::shared_ptr<Action>,double> ActionVFSawtoothLP::createFullSawtooth(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<Action> ActionVFSawtoothLP::createFullSawtooth(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
     {
         // this->tmp_representation = std::make_shared<MappedVector<std::shared_ptr<State>,double>>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));
         return this->createLP(vf,state, t);
