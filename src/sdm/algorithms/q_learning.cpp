@@ -81,7 +81,7 @@ namespace sdm
                 this->do_test_ = false;
             }
         }
-        // std::cout << "Final QValue :" << *this->q_value_table_ << std::endl;
+        std::cout << "Final QValue :" << *this->q_value_table_ << std::endl;
     }
 
     void QLearning::do_save()

@@ -118,11 +118,11 @@ int learn(int argv, char **args)
         }
         else if (formalism == "BeliefMDP")
         {
-            gym = std::make_shared<BeliefMDP>(std::make_shared<MPOMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.));
+            gym = std::make_shared<BeliefMDP>(dpomdp);
         }
         else if (formalism == "OccupancyMDP")
         {
-            gym = std::make_shared<OccupancyMDP>(std::make_shared<MPOMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.), memory);
+            gym = std::make_shared<OccupancyMDP>(dpomdp, memory);
         }
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();

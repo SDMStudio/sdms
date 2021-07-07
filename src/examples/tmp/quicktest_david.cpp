@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 {
     std::string filename;
     number horizon = 4, truncation;
-    double discount = 1.0, error = 0.01, trial = 1000;
+    double discount = 1.0, error = 0.001, trial = 1000;
 
     if (argc > 1)
     {
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
         std::cout << mdp->toStdFormat() << std::endl;
 
         std::cout << "# Build OccupancyMDP" << std::endl;
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, truncation);
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, truncation, false);
 
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
@@ -108,14 +108,7 @@ int main(int argc, char **argv)
 
         std::cout << "# Initialize Algo" << std::endl;
         algo->do_initialize();
-        std::cout << *algo->getLowerBound() << std::endl;
-        std::cout << *algo->getUpperBound() << std::endl;
-        std::cout << "# Solve Algo" << std::endl;
         algo->do_solve();
-        std::cout << "# Solved" << std::endl;
-
-        std::cout << *algo->getLowerBound() << std::endl;
-        std::cout << *algo->getUpperBound() << std::endl;
     }
     catch (exception::Exception &e)
     {

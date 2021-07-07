@@ -70,10 +70,10 @@ namespace sdm
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (auto pair_st_val : this->representation[i])
             {
-                res << "\t\t<observation id=\"" << pair_st_val.first << " observation: " << std::endl << *(pair_st_val.first) << "\">" << std::endl;
+                res << "\t\t<observation id=\"" << pair_st_val.first << "\"" << std::endl << "\t\t\t" << *(pair_st_val.first) << "/>" << std::endl;
                 for (auto pair_act_val : pair_st_val.second)
                 {
-                    res << "\t\t\t<action id=\"" << pair_act_val.first << " action: " << std::endl << *(pair_act_val.first) << "\">" << std::endl;
+                    res << "\t\t\t<action id=\"" << pair_act_val.first << "\"" << std::endl << "\t\t\t\t"<< *(pair_act_val.first) << "\">" << std::endl;
                     res << "\t\t\t\t" << pair_act_val.second << std::endl;
                     res << "\t\t\t</action>" << std::endl;
                 }

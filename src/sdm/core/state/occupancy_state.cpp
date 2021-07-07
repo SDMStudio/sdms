@@ -39,7 +39,7 @@ namespace sdm
           all_list_ihistories_(occupancy_state.all_list_ihistories_),
           map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
-          probability_jhistories(occupancy_state.probability_jhistories), 
+          probability_jhistories(occupancy_state.probability_jhistories),
           action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
     }
@@ -112,17 +112,17 @@ namespace sdm
             return false;
         }
 
-        for(const auto &jhistory : this->getJointHistories())
+        for (const auto &jhistory : this->getJointHistories())
         {
-            for(const auto &belief : this->getBeliefsAt(jhistory))
+            for (const auto &belief : this->getBeliefsAt(jhistory))
             {
-                if(this->getProbability(jhistory,belief) != other->toOccupancyState()->getProbability(jhistory,belief))
+                if (this->getProbability(jhistory, belief) != other->toOccupancyState()->getProbability(jhistory, belief))
                 {
                     return false;
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -142,15 +142,15 @@ namespace sdm
         //     occupancy_bigger = this->getPointer()->toState()->toOccupancyState();
         //     occupancy_smaller = other->toOccupancyState();
         // }
-        
-        for(const auto &jhistory : this->getJointHistories())
+
+        for (const auto &jhistory : this->getJointHistories())
         {
-            for(const auto &belief : this->getBeliefsAt(jhistory))
+            for (const auto &belief : this->getBeliefsAt(jhistory))
             {
-                product += this->getProbability(jhistory,belief) * other->toOccupancyState()->getProbability(jhistory,belief);
+                product += this->getProbability(jhistory, belief) * other->toOccupancyState()->getProbability(jhistory, belief);
             }
         }
-        
+
         return product;
     }
 
@@ -523,10 +523,9 @@ namespace sdm
     // ######### ACTION SPACE ######################
     // #############################################
 
-
     std::shared_ptr<Space> OccupancyState::getActionSpaceAt(number t)
     {
-        if(this->action_space_map->find(t) != this->action_space_map->end())
+        if (this->action_space_map->find(t) != this->action_space_map->end())
         {
             return this->action_space_map->at(t);
         }

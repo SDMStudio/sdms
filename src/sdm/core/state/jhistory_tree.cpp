@@ -19,13 +19,11 @@ namespace sdm
 
     JointHistoryTree::JointHistoryTree(number n_agents, number max_depth) : HistoryTree(max_depth)
     {
-        std::cout << "In History Constructor" << std::endl;
         for (number i = 0; i < n_agents; i++)
         {
             this->addIndividualHistory(std::make_shared<HistoryTree>(max_depth));
         }
         this->setupDefaultObs(n_agents, sdm::DEFAULT_OBSERVATION);
-        std::cout << "End History Constructor" << std::endl;
     }
 
     JointHistoryTree::JointHistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item) : HistoryTree(parent, item)
