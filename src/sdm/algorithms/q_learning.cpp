@@ -166,7 +166,7 @@ namespace sdm
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
         if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation, this->step))
         {
-            return this->env_->getRandomAction(observation, this->step);
+            return this->env_->getActionSpaceAt(observation, this->step)->sample()->toAction();
         }
         else
         {

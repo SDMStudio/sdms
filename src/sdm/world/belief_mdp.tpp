@@ -184,12 +184,6 @@ namespace sdm
     }
 
     template <class TBelief>
-    std::shared_ptr<Action> BaseBeliefMDP<TBelief>::getRandomAction(const std::shared_ptr<Observation> &observation, number t)
-    {
-        return this->getActionSpaceAt(observation, t)->sample()->toAction();
-    }
-
-    template <class TBelief>
     std::shared_ptr<Observation> BaseBeliefMDP<TBelief>::reset()
     {
         this->step_ = 0;

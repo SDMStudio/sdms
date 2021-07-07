@@ -81,7 +81,6 @@ namespace sdm
                     tools::indentedOutput(res, action_value.first->str().c_str(), 4);
                     res << "\t\t\t</action>" << std::endl;
                 }
-                // res << "\t\t\t" << state__actions_values.second << std::endl;
                 res << "\t\t</actions>" << std::endl;
             }
             res << "\t</timestep>" << std::endl;

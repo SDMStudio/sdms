@@ -142,11 +142,6 @@ namespace sdm
         return this->getActionSpace(t);
     }
 
-    std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<Observation> &observation, number t)
-    {
-        return this->getActionSpaceAt(observation, t)->sample()->toAction();
-    }
-
     std::string MDP::toStdFormat()
     {
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
