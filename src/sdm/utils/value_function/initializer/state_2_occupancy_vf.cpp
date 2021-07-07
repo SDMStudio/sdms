@@ -72,7 +72,7 @@ namespace sdm
         auto action = state_AND_action.second;
 
         return 0;
-        // return this->mdp_vf_->getQValueAt(state, action, tau);
+        return this->mdp_vf_->template backup<double>(state, action, tau);
     }
     bool State2OccupancyValueFunction::isPomdpAvailable()
     {

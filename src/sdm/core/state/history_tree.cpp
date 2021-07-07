@@ -160,4 +160,9 @@ namespace sdm
         // archive &boost::serialization::base_object<Tree<std::shared_ptr<Observation>>>(*this);
     }
 
+    const std::shared_ptr<Observation> &HistoryTree::getData() const
+    {
+        return Tree<std::shared_ptr<Observation>>::getData();
+    }
+
 } // namespace sdm

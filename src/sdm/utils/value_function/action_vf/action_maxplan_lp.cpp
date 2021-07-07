@@ -86,7 +86,7 @@ namespace sdm
         }   // for all o
     }
     
-    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>&state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>&state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         this->createDecentralizedConstraints(vf,state, env, con, var, index, t);
     }

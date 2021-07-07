@@ -3,9 +3,10 @@
 #include <sdm/utils/value_function/action_vf/action_vf_base.hpp>
 #include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
 
+#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 namespace sdm
 {
-    class ActionVFSawtoothLP : public ActionVFBase<double>, public DecentralizedLP
+    class ActionVFSawtoothLP : public ActionVFBase, public DecentralizedLP
     {
     public:
         using TData = double;
@@ -43,7 +44,7 @@ namespace sdm
          * @param index 
          * @param t 
          */
-        void createConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
     protected : 
 
@@ -59,8 +60,8 @@ namespace sdm
 
         number bigM_value_;
 
-        Pair<std::shared_ptr<Action>,double> createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
-        Pair<std::shared_ptr<Action>,double> createFullSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
+        std::shared_ptr<Action> createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
+        std::shared_ptr<Action> createFullSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
 
         virtual void createInitialConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) =0;
         virtual void createSawtoothBigM(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
@@ -72,6 +73,9 @@ namespace sdm
 
         TypeSawtoothLinearProgram getSawtoothType();
         void setSawtoothType(const TypeSawtoothLinearProgram &);
+
+        std::shared_ptr<MappedVector<std::shared_ptr<State>,double>> representation;
+
 
     };
 }

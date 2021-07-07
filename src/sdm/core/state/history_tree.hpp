@@ -133,6 +133,9 @@ namespace sdm
         std::vector<std::shared_ptr<HistoryTree>> getChildren() const;
         std::shared_ptr<HistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
 
+        const std::shared_ptr<Observation> &getData() const;
+
+
         friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
         {
             os << i_hist.str();

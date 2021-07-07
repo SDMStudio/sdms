@@ -51,7 +51,7 @@ namespace sdm
          * @param index 
          * @param t 
          */
-        virtual void createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
+        virtual void createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
 
         /**
          * @brief Get the result of the variable created

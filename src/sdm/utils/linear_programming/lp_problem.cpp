@@ -33,7 +33,7 @@ namespace sdm
 
             this->createObjectiveFunction(vf, state, var, obj, t);
 
-            this->createConstraints(vf, state, env, con, var, index, t);
+            this->createConstraints(vf, state, env,model, con, var, index, t);
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
