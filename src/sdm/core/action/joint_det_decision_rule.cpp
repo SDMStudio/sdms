@@ -93,10 +93,10 @@ namespace sdm
         res << "<joint-decision-rule>" << std::endl;
         for (const auto &indiv_dr : *this)
         {
-            res << indiv_dr->str() << std::endl;
+            tools::indentedOutput(res, indiv_dr->str().c_str(), 1);
+            res << std::endl;
         }
         res << "<joint-decision-rule/>" << std::endl;
         return res.str();
     }
 }
-

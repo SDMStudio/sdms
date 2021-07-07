@@ -7,13 +7,10 @@ namespace sdm
     // FunctionSpace<TFunction>::FunctionSpace(const std::shared_ptr<Space> &input_sp, const std::shared_ptr<Space> &output_sp, bool store_functions) : input_space_(input_sp), output_space_({output_sp})
     FunctionSpace<TFunction>::FunctionSpace(const std::shared_ptr<Space> &input_sp, const std::shared_ptr<Space> &output_sp, bool store_functions)
     {
-        // std::cout << "FunctionSpace() a" << std::endl;
         this->input_space_ = input_sp;
-        // std::cout << "this->input_space_ " << std::endl;
-        // std::cout << this->input_space_ << std::endl;
         this->output_space_ = {output_sp};
-        // std::cout << "this->output_space_ " << std::endl;
-        // std::cout << this->output_space_ << std::endl;
+        
+        // Set the 'store_items_' parameter to true or false
         this->storeItems(store_functions);
         if (this->isStoringItems())
         {

@@ -264,13 +264,12 @@ namespace sdm
 
         return product;
     }
-    
+
     template <typename TIndex, typename T>
-    size_t MappedVector<TIndex, T>::size() const 
+    size_t MappedVector<TIndex, T>::size() const
     {
         return RecursiveMap<TIndex, T>::size();
     }
-
 
     template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::getDefault() const
@@ -364,9 +363,19 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
+            return this->operator()(in, sdm::MappedVector<S, V>::PRECISION);
+        }
+
+        inline result_type operator()(const argument_type &in, double precision) const
+        {
             size_t seed = 0;
             std::map<S, V> ordered(in.begin(), in.end());
-            for (const auto &v : ordered)
+            std::map<S, int> rounded;
+            for (const auto &pair_item_value : in)
+            {
+                rounded.emplace(pair_item_value.first, lround(precision * pair_item_value.second));
+            }
+            for (const auto &v : rounded)
             {
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);

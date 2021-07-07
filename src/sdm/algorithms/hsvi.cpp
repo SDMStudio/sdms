@@ -10,14 +10,14 @@ namespace sdm
                number planning_horizon,
                double error,
                number num_max_trials,
-               std::string name, 
+               std::string name,
                double time_max) : world_(world),
-                                   lower_bound_(lower_bound),
-                                   upper_bound_(upper_bound),
-                                   error_(error),
-                                   planning_horizon_(planning_horizon),
-                                   name_(name),
-                                   time_max_(time_max)
+                                  lower_bound_(lower_bound),
+                                  upper_bound_(upper_bound),
+                                  error_(error),
+                                  time_max_(time_max),
+                                  planning_horizon_(planning_horizon),
+                                  name_(name)
     {
         this->MAX_TRIALS = num_max_trials;
     }
@@ -71,7 +71,7 @@ namespace sdm
 
             this->do_explore(start_state, 0, 0);
             this->trial++;
-        } while (!this->do_stop(start_state, 0, 0) && (this->time_max_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)) );
+        } while (!this->do_stop(start_state, 0, 0) && (this->time_max_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)));
 
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -97,6 +97,7 @@ namespace sdm
                 }
                 // Select next action and state following search process
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
 
                 // Recursive explore

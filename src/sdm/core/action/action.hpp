@@ -28,7 +28,5 @@ namespace sdm
         virtual std::shared_ptr<DecisionRule> toDecisionRule();
         virtual std::shared_ptr<JointDeterministicDecisionRule> toJointDeterministicDecisionRule();
         virtual TypeAction getTypeAction() const;
-
-
     };
 } // namespace sdm

@@ -6,7 +6,7 @@
 namespace sdm
 {
     TabularValueFunction::TabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf)
-        : ValueFunction(horizon, initializer, backup,action_vf)
+        : ValueFunction(horizon, initializer, backup, action_vf)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
@@ -40,9 +40,9 @@ namespace sdm
         return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
     }
 
-    Pair<std::shared_ptr<State>,double> TabularValueFunction::evaluate(const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<State>, double> TabularValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
     {
-        return std::make_pair(state,this->getInitFunction()->operator()(state,t));
+        return std::make_pair(state, this->getInitFunction()->operator()(state, t));
     }
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
@@ -52,7 +52,7 @@ namespace sdm
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        this->updateValueAt(state, t, this->template backup<double>(state,this->getBestAction(state,t), t));
+        this->updateValueAt(state, t, this->template backup<double>(state, this->getBestAction(state, t), t));
     }
 
     // void TabularValueFunction::save(std::string filename)
@@ -75,8 +75,11 @@ namespace sdm
             res << "\t<value_function t=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (const auto &pair_state_val : this->representation[i])
             {
-                res<< "\t adress "<<pair_state_val.first;
-                res << "\t\t<value state=\"" << pair_state_val.first->str() << "\"> " << std::setprecision(config::VALUE_DECIMAL_PRINT) << std::fixed << pair_state_val.second << " </value>" << std::endl;
+                res << "\t\t<value>\n";
+                tools::indentedOutput(res, pair_state_val.first->str().c_str(), 3);
+                res << std::endl
+                    << "\t\t\t" << std::setprecision(config::VALUE_DECIMAL_PRINT) << std::fixed << pair_state_val.second << std::endl;
+                res << "\t\t</value>" << std::endl;
             }
             res << "\t</value_function>" << std::endl;
         }

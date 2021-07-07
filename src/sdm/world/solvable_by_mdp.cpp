@@ -10,25 +10,24 @@ namespace sdm
 
     SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp) : underlying_problem(mdp)
     {
-        this->initial_state_  = (*this->getUnderlyingProblem()->getStateSpace(0)->begin())->toState();
+        this->initial_state_ = (*this->getUnderlyingProblem()->getStateSpace(0)->begin())->toState();
     }
 
     SolvableByMDP::~SolvableByMDP()
     {
     }
 
-    void SolvableByMDP::setInitialState(const std::shared_ptr<State>& state)
+    void SolvableByMDP::setInitialState(const std::shared_ptr<State> &state)
     {
         this->initial_state_ = state;
     }
-
 
     std::shared_ptr<State> SolvableByMDP::getInitialState()
     {
         return this->initial_state_;
     }
 
-    std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi) const
+    std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
     {
         double max = -std::numeric_limits<double>::max();
         std::shared_ptr<State> argmax = 0;
@@ -59,12 +58,12 @@ namespace sdm
         return std::dynamic_pointer_cast<MDPInterface>(this->underlying_problem)->getActionSpace(t);
     }
 
-    double SolvableByMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
+    double SolvableByMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         return this->underlying_problem->getReward(state, action, t);
     }
 
-    double SolvableByMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
+    double SolvableByMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         double tmp = 0;
         for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))

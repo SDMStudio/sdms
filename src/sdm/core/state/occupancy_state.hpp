@@ -30,6 +30,8 @@ namespace sdm
         OccupancyState(number num_agents);
         OccupancyState(const OccupancyState &copy);
 
+        bool operator==(const OccupancyState &other) const;
+
         double getProbability(const std::shared_ptr<State> &pair_history_belief) const;
         double getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const;
 
@@ -210,7 +212,7 @@ namespace sdm
 
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
 
-        RecursiveMap<std::pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>, std::shared_ptr<JointHistoryBeliefPair>> map_pair_to_pointer_;
+        static RecursiveMap<std::pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>, std::shared_ptr<JointHistoryBeliefPair>> map_pair_to_pointer_;
 
         /**
          * @brief Get the Private Occupancy States object
@@ -240,3 +242,18 @@ namespace sdm
         std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
     };
 } // namespace sdm
+
+namespace std
+{
+
+    template <>
+    struct hash<sdm::OccupancyState>
+    {
+        typedef sdm::OccupancyState argument_type;
+        typedef std::size_t result_type;
+        inline result_type operator()(const argument_type &in) const
+        {
+            return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
+        }
+    };
+}
