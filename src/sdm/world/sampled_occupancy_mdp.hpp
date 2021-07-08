@@ -1,0 +1,20 @@
+#pragma once
+
+#include <sdm/world/occupancy_mdp.hpp>
+
+/**
+ * @namespace  sdm
+ * @brief Namespace grouping all tools required for sequential decision making.
+ */
+namespace sdm
+{
+        class SampledOccupancyMDP : public OccupancyMDP
+        {
+        public:
+                SampledOccupancyMDP();
+                SampledOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool store_action_spaces = true, int batch_size = 16);
+        protected:
+                int batch_size_;
+                Pair<std::shared_ptr<State>, double> computeNextStateAndProba(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        };
+} // namespace sdm

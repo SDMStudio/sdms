@@ -81,7 +81,12 @@ namespace sdm
                 this->do_test_ = false;
             }
         }
-        std::cout << *this->q_value_table_ << std::endl;
+        // std::cout << *this->q_value_table_ << std::endl;
+        // this->q_value_table_->printNumberOfActions();
+        // std::ofstream QValueStream(this->name_ + ".qvalue");
+        // QValueStream << *this->q_value_table_ << std::endl;
+        // QValueStream.close();
+
     }
 
     void QLearning::do_save()

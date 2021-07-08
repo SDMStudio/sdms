@@ -1,4 +1,5 @@
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <iterator>
 
 namespace sdm
 {
@@ -59,6 +60,28 @@ namespace sdm
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
         return (this->representation[h].find(observation) == this->representation[h].end());
+    }
+
+    void TabularQValueFunction::printNumberOfActions()
+    {
+        std::cout << "Printing number of actions" << std::endl;
+        for (sdm::size_t i = 0; i < this->representation.size(); i++)
+        {
+            std::cout << "\ttimestep=" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << std::endl;
+            for (auto state__actions_values : this->representation[i])
+            {
+                std::cout << "\t\tstate=" << state__actions_values.first << " number of actions = " << state__actions_values.second.size();
+                bool ok = true;
+                for (auto i = state__actions_values.second.begin(); i != state__actions_values.second.end(); i++)
+                {
+                    for (auto j = std::next(i); j != state__actions_values.second.end(); j++)
+                    {
+                        // ok = (!false);
+                    }
+                }
+                std::cout << std::endl;
+            }
+        }
     }
 
     std::string TabularQValueFunction::str() const

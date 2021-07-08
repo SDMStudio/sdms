@@ -43,18 +43,17 @@ namespace sdm
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         std::shared_ptr<TBelief> next_belief = std::make_shared<TBelief>();
-        double proba_next_state;
 
         for (const auto &next_state : *this->getUnderlyingPOMDP()->getStateSpace(t + 1))
         {
-            proba_next_state = 0;
+            double next_state_probability = 0;
             for (const auto &state : *this->getUnderlyingPOMDP()->getStateSpace(t))
             {
-                proba_next_state += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
+                next_state_probability += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
             }
-            if (proba_next_state > 0)
+            if (next_state_probability > 0)
             {
-                next_belief->setProbability(next_state->toState(), proba_next_state);
+                next_belief->setProbability(next_state->toState(), next_state_probability);
             }
         }
 
