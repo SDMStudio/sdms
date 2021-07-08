@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <sdm/core/state/private_occupancy_state.hpp>
 
 namespace sdm
@@ -55,6 +56,27 @@ namespace sdm
     //     return res.str();
     // }
 
+    std::string PrivateOccupancyState::str() const
+    {
+        std::ostringstream res;
+        res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
+
+        res << "<private-occupancy-state agent=\"" << this->agent_id_ << "\" size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
+        for (const auto &pair_state_proba : *this)
+        {
+            auto history = std::static_pointer_cast<JointHistoryBeliefPair>(pair_state_proba.first)->first;
+            auto belief = std::static_pointer_cast<JointHistoryBeliefPair>(pair_state_proba.first)->second;
+
+            res << "\t<probability";
+            res << " history=" << history->short_str() << "";
+            res << " belief=" << belief->str() << ">\n";
+            res << "\t\t\t" << pair_state_proba.second << "\n";
+            res << "\t</probability \n";
+        }
+        res << "</private-occupancy-state>";
+        return res.str();
+    }
+
     std::vector<std::shared_ptr<HistoryInterface>> PrivateOccupancyState::getPartialJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &joint_history) const
     {
         auto partial_jhist = joint_history;
@@ -95,6 +117,8 @@ namespace sdm
 
     bool PrivateOccupancyState::check_equivalence(const PrivateOccupancyState &other) const
     {
+        
+
         double ratio = -1;
         // Check that private occupancy states are defined on the same support
         if (this->size() != other.size())
@@ -122,8 +146,6 @@ namespace sdm
                 // Get value in the current private occupancy state
                 const auto &current_value = this->getProbability(current_joint_history, belief);
 
-                // std::cout << "6 -  this=" << this->str() << std::endl;
-                // std::cout << "6 -  other=" << other.str() << std::endl;
                 // std::cout << "6.0 -  other.map_pair=" << other.map_pair_to_pointer_ << std::endl;
                 // std::cout << "6.1 -  other_joint_history=" << other_joint_history << std::endl;
                 // std::cout << "6.2 -  belief=" << belief->str() << std::endl;

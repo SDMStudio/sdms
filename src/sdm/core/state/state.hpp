@@ -99,6 +99,7 @@ namespace sdm
     template <typename TAction_1, typename TAction_2>
     using ActionPair = ItemPair<TAction_1, TAction_2, Action>;
 
+    using HistoryStatePair = StatePair<std::shared_ptr<HistoryInterface>, std::shared_ptr<State>>;
     using JointHistoryBeliefPair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>;
 
     // template <typename TItem, typename SuperClass = Item>

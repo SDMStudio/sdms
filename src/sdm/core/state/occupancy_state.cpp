@@ -352,6 +352,12 @@ namespace sdm
         return this->getPrivateOccupancyState(agent_identifier, ihistory_1)->check_equivalence(*this->getPrivateOccupancyState(agent_identifier, ihistory_2));
     }
 
+    /**
+     * @brief 
+     * 
+     * https://gitlab.inria.fr/maintenance/maintenance.html?appli=GITLAB 
+     * @return std::shared_ptr<OccupancyStateInterface> 
+     */
     std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
     {
         auto current_compact_ostate = std::make_shared<OccupancyState>(this->num_agents_);
@@ -388,7 +394,7 @@ namespace sdm
                         // Store new label
                         this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label);
 
-                        // Erase uncessary equivalent individual history
+                        // Erase unecessary equivalent individual history
                         iter_second = support.erase(iter_second);
                         for (const auto &pair_history_belief : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getStates())
                         {

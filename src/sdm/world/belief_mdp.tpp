@@ -77,7 +77,7 @@ namespace sdm
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
-        if (this->backup)
+        if (this->store_states_)
         {
             // Get the successor
             auto successor = this->mdp_graph_->getNode(belief)->getSuccessor(action_observation);

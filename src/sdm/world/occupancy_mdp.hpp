@@ -16,7 +16,11 @@ namespace sdm
         {
         public:
                 OccupancyMDP();
-                OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool store_action_spaces = true);
+                OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp,
+                             number memory = -1,
+                             bool compression = true,
+                             bool store_states = true,
+                             bool store_actions = true);
 
                 void initialize(number history_length);
 
@@ -48,6 +52,8 @@ namespace sdm
                 double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);
                 double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t);
 
+                double do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon);
+
                 // *****************
                 //    RL methods
                 // *****************
@@ -67,7 +73,7 @@ namespace sdm
 
         protected:
                 /** @brief Hyperparameters. */
-                bool compression_ = true, store_action_spaces_ = true;
+                bool compression_ = true, store_actions_ = true;
 
                 /** @brief Keep a pointer on the associated belief mdp that is used to compute next beliefs. */
                 std::shared_ptr<BeliefMDP> belief_mdp_;

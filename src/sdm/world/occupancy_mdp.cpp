@@ -13,9 +13,11 @@ namespace sdm
     {
     }
 
-    OccupancyMDP::OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool store_action_spaces)
-        : store_action_spaces_(store_action_spaces)
+    OccupancyMDP::OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions)
+        : compression_(compression), store_actions_(store_actions)
     {
+        this->store_states_ = store_states;
+
         // Set underlying problem
         this->underlying_problem = underlying_dpomdp;
 
@@ -75,7 +77,7 @@ namespace sdm
                 // Get action space of agent i.
                 std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent_id);
                 // Get individual ddr of agent i.
-                std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_action_spaces_);
+                std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_actions_);
                 // Add it to the corresponding vector.
                 individual_ddr_spaces.push_back(individual_ddr_space);
             }
@@ -83,11 +85,11 @@ namespace sdm
             // Create the function space of joint deterministic decision rules.
             std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
                 std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)}),
-                std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_action_spaces_),
-                this->store_action_spaces_);
+                std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
+                this->store_actions_);
 
             // If we don't store action spaces:
-            if (!this->store_action_spaces_)
+            if (!this->store_actions_)
             {
                 // Directly return it.
                 return joint_ddr_space;
@@ -253,6 +255,11 @@ namespace sdm
     std::shared_ptr<BeliefMDP> OccupancyMDP::getUnderlyingBeliefMDP() const
     {
         return this->belief_mdp_;
+    }
+
+    double OccupancyMDP::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
+    {
+        return std::min(ub - lb, cost_so_far + this->getUnderlyingProblem()->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
     }
 
     // void OccupancyMDP::setInitialState(const std::shared_ptr<State> &state)

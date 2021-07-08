@@ -123,7 +123,7 @@ namespace sdm
         int step_;
 
         /** @brief Hyperparameters. */
-        bool backup = true;
+        bool store_states_ = true;
 
         /** @brief The probability transition. */
         RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Observation>, double> transition_probability;
