@@ -81,6 +81,8 @@ namespace sdm
 
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
+        size_t getSize(number t) const;
+
         friend std::ostream &operator<<(std::ostream &os, TabularValueFunction &vf)
         {
             os << vf.str();

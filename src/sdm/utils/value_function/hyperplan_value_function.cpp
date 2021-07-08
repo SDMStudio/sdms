@@ -260,4 +260,9 @@ namespace sdm
         res << "</hyerplan_value_function>" << std::endl;
         return res.str();
     }
+
+    size_t HyperplanValueFunction::getSize(number t) const
+    {
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].size();
+    }
 } // namespace sdm
