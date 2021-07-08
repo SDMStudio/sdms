@@ -68,12 +68,43 @@ namespace sdm
 
     double State2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau)
     {
+        switch (state_AND_action.first->getTypeState())
+        {
+        case TypeState::STATE :
+            return this->operatorQTableState(state_AND_action,tau);
+            break;
+
+        case TypeState::BELIEF_STATE :
+            return operatorQTableBelief(state_AND_action,tau);
+            break;
+        default:
+            return this->operatorQTableState(state_AND_action,tau);
+            break;
+        }
+    }
+
+    double State2OccupancyValueFunction::operatorQTableState(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau)
+    {
         auto state = state_AND_action.first;
         auto action = state_AND_action.second;
 
-        return 0;
         return this->mdp_vf_->template backup<double>(state, action, tau);
     }
+    double State2OccupancyValueFunction::operatorQTableBelief(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau)
+    {
+        auto state = state_AND_action.first->toBelief();
+        auto action = state_AND_action.second;
+
+        double value = 0.0;
+        for (auto &ost : state->getStates())
+        {
+            value += state->getProbability(ost) * this->mdp_vf_->template backup<double>(ost, action, tau);
+        }
+        return value;
+    }
+
+
+
     bool State2OccupancyValueFunction::isPomdpAvailable()
     {
         return false;

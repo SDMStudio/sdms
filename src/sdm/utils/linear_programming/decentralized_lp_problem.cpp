@@ -188,7 +188,6 @@ namespace sdm
     void DecentralizedLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //Specialisation for type of state
-
         switch (state->getTypeState())
         {
         case TypeState::OCCUPANCY_STATE :

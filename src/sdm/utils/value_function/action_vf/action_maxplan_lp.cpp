@@ -1,8 +1,10 @@
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+
 #include <sdm/core/state/interface/belief_interface.hpp>
-#include <sdm/world/base/mpomdp_interface.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
+
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/base/mpomdp_interface.hpp>
 
 namespace sdm
 {

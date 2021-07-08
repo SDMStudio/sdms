@@ -84,7 +84,7 @@ namespace sdm
                                                         
                                                         try
                                                         {
-                                                            auto algo = sdm::algo::make("hsvi",filepath_,formalism,upper_bound,lower_bound,upper_bound_init,lower_bound_init,discount,0.01,horizon,10000,truncation,name,2000,sawtooth_current_type_of_resolution,sawtooth_BigM);
+                                                            auto algo = sdm::algo::make("hsvi",filepath_,formalism,upper_bound,lower_bound,upper_bound_init,lower_bound_init,discount,0.01,horizon,10000,truncation,name,1000,sawtooth_current_type_of_resolution,sawtooth_BigM);
 
                                                             //auto value = sdm::ValueIteration<TState,TAction>(smdp,discount,0,horizon);
                                                             t_begin = clock();

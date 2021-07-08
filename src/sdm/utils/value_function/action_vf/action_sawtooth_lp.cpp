@@ -112,6 +112,7 @@ namespace sdm
             // Go over all Point Set in t+1
             for (const auto &element_state_AND_upper_bound : *this->representation)
             {
+                std::cout<<"Element state and Upperbound "<<element_state_AND_upper_bound.first->str()<<std::endl;
                 const auto &next_one_step_uncompressed_occupancy_state = element_state_AND_upper_bound.first->toOccupancyState();
 
                 // Go over all Joint History Next
@@ -139,7 +140,6 @@ namespace sdm
     double ActionVFSawtoothLP::getQValueRelaxation(const std::shared_ptr<ValueFunction>&vf,const  std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> joint_history, std::shared_ptr<Action> action, number t)
     {
         // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
-
         double weight = 0.0;
         try
         {
@@ -258,6 +258,7 @@ namespace sdm
                 }
                 index++;
             }
+            this->createDecentralizedConstraints(vf,state, env, con, var, index, t);
         }
         catch (const std::exception &exc)
         {
@@ -286,7 +287,7 @@ namespace sdm
             for (const auto &belief : compressed_occupancy_state->getBeliefsAt(joint_history))
             {
                 // \sum_{x} s(x,o) * p_{x,u,z',x'}
-                factor += compressed_occupancy_state->getProbability(joint_history,belief) * occupancy_mdp->getObservationProbability(belief,action->toAction(),nullptr,next_observation,t);
+                factor += compressed_occupancy_state->getProbability(joint_history,belief) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief,action->toAction(),nullptr,next_observation,t);
             }
         }
         catch (const std::exception &exc)
@@ -298,6 +299,258 @@ namespace sdm
         return factor / denominator;
     }
 
+    void ActionVFSawtoothLP::createInitialConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        //Specialisation for type of state
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            this->createInitialConstrainteOccupancy(vf,state, env, con, var, index,t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            this->createInitialConstrainteSerial(vf,state, env, con, var, index,t);
+            break;
+        default:
+            break;
+        }
+    }
+
+    void ActionVFSawtoothLP::createSawtoothBigM(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        //Specialisation for type of state
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            this->createSawtoothBigMOccupancy(vf,state, joint_history, next_hidden_state, next_observation, next_joint_history, next_one_step_uncompressed_occupancy_state, probability, difference, env, con, var, index, t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            this->createSawtoothBigMSerial(vf,state, joint_history, next_hidden_state, next_observation, next_joint_history, next_one_step_uncompressed_occupancy_state, probability, difference, env, con, var, index, t);
+            break;
+        default:
+            break;
+        }
+    }
+
+    void ActionVFSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var,number t)
+    {
+        //Specialisation for type of state
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            this->createSawtoothIloIfThenOccupancy(vf,state, joint_history, next_hidden_state, next_observation, next_joint_history, next_state, probability, difference, env, model, var,t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            this->createSawtoothIloIfThenSerial(vf,state, joint_history, next_hidden_state, next_observation, next_joint_history, next_state, probability, difference, env, model, var,t);
+            break;
+        default:
+            break;
+        }
+    }
+
+    void ActionVFSawtoothLP::createObjectiveFunction(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
+    {
+        //Specialisation for type of state
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            this->createObjectiveFunctionOccupancy(vf, state, var, obj, t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            this->createObjectiveFunctionSerial(vf, state, var, obj, t);
+            break;
+        default:
+            break;
+        }
+    }
+
+
+    // *********************************************
+    // Specialisation for the Occupancy State 
+    // *********************************************
+
+    void ActionVFSawtoothLP::createSawtoothBigMOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        try
+        {
+            auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
+
+            number recover = 0;
+
+            con.add(IloRange(env, -IloInfinity, this->bigM_value_));
+            con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
+
+            // Go over all actions
+            for (const auto &action : *under_pb->getActionSpace(t))
+            {
+                //<! 1.c.4 get variable a(u|o) and set constant
+                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
+                con[index].setLinearCoef(var[recover], - this->getQValueRealistic(vf,state, joint_history, action->toAction(), next_hidden_state, next_observation, probability, difference,t));
+            }
+
+            // <! \omega_k(x',o') * BigM
+            recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state, next_hidden_state, next_joint_history));
+            con[index].setLinearCoef(var[recover], this->bigM_value_);
+
+            index++;
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothBigM(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
+    }
+
+    void ActionVFSawtoothLP::createSawtoothIloIfThenOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var,number t)
+    {
+        try
+        {
+            number recover = 0;
+            auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
+
+            IloExpr expr(env);
+            //<! 1.c.1 get variable v and set coefficient of variable v
+            expr = var[this->getNumber(this->getVarNameWeight(0))];
+
+            // Go over all actions
+            for(const auto & action : *under_pb->getActionSpace(t))
+            { 
+                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
+                //<! 1.c.4 get variable a(u|o) and set constant 
+                expr -= this->getQValueRealistic(vf,state, joint_history, action->toAction(), next_hidden_state, next_observation, probability, difference,t) * var[recover];
+            }               
+
+            // <! get variable \omega_k(x',o')
+            recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state, next_hidden_state, next_joint_history));
+            model.add(IloIfThen(env, var[recover] > 0, expr <= 0));
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothIloIfThen(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
+    }
+
+    void ActionVFSawtoothLP::createInitialConstrainteOccupancy(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number ){}
+
+    void ActionVFSawtoothLP::createObjectiveFunctionOccupancy(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
+    {
+        try
+        {
+            auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
+
+            auto compressed_occupancy_state = state->toOccupancyState();
+
+            // <! 1.a get variable v
+            auto recover = this->getNumber(this->getVarNameWeight(0));
+
+            //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) - discount * v0"
+            obj.setLinearCoef(var[recover], under_pb->getDiscount(t));
+
+            // Go over all action
+            for (const auto &action : *under_pb->getActionSpace(t))
+            {
+                // Go over all joint history
+                for (const auto &joint_history : compressed_occupancy_state->getJointHistories())
+                {
+                    //<! 1.c.4 get variable a(u|o)
+                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
+
+                    //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
+                    obj.setLinearCoef(var[recover], this->getQValueRelaxation(vf,compressed_occupancy_state, joint_history, action->toAction(), t));
+                }
+            }
+        }
+        catch (const std::exception &exc)
+        {
+            // catch anything thrown within try block that derives from std::exception
+            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyObjective(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
+    }
+
+
+    // *********************************************
+    // Specialisation for the Serial Occupancy State 
+    // *********************************************
+
+    void ActionVFSawtoothLP::createSawtoothBigMSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface>& , const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double , double , IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number )
+    {
+        // try
+        // {
+        //     auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
+
+        //     auto agent_id = under_pb->getAgentId(t);
+        //     // Gets the current individual history conditional on the current joint history
+        //     auto indiv_history = joint_history->getIndividualHistory(agent_id);
+
+        //     number recover = 0;
+
+        //     con.add(IloRange(env, -IloInfinity, this->bigM_value_));
+        //     con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
+
+        //     // Go over all actions
+        //     for (const auto &action : *under_pb->getActionSpace(t))
+        //     {
+        //         //<! 1.c.4 get variable a(u|o) and set constant
+        //         recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id))
+        //         con[index].setLinearCoef(var[recover], - this->getQValueRealistic(state, joint_history, action->toAction(), next_hidden_state, next_observation, probability, difference));
+        //     }
+
+        //     // <! \omega_k(x',o') * BigM
+        //     recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state, next_hidden_state, next_joint_history));
+        //     con[index].setLinearCoef(var[recover], this->bigM_value_);
+
+        //     index++;
+        // }
+        // catch (const std::exception &exc)
+        // {
+        //     // catch anything thrown within try block that derives from std::exception
+        //     std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothBigM(..) exception caught: " << exc.what() << std::endl;
+        //     exit(-1);
+        // }
+    }
+
+    void ActionVFSawtoothLP::createSawtoothIloIfThenSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface>& , const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double , double , IloEnv &, IloModel &, IloNumVarArray &,number )
+    {
+        // try
+        // {
+        //     auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
+
+        //     auto agent_id = under_pb->getAgentId(t);
+        //     // Gets the current individual history conditional on the current joint history
+        //     auto indiv_history = joint_history->getIndividualHistory(agent_id);
+
+        //     number recover = 0;
+
+        //     IloExpr expr(env);
+        //     //<! 1.c.1 get variable v and set coefficient of variable v
+        //     expr = var[this->getNumber(this->getVarNameWeight(0))];
+
+        //     // Go over all actions
+        //     for(const auto & action : *under_pb->getActionSpace(t))
+        //     { 
+        //         recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id))
+        //         //<! 1.c.4 get variable a(u|o) and set constant 
+        //         expr -= this->getQValueRealistic(compressed_occupancy_state, joint_history, action, next_hidden_state, next_observation, probability, difference) * var[recover];
+        //     }               
+
+        //     // <! get variable \omega_k(x',o')
+        //     recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history));
+        //     model.add(IloIfThen(env, var[recover] > 0, expr <= 0));
+        // }
+        // catch (const std::exception &exc)
+        // {
+        //     // catch anything thrown within try block that derives from std::exception
+        //     std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothIloIfThen(..) exception caught: " << exc.what() << std::endl;
+        //     exit(-1);
+        // }
+    }
+
+    void ActionVFSawtoothLP::createInitialConstrainteSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number ){}
+
+    void ActionVFSawtoothLP::createObjectiveFunctionSerial(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &, IloNumVarArray &, IloObjective &, number ){}
 
     
 }

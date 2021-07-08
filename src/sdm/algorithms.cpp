@@ -11,7 +11,10 @@
 
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
+#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
+
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+// #include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
 
 #include <sdm/parser/parser.hpp>
 
@@ -25,7 +28,7 @@ namespace sdm
 {
     namespace algo
     {
-        std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, double time_max, std::string, number , std::string )
+        std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, double time_max, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming )
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -73,21 +76,21 @@ namespace sdm
             }
             else if (upper_bound_name == "sawtooth_lp")
             {
-                // if (type_sawtooth_linear_programming == "Full")
-                // {
-                //     if (current_type_of_resolution == "BigM")
-                //     {
-                //         // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
-                //     }
-                //     else
-                //     {
-                //         // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP>(problem, horizon, ub_init, TypeOfResolution::IloIfThenResolution, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
-                //     }
-                // }
-                // else
-                // {
-                //     // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING);
-                // }
+                if (type_sawtooth_linear_programming == "Full")
+                {
+                    if (current_type_of_resolution == "BigM")
+                    {
+                        upper_bound = std::make_shared<PointSetValueFunction>(horizon,ub_init,tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::BigM,BigM,TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING));
+                    }
+                    else
+                    {
+                        upper_bound = std::make_shared<PointSetValueFunction>(horizon,ub_init,tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem,TypeOfResolution::IloIfThenResolution,0,TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING));
+                    }
+                }
+                else
+                {
+                    upper_bound = std::make_shared<PointSetValueFunction>(horizon,ub_init,tabular_backup,std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::BigM,BigM,TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING));
+                }
             }
             else
             {
@@ -121,7 +124,7 @@ namespace sdm
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
-                    auto oMDP = std::make_shared<OccupancyMDP>(file, (truncation > 0) ? truncation : horizon,false);
+                    auto oMDP = std::make_shared<OccupancyMDP>(file, (truncation > 0) ? truncation : horizon,true);
                     p_algo = makeHSVI(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
@@ -139,7 +142,7 @@ namespace sdm
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
                     auto serialized_pomdp = std::make_shared<SerializedMPOMDP>(file);
-                    auto s_oMDP = std::make_shared<OccupancyMDP>(serialized_pomdp, (truncation > 0) ? truncation : horizon,false);
+                    auto s_oMDP = std::make_shared<OccupancyMDP>(serialized_pomdp, (truncation > 0) ? truncation : horizon,true);
                     p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
                 }
             }

@@ -148,15 +148,9 @@ if(JEROME)
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan_lp.cpp
 		${INCLUDE_DIR}/utils/value_function/action_vf/action_sawtooth_lp.cpp
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_sawtooth_lp_occupancy.cpp
 
 		${INCLUDE_DIR}/utils/linear_programming/**
-
-
-
 		${INCLUDE_DIR}/world/gym_interface.cpp
-
-
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)

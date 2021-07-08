@@ -29,11 +29,19 @@ namespace sdm
 
             ///////  BEGIN CORE CPLEX Code  ///////
 
+            std::cout<<"createVariables"<<std::endl;
+
             this->createVariables(vf,state, env, var, t);
+
+            std::cout<<"createObjectiveFunction"<<std::endl;
 
             this->createObjectiveFunction(vf, state, var, obj, t);
 
+            std::cout<<"createConstraints"<<std::endl;
+
             this->createConstraints(vf, state, env,model, con, var, index, t);
+
+            std::cout<<"End Create"<<std::endl;
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
@@ -42,23 +50,32 @@ namespace sdm
             cplex.setOut(env.getNullStream());
             cplex.setWarning(env.getNullStream());
 
+            std::cout<<"Tau "<<t<<std::endl;
+
+            // cplex.exportModel("lb_bellman_op.lp");
+            // system("cat lb_bellman_op.lp");
+
             // Optimize the problem and obtain solution
             if (!cplex.solve())
             {
                 env.error() << "Failed to optimize MILP" << std::endl;
-                cplex.exportModel("lb_bellman_op.lp");
-                system("cat lb_bellman_op.lp");
+                // cplex.exportModel("lb_bellman_op.lp");
+                // system("cat lb_bellman_op.lp");
                 // throw(-1);
             }
             else
             {
                 value = cplex.getObjValue();
+                std::cout<<"getVariableResult"<<std::endl;
+
                 action = this->getVariableResult(vf,state, cplex,var,t);
+                std::cout<<"getVariableResult End"<<std::endl;
+
             }
         }
         catch (IloException &e)
         {
-            //"Concert exception caught: " << e << std::endl;
+            std::cerr << "Concert exception caught: " << e << std::endl;
         }
         catch (const std::exception &exc)
         {

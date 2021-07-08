@@ -1,3 +1,5 @@
+#pragma once
+
 #include <sdm/utils/linear_programming/lp_problem.hpp>
 #include <sdm/utils/linear_programming/variable_naming.hpp>
 

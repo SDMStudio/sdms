@@ -22,6 +22,9 @@ namespace sdm
         double operator()(const std::shared_ptr<State> &, const number &);
 
         double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action> > &, const number &);
+        double operatorQTableState(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau);
+        double operatorQTableBelief(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau);
+
 
         bool isPomdpAvailable();
         bool isMdpAvailable();
