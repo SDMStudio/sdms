@@ -18,7 +18,6 @@ namespace sdm
     {
         TabularValueFunction::updateValueAt(state, t, target);
 
-        // 
         if (this->last_prunning == this->freq_prune_)
         {
             for (number time = 0; time < this->getHorizon(); time++)
@@ -42,7 +41,7 @@ namespace sdm
                 // res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
                 // res << "\t\t</state>" << std::endl;
                 std::ostringstream state_str;
-                state_str << pair_st_val.first;
+                state_str << pair_st_val.first->str();
                 res << "\t\t<state>" << std::endl;
                 res << tools::addIndent(state_str.str(), 3) << std::endl;
                 res << "\t\t</state>" << std::endl;
@@ -91,6 +90,10 @@ namespace sdm
 
     Pair<std::shared_ptr<State>,double> PointSetValueFunction::evaluate(const std::shared_ptr<State>& state, number t)
     {
+        #ifdef LOGTIME
+            this->StartTime();
+        #endif
+
         assert(this->getInitFunction() != nullptr);
         assert(state->getTypeState() != TypeState::STATE);
 
@@ -130,6 +133,11 @@ namespace sdm
                 argmin_ = element_belief_state;
             }
         }
+
+        #ifdef LOGTIME
+            this->updateTime("Evaluate");
+        #endif
+        
         return std::make_pair(argmin_,v_ub_state + min_ext);
     }
 

@@ -29,7 +29,7 @@ namespace sdm
 
     void HSVI::initLogger()
     {
-        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\n";
+        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({}) \t LB_size({}) \t UB_size({}) \t Time({})\n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
@@ -38,7 +38,7 @@ namespace sdm
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
 
         // Build a logger that stores data in a CSV file
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB","Size_LB","Size_UB", "Time"});
 
         // Build a multi logger that combines previous loggers
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
@@ -64,9 +64,13 @@ namespace sdm
         clock_t t_begin = clock();
         do
         {
+            #ifdef LOGTIME 
+                this->printTime();
+            #endif
+
             // Logging (save data and print algorithms variables)
             //---------------------------------//
-            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
             //---------------------------------//
 
             this->do_explore(start_state, 0, 0);
@@ -74,8 +78,8 @@ namespace sdm
         } while (!this->do_stop(start_state, 0, 0) && (this->time_max_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)));
 
         //---------------------------------//
-        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-        //std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
+        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
 
@@ -95,17 +99,45 @@ namespace sdm
                     this->lower_bound_->updateValueAt(s, h);
                     this->upper_bound_->updateValueAt(s, h);
                 }
+
+                #ifdef LOGTIME 
+                    this->StartTime();
+                #endif
+
                 // Select next action and state following search process
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
 
+                #ifdef LOGTIME 
+                    this->updateTime("Action");
+                    this->StartTime();
+                #endif
+
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
+
+                #ifdef LOGTIME 
+                    this->updateTime("Next State");
+                #endif
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
 
+                #ifdef LOGTIME 
+                    this->StartTime();
+                #endif
+
                 // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
+
+                #ifdef LOGTIME 
+                    this->updateTime("Update Lower");
+                    this->StartTime();
+                #endif
+                
                 this->upper_bound_->updateValueAt(s, h);
+
+                #ifdef LOGTIME 
+                    this->updateTime("Update Upper");
+                #endif
             }
 
             //---------------DEBUG-----------------//
@@ -180,4 +212,46 @@ namespace sdm
     {
         return this->lower_bound_->getValueAt(this->world_->getInitialState());
     }
+
+    #ifdef LOGTIME
+        void HSVI::StartTime()
+        {
+            this->time_start = clock();
+        }
+
+        void HSVI::updateTime(std::string information)
+        {
+            if(information == "Action")
+            {
+                this->total_time_select_action += (float)(clock() - this->time_start)  / CLOCKS_PER_SEC;
+            }
+            else if(information == "Update Lower")
+            {
+                this->total_time_update_lower += (float)(clock() - this->time_start)  / CLOCKS_PER_SEC;
+            }
+            else if(information == "Update Upper")
+            {
+                this->total_time_update_upper += (float)(clock() - this->time_start )  / CLOCKS_PER_SEC;
+            }            
+            else if(information == "Next State")
+            {
+                this->total_time_next_state += (float)(clock() - this->time_start)  / CLOCKS_PER_SEC;
+            }
+        }
+
+        void HSVI::printTime()
+        {
+            std::cout<<"Total Time Select Action :"<<this->total_time_select_action<<std::endl;
+            std::cout<<"Total Time Update Lower :"<<this->total_time_update_lower<<std::endl;
+            std::cout<<"Total Time Update Upper :"<<this->total_time_update_upper<<std::endl;
+            std::cout<<"Total Time Determien Next State : "<<this->total_time_next_state<<std::endl;
+
+            std::cout<<"\n Total Time Lower Bound : "<<std::endl;
+            this->lower_bound_->printTime();
+
+            std::cout<<"\n Total Time Upper Bound : "<<std::endl;
+            this->upper_bound_->printTime();
+        }
+    #endif
+
 } // namespace sdm

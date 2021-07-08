@@ -163,6 +163,8 @@ namespace sdm
         std::shared_ptr<Space> getActionSpaceAt(number t);
         void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
 
+        static RecursiveMap<std::pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>, std::shared_ptr<JointHistoryBeliefPair>> map_pair_to_pointer_;
+
     protected:
         /**
          * @brief the number of agents 
@@ -211,8 +213,6 @@ namespace sdm
         RecursiveMap<std::shared_ptr<JointHistoryInterface>, std::set<std::shared_ptr<BeliefInterface>>> map_joint_history_to_belief_;
 
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
-
-        static RecursiveMap<std::pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>, std::shared_ptr<JointHistoryBeliefPair>> map_pair_to_pointer_;
 
         /**
          * @brief Get the Private Occupancy States object

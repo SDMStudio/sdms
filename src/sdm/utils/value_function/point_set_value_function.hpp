@@ -1,4 +1,5 @@
 #pragma once
+#define LOGTIME
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>

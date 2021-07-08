@@ -57,35 +57,4 @@ namespace sdm
     {
         return false;
     }
-
-    // ****** Belief Graph  ****** A faire ********* // 
-    // template <typename TState, typename TAction, typename TObservation>
-    // Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf) : pomdp_vf_(vf)
-    // {
-    //     throw sdm::exception::NotImplementedException();
-    // }
-
-    // template <typename TState, typename TAction, typename TObservation>
-    // double Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::operator()(const OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>> &, const number &)
-    // {
-    //     throw sdm::exception::NotImplementedException();
-    // }
-
-    // template <typename TState, typename TAction, typename TObservation>
-    // double Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::operator()(const Pair<TState,number> &, const number &)
-    // {
-    //     throw sdm::exception::NotImplementedException();
-    // }
-
-    // template <typename TState, typename TAction, typename TObservation>
-    // bool Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::isPomdpAvailable()
-    // {
-    //     return true;
-    // }
-
-    // template <typename TState, typename TAction, typename TObservation>
-    // bool Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::isMdpAvailable()
-    // {
-    //     return false;
-    // }
 } // namespace sdm

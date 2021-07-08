@@ -53,6 +53,7 @@ namespace sdm
             std::shared_ptr<sdm::ValueFunction> lower_bound;
             std::shared_ptr<sdm::ValueFunction> upper_bound;
 
+            // Lower Bound
             if (lower_bound_name == "maxplan")
             {
                 lower_bound = std::make_shared<HyperplanValueFunction>(horizon,lb_init,maxplan_backup,action_maxplan);
@@ -70,6 +71,7 @@ namespace sdm
                 lower_bound = std::make_shared<TabularValueFunction>(horizon,lb_init,tabular_backup,action_tabular);
             }
 
+            // Upper Bound
             if (upper_bound_name == "sawtooth")
             {
                 upper_bound = std::make_shared<PointSetValueFunction>(horizon,ub_init,tabular_backup,action_tabular);

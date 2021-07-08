@@ -15,7 +15,6 @@ namespace sdm
         for (const auto &action : *space)
         {
             auto casted_action = action->toAction();
-            // std::cout<<"max value "<<max<<std::endl;
             if (max < (tmp = vf->template backup<double>(state, casted_action, t)))
             {
                 best_action = casted_action;

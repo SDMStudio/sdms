@@ -55,6 +55,51 @@ namespace sdm
 
     std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
-        return this->action_->selectBestAction(this->getptr(), state, t);
+        #ifdef LOGTIME
+            this->StartTime();
+        #endif
+
+        auto action = this->action_->selectBestAction(this->getptr(), state, t);
+
+        #ifdef LOGTIME
+            this->updateTime("Best Action");
+        #endif
+
+        return action;
     }
+
+    #ifdef LOGTIME
+        void ValueFunction::StartTime()
+        {
+            this->time_start = clock();
+        }
+
+        void ValueFunction::updateTime(std::string information)
+        {
+            if(information == "backup")
+            {
+                this->total_time_update_backup += (float)(clock() - this->time_start)/ CLOCKS_PER_SEC;
+            }
+            else if(information == "Best Action")
+            {
+                this->total_time_update_best_action += (float)(clock() - this->time_start)/ CLOCKS_PER_SEC;
+            }
+            else if(information == "Exist")
+            {
+                this->total_time_exist += (float)(clock() - this->time_start )/ CLOCKS_PER_SEC;
+            }            
+            else if(information == "Evaluate")
+            {
+                this->total_time_evaluate += (float)(clock() - this->time_start)/ CLOCKS_PER_SEC;
+            }
+        }
+
+        void ValueFunction::printTime()
+        {
+            std::cout<<"\t Total Time Backup :"<<this->total_time_update_backup<<std::endl;
+            std::cout<<"\t Total Time Best Action :"<<this->total_time_update_best_action<<std::endl;
+            std::cout<<"\t Total Time Exist :"<<this->total_time_exist<<std::endl;
+            std::cout<<"\t Total Time Evaluate : "<<this->total_time_evaluate<<std::endl;
+        }
+    #endif
 } // namespace sdm

@@ -52,7 +52,6 @@ namespace sdm
 
     void TabularValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        // std::cout<<"Action "<<this->getBestAction(state, t)->str()<<std::endl;
         this->updateValueAt(state, t, this->template backup<double>(state, this->getBestAction(state, t), t));
     }
 

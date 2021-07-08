@@ -43,7 +43,7 @@ namespace sdm
     {
         const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state,this->getBestAction(state,t),t)->toBelief();
 
-        if (!this->exist(new_hyperplan->getVectorInferface(),t))
+        if (!this->exist(new_hyperplan,t))
             this->representation[t].push_back(new_hyperplan);
 
         if (this->last_prunning == this->freq_prune_)
@@ -166,32 +166,49 @@ namespace sdm
         // }
     }
 
-    bool HyperplanValueFunction::exist(const std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>& new_vector,number t, double precision)
+    bool HyperplanValueFunction::exist(const std::shared_ptr<BeliefInterface>& new_vector,number t, double precision)
     {
+        #ifdef LOGTIME
+            this->StartTime();
+        #endif
+
         for(const auto& element : this->representation[t])
         {
-            auto vecto = element->toBelief()->getVectorInferface();
-
-            if(vecto->size() != new_vector->size())
+            if(new_vector->operator==(element->toBelief()))
             {
-                continue;
-            }
+                #ifdef LOGTIME
+                    this->updateTime("Exist");
+                #endif
 
-            bool same_as_vecto = true;
-            for (const auto &index : vecto->getIndexes())
-            {
-                if(new_vector->getValueAt(index) != vecto->getValueAt(index))
-                {
-                    same_as_vecto = false;
-                    break;
-                }
-            }
-
-            if(same_as_vecto== true)
-            {
                 return true;
-            }
+            } 
+            // auto vecto = element->toBelief()->getVectorInferface();
+
+            // if(vecto->size() != new_vector->size())
+            // {
+            //     continue;
+            // }
+
+            // bool same_as_vecto = true;
+            // for (const auto &index : vecto->getIndexes())
+            // {
+            //     if(new_vector->getVectorInferface()->getValueAt(index) != vecto->getValueAt(index))
+            //     {
+            //         same_as_vecto = false;
+            //         break;
+            //     }
+            // }
+
+            // if(same_as_vecto== true)
+            // {
+            //     return true;
+            // }
         }
+
+        #ifdef LOGTIME
+            this->updateTime("Exist");
+        #endif
+
         return false;
     }
 
@@ -199,6 +216,10 @@ namespace sdm
     {
         try
         {
+            #ifdef LOGTIME
+                this->StartTime();
+            #endif
+
             double current, max = -std::numeric_limits<double>::max();
             std::shared_ptr<BeliefInterface> alpha_vector;
 
@@ -216,6 +237,11 @@ namespace sdm
                     alpha_vector = belief_plan;
                 }
             }
+
+            #ifdef LOGTIME
+                this->updateTime("Evaluate");
+            #endif
+            
             return {alpha_vector,max};
         }
         catch(const std::exception& e)

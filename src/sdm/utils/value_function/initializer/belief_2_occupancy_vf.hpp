@@ -25,22 +25,4 @@ namespace sdm
         bool isMdpAvailable();
 
     };
-
-    // template <typename TState, typename TAction, typename TObservation>
-    // class Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>
-    //     : public RelaxedValueFunction<TState,OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>
-    // {
-    // protected:
-    //     std::shared_ptr<ValueFunction<TState, TAction>> pomdp_vf_;
-
-    // public:
-    //     Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf);
-
-    //     double operator()(const OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>> &ostate, const number &tau);
-    //     double operator()(const Pair<TState, number> &ostate, const number &tau);
-
-    //     bool isPomdpAvailable();
-    //     bool isMdpAvailable();
-    // };
-
 } // namespace sdm

@@ -1,4 +1,5 @@
 #pragma once
+#define LOGTIME
 
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
@@ -97,10 +98,42 @@ namespace sdm
         template <typename TData>
         TData backup(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t)
         {
-            return std::static_pointer_cast<BackupInterface<TData>>(this->backup_)->backup(this->getptr(),state,action,t);
+            #ifdef LOGTIME
+                this->StartTime();
+            #endif
+
+            auto backup = std::static_pointer_cast<BackupInterface<TData>>(this->backup_)->backup(this->getptr(),state,action,t);
+
+            #ifdef LOGTIME 
+                this->updateTime("backup");
+            #endif
+
+            return backup;
         }
 
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<State>& state, number t);
+
+        #ifdef LOGTIME
+            double time_start;
+            double total_time_update_backup =0;
+            double total_time_update_best_action =0;
+            double total_time_evaluate =0;
+            double total_time_exist =0;
+
+            void StartTime();
+            void updateTime(std::string information);
+            void printTime();
+        #endif
+
+        int getSize()
+        {
+            int total_size = 0;
+            for(int t=0;t<this->horizon_;t++)
+            {
+                total_size += this->getSupport(t).size();
+            }
+            return total_size;
+        }
 
     protected:
         /**

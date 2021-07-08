@@ -9,6 +9,7 @@
  * 
  */
 #pragma once
+#define LOGTIME
 
 #include <string>
 
@@ -66,6 +67,17 @@ namespace sdm
 
     void initLogger();
 
+    #ifdef LOGTIME
+      double time_start;
+      double total_time_select_action =0;
+      double total_time_next_state =0;
+      double total_time_update_upper =0;
+      double total_time_update_lower =0;
+
+      void StartTime();
+      void updateTime(std::string information);
+      void printTime();
+    #endif
   public:
     /**
      * @brief Construct the HSVI object.

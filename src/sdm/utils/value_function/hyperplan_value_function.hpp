@@ -1,4 +1,5 @@
 #pragma once
+#define LOGTIME
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
@@ -89,7 +90,7 @@ namespace sdm
          */
         double getDefaultValue(number );
 
-        bool exist(const std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>&,number t, double precision = PRECISION);
+        bool exist(const std::shared_ptr<BeliefInterface>&,number t, double precision = PRECISION);
 
         Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State> &state, number t);
 
@@ -98,7 +99,7 @@ namespace sdm
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;
 
-        std::vector<std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>> getAllVectorInterface(number t);
+        // std::vector<std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>> getAllVectorInterface(number t);
 
 
         /**
