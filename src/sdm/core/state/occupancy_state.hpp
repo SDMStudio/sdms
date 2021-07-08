@@ -41,6 +41,8 @@ namespace sdm
         void addProbability(const std::shared_ptr<State> &pair_history_belief, double proba);
         void addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba);
 
+        Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> sampleJointHistoryBelief();
+        
         /**
          * @brief Get the set of joint histories that are in the support of the occupancy state.
          * @return the possible joint hitories

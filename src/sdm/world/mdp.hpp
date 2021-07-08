@@ -139,6 +139,8 @@ namespace sdm
 
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
 
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
+
         void setInternalState(std::shared_ptr<State>);
 
         std::shared_ptr<State> getInternalState() const;
