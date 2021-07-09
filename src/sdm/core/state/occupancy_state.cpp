@@ -115,7 +115,8 @@ namespace sdm
                 distribution->setProbability(std::make_pair(joint_history, belief), this->getProbability(joint_history, belief));
             }
         }
-        return distribution->sample();
+        auto jhb = distribution->sample();
+        return jhb;
     }
 
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const

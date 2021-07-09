@@ -12,7 +12,7 @@ namespace sdm
         {
         public:
                 SampledOccupancyMDP();
-                SampledOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool store_action_spaces = true, int batch_size = 16);
+                SampledOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, int batch_size = 16, bool store_action_spaces = true);
         protected:
                 int batch_size_;
                 Pair<std::shared_ptr<State>, double> computeNextStateAndProba(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);

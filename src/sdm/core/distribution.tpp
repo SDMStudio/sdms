@@ -9,9 +9,15 @@ namespace sdm
     template <typename T>
     T DiscreteDistribution<T>::sample() const
     {
+        // std::cout << "DiscreteDistribution<T>::sample()" << std::endl;
         // std::vector<double> list_probabilities = tools::extractValues(this->probabilities_);
         std::discrete_distribution<size_t> distrib(this->probabilities_.begin(), this->probabilities_.end());
-        return this->bimap_item_to_index_.right.at(distrib(common::global_urng()));
+        auto n = distrib(common::global_urng());
+        // std::cout << "this->bimap_item_to_index_.size() " << this->bimap_item_to_index_.size() << std::endl;
+        // std::cout << "n " << n << std::endl;
+        for (auto it = this->bimap_item_to_index_.begin(); it != this->bimap_item_to_index_.end(); ++it)
+            // std::cout << it->left << " " << it->right << "\n";
+        return this->bimap_item_to_index_.right.at(n);
     }
 
     template <typename T>
