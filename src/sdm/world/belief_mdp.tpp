@@ -219,4 +219,10 @@ namespace sdm
         return std::dynamic_pointer_cast<POMDPInterface>(this->getUnderlyingMDP());
     }
 
+    template <class TBelief>
+    std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> BaseBeliefMDP<TBelief>::getMDPGraph()
+    {
+        return this->mdp_graph_;
+    }
+
 } // namespace sdm

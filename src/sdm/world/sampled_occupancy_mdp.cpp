@@ -25,7 +25,7 @@ namespace sdm
     {
         try
         {
-            // std::cout << "hey" << std::endl;
+            // std::cout << "START" << std::endl;
             auto occupancy_state = ostate->toOccupancyState();
             auto decision_rule = action->toDecisionRule();
 
@@ -40,7 +40,7 @@ namespace sdm
             std::unordered_map<std::shared_ptr<HistoryInterface>, Pair<double, std::unordered_map<std::shared_ptr<State>, double>>> w_y_bag;
 
             // This map is for keeping track of the joint history and next observation for each next joint history.
-            std::unordered_map<std::shared_ptr<HistoryInterface>, Pair<std::shared_ptr<HistoryInterface>, std::shared_ptr<Observation>>> w_o_z_map;
+            std::unordered_map<std::shared_ptr<HistoryInterface>, Tuple<std::shared_ptr<HistoryInterface>, std::shared_ptr<BeliefInterface>, std::shared_ptr<Action>, std::shared_ptr<Observation>>> w__o_b_u_z__map;
 
             this->sampled_reward_ = 0.0;
 
@@ -74,7 +74,7 @@ namespace sdm
                     // Set (next_joint_history, next_state)'s counter to 1.
                     w_y_bag[next_joint_history].second[next_state] = 1;
                     // These two will be needed later.
-                    w_o_z_map[next_joint_history] = std::make_pair(joint_history, next_observation);
+                    w__o_b_u_z__map[next_joint_history] = std::make_tuple(joint_history, belief, joint_action, next_observation);
                 }
                 // If next_joint_history was seen before:
                 else
@@ -101,18 +101,42 @@ namespace sdm
             {
                 auto next_joint_history = i.first;
                 auto next_joint_history_count = i.second.first;
-                auto y_bag = i.second.second;
-                // this->belief_mdp_->
-                std::shared_ptr<BeliefInterface> next_belief = std::make_shared<Belief>();
-                for (auto const j : y_bag)
+                auto joint_history = std::get<0>(w__o_b_u_z__map[next_joint_history]);
+                auto belief = std::get<1>(w__o_b_u_z__map[next_joint_history]);
+                auto joint_action = std::get<2>(w__o_b_u_z__map[next_joint_history]);
+                auto next_observation = std::get<3>(w__o_b_u_z__map[next_joint_history]);
+                std::shared_ptr<BeliefInterface> next_belief;
+                auto belief_graph = this->belief_mdp_->getMDPGraph();
+                auto successor = belief_graph->getNode(belief)->getSuccessor(std::make_pair(joint_action, next_observation));
+                // If already in the successor list
+                if (successor != nullptr)
                 {
-                    auto next_state = j.first;
-                    auto next_state_count = j.second;
-                    next_belief->setProbability(next_state, next_state_count / next_joint_history_count);
+                    // Return the successor node
+                    next_belief =  successor->getData()->toBelief();
                 }
+                else
+                {
+                    auto y_bag = i.second.second;
+                    next_belief = std::make_shared<Belief>();
+
+                    for (auto const j : y_bag)
+                    {
+                        auto next_state = j.first;
+                        auto next_state_count = j.second;
+                        next_belief->setProbability(next_state, next_state_count / next_joint_history_count);
+                    }
+                }
+                belief_graph->addNode(next_belief);
                 new_fully_uncompressed_occupancy_state->addProbability(next_joint_history->toJointHistory(), next_belief, next_joint_history_count / this->batch_size_);
-                auto joint_history = w_o_z_map[next_joint_history].first;
-                auto next_observation = w_o_z_map[next_joint_history].second;
+                
+                auto joint_history_ = next_joint_history->getPreviousHistory();
+                auto next_observation_ = next_joint_history->getObservation();
+                // std::cout << "(joint_history == joint_history_) " << (joint_history == joint_history_) << std::endl;
+                // std::cout << "(next_observation == next_observation_) " << (next_observation == next_observation_) << std::endl;
+                // std::cout << "joint_history " << joint_history << std::endl;
+                // std::cout << "joint_history_ " << joint_history_ << std::endl;
+                // std::cout << "next_observation " << next_observation << std::endl;
+                // std::cout << "next_observation_ " << next_observation_ << std::endl;
                 auto compressed_joint_history = occupancy_state->getCompressedJointHistory(joint_history->toJointHistory());
                 auto next_compressed_joint_history = compressed_joint_history->expand(next_observation->toObservation());
                 new_one_step_left_compressed_occupancy_state->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_count / this->batch_size_);
