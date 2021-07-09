@@ -81,7 +81,12 @@ namespace sdm
                 this->do_test_ = false;
             }
         }
-        std::cout << "Final QValue :" << *this->q_value_table_ << std::endl;
+        // std::cout << *this->q_value_table_ << std::endl;
+        // this->q_value_table_->printNumberOfActions();
+        // std::ofstream QValueStream(this->name_ + ".qvalue");
+        // QValueStream << *this->q_value_table_ << std::endl;
+        // QValueStream.close();
+
     }
 
     void QLearning::do_save()
@@ -166,7 +171,7 @@ namespace sdm
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
         if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation, this->step))
         {
-            return this->env_->getRandomAction(observation, this->step);
+            return this->env_->getActionSpaceAt(observation, this->step)->sample()->toAction();
         }
         else
         {

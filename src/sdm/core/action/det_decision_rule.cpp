@@ -53,9 +53,9 @@ namespace sdm
     {
         std::ostringstream res;
         res << "<decision-rule type=\"deterministic\">" << std::endl;
-        for (const auto &pair_s_a : this->map_state_to_action_)
+        for (const auto &state_action : this->map_state_to_action_)
         {
-            res << "\t<decision state=\"" << pair_s_a.first->str() << "\" action=\"" << *pair_s_a.second << "/>" << std::endl;
+            res << "\t<decision state=\"" << state_action.first->str() << "\" action=\"" << *state_action.second << "\"/>" << std::endl;
         }
         res << "<decision-rule/>";
         return res.str();

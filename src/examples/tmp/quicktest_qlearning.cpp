@@ -16,7 +16,9 @@
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
+// #include <sdm/world/sampled_belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/sampled_occupancy_mdp.hpp>
 
 
 using namespace sdm;
@@ -85,8 +87,6 @@ int learn(int argv, char **args)
 
         common::global_urng().seed(seed);
 
-        // auto dpomdp = sdm::parser::parse_file("../data/world/dpomdp/boxPushingUAI07.dpomdp");
-        // auto dpomdp = sdm::parser::parse_file("../data/world/dpomdp/Grid3x3corners.dpomdp");
         auto dpomdp = sdm::parser::parse_file(path);
 
         auto state_space = dpomdp->getStateSpace();
@@ -120,9 +120,17 @@ int learn(int argv, char **args)
         {
             gym = std::make_shared<BeliefMDP>(dpomdp);
         }
+        // else if (formalism == "SampledBeliefMDP")
+        // {
+        //     gym = std::make_shared<SampledBeliefMDP>(dpomdp, batch_size);
+        // }
         else if (formalism == "OccupancyMDP")
         {
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory);
+        }
+        else if (formalism == "SampledOccupancyMDP")
+        {
+            gym = std::make_shared<SampledOccupancyMDP>(dpomdp, memory, batch_size);
         }
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();

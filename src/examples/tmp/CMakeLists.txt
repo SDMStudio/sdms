@@ -231,7 +231,7 @@ endif()
 
 # Build documentation
 if(QLEARNING)
-    message(STATUS "Build Baris quicktest.")
+    message(STATUS "Build Qlearning quicktest.")
 	#### This section can be uncommented and rewrite in order to compile only a part of sdms (quicktest.cpp file)
 
 	# LIB CORE
@@ -268,6 +268,7 @@ if(QLEARNING)
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
+		${INCLUDE_DIR}/world/sampled_occupancy_mdp.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/qvalue_function.cpp

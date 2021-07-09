@@ -105,6 +105,19 @@ namespace sdm
         }
     }
 
+    Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> OccupancyState::sampleJointHistoryBelief()
+    {
+        auto distribution = std::make_shared<DiscreteDistribution<Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>>>();
+        for (auto const joint_history: this->getJointHistories())
+        {
+            for (auto const belief: this->getBeliefsAt(joint_history))
+            {
+                distribution->setProbability(std::make_pair(joint_history, belief), this->getProbability(joint_history, belief));
+            }
+        }
+        return distribution->sample();
+    }
+
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
         if (this->size() != other->size())
