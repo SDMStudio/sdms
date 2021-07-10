@@ -40,7 +40,7 @@ namespace sdm
     }
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         std::shared_ptr<TBelief> next_belief = std::make_shared<TBelief>();
 
@@ -90,10 +90,10 @@ namespace sdm
             {
 
                 // Build next belief and proba
-                auto [computed_next_belief, proba_belief] = this->computeNextStateAndProba(belief, action, observation, t);
+                auto [computed_next_belief, next_belief_probability] = this->computeNextStateAndProbability(belief, action, observation, t);
 
                 // Store the probability of next belief
-                this->transition_probability[belief][action][observation] = proba_belief;
+                this->transition_probability[belief][action][observation] = next_belief_probability;
 
                 // Check if the next belief is already in the graph
                 TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
@@ -116,7 +116,7 @@ namespace sdm
         else
         {
             // Return next belief without storing its value in the graph
-            auto [computed_next_belief, proba_belief] = this->computeNextStateAndProba(belief, action, observation, t);
+            auto [computed_next_belief, next_belief_probability] = this->computeNextStateAndProbability(belief, action, observation, t);
             // Check if the next belief is already in the graph
             TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
             auto iterator_on_belief = this->state_space_.find(b);
@@ -157,9 +157,9 @@ namespace sdm
     {
         // Compute reward : \sum_{s} b(s)r(s,a)
         double reward = 0;
-        for (const auto &state : *this->getUnderlyingProblem()->getStateSpace(t))
+        for (const auto &state : belief->toBelief()->getStates())
         {
-            reward += std::static_pointer_cast<BeliefInterface>(belief)->getProbability(state->toState()) * this->getUnderlyingProblem()->getReward(state->toState(), action, t);
+            reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
         }
         return reward;
     }
@@ -194,11 +194,11 @@ namespace sdm
     template <class TBelief>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseBeliefMDP<TBelief>::step(std::shared_ptr<Action> action)
     {
-        // auto [next_obs, rewards, done] = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(action);
-        auto feedback = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(action);
-        auto next_obs = std::get<0>(feedback);
-        this->current_state_ = this->nextBelief(this->current_state_, action, next_obs, this->step_);
-        return std::make_tuple(this->current_state_, std::get<1>(feedback), std::get<2>(feedback));
+        std::tie(this->next_observation_, this->rewards_, this->is_done_) = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(action);
+        double reward = this->getReward(this->current_state_, action, this->step_);
+        this->current_state_ = this->nextBelief(this->current_state_, action, this->next_observation_, this->step_);
+        this->step_++;
+        return std::make_tuple(this->current_state_, std::vector<double>{reward, this->rewards_[0]}, this->is_done_);
     }
 
     template <class TBelief>

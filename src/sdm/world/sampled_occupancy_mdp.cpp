@@ -21,7 +21,7 @@ namespace sdm
         return std::make_tuple(this->current_state_, std::vector<double>{reward}, this->is_done_);
     }
 
-    Pair<std::shared_ptr<State>, double> SampledOccupancyMDP::computeNextStateAndProba(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
+    Pair<std::shared_ptr<State>, double> SampledOccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
         try
         {
@@ -42,8 +42,6 @@ namespace sdm
             // This map is for keeping track of the joint history and next observation for each next joint history.
             std::unordered_map<std::shared_ptr<HistoryInterface>, Tuple<std::shared_ptr<HistoryInterface>, std::shared_ptr<BeliefInterface>, std::shared_ptr<Action>, std::shared_ptr<Observation>>> w__o_b_u_z__map;
 
-            this->sampled_reward_ = 0.0;
-
             for (int k = 0; k < this->batch_size_; k++)
             {
                 // Sample joint history and belief.
@@ -59,7 +57,6 @@ namespace sdm
                 // Sample next observation.
                 auto feedback = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(joint_action, (k == this->batch_size_ - 1));
                 auto next_observation = std::get<0>(feedback);
-                this->sampled_reward_ += std::get<1>(feedback)[0] / this->batch_size_;
                 this->is_done_ = std::get<2>(feedback);
                 // Sample next state.
                 auto next_state = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->getInternalState();
@@ -131,12 +128,6 @@ namespace sdm
                 
                 auto joint_history_ = next_joint_history->getPreviousHistory();
                 auto next_observation_ = next_joint_history->getObservation();
-                // std::cout << "(joint_history == joint_history_) " << (joint_history == joint_history_) << std::endl;
-                // std::cout << "(next_observation == next_observation_) " << (next_observation == next_observation_) << std::endl;
-                // std::cout << "joint_history " << joint_history << std::endl;
-                // std::cout << "joint_history_ " << joint_history_ << std::endl;
-                // std::cout << "next_observation " << next_observation << std::endl;
-                // std::cout << "next_observation_ " << next_observation_ << std::endl;
                 auto compressed_joint_history = occupancy_state->getCompressedJointHistory(joint_history->toJointHistory());
                 auto next_compressed_joint_history = compressed_joint_history->expand(next_observation->toObservation());
                 new_one_step_left_compressed_occupancy_state->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_count / this->batch_size_);
@@ -166,23 +157,6 @@ namespace sdm
             std::cerr << "SampledOccupancyMDP::nextState(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
-    }
-
-    double SampledOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
-    {
-        double reward = 0;
-        for (const auto &joint_history : occupancy_state->toOccupancyState()->getJointHistories())
-        {
-            for (const auto &belief : occupancy_state->toOccupancyState()->getBeliefsAt(joint_history))
-            {
-
-                auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
-                reward += occupancy_state->toOccupancyState()->getProbability(joint_history, belief) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
-                
-            }
-        }
-
-        return reward;
     }
     
 } // namespace sdm

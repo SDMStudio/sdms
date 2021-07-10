@@ -58,6 +58,12 @@ namespace sdm
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
     protected:
         std::shared_ptr<State> current_state_;
+        
+        std::shared_ptr<Observation> next_observation_;
+
+        std::vector<double> rewards_;
+
+        bool is_done_;
 
         int step_;
 
@@ -86,7 +92,7 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<BeliefInterface> 
          */
-        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
     };
 
     using BeliefMDP = BaseBeliefMDP<Belief>;

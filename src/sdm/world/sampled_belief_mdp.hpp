@@ -35,7 +35,7 @@ namespace sdm
         std::vector<std::shared_ptr<State>> initial_x_vector_, current_x_vector_;
         std::vector<double> rewards_vector;
 
-        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
     };
 
     using SampledBeliefMDP = SampledBaseBeliefMDP<Belief>;

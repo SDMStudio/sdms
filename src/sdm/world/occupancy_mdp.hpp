@@ -44,6 +44,6 @@ namespace sdm
 
                 std::shared_ptr<HistoryInterface> initial_history_, current_history_;
 
-                Pair<std::shared_ptr<State>, double> computeNextStateAndProba(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
         };
 } // namespace sdm

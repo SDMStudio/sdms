@@ -50,12 +50,12 @@ namespace sdm
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> OccupancyMDP::step(std::shared_ptr<Action> action)
     {
         auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
-        auto feedback = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(joint_action);
-        auto next_obs = std::get<0>(feedback);
+        std::tie(this->next_observation_, this->rewards_, this->is_done_)  = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(joint_action);
+        double reward = this->getReward(this->current_state_, action, this->step_);
         this->current_state_ = this->nextState(this->current_state_, action, this->step_);
-        this->current_history_ = this->current_history_->expand(next_obs);
+        this->current_history_ = this->current_history_->expand(this->next_observation_);
         this->step_++;
-        return std::make_tuple(this->current_state_, std::get<1>(feedback), std::get<2>(feedback));
+        return std::make_tuple(this->current_state_, std::vector<double>{reward, this->rewards_[0]}, this->is_done_);
     }
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
@@ -105,7 +105,7 @@ namespace sdm
         return this->getActionSpaceAt(ostate->toState(), t);
     }
 
-    Pair<std::shared_ptr<State>, double> OccupancyMDP::computeNextStateAndProba(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
+    Pair<std::shared_ptr<State>, double> OccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
         try
         {
@@ -198,6 +198,7 @@ namespace sdm
 
         // Transform selected joint action into joint action address
         auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action);
+        // Get the adress of the joint action object from the space of available joint action object.
         auto joint_action_address = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*joint_action->toJoint<Item>());
         return joint_action_address->toAction();
     }
@@ -213,7 +214,6 @@ namespace sdm
                 reward += occupancy_state->toOccupancyState()->getProbability(joint_history, belief) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
             }
         }
-
         return reward;
     }
 
