@@ -33,7 +33,7 @@ namespace sdm
     {
     public:
         BaseBeliefMDP();
-        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp);
+        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
 
         std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
         std::shared_ptr<State> nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
@@ -57,9 +57,12 @@ namespace sdm
 
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
     protected:
+        // If 0, it means the exact transtions will be used and not sampled ones.
+        int batch_size_;
+
         std::shared_ptr<State> current_state_;
         
-        std::shared_ptr<Observation> next_observation_;
+        std::shared_ptr<Observation> observation_;
 
         std::vector<double> rewards_;
 
@@ -93,6 +96,9 @@ namespace sdm
          * @return std::shared_ptr<BeliefInterface> 
          */
         virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
     };
 
     using BeliefMDP = BaseBeliefMDP<Belief>;

@@ -17,7 +17,7 @@ namespace sdm
     // }
 
     template <class TBelief>
-    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp) : SolvableByMDP(pomdp)
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size) : SolvableByMDP(pomdp), batch_size_(batch_size)
     {
         auto initial_state = std::make_shared<TBelief>();
 
@@ -42,32 +42,85 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        std::shared_ptr<TBelief> next_belief = std::make_shared<TBelief>();
-
-        for (const auto &next_state : *this->getUnderlyingPOMDP()->getStateSpace(t + 1))
-        {
-            double next_state_probability = 0;
-            for (const auto &state : *this->getUnderlyingPOMDP()->getStateSpace(t))
-            {
-                next_state_probability += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
-            }
-            if (next_state_probability > 0)
-            {
-                next_belief->setProbability(next_state->toState(), next_state_probability);
-            }
-        }
-
+        //
+        std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
         // Compute the coefficient of normalization (eta)
-        double eta = next_belief->norm_1();
+        double eta = next_belief->toBelief()->norm_1();
         if (eta > 0)
         {
             // Normalize the belief
-            for (const auto &state : next_belief->getStates())
+            for (const auto &state : next_belief->toBelief()->getStates())
             {
-                next_belief->setProbability(state->toState(), next_belief->getProbability(state->toState()) / eta);
+                next_belief->toBelief()->setProbability(state->toState(), next_belief->toBelief()->getProbability(state->toState()) / eta);
             }
         }
-        return {next_belief, eta};
+        return {next_belief->toBelief(), eta};
+    }
+
+    template <class TBelief>
+    std::shared_ptr<State> BaseBeliefMDP<TBelief>::computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {   
+        if (this->batch_size_ == 0)
+        {
+            return this->computeExactNextState(belief, action, observation, t).first;
+        }
+        else
+        {
+            return this->computeSampledNextState(belief, action, observation, t).first;
+        }
+    }
+
+    template <class TBelief>
+    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        // Create next belief.
+        std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
+        // For each possible next state:
+        for (const auto &next_state : *this->getUnderlyingPOMDP()->getStateSpace(t + 1))
+        {
+            // Set its probability to 0.
+            double next_state_probability = 0;
+            // For each possible state:
+            for (const auto &state : *this->getUnderlyingPOMDP()->getStateSpace(t))
+            {
+                // Add to the the probability of transition * the probability of being in the state.
+                next_state_probability += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
+            }
+            // If the next state is possible:
+            if (next_state_probability > 0)
+            {
+                // Set its probability to the value found.
+                next_belief->toBelief()->setProbability(next_state->toState(), next_state_probability);
+            }
+        }
+        // Return next belief.
+        return std::make_pair(next_belief, nullptr);
+    }
+
+    template <class TBelief>
+    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        // Create next belief.
+        std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
+        //
+        std::shared_ptr<State> true_state = this->getUnderlyingProblem()->getInternalState();
+        //
+        int k = 0;
+        // while
+        while (k < this->batch_size_)
+        {
+            std::shared_ptr<State> state = belief->toBelief()->sampleState();
+            this->getUnderlyingProblem()->setInternalState(state);
+            auto [possible_observation, rewards, is_done] = this->getUnderlyingProblem()->step(action, false);
+            if (observation == possible_observation)
+            {
+                std::shared_ptr<State> next_state = this->getUnderlyingProblem()->getInternalState();
+                next_belief->toBelief()->addProbability(next_state, 1.0 / double(this->batch_size_));
+                k++;
+            }
+        }
+        // Return next belief.
+        return std::make_pair(next_belief, nullptr);
     }
 
     template <class TBelief>
@@ -194,9 +247,9 @@ namespace sdm
     template <class TBelief>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseBeliefMDP<TBelief>::step(std::shared_ptr<Action> action)
     {
-        std::tie(this->next_observation_, this->rewards_, this->is_done_) = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(action);
+        std::tie(this->observation_, this->rewards_, this->is_done_) = this->getUnderlyingProblem()->step(action);
         double reward = this->getReward(this->current_state_, action, this->step_);
-        this->current_state_ = this->nextBelief(this->current_state_, action, this->next_observation_, this->step_);
+        this->current_state_ = this->nextBelief(this->current_state_, action, this->observation_, this->step_);
         this->step_++;
         return std::make_tuple(this->current_state_, std::vector<double>{reward, this->rewards_[0]}, this->is_done_);
     }
