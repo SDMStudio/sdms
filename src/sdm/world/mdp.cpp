@@ -65,7 +65,7 @@ namespace sdm
         return this->state_dynamics_;
     }
 
-    std::shared_ptr<RewardInterface> MDP::getReward() const
+    std::shared_ptr<RewardInterface> MDP::getRewardSpace() const
     {
         return this->reward_space_;
     }
@@ -254,7 +254,7 @@ namespace sdm
             //         res << v_ja[ag] << " ";
             //     }
             //     res << "\" >" << std::endl;
-            //     res << "\t\t\t\t" << this->getReward()->getReward(ja) << std::endl;
+            //     res << "\t\t\t\t" << this->getRewardSpace()->getReward(ja) << std::endl;
             //     res << "\t\t\t</reward-entry>" << std::endl;
             // }
 

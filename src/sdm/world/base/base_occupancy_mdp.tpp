@@ -328,7 +328,7 @@ namespace sdm
         // for (const auto &p_x_o : ostate)
         // {
         //     const auto &jaction = joint_idr.act(p_x_o.first.second->getIndividualHistories());
-        //     r += p_x_o.second * this->getUnderlyingProblem()->getReward()->getReward(p_x_o.first.first, this->getUnderlyingProblem()->getActionSpace()->joint2single(jaction));
+        //     r += p_x_o.second * this->getUnderlyingProblem()->getRewardSpace()->getReward(p_x_o.first.first, this->getUnderlyingProblem()->getActionSpace()->joint2single(jaction));
 
         //     // REPLACE BY IN LATER VERSION
         //     // r += p_x_o.second * this->getUnderlyingProblem()->getReward(x, jaction);

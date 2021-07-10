@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 		std::cout << "observation_space=" << *dpomdp_world->getObsSpace() << "\n\n";
 
 		std::cout << "#> Reward function : \n\n"
-				  << *dpomdp_world->getReward() << "\n\n";
+				  << *dpomdp_world->getRewardSpace() << "\n\n";
 	}
 	catch (sdm::exception::Exception &e)
 	{
