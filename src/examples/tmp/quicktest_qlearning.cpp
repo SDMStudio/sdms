@@ -17,6 +17,7 @@
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 
 using namespace sdm;
@@ -122,6 +123,10 @@ int learn(int argv, char **args)
         else if (formalism == "OccupancyMDP")
         {
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, batch_size);
+        }
+        else if (formalism == "PrivateHierarchicalOccupancyMDP")
+        {
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, batch_size);
         }
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();

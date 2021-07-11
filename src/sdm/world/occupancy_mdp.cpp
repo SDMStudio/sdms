@@ -1,10 +1,5 @@
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/core/state/jhistory_tree.hpp>
-#include <sdm/core/space/function_space.hpp>
-#include <sdm/core/space/multi_discrete_space.hpp>
-#include <sdm/core/action/det_decision_rule.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/action/joint_det_decision_rule.hpp>
+
 
 namespace sdm
 {
@@ -64,36 +59,11 @@ namespace sdm
         // If the action space corresponding to this ostate and t does not exist:
         if (ostate->toOccupancyState()->getActionSpaceAt(t) == nullptr)
         {
-            // Vector of individual deterministic decision rules of each agent.
-            std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
-            // For each agent from 0 to N-1:
-            for (int agent_id = 0; agent_id < this->getUnderlyingProblem()->getNumAgents(); agent_id++)
-            {
-                // Get individual histories of agent i.
-                std::set<std::shared_ptr<HistoryInterface>> individual_histories = ostate->toOccupancyState()->getIndividualHistories(agent_id);
-                // Get individual history space of agent i.
-                std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
-                // Get action space of agent i.
-                std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent_id);
-                // Get individual ddr of agent i.
-                std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_action_spaces_);
-                // Add it to the corresponding vector.
-                individual_ddr_spaces.push_back(individual_ddr_space);
-            }
-
-            // Create the function space of joint deterministic decision rules.
-            std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
-                std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)}),
-                std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_action_spaces_),
-                this->store_action_spaces_);
-
-            // If we don't store action spaces:
+            std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, t);
             if (!this->store_action_spaces_)
             {
-                // Directly return it.
                 return joint_ddr_space;
             }
-            // Store the action space corresponding to this ostate and t.
             ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
         }
 
@@ -104,6 +74,39 @@ namespace sdm
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
     {
         return this->getActionSpaceAt(ostate->toState(), t);
+    }
+
+    std::shared_ptr<Space> OccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
+    {
+        // Vector of individual deterministic decision rules of each agent.
+        std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
+        // For each agent from 0 to N-1:
+        for (int agent = 0; agent < this->getUnderlyingProblem()->getNumAgents(); agent++)
+        {
+            // Get individual histories of agent i.
+            std::set<std::shared_ptr<HistoryInterface>> individual_histories = ostate->toOccupancyState()->getIndividualHistories(agent);
+            // Get individual history space of agent i.
+            std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
+            // Get action space of agent i.
+            std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent);
+            // Get individual ddr of agent i.
+            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_action_spaces_);
+            // Add it to the corresponding vector.
+            individual_ddr_spaces.push_back(individual_ddr_space);
+        }
+
+        // Create the function space of joint deterministic decision rules.
+        std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
+            std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)}),
+            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_action_spaces_),
+            this->store_action_spaces_
+        );
+        return joint_ddr_space;
+    }
+
+    Pair<std::shared_ptr<State>, double> OccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        return {this->computeNextState(ostate, action, observation, t), 1};
     }
 
     std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)

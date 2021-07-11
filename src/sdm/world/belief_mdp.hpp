@@ -64,7 +64,7 @@ namespace sdm
 
         int step_;
 
-        bool backup = true;
+        bool backup_ = true;
 
         RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
 

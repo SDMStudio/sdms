@@ -47,14 +47,7 @@ namespace sdm
         std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
         // Compute the coefficient of normalization (eta)
         double eta = next_belief->toBelief()->norm_1();
-        if (eta > 0)
-        {
-            // Normalize the belief
-            for (const auto &state : next_belief->toBelief()->getStates())
-            {
-                next_belief->toBelief()->setProbability(state->toState(), next_belief->toBelief()->getProbability(state->toState()) / eta);
-            }
-        }
+        next_belief->toBelief()->normalizeBelief(eta);
         return {next_belief->toBelief(), eta};
     }
 
@@ -131,7 +124,7 @@ namespace sdm
     {
         auto action_observation = std::make_pair(action, observation);
 
-        if (this->backup)
+        if (this->backup_)
         {
             // Get the successor
             auto successor = this->mdp_graph_->getNode(belief)->getSuccessor(action_observation);
@@ -153,8 +146,7 @@ namespace sdm
 
                 // Check if the next belief is already in the graph
                 TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
-                auto iterator_on_belief = this->state_space_.find(b);
-                if (iterator_on_belief == this->state_space_.end())
+                if (this->state_space_.find(b) == this->state_space_.end())
                 {
                     // Add the belief in the space of beliefs
                     this->state_space_.emplace(b, computed_next_belief);
@@ -175,8 +167,7 @@ namespace sdm
             auto [computed_next_belief, next_belief_probability] = this->computeNextStateAndProbability(belief, action, observation, t);
             // Check if the next belief is already in the graph
             TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
-            auto iterator_on_belief = this->state_space_.find(b);
-            if (iterator_on_belief == this->state_space_.end())
+            if (this->state_space_.find(b) == this->state_space_.end())
             {
                 // Add the belief in the space of beliefs
                 this->state_space_.emplace(b, computed_next_belief);
