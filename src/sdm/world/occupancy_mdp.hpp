@@ -38,16 +38,17 @@ namespace sdm
                 // void setInitialState(const std::shared_ptr<State> &state);
 
         protected:
-                int batch_size_;
                 bool compression_ = true, store_action_spaces_ = true;
 
                 std::shared_ptr<BeliefMDP> belief_mdp_;
 
                 std::shared_ptr<HistoryInterface> initial_history_, current_history_;
 
-                Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                // Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+
+                std::shared_ptr<HistoryInterface> getNextHistory(const std::shared_ptr<Observation> &observation);
         };
 } // namespace sdm

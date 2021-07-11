@@ -17,8 +17,9 @@ namespace sdm
     // }
 
     template <class TBelief>
-    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size) : SolvableByMDP(pomdp), batch_size_(batch_size)
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size) : SolvableByMDP(pomdp)
     {
+        this->batch_size_ = batch_size;
         auto initial_state = std::make_shared<TBelief>();
 
         // For each state at t=0:
@@ -119,6 +120,8 @@ namespace sdm
                 k++;
             }
         }
+        //
+        this->getUnderlyingProblem()->setInternalState(true_state);
         // Return next belief.
         return std::make_pair(next_belief, nullptr);
     }
@@ -247,11 +250,12 @@ namespace sdm
     template <class TBelief>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseBeliefMDP<TBelief>::step(std::shared_ptr<Action> action)
     {
-        std::tie(this->observation_, this->rewards_, this->is_done_) = this->getUnderlyingProblem()->step(action);
-        double reward = this->getReward(this->current_state_, action, this->step_);
-        this->current_state_ = this->nextBelief(this->current_state_, action, this->observation_, this->step_);
+        auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(action);
+        double belief_reward = this->getReward(this->current_state_, action, this->step_);
+        this->current_state_ = this->nextBelief(this->current_state_, action, observation, this->step_);
         this->step_++;
-        return std::make_tuple(this->current_state_, std::vector<double>{reward, this->rewards_[0]}, this->is_done_);
+        // if sampled ...
+        return std::make_tuple(this->current_state_, std::vector<double>{belief_reward, rewards[0]}, is_done);
     }
 
     template <class TBelief>

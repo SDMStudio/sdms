@@ -57,16 +57,10 @@ namespace sdm
 
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
     protected:
-        // If 0, it means the exact transtions will be used and not sampled ones.
+        // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;
 
         std::shared_ptr<State> current_state_;
-        
-        std::shared_ptr<Observation> observation_;
-
-        std::vector<double> rewards_;
-
-        bool is_done_;
 
         int step_;
 

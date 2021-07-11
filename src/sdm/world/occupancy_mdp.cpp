@@ -14,8 +14,9 @@ namespace sdm
     }
 
     OccupancyMDP::OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, int batch_size , bool store_action_spaces)
-        : batch_size_(batch_size), store_action_spaces_(store_action_spaces)
     {
+        this->batch_size_ = batch_size;
+        this->store_action_spaces_ = store_action_spaces;
         // Set underlying problem
         this->underlying_problem = underlying_dpomdp;
 
@@ -49,13 +50,13 @@ namespace sdm
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> OccupancyMDP::step(std::shared_ptr<Action> action)
     {
-        // auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
-        // std::tie(this->observation_, this->rewards_, this->is_done_)  = this->getUnderlyingProblem()->step(joint_action);
-        double reward = this->getReward(this->current_state_, action, this->step_);
+        auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
+        auto [observation, rewards, is_done]  = this->getUnderlyingProblem()->step(joint_action);
+        double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
         this->current_state_ = this->nextOccupancyState(this->current_state_, action, nullptr, this->step_);
-        // this->current_history_ = this->current_history_->expand(this->observation_);
+        this->current_history_ = this->getNextHistory(observation);
         this->step_++;
-        return std::make_tuple(this->current_state_, std::vector<double>{reward}, this->is_done_);
+        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward, rewards[0]}, is_done);
     }
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
@@ -103,12 +104,6 @@ namespace sdm
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
     {
         return this->getActionSpaceAt(ostate->toState(), t);
-    }
-
-    Pair<std::shared_ptr<State>, double> OccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
-    {
-        std::shared_ptr<State> next_occupancy_state = this->computeNextState(ostate, action, nullptr, t);
-        return std::make_pair(next_occupancy_state, 1);
     }
 
     std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
@@ -202,12 +197,13 @@ namespace sdm
         // This map is for keeping track of the joint history and next observation for each next joint history.
         std::unordered_map<std::shared_ptr<HistoryInterface>, Tuple<std::shared_ptr<HistoryInterface>, std::shared_ptr<BeliefInterface>, std::shared_ptr<Action>, std::shared_ptr<Observation>>> w__o_b_u_z__map;
 
+        //
+        std::shared_ptr<State> true_state = this->getUnderlyingProblem()->getInternalState();
+        //
         for (int k = 0; k < this->batch_size_; k++)
         {
             // Sample joint history and belief.
-            auto joint_history_belief = ostate->toOccupancyState()->sampleJointHistoryBelief();
-            auto joint_history = joint_history_belief.first;
-            auto belief = joint_history_belief.second;
+            auto [joint_history, belief] = ostate->toOccupancyState()->sampleJointHistoryBelief();
             // Sample state.
             auto state = belief->sampleState();
             // Get joint action.
@@ -215,10 +211,7 @@ namespace sdm
             // Set state.
             this->getUnderlyingProblem()->setInternalState(state);
             // Sample next observation.
-            // auto feedback = this->getUnderlyingProblem()->step(joint_action);
-            auto feedback = this->getUnderlyingProblem()->step(joint_action, (k == this->batch_size_ - 1));
-            auto observation = std::get<0>(feedback);
-            this->is_done_ = std::get<2>(feedback);
+            auto [observation, _, __] = this->getUnderlyingProblem()->step(joint_action, false);
             // Sample next state.
             auto next_state = this->getUnderlyingProblem()->getInternalState();
             // Sample next joint history.
@@ -255,14 +248,10 @@ namespace sdm
         }
         
         // Iterate through the (next_joint_history, next_state) pairs.
-        for (auto const i : w_y_bag)
+        for (auto const [next_joint_history, next_joint_history_count__y_bag] : w_y_bag)
         {
-            auto next_joint_history = i.first;
-            auto next_joint_history_count = i.second.first;
-            auto joint_history = std::get<0>(w__o_b_u_z__map[next_joint_history]);
-            auto belief = std::get<1>(w__o_b_u_z__map[next_joint_history]);
-            auto joint_action = std::get<2>(w__o_b_u_z__map[next_joint_history]);
-            auto observation = std::get<3>(w__o_b_u_z__map[next_joint_history]);
+            auto [next_joint_history_count, y_bag] = next_joint_history_count__y_bag;
+            auto [joint_history, belief, joint_action, observation] = w__o_b_u_z__map[next_joint_history];
             std::shared_ptr<BeliefInterface> next_belief;
             auto belief_graph = this->belief_mdp_->getMDPGraph();
             auto successor = belief_graph->getNode(belief)->getSuccessor(std::make_pair(joint_action, observation));
@@ -274,13 +263,10 @@ namespace sdm
             }
             else
             {
-                auto y_bag = i.second.second;
                 next_belief = std::make_shared<Belief>();
 
-                for (auto const j : y_bag)
+                for (auto const [next_state, next_state_count] : y_bag)
                 {
-                    auto next_state = j.first;
-                    auto next_state_count = j.second;
                     next_belief->setProbability(next_state, next_state_count / next_joint_history_count);
                 }
             }
@@ -293,6 +279,8 @@ namespace sdm
             one_step_left_compressed_next_occupancy_state->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_count / this->batch_size_);
             one_step_left_compressed_next_occupancy_state->updateJointLabels(next_joint_history->toJointHistory()->getIndividualHistories(), next_compressed_joint_history->toJointHistory()->getIndividualHistories());
         }
+        //
+        this->getUnderlyingProblem()->setInternalState(true_state);
 
         // Finalize the one step left compressed occupancy state
         one_step_left_compressed_next_occupancy_state->finalize();
@@ -325,6 +313,20 @@ namespace sdm
         // Get the adress of the joint action object from the space of available joint action object.
         auto joint_action_address = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*joint_action->toJoint<Item>());
         return joint_action_address->toAction();
+    }
+
+    std::shared_ptr<HistoryInterface> OccupancyMDP::getNextHistory(const std::shared_ptr<Observation> &observation)
+    {
+        if (this->batch_size_ == 0)
+        {
+            return this->current_history_->expand(observation);
+        }
+        else
+        {
+            auto [jh, b]  = this->current_state_->toOccupancyState()->sampleJointHistoryBelief();
+            this->getUnderlyingProblem()->setInternalState(b->sampleState());
+            return jh;
+        }
     }
 
     double OccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
