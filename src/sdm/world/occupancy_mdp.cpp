@@ -109,7 +109,7 @@ namespace sdm
         return {this->computeNextState(ostate, action, observation, t), 1};
     }
 
-    std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
+    std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> & observation, number t)
     {
         // The new fully uncompressed occupancy state
         std::shared_ptr<State> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
@@ -118,11 +118,11 @@ namespace sdm
         //
         if (this->batch_size_ == 0)
         {
-            std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeExactNextState(ostate, action, nullptr, t);
+            std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeExactNextState(ostate, action, observation, t);
         }
         else
         {
-            std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeSampledNextState(ostate, action, nullptr, t);
+            std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeSampledNextState(ostate, action, observation, t);
         }
         if (this->compression_)
         {

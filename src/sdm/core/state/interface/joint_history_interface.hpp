@@ -19,5 +19,6 @@ namespace sdm
         virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &, bool = true) = 0;
 
         virtual void addIndividualHistory(std::shared_ptr<HistoryInterface> ihist) = 0;
+        // virtual number getNumAgents() const;
     };
 }
