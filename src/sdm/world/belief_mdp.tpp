@@ -122,7 +122,7 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-
+        // std::cout << "Begin Next Belief" << std::endl;
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
@@ -139,26 +139,31 @@ namespace sdm
             }
             else
             {
-
                 // Build next belief and proba
                 auto [computed_next_belief, next_belief_probability] = this->computeNextStateAndProbability(belief, action, observation, t);
 
+                // std::cout << "Pass " << std::endl;
                 // Store the probability of next belief
                 this->transition_probability[belief][action][observation] = next_belief_probability;
 
+                // std::cout << "Pass 2" << std::endl;
                 // Check if the next belief is already in the graph
                 TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
+                // std::cout << "Pass 3" << std::endl;
                 if (this->state_space_.find(b) == this->state_space_.end())
                 {
                     // Add the belief in the space of beliefs
                     this->state_space_.emplace(b, computed_next_belief);
                 }
+                // std::cout << "Pass 4" << std::endl;
 
                 // Get the next belief
                 auto next_belief = this->state_space_.at(b);
+                // std::cout << "Pass 5" << std::endl;
 
                 // Add the sucessor in the list of successors
                 this->mdp_graph_->getNode(belief)->addSuccessor(action_observation, next_belief);
+                // std::cout << "Pass 6" << std::endl;
 
                 return next_belief;
             }
@@ -170,6 +175,7 @@ namespace sdm
             auto [computed_next_belief, proba_belief] = this->computeNextStateAndProbability(belief, action, observation, t);
             return computed_next_belief;
         }
+        // std::cout << "End Next Belief" << std::endl;
     }
 
     template <class TBelief>

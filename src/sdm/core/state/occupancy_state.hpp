@@ -183,6 +183,7 @@ namespace sdm
 
         /** @brief This representation of occupancy states consists of private occupancy states for each agent */
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> tuple_of_maps_from_histories_to_private_occupancy_states_;
+        Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, double>> weight_of_private_occupancy_state_;
 
         /** @brief Keep in memory the uncompressed occupancy states */
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state, compressed_occupancy_state;
@@ -222,8 +223,6 @@ namespace sdm
 
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
 
-        // static RecursiveMap<std::pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>, std::shared_ptr<JointHistoryBeliefPair>> map_pair_to_pointer_;
-
         /**
          * @brief Get the Private Occupancy States object
          * 
@@ -243,6 +242,7 @@ namespace sdm
         void setupIndividualHistories();
         void setupBeliefsAndHistories();
         void setProbabilityOverIndividualHistories();
+        void setupPrivateOccupancyStates();
 
         std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
     };
@@ -259,23 +259,23 @@ namespace std
         inline result_type operator()(const argument_type &in) const
         {
 
-            size_t seed = 0;
-            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
-            std::map<std::shared_ptr<sdm::State>, int> rounded;
-            for (const auto &joint_history : in.getJointHistories())
-            {
-                for (const auto &state : in.getBeliefAt(joint_history)->getStates())
-                {
-                    rounded.emplace(state, lround(sdm::OccupancyState::PRECISION * in.getProbability(joint_history, state)));
-                }
-            }
-            for (const auto &v : rounded)
-            {
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, v);
-            }
-            return seed;
-            // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
+            // size_t seed = 0;
+            // std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
+            // std::map<std::shared_ptr<sdm::State>, int> rounded;
+            // for (const auto &joint_history : in.getJointHistories())
+            // {
+            //     for (const auto &state : in.getBeliefAt(joint_history)->getStates())
+            //     {
+            //         rounded.emplace(state, lround(sdm::OccupancyState::PRECISION * in.getProbability(joint_history, state)));
+            //     }
+            // }
+            // for (const auto &v : rounded)
+            // {
+            //     //Combine the hash of the current vector with the hashes of the previous ones
+            //     sdm::hash_combine(seed, v);
+            // }
+            // return seed;
+            return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }
     };
 }

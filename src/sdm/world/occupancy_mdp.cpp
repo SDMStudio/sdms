@@ -132,8 +132,6 @@ namespace sdm
         {
             std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeSampledNextState(ostate, action, observation, t);
         }
-        // std::cout << "15 - fully_uncompressed_next_occupancy_state=" << fully_uncompressed_next_occupancy_state->str() << std::endl;
-        // std::cout << "15 - one_step_left_compressed_next_occupancy_state=" << one_step_left_compressed_next_occupancy_state->str() << std::endl;
 
         if (this->compression_)
         {
@@ -141,7 +139,7 @@ namespace sdm
             std::shared_ptr<State> compressed_next_occupancy_state;
             // Compress the occupancy state
             compressed_next_occupancy_state = one_step_left_compressed_next_occupancy_state->toOccupancyState()->compress();
-            // std::cout << "16" << std::endl;
+            // std::cout << "15 - compressed_next_occupancy_state=" << compressed_next_occupancy_state->str() << std::endl;
             compressed_next_occupancy_state->toOccupancyState()->setFullyUncompressedOccupancy(fully_uncompressed_next_occupancy_state->toOccupancyState());
             compressed_next_occupancy_state->toOccupancyState()->setOneStepUncompressedOccupancy(one_step_left_compressed_next_occupancy_state->toOccupancyState());
             // std::cout << "17" << std::endl;
