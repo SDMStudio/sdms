@@ -50,7 +50,7 @@ namespace sdm
                 std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
 
                 // **********************
-                // SolvableByHSVI methods
+                // SolvableByHSVI methodsq
                 // **********************
 
                 std::shared_ptr<State> nextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);

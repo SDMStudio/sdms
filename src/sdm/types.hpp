@@ -131,7 +131,7 @@ namespace sdm
     DECISION_RULE
   };
 
-  enum 
+  enum
   {
     STANDARD,
     XML,
@@ -155,6 +155,17 @@ namespace sdm
 
 namespace std
 {
+
+  // template <typename T>
+  // struct hash<std::shared_ptr<T>>
+  // {
+  //   typedef std::shared_ptr<T> argument_type;
+  //   typedef std::size_t result_type;
+  //   inline result_type operator()(const argument_type &in) const
+  //   {
+  //     return std::hash<T>(*in);
+  //   }
+  // };
 
   template <class T, class... Ts>
   struct is_any : std::disjunction<std::is_same<T, Ts>...>
@@ -196,11 +207,12 @@ namespace std
     }
   };
 
-  
-  struct Compare {
-    bool operator()(const std::string& a, const std::string& b) const {
-        return a.length() < b.length();
+  struct Compare
+  {
+    bool operator()(const std::string &a, const std::string &b) const
+    {
+      return a.length() < b.length();
     }
-};
+  };
 
 } // namespace std
