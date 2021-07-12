@@ -1,7 +1,12 @@
+#include <iomanip>
+#include <sdm/config.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 
 namespace sdm
 {
+
+    double PrivateOccupancyState::PRECISION_COMPRESSION = config::PRECISION_COMPRESSION;
+
     PrivateOccupancyState::PrivateOccupancyState()
     {
     }
@@ -55,10 +60,33 @@ namespace sdm
     //     return res.str();
     // }
 
+    std::string PrivateOccupancyState::str() const
+    {
+        std::ostringstream res;
+        res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
+
+        res << "<private-occupancy-state agent=\"" << this->agent_id_ << "\" size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
+        for (const auto &history_as_state : this->getIndexes())
+        {
+            auto joint_history = history_as_state->toHistory()->toJointHistory();
+
+            res << "\t<probability";
+            res << " history=" << joint_history->short_str() << "";
+            res << " belief=" << this->getBeliefAt(joint_history)->str() << ">\n";
+            res << "\t\t\t" << this->getProbability(joint_history) << "\n";
+            res << "\t</probability \n";
+        }
+        res << "</private-occupancy-state>";
+        return res.str();
+    }
+
     std::vector<std::shared_ptr<HistoryInterface>> PrivateOccupancyState::getPartialJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &joint_history) const
     {
+        // Copy full joint history
         auto partial_jhist = joint_history;
+        // Erase the component associated to the agent
         partial_jhist.erase(partial_jhist.begin() + this->getAgentId());
+        // Return the partial joint history
         return partial_jhist;
     }
 
@@ -72,11 +100,16 @@ namespace sdm
         return bimap_jhist_partial_jhist.right.at(partial_joint_history);
     }
 
+    void PrivateOccupancyState::finalize()
+    {
+        OccupancyState::finalize();
+    }
+
     void PrivateOccupancyState::finalize(bool do_compression)
     {
         if (do_compression)
         {
-            OccupancyState::finalize();
+            this->finalize();
         }
         else
         {
@@ -95,7 +128,6 @@ namespace sdm
 
     bool PrivateOccupancyState::check_equivalence(const PrivateOccupancyState &other) const
     {
-        double ratio = -1;
         // Check that private occupancy states are defined on the same support
         if (this->size() != other.size())
         {
@@ -117,28 +149,12 @@ namespace sdm
             // Get the associated joint history of the second value
             const auto &other_joint_history = iterator->second;
 
-            for (const auto &belief : this->getBeliefsAt(current_joint_history))
+            // For all states in the corresponding belief
+            for (const auto &state : this->getBeliefAt(current_joint_history)->getStates())
             {
-                // Get value in the current private occupancy state
-                const auto &current_value = this->getProbability(current_joint_history, belief);
-
-                // std::cout << "6 -  this=" << this->str() << std::endl;
-                // std::cout << "6 -  other=" << other.str() << std::endl;
-                // std::cout << "6.0 -  other.map_pair=" << other.map_pair_to_pointer_ << std::endl;
-                // std::cout << "6.1 -  other_joint_history=" << other_joint_history << std::endl;
-                // std::cout << "6.2 -  belief=" << belief->str() << std::endl;
-                // Get corresponding value in the other private occupancy state -----------> !!!!!!!!!!!! ATTENTION: Ici make_shared ne donnera pas la bonne addresse
-                const auto &other_value = other.getProbability(other_joint_history, belief);
-
-                if (other_value == 0)
-                {
-                    return false;
-                }
-                if (ratio < 0)
-                {
-                    ratio = current_value / other_value;
-                }
-                else if (std::abs(ratio - current_value / other_value) > this->PRECISION)
+                // std::cout << "std::abs(" << pair_state_value.second << " - " << sum_other_belief[pair_state_value.first] << ") = " << std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) << " > " << PrivateOccupancyState::PRECISION_COMPRESSION << " ? " << (std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) > PrivateOccupancyState::PRECISION_COMPRESSION) << std::endl;
+                // Compare p(o^{-i}, x | o^{i}_1) and p(o^{-i}, x | o^{i}_2)
+                if (std::abs(this->getProbability(current_joint_history, state) - other.getProbability(other_joint_history, state)) > PrivateOccupancyState::PRECISION_COMPRESSION)
                 {
                     return false;
                 }
@@ -158,7 +174,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            return std::hash<sdm::PrivateOccupancyState>()(in);
+            return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }
     };
 }

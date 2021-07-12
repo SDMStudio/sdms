@@ -17,21 +17,18 @@ namespace sdm
 
         for (const auto &joint_history : ostate->getJointHistories())
         {
-            for(const auto &belief : ostate->getBeliefsAt(joint_history))
-            {
-                // std::cout<<"adress "<<belief<<" belief "<< belief->str()<<std::endl;
-                value += ostate->getProbability(joint_history,belief) * this->pomdp_vf_->getValueAt(belief, tau);
-            }
+            auto belief = ostate->getBeliefAt(joint_history);
+            value += ostate->getProbability(joint_history) * this->pomdp_vf_->getValueAt(belief, tau);
         }
         return value;
     }
-    
+
     double Belief2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
     {
         switch (state->getTypeState())
         {
-        case TypeState::OCCUPANCY_STATE :
-            return operatorMPOMDP(state,tau);
+        case TypeState::OCCUPANCY_STATE:
+            return operatorMPOMDP(state, tau);
             break;
 
         default:
@@ -58,7 +55,7 @@ namespace sdm
         return false;
     }
 
-    // ****** Belief Graph  ****** A faire ********* // 
+    // ****** Belief Graph  ****** A faire ********* //
     // template <typename TState, typename TAction, typename TObservation>
     // Belief2OccupancyValueFunction<TState, OccupancyState<BeliefStateGraph_p<TAction, TObservation>, JointHistoryTree_p<TObservation>>>::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction<TState, TAction>> vf) : pomdp_vf_(vf)
     // {

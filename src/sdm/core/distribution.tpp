@@ -15,7 +15,7 @@ namespace sdm
         auto n = distrib(common::global_urng());
         // std::cout << "this->bimap_item_to_index_.size() " << this->bimap_item_to_index_.size() << std::endl;
         // std::cout << "n " << n << std::endl;
-        for (auto it = this->bimap_item_to_index_.begin(); it != this->bimap_item_to_index_.end(); ++it)
+        // for (auto it = this->bimap_item_to_index_.begin(); it != this->bimap_item_to_index_.end(); ++it)
             // std::cout << it->left << " " << it->right << "\n";
         return this->bimap_item_to_index_.right.at(n);
     }

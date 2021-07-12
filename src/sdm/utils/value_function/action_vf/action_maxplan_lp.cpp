@@ -64,7 +64,8 @@ namespace sdm
             {
                 weight = 0.0;
 
-                for(const auto &belief : occupancy_state->getBeliefsAt(joint_history))
+                auto belief = occupancy_state->getBeliefAt(joint_history);
+                // for(const auto &belief : occupancy_state->getBeliefsAt(joint_history))
                 {
                     factor = occupancy_mdp->getRewardBelief(belief,action->toAction(),t);
                     for(const auto &observation : *under_pb->getObservationSpace(t))

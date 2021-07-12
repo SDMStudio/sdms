@@ -55,6 +55,11 @@ namespace sdm
         this->updateValueAt(state, t, this->template backup<double>(state, this->getBestAction(state, t), t));
     }
 
+    size_t TabularValueFunction::getSize(number t) const
+    {
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].size();
+    }
+
     // void TabularValueFunction::save(std::string filename)
     // {
     //     BoostSerializable<TabularValueFunction>::save(filename);

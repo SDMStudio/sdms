@@ -1,6 +1,5 @@
 #include <sdm/world/occupancy_mdp.hpp>
 
-
 namespace sdm
 {
 
@@ -8,10 +7,12 @@ namespace sdm
     {
     }
 
-    OccupancyMDP::OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, int batch_size , bool store_action_spaces)
+    OccupancyMDP::OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
+        : compression_(compression), store_actions_(store_actions)
     {
+        this->store_states_ = store_states;
         this->batch_size_ = batch_size;
-        this->store_action_spaces_ = store_action_spaces;
+
         // Set underlying problem
         this->underlying_problem = underlying_dpomdp;
 
@@ -23,6 +24,7 @@ namespace sdm
 
         // Initialize initial occupancy state
         this->initial_state_ = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
+
         this->initial_state_->toOccupancyState()->setProbability(this->initial_history_->toJointHistory(), this->belief_mdp_->getInitialState()->toBelief(), 1);
 
         this->initial_state_->toOccupancyState()->finalize();
@@ -46,7 +48,7 @@ namespace sdm
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> OccupancyMDP::step(std::shared_ptr<Action> action)
     {
         auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
-        auto [observation, rewards, is_done]  = this->getUnderlyingProblem()->step(joint_action);
+        auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(joint_action);
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
         this->current_state_ = this->nextOccupancyState(this->current_state_, action, nullptr, this->step_);
         this->current_history_ = this->getNextHistory(observation);
@@ -59,12 +61,19 @@ namespace sdm
         // If the action space corresponding to this ostate and t does not exist:
         if (ostate->toOccupancyState()->getActionSpaceAt(t) == nullptr)
         {
+            // Compute the action space at this occupancy state and timestep
             std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, t);
-            if (!this->store_action_spaces_)
+
+            // If we don't store action spaces
+            if (!this->store_actions_)
             {
                 return joint_ddr_space;
             }
-            ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
+            else
+            {
+                // Store the action space for state o
+                ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
+            }
         }
 
         // Return the action space corresponding to this ostate and t.
@@ -90,17 +99,16 @@ namespace sdm
             // Get action space of agent i.
             std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent);
             // Get individual ddr of agent i.
-            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_action_spaces_);
+            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_actions_);
             // Add it to the corresponding vector.
             individual_ddr_spaces.push_back(individual_ddr_space);
         }
 
         // Create the function space of joint deterministic decision rules.
         std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
-            std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)}),
-            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_action_spaces_),
-            this->store_action_spaces_
-        );
+            std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{nullptr}),
+            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
+            this->store_actions_);
         return joint_ddr_space;
     }
 
@@ -109,7 +117,7 @@ namespace sdm
         return {this->computeNextState(ostate, action, observation, t), 1};
     }
 
-    std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> & observation, number t)
+    std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         // The new fully uncompressed occupancy state
         std::shared_ptr<State> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
@@ -124,14 +132,17 @@ namespace sdm
         {
             std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeSampledNextState(ostate, action, observation, t);
         }
+
         if (this->compression_)
         {
             // The new compressed occupancy state
             std::shared_ptr<State> compressed_next_occupancy_state;
             // Compress the occupancy state
             compressed_next_occupancy_state = one_step_left_compressed_next_occupancy_state->toOccupancyState()->compress();
+            // std::cout << "15 - compressed_next_occupancy_state=" << compressed_next_occupancy_state->str() << std::endl;
             compressed_next_occupancy_state->toOccupancyState()->setFullyUncompressedOccupancy(fully_uncompressed_next_occupancy_state->toOccupancyState());
             compressed_next_occupancy_state->toOccupancyState()->setOneStepUncompressedOccupancy(one_step_left_compressed_next_occupancy_state->toOccupancyState());
+            // std::cout << "17" << std::endl;
             return compressed_next_occupancy_state;
         }
         else
@@ -144,49 +155,76 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> OccupancyMDP::computeExactNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
-        // The new fully uncompressed occupancy state
-        std::shared_ptr<State> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
-        // The new one step left occupancy state
-        std::shared_ptr<State> one_step_left_compressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
 
+        // std::cout << "Compute Next Exact State" << std::endl;
+        // std::cout << ostate->str() << std::endl;
+        // The new fully uncompressed occupancy state
+        std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
+        // The new one step left occupancy state
+        std::shared_ptr<OccupancyStateInterface> one_step_left_compressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
+
+        // For each joint history in the support of the fully uncompressed occupancy state
         for (const auto &joint_history : ostate->toOccupancyState()->getFullyUncompressedOccupancy()->getJointHistories())
         {
+            // std::cout << "1" << std::endl;
+            // Apply the joint decision rule at joint_history to get the joint_action
             auto joint_action = this->applyDecisionRule(ostate->toOccupancyState()->toOccupancyState(), joint_history, action->toDecisionRule(), t);
 
-            for (const auto &belief : ostate->toOccupancyState()->getFullyUncompressedOccupancy()->getBeliefsAt(joint_history))
+            // std::cout << "2" << std::endl;
+            // For each accessible belief at joint_history
+            auto belief = ostate->toOccupancyState()->getFullyUncompressedOccupancy()->getBeliefAt(joint_history);
+
+            // std::cout << "3" << std::endl;
+            // For each observation in
+            for (auto &joint_observation : *this->getUnderlyingMPOMDP()->getObservationSpace(t))
             {
-                for (auto &joint_observation : *this->getUnderlyingMPOMDP()->getObservationSpace(t))
+                // std::cout << "4" << std::endl;
+                // Get the next joint history
+                auto next_joint_history = joint_history->expand(joint_observation->toObservation());
+
+                // std::cout << "5" << std::endl;
+                // Get the next belief
+                auto next_belief = this->getUnderlyingBeliefMDP()->nextBelief(belief, joint_action, joint_observation->toObservation(), t);
+
+                // std::cout << "6" << std::endl;
+                // Compute the probability of next history, i.e. p(o') = p(o) * p(z | b, a)
+                double next_joint_history_probability = ostate->toOccupancyState()->getFullyUncompressedOccupancy()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getObservationProbability(belief, joint_action, next_belief->toBelief(), joint_observation->toObservation(), t);
+
+                // If the next history probability is not zero
+                if (next_joint_history_probability > 0)
                 {
-                    auto next_joint_history = joint_history->expand(joint_observation->toObservation());
-                    auto next_belief = this->getUnderlyingBeliefMDP()->nextBelief(belief, joint_action, joint_observation->toObservation(), t);
+                    // std::cout << "7" << std::endl;
+                    // Build fully uncompressed occupancy state
+                    fully_uncompressed_next_occupancy_state->toOccupancyState()->addProbability(next_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_probability);
 
-                    // p(o') = p(o) * p(z | b, a)
-                    double next_joint_history_probability = ostate->toOccupancyState()->getFullyUncompressedOccupancy()->getProbability(joint_history, belief) * this->getUnderlyingBeliefMDP()->getObservationProbability(belief, joint_action, next_belief->toBelief(), joint_observation->toObservation(), t);
+                    // std::cout << "8" << std::endl;
+                    // Update the probability of being in this next history (for the one step left uncompressed occupancy state)
+                    auto compressed_joint_history = ostate->toOccupancyState()->getCompressedJointHistory(joint_history);
 
-                    if (next_joint_history_probability > 0)
-                    {
-                        // Build fully uncompressed occupancy state*
-                        fully_uncompressed_next_occupancy_state->toOccupancyState()->addProbability(next_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_probability);
+                    // std::cout << "9" << std::endl;
+                    auto next_compressed_joint_history = compressed_joint_history->expand(joint_observation->toObservation());
+                    one_step_left_compressed_next_occupancy_state->toOccupancyState()->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_probability);
 
-                        // Build one step left uncompressed occupancy state
-                        auto compressed_joint_history = ostate->toOccupancyState()->getCompressedJointHistory(joint_history);
-
-                        auto next_compressed_joint_history = compressed_joint_history->expand(joint_observation->toObservation());
-                        one_step_left_compressed_next_occupancy_state->toOccupancyState()->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_probability);
-
-                        // Update next history labels
-                        one_step_left_compressed_next_occupancy_state->toOccupancyState()->updateJointLabels(next_joint_history->toJointHistory()->getIndividualHistories(), next_compressed_joint_history->toJointHistory()->getIndividualHistories());
-                    }
+                    // std::cout << "10" << std::endl;
+                    // Update next history labels
+                    one_step_left_compressed_next_occupancy_state->toOccupancyState()->updateJointLabels(next_joint_history->toJointHistory()->getIndividualHistories(), next_compressed_joint_history->toJointHistory()->getIndividualHistories());
+                    // std::cout << "11" << std::endl;
                 }
             }
         }
 
+        // std::cout << "12" << std::endl;
         fully_uncompressed_next_occupancy_state->toOccupancyState()->finalize();
+        // std::cout << "13" << std::endl;
         one_step_left_compressed_next_occupancy_state->toOccupancyState()->finalize();
-        
-        return std::make_pair(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state);        
+        // std::cout << "14" << std::endl;
+
+        // std::cout << "14 - fully_uncompressed_next_occupancy_state=" << fully_uncompressed_next_occupancy_state->str() << std::endl;
+        // std::cout << "14 - one_step_left_compressed_next_occupancy_state=" << one_step_left_compressed_next_occupancy_state->str() << std::endl;
+
+        return std::make_pair(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state);
     }
-    
+
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> OccupancyMDP::computeSampledNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
         // The new fully uncompressed occupancy state
@@ -249,7 +287,7 @@ namespace sdm
                 }
             }
         }
-        
+
         // Iterate through the (next_joint_history, next_state) pairs.
         for (auto const [next_joint_history, next_joint_history_count__y_bag] : w_y_bag)
         {
@@ -262,7 +300,7 @@ namespace sdm
             if (successor != nullptr)
             {
                 // Return the successor node
-                next_belief =  successor->getData()->toBelief();
+                next_belief = successor->getData()->toBelief();
             }
             else
             {
@@ -305,13 +343,15 @@ namespace sdm
 
     std::shared_ptr<Action> OccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
-        // Get list of individual history labels
+        // Get the list of individual history labels
         auto joint_labels = ostate->toOccupancyState()->getJointLabels(joint_history->getIndividualHistories()).toJoint<State>();
+        // auto joint_labels = ostate->toOccupancyState()->getCompressedJointHistory(joint_history->getIndividualHistories());
+        // auto joint_action = decision_rule->act(joint_labels);
 
-        // Get selected joint action
+        // Get the selected joint action
         auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_labels);
 
-        // Transform selected joint action into joint action address
+        // Transform the selected joint action into joint action address
         auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action);
         // Get the adress of the joint action object from the space of available joint action object.
         auto joint_action_address = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*joint_action->toJoint<Item>());
@@ -326,7 +366,7 @@ namespace sdm
         }
         else
         {
-            auto [jh, b]  = this->current_state_->toOccupancyState()->sampleJointHistoryBelief();
+            auto [jh, b] = this->current_state_->toOccupancyState()->sampleJointHistoryBelief();
             this->getUnderlyingProblem()->setInternalState(b->sampleState());
             return jh;
         }
@@ -335,13 +375,15 @@ namespace sdm
     double OccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
         double reward = 0;
+        // For all histories in the occupancy state
         for (const auto &joint_history : occupancy_state->toOccupancyState()->getJointHistories())
         {
-            for (const auto &belief : occupancy_state->toOccupancyState()->getBeliefsAt(joint_history))
-            {
-                auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
-                reward += occupancy_state->toOccupancyState()->getProbability(joint_history, belief) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
-            }
+            // Get the belief corresponding to this history
+            auto belief = occupancy_state->toOccupancyState()->getBeliefAt(joint_history);
+            // Get the action from decision rule
+            auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
+            // Update the expected reward 
+            reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
         }
         return reward;
     }
@@ -364,6 +406,11 @@ namespace sdm
     std::shared_ptr<BeliefMDP> OccupancyMDP::getUnderlyingBeliefMDP() const
     {
         return this->belief_mdp_;
+    }
+
+    double OccupancyMDP::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
+    {
+        return std::min(ub - lb, cost_so_far + this->getUnderlyingProblem()->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
     }
 
     // void OccupancyMDP::setInitialState(const std::shared_ptr<State> &state)

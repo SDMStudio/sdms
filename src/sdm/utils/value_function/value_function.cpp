@@ -57,4 +57,14 @@ namespace sdm
     {
         return this->action_->selectBestAction(this->getptr(), state, t);
     }
+
+    size_t ValueFunction::getSize() const
+    {
+        size_t size_total = 0;
+        for (number t = 0; t < this->getHorizon(); t++)
+        {
+            size_total += this->getSize(t);
+        }
+        return size_total;
+    }
 } // namespace sdm

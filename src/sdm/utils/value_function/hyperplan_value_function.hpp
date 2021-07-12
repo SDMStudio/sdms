@@ -14,7 +14,7 @@ namespace sdm
 
         HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning = 10);
 
-        HyperplanValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = 10);
+        HyperplanValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = 10);
 
         ~HyperplanValueFunction();
 
@@ -76,7 +76,8 @@ namespace sdm
          * @param number : timestep 
          */
         void pairwise_prune(number t);
-
+        
+        size_t getSize(number t) const;
 
         std::string str() const;
 
@@ -87,19 +88,18 @@ namespace sdm
          * 
          * @return double 
          */
-        double getDefaultValue(number );
+        double getDefaultValue(number);
 
-        bool exist(const std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>&,number t, double precision = PRECISION);
+        bool exist(const std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> &, number t, double precision = PRECISION);
 
-        Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
 
-        void createDefault(const std::shared_ptr<State>& state, number t);
+        void createDefault(const std::shared_ptr<State> &state, number t);
 
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;
 
-        std::vector<std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>> getAllVectorInterface(number t);
-
+        std::vector<std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>>> getAllVectorInterface(number t);
 
         /**
          * @brief The value function represention.

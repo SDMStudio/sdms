@@ -55,7 +55,7 @@ namespace sdm
     // T operator^(const VectorInterface &other) const;
 
     virtual size_t size() const = 0;
-    virtual std::vector<I> getIndexes() const;
+    virtual std::vector<I> getIndexes() const = 0;
 
 
     // T operator[](const I &) const;

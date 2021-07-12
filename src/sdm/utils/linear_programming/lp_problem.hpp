@@ -1,9 +1,9 @@
 #pragma once
 
-#include <sdm/utils/linear_programming/lp_problem_interface.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-// #include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/utils/linear_programming/lp_problem_interface.hpp>
+// #include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
