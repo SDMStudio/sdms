@@ -15,9 +15,13 @@ namespace sdm
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> PrivateHierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
+        // std::cout << "step()" << std::endl;
+        // std::cout << this->step_ << std::endl;
         auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
+        // std::cout << "*joint_action " << *joint_action << std::endl;
         auto [observation, rewards, is_done]  = this->getUnderlyingProblem()->step(joint_action);
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
+        // std::cout << "occupancy_reward " << occupancy_reward << std::endl;
         std::shared_ptr<Observation> observation_n = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(observation)->at(this->getUnderlyingMDP()->getNumAgents() - 1);
         this->current_state_ = this->nextOccupancyState(this->current_state_, action, observation_n, this->step_);
         this->current_history_ = this->getNextHistory(observation);
@@ -27,6 +31,7 @@ namespace sdm
 
     std::shared_ptr<Space> PrivateHierarchicalOccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
+        // std::cout << "computeActionSpaceAt()" << std::endl;
         // Get joint histories that are in the support of the occupancy state.
         std::set<std::shared_ptr<JointHistoryInterface>> joint_histories = ostate->toOccupancyState()->getJointHistories();
         // Vector for individual hierarchical histories of all agents from 1 to N.
@@ -34,18 +39,27 @@ namespace sdm
         // For all agents from 1 to N:
         for (int agent = 0; agent < this->getUnderlyingProblem()->getNumAgents(); agent++)
         {
+            // std::cout << "agent " << agent << std::endl;
             // Individual hierarchical histories for Agent I.
             std::set<std::shared_ptr<JointHistoryInterface>> individual_hierarchical_histories;
             // For each possible joint history:
             for (std::shared_ptr<JointHistoryInterface> joint_history : joint_histories)
             {
+                // std::cout << "*joint_history " << *joint_history << std::endl;
                 // 
                 std::shared_ptr<JointHistoryInterface> individual_hierarchical_history = std::make_shared<JointHistoryTree>();
                 // For each agent between agent I and agent N (both included):
-                for (int lower_agent = agent; lower_agent < this->getUnderlyingProblem()->getNumAgents(); lower_agent++)
+                for (int lower_ranked_agent = agent; lower_ranked_agent < this->getUnderlyingProblem()->getNumAgents(); lower_ranked_agent++)
                 {
-                    individual_hierarchical_history->addIndividualHistory(joint_history->getIndividualHistory(lower_agent));
+                    // std::cout << "lower_ranked_agent " << lower_ranked_agent << std::endl;
+                    std::shared_ptr<HistoryInterface> individual_history = joint_history->getIndividualHistory(lower_ranked_agent);
+                    // std::cout << "*individual_history " << *individual_history << std::endl;
+                    individual_hierarchical_history->addIndividualHistory(individual_history);
                 }
+                // std::cout << "*individual_hierarchical_history " << *individual_hierarchical_history << std::endl;
+                // std::cout << "individual_hierarchical_history->getNumAgents() " << std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_history)->getNumAgents() << std::endl;
+                // this->individual_hierarchical_history_map->emplace(*individual_hierarchical_history, individual_hierarchical_history);
+                ostate->toOccupancyState()->pushToIndividualHierarchicalHistoryVectorFor(t, agent, individual_hierarchical_history);
                 individual_hierarchical_histories.emplace(individual_hierarchical_history);
             }
             all_individual_hierarchical_histories.push_back(individual_hierarchical_histories);
@@ -242,14 +256,33 @@ namespace sdm
 
     std::shared_ptr<Action> PrivateHierarchicalOccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
+        // std::cout << "applyDecisionRule()" << std::endl;
         // Get list of individual history labels
         auto joint_labels = ostate->toOccupancyState()->getJointLabels(joint_history->getIndividualHistories()).toJoint<State>();
 
-        // auto joint_hierarchical_labels = this->getJointHierarchicalLabels(joint_labels);
+        auto joint_hierarchical_labels = this->getJointHierarchicalLabels(joint_labels, ostate);
+
+        // std::cout << std::endl;
+
+        // std::cout << "*ostate " << std::endl;
+        // std::cout << *ostate << std::endl;
+        // std::cout << "*joint_labels " << std::endl;
+        // std::cout << *joint_labels << std::endl;
+        // std::cout << "*decision_rule " << std::endl;
+        // std::cout << *decision_rule << std::endl;
+        // std::cout << "*joint_hierarchical_labels " << std::endl;
+        // std::cout << *joint_hierarchical_labels << std::endl;
+
+        // std::cout << std::endl;
 
         // Get selected joint action
-        auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_labels);
-        // auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_hierarchical_labels);
+        auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_hierarchical_labels);
+
+        // std::cout << std::endl;
+
+        // std::cout << "*action " << *action << std::endl;
+
+        // std::cout << std::endl;
 
         // Transform selected joint action into joint action address
         auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action);
@@ -259,37 +292,63 @@ namespace sdm
     }
 
 
-    std::shared_ptr<State> PrivateHierarchicalOccupancyMDP::getJointHierarchicalLabels(const std::shared_ptr<State> &joint_labels) const
+    std::shared_ptr<State> PrivateHierarchicalOccupancyMDP::getJointHierarchicalLabels(const std::shared_ptr<State> &joint_labels, const std::shared_ptr<State> &ostate) const
     {
+        // std::cout << "getJointHierarchicalLabels()" << std::endl;
+        // std::cout << "*joint_labels" << std::endl;
+        // std::cout << *joint_labels << std::endl;
+
         // This is the reversed version of what we want, that is Joint Hierarchical Labels, that is Hierarchical Labels for each agent.
         // Each Hierarchical Label contains Labels for agents between agent I and agent N.
-        std::shared_ptr<Joint<std::shared_ptr<JointHistoryInterface>>> joint_hierarchical_labels_reversed;
+        std::shared_ptr<Joint<std::shared_ptr<JointHistoryInterface>>> joint_hierarchical_labels_reversed = std::make_shared<Joint<std::shared_ptr<JointHistoryInterface>>>();
+        // std::cout << "*joint_hierarchical_labels_reversed " << *joint_hierarchical_labels_reversed << std::endl;
         // This is what we will use to record Labels of each agent, starting with agent N until agent 1. This is why it's reversed.
-        std::shared_ptr<JointHistoryInterface> hierarchical_label_reversed;
+        std::shared_ptr<JointHistoryInterface> individual_hierarchical_label_reversed = std::make_shared<JointHistoryTree>();
+        // std::cout << "*individual_hierarchical_label_reversed " << *individual_hierarchical_label_reversed << std::endl;
+        // std::cout << "individual_hierarchical_label_reversed->getNumAgents() " << std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_label_reversed)->getNumAgents() << std::endl;
         // For agent from N-1 till 0 (N till 1):
-        for(int agent = this->getUnderlyingMDP()->getNumAgents() - 1; agent >= 0; agent--){
+        for(int agent = this->getUnderlyingMDP()->getNumAgents() - 1; agent >= 0; agent--)
+        {
+            // std::cout << "agent " << agent << std::endl;
             // Push agent I's Label.
-            hierarchical_label_reversed->addIndividualHistory(joint_labels->toHistory()->toJointHistory()->getIndividualHistory(agent));
+            auto individual_label = std::dynamic_pointer_cast<Joint<std::shared_ptr<State>>>(joint_labels)->get(agent);
+            // std::cout << "*individual_label " << *individual_label << std::endl;
+            // std::cout << "*individual_label->toHistory() " << *individual_label->toHistory() << std::endl;
+            individual_hierarchical_label_reversed->addIndividualHistory(individual_label->toHistory());
+            // std::cout << "*individual_hierarchical_label_reversed " << *individual_hierarchical_label_reversed << std::endl;
             // This will be in the correct order, that is Labels for agent I till N.
-            std::shared_ptr<JointHistoryInterface> hierarchical_label;
+            std::shared_ptr<JointHistoryInterface> individual_hierarchical_label = std::make_shared<JointHistoryTree>();
+            // std::cout << "*individual_hierarchical_label " << *individual_hierarchical_label << std::endl;
             //
-            for(int i = std::dynamic_pointer_cast<JointHistoryTree>(hierarchical_label_reversed)->getNumAgents() - 1; i >= 0; i--){
+            for(int i = std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_label_reversed)->getNumAgents() - 1; i >= 0; i--)
+            {
+                // std::cout << "i " << i << std::endl;
+                // std::cout << "*individual_hierarchical_label_reversed->getIndividualHistory(i) " << *individual_hierarchical_label_reversed->getIndividualHistory(i) << std::endl;
                 // 
-                hierarchical_label->addIndividualHistory(hierarchical_label_reversed->getIndividualHistory(i));
+                individual_hierarchical_label->addIndividualHistory(individual_hierarchical_label_reversed->getIndividualHistory(i));
             }
+            //
+            for (const std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history: ostate->toOccupancyState()->getIndividualHierarchicalHistoryVectorFor(this->step_, agent))
+            {
+                if (*std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_history) == *std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_label))
+                {
+                    individual_hierarchical_label = individual_hierarchical_history;
+                    break;
+                }
+            }
+            // individual_hierarchical_label = this->individual_hierarchical_history_map->at(*std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_label));
             // Push Hierarchical Label for agent I.
-            joint_hierarchical_labels_reversed->push_back(hierarchical_label);
+            joint_hierarchical_labels_reversed->push_back(individual_hierarchical_label);
         }
         // This will be in the correct order, that is Hierarchical Labels from agent 1 to N.
-        std::shared_ptr<Joint<std::shared_ptr<JointHistoryInterface>>> joint_hierarchical_labels;
+        std::shared_ptr<Joint<std::shared_ptr<JointHistoryInterface>>> joint_hierarchical_labels = std::make_shared<Joint<std::shared_ptr<JointHistoryInterface>>>();
         // 
-        for (int i = joint_hierarchical_labels_reversed->getNumAgents() - 1; i > 0; i--){
+        for (int i = joint_hierarchical_labels_reversed->getNumAgents() - 1; i >= 0; i--)
+        {
             //
             joint_hierarchical_labels->push_back(joint_hierarchical_labels_reversed->at(i));
         }
-        return nullptr;
-        // return joint_hierarchical_labels;
-
+        return joint_hierarchical_labels->toJoint<State>();
     }
     
     

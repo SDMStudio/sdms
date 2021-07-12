@@ -2,6 +2,8 @@
 
 #include <sdm/world/occupancy_mdp.hpp>
 
+#include <sdm/core/state/jhistory_tree.hpp>
+
 /**
  * @namespace  sdm
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -19,6 +21,8 @@ namespace sdm
         protected:
                 Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-                std::shared_ptr<State> getJointHierarchicalLabels(const std::shared_ptr<State> &joint_labels) const;
+                std::shared_ptr<State> getJointHierarchicalLabels(const std::shared_ptr<State> &joint_labels, const std::shared_ptr<State> &ostate) const;
+                // std::shared_ptr<std::unordered_map<JointHistoryTree, std::shared_ptr<JointHistoryInterface>>> individual_hierarchical_history_map;
+                // std::vector<std::vector<std::shared_ptr<JointHistoryInterface>>> individual_hierarchical_history_vector_vector;
         };
 } // namespace sdm

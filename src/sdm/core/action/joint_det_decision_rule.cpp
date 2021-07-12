@@ -1,6 +1,8 @@
 #include <sdm/core/action/joint_det_decision_rule.hpp>
 // #include <sdm/core/joint.hpp>
 
+#include <sdm/core/state/jhistory_tree.hpp>
+
 namespace sdm
 {
     JointDeterministicDecisionRule::JointDeterministicDecisionRule() {}
@@ -13,9 +15,9 @@ namespace sdm
     JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions)
     {
         assert(acc_states.size() == actions.size());
-        for (std::size_t ag_id = 0; ag_id < acc_states.size(); ag_id++)
+        for (std::size_t agent = 0; agent < acc_states.size(); agent++)
         {
-            this->push_back(std::make_shared<DeterministicDecisionRule>(acc_states[ag_id], actions[ag_id]));
+            this->push_back(std::make_shared<DeterministicDecisionRule>(acc_states[agent], actions[agent]));
         }
     }
 
@@ -30,15 +32,38 @@ namespace sdm
 
     std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::shared_ptr<State> &joint_state) const
     {
+        // std::cout << "JointDeterministicDecisionRule::act()" << std::endl;
         // assert(this->size() == joint_state.size());
         std::shared_ptr<Joint<std::shared_ptr<Action>>> joint_action = std::make_shared<Joint<std::shared_ptr<Action>>>();
         auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        // std::cout << "*joint_state" << std::endl;
+        // std::cout << *joint_state << std::endl;
+        // std::cout << "*joint_state_" << std::endl;
+        // std::cout << *joint_state_ << std::endl;
+        // std::cout << "*joint_action" << std::endl;
+        // std::cout << *joint_action << std::endl;
 
-        for (number ag_id = 0; ag_id < joint_state_->size(); ag_id++)
+        for (number agent = 0; agent < joint_state_->size(); agent++)
         {
-            auto indiv_action = this->get(ag_id)->act(joint_state_->get(ag_id));
-            joint_action->push_back(indiv_action->toAction());
+            // std::cout << "agent " << agent << std::endl;
+            auto individual_decision_rule = this->get(agent);
+            // std::cout << "*individual_decision_rule" << std::endl;
+            // std::cout << *individual_decision_rule << std::endl;
+            auto individual_state = joint_state_->get(agent);
+            // std::cout << "*individual_state" << std::endl;
+            // std::cout << *individual_state << std::endl;
+            // std::cout << "*individual_state->get(0)" << std::endl;
+            // std::cout << *std::dynamic_pointer_cast<JointHistoryTree>(individual_state)->get(0) << std::endl;
+            auto individual_action = individual_decision_rule->act(individual_state);
+            // std::cout << "*individual_action" << std::endl;
+            // std::cout << *individual_action << std::endl;
+            // std::cout << "*individual_action->toAction()" << std::endl;
+            // std::cout << *individual_action->toAction() << std::endl;
+            joint_action->push_back(individual_action->toAction());
+            // std::cout << "*joint_action" << std::endl;
+            // std::cout << *joint_action << std::endl;
         }
+        // std::cout << "END JointDeterministicDecisionRule::act()" << std::endl;
         return joint_action;
     }
 
