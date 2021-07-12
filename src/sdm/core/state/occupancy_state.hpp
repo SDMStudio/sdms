@@ -259,23 +259,22 @@ namespace std
         inline result_type operator()(const argument_type &in) const
         {
 
-            // size_t seed = 0;
-            // std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
-            // std::map<std::shared_ptr<sdm::State>, int> rounded;
-            // for (const auto &joint_history : in.getJointHistories())
-            // {
-            //     for (const auto &state : in.getBeliefAt(joint_history)->getStates())
-            //     {
-            //         rounded.emplace(state, lround(sdm::OccupancyState::PRECISION * in.getProbability(joint_history, state)));
-            //     }
-            // }
-            // for (const auto &v : rounded)
-            // {
-            //     //Combine the hash of the current vector with the hashes of the previous ones
-            //     sdm::hash_combine(seed, v);
-            // }
-            // return seed;
-            return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
+            size_t seed = 0;
+            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
+            std::vector<int> rounded;
+            for (const auto &pair_jhist_proba : ordered)
+            {
+                sdm::hash_combine(seed, pair_jhist_proba.first);
+                sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
+                rounded.push_back(lround(sdm::OccupancyState::PRECISION * pair_jhist_proba.second));
+            }
+            for (const auto &v : rounded)
+            {
+                //Combine the hash of the current vector with the hashes of the previous ones
+                sdm::hash_combine(seed, v);
+            }
+            return seed;
+            // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }
     };
 }
