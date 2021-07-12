@@ -33,7 +33,7 @@ namespace sdm
             if ((this->representation[t].find(state) == this->representation[t].end()))
             {
                 double i_value = this->evaluate(state, t).second;
-                this->updateValueAt(state, t, i_value);
+                // this->updateValueAt(state, t, i_value);
                 return i_value;
             }
         }

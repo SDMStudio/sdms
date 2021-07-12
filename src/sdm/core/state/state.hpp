@@ -75,7 +75,7 @@ namespace sdm
 
         virtual std::string str() const = 0;
 
-        TypeState getTypeState() const;
+        virtual TypeState getTypeState() const;
     };
 
     template <typename TItem_1, typename TItem_2, class SuperClass = Item>
