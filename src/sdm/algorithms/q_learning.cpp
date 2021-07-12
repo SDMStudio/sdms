@@ -54,8 +54,6 @@ namespace sdm
     {
         this->global_step = 0;
         this->episode = 0;
-        // std::cout << "-------- DO_SOLVE() ---------" << std::endl;
-        // std::cout << *this->q_value_table_ << std::endl;
         clock_t t_begin = clock();
 
         this->exploration_process->reset(this->max_steps_);
@@ -76,7 +74,6 @@ namespace sdm
             }
             if (this->do_test_)
             {
-                // std::cout << "--------- TESTING ---------" << std::endl;
                 this->do_test();
                 this->do_test_ = false;
             }

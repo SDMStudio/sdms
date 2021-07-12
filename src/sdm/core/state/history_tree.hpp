@@ -84,6 +84,8 @@ namespace sdm
 
         std::shared_ptr<HistoryInterface> getPreviousHistory();
 
+        std::shared_ptr<Observation> getObservation();
+
         /*!
          *  @brief  Expands the tree
          *  @param  data the data of the expanded node

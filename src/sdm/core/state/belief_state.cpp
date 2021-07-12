@@ -72,6 +72,17 @@ namespace sdm
     return distribution->sample();
   }
 
+  void Belief::normalizeBelief(double norm_1)
+  {
+    if (norm_1 > 0)
+      {
+        for (const auto &state : this->getStates())
+        {
+            this->setProbability(state->toState(), this->getProbability(state->toState()) / norm_1);
+        }
+      }
+  }
+
   std::shared_ptr<State> Belief::getState(const std::shared_ptr<State> &state)
   {
     return state;

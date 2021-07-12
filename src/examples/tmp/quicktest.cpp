@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
     auto state_space = mdp_tiger->getStateSpace(); //std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{state_0, state_1, state_2, state_3});
     auto action_space = mdp_tiger->getActionSpace(); //= std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{single_action_space, single_action_space});
-    auto rew = mdp_tiger->getReward(); 
+    auto rew = mdp_tiger->getRewardSpace(); 
     auto dynamics = mdp_tiger->getStateDynamics();
 
     auto start_distrib = mdp_tiger->getStartDistribution();

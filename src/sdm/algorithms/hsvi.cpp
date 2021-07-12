@@ -28,7 +28,7 @@ namespace sdm
 
     void HSVI::initLogger()
     {
-        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({}) \t LB_size({}) \t UB_size({}) \t Time({})\n";
+        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\t Size_lower_bound({}) \t Size_upper_bound({}) \t Time({})  \n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
@@ -37,7 +37,7 @@ namespace sdm
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
 
         // Build a logger that stores data in a CSV file
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB","Size_LB","Size_UB", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Size_lower_bound", "Size_upper_bound", "Time"});
 
         // Build a multi logger that combines previous loggers
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
@@ -57,7 +57,7 @@ namespace sdm
         std::cout << "#############    Start HSVI \"" << this->name_ << "\"    ####################\n";
         std::cout << "###############################################################\n\n";
 
-        std::shared_ptr<State> start_state = this->world_->getInitialState();
+        this->start_state = this->world_->getInitialState();
 
         this->trial = 0;
         this->start_time = std::chrono::high_resolution_clock::now();
@@ -147,8 +147,10 @@ namespace sdm
             }
 
             //---------------DEBUG-----------------//
-            std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
+            // std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
             //-----------------DEBUG----------------//
+
+            // ------------- TEST ------------
         }
         catch (const std::exception &exc)
         {
@@ -212,6 +214,23 @@ namespace sdm
     int HSVI::getTrial()
     {
         return this->trial;
+    }
+
+    void HSVI::saveResults(std::string filename, double other)
+    {
+        std::ofstream ofs;
+        ofs.open(filename, std::ios::out | std::ios::app);
+        ofs << other << ",";
+        ofs << this->trial << ",";
+        ofs << this->do_excess(this->start_state, 0, 0) + this->error_ << ",";
+        ofs << this->lower_bound_->getValueAt(this->start_state) << ",";
+        ofs << this->upper_bound_->getValueAt(this->start_state) << ",";
+        ofs << this->lower_bound_->getSize() << ",";
+        ofs << this->upper_bound_->getSize() << ",";
+        ofs << ((float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
+
+        ofs << "\n";
+        ofs.close();
     }
 
     double HSVI::getResult()

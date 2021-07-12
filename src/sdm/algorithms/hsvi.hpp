@@ -65,6 +65,10 @@ namespace sdm
     number planning_horizon_;
     std::string name_ = "hsvi";
 
+    clock_t t_begin;
+
+    std::shared_ptr<State> start_state;
+
     void initLogger();
 
     std::chrono::high_resolution_clock::time_point start_time, current_time;
@@ -167,5 +171,8 @@ namespace sdm
     int getTrial();
 
     double getResult();
+
+    void saveResults(std::string filename, double other);
+
   };
 } // namespace sdm

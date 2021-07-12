@@ -61,6 +61,11 @@ namespace sdm
         return (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end()) ? this->getDefaultValue() : this->getProbability(iterator_on_pair_history_belief->second);
     }
 
+    double OccupancyState::getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<State> &state) const
+    {
+        return this->getProbability(joint_history, belief) * belief->getProbability(state);
+    }
+
     void OccupancyState::setProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
     {
         const auto &casted_pair = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief);
@@ -115,7 +120,8 @@ namespace sdm
                 distribution->setProbability(std::make_pair(joint_history, belief), this->getProbability(joint_history, belief));
             }
         }
-        return distribution->sample();
+        auto jhb = distribution->sample();
+        return jhb;
     }
 
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
@@ -365,6 +371,12 @@ namespace sdm
         return this->getPrivateOccupancyState(agent_identifier, ihistory_1)->check_equivalence(*this->getPrivateOccupancyState(agent_identifier, ihistory_2));
     }
 
+    /**
+     * @brief 
+     * 
+     * https://gitlab.inria.fr/maintenance/maintenance.html?appli=GITLAB 
+     * @return std::shared_ptr<OccupancyStateInterface> 
+     */
     std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
     {
         auto current_compact_ostate = std::make_shared<OccupancyState>(this->num_agents_);
@@ -401,7 +413,7 @@ namespace sdm
                         // Store new label
                         this->updateLabel(agent_id, ihistory_one_step_left, ihistory_label);
 
-                        // Erase uncessary equivalent individual history
+                        // Erase unecessary equivalent individual history
                         iter_second = support.erase(iter_second);
                         for (const auto &pair_history_belief : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getStates())
                         {

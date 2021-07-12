@@ -96,6 +96,5 @@ namespace sdm
 
         std::shared_ptr<MappedVector<std::shared_ptr<State>,double>> representation;
 
-
     };
 }

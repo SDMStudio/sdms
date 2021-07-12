@@ -86,7 +86,7 @@ int learn(int argv, char **args)
 
         auto state_space = dpomdp->getStateSpace();
         auto action_space = dpomdp->getActionSpace();
-        auto reward_space = dpomdp->getReward(); 
+        auto reward_space = dpomdp->getRewardSpace(); 
         auto state_dynamics = dpomdp->getStateDynamics();
 
         auto start_distribution = dpomdp->getStartDistribution();

@@ -84,6 +84,12 @@ namespace sdm
          */
         virtual std::string str() const = 0;
 
+        /** @brief Get the size of the value function at timestep t */
+        virtual size_t getSize(number t) const = 0;
+
+        /** @brief Get the total size of the value function. */
+        size_t getSize() const;
+
         /**
          * @brief Get shared pointer on the current QValueFunction
          */
@@ -92,11 +98,11 @@ namespace sdm
         double operator()(const std::shared_ptr<State> &state, const number &t = 0);
 
         std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
-        
-        virtual Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
+
+        virtual Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
 
         template <typename TData>
-        TData backup(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t)
+        TData backup(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
         {
             #ifdef LOGTIME
                 this->StartTime();
@@ -111,7 +117,7 @@ namespace sdm
             return backup;
         }
 
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State>& state, number t);
+        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
 
         #ifdef LOGTIME
             double time_start;

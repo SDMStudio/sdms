@@ -17,8 +17,9 @@ namespace sdm
     // }
 
     template <class TBelief>
-    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp) : SolvableByMDP(pomdp)
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size) : SolvableByMDP(pomdp)
     {
+        this->batch_size_ = batch_size;
         auto initial_state = std::make_shared<TBelief>();
 
         // For each state at t=0:
@@ -40,34 +41,82 @@ namespace sdm
     }
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        std::shared_ptr<TBelief> next_belief = std::make_shared<TBelief>();
+        //
+        std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
+        // Compute the coefficient of normalization (eta)
+        double eta = next_belief->toBelief()->norm_1();
+        next_belief->toBelief()->normalizeBelief(eta);
+        return {next_belief->toBelief(), eta};
+    }
 
+    template <class TBelief>
+    std::shared_ptr<State> BaseBeliefMDP<TBelief>::computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {   
+        if (this->batch_size_ == 0)
+        {
+            return this->computeExactNextState(belief, action, observation, t).first;
+        }
+        else
+        {
+            return this->computeSampledNextState(belief, action, observation, t).first;
+        }
+    }
+
+    template <class TBelief>
+    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        // Create next belief.
+        std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
+        // For each possible next state:
         for (const auto &next_state : *this->getUnderlyingPOMDP()->getStateSpace(t + 1))
         {
+            // Set its probability to 0.
             double next_state_probability = 0;
+            // For each possible state:
             for (const auto &state : *this->getUnderlyingPOMDP()->getStateSpace(t))
             {
+                // Add to the the probability of transition * the probability of being in the state.
                 next_state_probability += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
             }
+            // If the next state is possible:
             if (next_state_probability > 0)
             {
-                next_belief->setProbability(next_state->toState(), next_state_probability);
+                // Set its probability to the value found.
+                next_belief->toBelief()->setProbability(next_state->toState(), next_state_probability);
             }
         }
+        // Return next belief.
+        return std::make_pair(next_belief, nullptr);
+    }
 
-        // Compute the coefficient of normalization (eta)
-        double eta = next_belief->norm_1();
-        if (eta > 0)
+    template <class TBelief>
+    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        // Create next belief.
+        std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
+        //
+        std::shared_ptr<State> true_state = this->getUnderlyingProblem()->getInternalState();
+        //
+        int k = 0;
+        // while
+        while (k < this->batch_size_)
         {
-            // Normalize the belief
-            for (const auto &state : next_belief->getStates())
+            std::shared_ptr<State> state = belief->toBelief()->sampleState();
+            this->getUnderlyingProblem()->setInternalState(state);
+            auto [possible_observation, rewards, is_done] = this->getUnderlyingProblem()->step(action, false);
+            if (observation == possible_observation)
             {
-                next_belief->setProbability(state->toState(), next_belief->getProbability(state->toState()) / eta);
+                std::shared_ptr<State> next_state = this->getUnderlyingProblem()->getInternalState();
+                next_belief->toBelief()->addProbability(next_state, 1.0 / double(this->batch_size_));
+                k++;
             }
         }
-        return {next_belief, eta};
+        //
+        this->getUnderlyingProblem()->setInternalState(true_state);
+        // Return next belief.
+        return std::make_pair(next_belief, nullptr);
     }
 
     template <class TBelief>
@@ -75,7 +124,8 @@ namespace sdm
     {
         auto action_observation = std::make_pair(action, observation);
 
-        if (this->backup)
+        // If we store data in the graph
+        if (this->store_states_)
         {
             // Get the successor
             auto successor = this->mdp_graph_->getNode(belief)->getSuccessor(action_observation);
@@ -90,15 +140,14 @@ namespace sdm
             {
 
                 // Build next belief and proba
-                auto [computed_next_belief, proba_belief] = this->computeNextStateAndProba(belief, action, observation, t);
+                auto [computed_next_belief, next_belief_probability] = this->computeNextStateAndProbability(belief, action, observation, t);
 
                 // Store the probability of next belief
-                this->transition_probability[belief][action][observation] = proba_belief;
+                this->transition_probability[belief][action][observation] = next_belief_probability;
 
                 // Check if the next belief is already in the graph
                 TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
-                auto iterator_on_belief = this->state_space_.find(b);
-                if (iterator_on_belief == this->state_space_.end())
+                if (this->state_space_.find(b) == this->state_space_.end())
                 {
                     // Add the belief in the space of beliefs
                     this->state_space_.emplace(b, computed_next_belief);
@@ -115,20 +164,10 @@ namespace sdm
         }
         else
         {
-            // Return next belief without storing its value in the graph
-            auto [computed_next_belief, proba_belief] = this->computeNextStateAndProba(belief, action, observation, t);
-            // Check if the next belief is already in the graph
-            TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
-            auto iterator_on_belief = this->state_space_.find(b);
-            if (iterator_on_belief == this->state_space_.end())
-            {
-                // Add the belief in the space of beliefs
-                this->state_space_.emplace(b, computed_next_belief);
-            }
-
-            // Get the next belief
-            auto next_belief = this->state_space_.at(b);
-            return next_belief;
+            // Return next belief without storing its value in the graph 
+            // **WARNING** : The returned action will be different even for similar states.
+            auto [computed_next_belief, proba_belief] = this->computeNextStateAndProbability(belief, action, observation, t);
+            return computed_next_belief;
         }
     }
 
@@ -157,9 +196,9 @@ namespace sdm
     {
         // Compute reward : \sum_{s} b(s)r(s,a)
         double reward = 0;
-        for (const auto &state : *this->getUnderlyingProblem()->getStateSpace(t))
+        for (const auto &state : belief->toBelief()->getStates())
         {
-            reward += std::static_pointer_cast<BeliefInterface>(belief)->getProbability(state->toState()) * this->getUnderlyingProblem()->getReward(state->toState(), action, t);
+            reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
         }
         return reward;
     }
@@ -194,11 +233,12 @@ namespace sdm
     template <class TBelief>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseBeliefMDP<TBelief>::step(std::shared_ptr<Action> action)
     {
-        // auto [next_obs, rewards, done] = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(action);
-        auto feedback = std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->step(action);
-        auto next_obs = std::get<0>(feedback);
-        this->current_state_ = this->nextBelief(this->current_state_, action, next_obs, this->step_);
-        return std::make_tuple(this->current_state_, std::get<1>(feedback), std::get<2>(feedback));
+        auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(action);
+        double belief_reward = this->getReward(this->current_state_, action, this->step_);
+        this->current_state_ = this->nextBelief(this->current_state_, action, observation, this->step_);
+        this->step_++;
+        // if sampled ...
+        return std::make_tuple(this->current_state_, std::vector<double>{belief_reward, rewards[0]}, is_done);
     }
 
     template <class TBelief>
@@ -217,6 +257,12 @@ namespace sdm
     std::shared_ptr<POMDPInterface> BaseBeliefMDP<TBelief>::getUnderlyingPOMDP() const
     {
         return std::dynamic_pointer_cast<POMDPInterface>(this->getUnderlyingMDP());
+    }
+
+    template <class TBelief>
+    std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> BaseBeliefMDP<TBelief>::getMDPGraph()
+    {
+        return this->mdp_graph_;
     }
 
 } // namespace sdm

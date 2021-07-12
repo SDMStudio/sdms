@@ -4,7 +4,7 @@
 
 namespace sdm
 {
-    class ActionVFMaxplanSerial : public ActionVFBase<std::shared_ptr<State>>
+    class ActionVFMaxplanSerial : public ActionVFBase
     {
     public:
         using TData = std::shared_ptr<State>;
@@ -20,7 +20,7 @@ namespace sdm
          * @param number t : time step
          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
          */
-        Pair<std::shared_ptr<Action>,TData> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+        std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
 
         /**
          * @brief Select the best action and value associated for a state at a precise time and a precise next hyperplan at t +1

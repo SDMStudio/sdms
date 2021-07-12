@@ -116,7 +116,7 @@ namespace sdm
          * 
          * @return the reward function
          */
-        virtual std::shared_ptr<RewardInterface> getReward() const;
+        virtual std::shared_ptr<RewardInterface> getRewardSpace() const;
 
         virtual double getMinReward(number t = 0) const;
 

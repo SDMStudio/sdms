@@ -15,6 +15,7 @@
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/space/space.hpp>
 #include <sdm/core/distribution.hpp>
+#include <sdm/world/gym_interface.hpp>
 
 namespace sdm
 {
@@ -22,7 +23,7 @@ namespace sdm
      * @brief The class for Discrete Markov Decision Processes. 
      * 
      */
-    class MDPInterface
+    class MDPInterface : virtual public GymInterface
     {
     public:
     
@@ -85,6 +86,10 @@ namespace sdm
         
         virtual double getMaxReward(number t) const = 0;
 
+        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
+
+        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep) = 0;
+
         /**
          * @brief Get the transition probability, i.e. p(s' | s, a).
          * 
@@ -105,6 +110,9 @@ namespace sdm
          */
         virtual std::set<std::shared_ptr<State>> getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
 
+        virtual void setInternalState(std::shared_ptr<State> state) = 0;
+
+        virtual std::shared_ptr<State> getInternalState() const = 0;
     };
 
 } // namespace sdm

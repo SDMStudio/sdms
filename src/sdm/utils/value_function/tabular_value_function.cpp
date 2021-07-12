@@ -56,6 +56,11 @@ namespace sdm
         this->updateValueAt(state, t, value);
     }
 
+    size_t TabularValueFunction::getSize(number t) const
+    {
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].size();
+    }
+
     // void TabularValueFunction::save(std::string filename)
     // {
     //     BoostSerializable<TabularValueFunction>::save(filename);

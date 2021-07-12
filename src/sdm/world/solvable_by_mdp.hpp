@@ -11,44 +11,59 @@
 namespace sdm
 {
     /**
-     * @brief The class for Discrete Markov Decision Processes.
+     * @brief The class for Markov Decision Processes.
      *
      */
     class SolvableByMDP : public SolvableByHSVI
     {
     public:
+        /** @brief Default constructor */
         SolvableByMDP();
-        SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp);
-        ~SolvableByMDP();
 
         /**
-         * @brief Get the initial state
+         * @brief Construct a problem solvable by HSVI.
+         * @param mdp the underlying MDP
          */
+        SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp);
+
+        /** @brief Destructor */
+        ~SolvableByMDP();
+
+        /** @brief Get the initial state */
         std::shared_ptr<State> getInitialState();
 
         void setInitialState(const std::shared_ptr<State> &state);
 
         /**
-         * @brief Get the next occupancy state.
+         * @brief Select the next state.
          * 
-         * @param state the occupancy state
-         * @param action the action state
+         * @param state the state
+         * @param action the action
          * @param t the timestep
          * @param hsvi a pointer on the algorithm that makes the call
-         * @return the next occupancy state
+         * @return the next state
          */
         virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
 
         /**
-         * @brief Get the actions availables at a specific state
+         * @brief Get the action space at a specific state and timestep.
+         * The state dependency is required when the game forbid the usage of a number of actions in this state. It is also used in some reformulated problems where actions are decision rules.
+         * The time dependency is required in extensive-form games in which some agents have a different action space.   
          * 
          * @param state the state
+         * @param t the timestep
          * @return the action space 
          */
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t = 0);
 
         /**
-         * @brief Get the reward at a given occupancy state and occupancy action 
+         * @brief Get the reward of executing a specific action in an specific state at timestep t. 
+         * The time dependency can be required in non-stationnary problems.   
+         * 
+         * @param state the state
+         * @param action the action
+         * @param t the timestep
+         * @return the reward
          */
         double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
@@ -64,7 +79,9 @@ namespace sdm
         double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
-         * @brief Get the underlying problem. For instance the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
+         * @brief Get the well defined underlying problem. 
+         * Some problems are solvable by DP algorithms even if they are not well defined. Usually, they simply are reformulation of an underlying well defined problem. 
+         * For instance, the underlying DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
          * 
          * @return the underlying problem 
          */
@@ -122,7 +139,7 @@ namespace sdm
         /** @brief Get the underlying mdp */
         const std::shared_ptr<MDPInterface> &getUnderlyingMDP() const;
 
-        /** @brief The underlying fully defined problem */
+        /** @brief The underlying well defined problem */
         std::shared_ptr<MDPInterface> underlying_problem;
 
         /** @brief The initial state */

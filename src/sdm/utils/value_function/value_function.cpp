@@ -102,4 +102,13 @@ namespace sdm
             std::cout<<"\t Total Time Evaluate : "<<this->total_time_evaluate<<std::endl;
         }
     #endif
+    size_t ValueFunction::getSize() const
+    {
+        size_t size_total = 0;
+        for (number t = 0; t < this->getHorizon(); t++)
+        {
+            size_total += this->getSize(t);
+        }
+        return size_total;
+    }
 } // namespace sdm

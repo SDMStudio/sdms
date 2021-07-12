@@ -15,11 +15,10 @@ namespace sdm
 
         virtual std::shared_ptr<HistoryInterface> getPreviousHistory() = 0;
 
-        virtual const std::shared_ptr<Observation> &getData() const = 0;
-
+        virtual std::shared_ptr<Observation> getObservation() = 0;
 
         // virtual std::shared_ptr<Action> getLastAction() = 0;
-        // virtual std::shared_ptr<Observation> getLastObservation() = 0;
+        // virtual std::shared_ptr<Observation> getObservation() = 0;
 
         // virtual std::shared_ptr<Action> getActionAt(number t) = 0;
         // virtual std::shared_ptr<Observation> getObservationAt(number t) = 0;

@@ -45,6 +45,8 @@ namespace sdm
 
     std::shared_ptr<State> sampleState();
 
+    void normalizeBelief(double norm_1);
+
     static std::shared_ptr<State> getState(const std::shared_ptr<State> &);
     size_t size() const { return MappedVector<std::shared_ptr<State>>::size(); }
 
