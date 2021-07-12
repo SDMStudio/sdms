@@ -50,7 +50,7 @@ namespace sdm
                 std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
 
                 // **********************
-                // SolvableByHSVI methods
+                // SolvableByHSVI methodsq
                 // **********************
 
                 std::shared_ptr<State> nextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
@@ -103,7 +103,11 @@ namespace sdm
                 virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
 
-                std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 std::shared_ptr<HistoryInterface> getNextHistory(const std::shared_ptr<Observation> &observation);
+
+                std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                std::shared_ptr<Space> computeActionSpaceAtOccupancy(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                std::shared_ptr<Space> computeActionSpaceAtSerial(const std::shared_ptr<State> &occupancy_state, number t = 0);
+
         };
 } // namespace sdm

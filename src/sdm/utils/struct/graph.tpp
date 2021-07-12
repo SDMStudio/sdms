@@ -154,10 +154,10 @@ namespace sdm
     std::string Graph<TNode, TEdge>::node_str() const
     {
         std::ostringstream str_result;
-        str_result << "<node data=\"" << this->getData() << "\" address=\"" << this << "\" num_succ=" << this->getNumSuccessors() << "\" num_pred=\"" << this->getNumPredecessors() << "\">" << std::endl;
+        str_result << "<node data=\"" << this->getData()->str() << "\" address=\"" << this << "\" num_succ=" << this->getNumSuccessors() << "\" num_pred=\"" << this->getNumPredecessors() << "\">" << std::endl;
         for (const auto pair_edge_succ : this->successors)
         {
-            str_result << "\t<successor edge=\"" << pair_edge_succ.first << "\" node=\"" << pair_edge_succ.second << "\"/>" << std::endl;
+            str_result << "\t<successor edge=\"" << pair_edge_succ.first.first->str() << "\" node=\"" << pair_edge_succ.second << "\"/>" << std::endl;
         }
         str_result << "</node>";
         return str_result.str();

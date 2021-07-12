@@ -6,24 +6,10 @@
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 
 namespace sdm
-{
+{ 
     class SerialInterface : virtual public State
     {
     public:
-        /**
-         * @brief Get the Hidden State of the serial object
-         * 
-         * @return std::shared_ptr<State> 
-         */
-        virtual std::shared_ptr<State> getHiddenState() const = 0;
-
-        /**
-         * @brief Get the hidden vector of action that were already decided
-         * p
-         * @return std::vector<std::shared_ptr<Action>> 
-         */
-        virtual Joint<std::shared_ptr<Action>> getAction() const = 0;
-
         /**
          * @brief Get the current Agent Id of the object
          * 
@@ -38,6 +24,29 @@ namespace sdm
         virtual void setAgentId(number) = 0;
     };
 
+    class BaseSerialInterface : virtual public SerialInterface
+    {
+        /**
+         * @brief Get the Hidden State of the serial object
+         * 
+         * @return std::shared_ptr<State> 
+         */
+        virtual std::shared_ptr<State> getHiddenState() const = 0;
+
+        /**
+         * @brief Get the hidden vector of action that were already decided
+         * p
+         * @return std::vector<std::shared_ptr<Action>> 
+         */
+        virtual Joint<std::shared_ptr<Action>> getAction() const = 0;
+
+        // TypeState getTypeState() const
+        // {
+        //     return TypeState::SERIAL_STATE;
+        // }
+    };
+
     class SerialOccupancyInterface :virtual public SerialInterface,virtual public OccupancyStateInterface
-    {};
+    {
+    };
 }

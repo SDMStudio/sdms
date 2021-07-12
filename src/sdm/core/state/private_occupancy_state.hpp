@@ -25,7 +25,8 @@ namespace sdm
         const std::vector<std::shared_ptr<HistoryInterface>> &getPartialJointHistory(const std::shared_ptr<JointHistoryInterface> &) const;
         std::shared_ptr<JointHistoryInterface> getJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &) const;
 
-        void finalize(bool do_compression = true);
+        void finalize();
+        void finalize(bool do_compression);
 
         /**
          * @brief Check the equivalence between two private occupancy states.

@@ -92,7 +92,7 @@ int main(int argc, char **argv)
         mdp->setHorizon(horizon);
         mdp->setDiscount(discount);
 
-        std::cout << "# Build OccupancyMDP" << std::endl;
+        // std::cout << "# Build OccupancyMDP" << std::endl;
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
         std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-        auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
+        auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
         auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
         auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
@@ -123,6 +123,10 @@ int main(int argc, char **argv)
         algo->do_solve();
 
         algo->saveResults("test_" + name + ".csv", compress_precision);
+
+        // std::cout << *algo->getLowerBound() << std::endl;
+        // std::cout << *algo->getUpperBound() << std::endl;
+        std::cout << *std::static_pointer_cast<OccupancyMDP>(hsvi_mdp)->getMDPGraph() << std::endl;
     }
     catch (sdm::exception::Exception &e)
     {

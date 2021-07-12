@@ -32,41 +32,36 @@ namespace sdm
 
         for (auto &jhistory : ostate->getJointHistories())
         {
-            double tmp = 0;
-            for(const auto &belief : ostate->getBeliefsAt(jhistory))
-            {
-                tmp += this->operator()(belief, tau);
-            }
-            value += ostate->getProbabilityOverJointHistory(jhistory) *tmp;
+            double belief_value = this->operator()(ostate->getBeliefAt(jhistory), tau);
+            value += ostate->getProbability(jhistory) * belief_value;
         }
         return value;
     }
-
 
     double State2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
     {
         switch (state->getTypeState())
         {
-        case TypeState::STATE :
-            return operatorState(state,tau);
+        case TypeState::STATE:
+            return operatorState(state, tau);
             break;
 
-        case TypeState::BELIEF_STATE :
-            return operatorBelief(state,tau);
+        case TypeState::BELIEF_STATE:
+            return operatorBelief(state, tau);
             break;
 
-        case TypeState::OCCUPANCY_STATE :
-            return operatorOccupancy(state,tau);
+        case TypeState::OCCUPANCY_STATE:
+            return operatorOccupancy(state, tau);
             break;
 
         default:
-            return operatorState(state,tau);
+            return operatorState(state, tau);
             break;
         }
         // return this->operator()<>(ostate, tau);
     }
 
-    double State2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau)
+    double State2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, const number &tau)
     {
         switch (state_AND_action.first->getTypeState())
         {

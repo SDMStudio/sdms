@@ -53,7 +53,7 @@ namespace sdm
 
     template <class TBelief>
     std::shared_ptr<State> BaseBeliefMDP<TBelief>::computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {   
+    {
         if (this->batch_size_ == 0)
         {
             return this->computeExactNextState(belief, action, observation, t).first;
@@ -92,7 +92,7 @@ namespace sdm
     }
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number)
     {
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
@@ -122,6 +122,7 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
@@ -164,7 +165,7 @@ namespace sdm
         }
         else
         {
-            // Return next belief without storing its value in the graph 
+            // Return next belief without storing its value in the graph
             // **WARNING** : The returned action will be different even for similar states.
             auto [computed_next_belief, proba_belief] = this->computeNextStateAndProbability(belief, action, observation, t);
             return computed_next_belief;

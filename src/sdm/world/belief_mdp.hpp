@@ -127,6 +127,9 @@ namespace sdm
         /** @brief A pointer on the bag containing all states. */
         RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
 
+        /** @brief A pointer on the bag containing all actions. */
+        // RecursiveMap<TAction, std::shared_ptr<Action>> action_space_;
+
         /** @brief the MDP Graph (graph of state transition) */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
         

@@ -10,7 +10,7 @@
 
 namespace sdm
 {
-  class SerializedState : public BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>, public SerialInterface 
+  class SerializedState : public BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>, public BaseSerialInterface 
   {
   public :
     SerializedState();

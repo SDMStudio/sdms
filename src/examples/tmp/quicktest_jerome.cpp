@@ -6,12 +6,12 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    std::vector<std::string> all_formalism={"extensive-decpomdp"};
-    std::vector<std::string> all_problem={"mabc"};
-    std::vector<int> all_horizon={40};
+    std::vector<std::string> all_formalism={"decpomdp"};
+    std::vector<std::string> all_problem={"tiger"};
+    std::vector<int> all_horizon={1};
     std::vector<double> all_discount={1};
     std::vector<std::string> upper_bound_name = {""};
-    std::vector<std::string> lower_bound_name={""};
+    std::vector<std::string> lower_bound_name={"maxplan"};
     std::vector<std::string> all_lower__init_name={"Min"};
     std::vector<std::string> all_upper_init_name= {"Max"};
     int mean = 1;

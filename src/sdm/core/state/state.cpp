@@ -23,9 +23,9 @@ namespace sdm
         return std::static_pointer_cast<HistoryInterface>(this->getPointer());
     }
 
-    std::shared_ptr<SerialInterface> State::toSerial()
+    std::shared_ptr<BaseSerialInterface> State::toSerial()
     {
-        return std::dynamic_pointer_cast<SerialInterface>(this->getPointer()); 
+        return std::dynamic_pointer_cast<BaseSerialInterface>(this->getPointer()); 
     }
 
     std::shared_ptr<SerialOccupancyInterface> State::toSerialOccupancyState()

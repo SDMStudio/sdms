@@ -161,7 +161,7 @@ namespace sdm
             // {
             //     tmp += relaxation->operator()(std::make_pair(belief, action), t);
             // }
-            weight = tmp * compressed_occupancy_state->getProbabilityOverJointHistory(joint_history);
+            // weight = tmp * compressed_occupancy_state->getProbabilityOverJointHistory(joint_history);
         }
         catch(const std::exception &exc)
         {

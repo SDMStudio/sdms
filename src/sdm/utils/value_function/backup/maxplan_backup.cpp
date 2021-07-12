@@ -84,21 +84,21 @@ namespace sdm
                 auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, nullptr, t);
                 auto best_evaluate_occupancy_state = vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState();
 
-                // auto belief = occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory);
-                // double tmp = 0.0;
+                auto belief = occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory);
+                double tmp = 0.0;
 
-                // for(const auto &hidden_state : belief->getStates())
-                // {
-                //     for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action,t))
-                //     {
-                //         for(const auto &observation : under_pb->getReachableObservations(hidden_state,action,next_hidden_state,t))
-                //         {
-                //             auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
-                //             tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)* under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
-                //         }
-                //     }   
-                // }
-                // next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
+                for(const auto &hidden_state : belief->getStates())
+                {
+                    for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action,t))
+                    {
+                        for(const auto &observation : under_pb->getReachableObservations(hidden_state,action,next_hidden_state,t))
+                        {
+                            auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
+                            tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)* under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
+                        }
+                    }   
+                }
+                next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
 
 
                 // for (const auto &belief : occupancy->getFullyUncompressedOccupancy()->getBeliefsAt(jhistory))

@@ -30,7 +30,7 @@ namespace sdm
     class OccupancyStateInterface;
     class HistoryInterface;
     class JointHistoryInterface;
-    class SerialInterface;
+    class BaseSerialInterface;
     class SerialOccupancyInterface;
 
     class State : public Observation
@@ -64,7 +64,7 @@ namespace sdm
          * 
          * @return std::shared_ptr<SerialInterface> 
          */
-        virtual std::shared_ptr<SerialInterface> toSerial();
+        virtual std::shared_ptr<BaseSerialInterface> toSerial();
 
         /**
          * @brief Transform the State in a Serial Occupancy Interface

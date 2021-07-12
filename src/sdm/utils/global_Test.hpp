@@ -59,7 +59,7 @@ namespace sdm
                                             {
                                                 for(const std::string &formalism : all_formalism)
                                                 {
-                                                    OccupancyState::map_pair_to_pointer_.clear();
+                                                    // OccupancyState::map_pair_to_pointer_.clear();
                                                     
                                                     // myfile<<filename<<","<<horizon<<","<<discount<<","<<upper_bound_init<<","<<lower_bound_init<<","<<upper_bound<<","<<lower_bound<<","<<truncation<<","<<sawtooth_current_type_of_resolution<<","<<sawtooth_BigM<<","<<formalism;
 
