@@ -69,6 +69,8 @@ namespace sdm
 
         bool isNotSeen(const std::shared_ptr<Observation> &observation, number t);
 
+        void printNumberOfActions();
+
         /**
          * @brief Define this function in order to be able to display the value function
          */

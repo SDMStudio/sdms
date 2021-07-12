@@ -19,6 +19,7 @@
 #include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
+#include <sdm/core/distribution.hpp>
 
 namespace sdm
 {
@@ -41,6 +42,10 @@ namespace sdm
     double getProbability(const std::shared_ptr<State> &state) const;
     void setProbability(const std::shared_ptr<State> &state, double proba);
     void addProbability(const std::shared_ptr<State> &state, double proba);
+
+    std::shared_ptr<State> sampleState();
+
+    void normalizeBelief(double norm_1);
 
     static std::shared_ptr<State> getState(const std::shared_ptr<State> &);
     size_t size() const { return MappedVector<std::shared_ptr<State>>::size(); }

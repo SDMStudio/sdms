@@ -24,6 +24,11 @@ namespace sdm
         return this->getParent();
     }
 
+    std::shared_ptr<Observation> HistoryTree::getObservation()
+    {
+        return this->getData();
+    }
+
     // template <typename output>
     // std::shared_ptr<output> HistoryTree::expand(const std::shared_ptr<Observation> &observation, bool backup)
     // {

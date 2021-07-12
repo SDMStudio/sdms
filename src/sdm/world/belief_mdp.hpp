@@ -33,7 +33,7 @@ namespace sdm
     {
     public:
         BaseBeliefMDP();
-        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp);
+        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
 
         /**
          * @brief Get the next belief.
@@ -102,7 +102,34 @@ namespace sdm
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
         std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
 
+        /**
+         * @brief Get the graph of 
+         * 
+         * @return std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> 
+         */
+        std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
     protected:
+        // If 0, it means the exact transitions will be used and not sampled ones.
+        int batch_size_;
+
+        /** @brief The current state (used in RL). */
+        std::shared_ptr<State> current_state_;
+
+        /** @brief The current timestep (used in RL). */
+        int step_;
+
+        /** @brief Hyperparameters. */
+        bool store_states_ = true;
+
+        /** @brief The probability transition. (i.e. p(o | b, a) */
+        RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Observation>, double> transition_probability;
+
+        /** @brief A pointer on the bag containing all states. */
+        RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
+
+        /** @brief the MDP Graph (graph of state transition) */
+        std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
+        
         /**
          * @brief Compute the state transition in order to return next state and associated probability.
          * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
@@ -114,25 +141,12 @@ namespace sdm
          * @param t the timestep
          * @return the couple (next state, transition probability in the next state)
          */
-        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
 
-        /** @brief The current state (used in RL). */
-        std::shared_ptr<State> current_state_;
-
-        /** @brief The current timestep (used in RL). */
-        int step_;
-
-        /** @brief Hyperparameters. */
-        bool store_states_ = true;
-
-        /** @brief The probability transition. */
-        RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Observation>, double> transition_probability;
-
-        /** @brief A pointer on the bag containing all states. */
-        RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
-
-        /** @brief the MDP Graph (graph of state transition) */
-        std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
+        
+        virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
     };
 
     using BeliefMDP = BaseBeliefMDP<Belief>;

@@ -36,7 +36,7 @@ namespace sdm
         this->setupDefaultObs(this->size(), sdm::DEFAULT_OBSERVATION);
     }
 
-    void JointHistoryTree::addIndividualHistory(std::shared_ptr<HistoryTree> ihist)
+    void JointHistoryTree::addIndividualHistory(std::shared_ptr<HistoryInterface> ihist)
     {
         this->push_back(ihist);
     }

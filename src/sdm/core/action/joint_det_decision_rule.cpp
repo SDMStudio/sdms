@@ -98,10 +98,10 @@ namespace sdm
     std::string JointDeterministicDecisionRule::str() const
     {
         std::ostringstream res;
-        res << "<joint-decision-rule>" << std::endl;
-        for (const auto &indiv_dr : *this)
+        res << "<joint-decision-rule type=\"deterministic\">" << std::endl;
+        for (const auto &individual_ddr : *this)
         {
-            tools::indentedOutput(res, indiv_dr->str().c_str(), 1);
+            tools::indentedOutput(res, individual_ddr->str().c_str(), 1);
             res << std::endl;
         }
         res << "<joint-decision-rule/>" << std::endl;

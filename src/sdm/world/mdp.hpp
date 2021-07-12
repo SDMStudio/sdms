@@ -116,7 +116,7 @@ namespace sdm
          * 
          * @return the reward function
          */
-        virtual std::shared_ptr<RewardInterface> getReward() const;
+        virtual std::shared_ptr<RewardInterface> getRewardSpace() const;
 
         virtual double getMinReward(number t = 0) const;
 
@@ -135,11 +135,11 @@ namespace sdm
 
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
 
-        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
-
         std::shared_ptr<Observation> reset();
 
         std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
 
         void setInternalState(std::shared_ptr<State>);
 

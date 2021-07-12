@@ -17,6 +17,7 @@
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 
 using namespace sdm;
@@ -49,7 +50,7 @@ int learn(int argv, char **args)
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")
-        ("batch_size,b", po::value<number>(&batch_size)->default_value(10), "batch size, that is K from the paper")
+        ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "batch size, that is K from the paper")
         ("max_steps,t", po::value<unsigned long>(&max_steps)->default_value(100000), "the maximum number of timesteps")
         ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
@@ -85,17 +86,16 @@ int learn(int argv, char **args)
 
         common::global_urng().seed(seed);
 
-        // auto dpomdp = sdm::parser::parse_file("../data/world/dpomdp/boxPushingUAI07.dpomdp");
-        // auto dpomdp = sdm::parser::parse_file("../data/world/dpomdp/Grid3x3corners.dpomdp");
         auto dpomdp = sdm::parser::parse_file(path);
+
+        auto start_distribution = dpomdp->getStartDistribution();
 
         auto state_space = dpomdp->getStateSpace();
         auto action_space = dpomdp->getActionSpace();
-        auto reward_space = dpomdp->getReward(); 
-        auto state_dynamics = dpomdp->getStateDynamics();
-
-        auto start_distribution = dpomdp->getStartDistribution();
         auto observation_space = dpomdp->getObservationSpace(0);
+        auto reward_space = dpomdp->getRewardSpace(); 
+
+        auto state_dynamics = dpomdp->getStateDynamics();
         auto observation_dynamics = dpomdp->getObservationDynamics();
 
         std::shared_ptr<GymInterface> gym;
@@ -118,11 +118,15 @@ int learn(int argv, char **args)
         }
         else if (formalism == "BeliefMDP")
         {
-            gym = std::make_shared<BeliefMDP>(dpomdp);
+            gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         }
         else if (formalism == "OccupancyMDP")
         {
-            gym = std::make_shared<OccupancyMDP>(dpomdp, memory);
+            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, batch_size);
+        }
+        else if (formalism == "PrivateHierarchicalOccupancyMDP")
+        {
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, batch_size);
         }
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();

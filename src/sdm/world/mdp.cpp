@@ -65,7 +65,7 @@ namespace sdm
         return this->state_dynamics_;
     }
 
-    std::shared_ptr<RewardInterface> MDP::getReward() const
+    std::shared_ptr<RewardInterface> MDP::getRewardSpace() const
     {
         return this->reward_space_;
     }
@@ -137,14 +137,23 @@ namespace sdm
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
+    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action, bool increment_timestep)
+    {
+        double reward = this->getReward(this->getInternalState(), action);
+
+        std::shared_ptr<Observation> observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
+
+        bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
+        
+        if (increment_timestep)
+            this->current_timestep_++;
+
+        return std::make_tuple(observation, std::vector<double>{reward}, is_done);
+    }
+
     std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
     {
         return this->getActionSpace(t);
-    }
-
-    std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<Observation> &observation, number t)
-    {
-        return this->getActionSpaceAt(observation, t)->sample()->toAction();
     }
 
     std::string MDP::toStdFormat()
@@ -245,7 +254,7 @@ namespace sdm
             //         res << v_ja[ag] << " ";
             //     }
             //     res << "\" >" << std::endl;
-            //     res << "\t\t\t\t" << this->getReward()->getReward(ja) << std::endl;
+            //     res << "\t\t\t\t" << this->getRewardSpace()->getReward(ja) << std::endl;
             //     res << "\t\t\t</reward-entry>" << std::endl;
             // }
 

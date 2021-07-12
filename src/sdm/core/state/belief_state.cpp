@@ -62,6 +62,27 @@ namespace sdm
     this->setValueAt(state, this->getProbability(state) + proba);
   }
 
+  std::shared_ptr<State> Belief::sampleState()
+  {
+    auto distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
+    for (auto const state: this->getStates())
+    {
+      distribution->setProbability(state, this->getProbability(state));
+    }
+    return distribution->sample();
+  }
+
+  void Belief::normalizeBelief(double norm_1)
+  {
+    if (norm_1 > 0)
+      {
+        for (const auto &state : this->getStates())
+        {
+            this->setProbability(state->toState(), this->getProbability(state->toState()) / norm_1);
+        }
+      }
+  }
+
   std::shared_ptr<State> Belief::getState(const std::shared_ptr<State> &state)
   {
     return state;

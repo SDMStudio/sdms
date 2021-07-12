@@ -49,7 +49,7 @@ namespace sdm
     //     std::shared_ptr<HistoryInterface> getPreviousHistory();
 
     //     std::shared_ptr<Action> getLastAction();
-    //     std::shared_ptr<Observation> getLastObservation();
+    //     std::shared_ptr<Observation> getObservation();
 
     //     std::shared_ptr<Action> getActionAt(number t);
     //     std::shared_ptr<Observation> getObservationAt(number t);

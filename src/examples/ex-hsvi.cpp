@@ -58,8 +58,8 @@ int main(int argc, char **argv)
 		auto omdp_world = std::make_shared<DiscreteMDP>(filename);
 
 		std::cout << omdp_world->getDiscount() << std::endl;
-		std::cout << omdp_world->getReward()->getMinReward() << std::endl;
-		std::cout << omdp_world->getReward()->getMaxReward() << std::endl;
+		std::cout << omdp_world->getRewardSpace()->getMinReward() << std::endl;
+		std::cout << omdp_world->getRewardSpace()->getMaxReward() << std::endl;
 		std::cout << omdp_world->getStateSpace() << std::endl;
 		std::cout << omdp_world->getActionSpace() << std::endl;
 

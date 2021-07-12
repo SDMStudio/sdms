@@ -4,7 +4,12 @@
 #include <sdm/world/base/mpomdp_interface.hpp>
 #include <sdm/core/state/interface/history_interface.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/core/state/jhistory_tree.hpp>
+#include <sdm/core/space/function_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/action/joint_det_decision_rule.hpp>
 
 /**
  * @namespace  sdm
@@ -20,9 +25,10 @@ namespace sdm
                              number memory = -1,
                              bool compression = true,
                              bool store_states = true,
-                             bool store_actions = true);
+                             bool store_actions = true,
+                             int batch_size = 0);
 
-                void initialize(number history_length);
+                void initialize(number memory);
 
                 /**
                  * @brief Get the next occupancy state.
@@ -92,6 +98,12 @@ namespace sdm
                  * @param t the timestep
                  * @return the couple (next state, transition probability in the next state)
                  */
-                virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProba(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+
+                std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                std::shared_ptr<HistoryInterface> getNextHistory(const std::shared_ptr<Observation> &observation);
         };
 } // namespace sdm
