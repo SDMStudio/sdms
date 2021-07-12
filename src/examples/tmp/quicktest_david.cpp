@@ -100,7 +100,7 @@ int main(int argc, char **argv)
         // std::cout << "# State 0\n"<< *state << std::endl;
         // for (int i = 0; i < 5; i++)
         // {
-        //     auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->getItem(8);
+        //     auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->sample();
 
         //     std::cout << "# Action " << i<<"\n" << *action << std::endl;
         //     state = hsvi_mdp->nextState(state, action->toAction());
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-        auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
+        auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
 
         auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
         auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
         // std::cout << *algo->getLowerBound() << std::endl;
         // std::cout << *algo->getUpperBound() << std::endl;
-        std::cout << *std::static_pointer_cast<OccupancyMDP>(hsvi_mdp)->getMDPGraph() << std::endl;
+        // std::cout << *std::static_pointer_cast<OccupancyMDP>(hsvi_mdp)->getMDPGraph() << std::endl;
     }
     catch (sdm::exception::Exception &e)
     {

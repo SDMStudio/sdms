@@ -128,20 +128,24 @@ namespace sdm
 
     bool PrivateOccupancyState::check_equivalence(const PrivateOccupancyState &other) const
     {
+        PrivateOccupancyState ostate_1 = *this, ostate_2 = other; 
+        ostate_1.normalize();
+        ostate_2.normalize();
+
         // Check that private occupancy states are defined on the same support
-        if (this->size() != other.size())
+        if (ostate_1.size() != ostate_2.size())
         {
             return false;
         }
         // Go over all partial joint histories and associated joint history
-        for (const auto &pair_partial_joint_history_joint_history : this->bimap_jhist_partial_jhist.right)
+        for (const auto &pair_partial_joint_history_joint_history : ostate_1.bimap_jhist_partial_jhist.right)
         {
             const auto &partial_joint_history = pair_partial_joint_history_joint_history.first;
             const auto &current_joint_history = pair_partial_joint_history_joint_history.second;
 
             // Get an iterator on the first partial joint history that is similar in "other"
-            auto iterator = other.bimap_jhist_partial_jhist.right.find(partial_joint_history);
-            if (iterator == other.bimap_jhist_partial_jhist.right.end())
+            auto iterator = ostate_2.bimap_jhist_partial_jhist.right.find(partial_joint_history);
+            if (iterator == ostate_2.bimap_jhist_partial_jhist.right.end())
             {
                 return false;
             }
@@ -150,11 +154,11 @@ namespace sdm
             const auto &other_joint_history = iterator->second;
 
             // For all states in the corresponding belief
-            for (const auto &state : this->getBeliefAt(current_joint_history)->getStates())
+            for (const auto &state : ostate_1.getBeliefAt(current_joint_history)->getStates())
             {
-                // std::cout << "std::abs(" << pair_state_value.second << " - " << sum_other_belief[pair_state_value.first] << ") = " << std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) << " > " << PrivateOccupancyState::PRECISION_COMPRESSION << " ? " << (std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) > PrivateOccupancyState::PRECISION_COMPRESSION) << std::endl;
+                // std::cout << "std::abs(" << ostate_1.getProbability(current_joint_history, state) << " - " << other.getProbability(other_joint_history, state) << ") = " << std::abs(ostate_1.getProbability(current_joint_history, state) - other.getProbability(other_joint_history, state)) << " > " << PrivateOccupancyState::PRECISION_COMPRESSION << " ? " << (std::abs(ostate_1.getProbability(current_joint_history, state) - other.getProbability(other_joint_history, state)) > PrivateOccupancyState::PRECISION_COMPRESSION) << std::endl;
                 // Compare p(o^{-i}, x | o^{i}_1) and p(o^{-i}, x | o^{i}_2)
-                if (std::abs(this->getProbability(current_joint_history, state) - other.getProbability(other_joint_history, state)) > PrivateOccupancyState::PRECISION_COMPRESSION)
+                if (std::abs(ostate_1.getProbability(current_joint_history, state) - ostate_2.getProbability(other_joint_history, state)) > PrivateOccupancyState::PRECISION_COMPRESSION)
                 {
                     return false;
                 }

@@ -384,7 +384,7 @@ namespace sdm
             auto belief = occupancy_state->toOccupancyState()->getBeliefAt(joint_history);
             // Get the action from decision rule
             auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
-            // Update the expected reward
+            // Update the expected reward 
             reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
         }
         return reward;
