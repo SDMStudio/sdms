@@ -17,6 +17,7 @@ namespace sdm
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
+            this->weight_of_private_occupancy_state_.push_back({});
             this->private_ihistory_map_.push_back({});
             this->map_label_to_pointer.push_back({});
         }
@@ -26,6 +27,7 @@ namespace sdm
         : Belief(occupancy_state),
           num_agents_(occupancy_state.num_agents_),
           tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.tuple_of_maps_from_histories_to_private_occupancy_states_),
+          weight_of_private_occupancy_state_(occupancy_state.weight_of_private_occupancy_state_),
           fully_uncompressed_occupancy_state(occupancy_state.fully_uncompressed_occupancy_state),
           one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
           compressed_occupancy_state(occupancy_state.compressed_occupancy_state),
@@ -55,13 +57,15 @@ namespace sdm
     double OccupancyState::getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &state) const
     {
         // Get the probability p(x,o) = p(o) * b(x | o)
-        return this->getProbability(joint_history) * this->getBeliefAt(joint_history)->getProbability(state);
+        auto belief = this->getBeliefAt(joint_history);
+        return (belief == nullptr) ? 0. : this->getProbability(joint_history) * belief->getProbability(state);
+        // return this->getProbability(joint_history) * this->getBeliefAt(joint_history)->getProbability(state);
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<State> &joint_history, double proba)
     {
         Belief::setProbability(joint_history, proba);
-        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
+        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -78,7 +82,7 @@ namespace sdm
         // Add the probability of being in a joint history
         this->setProbability(joint_history, this->getProbability(joint_history) + proba);
 
-        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
+        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -106,28 +110,37 @@ namespace sdm
 
     bool OccupancyState::operator==(const OccupancyState &other) const
     {
+        // std::cout << "Start Equality " << std::endl;
+        // std::cout << "this=" << *this << std::endl;
+        // std::cout << "other=" << other << std::endl;
+        // std::cout << "E1" << std::endl;
         if (this->size() != other.size())
         {
             return false;
         }
+        // std::cout << "E2" << std::endl;
         if (std::abs(this->getDefault() - other.getDefault()) > PRECISION)
         {
             return false;
         }
 
+        // std::cout << "E3" << std::endl;
         // For all points in the support
         for (const auto &jhistory : this->getJointHistories())
         {
             // For all states in the corresponding belief
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
+                // std::cout << "E4" << std::endl;
                 // Does the corresponding probabilities are equals ?
                 if (std::abs(this->getProbability(jhistory, state) - other.getProbability(jhistory, state)) > PRECISION)
                 {
+                    // std::cout << "E5" << std::endl;
                     return false;
                 }
             }
         }
+        // std::cout << "E6" << std::endl;
         return true;
     }
 
@@ -391,6 +404,7 @@ namespace sdm
      */
     std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
     {
+        // std::cout << "Start Compress" << std::endl;
         auto current_compact_ostate = std::make_shared<OccupancyState>(this->num_agents_);
         auto previous_compact_ostate = std::make_shared<OccupancyState>(*this);
 
@@ -436,7 +450,7 @@ namespace sdm
                         for (const auto &private_joint_history : previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getJointHistories())
                         {
                             // Get the probability of the private occupancy state corresponding to the history that will be deleted
-                            double probability = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getProbability(private_joint_history);
+                            double probability = this->weight_of_private_occupancy_state_[agent_id][ihistory_one_step_left] * previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getProbability(private_joint_history);
 
                             // Get the partial joint history label
                             auto partial_jhist = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getPartialJointHistory(private_joint_history);
@@ -465,14 +479,13 @@ namespace sdm
 
         previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
         previous_compact_ostate->setOneStepUncompressedOccupancy(this->getptr());
+        // std::cout << "End Compress" << std::endl;
 
         return previous_compact_ostate;
     }
 
-    void OccupancyState::finalize()
+    void OccupancyState::setupPrivateOccupancyStates()
     {
-        this->setup();
-
         // For all joint histories in the support of the occupancy state
         for (const auto &jhist : this->getJointHistories())
         {
@@ -507,9 +520,20 @@ namespace sdm
             {
                 // Finalize the private occupancy state
                 pair_ihist_private_occupancy_state.second->finalize(false);
-                // pair_ihist_private_occupancy_state.second->normalize();
+
+                // Get the weight of a private occupancy state
+                this->weight_of_private_occupancy_state_[agent_id][pair_ihist_private_occupancy_state.first] = pair_ihist_private_occupancy_state.second->norm_1();
+
+                // Normalize the private occupancy state
+                pair_ihist_private_occupancy_state.second->normalize();
             }
         }
+    }
+
+    void OccupancyState::finalize()
+    {
+        this->setup();
+        this->setupPrivateOccupancyStates();
         this->setProbabilityOverIndividualHistories();
     }
 
