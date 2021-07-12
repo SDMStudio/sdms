@@ -296,7 +296,7 @@ namespace sdm
     void OccupancyState::setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &one_step_uncompress_ostate)
     {
         this->one_step_left_compressed_occupancy_state = one_step_uncompress_ostate;
-        std::static_pointer_cast<OccupancyState>(one_step_uncompress_ostate)->setCompressedOccupancy(this->getptr());
+        std::dynamic_pointer_cast<OccupancyState>(one_step_uncompress_ostate)->setCompressedOccupancy(this->getptr());
     }
 
     std::shared_ptr<OccupancyStateInterface> OccupancyState::getCompressedOccupancy() const
@@ -524,7 +524,7 @@ namespace sdm
 
     std::shared_ptr<OccupancyState> OccupancyState::getptr()
     {
-        return std::static_pointer_cast<OccupancyState>(this->toState()->toOccupancyState());
+        return std::dynamic_pointer_cast<OccupancyState>(this->toState()->toOccupancyState());
     }
 
     std::string OccupancyState::str() const

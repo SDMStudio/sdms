@@ -59,15 +59,10 @@ namespace sdm
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
         // If the action space corresponding to this ostate and t does not exist:
-        std::cout<<"GetActionSpace At 0"<<std::endl;
-
         if (ostate->toOccupancyState()->getActionSpaceAt(t) == nullptr)
         {
-            std::cout<<"GetActionSpace At 1"<<std::endl;
             // Compute the action space at this occupancy state and timestep
             std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, t);
-
-            std::cout<<"GetActionSpace At 3"<<std::endl;
 
             // If we don't store action spaces
             if (!this->store_actions_)
@@ -77,13 +72,9 @@ namespace sdm
             else
             {
                 // Store the action space for state o
-                std::cout<<"GetActionSpace At 4 "<<std::endl;
-
                 ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
             }
         }
-        std::cout<<"GetActionSpace At 2"<<std::endl;
-
         // Return the action space corresponding to this ostate and t.
         return ostate->toOccupancyState()->getActionSpaceAt(t);
     }

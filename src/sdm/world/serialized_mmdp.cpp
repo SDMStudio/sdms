@@ -96,7 +96,7 @@ namespace sdm
         }
         else
         {            
-            std::shared_ptr<SerialInterface> serialized_state = std::dynamic_pointer_cast<SerialInterface>(state);
+            std::shared_ptr<BaseSerialInterface> serialized_state = std::dynamic_pointer_cast<BaseSerialInterface>(state);
             auto joint_action = serialized_state->getAction();
             joint_action.push_back(serial_action);
 
@@ -106,8 +106,8 @@ namespace sdm
 
     double SerializedMMDP::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const
     {
-        std::shared_ptr<SerialInterface> serialized_state = std::dynamic_pointer_cast<SerialInterface>(state);
-        std::shared_ptr<SerialInterface> next_serialized_state = std::dynamic_pointer_cast<SerialInterface>(next_state);
+        std::shared_ptr<BaseSerialInterface> serialized_state = std::dynamic_pointer_cast<BaseSerialInterface>(state);
+        std::shared_ptr<BaseSerialInterface> next_serialized_state = std::dynamic_pointer_cast<BaseSerialInterface>(next_state);
         
         auto all_action = serialized_state->getAction();
         all_action.push_back(action);
@@ -173,7 +173,7 @@ namespace sdm
                 {
                     // Add new serial state with the state of the problem and vector of action
                     auto next_serial_state = std::make_shared<SerializedState>(state->toState(),action);
-                    std::shared_ptr<State> next_serial_state_str = std::shared_ptr<SerialInterface>(next_serial_state);
+                    std::shared_ptr<State> next_serial_state_str = std::shared_ptr<BaseSerialInterface>(next_serial_state);
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
                     this->map_serialized_state_to_pointeur[*next_serial_state] = next_serial_state_str;

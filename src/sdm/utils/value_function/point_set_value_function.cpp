@@ -149,7 +149,7 @@ namespace sdm
             }
         }
 
-        if(TabularValueFunction::evaluate(state,t).second < (v_ub_state + min_ext))
+        if(TabularValueFunction::evaluate(state,t).second <(v_ub_state + min_ext))
         {
             std::cout<<"Tabular Evaluate "<<TabularValueFunction::evaluate(state,t).second<<std::endl;
             std::cout<<"Sawtooth Evaluate "<<v_ub_state + min_ext<<std::endl;

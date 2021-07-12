@@ -21,6 +21,8 @@ namespace sdm
 
     std::shared_ptr<State> MaxPlanBackup::backup(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
+        std::cout<<"Test 20 "<<std::endl;
+
         switch (state->getTypeState())
         {
         case TypeState::BELIEF_STATE:
@@ -78,6 +80,8 @@ namespace sdm
 
             for (const auto &jhistory : occupancy->getFullyUncompressedOccupancy()->getJointHistories())
             {
+                std::cout<<"Test 1 "<<std::endl;
+
                 // Get selected joint action
                 auto action = occupancy_mdp->applyDecisionRule(occupancy->toOccupancyState(), jhistory, decision_rule, t);
                 //Create next occupancy state
@@ -98,6 +102,8 @@ namespace sdm
                         }
                     }   
                 }
+                std::cout<<"Test 2 "<<std::endl;
+
                 next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
 
 

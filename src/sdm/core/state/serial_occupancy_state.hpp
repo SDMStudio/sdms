@@ -24,10 +24,7 @@ namespace sdm
          */
         void setAgentId(number);
 
-        TypeState getTypeState() const
-        {
-            return TypeState::SERIAL_OCCUPANCY_STATE;
-        }
+        TypeState getTypeState() const;
 
         std::string str() const;
 

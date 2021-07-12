@@ -11,6 +11,8 @@ namespace sdm
 
     std::shared_ptr<Action> ActionVFMaxplan::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
+        std::cout<<"Test 0 "<<std::endl;
+
         auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
 
         // Definie local Variable

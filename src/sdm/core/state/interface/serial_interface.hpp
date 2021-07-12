@@ -26,6 +26,7 @@ namespace sdm
 
     class BaseSerialInterface : virtual public SerialInterface
     {
+    public :
         /**
          * @brief Get the Hidden State of the serial object
          * 
@@ -39,11 +40,6 @@ namespace sdm
          * @return std::vector<std::shared_ptr<Action>> 
          */
         virtual Joint<std::shared_ptr<Action>> getAction() const = 0;
-
-        // TypeState getTypeState() const
-        // {
-        //     return TypeState::SERIAL_STATE;
-        // }
     };
 
     class SerialOccupancyInterface :virtual public SerialInterface,virtual public OccupancyStateInterface

@@ -58,7 +58,6 @@ namespace sdm
         std::cout << "###############################################################\n\n";
 
         this->start_state = this->world_->getInitialState();
-        std::cout<<"Initial State "<<start_state->str()<<std::endl;
 
         this->trial = 0;
         this->start_time = std::chrono::high_resolution_clock::now();
@@ -87,7 +86,7 @@ namespace sdm
 
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(),this->duration);
-        std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
+        // std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
 
@@ -111,19 +110,16 @@ namespace sdm
                 #ifdef LOGTIME 
                     this->StartTime();
                 #endif
-                std::cout<<"Test 0 "<<std::endl;
 
                 // Select next action and state following search process
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
-                std::cout<<"Test 1 "<<std::endl;
+
                 #ifdef LOGTIME 
                     this->updateTime("Action");
                     this->StartTime();
                 #endif
 
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
-                std::cout<<"Test 2 "<<std::endl;
-
                 #ifdef LOGTIME 
                     this->updateTime("Next State");
                 #endif
@@ -134,11 +130,9 @@ namespace sdm
                 #ifdef LOGTIME 
                     this->StartTime();
                 #endif
-                std::cout<<"Test 3 "<<std::endl;
 
                 // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
-                std::cout<<"Test 4 "<<std::endl;
 
                 #ifdef LOGTIME 
                     this->updateTime("Update Lower");

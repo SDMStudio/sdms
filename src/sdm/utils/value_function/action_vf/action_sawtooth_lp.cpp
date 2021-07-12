@@ -114,15 +114,15 @@ namespace sdm
                 // Go over all Joint History Next
                 for (const auto &joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
                 {
-                    // auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(joint_history);
+                    auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(joint_history);
 
-                    // for(const auto next_hidden_state : next_belief->getStates())
-                    // {
-                    //     // <! \omega_k(x',o')
-                    //     VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, joint_history);
-                    //     var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
-                    //     this->setNumber(VarName, index++);
-                    // }
+                    for(const auto next_hidden_state : next_belief->getStates())
+                    {
+                        // <! \omega_k(x',o')
+                        VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, joint_history);
+                        var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
+                        this->setNumber(VarName, index++);
+                    }
 
                     // for(const auto &belief : next_one_step_uncompressed_occupancy_state->getBeliefsAt(joint_history))
                     // {
@@ -152,10 +152,8 @@ namespace sdm
             auto compressed_occupancy_state = state->toOccupancyState();
             auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(vf->getInitFunction());
 
-            double tmp =0.0;
-
-            // auto belief =  compressed_occupancy_state->getBeliefAt(joint_history);
-            // tmp += relaxation->operator()(std::make_pair(belief, action), t);
+            auto belief =  compressed_occupancy_state->getBeliefAt(joint_history);
+            weight = compressed_occupancy_state->getProbability(joint_history) *relaxation->operator()(std::make_pair(belief, action), t);
 
             // for (const auto& belief : compressed_occupancy_state->getBeliefsAt(joint_history))
             // {
@@ -180,7 +178,7 @@ namespace sdm
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
 
        try{
-            this->createInitialConstrainte(vf,state, env, con, var, index, t);
+            // this->createInitialConstrainte(vf,state, env, con, var, index, t);
 
             number recover = 0;
 
@@ -203,42 +201,42 @@ namespace sdm
                 // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
                 {
-                    // auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history);
+                    auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history);
 
-                    // for(const auto &next_hidden_state : next_belief->getStates())
-                    // {
-                    //     auto probability = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
+                    for(const auto &next_hidden_state : next_belief->getStates())
+                    {
+                        auto probability = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
 
-                    //     std::shared_ptr<Joint<std::shared_ptr<Observation>>> joint_observation;
-                    //     // Get next observation
-                    //     if (compressed_occupancy_state->getTypeState() == TypeState::SERIAL_OCCUPANCY_STATE)
-                    //     {
-                    //         // int next_agent_id = compressed_occupancy_state->toSerialOccupancyState()->getCurrentAgentId();
-                    //         // joint_observation = next_agent_id == 0 ? next_joint_history->getData() : next_joint_history->getDefaultObs();
-                    //     }
-                    //     else
-                    //     {
-                    //         joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
-                    //     }
+                        std::shared_ptr<Joint<std::shared_ptr<Observation>>> joint_observation;
+                        // Get next observation
+                        if (compressed_occupancy_state->getTypeState() == TypeState::SERIAL_OCCUPANCY_STATE)
+                        {
+                            // int next_agent_id = compressed_occupancy_state->toSerialOccupancyState()->getCurrentAgentId();
+                            // joint_observation = next_agent_id == 0 ? next_joint_history->getData() : next_joint_history->getDefaultObs();
+                        }
+                        else
+                        {
+                            joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
+                        }
 
-                    //     // Verification of joint_history 
-                    //     for(const auto &joint_history : compressed_occupancy_state->getJointHistories())
-                    //     {
-                    //         auto verification = joint_history->expand(joint_observation);
-                    //         if(verification == next_joint_history)
-                    //         {
-                    //             switch (this->current_type_of_resolution_)
-                    //             {
-                    //             case TypeOfResolution::BigM:
-                    //                 // this->createSawtoothBigM(compressed_occupancy_state,joint_history,next_hidden_state,joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,con,var,index, t);
-                    //                 break;
-                    //             case TypeOfResolution::IloIfThenResolution:
-                    //                 this->createSawtoothIloIfThen(vf,compressed_occupancy_state,joint_history,next_hidden_state,joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,model,var, t);
-                    //                 break;
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                        // Verification of joint_history 
+                        for(const auto &joint_history : compressed_occupancy_state->getJointHistories())
+                        {
+                            auto verification = joint_history->expand(joint_observation);
+                            if(verification == next_joint_history)
+                            {
+                                switch (this->current_type_of_resolution_)
+                                {
+                                case TypeOfResolution::BigM:
+                                    // this->createSawtoothBigM(compressed_occupancy_state,joint_history,next_hidden_state,joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,con,var,index, t);
+                                    break;
+                                case TypeOfResolution::IloIfThenResolution:
+                                    this->createSawtoothIloIfThen(vf,compressed_occupancy_state,joint_history,next_hidden_state,joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,model,var, t);
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Build constraint \sum{x',o'} \omega_k(x',o') = 1
@@ -247,16 +245,16 @@ namespace sdm
                 // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
                 {
-                    // auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history);
+                    auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history);
 
-                    // for(const auto &next_hidden_state : next_belief->getStates())
-                    // {
-                    //     // <! \omega_k(x',o')
-                    //     auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
+                    for(const auto &next_hidden_state : next_belief->getStates())
+                    {
+                        // <! \omega_k(x',o')
+                        auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
 
-                    //     recover = this->getNumber(VarName);
-                    //     con[index].setLinearCoef(var[recover], +1.0);
-                    // }
+                        recover = this->getNumber(VarName);
+                        con[index].setLinearCoef(var[recover], +1.0);
+                    }
                 }
                 index++;
             }
@@ -287,11 +285,11 @@ namespace sdm
 
             // Go over all state conditionning to a joint history
 
-            // auto belief = compressed_occupancy_state->getBeliefAt(joint_history);
-            // for(const auto &hidden_state : belief->getStates())
-            // {
-            //     factor += compressed_occupancy_state->getProbability(joint_history,belief) * under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
-            // }
+            auto belief = compressed_occupancy_state->getBeliefAt(joint_history);
+            for(const auto &hidden_state : belief->getStates())
+            {
+                factor += compressed_occupancy_state->getProbability(joint_history,belief) * under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
+            }
         }
         catch (const std::exception &exc)
         {
