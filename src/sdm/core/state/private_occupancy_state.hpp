@@ -13,6 +13,8 @@ namespace sdm
     class PrivateOccupancyState : public OccupancyState
     {
     public:
+        static double PRECISION_COMPRESSION;
+
         PrivateOccupancyState();
         PrivateOccupancyState(number num_agents);
         PrivateOccupancyState(number agent_id, number num_agents);

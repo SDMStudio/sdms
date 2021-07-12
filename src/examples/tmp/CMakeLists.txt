@@ -14,7 +14,9 @@ if(DAVID)
 		lib_core
 		${INCLUDE_DIR}/tools.cpp
 		${INCLUDE_DIR}/common.cpp
+		${INCLUDE_DIR}/public/**
 		${INCLUDE_DIR}/utils/struct/**
+		${INCLUDE_DIR}/utils/linear_algebra/**
 		${INCLUDE_DIR}/core/**
 	)
 	add_library(core SHARED ${lib_core})
@@ -22,16 +24,18 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_value_function
-		${INCLUDE_DIR}/utils/value_function/initializer/**
-		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/point_set_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/hyperplan_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/backup/**
-		${INCLUDE_DIR}/utils/value_function/evaluate_vf/**
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
+		${INCLUDE_DIR}/utils/value_function/**
+		${INCLUDE_DIR}/utils/linear_programming/**
+		# ${INCLUDE_DIR}/utils/value_function/initializer/**
+		# ${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
+		# ${INCLUDE_DIR}/utils/value_function/value_function.cpp
+		# ${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
+		# ${INCLUDE_DIR}/utils/value_function/point_set_value_function.cpp
+		# ${INCLUDE_DIR}/utils/value_function/hyperplan_value_function.cpp
+		# ${INCLUDE_DIR}/utils/value_function/backup/**
+		# ${INCLUDE_DIR}/utils/value_function/evaluate_vf/**
+		# ${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
+		# ${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
 	)
 	add_library(value_function SHARED ${lib_value_function})
 	target_link_libraries(value_function core)
@@ -40,13 +44,7 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_world
-		${INCLUDE_DIR}/world/mdp.cpp
-		${INCLUDE_DIR}/world/mmdp.cpp
-		${INCLUDE_DIR}/world/pomdp.cpp
-		${INCLUDE_DIR}/world/mpomdp.cpp
-		${INCLUDE_DIR}/world/serialized_mmdp.cpp
-		${INCLUDE_DIR}/world/serialized_mpomdp.cpp
-		${INCLUDE_DIR}/world/gym_interface.cpp
+		${INCLUDE_DIR}/world/**
 	)
 	add_library(world SHARED ${lib_world})
 	target_link_libraries(world core)
@@ -65,12 +63,13 @@ if(DAVID)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
+		${INCLUDE_DIR}/algorithms/q_learning.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
-	target_link_libraries(hsvi world fmt)
+	target_link_libraries(hsvi world core fmt)
 
 	include_directories(${SDMS_INCLUDE_DIRS})
 
@@ -80,9 +79,9 @@ if(DAVID)
 		${Boost_LIBRARIES}
 		${TORCH_LIBRARIES}
 		${CPLEX_LIBRARIES}
+		value_function
 		parser
 		hsvi
-		value_function
 	)
 endif()
 

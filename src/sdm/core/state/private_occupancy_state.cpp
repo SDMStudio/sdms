@@ -1,8 +1,12 @@
 #include <iomanip>
+#include <sdm/config.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 
 namespace sdm
 {
+
+    double PrivateOccupancyState::PRECISION_COMPRESSION = config::PRECISION_COMPRESSION;
+
     PrivateOccupancyState::PrivateOccupancyState()
     {
     }
@@ -117,9 +121,11 @@ namespace sdm
 
     bool PrivateOccupancyState::check_equivalence(const PrivateOccupancyState &other) const
     {
-        
-
-        double ratio = -1;
+        // std::cout << "-------------- EQUIVALENCE -------------" << std::endl;
+        // std::cout << *this << std::endl;
+        // std::cout << "VERSUS" << std::endl;
+        // std::cout << other << std::endl;
+        // std::cout << "----------------------------------------" << std::endl;
         // Check that private occupancy states are defined on the same support
         if (this->size() != other.size())
         {
@@ -141,26 +147,28 @@ namespace sdm
             // Get the associated joint history of the second value
             const auto &other_joint_history = iterator->second;
 
+            // Doing this way should be deleted in further versions (it is time consuming)
+            std::unordered_map<std::shared_ptr<State>, double> sum_this_belief, sum_other_belief;
             for (const auto &belief : this->getBeliefsAt(current_joint_history))
             {
-                // Get value in the current private occupancy state
-                const auto &current_value = this->getProbability(current_joint_history, belief);
-
-                // std::cout << "6.0 -  other.map_pair=" << other.map_pair_to_pointer_ << std::endl;
-                // std::cout << "6.1 -  other_joint_history=" << other_joint_history << std::endl;
-                // std::cout << "6.2 -  belief=" << belief->str() << std::endl;
-                // Get corresponding value in the other private occupancy state -----------> !!!!!!!!!!!! ATTENTION: Ici make_shared ne donnera pas la bonne addresse
-                const auto &other_value = other.getProbability(other_joint_history, belief);
-
-                if (other_value == 0)
+                for (const auto &state : belief->getStates())
                 {
-                    return false;
+                    // Build value in the current private occupancy state
+                    sum_this_belief[state] += this->getProbability(current_joint_history, belief, state);
+
+                    // Get corresponding value in the other private occupancy state -----------> !!!!!!!!!!!! ATTENTION: Ici make_shared ne donnera pas la bonne addresse
+                    sum_other_belief[state] += other.getProbability(other_joint_history, belief, state);
+
+                    // const auto &current_value = this->getProbability(current_joint_history, belief, state);
+                    // const auto &other_value = other.getProbability(other_joint_history, belief, state);
                 }
-                if (ratio < 0)
-                {
-                    ratio = current_value / other_value;
-                }
-                else if (std::abs(ratio - current_value / other_value) > this->PRECISION)
+            }
+
+            // Check equivalence
+            for (const auto &pair_state_value : sum_this_belief)
+            {
+                // std::cout << "std::abs(" << pair_state_value.second << " - " << sum_other_belief[pair_state_value.first] << ") = " << std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) << " > " << PrivateOccupancyState::PRECISION_COMPRESSION << " ? " << (std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) > PrivateOccupancyState::PRECISION_COMPRESSION) << std::endl;
+                if (std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) > PrivateOccupancyState::PRECISION_COMPRESSION)
                 {
                     return false;
                 }

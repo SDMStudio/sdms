@@ -33,6 +33,7 @@ namespace sdm
         bool operator==(const OccupancyState &other) const;
 
         double getProbability(const std::shared_ptr<State> &pair_history_belief) const;
+        double getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<State> &state) const;
         double getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const;
 
         void setProbability(const std::shared_ptr<State> &pair_history_belief, double proba);
@@ -162,6 +163,8 @@ namespace sdm
 
         std::shared_ptr<Space> getActionSpaceAt(number t);
         void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
+        void setup();
+
 
     protected:
         /**
@@ -232,7 +235,6 @@ namespace sdm
 
         void setupIndividualHistories();
         void setupBeliefsAndHistories();
-        void setup();
 
         std::shared_ptr<JointHistoryBeliefPair> getPairPointer(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief) const;
 

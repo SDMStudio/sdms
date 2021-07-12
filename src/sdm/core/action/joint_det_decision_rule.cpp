@@ -32,19 +32,27 @@ namespace sdm
     {
         // assert(this->size() == joint_state.size());
         std::shared_ptr<Joint<std::shared_ptr<Action>>> joint_action = std::make_shared<Joint<std::shared_ptr<Action>>>();
+        // List of states
         auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
 
         for (number ag_id = 0; ag_id < joint_state_->size(); ag_id++)
         {
+            //
             auto indiv_action = this->get(ag_id)->act(joint_state_->get(ag_id));
             joint_action->push_back(indiv_action->toAction());
         }
         return joint_action;
     }
 
-    // Joint<std::shared_ptr<Action>> JointDeterministicDecisionRule::operator()(const Joint<std::shared_ptr<State>> &s)
+    // Joint<std::shared_ptr<Action>> JointDeterministicDecisionRule::act(const Joint<std::shared_ptr<HistoryInterface>> &s)
     // {
-    //     return this->act(s);
+    // Joint<std::shared_ptr<Action>> joint_action;
+    // for (number ag_id = 0; ag_id < joint_state_->size(); ag_id++)
+    // {
+    //     //
+    //     joint_action.push_back(this->get(ag_id)->act(joint_state_.get(ag_id))->toAction());
+    // }
+    //     return joint_action;
     // }
 
     // Get probabilities of decision a(u | o)

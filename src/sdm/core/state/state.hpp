@@ -75,7 +75,7 @@ namespace sdm
 
         virtual std::string str() const = 0;
 
-        virtual TypeState getTypeState() const;
+        TypeState getTypeState() const;
     };
 
     template <typename TItem_1, typename TItem_2, class SuperClass = Item>
@@ -99,7 +99,7 @@ namespace sdm
     template <typename TAction_1, typename TAction_2>
     using ActionPair = ItemPair<TAction_1, TAction_2, Action>;
 
-    using HistoryStatePair = StatePair<std::shared_ptr<HistoryInterface>, std::shared_ptr<State>>;
+    using JointHistoryStatePair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<State>>;
     using JointHistoryBeliefPair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>;
 
     // template <typename TItem, typename SuperClass = Item>

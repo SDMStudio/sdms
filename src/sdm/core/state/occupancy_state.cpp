@@ -61,6 +61,11 @@ namespace sdm
         return (iterator_on_pair_history_belief == this->map_pair_to_pointer_.end()) ? this->getDefaultValue() : this->getProbability(iterator_on_pair_history_belief->second);
     }
 
+    double OccupancyState::getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<State> &state) const
+    {
+        return this->getProbability(joint_history, belief) * belief->getProbability(state);
+    }
+
     void OccupancyState::setProbability(const std::shared_ptr<State> &pair_history_belief, double proba)
     {
         const auto &casted_pair = std::static_pointer_cast<JointHistoryBeliefPair>(pair_history_belief);

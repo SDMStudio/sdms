@@ -207,6 +207,8 @@ namespace sdm
     {
         // Get the list of individual history labels
         auto joint_labels = ostate->toOccupancyState()->getJointLabels(joint_history->getIndividualHistories()).toJoint<State>();
+        // auto joint_labels = ostate->toOccupancyState()->getCompressedJointHistory(joint_history->getIndividualHistories());
+        // auto joint_action = decision_rule->act(joint_labels);
 
         // Get the selected joint action
         auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_labels);
