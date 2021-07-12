@@ -60,7 +60,8 @@ namespace sdm
 
     void OccupancyState::setProbability(const std::shared_ptr<State> &joint_history, double proba)
     {
-        return Belief::setProbability(joint_history, proba);
+        Belief::setProbability(joint_history, proba);
+        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -68,13 +69,16 @@ namespace sdm
         // Set the belief corresponding to a specific joint history
         this->setBeliefAt(joint_history, belief);
         // Set the probability of the joint history
-        this->setProbability(joint_history, proba);
+        Belief::setProbability(joint_history, proba);
+        // this->setProbability(joint_history, proba);
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<State> &joint_history, double proba)
     {
         // Add the probability of being in a joint history
         this->setProbability(joint_history, this->getProbability(joint_history) + proba);
+
+        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -100,7 +104,6 @@ namespace sdm
         return std::make_pair(sampled_joint_history, this->getBeliefAt(sampled_joint_history));
     }
 
-
     bool OccupancyState::operator==(const OccupancyState &other) const
     {
         if (this->size() != other.size())
@@ -115,6 +118,7 @@ namespace sdm
         // For all points in the support
         for (const auto &jhistory : this->getJointHistories())
         {
+            // For all states in the corresponding belief
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
                 // Does the corresponding probabilities are equals ?
@@ -124,7 +128,6 @@ namespace sdm
                 }
             }
         }
-
         return true;
     }
 
@@ -462,6 +465,7 @@ namespace sdm
 
         previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
         previous_compact_ostate->setOneStepUncompressedOccupancy(this->getptr());
+
         return previous_compact_ostate;
     }
 
@@ -503,9 +507,19 @@ namespace sdm
             {
                 // Finalize the private occupancy state
                 pair_ihist_private_occupancy_state.second->finalize(false);
+                // pair_ihist_private_occupancy_state.second->normalize();
             }
         }
         this->setProbabilityOverIndividualHistories();
+    }
+
+    void OccupancyState::normalize()
+    {
+        double sum = this->norm_1();
+        for (const auto &joint_history : this->getJointHistories())
+        {
+            this->setProbability(joint_history, this->getBeliefAt(joint_history), this->getProbability(joint_history) / sum);
+        }
     }
 
     std::shared_ptr<OccupancyState> OccupancyState::getptr()

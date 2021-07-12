@@ -173,6 +173,7 @@ namespace sdm
         std::shared_ptr<Space> getActionSpaceAt(number t);
         void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
         void setup();
+        void normalize();
 
     protected:
         /**
@@ -257,7 +258,24 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
+
+            size_t seed = 0;
+            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
+            std::map<std::shared_ptr<sdm::State>, int> rounded;
+            for (const auto &joint_history : in.getJointHistories())
+            {
+                for (const auto &state : in.getBeliefAt(joint_history)->getStates())
+                {
+                    rounded.emplace(state, lround(sdm::OccupancyState::PRECISION * in.getProbability(joint_history, state)));
+                }
+            }
+            for (const auto &v : rounded)
+            {
+                //Combine the hash of the current vector with the hashes of the previous ones
+                sdm::hash_combine(seed, v);
+            }
+            return seed;
+            // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }
     };
 }
