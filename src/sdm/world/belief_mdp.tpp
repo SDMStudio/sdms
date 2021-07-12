@@ -272,4 +272,15 @@ namespace sdm
         return this->mdp_graph_;
     }
 
+    template <class TBelief>
+    std::vector<std::shared_ptr<State>> BaseBeliefMDP<TBelief>::getStoredStates() const
+    {
+        std::vector<std::shared_ptr<State>> list_states;
+        for (const auto &state : this->state_space_)
+        {
+            list_states.push_back(state.second);
+        }
+        return list_states;
+    }
+
 } // namespace sdm

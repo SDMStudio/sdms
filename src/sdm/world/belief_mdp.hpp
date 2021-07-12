@@ -102,12 +102,14 @@ namespace sdm
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
         std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
 
+
         /**
          * @brief Get the graph of 
          * 
          * @return std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> 
          */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
+        std::vector<std::shared_ptr<State>> getStoredStates() const;
     protected:
         // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;

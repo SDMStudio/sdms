@@ -260,13 +260,14 @@ namespace std
         {
 
             size_t seed = 0;
+            double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
             std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
             std::vector<int> rounded;
             for (const auto &pair_jhist_proba : ordered)
             {
                 sdm::hash_combine(seed, pair_jhist_proba.first);
-                sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
-                rounded.push_back(lround(sdm::OccupancyState::PRECISION * pair_jhist_proba.second));
+                // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
+                rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
             }
             for (const auto &v : rounded)
             {

@@ -42,6 +42,12 @@ namespace sdm
     }
 
     template <typename TNode, typename TEdge>
+    number Graph<TNode, TEdge>::getNumNodes() const
+    {
+        return this->node_space_->size();
+    }
+
+    template <typename TNode, typename TEdge>
     std::shared_ptr<Graph<TNode, TEdge>> Graph<TNode, TEdge>::getSuccessor(const TEdge &edge) const
     {
         auto iterator_on_successor = this->successors.find(edge);
@@ -155,10 +161,10 @@ namespace sdm
     {
         std::ostringstream str_result;
         str_result << "<node data=\"" << this->getData()->str() << "\" address=\"" << this << "\" num_succ=" << this->getNumSuccessors() << "\" num_pred=\"" << this->getNumPredecessors() << "\">" << std::endl;
-        for (const auto pair_edge_succ : this->successors)
-        {
-            str_result << "\t<successor edge=\"" << pair_edge_succ.first.first->str() << "\" node=\"" << pair_edge_succ.second << "\"/>" << std::endl;
-        }
+        // for (const auto pair_edge_succ : this->successors)
+        // {
+        //     str_result << "\t<successor edge=\"" << pair_edge_succ.first.first->str() << "\" node=\"" << pair_edge_succ.second << "\"/>" << std::endl;
+        // }
         str_result << "</node>";
         return str_result.str();
     }

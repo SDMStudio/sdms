@@ -119,6 +119,9 @@ namespace sdm
 
     std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "-- COMPUTE NEXT STATE ---" << std::endl;
+        // std::cout << "State : " << ostate->str() << std::endl;
+        // std::cout << "Action : " << action->str() << std::endl;
         // The new fully uncompressed occupancy state
         std::shared_ptr<State> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
         // The new one step left occupancy state
@@ -133,6 +136,9 @@ namespace sdm
             std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeSampledNextState(ostate, action, observation, t);
         }
 
+        // std::cout << "fully_uncompressed_next_occupancy_state=" << fully_uncompressed_next_occupancy_state->str() << std::endl;
+        // std::cout << "one_step_left_compressed_next_occupancy_state=" << one_step_left_compressed_next_occupancy_state->str() << std::endl;
+
         if (this->compression_)
         {
             // The new compressed occupancy state
@@ -142,6 +148,7 @@ namespace sdm
             // std::cout << "15 - compressed_next_occupancy_state=" << compressed_next_occupancy_state->str() << std::endl;
             compressed_next_occupancy_state->toOccupancyState()->setFullyUncompressedOccupancy(fully_uncompressed_next_occupancy_state->toOccupancyState());
             compressed_next_occupancy_state->toOccupancyState()->setOneStepUncompressedOccupancy(one_step_left_compressed_next_occupancy_state->toOccupancyState());
+            // std::cout << "compressed_next_occupancy_state=" << compressed_next_occupancy_state->str() << std::endl;
             // std::cout << "17" << std::endl;
             return compressed_next_occupancy_state;
         }
@@ -382,7 +389,7 @@ namespace sdm
             auto belief = occupancy_state->toOccupancyState()->getBeliefAt(joint_history);
             // Get the action from decision rule
             auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
-            // Update the expected reward 
+            // Update the expected reward
             reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
         }
         return reward;

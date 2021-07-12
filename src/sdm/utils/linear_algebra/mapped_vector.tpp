@@ -369,11 +369,12 @@ namespace std
         inline result_type operator()(const argument_type &in, double precision) const
         {
             size_t seed = 0;
+            double inverse_of_precision = 1. / precision;
             std::map<S, V> ordered(in.begin(), in.end());
             std::map<S, int> rounded;
             for (const auto &pair_item_value : in)
             {
-                rounded.emplace(pair_item_value.first, lround(precision * pair_item_value.second));
+                rounded.emplace(pair_item_value.first, lround(inverse_of_precision * pair_item_value.second));
             }
             for (const auto &v : rounded)
             {
