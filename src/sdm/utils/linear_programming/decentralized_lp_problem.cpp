@@ -72,6 +72,7 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), jhistory->toJointHistory()));
                 //<! 3.a.2 set coefficient of variable a(u|o)
                 con[index].setLinearCoef(var[recover], +1.0);
+
                 for (number agent = 0; agent < under_pb->getNumAgents(); ++agent)
                 {
                     //<! 3.a.3 get variables a_i(u_i|o_i)
@@ -254,7 +255,6 @@ namespace sdm
     void DecentralizedLP::createDecentralizedConstraintsOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = this->world_->getUnderlyingProblem();
-
         //Create Joint Decentralized Constraints and Control Constraints
         this->createDecentralizedConstraintsJoint(vf,state, env, con, var, index, t);
         this->createDecentralizedControlConstraints(vf,state, env, con, var, index, t);

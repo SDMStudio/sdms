@@ -31,11 +31,8 @@ namespace sdm
         return max_decision_rule;
     }
 
-    void ActionVFMaxplanLP::createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t)
+    void ActionVFMaxplanLP::createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var,number &index, number t)
     {
-        //<! counter for constraints
-        number index = 0;
-
         //<! tracking variables
         std::string VarName;
 
@@ -46,7 +43,6 @@ namespace sdm
         VarName = this->getVarNameWeight(0);
         var.add(IloNumVar(env, -IloInfinity, +IloInfinity, VarName.c_str()));
         this->setNumber(VarName, index++);
-
         //<! set decentralized decision rule variables
         this->createDecentralizedVariables(vf,occupancy_state, env, var, index, t);
     }

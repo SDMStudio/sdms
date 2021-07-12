@@ -40,12 +40,12 @@ namespace sdm
         }
     }
 
-    double Belief2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &belief_AND_action, const number &)
+    double Belief2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &belief_AND_action, const number &tau)
     {
         auto belief = belief_AND_action.first;
         auto action = belief_AND_action.second;
 
-        // return this->pomdp_vf_->getQValueAt(belief, action, tau);
+        return this->pomdp_vf_->template backup<double>(belief, action, tau);
     }
 
     bool Belief2OccupancyValueFunction::isPomdpAvailable()

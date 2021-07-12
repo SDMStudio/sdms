@@ -1,5 +1,5 @@
 #pragma once
-#define LOGTIME
+// #define LOGTIME
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
@@ -39,6 +39,9 @@ namespace sdm
             os << vf.str();
             return os;
         }
+
+        double getValueAt(const std::shared_ptr<State> &state, number t);
+
 
     protected:
         /**

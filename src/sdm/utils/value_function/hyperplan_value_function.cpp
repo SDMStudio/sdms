@@ -174,35 +174,35 @@ namespace sdm
 
         for(const auto& element : this->representation[t])
         {
-            if(new_vector->operator==(element->toBelief()))
-            {
-                #ifdef LOGTIME
-                    this->updateTime("Exist");
-                #endif
-
-                return true;
-            } 
-            // auto vecto = element->toBelief()->getVectorInferface();
-
-            // if(vecto->size() != new_vector->size())
+            // if(new_vector->operator==(element->toBelief()))
             // {
-            //     continue;
-            // }
+            //     #ifdef LOGTIME
+            //         this->updateTime("Exist");
+            //     #endif
 
-            // bool same_as_vecto = true;
-            // for (const auto &index : vecto->getIndexes())
-            // {
-            //     if(new_vector->getVectorInferface()->getValueAt(index) != vecto->getValueAt(index))
-            //     {
-            //         same_as_vecto = false;
-            //         break;
-            //     }
-            // }
-
-            // if(same_as_vecto== true)
-            // {
             //     return true;
-            // }
+            // } 
+            auto vecto = element->toBelief()->getVectorInferface();
+
+            if(vecto->size() != new_vector->size())
+            {
+                continue;
+            }
+
+            bool same_as_vecto = true;
+            for (const auto &index : vecto->getIndexes())
+            {
+                if(new_vector->getVectorInferface()->getValueAt(index) != vecto->getValueAt(index))
+                {
+                    same_as_vecto = false;
+                    break;
+                }
+            }
+
+            if(same_as_vecto== true)
+            {
+                return true;
+            }
         }
 
         #ifdef LOGTIME

@@ -29,7 +29,7 @@ namespace sdm
          * @param var 
          * @param t 
          */
-        virtual void createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number t) = 0;
+        virtual void createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var,number &index, number t) = 0;
         
         /**
          * @brief Create a Objective Constraint of the LP

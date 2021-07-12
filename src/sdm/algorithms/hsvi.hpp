@@ -9,8 +9,8 @@
  * 
  */
 #pragma once
-#define LOGTIME
-
+// #define LOGTIME
+#include <chrono>
 #include <string>
 
 #include <sdm/types.hpp>
@@ -66,6 +66,9 @@ namespace sdm
     std::string name_ = "hsvi";
 
     void initLogger();
+
+    std::chrono::high_resolution_clock::time_point start_time, current_time;
+    double duration;
 
     #ifdef LOGTIME
       double time_start;

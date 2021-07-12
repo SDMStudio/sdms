@@ -1,5 +1,4 @@
 #include <sdm/exception.hpp>
-
 #include <sdm/algorithms/hsvi.hpp>
 
 namespace sdm
@@ -61,7 +60,10 @@ namespace sdm
         std::shared_ptr<State> start_state = this->world_->getInitialState();
 
         this->trial = 0;
-        clock_t t_begin = clock();
+        this->start_time = std::chrono::high_resolution_clock::now();
+        this->current_time = this->start_time;
+        this->duration = 0;
+
         do
         {
             #ifdef LOGTIME 
@@ -70,16 +72,20 @@ namespace sdm
 
             // Logging (save data and print algorithms variables)
             //---------------------------------//
-            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(),this->duration);
             //---------------------------------//
 
             this->do_explore(start_state, 0, 0);
+
+            this->current_time = std::chrono::high_resolution_clock::now();
+            this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(this->current_time - this->start_time).count();
+            
             this->trial++;
-        } while (!this->do_stop(start_state, 0, 0) && (this->time_max_ >= ((clock() - t_begin) / CLOCKS_PER_SEC)));
+        } while (!this->do_stop(start_state, 0, 0) && (this->time_max_ >= this->duration));
 
         //---------------------------------//
-        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-        std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
+        this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(),this->duration);
+        // std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
 
@@ -141,7 +147,7 @@ namespace sdm
             }
 
             //---------------DEBUG-----------------//
-            // std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
+            std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
             //-----------------DEBUG----------------//
         }
         catch (const std::exception &exc)

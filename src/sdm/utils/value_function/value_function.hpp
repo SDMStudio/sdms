@@ -1,5 +1,5 @@
 #pragma once
-#define LOGTIME
+// #define LOGTIME
 
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>

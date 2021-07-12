@@ -14,6 +14,21 @@ namespace sdm
     {
     }
 
+    double PointSetValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
+    {
+        assert(this->getInitFunction() != nullptr);
+        
+        bool already_exist = false;
+        for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
+        {
+            if (iter->first == state)
+            {
+                already_exist = true;
+            }
+        }
+        return (already_exist) ? this->representation[t].at(state) : this->evaluate(state, t).second;
+    }
+
     void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
         TabularValueFunction::updateValueAt(state, t, target);
@@ -132,6 +147,12 @@ namespace sdm
                 min_ext = min_int;
                 argmin_ = element_belief_state;
             }
+        }
+
+        if(TabularValueFunction::evaluate(state,t).second < (v_ub_state + min_ext))
+        {
+            std::cout<<"Tabular Evaluate "<<TabularValueFunction::evaluate(state,t).second<<std::endl;
+            std::cout<<"Sawtooth Evaluate "<<v_ub_state + min_ext<<std::endl;
         }
 
         #ifdef LOGTIME
