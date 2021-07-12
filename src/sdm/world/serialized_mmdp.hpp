@@ -128,6 +128,34 @@ namespace sdm
          */
         double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
+        // For Gym Interface
+
+        /**
+         * @brief Get the action space.
+         * @param observation the observation in consideration
+         * @param t time step
+         * @return the action space. 
+         */
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
+
+        /**
+         * @brief Reset the environment and return initial observation.
+         * @return the initial observation
+         */
+        std::shared_ptr<Observation> reset();
+
+        /**
+         * @brief Do a step on the environment.
+         * @param action the action to execute
+         * @return the information produced. Include : next observation, rewards, episode done  
+         */
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+
+        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
+
+        void setInternalState(std::shared_ptr<State> state);
+
+        std::shared_ptr<State> getInternalState() const;
     protected:
         std::shared_ptr<MMDPInterface> mmdp_;
         

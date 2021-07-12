@@ -43,6 +43,8 @@ namespace sdm
     {
         const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state,this->getBestAction(state,t),t)->toBelief();
 
+        std::cout<<"Hyperplan Created "<<new_hyperplan->str()<<std::endl;
+
         if (!this->exist(new_hyperplan,t))
             this->representation[t].push_back(new_hyperplan);
 
@@ -174,35 +176,35 @@ namespace sdm
 
         for(const auto& element : this->representation[t])
         {
-            // if(new_vector->operator==(element->toBelief()))
-            // {
-            //     #ifdef LOGTIME
-            //         this->updateTime("Exist");
-            //     #endif
-
-            //     return true;
-            // } 
-            auto vecto = element->toBelief()->getVectorInferface();
-
-            if(vecto->size() != new_vector->size())
+            if(new_vector->operator==(element->toBelief()))
             {
-                continue;
-            }
+                #ifdef LOGTIME
+                    this->updateTime("Exist");
+                #endif
 
-            bool same_as_vecto = true;
-            for (const auto &index : vecto->getIndexes())
-            {
-                if(new_vector->getVectorInferface()->getValueAt(index) != vecto->getValueAt(index))
-                {
-                    same_as_vecto = false;
-                    break;
-                }
-            }
-
-            if(same_as_vecto== true)
-            {
                 return true;
-            }
+            } 
+            // auto vecto = element->toBelief()->getVectorInferface();
+
+            // if(vecto->size() != new_vector->size())
+            // {
+            //     continue;
+            // }
+
+            // bool same_as_vecto = true;
+            // for (const auto &index : vecto->getIndexes())
+            // {
+            //     if(new_vector->getVectorInferface()->getValueAt(index) != vecto->getValueAt(index))
+            //     {
+            //         same_as_vecto = false;
+            //         break;
+            //     }
+            // }
+
+            // if(same_as_vecto== true)
+            // {
+            //     return true;
+            // }
         }
 
         #ifdef LOGTIME
@@ -266,6 +268,7 @@ namespace sdm
                 default_state =  std::make_shared<OccupancyState>();
                 break;
             default:
+                throw sdm::exception::Exception("The initializer used is not available for this formalism !");
                 break;
             }
 

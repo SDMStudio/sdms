@@ -131,19 +131,19 @@ namespace sdm
                 {
                     auto serialized_mdp = std::make_shared<SerializedMMDP>(file);
                     auto s_mdp  = std::make_shared<SolvableByMDP>(serialized_mdp);
-                    p_algo = makeHSVI(s_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_mdphsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
+                    p_algo = makeHSVI(s_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon * serialized_mdp->getNumAgents(), trials, (name == "") ? "tab_ext_mdphsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
                 {
                     auto serialized_pomdp = std::make_shared<SerializedMPOMDP>(file);
                     auto s_beliefMDP = std::make_shared<BeliefMDP>(serialized_pomdp);
-                    p_algo = makeHSVI(s_beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
+                    p_algo = makeHSVI(s_beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon * serialized_pomdp->getNumAgents(), trials, (name == "") ? "tab_hsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
                     auto serialized_pomdp = std::make_shared<SerializedMPOMDP>(file);
                     auto s_oMDP = std::make_shared<OccupancyMDP>(serialized_pomdp, (truncation > 0) ? truncation : horizon,true);
-                    p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ext_ohsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
+                    p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon * serialized_pomdp->getNumAgents(), trials, (name == "") ? "tab_ext_ohsvi" : name,time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
                 }
             }
             else

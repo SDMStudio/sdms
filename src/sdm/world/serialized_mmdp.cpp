@@ -12,6 +12,9 @@
 #include <sdm/world/serialized_mmdp.hpp>
 #include <sdm/core/state/interface/serial_interface.hpp>
 
+
+#include <sdm/exception.hpp>
+
 namespace sdm
 {
     SerializedMMDP::SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp) : mmdp_(mmdp)
@@ -267,6 +270,36 @@ namespace sdm
             std::shared_ptr<Action> jaction = std::make_shared<Joint<std::shared_ptr<Action>>>(new_joint_action);
             this->map_joint_action_to_pointeur[new_joint_action] =jaction;
         }   
+    }
+
+    std::shared_ptr<Space> SerializedMMDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number )
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    std::shared_ptr<Observation> SerializedMMDP::reset()
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> SerializedMMDP::step(std::shared_ptr<Action> )
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> SerializedMMDP::step(std::shared_ptr<Action> , bool )
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    void SerializedMMDP::setInternalState(std::shared_ptr<State> )
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
+    std::shared_ptr<State> SerializedMMDP::getInternalState() const
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
 } // namespace sdm

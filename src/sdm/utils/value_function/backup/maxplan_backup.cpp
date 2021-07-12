@@ -33,6 +33,7 @@ namespace sdm
             return this->setHyperplanOccupancy(vf, state, action, t);
             break;
         default:
+            throw sdm::exception::Exception("The state is not a compatible with maxplan backup !");
             break;
         }
     }
@@ -48,7 +49,7 @@ namespace sdm
 
         for (const auto &state : belief->getStates())
         {
-            double tmp = 0;
+            double tmp = 0.0;
 
             for (const auto &next_state : under_pb->getReachableStates(state->toState(), action->toAction(), t))
             {
@@ -81,20 +82,38 @@ namespace sdm
                 auto action = occupancy_mdp->applyDecisionRule(occupancy->toOccupancyState(), jhistory, decision_rule, t);
                 //Create next occupancy state
                 auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, nullptr, t);
+                auto best_evaluate_occupancy_state = vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState();
 
-                for (const auto &belief : occupancy->getFullyUncompressedOccupancy()->getBeliefsAt(jhistory))
-                {
-                    double tmp = 0;
+                // auto belief = occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory);
+                // double tmp = 0.0;
 
-                    for (const auto &observation : *under_pb->getObservationSpace(t))
-                    {
-                        auto next_belief = occupancy_mdp->getUnderlyingBeliefMDP()->nextBelief(belief, action, observation->toObservation(), t);
-                        auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
+                // for(const auto &hidden_state : belief->getStates())
+                // {
+                //     for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action,t))
+                //     {
+                //         for(const auto &observation : under_pb->getReachableObservations(hidden_state,action,next_hidden_state,t))
+                //         {
+                //             auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
+                //             tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)* under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
+                //         }
+                //     }   
+                // }
+                // next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
 
-                        tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory, next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief, action, next_belief->toBelief(), observation->toObservation(), t);
-                    }
-                    next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
-                }
+
+                // for (const auto &belief : occupancy->getFullyUncompressedOccupancy()->getBeliefsAt(jhistory))
+                // {
+                //     double tmp = 0.0;
+
+                //     for (const auto &observation : *under_pb->getObservationSpace(t))
+                //     {
+                //         auto next_belief = occupancy_mdp->getUnderlyingBeliefMDP()->nextBelief(belief, action, observation->toObservation(), t);
+                //         auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
+
+                //         tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory, next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief, action, next_belief->toBelief(), observation->toObservation(), t);
+                //     }
+                //     next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
+                // }
             }
             return next_occupancy;
         }

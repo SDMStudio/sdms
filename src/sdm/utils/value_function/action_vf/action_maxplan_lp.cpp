@@ -19,6 +19,9 @@ namespace sdm
 
         for (const auto &hyperplan : vf->getSupport(t + 1))
         {
+            std::cout<<"Support "<<hyperplan->str()<<std::endl;
+            std::cout<<"Support Default "<<hyperplan->toBelief()->getDefaultValue()<<std::endl;
+
             this->tmp_representation = hyperplan->toBelief();
             auto pair_action_value = this->createLP(vf,state, t);
 
@@ -28,6 +31,8 @@ namespace sdm
                 max = pair_action_value.second;
             }
         }
+        std::cout<<" Regle de decision "<<max_decision_rule->str()<<std::endl;
+        std::cout<<"Max value "<<max<<std::endl;
         return max_decision_rule;
     }
 
@@ -56,6 +61,8 @@ namespace sdm
         number recover = 0;
         double weight = 0.0, factor = 0.0;
 
+        std::cout<<"\n \n New Objective FUnction "<<std::endl;
+
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
             for (const auto &action : *under_pb->getActionSpace(t))
@@ -74,6 +81,10 @@ namespace sdm
                     }
                     weight +=  occupancy_state->getProbability(joint_history,belief) * ActionVFBase::world_->getDiscount(t) * factor ;
                 }
+
+                std::cout<<"joint history "<<joint_history->str()<<", action "<<action->str()<<std::endl;
+                std::cout<<"occupancy_state->getProbability(joint_history)"<<occupancy_state->getProbabilityOverJointHistory(joint_history)<<std::endl;
+                std::cout<<"recompense"<<factor<<std::endl;
 
                 //<! 1.b get variable a(u|o)
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));

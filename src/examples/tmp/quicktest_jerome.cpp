@@ -6,19 +6,19 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    std::vector<std::string> all_formalism={"decpomdp"};
-    std::vector<std::string> all_problem={"tiger"};
-    std::vector<int> all_horizon={2};
+    std::vector<std::string> all_formalism={"extensive-decpomdp"};
+    std::vector<std::string> all_problem={"mabc"};
+    std::vector<int> all_horizon={40};
     std::vector<double> all_discount={1};
-    std::vector<std::string> upper_bound_name = {"sawtooth_lp"};
-    std::vector<std::string> lower_bound_name={"maxplan_lp"};
+    std::vector<std::string> upper_bound_name = {""};
+    std::vector<std::string> lower_bound_name={""};
     std::vector<std::string> all_lower__init_name={"Min"};
-    std::vector<std::string> all_upper_init_name= {"PomdpHsvi"};
+    std::vector<std::string> all_upper_init_name= {"Max"};
     int mean = 1;
     std::string filepath = "../data/world/dpomdp/";
     std::string save_path = "../run/Resultat/NewSDMS/resultat.csv";
 
-    std::vector<int> all_truncation = {3};
+    std::vector<int> all_truncation = {1};
     std::vector<std::string> all_sawtooth_current_type_of_resolution = {"IloIfThen"};
     std::vector<number> all_sawtooth_BigM = {1000};
 

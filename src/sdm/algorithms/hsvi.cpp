@@ -81,11 +81,12 @@ namespace sdm
             this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(this->current_time - this->start_time).count();
             
             this->trial++;
+            // std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
+
         } while (!this->do_stop(start_state, 0, 0) && (this->time_max_ >= this->duration));
 
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state),this->lower_bound_->getSize(),this->upper_bound_->getSize(),this->duration);
-        // std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
 
