@@ -45,8 +45,8 @@ int learn(int argv, char **args)
         ("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")
         ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
         ("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")
-        ("precision,r", po::value<double>(&precision)->default_value(0.000001), "the precision of hierarchical private occupancy states (occupancy states) ")
-        ("precision2,w", po::value<double>(&precision2)->default_value(0.000001), "the precision of private occupancy states (private occupancy states)")
+        ("precision,r", po::value<double>(&precision)->default_value(0.0001), "the precision of hierarchical private occupancy states (occupancy states) ")
+        // ("precision2,w", po::value<double>(&precision2)->default_value(0.000001), "the precision of private occupancy states (private occupancy states)")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")
@@ -85,6 +85,8 @@ int learn(int argv, char **args)
         }
 
         common::global_urng().seed(seed);
+
+        OccupancyState::PRECISION = precision;
 
         auto dpomdp = sdm::parser::parse_file(path);
 
