@@ -1,33 +1,42 @@
+
 #include <cstdlib>
 #include <iostream>
 
+#include <sdm/utils/value_function/initializer/initializers.hpp>
+
+#include <sdm/utils/value_function/point_set_value_function.hpp>
+#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+
+#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
+#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+
+#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+
+#include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/action/joint_det_decision_rule.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
-
-#include<sdm/algorithms.hpp>
-#include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
-
+#include <sdm/algorithms.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
 	std::string filename;
-    number horizon;
-    number discount = 1;
+    int horizon = 3;
+    int discount = 1;
     double error = 0.00001;
-    number trials = 3;
+    int trials = 3;
+	int truncation = 3;
 
-	TypeOfResolution type_of_resolution = TypeOfResolution::BigM;
+	TypeOfResolution type_of_resolution = TypeOfResolution::IloIfThenResolution;
+	TypeSawtoothLinearProgram type_of_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING;
+
 	auto ValueBigM = 100;
 
-	if (argc > 2)
+	if (argc > 1)
 	{
 		filename = argv[1];
-		horizon = std::atoi( argv[2] );
 	}
 
 	else
@@ -39,39 +48,28 @@ int main(int argc, char **argv)
 	try
 	{
 
-		using TObservation = number;
-		using TState = number;
+        auto problem = sdm::parser::parse_file(filename);
+        problem->setHorizon(horizon);
+        problem->setDiscount(discount);
 
-		using TActionDescriptor = number;
-		using TStateDescriptor = HistoryTree_p<TObservation>;
+		std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon);
 
-		using TActionPrescriptor = JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
-		using TStatePrescriptor = OccupancyState<TState, JointHistoryTree_p<TObservation>>;
+		auto tabular_backup = std::make_shared<TabularBackup>(oMDP);
+		auto maxplan_backup = std::make_shared<MaxPlanBackup>(oMDP);
+		auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(oMDP);
+		auto action_sawtooth_lp =  std::make_shared<ActionVFSawtoothLP>(oMDP, type_of_resolution,ValueBigM,type_of_linear_program);
 
-		std::cout << "#> Parsing file \"" << filename << "\"\n";
+        auto init_lb = std::make_shared<MinInitializer>(oMDP);
+        auto init_ub = std::make_shared<POMDPInitializer>(oMDP, "Pomdp Init");
 
-		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>>  oMDP = std::make_shared<OccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);        
+		// Instanciate bounds
+		std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_lp);
+		std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_lp);
 
-		oMDP->getUnderlyingProblem()->setDiscount(discount);
-		oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
+        auto algo = std::make_shared<HSVI>(oMDP, lower_bound, upper_bound, problem->getHorizon(), error, trials);
 
-		// Instanciate initializers 
-		auto lb_init = std::make_shared<MinInitializer<TStatePrescriptor, TActionPrescriptor>>();
-		auto ub_init = sdm::makeInitializer<TStatePrescriptor, TActionPrescriptor>("MdpHsviInitializer");
-
-		// Instanciate the Tabular version for the lower bound
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, lb_init); 
-
-		// Instanciate the Sawtooth version for the upper bound 
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<SawtoothValueFunctionLP<TStatePrescriptor, TActionPrescriptor>>(oMDP, horizon, ub_init,type_of_resolution,ValueBigM);
-
-		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-SawtoothLP-OccupancyMDP");
-
-		//Initialization of HSVI
-		p_algo->do_initialize();
-
-		//Resolution of HSVI
-		p_algo->do_solve();
+        algo->do_initialize();
+        algo->do_solve();
 	}
 	catch (exception::Exception &e)
 	{

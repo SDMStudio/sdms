@@ -41,8 +41,10 @@ namespace sdm
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
+        //Determine the new hyperplan
         const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state,this->getBestAction(state,t),t)->toBelief();
 
+        // If the hyperplan doesn't exit, we add it to representation at t
         if (!this->exist(new_hyperplan,t))
             this->representation[t].push_back(new_hyperplan);
 
@@ -166,14 +168,16 @@ namespace sdm
         // }
     }
 
-    bool HyperplanValueFunction::exist(const std::shared_ptr<BeliefInterface>& new_vector,number t, double precision)
+    bool HyperplanValueFunction::exist(const std::shared_ptr<BeliefInterface>& new_vector,number t, double )
     {
         #ifdef LOGTIME
             this->StartTime();
         #endif
 
+        // Go over all element in the Support
         for(const auto& element : this->representation[t])
         {
+            // Test if the new vector is equal to the element 
             if(new_vector->operator==(element->toBelief()))
             {
                 #ifdef LOGTIME
@@ -182,27 +186,6 @@ namespace sdm
 
                 return true;
             } 
-            // auto vecto = element->toBelief()->getVectorInferface();
-
-            // if(vecto->size() != new_vector->size())
-            // {
-            //     continue;
-            // }
-
-            // bool same_as_vecto = true;
-            // for (const auto &index : vecto->getIndexes())
-            // {
-            //     if(new_vector->getVectorInferface()->getValueAt(index) != vecto->getValueAt(index))
-            //     {
-            //         same_as_vecto = false;
-            //         break;
-            //     }
-            // }
-
-            // if(same_as_vecto== true)
-            // {
-            //     return true;
-            // }
         }
 
         #ifdef LOGTIME
@@ -224,11 +207,16 @@ namespace sdm
             std::shared_ptr<BeliefInterface> alpha_vector;
 
             auto belief_state = state->toBelief();
+
+            //Create Default State
             this->createDefault(state,t);
 
+            // Go over all hyperplan in the support
             for (const auto &plan : this->getSupport(t))
             {
                 auto belief_plan = plan->toBelief();
+
+                //Determine the best hyperplan which give the best value for the current state
                 if (max < (current = belief_state->operator^(belief_plan) ))
                 {
                     max = current;
@@ -251,8 +239,10 @@ namespace sdm
 
     void HyperplanValueFunction::createDefault(const std::shared_ptr<State>& state, number t)
     {
+        // If there are not element at time t, we have to create the default State
         if(this->representation[t].size() == 0)
         {
+            //Create the default state
             std::shared_ptr<BeliefInterface> default_state;
 
             switch (state->getTypeState())
@@ -268,6 +258,7 @@ namespace sdm
                 break;
             }
 
+            // Add default value of the default state
             default_state->setDefaultValue(this->getDefaultValue(t));
             this->representation[t].push_back(default_state);
         }

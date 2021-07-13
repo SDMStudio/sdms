@@ -3,7 +3,6 @@
 
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
-#include <sdm/utils/value_function/evaluate_vf/evaluate_vf_interface.hpp>
 #include <sdm/utils/value_function/action_vf/action_vf_interface.hpp>
 #include <sdm/utils/value_function/backup/backup_interface.hpp>
 
@@ -108,6 +107,13 @@ namespace sdm
          */
         virtual Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
 
+        /**
+         * @brief Do the backup operator
+         * 
+         * @param state : ELement to evaluate
+         * @param t 
+         * @return Pair<std::shared_ptr<State>, double> 
+         */
         template <typename TData>
         TData backup(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
         {
@@ -124,6 +130,13 @@ namespace sdm
             return backup;
         }
 
+        /**
+         * @brief Select the best Action for a precise state and a time step
+         * 
+         * @param const std::shared_ptr<State> & : current state 
+         * @param number : time step 
+         * @return std::shared_ptr<Action> 
+         */
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
 
         #ifdef LOGTIME
@@ -137,16 +150,6 @@ namespace sdm
             void updateTime(std::string information);
             void printTime();
         #endif
-
-        int getSize()
-        {
-            int total_size = 0;
-            for(int t=0;t<this->horizon_;t++)
-            {
-                total_size += this->getSupport(t).size();
-            }
-            return total_size;
-        }
 
     protected:
         /**

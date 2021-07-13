@@ -13,6 +13,7 @@ namespace sdm
     ActionVFSawtoothLP::ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution) : 
         ActionVFBase(world),DecentralizedLP(world) , csawtooth_lp_(type_sawtooth_resolution), current_type_of_resolution_(current_type_of_resolution)
     {
+        // If the problem is relaxed, the Big have to be equal to 0
         switch (type_sawtooth_resolution)
         {
         case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING :
@@ -38,6 +39,7 @@ namespace sdm
 
     std::shared_ptr<Action> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
+        // Determine the type of Linear Program to use
         switch (this->getSawtoothType())
         {
         case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
@@ -52,32 +54,38 @@ namespace sdm
     std::shared_ptr<Action> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action;
-
         double min_value = std::numeric_limits<double>::max();
         
         if (vf->getSupport(t + 1).empty())
         {
+            // Resolution of the problem when the support of Point Set is empty
             this->representation = {std::make_shared<MappedVector<std::shared_ptr<State>,double>>()};
             best_action = this->createLP(vf,state, t).first;
         }
         else
         {
-            for (const auto &element : std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
+            // For the Relaxation version of Sawtooth, we go over all element in the Point Set
+            for (const auto &point : std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
             {
                 auto vector = std::make_shared<MappedVector<std::shared_ptr<State>,double>>();
-                vector->setValueAt(element.first,element.second);
+                vector->setValueAt(point.first,point.second);
 
                 this->representation = vector;
 
                 auto [action,value] = this->createLP(vf,state, t);
 
+                // Verification of the Relaxation Contraint.
                 if(!this->RelaxationConstrainte(vf,state,action,value,t))
                 {
+                    // If the contraint is not verified , we used the decision rule previously stocked
                     std::cout<<"Contrainte not verified"<<std::endl;
                     action = this->state_linked_to_decision_rule.at(state);
+
+                    // The value is calculated by using the decision rule previously stockeed
                     value = this->calculRelaxationContrainte(vf,state, action, t);
                 }
 
+                // We take the best action with the minimum value
                 if (min_value > value)
                 {
                     min_value = value;
@@ -85,13 +93,14 @@ namespace sdm
                 }
             }
         }
-
+        // Save the best action associed to a state
         this->state_linked_to_decision_rule[state] = best_action;
         return best_action;
     }
 
     std::shared_ptr<Action> ActionVFSawtoothLP::createFullSawtooth(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
     {
+        // For the Full version of Sawtooth, wo over all the Point Set
         this->representation = std::make_shared<MappedVector<std::shared_ptr<State>,double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));
         return this->createLP(vf,state, t).first;
     }
@@ -118,33 +127,25 @@ namespace sdm
                 const auto &next_one_step_uncompressed_occupancy_state = element_state_AND_upper_bound.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
                 // Go over all Joint History Next
-                for (const auto &joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
+                for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
                 {
-                    auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(joint_history);
-
-                    for(const auto next_hidden_state : next_belief->getStates())
+                    // Go over all Hidden State in the next one step uncomppresed occupancy state
+                    for(const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                     {
                         // <! \omega_k(x',o')
-                        VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, joint_history);
+                        VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
                         var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
                         this->setNumber(VarName, index++);
                     }
-
-                    // for(const auto &belief : next_one_step_uncompressed_occupancy_state->getBeliefsAt(joint_history))
-                    // {
-                    //     // <! \omega_k(x',o')
-                    //     VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, belief, joint_history);
-                    //     var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
-                    //     this->setNumber(VarName, index++);
-                    // }
                 }
             }
+
+            // Create Decentralized Variables
             this->createDecentralizedVariables(vf,state, env, var, index, t);
         }
         catch (const std::exception &exc)
         {
-            // catch anything thrown within try block that derives from std::exception
-            std::cerr << "SawtoothLPBackup::setGreedyVariables(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "SawtoothLPBackup::createVariables(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
     }
@@ -156,20 +157,15 @@ namespace sdm
         try
         {
             auto compressed_occupancy_state = state->toOccupancyState();
+
+            // Relaxation of the problem
             auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(vf->getInitFunction());
 
             auto belief =  compressed_occupancy_state->getBeliefAt(joint_history);
-            weight = compressed_occupancy_state->getProbability(joint_history) *relaxation->operator()(std::make_pair(belief, action), t);
-
-            // for (const auto& belief : compressed_occupancy_state->getBeliefsAt(joint_history))
-            // {
-            //     tmp += relaxation->operator()(std::make_pair(belief, action), t);
-            // }
-            // weight = tmp * compressed_occupancy_state->getProbabilityOverJointHistory(joint_history);
+            weight = compressed_occupancy_state->getProbability(joint_history) * relaxation->operator()(std::make_pair(belief, action), t);
         }
         catch(const std::exception &exc)
         {
-            // catch anything thrown within try block that derives from std::exception
             std::cerr << "SawtoothLPBackup::getQValueRelaxation(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
@@ -184,8 +180,6 @@ namespace sdm
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
 
        try{
-            // this->createInitialConstrainte(vf,state, env, con, var, index, t);
-
             number recover = 0;
 
             auto compressed_occupancy_state = state->toOccupancyState();
@@ -198,18 +192,13 @@ namespace sdm
 
                 // Compute the difference i.e. (v_k - V_k)
                 auto initial_upper_bound = vf->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
-
-                // std::cout<<"initial upper bond next one step uncompressed"<<initial_upper_bound<<std::endl;
-                // std::cout<<"initial upper bound next compressed "<<vf->getInitFunction()->operator()(element_state_AND_upper_bound.first->toOccupancyState(), t + 1)<<std::endl;
-
                 auto difference = current_upper_bound - initial_upper_bound;
 
                 // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
                 {
-                    auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history);
-
-                    for(const auto &next_hidden_state : next_belief->getStates())
+                    // Go over all Hidden State in the Belief for a precise Joint History
+                    for(const auto &next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                     {
                         auto probability = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
 
@@ -251,13 +240,10 @@ namespace sdm
                 // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
                 {
-                    auto next_belief = next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history);
-
-                    for(const auto &next_hidden_state : next_belief->getStates())
+                    for(const auto &next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                     {
                         // <! \omega_k(x',o')
                         auto VarName = this->getVarNameWeightedStateJointHistory(next_one_step_uncompressed_occupancy_state, next_hidden_state, next_joint_history);
-
                         recover = this->getNumber(VarName);
                         con[index].setLinearCoef(var[recover], +1.0);
                     }
@@ -268,8 +254,7 @@ namespace sdm
         }
         catch (const std::exception &exc)
         {
-            // catch anything thrown within try block that derives from std::exception
-            std::cerr << "ActionVFSawtoothLP::setGreedySawtooth(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "ActionVFSawtoothLP::createConstraints(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
     }
@@ -288,46 +273,18 @@ namespace sdm
             auto compressed_occupancy_state = state->toOccupancyState();
             auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
 
-            // Go over all state conditionning to a joint history
-
-            auto belief = compressed_occupancy_state->getBeliefAt(joint_history);
-            for(const auto &hidden_state : belief->getStates())
+            // Go over all hidden state  in a belief conditionning to a joint history
+            for(const auto &hidden_state : compressed_occupancy_state->getBeliefAt(joint_history)->getStates())
             {
-                factor += compressed_occupancy_state->getProbability(joint_history,belief) * under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
+                factor += compressed_occupancy_state->getProbability(joint_history,hidden_state) * under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
             }
         }
         catch (const std::exception &exc)
         {
-            // catch anything thrown within try block that derives from std::exception
             std::cerr << "ActionVFSawtoothLP::getSawtoothMinimumRatio(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
         return factor / denominator;
-    }
-
-    bool ActionVFSawtoothLP::RelaxationConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, double value, number t)
-    {
-        double value_so_far = vf->getValueAt(state);
-
-        double QvalueRelaxation = this->calculRelaxationContrainte(vf,state, decision_rule,t);
-
-        return (value >= QvalueRelaxation - value_so_far) ? true : false;
-    }
-
-    double ActionVFSawtoothLP::calculRelaxationContrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, number t)
-    {
-        //Specialisation for type of state
-        switch (state->getTypeState())
-        {
-        case TypeState::OCCUPANCY_STATE :
-            return this->calculRelaxationContrainteOccupancy(vf,state, decision_rule,t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE :
-            return this->calculRelaxationContrainteSerial(vf,state, decision_rule,t);
-            break;
-        default:
-            break;
-        }
     }
 
     void ActionVFSawtoothLP::createSawtoothBigM(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
@@ -378,6 +335,35 @@ namespace sdm
         }
     }
 
+    // *********************************************
+    // Function for the Relaxation Contrainte 
+    // *********************************************
+
+    double ActionVFSawtoothLP::calculRelaxationContrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, number t)
+    {
+        //Specialisation for type of state
+        switch (state->getTypeState())
+        {
+        case TypeState::OCCUPANCY_STATE :
+            return this->calculRelaxationContrainteOccupancy(vf,state, decision_rule,t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE :
+            return this->calculRelaxationContrainteSerial(vf,state, decision_rule,t);
+            break;
+        default:
+            throw sdm::exception::Exception("ActionVFSawtoothLP::calculRelaxationContrainte - it's not possible to use this type of state");
+            break;
+        }
+    }
+
+    bool ActionVFSawtoothLP::RelaxationConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, double value, number t)
+    {
+        // Verified if the relaxation contrainst is verified
+        double value_so_far = vf->getValueAt(state);
+        double QvalueRelaxation = this->calculRelaxationContrainte(vf,state, decision_rule,t);
+
+        return (value >= QvalueRelaxation - value_so_far) ? true : false;
+    }
 
     // *********************************************
     // Specialisation for the Occupancy State 
@@ -453,9 +439,13 @@ namespace sdm
         auto occupancy_state = state_tmp->toOccupancyState();
         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
 
+        // Go over all Joint History
         for (const auto &jhistory : occupancy_state->getJointHistories())
         {
+            // Determine the action 
             auto action = occupancy_mdp->applyDecisionRule(occupancy_state->toOccupancyState(), jhistory, decision_rule, t);
+            
+            //Calculate the Q Value Relaxation
             QvalueRelaxation += this->getQValueRelaxation(vf,occupancy_state, jhistory, action->toAction(), t);
         }
         return QvalueRelaxation;
@@ -466,7 +456,6 @@ namespace sdm
         try
         {
             auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
-
             auto compressed_occupancy_state = state->toOccupancyState();
 
             // <! 1.a get variable v
@@ -491,8 +480,7 @@ namespace sdm
         }
         catch (const std::exception &exc)
         {
-            // catch anything thrown within try block that derives from std::exception
-            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedyObjective(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "ActionVFSawtoothLP::createObjectiveFunctionOccupancy(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
     }
