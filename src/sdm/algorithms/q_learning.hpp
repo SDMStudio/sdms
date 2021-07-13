@@ -147,5 +147,7 @@ namespace sdm
     double getResultOpti() { throw sdm::exception::NotImplementedException(); }
 
     int getTrial() { throw sdm::exception::NotImplementedException(); }
+
+    double getResult() { throw sdm::exception::NotImplementedException(); }
   };
 } // namespace sdm

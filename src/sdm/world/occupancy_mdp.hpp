@@ -33,7 +33,7 @@ namespace sdm
                 /**
                  * @brief Get the next occupancy state.
                  * This function returns the next occupancy state. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current occupancy state. 
-                 * If exists, we return the associated next occupancy state. Otherwise, we compute the next occupancy state using  "computeNextStateAndProba" function and add the edge from the current occupancy state to the next occupancy state in the graph.
+                 * If it exists, we return the associated next occupancy state. Otherwise, we compute the next occupancy state using  "computeNextStateAndProbability" function and add the edge from the current occupancy state to the next occupancy state in the graph.
                  * 
                  * @param occupancy state the occupancy state
                  * @param action the action
@@ -94,8 +94,8 @@ namespace sdm
 
                 /**
                  * @brief Compute the state transition in order to return next state and associated probability.
-                 * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
-                 * (i.e. OccupancyMDP inherit from BaseBeliefMDP with TBelief = OccupancyState)
+                 * This function can be modified in an inherited class to define a belief MDP with a different representation of the belief state. 
+                 * (i.e. OccupancyMDP inherits from BaseBeliefMDP with TBelief = OccupancyState)
                  * 
                  * @param belief the belief
                  * @param action the action
