@@ -21,8 +21,6 @@ namespace sdm
 
     std::shared_ptr<State> MaxPlanBackup::backup(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        std::cout<<"Test 20 "<<std::endl;
-
         switch (state->getTypeState())
         {
         case TypeState::BELIEF_STATE:
@@ -80,10 +78,9 @@ namespace sdm
 
             for (const auto &jhistory : occupancy->getFullyUncompressedOccupancy()->getJointHistories())
             {
-                std::cout<<"Test 1 "<<std::endl;
-
                 // Get selected joint action
                 auto action = occupancy_mdp->applyDecisionRule(occupancy->toOccupancyState(), jhistory, decision_rule, t);
+                
                 //Create next occupancy state
                 auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, nullptr, t);
                 auto best_evaluate_occupancy_state = vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState();
@@ -91,6 +88,8 @@ namespace sdm
                 auto belief = occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory);
                 double tmp = 0.0;
 
+                // std::cout<<best_evaluate_occupancy_state->str()<<std::endl;
+                // std::cout<<"Default "<<best_evaluate_occupancy_state->getDefaultValue()<<std::endl;
                 for(const auto &hidden_state : belief->getStates())
                 {
                     for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action,t))
@@ -98,29 +97,16 @@ namespace sdm
                         for(const auto &observation : under_pb->getReachableObservations(hidden_state,action,next_hidden_state,t))
                         {
                             auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
+                            // std::cout<<"proba t+1 "<<best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)<<std::endl;
                             tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)* under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
                         }
-                    }   
+                    }
                 }
-                std::cout<<"Test 2 "<<std::endl;
-
+                // std::cout<<"REward"<<occupancy_mdp->getRewardBelief(belief, action, t)<<std::endl;
+                // std::cout<<"Tmp "<<tmp<<std::endl;
                 next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
-
-
-                // for (const auto &belief : occupancy->getFullyUncompressedOccupancy()->getBeliefsAt(jhistory))
-                // {
-                //     double tmp = 0.0;
-
-                //     for (const auto &observation : *under_pb->getObservationSpace(t))
-                //     {
-                //         auto next_belief = occupancy_mdp->getUnderlyingBeliefMDP()->nextBelief(belief, action, observation->toObservation(), t);
-                //         auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
-
-                //         tmp += vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState()->getProbability(next_jhistory, next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief, action, next_belief->toBelief(), observation->toObservation(), t);
-                //     }
-                //     next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
-                // }
             }
+            std::cout<<"Next Occupancy "<<next_occupancy->str()<<std::endl;
             return next_occupancy;
         }
         catch(const std::exception& e)

@@ -1,6 +1,7 @@
 #include <sdm/utils/value_function/point_set_value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_base.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
 
 namespace sdm
 {
@@ -103,41 +104,41 @@ namespace sdm
         }
     }
 
-    Pair<std::shared_ptr<State>,double> PointSetValueFunction::evaluate(const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<State>,double> PointSetValueFunction::evaluate(const std::shared_ptr<State>& state_tmp, number t)
     {
-        #ifdef LOGTIME
-            this->StartTime();
-        #endif
-
         assert(this->getInitFunction() != nullptr);
-        assert(state->getTypeState() != TypeState::STATE);
+        assert(state_tmp->getTypeState() != TypeState::STATE);
 
-        auto belief_state = state->toBelief();
+        auto state = state_tmp->toBelief();
 
         double min_ext = 0;
-
         double v_ub_state = this->getInitFunction()->operator()(state, t);
 
         std::shared_ptr<State> argmin_ = state;
 
         // Go over all element in the support
-        for (const auto &element : this->getSupport(t))
+        for (const auto &point_value : this->getRepresentation(t))
         {
-            auto element_belief_state = element->toBelief();
+            auto [point,v_kappa] = point_value;
+            auto point_to_belief_interface = point->toBelief();
 
-            double v_kappa = this->getValueAt(element, t);
-            double v_ub_kappa = this->getInitFunction()->operator()(element, t);
-
-            double phi = 1.0;
+            double v_ub_kappa = this->getInitFunction()->operator()(point, t);
             
-            for (auto &state_element : element_belief_state->getStates())
+            double phi;
+            switch (state->getTypeState())
             {
-                double v_int = (belief_state->getProbability(state_element) / element_belief_state->getProbability(state_element));
-                // determine the min int
-                if (v_int < phi)
-                {
-                    phi = v_int;
-                }
+            case TypeState::BELIEF_STATE :
+                phi = this->ratioBelief(state,point_to_belief_interface,t);
+                break;
+            case TypeState::OCCUPANCY_STATE :
+                phi = this->ratioOccupancy(state,point_to_belief_interface,t);
+                break;
+            case TypeState::SERIAL_OCCUPANCY_STATE :
+                phi = this->ratioOccupancy(state,point_to_belief_interface,t);
+                break;
+            default:
+                throw sdm::exception::Exception("PointSetValueFunction::evaluate not defined for this state!");
+                break;
             }
 
             // determine the min ext
@@ -145,22 +146,49 @@ namespace sdm
             if (min_int < min_ext)
             {
                 min_ext = min_int;
-                argmin_ = element_belief_state;
+                argmin_ = point_to_belief_interface;
             }
         }
-
-        if(TabularValueFunction::evaluate(state,t).second <(v_ub_state + min_ext))
-        {
-            std::cout<<"Tabular Evaluate "<<TabularValueFunction::evaluate(state,t).second<<std::endl;
-            std::cout<<"Sawtooth Evaluate "<<v_ub_state + min_ext<<std::endl;
-        }
-
-        #ifdef LOGTIME
-            this->updateTime("Evaluate");
-        #endif
         
         return std::make_pair(argmin_,v_ub_state + min_ext);
     }
 
+    double PointSetValueFunction::ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point, number t)
+    {
+        double phi = 1.0;
+
+        for (auto &support : point->getStates())
+        {
+            double v_int = (state->getProbability(support) / point->getProbability(support));
+            // determine the min int
+            if (v_int < phi)
+            {
+                phi = v_int;
+            }
+        }
+        return phi;
+    }
+
+    double PointSetValueFunction::ratioOccupancy(const std::shared_ptr<BeliefInterface>& state_tmp, const std::shared_ptr<BeliefInterface>& point_tmp, number t)
+    {
+        double phi = 1.0;
+
+        auto point = point_tmp->toOccupancyState();
+        auto occupancy_state = state_tmp->toOccupancyState();
+
+        for (auto &joint_history : point->getJointHistories())
+        {
+            for(const auto& state :  point->getBeliefAt(joint_history)->getStates())
+            {
+                double v_int = (occupancy_state->getProbability(joint_history,state) / point->getProbability(joint_history,state));
+                // determine the min int
+                if (v_int < phi)
+                {
+                    phi = v_int;
+                }
+            }
+        }
+        return phi;
+    }
 
 } // namespace sdm

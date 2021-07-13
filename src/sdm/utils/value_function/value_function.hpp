@@ -99,6 +99,13 @@ namespace sdm
 
         std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
 
+        /**
+         * @brief Evaluate the element given
+         * 
+         * @param state : ELement to evaluate
+         * @param t 
+         * @return Pair<std::shared_ptr<State>, double> 
+         */
         virtual Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
 
         template <typename TData>

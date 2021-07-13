@@ -133,7 +133,7 @@ namespace sdm
 
                 // Update bounds
                 this->lower_bound_->updateValueAt(s, h);
-
+                
                 #ifdef LOGTIME 
                     this->updateTime("Update Lower");
                     this->StartTime();

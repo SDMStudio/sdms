@@ -32,6 +32,13 @@ namespace sdm
 
         std::string str() const;
 
+        /**
+         * @brief Evaluate the element given
+         * 
+         * @param state : ELement to evaluate
+         * @param t 
+         * @return Pair<std::shared_ptr<State>, double> 
+         */
         Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State>& state, number t);
 
         friend std::ostream &operator<<(std::ostream &os, PointSetValueFunction &vf)
@@ -66,6 +73,26 @@ namespace sdm
          * 
          */
         void prune(number t = 0);
+
+        /**
+        * @brief Ratio specialized for the case Occupancy (used for the evaluate function)
+        * 
+        * @param state :Element to evaluate
+        * @param point : Point in the Point Set
+        * @param t : Time Step
+        * @return Pair<std::shared_ptr<State>,double> 
+        */
+        double ratioOccupancy(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point, number t);
+
+        /**
+         * @brief Ratio specialized for the case Beleif (used for the evaluate function)
+         * 
+         * @param state : Element to evaluate
+         * @param point :Point in the Point Set
+         * @param t : Time Step
+         * @return Pair<std::shared_ptr<State>,double> 
+         */
+        double ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point, number t);
 
 
     public:

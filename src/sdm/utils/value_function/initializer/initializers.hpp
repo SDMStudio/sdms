@@ -29,9 +29,9 @@ namespace sdm
 
     std::shared_ptr<Initializer> createInstanceTabMDPInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "tabular_hsvi", 0., 200000)(); }
 
-    std::shared_ptr<Initializer> createInstanceMDPValueIterationInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "ValueIteration", 0.01, 200000)(); }
+    std::shared_ptr<Initializer> createInstanceMDPValueIterationInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "ValueIteration", 0, 200000)(); }
 
-    std::shared_ptr<Initializer> createInstanceTabPOMDPInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<POMDPInitializer>,world, "tabular_hsvi", 0.1, 200000)(); }
+    std::shared_ptr<Initializer> createInstanceTabPOMDPInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<POMDPInitializer>,world, "tabular_hsvi", 0, 200000)(); }
 
     /**
      * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 

@@ -11,8 +11,6 @@ namespace sdm
 
     std::shared_ptr<Action> ActionVFMaxplan::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
-        std::cout<<"Test 0 "<<std::endl;
-
         auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
 
         // Definie local Variable
@@ -22,6 +20,7 @@ namespace sdm
         auto action_space = this->world_->getActionSpaceAt(state,t);
         for (const auto &action : *action_space)
         {
+            std::cout<<"action "<<action->str()<<std::endl;
             auto hyperplan = vf->template backup<std::shared_ptr<State>>(state,action->toAction(),t);
             // std::cout<<"Hyperplan "<<hyperplan->str()<<std::endl;
             if(argmax_global < (value = state->toBelief()->operator^(hyperplan->toBelief())) )

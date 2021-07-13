@@ -58,7 +58,7 @@ namespace sdm
     {
         // Get the probability p(x,o) = p(o) * b(x | o)
         auto belief = this->getBeliefAt(joint_history);
-        return (belief == nullptr) ? 0. : this->getProbability(joint_history) * belief->getProbability(state);
+        return (belief == nullptr) ? this->getDefault() : this->getProbability(joint_history) * belief->getProbability(state);
         // return this->getProbability(joint_history) * this->getBeliefAt(joint_history)->getProbability(state);
     }
 
@@ -174,24 +174,13 @@ namespace sdm
     {
         double product = 0;
 
-        // std::shared_ptr<OccupancyStateInterface> occupancy_bigger;
-        // std::shared_ptr<OccupancyStateInterface> occupancy_smaller;
-
-        // if(this->size() < other->size())
-        // {
-        //     occupancy_smaller = this->getPointer()->toState()->toOccupancyState();
-        //     occupancy_bigger = other->toOccupancyState();
-        // }else
-        // {
-        //     occupancy_bigger = this->getPointer()->toState()->toOccupancyState();
-        //     occupancy_smaller = other->toOccupancyState();
-        // }
-
         for (const auto &jhistory : this->getJointHistories())
         {
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
-                product += this->getProbability(jhistory, state) * other->toOccupancyState()->getProbability(jhistory, state);
+                // std::cout<<"This Value "<<this->getProbability(jhistory, state)<<std::endl;
+                // std::cout<<"Other Value "<<other->toOccupancyState()->getProbability(jhistory, state)<<std::endl;
+                product += this->getProbability(jhistory, state) * other->toOccupancyState()->getProbability(jhistory);
             }
         }
 
@@ -556,7 +545,7 @@ namespace sdm
         std::ostringstream res;
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
-        res << "<occupancy-state size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
+        res << "<occupancy-state defaut=\""<<this->getDefault()<<"\" \t size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
         for (const auto &history_as_state : this->getIndexes())
         {
             auto joint_history = history_as_state->toHistory()->toJointHistory();
