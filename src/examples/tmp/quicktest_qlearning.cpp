@@ -12,6 +12,7 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/hierarchical_qvalue_function.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
@@ -101,49 +102,46 @@ int learn(int argv, char **args)
         auto observation_dynamics = dpomdp->getObservationDynamics();
 
         std::shared_ptr<GymInterface> gym;
-
         if (formalism == "MDP")
-        {
             gym = std::make_shared<MDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
-        }
         else if (formalism == "MMDP")
-        {
             gym = std::make_shared<MMDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
-        }
         else if (formalism == "POMDP")
-        {
             gym = std::make_shared<POMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
-        }
         else if (formalism == "MPOMDP")
-        {
             gym = std::make_shared<MPOMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
-        }
         else if (formalism == "BeliefMDP")
-        {
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
-        }
         else if (formalism == "OccupancyMDP")
-        {
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, batch_size);
-        }
         else if (formalism == "PrivateHierarchicalOccupancyMDP")
-        {
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, batch_size);
-        }
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
-        std::shared_ptr<QValueFunction> q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        std::shared_ptr<QValueFunction> q_value_table;
+        if (qvalue == "tabular")
+            q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        else if (qvalue == "hierarchical")
+            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer);
 
         std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
 
-        std::shared_ptr<QValueFunction> target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, target_initializer);
+        std::shared_ptr<QValueFunction> target_q_value_table;
+        if (qvalue == "tabular")
+            target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        else if (qvalue == "hierarchical")
+            target_q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer);
 
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
 
         std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
-        std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        std::shared_ptr<QValueBackupInterface> backup;
+        if (qvalue == "tabular")
+            backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        else if (qvalue == "hierarchical")
+            backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
 
         std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
