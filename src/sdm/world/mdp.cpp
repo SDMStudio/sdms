@@ -275,6 +275,7 @@ namespace sdm
             // res << "</decpomdp>" << std::endl;
 
             // return res.str();
+            return "No known XML format for Problems.";
         }
         else
         {

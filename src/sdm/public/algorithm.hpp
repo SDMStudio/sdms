@@ -34,6 +34,6 @@ namespace sdm
 
     virtual int getTrial() = 0;
 
-    virtual double getResult() =0;
+    // virtual double getResult() =0;
   };
 } // namespace sdm

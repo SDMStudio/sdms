@@ -122,47 +122,38 @@ namespace sdm
     bool OccupancyState::operator==(const OccupancyState &other) const
     {
         clock_t t_begin = clock();
-        // std::cout << "Start Equality " << std::endl;
-        // std::cout << "this=" << *this << std::endl;
-        // std::cout << "other=" << other << std::endl;
-        // std::cout << "E1" << std::endl;
         if (this->size() != other.size())
         {
             OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
             return false;
         }
-        // std::cout << "E2" << std::endl;
         if (std::abs(this->getDefault() - other.getDefault()) > PRECISION)
         {
             OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
             return false;
         }
 
-        // std::cout << "E3" << std::endl;
         // For all points in the support
         for (const auto &jhistory : this->getJointHistories())
         {
             // For all states in the corresponding belief
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
-                // std::cout << "E4" << std::endl;
                 // Does the corresponding probabilities are equals ?
                 if (std::abs(this->getProbability(jhistory, state) - other.getProbability(jhistory, state)) > OccupancyState::PRECISION)
                 {
-                    // std::cout << "E5" << std::endl;
                     OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
                     return false;
                 }
             }
         }
-        // std::cout << "E6" << std::endl;
         OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return true;
     }
 
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        // Does the size are equal ?
+        // Check size equality
         if (this->size() != other->size())
         {
             return false;
@@ -254,7 +245,6 @@ namespace sdm
                 {
                     this->all_list_ihistories_.push_back({});
                 }
-
                 this->all_list_ihistories_[i].insert(ihists[i]);
             }
             first_passage = false;

@@ -42,8 +42,8 @@ int solve(int argv, char **args)
         algo_config.add_options()
         ("lower_bound", po::value<string>(&lower_bound)->default_value("tabular"), "the lower bound representation (HSVI, ValurIteration)")
         ("upper_bound", po::value<string>(&upper_bound)->default_value("tabular"), "the upper bound representation (HSVI)")
-        ("lb_init", po::value<string>(&lb_init)->default_value("MinInitializer"), "the lower bound initialization method (HSVI, ValurIteration)")
-        ("ub_init", po::value<string>(&ub_init)->default_value("MaxInitializer"), "the upper bound initialization method (HSVI)")
+        ("lb_init", po::value<string>(&lb_init)->default_value("Min"), "the lower bound initialization method (HSVI, ValurIteration)")
+        ("ub_init", po::value<string>(&ub_init)->default_value("Max"), "the upper bound initialization method (HSVI)")
         ("sawtooth_type_of_resolution", po::value<string>(&sawtooth_type_of_resolution)->default_value("BigM"), "the type of resolution used for sawtooth (BigM, IloIfThen)")
         ("sawtooth_BigM_value", po::value<number>(&sawtooth_BigM_value)->default_value(100), "the upper bound initialization method (HSVI)")
         ("type_sawtooth_linear_programming", po::value<string>(&type_sawtooth_linear_programming)->default_value("Full"), "the type of linear program used for sawtooth (Relaxed, Full)");
@@ -75,7 +75,24 @@ int solve(int argv, char **args)
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
         {
-            auto algo = sdm::algo::make(algorithm, problem, formalism, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, truncation, name,sawtooth_type_of_resolution,sawtooth_BigM_value,type_sawtooth_linear_programming);
+            auto algo = sdm::algo::make(algorithm,
+                                        problem,
+                                        formalism,
+                                        upper_bound,
+                                        lower_bound,
+                                        ub_init,
+                                        lb_init,
+                                        discount,
+                                        error,
+                                        horizon,
+                                        trials,
+                                        truncation,
+                                        name,
+                                        10000,
+                                        sawtooth_type_of_resolution,
+                                        sawtooth_BigM_value,
+                                        type_sawtooth_linear_programming);
+
             algo->do_initialize();
             algo->do_solve();
 
