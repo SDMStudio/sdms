@@ -22,6 +22,8 @@ namespace sdm
             this->weight_of_private_occupancy_state_.push_back({});
             this->private_ihistory_map_.push_back({});
             this->map_label_to_pointer.push_back({});
+            //
+            this->individual_hierarchical_history_vector_map_vector.push_back(std::make_shared<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>());
         }
     }
 
@@ -633,6 +635,24 @@ namespace sdm
     void OccupancyState::setActionSpaceAt(number t, std::shared_ptr<Space> action_space)
     {
         this->action_space_map->emplace(t, action_space);
+    }
+
+    // #############################################
+    // ######### ............ ######################
+    // #############################################
+
+    std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getIndividualHierarchicalHistoryVectorFor(number t, number agent)
+    {
+        return this->individual_hierarchical_history_vector_map_vector[agent]->at(t);
+    }
+
+    void OccupancyState::pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history)
+    {
+        if (this->individual_hierarchical_history_vector_map_vector[agent]->find(t) == this->individual_hierarchical_history_vector_map_vector[agent]->end())
+        {
+            this->individual_hierarchical_history_vector_map_vector[agent]->emplace(t, std::vector<std::shared_ptr<JointHistoryInterface>>{});
+        }
+        this->individual_hierarchical_history_vector_map_vector[agent]->at(t).push_back(individual_hierarchical_history);
     }
 
 } // namespace sdm

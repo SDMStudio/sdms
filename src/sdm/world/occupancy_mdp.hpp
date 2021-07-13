@@ -49,24 +49,24 @@ namespace sdm
                 /** @brief Get the address of the underlying BeliefMDP */
                 std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
 
+                std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &occupancy_state, number t = 0);
+                virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);
+
                 // **********************
-                // SolvableByHSVI methodsq
+                // SolvableByHSVI methods
                 // **********************
 
                 std::shared_ptr<State> nextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
-                std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
-                double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);
                 double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t);
-
                 double do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon);
-
-                // *****************
+                double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
                 //    RL methods
                 // *****************
 
                 std::shared_ptr<Observation> reset();
                 std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-                std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &occupancy_state, number t = 0);
                 std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
 
                 // *****************
@@ -74,8 +74,7 @@ namespace sdm
                 // *****************
 
                 // void setInitialState(const std::shared_ptr<State> &state);
-                double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
-                std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
+                virtual std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
 
                 static double TIME_IN_NEXT_STATE, TIME_IN_COMPRESS;
                 static number PASSAGE_IN_NEXT_STATE;
@@ -107,7 +106,6 @@ namespace sdm
                 virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
 
-                std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 std::shared_ptr<HistoryInterface> getNextHistory(const std::shared_ptr<Observation> &observation);
         };
 } // namespace sdm
