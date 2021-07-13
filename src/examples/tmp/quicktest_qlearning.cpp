@@ -19,6 +19,7 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
+#include <sdm/core/state/private_occupancy_state.hpp>
 
 using namespace sdm;
 using namespace std;
@@ -122,12 +123,18 @@ int learn(int argv, char **args)
         }
         else if (formalism == "OccupancyMDP")
         {
-            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, batch_size);
+            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
         }
         else if (formalism == "PrivateHierarchicalOccupancyMDP")
         {
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
         }
+
+        // Set precision
+        Belief::PRECISION = 0.001;
+        OccupancyState::PRECISION = 0.01;
+        PrivateOccupancyState::PRECISION_COMPRESSION = 0.1;
+
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
