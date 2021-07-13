@@ -35,6 +35,7 @@ namespace sdm
             }
         }
 
+        initial_state->finalize();
         this->initial_state_ = initial_state;
         this->mdp_graph_ = std::make_shared<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>>();
         this->mdp_graph_->addNode(this->initial_state_);
@@ -87,6 +88,7 @@ namespace sdm
                 next_belief->toBelief()->setProbability(next_state->toState(), next_state_probability);
             }
         }
+        next_belief->toBelief()->finalize();
         // Return next belief.
         return std::make_pair(next_belief, nullptr);
     }

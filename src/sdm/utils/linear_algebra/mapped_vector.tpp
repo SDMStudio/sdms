@@ -284,7 +284,7 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
-    void MappedVector<TIndex, T>::setIndexes()
+    void MappedVector<TIndex, T>::setupIndexes()
     {
         if (this->v_indexes.size() == 0)
         {
@@ -298,14 +298,25 @@ namespace sdm
     template <typename TIndex, typename T>
     std::vector<TIndex> MappedVector<TIndex, T>::getIndexes() const
     {
-        // assert( (this->v_indexes.size()>0) );
-        // return this->v_indexes;
-        std::vector<TIndex> indexes = {};
-        for (const auto &p_i_v : *this)
+        if (this->v_indexes.size() > 0)
         {
-            indexes.push_back(p_i_v.first);
+            assert((this->v_indexes.size() == this->size()));
+            return this->v_indexes;
         }
-        return indexes;
+        {
+            std::vector<TIndex> indexes = {};
+            for (const auto &p_i_v : *this)
+            {
+                indexes.push_back(p_i_v.first);
+            }
+            return indexes;
+        }
+    }
+
+    template <typename TIndex, typename T>
+    void MappedVector<TIndex, T>::finalize()
+    {
+        this->setupIndexes();
     }
 
     template <typename TIndex, typename T>

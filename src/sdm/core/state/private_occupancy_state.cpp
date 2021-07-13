@@ -84,8 +84,10 @@ namespace sdm
     {
         // Copy full joint history
         auto partial_jhist = joint_history;
+        
         // Erase the component associated to the agent
         partial_jhist.erase(partial_jhist.begin() + this->getAgentId());
+
         // Return the partial joint history
         return partial_jhist;
     }
@@ -152,7 +154,6 @@ namespace sdm
             // For all states in the corresponding belief
             for (const auto &state : this->getBeliefAt(current_joint_history)->getStates())
             {
-                // std::cout << "std::abs(" << pair_state_value.second << " - " << sum_other_belief[pair_state_value.first] << ") = " << std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) << " > " << PrivateOccupancyState::PRECISION_COMPRESSION << " ? " << (std::abs(pair_state_value.second - sum_other_belief[pair_state_value.first]) > PrivateOccupancyState::PRECISION_COMPRESSION) << std::endl;
                 // Compare p(o^{-i}, x | o^{i}_1) and p(o^{-i}, x | o^{i}_2)
                 if (std::abs(this->getProbability(current_joint_history, state) - other.getProbability(other_joint_history, state)) > PrivateOccupancyState::PRECISION_COMPRESSION)
                 {

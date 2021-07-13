@@ -110,6 +110,10 @@ namespace sdm
          */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
         std::vector<std::shared_ptr<State>> getStoredStates() const;
+
+        /** @brief A pointer on the bag containing all states. */
+        RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
+        
     protected:
         // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;
@@ -125,9 +129,6 @@ namespace sdm
 
         /** @brief The probability transition. (i.e. p(o | b, a) */
         RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Observation>, double> transition_probability;
-
-        /** @brief A pointer on the bag containing all states. */
-        RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
 
         /** @brief A pointer on the bag containing all actions. */
         // RecursiveMap<TAction, std::shared_ptr<Action>> action_space_;

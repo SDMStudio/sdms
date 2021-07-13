@@ -77,6 +77,10 @@ namespace sdm
                 double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
                 std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
 
+                static double TIME_IN_NEXT_STATE, TIME_IN_COMPRESS;
+                static number PASSAGE_IN_NEXT_STATE;
+                static unsigned long MEAN_SIZE_STATE;
+
         protected:
                 /** @brief Hyperparameters. */
                 bool compression_ = true, store_actions_ = true;

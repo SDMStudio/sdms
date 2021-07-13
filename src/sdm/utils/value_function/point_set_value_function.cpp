@@ -103,12 +103,12 @@ namespace sdm
         std::shared_ptr<State> argmin_ = state;
 
         // Go over all element in the support
-        for (const auto &element : this->getSupport(t))
+        for (const auto &point : this->getSupport(t))
         {
-            auto element_belief_state = element->toBelief();
+            auto element_belief_state = point->toBelief();
 
-            double v_kappa = this->getValueAt(element, t);
-            double v_ub_kappa = this->getInitFunction()->operator()(element, t);
+            double v_kappa = this->getValueAt(point, t);
+            double v_ub_kappa = this->getInitFunction()->operator()(point, t);
 
             double phi = 1.0;
             

@@ -48,14 +48,14 @@ namespace sdm
          * @brief Get the set of joint histories that are in the support of the occupancy state.
          * @return the possible joint hitories
          */
-        std::set<std::shared_ptr<JointHistoryInterface>> getJointHistories() const;
+        const std::set<std::shared_ptr<JointHistoryInterface>> &getJointHistories() const;
 
         /**
          * @brief Get the set of states that are in the support of the occupancy state for a precise joint historiy.
 
          * @return the possible states
          */
-        std::set<std::shared_ptr<BeliefInterface>> getBeliefs() const;
+        const std::set<std::shared_ptr<BeliefInterface>> &getBeliefs() const;
 
         /**
          * @brief Get the belief corresponding to the given joint historiy.
@@ -76,12 +76,12 @@ namespace sdm
          * @brief Get the set of individual histories that are in the support of the occupancy state (for a given agent).
          * @param number the agent identifier
          */
-        std::set<std::shared_ptr<HistoryInterface>> getIndividualHistories(number ag_id) const;
+        const std::set<std::shared_ptr<HistoryInterface>> &getIndividualHistories(number ag_id) const;
 
         /**
          * @brief Get the set of individual histories that are in the support of the occupancy state (for all agents).
          */
-        std::vector<std::set<std::shared_ptr<HistoryInterface>>> getAllIndividualHistories() const;
+        const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &getAllIndividualHistories() const;
 
         void finalize();
 
@@ -175,6 +175,9 @@ namespace sdm
         void setup();
         void normalize();
 
+        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR;
+        static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
+
     protected:
         /**
          * @brief the number of agents 
@@ -260,20 +263,20 @@ namespace std
         {
 
             size_t seed = 0;
-            double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
-            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
-            std::vector<int> rounded;
-            for (const auto &pair_jhist_proba : ordered)
-            {
-                sdm::hash_combine(seed, pair_jhist_proba.first);
-                // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
-                rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
-            }
-            for (const auto &v : rounded)
-            {
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, v);
-            }
+            // double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
+            // std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
+            // std::vector<int> rounded;
+            // for (const auto &pair_jhist_proba : ordered)
+            // {
+            //     sdm::hash_combine(seed, pair_jhist_proba.first);
+            //     // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
+            //     rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
+            // }
+            // for (const auto &v : rounded)
+            // {
+            //     //Combine the hash of the current vector with the hashes of the previous ones
+            //     sdm::hash_combine(seed, v);
+            // }
             return seed;
             // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }
