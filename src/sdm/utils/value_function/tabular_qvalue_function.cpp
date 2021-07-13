@@ -23,66 +23,66 @@ namespace sdm
         this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
     }
 
-    std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValuesAt(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValuesAt(const std::shared_ptr<State> &state, number t)
     {
-        using v_type = typename MappedMatrix<std::shared_ptr<Observation>, std::shared_ptr<Action>, double>::value_type::second_type;
+        using v_type = typename MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>::value_type::second_type;
         auto h = this->isInfiniteHorizon() ? 0 : t;
-        return std::make_shared<v_type>(this->representation[h].at(observation));
+        return std::make_shared<v_type>(this->representation[h].at(state));
     }
 
-    double TabularQValueFunction::getQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t)
+    double TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        return this->getQValuesAt(observation, t)->at(action);
+        return this->getQValuesAt(state, t)->at(action);
     }
 
-    double TabularQValueFunction::getValueAt(const std::shared_ptr<Observation> &observation, number t)
+    double TabularQValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        return this->getQValuesAt(observation, t)->max();
+        return this->getQValuesAt(state, t)->max();
     }
 
-    std::shared_ptr<Action> TabularQValueFunction::getBestAction(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<Action> TabularQValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
-        return this->getQValuesAt(observation, t)->argmax();
+        return this->getQValuesAt(state, t)->argmax();
     }
 
-    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t, double delta)
+    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta)
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
-        this->representation[h][observation][action] = this->representation[h].at(observation).at(action) + this->learning_rate_ * delta;
+        this->representation[h][state][action] = this->representation[h].at(state).at(action) + this->learning_rate_ * delta;
     }
 
-    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<Observation> &, const std::shared_ptr<Action> &, number)
+    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number)
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    bool TabularQValueFunction::isNotSeen(const std::shared_ptr<Observation> &observation, number t)
+    bool TabularQValueFunction::isNotSeen(const std::shared_ptr<State> &state, number t)
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
-        return (this->representation[h].find(observation) == this->representation[h].end());
+        return (this->representation[h].find(state) == this->representation[h].end());
     }
 
-    void TabularQValueFunction::printNumberOfActions()
-    {
-        std::cout << "Printing number of actions" << std::endl;
-        for (sdm::size_t i = 0; i < this->representation.size(); i++)
-        {
-            std::cout << "\ttimestep=" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << std::endl;
-            for (auto state__actions_values : this->representation[i])
-            {
-                std::cout << "\t\tstate=" << state__actions_values.first << " number of actions = " << state__actions_values.second.size();
-                bool ok = true;
-                for (auto i = state__actions_values.second.begin(); i != state__actions_values.second.end(); i++)
-                {
-                    for (auto j = std::next(i); j != state__actions_values.second.end(); j++)
-                    {
-                        // ok = (!false);
-                    }
-                }
-                std::cout << std::endl;
-            }
-        }
-    }
+    // void TabularQValueFunction::printNumberOfActions()
+    // {
+    //     std::cout << "Printing number of actions" << std::endl;
+    //     for (sdm::size_t i = 0; i < this->representation.size(); i++)
+    //     {
+    //         std::cout << "\ttimestep=" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << std::endl;
+    //         for (auto state__actions_values : this->representation[i])
+    //         {
+    //             std::cout << "\t\tstate=" << state__actions_values.first << " number of actions = " << state__actions_values.second.size();
+    //             bool ok = true;
+    //             for (auto i = state__actions_values.second.begin(); i != state__actions_values.second.end(); i++)
+    //             {
+    //                 for (auto j = std::next(i); j != state__actions_values.second.end(); j++)
+    //                 {
+    //                     // ok = (!false);
+    //                 }
+    //             }
+    //             std::cout << std::endl;
+    //         }
+    //     }
+    // }
 
     std::string TabularQValueFunction::str() const
     {

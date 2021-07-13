@@ -69,7 +69,7 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log_)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_table_->getValueAt(this->env_->reset(), 0), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(this->episode, this->global_step, this->q_value_table_->getValueAt(this->env_->reset()->toState(), 0), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
                 this->do_log_ = false;
             }
             if (this->do_test_)
@@ -166,13 +166,13 @@ namespace sdm
     std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation)
     {
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
-        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation, this->step))
+        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), this->step))
         {
-            return this->env_->getActionSpaceAt(observation, this->step)->sample()->toAction();
+            return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
         }
         else
         {
-            return this->q_value_table_->getBestAction(observation, this->step);
+            return this->q_value_table_->getBestAction(observation->toState(), this->step);
         }
         // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
     }
