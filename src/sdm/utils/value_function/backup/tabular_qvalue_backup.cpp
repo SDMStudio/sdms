@@ -22,11 +22,11 @@ namespace sdm
     double TabularQValueBackup::backup(number t)
     {   
         auto [observation, action, reward, next_observation] = this->experience_memory_->sample(t)[0];
-        double q_value = this->q_value_table_->getQValueAt(observation, action, t);
-        double next_value = this->target_q_value_table_->getValueAt(next_observation, t + 1);
+        double q_value = this->q_value_table_->getQValueAt(observation->toState(), action, t);
+        double next_value = this->target_q_value_table_->getValueAt(next_observation->toState(), t + 1);
         double target_q_value = reward + this->discount_ * next_value;
         double delta = target_q_value - q_value;
-        this->q_value_table_->updateQValueAt(observation, action, t, delta);
+        this->q_value_table_->updateQValueAt(observation->toState(), action, t, delta);
         return delta;
     }
 

@@ -1,25 +1,23 @@
 #pragma once
 
-#include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-
-#include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/utils/value_function/qvalue_function.hpp>
-
+#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/core/state/interface/joint_history_interface.hpp>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
  */
 namespace sdm
 {
-    class TabularQValueFunction : public QValueFunction
+    class HierarchicalQValueFunction : public QValueFunction
     {
 
     public:
-        using Container = MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
+        using Container = TabularQValueFunction;
 
-        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
+        HierarchicalQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
 
-        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
+        HierarchicalQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
 
         /**
          * @brief Initialize the value function 
@@ -64,14 +62,12 @@ namespace sdm
 
         bool isNotSeen(const std::shared_ptr<State> &state, number t);
 
-        // void printNumberOfActions();
-
         /**
          * @brief Define this function in order to be able to display the value function
          */
         virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, HierarchicalQValueFunction &vf)
         {
             os << vf.str();
             return os;
@@ -80,10 +76,10 @@ namespace sdm
     protected:
 
         /**
-         * @brief The Q value function represention.
-         * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
+         * @brief The value function represention.
+         * 
          */
-        std::vector<Container> representation;
+        std::unordered_map<std::shared_ptr<State>, Container> representation;
 
         double learning_rate_;
 
@@ -93,16 +89,5 @@ namespace sdm
          */
         std::shared_ptr<QInitializer> initializer_;
     };
-
-    
-
-    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
-    // using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, MappedMatrix>;
-
-    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
-    // using SparseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, SparseVector>;
-
-    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
-    // using DenseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, DenseVector>;
 
 } // namespace sdm
