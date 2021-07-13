@@ -51,36 +51,42 @@ namespace sdm
 
     std::shared_ptr<Action> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
-        std::shared_ptr<Action> best_action, action;
-        double value;
+        std::shared_ptr<Action> best_action;
 
-        value = std::numeric_limits<double>::max();
-
+        double min_value = std::numeric_limits<double>::max();
+        
         if (vf->getSupport(t + 1).empty())
         {
-            this->representation = {};
-            // best_action = this->getGreedy(state, t).first;
+            this->representation = {std::make_shared<MappedVector<std::shared_ptr<State>,double>>()};
+            best_action = this->createLP(vf,state, t).first;
         }
-
         else
         {
-            // for (const auto &element : vf->getSupport(t + 1))
-            // {
-            //     // this->tmp_representation = {element};
+            for (const auto &element : std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
+            {
+                auto vector = std::make_shared<MappedVector<std::shared_ptr<State>,double>>();
+                vector->setValueAt(element.first,element.second);
 
-            //     // action = this->getGreedy(state, t);
+                this->representation = vector;
 
-            //     // value = this->getQValueAt(state, action, t);
+                auto [action,value] = this->createLP(vf,state, t);
 
-            //     //if( this->representation[t+1].size() > 1 ) std::cout << "\thorizon=" << t << "\tvalue=" << value << "\t cub=" << cub << "\t vub=" << vub << std::endl;
+                if(!this->RelaxationConstrainte(vf,state,action,value,t))
+                {
+                    std::cout<<"Contrainte not verified"<<std::endl;
+                    action = this->state_linked_to_decision_rule.at(state);
+                    value = this->calculRelaxationContrainte(vf,state, action, t);
+                }
 
-            //     if (cub > value)
-            //     {
-            //         cub = value;
-            //         best_action = action;
-            //     }
-            // }
+                if (min_value > value)
+                {
+                    min_value = value;
+                    best_action = action;
+                }
+            }
         }
+
+        this->state_linked_to_decision_rule[state] = best_action;
         return best_action;
     }
 
@@ -276,7 +282,6 @@ namespace sdm
     double ActionVFSawtoothLP::getSawtoothMinimumRatio(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, const std::shared_ptr<State>& next_hidden_state, const std::shared_ptr<Observation>& observation, double denominator, number t)
     {
         auto factor = 0.0;
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
 
         try
         {
@@ -300,16 +305,25 @@ namespace sdm
         return factor / denominator;
     }
 
-    void ActionVFSawtoothLP::createInitialConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    bool ActionVFSawtoothLP::RelaxationConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, double value, number t)
+    {
+        double value_so_far = vf->getValueAt(state);
+
+        double QvalueRelaxation = this->calculRelaxationContrainte(vf,state, decision_rule,t);
+
+        return (value >= QvalueRelaxation - value_so_far) ? true : false;
+    }
+
+    double ActionVFSawtoothLP::calculRelaxationContrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, number t)
     {
         //Specialisation for type of state
         switch (state->getTypeState())
         {
         case TypeState::OCCUPANCY_STATE :
-            this->createInitialConstrainteOccupancy(vf,state, env, con, var, index,t);
+            return this->calculRelaxationContrainteOccupancy(vf,state, decision_rule,t);
             break;
         case TypeState::SERIAL_OCCUPANCY_STATE :
-            this->createInitialConstrainteSerial(vf,state, env, con, var, index,t);
+            return this->calculRelaxationContrainteSerial(vf,state, decision_rule,t);
             break;
         default:
             break;
@@ -433,36 +447,18 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLP::createInitialConstrainteOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &compressed_occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    double ActionVFSawtoothLP::calculRelaxationContrainteOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state_tmp, std::shared_ptr<Action>& decision_rule, number t)
     {
-        number recover = 0;
+        double QvalueRelaxation = 0.0;
+        auto occupancy_state = state_tmp->toOccupancyState();
+        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
 
-        auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
-
-        //By default, the upper bound of the compressed is v_relaxation(st)
-        double upper_bound_compressed = vf->getValueAt(compressed_occupancy_state);
-        // Add range contraints
-        con.add(IloRange(env, -IloInfinity, upper_bound_compressed));
-
-        recover = this->getNumber(this->getVarNameWeight(0));
-        //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) + discount * v0"
-        con[index].setLinearCoef(var[recover], under_pb->getDiscount(t));
-
-        // Go over all action
-        for (const auto &action : *under_pb->getActionSpace(t))
+        for (const auto &jhistory : occupancy_state->getJointHistories())
         {
-            // Go over all joint history
-            for (const auto &joint_history : compressed_occupancy_state->toOccupancyState()->getJointHistories())
-            {
-                //<! 1.c.4 get variable a(u|o)
-                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
-
-                //<! 1.c.5 set coefficient of variable a(u|o) i.e., \sum_x s(x,o) Q_MDP(x,u)
-                con[index].setLinearCoef(var[recover],  this->getQValueRelaxation(vf,compressed_occupancy_state, joint_history, action->toAction(), t));
-            }
+            auto action = occupancy_mdp->applyDecisionRule(occupancy_state->toOccupancyState(), jhistory, decision_rule, t);
+            QvalueRelaxation += this->getQValueRelaxation(vf,occupancy_state, jhistory, action->toAction(), t);
         }
-        index++;
-
+        return QvalueRelaxation;
     }
 
     void ActionVFSawtoothLP::createObjectiveFunctionOccupancy(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
@@ -579,7 +575,7 @@ namespace sdm
         // }
     }
 
-    void ActionVFSawtoothLP::createInitialConstrainteSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number ){}
+    double ActionVFSawtoothLP::calculRelaxationContrainteSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, std::shared_ptr<Action>& , number ){}
 
     void ActionVFSawtoothLP::createObjectiveFunctionSerial(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &, IloNumVarArray &, IloObjective &, number ){}
     

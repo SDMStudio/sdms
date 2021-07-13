@@ -75,9 +75,10 @@ namespace sdm
         std::shared_ptr<Action> createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
         std::shared_ptr<Action> createFullSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t);
 
-        void createInitialConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
-        void createInitialConstrainteSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
-        void createInitialConstrainteOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        bool RelaxationConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action,double value, number t);
+        double calculRelaxationContrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action, number t);
+        double calculRelaxationContrainteSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action, number t);
+        double calculRelaxationContrainteOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action, number t);
 
         void createSawtoothBigM(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
         void createSawtoothBigMSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
@@ -95,6 +96,8 @@ namespace sdm
         void setSawtoothType(const TypeSawtoothLinearProgram &);
 
         std::shared_ptr<MappedVector<std::shared_ptr<State>,double>> representation;
+
+        std::unordered_map<std::shared_ptr<State>,std::shared_ptr<Action>> state_linked_to_decision_rule;
 
     };
 }
