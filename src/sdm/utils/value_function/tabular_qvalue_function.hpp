@@ -20,7 +20,7 @@ namespace sdm
     {
 
     public:
-        using Container = MappedMatrix<std::shared_ptr<Observation>, std::shared_ptr<Action>, double>;
+        using Container = MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
 
         TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
 
@@ -37,37 +37,37 @@ namespace sdm
         void initialize(double v, number t = 0);
 
         /**
-         * @brief Get the q-value at a observation
+         * @brief Get the q-value at a state
          * 
-         * @param observation the observation
+         * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<Observation> &observation, number t);
+        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
 
         /**
-         * @brief Get the q-value given observation and action
+         * @brief Get the q-value given state and action
          * 
-         * @param observation the observation
+         * @param state the state
          * @param action the action
          * @return the q-value
          */
-        double getQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t);
+        double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
-        double getValueAt(const std::shared_ptr<Observation> &observation, number t);
+        double getValueAt(const std::shared_ptr<State> &state, number t);
 
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &observation, number t = 0);
-
-        /**
-         * @brief Update the value at a given observation
-         */
-        void updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t = 0);
+        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0);
 
         /**
-         * @brief Update the value at a given observation (given a delta)
+         * @brief Update the value at a given state
          */
-        void updateQValueAt(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, number t, double delta);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
-        bool isNotSeen(const std::shared_ptr<Observation> &observation, number t);
+        /**
+         * @brief Update the value at a given state (given a delta)
+         */
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta);
+
+        bool isNotSeen(const std::shared_ptr<State> &state, number t);
 
         void printNumberOfActions();
 
@@ -101,13 +101,13 @@ namespace sdm
 
     
 
-    // template <typename std::shared_ptr<Observation>, typename std::shared_ptr<Action>, typename double = double>
-    // using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<Observation>, std::shared_ptr<Action>, double, MappedMatrix>;
+    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    // using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, MappedMatrix>;
 
-    // template <typename std::shared_ptr<Observation>, typename std::shared_ptr<Action>, typename double = double>
-    // using SparseValueFunction = TabularQValueFunction<std::shared_ptr<Observation>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, SparseVector>;
+    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    // using SparseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, SparseVector>;
 
-    // template <typename std::shared_ptr<Observation>, typename std::shared_ptr<Action>, typename double = double>
-    // using DenseValueFunction = TabularQValueFunction<std::shared_ptr<Observation>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, DenseVector>;
+    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
+    // using DenseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, DenseVector>;
 
 } // namespace sdm

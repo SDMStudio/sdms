@@ -11,12 +11,6 @@ namespace sdm
     {
     }
 
-    double QValueFunction::getValueAt(const std::shared_ptr<State> &, number)
-    {
-        throw sdm::exception::NotImplementedException();
-    }
-
-
     std::shared_ptr<QValueFunction> QValueFunction::getptr()
     {
         return std::static_pointer_cast<QValueFunction>(this->shared_from_this());
