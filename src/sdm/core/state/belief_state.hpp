@@ -64,6 +64,8 @@ namespace sdm
 
     std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> getVectorInferface();
 
+    void finalize();
+
     friend std::ostream &operator<<(std::ostream &os, const Belief &belief)
     {
       os << belief.str();

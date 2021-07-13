@@ -65,7 +65,7 @@ namespace sdm
   std::shared_ptr<State> Belief::sampleState()
   {
     auto distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
-    for (auto const state: this->getStates())
+    for (auto const state : this->getStates())
     {
       distribution->setProbability(state, this->getProbability(state));
     }
@@ -75,12 +75,12 @@ namespace sdm
   void Belief::normalizeBelief(double norm_1)
   {
     if (norm_1 > 0)
+    {
+      for (const auto &state : this->getStates())
       {
-        for (const auto &state : this->getStates())
-        {
-            this->setProbability(state->toState(), this->getProbability(state->toState()) / norm_1);
-        }
+        this->setProbability(state->toState(), this->getProbability(state->toState()) / norm_1);
       }
+    }
   }
 
   std::shared_ptr<State> Belief::getState(const std::shared_ptr<State> &state)
@@ -118,7 +118,7 @@ namespace sdm
 
   bool Belief::operator==(const Belief &other) const
   {
-    return MappedVector<std::shared_ptr<State>, double>::is_equal(other, PRECISION);
+    return MappedVector<std::shared_ptr<State>, double>::is_equal(other, Belief::PRECISION);
   }
 
   double Belief::norm_1() const
@@ -140,10 +140,15 @@ namespace sdm
   {
     return this->getDefault();
   }
-  
-  std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> Belief::getVectorInferface()
+
+  std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> Belief::getVectorInferface()
   {
     return std::static_pointer_cast<MappedVector<std::shared_ptr<State>>>(std::dynamic_pointer_cast<Belief>(this->toBelief()));
+  }
+
+  void Belief::finalize()
+  {
+    MappedVector<std::shared_ptr<State>>::finalize();
   }
 
   std::string Belief::str() const

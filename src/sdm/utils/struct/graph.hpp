@@ -76,6 +76,12 @@ namespace sdm
          */
         void addNode(const TNode &node_value);
 
+
+        /**
+         * @brief Get the number of node.
+         */
+        number getNumNodes() const;
+
         /**
          * @brief Get the value of the current node
          * 

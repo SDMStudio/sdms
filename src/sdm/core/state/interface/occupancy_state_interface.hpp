@@ -28,14 +28,14 @@ namespace sdm
          * @brief Get the set of joint histories that are in the support of the occupancy state.
          * @return the possible joint hitories
          */
-        virtual std::set<std::shared_ptr<JointHistoryInterface>> getJointHistories() const = 0;
+        virtual const std::set<std::shared_ptr<JointHistoryInterface>> &getJointHistories() const = 0;
 
         /**
          * @brief Get the set of states that are in the support of the occupancy state for a precise joint historiy.
 
          * @return the possible states
          */
-        virtual std::set<std::shared_ptr<BeliefInterface>> getBeliefs() const = 0;
+        virtual const std::set<std::shared_ptr<BeliefInterface>> &getBeliefs() const = 0;
 
         /**
          * @brief Get the set of beliefs at a given joint history
@@ -49,12 +49,12 @@ namespace sdm
          * @brief Get the set of individual histories that are in the support of the occupancy state (for a given agent).
          * @param number the agent identifier
          */
-        virtual std::set<std::shared_ptr<HistoryInterface>> getIndividualHistories(number ag_id) const = 0;
+        virtual const std::set<std::shared_ptr<HistoryInterface>> &getIndividualHistories(number ag_id) const = 0;
 
         /**
          * @brief Get the set of individual histories that are in the support of the occupancy state (for all agents).
          */
-        virtual std::vector<std::set<std::shared_ptr<HistoryInterface>>> getAllIndividualHistories() const = 0;
+        virtual const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &getAllIndividualHistories() const = 0;
 
         /**
          * @brief Get the fully uncompressed occupancy state.
@@ -111,5 +111,8 @@ namespace sdm
 
         virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
         virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space) = 0;
+        //
+        virtual std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoryVectorFor(number t, number agent) = 0;
+        virtual void pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;
     };
 }

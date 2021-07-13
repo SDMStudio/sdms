@@ -91,7 +91,8 @@ namespace sdm
         T getDefault() const;
         void setDefault(double default_value);
 
-        void setIndexes();
+        void setupIndexes();
+        void finalize();
 
         std::vector<TIndex> getIndexes() const;
 

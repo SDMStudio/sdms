@@ -88,6 +88,10 @@ int main(int argc, char **argv)
         OccupancyState::PRECISION = ostate_precision;
         PrivateOccupancyState::PRECISION_COMPRESSION = compress_precision;
 
+        std::cout << "Precision Belief ="<< Belief::PRECISION << std::endl;
+        std::cout << "Precision OccupancyState ="<< OccupancyState::PRECISION << std::endl;
+        std::cout << "Precision Compression ="<< PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
+
         auto mdp = sdm::parser::parse_file(path);
         mdp->setHorizon(horizon);
         mdp->setDiscount(discount);
@@ -97,15 +101,18 @@ int main(int argc, char **argv)
         std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
         // auto state = hsvi_mdp->getInitialState();
-        // std::cout << "# State 0\n"<< *state << std::endl;
+        // std::cout << "# State 0\n"
+        //           << *state << std::endl;
         // for (int i = 0; i < 5; i++)
         // {
         //     auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->sample();
 
-        //     std::cout << "# Action " << i<<"\n" << *action << std::endl;
+        //     std::cout << "# Action " << i << "\n"
+        //               << *action << std::endl;
         //     state = hsvi_mdp->nextState(state, action->toAction());
         //     std::cout << "------------------" << std::endl;
-        //     std::cout << "# State " << i + 1<<"\n" << *state << std::endl;
+        //     std::cout << "# State " << i + 1 << "\n"
+        //               << *state << std::endl;
         // }
 
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
@@ -122,11 +129,20 @@ int main(int argc, char **argv)
         algo->do_initialize();
         algo->do_solve();
 
-        algo->saveResults("test_" + name + ".csv", compress_precision);
+        // algo->saveResults("test_" + name + ".csv", compress_precision);
 
-        // std::cout << *algo->getLowerBound() << std::endl;
-        // std::cout << *algo->getUpperBound() << std::endl;
-        // std::cout << *std::static_pointer_cast<OccupancyMDP>(hsvi_mdp)->getMDPGraph() << std::endl;
+        // // std::cout << *algo->getLowerBound() << std::endl;
+        // // std::cout << *algo->getUpperBound() << std::endl;
+        // // std::cout << *std::static_pointer_cast<OccupancyMDP>(hsvi_mdp)->state_space_.size() << std::endl;
+        std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
+        std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
+        std::cout << "TOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
+        std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
     }
     catch (sdm::exception::Exception &e)
     {

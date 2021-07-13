@@ -43,8 +43,6 @@ namespace sdm
     {
         const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state,this->getBestAction(state,t),t)->toBelief();
 
-        std::cout<<"Hyperplan Created "<<new_hyperplan->str()<<std::endl;
-
         if (!this->exist(new_hyperplan,t))
             this->representation[t].push_back(new_hyperplan);
 
@@ -228,15 +226,9 @@ namespace sdm
             auto belief_state = state->toBelief();
             this->createDefault(state,t);
 
-            // std::cout<<"State"<<belief_state->str()<<std::endl;
-
             for (const auto &plan : this->getSupport(t))
             {
                 auto belief_plan = plan->toBelief();
-
-                // std::cout<<"Belief Plan"<<belief_plan->str()<<std::endl;
-                // std::cout<<"Value"<<belief_state->operator^(belief_plan)<<std::endl;
-
                 if (max < (current = belief_state->operator^(belief_plan) ))
                 {
                     max = current;

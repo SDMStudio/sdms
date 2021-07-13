@@ -19,9 +19,6 @@ namespace sdm
 
         for (const auto &hyperplan : vf->getSupport(t + 1))
         {
-            // std::cout<<"Support "<<hyperplan->str()<<std::endl;
-            // std::cout<<"Support Default "<<hyperplan->toBelief()->getDefaultValue()<<std::endl;
-
             this->tmp_representation = hyperplan->toBelief();
             auto pair_action_value = this->createLP(vf,state, t);
 
@@ -31,8 +28,6 @@ namespace sdm
                 max = pair_action_value.second;
             }
         }
-        // std::cout<<" Regle de decision "<<max_decision_rule->str()<<std::endl;
-        // std::cout<<"Max value "<<max<<std::endl;
         return max_decision_rule;
     }
 
@@ -55,7 +50,6 @@ namespace sdm
     void ActionVFMaxplanLP::createObjectiveFunction(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
         auto occupancy_state = state->toOccupancyState();
 
         number recover = 0;
@@ -68,24 +62,22 @@ namespace sdm
             for (const auto &action : *under_pb->getActionSpace(t))
             {
                 weight = 0.0;
-
-                auto belief = occupancy_state->getBeliefAt(joint_history);
-                // for(const auto &belief : occupancy_state->getBeliefsAt(joint_history))
+                
+                for(const auto &hidden_state : occupancy_state->getBeliefAt(joint_history)->getStates())
                 {
-                    factor = occupancy_mdp->getRewardBelief(belief,action->toAction(),t);
-                    for(const auto &observation : *under_pb->getObservationSpace(t))
+                    factor = under_pb->getReward(hidden_state,action->toAction(),t);
+
+                    for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action->toAction(),t))
                     {
-                        auto next_belief = occupancy_mdp->getUnderlyingBeliefMDP()->nextBelief(belief, action->toAction() , observation->toObservation(),t);
-                        auto next_joint_history = joint_history->expand(observation->toObservation())->toJointHistory();
+                        for(const auto &observation : under_pb->getReachableObservations(hidden_state,action->toAction(),next_hidden_state,t))
+                        {
+                            auto next_joint_history = joint_history->expand(observation->toObservation())->toJointHistory();
 
-                        factor += this->tmp_representation->toOccupancyState()->getProbability(next_joint_history,next_belief->toBelief()) * occupancy_mdp->getUnderlyingBeliefMDP()->getObservationProbability(belief,action->toAction(),nullptr,observation->toObservation(),t);
+                            factor += this->tmp_representation->toOccupancyState()->getProbability(next_joint_history,next_hidden_state) * under_pb->getDynamics(hidden_state,action->toAction(),next_hidden_state,observation,t);
+                        }
                     }
-                    weight +=  occupancy_state->getProbability(joint_history,belief) * ActionVFBase::world_->getDiscount(t) * factor ;
+                    weight +=  occupancy_state->getProbability(joint_history,hidden_state) * ActionVFBase::world_->getDiscount(t) * factor ;
                 }
-
-                // std::cout<<"joint history "<<joint_history->str()<<", action "<<action->str()<<std::endl;
-                // std::cout<<"occupancy_state->getProbability(joint_history)"<<occupancy_state->getProbabilityOverJointHistory(joint_history)<<std::endl;
-                // std::cout<<"recompense"<<factor<<std::endl;
 
                 //<! 1.b get variable a(u|o)
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));

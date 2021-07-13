@@ -20,7 +20,6 @@ namespace sdm
         auto action_space = this->world_->getActionSpaceAt(state,t);
         for (const auto &action : *action_space)
         {
-            std::cout<<"action "<<action->str()<<std::endl;
             auto hyperplan = vf->template backup<std::shared_ptr<State>>(state,action->toAction(),t);
             // std::cout<<"Hyperplan "<<hyperplan->str()<<std::endl;
             if(argmax_global < (value = state->toBelief()->operator^(hyperplan->toBelief())) )

@@ -7,13 +7,13 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
     std::vector<std::string> all_formalism={"decpomdp"};
-    std::vector<std::string> all_problem={"tiger"};
-    std::vector<int> all_horizon={1};
+    std::vector<std::string> all_problem={"mabc"};
+    std::vector<int> all_horizon={50};
     std::vector<double> all_discount={1};
     std::vector<std::string> upper_bound_name = {""};
-    std::vector<std::string> lower_bound_name={"maxplan"};
+    std::vector<std::string> lower_bound_name={"maxplan_lp"};
     std::vector<std::string> all_lower__init_name={"Min"};
-    std::vector<std::string> all_upper_init_name= {"MdpHsvi"};
+    std::vector<std::string> all_upper_init_name= {"PomdpHsvi"};
     int mean = 1;
     std::string filepath = "../data/world/dpomdp/";
     std::string save_path = "../run/Resultat/NewSDMS/resultat.csv";

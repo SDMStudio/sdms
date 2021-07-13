@@ -85,28 +85,23 @@ namespace sdm
                 auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, nullptr, t);
                 auto best_evaluate_occupancy_state = vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState();
 
-                auto belief = occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory);
-                double tmp = 0.0;
-
-                // std::cout<<best_evaluate_occupancy_state->str()<<std::endl;
-                // std::cout<<"Default "<<best_evaluate_occupancy_state->getDefaultValue()<<std::endl;
-                for(const auto &hidden_state : belief->getStates())
+                // Create new belief
+                auto new_belief = std::make_shared<Belief>();
+                for(const auto &hidden_state : occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())
                 {
+                    double tmp = 0.0;
                     for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action,t))
                     {
                         for(const auto &observation : under_pb->getReachableObservations(hidden_state,action,next_hidden_state,t))
                         {
                             auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
-                            // std::cout<<"proba t+1 "<<best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)<<std::endl;
                             tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)* under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
                         }
                     }
+                    new_belief->setProbability(hidden_state, under_pb->getReward(hidden_state,action,t) + this->world_->getDiscount(t) * tmp);
                 }
-                // std::cout<<"REward"<<occupancy_mdp->getRewardBelief(belief, action, t)<<std::endl;
-                // std::cout<<"Tmp "<<tmp<<std::endl;
-                next_occupancy->setProbability(jhistory, belief, occupancy_mdp->getRewardBelief(belief, action, t) + this->world_->getDiscount(t) * tmp);
+                next_occupancy->setProbability(jhistory, new_belief, 1);
             }
-            std::cout<<"Next Occupancy "<<next_occupancy->str()<<std::endl;
             return next_occupancy;
         }
         catch(const std::exception& e)

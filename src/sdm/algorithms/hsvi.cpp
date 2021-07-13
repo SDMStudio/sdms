@@ -1,5 +1,6 @@
 #include <sdm/exception.hpp>
 #include <sdm/algorithms/hsvi.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 namespace sdm
 {
@@ -227,6 +228,16 @@ namespace sdm
         ofs << this->upper_bound_->getValueAt(this->start_state) << ",";
         ofs << this->lower_bound_->getSize() << ",";
         ofs << this->upper_bound_->getSize() << ",";
+        ofs << std::static_pointer_cast<OccupancyMDP>(this->world_)->getMDPGraph()->getNumNodes() << ",";
+        number num_max_jhist = 0, tmp;
+        for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->world_)->getStoredStates())
+        {
+            if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
+            {
+                num_max_jhist = tmp;
+            }
+        }
+        ofs << num_max_jhist << ",";
         ofs << ((float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
 
         ofs << "\n";

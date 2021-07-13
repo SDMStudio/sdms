@@ -29,6 +29,7 @@ namespace sdm
 
         virtual void setDefaultValue(double) = 0;
         virtual double getDefaultValue() const = 0;
+        virtual void finalize() = 0;
 
         virtual std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> getVectorInferface() = 0;
 
