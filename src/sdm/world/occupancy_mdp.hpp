@@ -61,6 +61,8 @@ namespace sdm
                 double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t);
                 double do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon);
                 double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
+
+                // *****************
                 //    RL methods
                 // *****************
 
@@ -75,7 +77,8 @@ namespace sdm
                 // void setInitialState(const std::shared_ptr<State> &state);
                 virtual std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
 
-                static double TIME_IN_NEXT_STATE, TIME_IN_COMPRESS;
+                static double TIME_IN_NEXT_STATE, TIME_IN_COMPRESS, TIME_IN_GET_ACTION, TIME_IN_STEP, TIME_IN_GET_REWARD, TIME_IN_NEXT_OSTATE;
+                static double TIME_IN_UNDER_STEP, TIME_IN_APPLY_DR;
                 static number PASSAGE_IN_NEXT_STATE;
                 static unsigned long MEAN_SIZE_STATE;
 
@@ -110,6 +113,5 @@ namespace sdm
                 virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 std::shared_ptr<Space> computeActionSpaceAtOccupancy(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 std::shared_ptr<Space> computeActionSpaceAtSerial(const std::shared_ptr<State> &occupancy_state, number t = 0);
-
         };
 } // namespace sdm
