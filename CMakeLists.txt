@@ -41,7 +41,7 @@ endif()
 
 # --> ILOG CPLEX
 if(NOT DEFINED CPLEX_ROOT_DIR)
-    set(CPLEX_ROOT_DIR "/opt/ibm/ILOG/CPLEX_Studio_Community201/")
+    set(CPLEX_ROOT_DIR "/opt/ibm/ILOG/CPLEX_Studio201/")
 endif()
 
 
