@@ -329,6 +329,7 @@ namespace sdm
                     next_belief->setProbability(next_state, next_state_count / next_joint_history_count);
                 }
             }
+            next_belief->finalize();
             belief_graph->addNode(next_belief);
             fully_uncompressed_next_occupancy_state->addProbability(next_joint_history->toJointHistory(), next_belief, next_joint_history_count / this->batch_size_);
             auto joint_history_ = next_joint_history->getPreviousHistory();
