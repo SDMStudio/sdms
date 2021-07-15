@@ -65,8 +65,6 @@ namespace sdm
     number planning_horizon_;
     std::string name_ = "hsvi";
 
-    clock_t t_begin;
-
     std::shared_ptr<State> start_state;
 
     void initLogger();

@@ -71,6 +71,7 @@ namespace sdm
             // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
             new_hyperplan->setProbability(hidden_state->toState(), under_pb->getReward(hidden_state->toState(), action->toAction(), t) + this->world_->getDiscount(t) * tmp);
         }
+        new_hyperplan->finalize();
         return new_hyperplan;
     }
 
@@ -118,8 +119,10 @@ namespace sdm
                     // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
                     new_belief->setProbability(hidden_state, under_pb->getReward(hidden_state,action,t) + this->world_->getDiscount(t) * tmp);
                 }
+                new_belief->finalize();
                 new_hyperplan->setProbability(jhistory, new_belief, 1);
             }
+            new_hyperplan->finalize();
             return new_hyperplan;
         }
         catch(const std::exception& e)

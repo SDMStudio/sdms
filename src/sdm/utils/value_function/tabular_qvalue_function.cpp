@@ -32,6 +32,7 @@ namespace sdm
 
     double TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
+        // std::cout << "-------- TabularQValueFunction::getQValueAt() ---------" << std::endl;
         return this->getQValuesAt(state, t)->at(action);
     }
 

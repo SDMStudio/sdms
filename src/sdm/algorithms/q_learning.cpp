@@ -126,16 +126,26 @@ namespace sdm
 
     void QLearning::do_step()
     {   
-        // std::cout << "-------- do_step() ---------" << std::endl;
+        // std::cout << "-------- QLearning::do_step() ---------" << std::endl;
         
         // Action selection following policy and exploration process
         this->action = this->select_action(this->observation);
+        // std::cout << "-------- do_step() --------- 1" << std::endl;
+
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
+        // std::cout << "-------- do_step() --------- 2" << std::endl;
+
         // Push experience to memory
         this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->step);
+        // std::cout << "-------- do_step() --------- 3" << std::endl;
+
         // Backup and get Q Value Error
         double delta = this->backup_->backup(this->step);
+        // std::cout << "-------- do_step() --------- 4" << std::endl;
+
+
+        // std::cout << "delta " << delta << std::endl;
 
         this->observation = this->next_observation;
         this->step++;
@@ -169,11 +179,14 @@ namespace sdm
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
         if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), this->step))
         {
+            // std::cout << "-------- RANDOM ---------" << std::endl;
             return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
         }
         else
         {
-            return this->q_value_table_->getBestAction(observation->toState(), this->step);
+            // std::cout << "-------- GREEDY ---------" << std::endl;
+            // return this->q_value_table_->getBestAction(observation->toState(), this->step);
+            return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
         }
         // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
     }

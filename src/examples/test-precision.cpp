@@ -20,11 +20,20 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/parser/parser.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
+
+#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
+#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+
+#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
+#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+
+#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/point_set_value_function.hpp>
+#include <sdm/utils/value_function/hyperplan_value_function.hpp>
 
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
@@ -99,62 +108,66 @@ int main(int argc, char **argv)
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
-        std::unordered_map<std::shared_ptr<State>, double, sdm::hash_from_ptr<OccupancyState>, sdm::equal_from_ptr<OccupancyState>> map_states;
-        
+        auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
+        auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi_mdp);
+        auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(hsvi_mdp);
+        auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+
         // Instanciate Initializer
-        // auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-        // auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
+        auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
+        auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
 
-        // // Instanciate value functions
-        // auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-        // auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        // Instanciate value functions
+        auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+        auto ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
 
-        // // Instanciate HSVI
-        // auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
+        // Instanciate HSVI
+        auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
 
-        // // Initialize and solve the problem
-        // algo->do_initialize();
-        // algo->do_solve();
+        // Initialize and solve the problem
+        algo->do_initialize();
+        algo->do_solve();
 
-        // // Save results in a CSV file
-        // algo->saveResults(name + "_test.csv", compress_precision);
+        // Save results in a CSV file
+        algo->saveResults(name + "_test.csv", compress_precision);
 
-        // // Display bounds
-        // // std::cout << *algo->getLowerBound() << std::endl;
-        // // std::cout << *algo->getUpperBound() << std::endl;
+        // Display bounds
+        // std::cout << *algo->getLowerBound() << std::endl;
+        // std::cout << *algo->getUpperBound() << std::endl;
 
-        // // -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        // /* // ---------- Comment / Uncomment this section to enable test compression ----------
 
-        // auto state = hsvi_mdp->getInitialState();
-        // std::cout << "# State 0\n" << *state << std::endl;
-        // for (int i = 0; i < 5; i++)
-        // {
-        //     auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->sample();
+        /* // ---------- Comment / Uncomment this section to enable test compression ---------- 
 
-        //     std::cout << "# Action " << i << "\n" << *action << std::endl;
-        //     state = hsvi_mdp->nextState(state, action->toAction());
-        //     std::cout << "------------------" << std::endl;
-        //     std::cout << "# State " << i + 1 << "\n" << *state << std::endl;
-        // }
+        auto state = hsvi_mdp->getInitialState();
+        std::cout << "# State 0\n" << *state << std::endl;
+        for (int i = 0; i < 5; i++)
+        {
+            auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->sample();
 
-        // // ----------------------------------------------------------------------------- */
+            std::cout << "# Action " << i << "\n" << *action << std::endl;
+            state = hsvi_mdp->nextState(state, action->toAction());
+            std::cout << "------------------" << std::endl;
+            std::cout << "# State " << i + 1 << "\n" << *state << std::endl;
+        }
 
-        // // Log execution times
-        // std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
-        // std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
-        // std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
-        // std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
-        // std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
-        // std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
-        // std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
-        // std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
-        // std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
-        // std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
-        // std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
-        // std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
-        // std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
+        // ----------------------------------------------------------------------------- */
+
+        // Log execution times
+        std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
+        std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
+        std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
+        std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
+        std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
+        std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
+        std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
+        std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
+        std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
+        std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
     }
     catch (sdm::exception::Exception &e)
     {

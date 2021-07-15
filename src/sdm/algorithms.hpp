@@ -31,7 +31,9 @@ namespace sdm
                                             double time_max = 2000,
                                             std::string current_type_of_resolution = "BigM",
                                             number BigM = 100,
-                                            std::string type_sawtooth_linear_programming = "Full");
+                                            std::string type_sawtooth_linear_programming = "Full",
+                                            int freq_prunning_lower_bound = -1,
+                                            int freq_prunning_upper_bound = -1);
 
         /**
          * @brief Build the ValueIteration version. 
@@ -78,7 +80,9 @@ namespace sdm
                                         double time_max = 2000,
                                         std::string current_type_of_resolution = "BigM",
                                         number BigM = 100,
-                                        std::string type_sawtooth_linear_programming = "Full");
+                                        std::string type_sawtooth_linear_programming = "Full",
+                                        int freq_prunning_lower_bound = -1,
+                                        int freq_prunning_upper_bound = -1);
 
         // std::shared_ptr<sdm::QLearning<TObservation, TAction>> makeQLearning(std::shared_ptr<GymInterface<TObservation, TAction>> problem,
         //                                                                 std::string,
