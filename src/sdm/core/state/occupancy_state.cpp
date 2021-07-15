@@ -7,7 +7,7 @@
 namespace sdm
 {
     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
-    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0;
+    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0, OccupancyState::TIME_IN_HASH = 0;
     unsigned long OccupancyState::PASSAGE_GET_PROBA = 0, OccupancyState::PASSAGE_SET_PROBA = 0, OccupancyState::PASSAGE_FINALIZE = 0;
 
     OccupancyState::OccupancyState() : OccupancyState(2)
@@ -110,12 +110,7 @@ namespace sdm
 
     Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> OccupancyState::sampleJointHistoryBelief()
     {
-        auto distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<JointHistoryInterface>>>();
-        for (auto const joint_history : this->getJointHistories())
-        {
-            distribution->setProbability(joint_history, this->getProbability(joint_history));
-        }
-        auto sampled_joint_history = distribution->sample();
+        auto sampled_joint_history = this->distribution_->sample()->toHistory()->toJointHistory();
         return std::make_pair(sampled_joint_history, this->getBeliefAt(sampled_joint_history));
     }
 

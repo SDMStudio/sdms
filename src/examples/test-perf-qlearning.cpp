@@ -70,7 +70,6 @@ int main(int argc, char **argv)
 
         common::global_urng().seed(seed);
 
-
         auto dpomdp = sdm::parser::parse_file(path);
 
         auto start_distribution = dpomdp->getStartDistribution();
@@ -83,7 +82,6 @@ int main(int argc, char **argv)
         auto state_dynamics = dpomdp->getStateDynamics();
         auto observation_dynamics = dpomdp->getObservationDynamics();
 
-        
         std::shared_ptr<GymInterface> gym;
         if (formalism == "MDP")
             gym = std::make_shared<MDP>(state_space, action_space, reward_space, state_dynamics, start_distribution, horizon, 1.);
@@ -104,7 +102,6 @@ int main(int argc, char **argv)
         Belief::PRECISION = belief_precision;
         OccupancyState::PRECISION = ostate_precision;
         PrivateOccupancyState::PRECISION_COMPRESSION = compress_precision;
-
 
         std::cout << "MEMORY=" << memory << std::endl;
         std::cout << "Belief::PRECISION=" << Belief::PRECISION << std::endl;
@@ -149,6 +146,7 @@ int main(int argc, char **argv)
         std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
+        std::cout << "OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
     }
     catch (std::exception &e)
     {

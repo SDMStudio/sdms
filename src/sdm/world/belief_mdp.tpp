@@ -120,6 +120,7 @@ namespace sdm
 
         // Finalize belief
         next_belief->toBelief()->finalize();
+        
         // Return next belief.
         return std::make_pair(next_belief, nullptr);
     }

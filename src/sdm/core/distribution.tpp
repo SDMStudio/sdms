@@ -30,7 +30,7 @@ namespace sdm
     template <typename T>
     void DiscreteDistribution<T>::setProbability(const T &item, double proba)
     {
-        assert((proba >= 0) && (proba <= 1));
+        // assert((proba >= -0.) && (proba <= 1.1));
         if (proba > 0)
         {
             if (this->bimap_item_to_index_.left.find(item) == this->bimap_item_to_index_.left.end())
