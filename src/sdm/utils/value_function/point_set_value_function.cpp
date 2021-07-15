@@ -19,6 +19,7 @@ namespace sdm
     {
         assert(this->getInitFunction() != nullptr);
         
+        // Determine if the element exist 
         bool already_exist = false;
         for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
         {
@@ -27,6 +28,7 @@ namespace sdm
                 already_exist = true;
             }
         }
+        // If the element doesn't exit, we determine this value else with take the value stocked
         return (already_exist) ? this->representation[t].at(state) : this->evaluate(state, t).second;
     }
 
@@ -125,6 +127,7 @@ namespace sdm
             double v_ub_kappa = this->getInitFunction()->operator()(point, t);
             
             double phi;
+
             switch (state->getTypeState())
             {
             case TypeState::BELIEF_STATE :
@@ -155,6 +158,7 @@ namespace sdm
 
     double PointSetValueFunction::ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point, number t)
     {
+        // Determine the ratio for the specific case when the state is a belief
         double phi = 1.0;
 
         for (auto &support : point->getStates())
@@ -171,16 +175,20 @@ namespace sdm
 
     double PointSetValueFunction::ratioOccupancy(const std::shared_ptr<BeliefInterface>& state_tmp, const std::shared_ptr<BeliefInterface>& point_tmp, number t)
     {
+        // Determine the ratio for the specific case when the state is a Occupancy State
+        
         double phi = 1.0;
 
         auto point = point_tmp->toOccupancyState();
         auto occupancy_state = state_tmp->toOccupancyState();
 
+        // Go over all joint history
         for (auto &joint_history : point->getJointHistories())
         {
-            for(const auto& state :  point->getBeliefAt(joint_history)->getStates())
+            // Go over all hidden state in the belief conditionning to the joitn history
+            for(const auto& hidden_state :  point->getBeliefAt(joint_history)->getStates())
             {
-                double v_int = (occupancy_state->getProbability(joint_history,state) / point->getProbability(joint_history,state));
+                double v_int = (occupancy_state->getProbability(joint_history,hidden_state) / point->getProbability(joint_history,hidden_state));
                 // determine the min int
                 if (v_int < phi)
                 {

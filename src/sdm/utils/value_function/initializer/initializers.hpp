@@ -27,7 +27,7 @@ namespace sdm
     template <class TInit>
     std::shared_ptr<Initializer> createInstanceAlgoInit(std::shared_ptr<SolvableByHSVI> world,std::string algo_name, double error, int trials) { return std::shared_ptr<TInit>(new TInit(world,algo_name, error, trials)); }
 
-    std::shared_ptr<Initializer> createInstanceTabMDPInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "tabular_hsvi", 0., 200000)(); }
+    std::shared_ptr<Initializer> createInstanceTabMDPInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "tabular_hsvi", 0, 200000)(); }
 
     std::shared_ptr<Initializer> createInstanceMDPValueIterationInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "ValueIteration", 0, 200000)(); }
 

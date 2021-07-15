@@ -2,14 +2,6 @@
 
 namespace sdm
 {
-  //   std::string VarNaming::getVarNameJointHistoryDecisionRule(int action, const typename TVector::jhistory_type &joint_history)
-  //   {
-  //     std::ostringstream oss;
-  //     oss << "jdr"
-  //         << "." << action << "." << joint_history->short_str();
-  //     return oss.str();
-  //   }
-
     std::string VarNaming::getVarNameJointHistoryDecisionRule(const std::shared_ptr<Action>& action, const std::shared_ptr<JointHistoryInterface> &joint_history)
     {
       std::ostringstream oss;
@@ -38,22 +30,6 @@ namespace sdm
       return oss.str();
     }
 
-  //   std::string VarNaming::getVarNameWeight(const TVector &state)
-  //   {
-  //     std::ostringstream oss;
-  //     oss << "weight"
-  //         << "." << std::make_shared<TVector>(state);
-  //     return oss.str();
-  //   }
-
-  //   std::string VarNaming::getVarNameIndividualHistoryDecisionRule(int action, const typename TVector::jhistory_type::element_type::ihistory_type &individual_history, const number &agent_id)
-  //   {
-  //     std::ostringstream oss;
-  //     oss << "idr"
-  //         << "." << action << "." << individual_history->short_str() << "." << agent_id;
-  //     return oss.str();
-  //   }
-
     std::string VarNaming::getVarNameIndividualHistoryDecisionRule(const std::shared_ptr<Action>& action, const std::shared_ptr<HistoryInterface>& individual_history, const number &agent_id)
     {
       std::ostringstream oss;
@@ -80,12 +56,4 @@ namespace sdm
           << "." << i << "." << s << "." << jh->short_str();
       return oss.str();
     }
-
-//   std::string VarNaming::getVarNameWeightedStateJointHistory(const std::shared_ptr<TVector> &i, const typename TVector::state_type &s, const typename TVector::jhistory_type &jh)
-//   {
-//     std::ostringstream oss;
-//     oss << "wsh"
-//         << "." << i << "." << s << "." << jh->short_str();
-//     return oss.str();
-//   }
 }

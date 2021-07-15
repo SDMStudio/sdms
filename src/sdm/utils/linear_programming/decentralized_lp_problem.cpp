@@ -43,6 +43,7 @@ namespace sdm
         //<! 0.a Build variables  a_i(u_i|o_i)
         for (const auto& indiv_history : occupancy_state->getIndividualHistories(agent_id))
         {
+            // Go over all Individual Action
             for (const auto& serial_action : *under_pb->getActionSpace(agent_id,t))
             {
                 //<! 0.c Build variables a_i(u_i|o_i)
@@ -60,8 +61,10 @@ namespace sdm
 
         number recover;
 
+        // Go over all joint history 
         for (const auto& jhistory : occupancy_state->getJointHistories())
         {
+            // Go over all action
             for (const auto& action : *under_pb->getActionSpace(t))
             {
                 auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action->toAction());
@@ -94,12 +97,16 @@ namespace sdm
         number recover;
 
         //<! 3.b set constraint a(u|o) <= a_i(u_i|o_i)
+
+        // Go over all joint history
         for (const auto& jhistory : occupancy_state->getJointHistories())
-            {
+        {
+            // Go over all action
             for (const auto& action : *under_pb->getActionSpace(t))
             {
                 auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action->toAction());
 
+                // Go over agent
                 for (number agent = 0; agent < under_pb->getNumAgents(); ++agent)
                 {
                     // set constraint range
@@ -255,6 +262,7 @@ namespace sdm
     void DecentralizedLP::createDecentralizedConstraintsOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = this->world_->getUnderlyingProblem();
+        
         //Create Joint Decentralized Constraints and Control Constraints
         this->createDecentralizedConstraintsJoint(vf,state, env, con, var, index, t);
         this->createDecentralizedControlConstraints(vf,state, env, con, var, index, t);

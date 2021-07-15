@@ -3,7 +3,6 @@
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-#include <sdm/utils/value_function/evaluate_vf/evaluate_tabulair.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>

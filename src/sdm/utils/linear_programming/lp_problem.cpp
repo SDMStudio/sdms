@@ -29,20 +29,15 @@ namespace sdm
 
             ///////  BEGIN CORE CPLEX Code  ///////
 
-            // std::cout<<"createVariables"<<std::endl;
-
+            // Create all Variable of the LP problem
             this->createVariables(vf,state, env, var,index, t);
 
-            // std::cout<<"createObjectiveFunction"<<std::endl;
-
+            // Create the objective function of the LP problem
             this->createObjectiveFunction(vf, state, var, obj, t);
 
-            // std::cout<<"createConstraints"<<std::endl;
-
             index = 0;
+            // Create all Constraints of the LP problem
             this->createConstraints(vf, state, env,model, con, var, index, t);
-
-            // std::cout<<"End Create"<<std::endl;
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
@@ -51,29 +46,16 @@ namespace sdm
             cplex.setOut(env.getNullStream());
             cplex.setWarning(env.getNullStream());
 
-            cplex.exportModel("lb_bellman_op.lp");
-
             // Optimize the problem and obtain solution
             if (!cplex.solve())
             {
+                cplex.exportModel("lb_bellman_op.lp");
                 env.error() << "Failed to optimize MILP" << std::endl;
             }
             else
             {
                 value = cplex.getObjValue();
                 action = this->getVariableResult(vf,state, cplex,var,t);
-
-                // std::cout<<"action "<<action->str()<<std::endl;
-                // if(std::abs(value - vf->template backup<double>(state,action,t)) >0.01)
-                // {
-                //     std::cout<<"Problem, value "<<value<<" backup value "<<vf->template backup<double>(state,action,t)<<std::endl;
-                //     std::cout<<"State "<<state->str()<<std::endl;
-                //     std::cout<<"action "<<action->str()<<std::endl;
-                //     system("cat lb_bellman_op.lp");
-
-                //     exit(-1);
-                // }
-
             }
         }
         catch (IloException &e)
