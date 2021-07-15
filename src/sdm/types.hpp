@@ -151,6 +151,27 @@ namespace sdm
     float tr_double = (float)v;
     sdm::hash_combine(seed, tr_double);
   }
+
+  template <typename T>
+  struct equal_from_ptr
+  {
+    virtual bool operator()(const std::shared_ptr<void> &left, const std::shared_ptr<void> &right) const
+    {
+      auto casted_left = std::static_pointer_cast<T>(left);
+      auto casted_right = std::static_pointer_cast<T>(right);
+      return ((left == right) || std::equal_to<T>()(*casted_left, *casted_right));
+    }
+  };
+
+  template <typename T>
+  struct hash_from_ptr
+  {
+    virtual size_t operator()(const std::shared_ptr<void> &item) const
+    {
+      auto casted_item = std::static_pointer_cast<T>(item);
+      return std::hash<T>()(*casted_item);
+    }
+  };
 } // namespace sdm
 
 namespace std
