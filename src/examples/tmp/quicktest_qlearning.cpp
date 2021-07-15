@@ -89,6 +89,7 @@ int learn(int argv, char **args)
         common::global_urng().seed(seed);
 
         OccupancyState::PRECISION = precision;
+        PrivateOccupancyState::PRECISION = precision;
 
         auto dpomdp = sdm::parser::parse_file(path);
 
