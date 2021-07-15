@@ -17,8 +17,10 @@ namespace sdm
 
     double PointSetValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
+        std::cout<<"Get ValueAt "<<std::endl;
+
         assert(this->getInitFunction() != nullptr);
-        
+
         // Determine if the element exist 
         bool already_exist = false;
         for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
@@ -28,12 +30,15 @@ namespace sdm
                 already_exist = true;
             }
         }
+        std::cout<<"Evaluate Start "<<state<<std::endl;
+
         // If the element doesn't exit, we determine this value else with take the value stocked
         return (already_exist) ? this->representation[t].at(state) : this->evaluate(state, t).second;
     }
 
     void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
+        std::cout<<"Update ? "<<std::endl;
         TabularValueFunction::updateValueAt(state, t, target);
 
         if (this->last_prunning == this->freq_prune_)
@@ -108,6 +113,7 @@ namespace sdm
 
     Pair<std::shared_ptr<State>,double> PointSetValueFunction::evaluate(const std::shared_ptr<State>& state_tmp, number t)
     {
+        std::cout<<"Evaluate Start"<<std::endl;
         assert(this->getInitFunction() != nullptr);
         assert(state_tmp->getTypeState() != TypeState::STATE);
 
@@ -152,7 +158,8 @@ namespace sdm
                 argmin_ = point_to_belief_interface;
             }
         }
-        
+        std::cout<<"Evaluate End"<<std::endl;
+
         return std::make_pair(argmin_,v_ub_state + min_ext);
     }
 

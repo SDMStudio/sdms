@@ -127,6 +127,7 @@ namespace sdm
             OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
             return false;
         }
+
         if (std::abs(this->getDefault() - other.getDefault()) > PRECISION)
         {
             OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -135,7 +136,12 @@ namespace sdm
 
         // For all points in the support
         for (const auto &jhistory : this->getJointHistories())
-        {
+        {   
+            // if (this->getBeliefAt(jhistory)->size() != other.getBeliefAt(jhistory)->size())
+            // {
+            //     return false;
+            // }
+
             // For all states in the corresponding belief
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
@@ -153,28 +159,7 @@ namespace sdm
 
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        // Check size equality
-        if (this->size() != other->size())
-        {
-            return false;
-        }
-
-        // For all points in the support
-        for (const auto &jhistory : this->getJointHistories())
-        {
-            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
-            {
-                // Does the corresponding probabilities are equals ?
-                if (this->getProbability(jhistory, state) != other->toOccupancyState()->getProbability(jhistory, state))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-
-        // return this->operator==(std::dynamic_pointer_cast<OccupancyState>(other));
+        return OccupancyState::operator==(*std::dynamic_pointer_cast<OccupancyState>(other->toOccupancyState()));
     }
 
     double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &other) const

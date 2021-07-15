@@ -121,6 +121,7 @@ namespace sdm
                 #endif
 
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
+
                 #ifdef LOGTIME 
                     this->updateTime("Next State");
                 #endif

@@ -174,12 +174,16 @@ namespace sdm
             this->StartTime();
         #endif
 
+        std::cout<<"new vector "<<new_vector->str()<<std::endl;
+
         // Go over all element in the Support
         for(const auto& element : this->representation[t])
         {
             // Test if the new vector is equal to the element 
             if(new_vector->operator==(element->toBelief()))
             {
+                std::cout<<"element"<<element->str()<<std::endl;
+
                 #ifdef LOGTIME
                     this->updateTime("Exist");
                 #endif
