@@ -131,25 +131,19 @@ int learn(int argv, char **args)
         if (qvalue == "tabular")
             q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
         else if (qvalue == "hierarchical")
-            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer);
-
-        std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
+            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, action_space);
 
         std::shared_ptr<QValueFunction> target_q_value_table;
         if (qvalue == "tabular")
             target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
         else if (qvalue == "hierarchical")
-            target_q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer);
+            target_q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, action_space);
 
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
 
         std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
-        std::shared_ptr<QValueBackupInterface> backup;
-        if (qvalue == "tabular")
-            backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
-        else if (qvalue == "hierarchical")
-            backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
 
         std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
