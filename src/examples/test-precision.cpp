@@ -44,26 +44,10 @@ int main(int argc, char **argv)
         int seed;
 
         po::options_description options("Options");
-        options.add_options()
-        ("help", "produce help message")
-        ("test", "test the policy found");
+        options.add_options()("help", "produce help message")("test", "test the policy found");
 
         po::options_description config("Configuration");
-        config.add_options()
-        ("path,p", po::value<std::string>(&path)->default_value("tiger"), "the path to the problem to be solved")
-        ("belief_precision,r", po::value<double>(&belief_precision)->default_value(0.00001), "the precision of hierarchical private occupancy states (occupancy states) ")
-        ("ostate_precision", po::value<double>(&ostate_precision)->default_value(0.00001), "the precision of occupancy states (occupancy states)")
-        ("compress_precision,c", po::value<double>(&compress_precision)->default_value(0.001), "the precision for compression")
-        ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
-        ("error,e", po::value<double>(&error)->default_value(0.001), "the error")
-        ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
-        ("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")
-        ("trial,t", po::value<unsigned long>(&trial)->default_value(10000), "the maximum number of timesteps")
-        ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
-        ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")
-        ("compression", "do compression")
-        ("store_actions", "store_actions")
-        ("store_states", "store_states");
+        config.add_options()("path,p", po::value<std::string>(&path)->default_value("tiger"), "the path to the problem to be solved")("belief_precision,r", po::value<double>(&belief_precision)->default_value(0.00001), "the precision of hierarchical private occupancy states (occupancy states) ")("ostate_precision", po::value<double>(&ostate_precision)->default_value(0.00001), "the precision of occupancy states (occupancy states)")("compress_precision,c", po::value<double>(&compress_precision)->default_value(0.001), "the precision for compression")("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")("trial,t", po::value<unsigned long>(&trial)->default_value(10000), "the maximum number of timesteps")("seed,s", po::value<int>(&seed)->default_value(1), "random seed")("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")("compression", "do compression")("store_actions", "store_actions")("store_states", "store_states");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
         visible.add(options).add(config);
@@ -110,66 +94,67 @@ int main(int argc, char **argv)
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
         std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
-        // ---------- Comment / Uncomment this section to enable solving with HSVI ---------- 
-        // 
+        // ---------- Comment / Uncomment this section to enable solving with HSVI ----------
+        //
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
+        std::unordered_map<std::shared_ptr<State>, double, sdm::hash_from_ptr<OccupancyState>, sdm::equal_from_ptr<OccupancyState>> map_states;
+        
         // Instanciate Initializer
-        auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-        auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
+        // auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
+        // auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
 
-        // Instanciate value functions
-        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        // // Instanciate value functions
+        // auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+        // auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
 
-        // Instanciate HSVI
-        auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
+        // // Instanciate HSVI
+        // auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
 
-        // Initialize and solve the problem
-        algo->do_initialize();
-        algo->do_solve();
+        // // Initialize and solve the problem
+        // algo->do_initialize();
+        // algo->do_solve();
 
-        // Save results in a CSV file
-        algo->saveResults(name + "_test.csv", compress_precision);
+        // // Save results in a CSV file
+        // algo->saveResults(name + "_test.csv", compress_precision);
 
-        // Display bounds
-        // std::cout << *algo->getLowerBound() << std::endl;
-        // std::cout << *algo->getUpperBound() << std::endl;
+        // // Display bounds
+        // // std::cout << *algo->getLowerBound() << std::endl;
+        // // std::cout << *algo->getUpperBound() << std::endl;
 
-        // -----------------------------------------------------------------------------
+        // // -----------------------------------------------------------------------------
 
+        // /* // ---------- Comment / Uncomment this section to enable test compression ----------
 
-        /* // ---------- Comment / Uncomment this section to enable test compression ---------- 
+        // auto state = hsvi_mdp->getInitialState();
+        // std::cout << "# State 0\n" << *state << std::endl;
+        // for (int i = 0; i < 5; i++)
+        // {
+        //     auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->sample();
 
-        auto state = hsvi_mdp->getInitialState();
-        std::cout << "# State 0\n" << *state << std::endl;
-        for (int i = 0; i < 5; i++)
-        {
-            auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->sample();
+        //     std::cout << "# Action " << i << "\n" << *action << std::endl;
+        //     state = hsvi_mdp->nextState(state, action->toAction());
+        //     std::cout << "------------------" << std::endl;
+        //     std::cout << "# State " << i + 1 << "\n" << *state << std::endl;
+        // }
 
-            std::cout << "# Action " << i << "\n" << *action << std::endl;
-            state = hsvi_mdp->nextState(state, action->toAction());
-            std::cout << "------------------" << std::endl;
-            std::cout << "# State " << i + 1 << "\n" << *state << std::endl;
-        }
+        // // ----------------------------------------------------------------------------- */
 
-        // ----------------------------------------------------------------------------- */
-
-        // Log execution times
-        std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
-        std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
-        std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
-        std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
-        std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
-        std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
-        std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
-        std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
-        std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
+        // // Log execution times
+        // std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
+        // std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
+        // std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
+        // std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
+        // std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
+        // std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
+        // std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
     }
     catch (sdm::exception::Exception &e)
     {
