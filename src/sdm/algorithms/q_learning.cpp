@@ -1,4 +1,5 @@
 #include <sdm/algorithms/q_learning.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 namespace sdm
 {
@@ -54,7 +55,7 @@ namespace sdm
     {
         this->global_step = 0;
         this->episode = 0;
-        clock_t t_begin = clock();
+        this->t_begin = clock();
 
         this->exploration_process->reset(this->max_steps_);
 
@@ -69,7 +70,7 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log_)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_table_->getValueAt(this->env_->reset()->toState(), 0), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(this->episode, this->global_step, this->q_value_table_->getValueAt(this->env_->reset()->toState(), 0), (float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
                 this->do_log_ = false;
             }
             if (this->do_test_)
@@ -188,6 +189,30 @@ namespace sdm
             return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
         }
         // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
+    }
+
+
+
+    void QLearning::saveResults(std::string filename, double other)
+    {
+        std::ofstream ofs;
+        ofs.open(filename, std::ios::out | std::ios::app);
+        ofs << other << ",";
+        ofs << this->q_value_table_->getValueAt(this->env_->reset()->toState(), 0) << ",";
+        ofs << std::static_pointer_cast<OccupancyMDP>(this->env_)->getMDPGraph()->getNumNodes() << ",";
+        // number num_max_jhist = 0, tmp;
+        // for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->env_)->getStoredStates())
+        // {
+        //     if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
+        //     {
+        //         num_max_jhist = tmp;
+        //     }
+        // }
+        // ofs << num_max_jhist << ",";
+        ofs << ((float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
+
+        ofs << "\n";
+        ofs.close();
     }
 
 } // namespace sdm

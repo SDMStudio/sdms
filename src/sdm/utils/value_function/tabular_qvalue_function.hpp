@@ -65,6 +65,18 @@ namespace sdm
         bool isNotSeen(const std::shared_ptr<State> &state, number t);
 
         // void printNumberOfActions();
+        // size_t getSize() const
+        // {
+        //     size_t size_tot = 0;
+        //     for (const auto &repr : this->representation)
+        //     {
+        //         for (const auto &pair_action_value_funct : repr)
+        //         {
+        //             size_tot += pair_action_value_funct.second.size();
+        //         }
+        //     }
+        //     return size_tot;
+        // }
 
         /**
          * @brief Define this function in order to be able to display the value function
@@ -78,7 +90,6 @@ namespace sdm
         }
 
     protected:
-
         /**
          * @brief The Q value function represention.
          * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
@@ -93,8 +104,6 @@ namespace sdm
          */
         std::shared_ptr<QInitializer> initializer_;
     };
-
-    
 
     // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
     // using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, MappedMatrix>;

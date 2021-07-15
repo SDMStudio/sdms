@@ -123,7 +123,7 @@ namespace sdm
 
         // Finalize belief
         next_belief->toBelief()->finalize();
-        
+
         // Return next belief.
         return std::make_pair(next_belief, nullptr);
     }
@@ -184,7 +184,12 @@ namespace sdm
 
             // Cast the belief
             TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
-            return (this->state_space_.find(b) != this->state_space_.end()) ? this->state_space_.at(b): computed_next_belief;
+            if (this->state_space_.find(b) == this->state_space_.end())
+            {
+                // Add the belief in the space of beliefs
+                this->state_space_.emplace(b, computed_next_belief);
+            }
+            return (this->state_space_.find(b) != this->state_space_.end()) ? this->state_space_.at(b) : computed_next_belief;
         }
     }
 
