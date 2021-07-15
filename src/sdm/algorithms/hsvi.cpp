@@ -121,7 +121,7 @@ namespace sdm
                 #endif
 
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
-
+                
                 #ifdef LOGTIME 
                     this->updateTime("Next State");
                 #endif
@@ -239,7 +239,7 @@ namespace sdm
             }
         }
         ofs << num_max_jhist << ",";
-        ofs << ((float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
+        ofs << this->duration;
 
         ofs << "\n";
         ofs.close();

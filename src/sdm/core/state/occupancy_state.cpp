@@ -162,6 +162,50 @@ namespace sdm
         return OccupancyState::operator==(*std::dynamic_pointer_cast<OccupancyState>(other->toOccupancyState()));
     }
 
+    double OccupancyState::operator<(const OccupancyState &other) const
+    {
+        // std::cout<<this->str()<<std::endl;
+        for (const auto &jhistory : this->getJointHistories())
+        {   
+            // For all states in the corresponding belief
+            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
+            {
+                // std::cout<<"jhistory Mine "<<jhistory->str()<<std::endl;
+                // std::cout<<"state Mine "<<state->str()<<std::endl;
+
+                // std::cout<<"Value Mine "<<this->getProbability(jhistory,state)<<std::endl;
+                // std::cout<<"Value Other "<< other.getProbability(jhistory,state)<<std::endl;
+                if (this->getProbability(jhistory,state) > other.getProbability(jhistory,state))
+                {
+                    return false;
+                }  
+            }
+        }  
+
+        for (const auto &jhistory : other.getJointHistories())
+        {   
+            // For all states in the corresponding belief
+            for (const auto &state : other.getBeliefAt(jhistory)->getStates())
+            {
+                // std::cout<<"jhistory Other "<<jhistory->str()<<std::endl;
+                // std::cout<<"state Other "<<state->str()<<std::endl;
+
+                // std::cout<<"Value Mine "<<this->getProbability(jhistory,state)<<std::endl;
+                // std::cout<<"Value Other "<< other.getProbability(jhistory,state)<<std::endl;
+                if (other.getProbability(jhistory,state)<this->getProbability(jhistory,state))
+                {
+                    return false;
+                }  
+            }
+        }
+        return true;   
+    }
+
+    double OccupancyState::operator<(const std::shared_ptr<BeliefInterface> &other) const
+    {
+        return this->operator<(*std::dynamic_pointer_cast<OccupancyState>(other->toOccupancyState()));
+    }
+
     double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &other) const
     {
         double product = 0;

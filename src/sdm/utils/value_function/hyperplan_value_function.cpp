@@ -50,6 +50,7 @@ namespace sdm
 
         if (this->last_prunning == this->freq_prune_)
         {
+            // std::cout<<"Search for prunning"<<std::endl;
             for (number time = 0; time < this->getHorizon(); time++)
             {
                 this->prune(time);
@@ -70,9 +71,9 @@ namespace sdm
         return this->default_values_per_horizon[t];
     }
     
-    void HyperplanValueFunction::prune(number )
+    void HyperplanValueFunction::prune(number t)
     {
-        // this->pairwise_prune(t);
+        this->pairwise_prune(t);
     }
 
     void HyperplanValueFunction::pairwise_prune(number t)
@@ -80,6 +81,11 @@ namespace sdm
         std::vector<std::shared_ptr<BeliefInterface>> hyperplan_not_to_be_deleted;
         std::vector<std::shared_ptr<BeliefInterface>> hyperplan_to_delete;
 
+        // std::cout<<"Print all Alpha at T"<<std::endl;
+        // for (const auto &alpha : this->getSupport(t))
+        // {
+        //     std::cout<<"element "<<alpha->str()<<std::endl;
+        // }
         // Go over all hyperplan
         for (const auto &alpha : this->getSupport(t))
         {
@@ -89,8 +95,12 @@ namespace sdm
             for (const auto &beta : hyperplan_not_to_be_deleted)
             {
                 // If beta dominate alpha, we had alpha to the hyperplan to delete
-                if (alpha<beta)
+                if (alpha->toBelief()->operator<(beta))
                 {
+                    // std::cout<<"Alpha is dominated by beta"<<std::endl;
+                    // std::cout<<"Alpha "<<alpha->str()<<std::endl;
+                    // std::cout<<"Beta "<<beta->str()<<std::endl;
+
                     hyperplan_to_delete.push_back(alpha->toBelief());
                     alpha_dominated = true;
                     break;
@@ -108,9 +118,14 @@ namespace sdm
             for(const auto &beta : hyperplan_not_to_be_deleted)
             {
                 //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
-                if (beta<alpha)
+                if (beta->operator<(alpha->toBelief()))
                 {
+                    // std::cout<<"Beta is dominated by alpha"<<std::endl;
+                    // std::cout<<"Alpha "<<alpha->str()<<std::endl;
+                    // std::cout<<"Beta "<<beta->str()<<std::endl;
+
                     erase_tempo.push_back(beta);
+                    hyperplan_to_delete.push_back(beta);
                 }
             }
 
@@ -124,48 +139,49 @@ namespace sdm
 
         for(const auto &to_delete : hyperplan_to_delete)
         {
+            // std::cout<<"Hyperplan to Delete "<<to_delete->str()<<std::endl;
             this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
         }
     }
     
-    void HyperplanValueFunction::bounded_prune(number )
+    void HyperplanValueFunction::bounded_prune(number t)
     {
-        // std::unordered_map<std::shared_ptr<State>, number> refCount;
-        // auto all_plan = this->isInfiniteHorizon() ? this->representation[0] : this->representation[t];
+        std::unordered_map<std::shared_ptr<State>, number> refCount;
+        auto all_plan = this->getSupport(t);
 
-        // // Initialize ref count to 0 for each hyperplan
-        // for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
-        // {
-        //     refCount.emplace(*iter, 0);
-        // }
+        // Initialize ref count to 0 for each hyperplan
+        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
+        {
+            refCount.emplace(*iter, 0);
+        }
 
-        // //<! update the count
-        // std::shared_ptr<State> max_alpha;
-        // double max_value = -std::numeric_limits<double>::max(), value;
-        // for (const auto &hyperplan : all_plan)
-        // {
-        //     for (const auto &alpha : refCount)
-        //     {
-        //         if (max_value < (value = (hyperplan) ^ (alpha.first)))
-        //         {
-        //             max_value = value;
-        //             max_alpha = alpha.first;
-        //         }
-        //     }
+        //<! update the count
+        std::shared_ptr<State> max_alpha;
+        double max_value = -std::numeric_limits<double>::max(), value;
+        for (const auto &hyperplan : all_plan)
+        {
+            for (const auto &alpha : refCount)
+            {
+                if (max_value < (value = (hyperplan->toBelief()->operator^(alpha.first->toBelief()))))
+                {
+                    max_value = value;
+                    max_alpha = alpha.first;
+                }
+            }
 
-        //     if(refCount.find(max_alpha) != refCount.end())
-        //     {
-        //         refCount.at(max_alpha)++;
-        //     }
-        // }
+            if(refCount.find(max_alpha) != refCount.end())
+            {
+                refCount.at(max_alpha)++;
+            }
+        }
 
-        // for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
-        // {
-        //     if (refCount.at(*iter) == 0)
-        //     {
-        //         this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), *iter));
-        //     }
-        // }
+        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
+        {
+            if (refCount.at(*iter) == 0)
+            {
+                this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), *iter));
+            }
+        }
     }
 
     bool HyperplanValueFunction::exist(const std::shared_ptr<BeliefInterface>& new_vector,number t, double )
@@ -174,16 +190,12 @@ namespace sdm
             this->StartTime();
         #endif
 
-        std::cout<<"new vector "<<new_vector->str()<<std::endl;
-
         // Go over all element in the Support
         for(const auto& element : this->representation[t])
         {
             // Test if the new vector is equal to the element 
             if(new_vector->operator==(element->toBelief()))
             {
-                std::cout<<"element"<<element->str()<<std::endl;
-
                 #ifdef LOGTIME
                     this->updateTime("Exist");
                 #endif
@@ -265,6 +277,7 @@ namespace sdm
             // Add default value of the default state
             default_state->setDefaultValue(this->getDefaultValue(t));
             this->representation[t].push_back(default_state);
+            // default_state->finalize();
         }
     }
 

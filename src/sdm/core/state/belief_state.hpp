@@ -55,6 +55,11 @@ namespace sdm
     std::string str() const;
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+    
+    double operator<(const std::shared_ptr<BeliefInterface> &other) const;
+    double operator<(const Belief &other) const;
+
+
     double norm_1() const;
 
     TypeState getTypeState() const;

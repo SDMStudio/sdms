@@ -170,6 +170,9 @@ namespace sdm
         double operator^(const std::shared_ptr<BeliefInterface> &other) const;
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
 
+        double operator<(const OccupancyState &other) const;
+        double operator<(const std::shared_ptr<BeliefInterface> &other) const;
+
         std::shared_ptr<Space> getActionSpaceAt(number t);
         void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
         void setup();

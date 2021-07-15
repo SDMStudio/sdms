@@ -17,8 +17,6 @@ namespace sdm
 
     double PointSetValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        std::cout<<"Get ValueAt "<<std::endl;
-
         assert(this->getInitFunction() != nullptr);
 
         // Determine if the element exist 
@@ -30,15 +28,12 @@ namespace sdm
                 already_exist = true;
             }
         }
-        std::cout<<"Evaluate Start "<<state<<std::endl;
-
         // If the element doesn't exit, we determine this value else with take the value stocked
-        return (already_exist) ? this->representation[t].at(state) : this->evaluate(state, t).second;
+        return (already_exist or (t>=this->getHorizon()) ) ? this->representation[t].at(state) : this->evaluate(state, t).second;
     }
 
     void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
-        std::cout<<"Update ? "<<std::endl;
         TabularValueFunction::updateValueAt(state, t, target);
 
         if (this->last_prunning == this->freq_prune_)
@@ -113,7 +108,6 @@ namespace sdm
 
     Pair<std::shared_ptr<State>,double> PointSetValueFunction::evaluate(const std::shared_ptr<State>& state_tmp, number t)
     {
-        std::cout<<"Evaluate Start"<<std::endl;
         assert(this->getInitFunction() != nullptr);
         assert(state_tmp->getTypeState() != TypeState::STATE);
 
@@ -137,13 +131,13 @@ namespace sdm
             switch (state->getTypeState())
             {
             case TypeState::BELIEF_STATE :
-                phi = this->ratioBelief(state,point_to_belief_interface,t);
+                phi = this->ratioBelief(state,point_to_belief_interface);
                 break;
             case TypeState::OCCUPANCY_STATE :
-                phi = this->ratioOccupancy(state,point_to_belief_interface,t);
+                phi = this->ratioOccupancy(state,point_to_belief_interface);
                 break;
             case TypeState::SERIAL_OCCUPANCY_STATE :
-                phi = this->ratioOccupancy(state,point_to_belief_interface,t);
+                phi = this->ratioOccupancy(state,point_to_belief_interface);
                 break;
             default:
                 throw sdm::exception::Exception("PointSetValueFunction::evaluate not defined for this state!");
@@ -158,12 +152,10 @@ namespace sdm
                 argmin_ = point_to_belief_interface;
             }
         }
-        std::cout<<"Evaluate End"<<std::endl;
-
         return std::make_pair(argmin_,v_ub_state + min_ext);
     }
 
-    double PointSetValueFunction::ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point, number t)
+    double PointSetValueFunction::ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point)
     {
         // Determine the ratio for the specific case when the state is a belief
         double phi = 1.0;
@@ -180,7 +172,7 @@ namespace sdm
         return phi;
     }
 
-    double PointSetValueFunction::ratioOccupancy(const std::shared_ptr<BeliefInterface>& state_tmp, const std::shared_ptr<BeliefInterface>& point_tmp, number t)
+    double PointSetValueFunction::ratioOccupancy(const std::shared_ptr<BeliefInterface>& state_tmp, const std::shared_ptr<BeliefInterface>& point_tmp)
     {
         // Determine the ratio for the specific case when the state is a Occupancy State
         

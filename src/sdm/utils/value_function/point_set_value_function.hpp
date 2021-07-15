@@ -79,20 +79,18 @@ namespace sdm
         * 
         * @param state :Element to evaluate
         * @param point : Point in the Point Set
-        * @param t : Time Step
         * @return Pair<std::shared_ptr<State>,double> 
         */
-        double ratioOccupancy(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point, number t);
+        double ratioOccupancy(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point);
 
         /**
          * @brief Ratio specialized for the case Beleif (used for the evaluate function)
          * 
          * @param state : Element to evaluate
          * @param point :Point in the Point Set
-         * @param t : Time Step
          * @return Pair<std::shared_ptr<State>,double> 
          */
-        double ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point, number t);
+        double ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point);
 
 
     public:

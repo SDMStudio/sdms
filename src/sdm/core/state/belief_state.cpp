@@ -121,6 +121,17 @@ namespace sdm
     return MappedVector<std::shared_ptr<State>, double>::is_equal(other, Belief::PRECISION);
   }
 
+  double Belief::operator<(const Belief &other) const
+  {
+    return MappedVector<std::shared_ptr<State>, double>::operator<(other);
+  }
+
+  double Belief::operator<(const std::shared_ptr<BeliefInterface> &other) const
+  {
+      return MappedVector<std::shared_ptr<State>, double>::operator<(*std::dynamic_pointer_cast<Belief>(other));
+  }
+
+
   double Belief::norm_1() const
   {
     return MappedVector<std::shared_ptr<State>, double>::norm_1();

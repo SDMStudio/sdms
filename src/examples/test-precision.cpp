@@ -20,11 +20,20 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/parser/parser.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
+
+#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
+#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+
+#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
+#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+
+#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/point_set_value_function.hpp>
+#include <sdm/utils/value_function/hyperplan_value_function.hpp>
 
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
@@ -115,13 +124,18 @@ int main(int argc, char **argv)
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
+        auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
+        auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi_mdp);
+        auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(hsvi_mdp);
+        auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+
         // Instanciate Initializer
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
 
         // Instanciate value functions
-        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+        auto ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
 
         // Instanciate HSVI
         auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
