@@ -120,5 +120,8 @@ namespace sdm
         //
         virtual std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoryVectorFor(number t, number agent) = 0;
         virtual void pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;
+
+        virtual std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t) = 0;
+        virtual void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;
     };
 }

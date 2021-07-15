@@ -8,25 +8,78 @@ namespace sdm
 
     }
 
-    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, int batch_size, bool store_action_spaces)
-        : OccupancyMDP(underlying_dpomdp, memory, batch_size, store_action_spaces)
+    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, int batch_size, bool store_action_spaces, bool use_hierarchical_qvf)
+        : OccupancyMDP(underlying_dpomdp, memory, batch_size, store_action_spaces), use_hierarchical_qvf_(use_hierarchical_qvf)
     {
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> PrivateHierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
-        // std::cout << "step()" << std::endl;
+        // std::cout << "PrivateHierarchicalOccupancyMDP::step()" << std::endl;
         // std::cout << this->step_ << std::endl;
         auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
         // std::cout << "*joint_action " << *joint_action << std::endl;
         auto [observation, rewards, is_done]  = this->getUnderlyingProblem()->step(joint_action);
+        // std::cout << "*observation " << *observation << std::endl;
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
         // std::cout << "occupancy_reward " << occupancy_reward << std::endl;
         std::shared_ptr<Observation> observation_n = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(observation)->at(this->getUnderlyingMDP()->getNumAgents() - 1);
         this->current_state_ = this->nextOccupancyState(this->current_state_, action, observation_n, this->step_);
         this->current_history_ = this->getNextHistory(observation);
         this->step_++;
-        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward, rewards[0]}, is_done);
+        if (!this->use_hierarchical_qvf_)
+            return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward, rewards[0]}, is_done);
+        else
+            return std::make_tuple(std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryPair>(std::make_pair(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory())), std::vector<double>{occupancy_reward, rewards[0]}, is_done);
+    }
+
+    std::shared_ptr<Observation> PrivateHierarchicalOccupancyMDP::reset()
+    {
+        if (!this->use_hierarchical_qvf_)
+            return OccupancyMDP::reset();
+        else
+            return std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryPair>(std::make_pair(OccupancyMDP::reset()->toState()->toOccupancyState(), this->current_history_->toJointHistory()));
+    }
+
+    double PrivateHierarchicalOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
+    {
+        if (!this->use_hierarchical_qvf_)
+        {
+            return OccupancyMDP::getReward(occupancy_state, decision_rule, t);
+        }
+        else
+        {
+            double reward = 0;
+
+            auto joint_labels = occupancy_state->toOccupancyState()->getJointLabels(this->current_history_->toJointHistory()->getIndividualHistories());
+
+            std::shared_ptr<JointHistoryInterface> joint_label = std::make_shared<JointHistoryTree>(joint_labels);
+   
+            for(const auto &jh : occupancy_state->toOccupancyState()->getJointHistories())
+            {
+                if (*std::dynamic_pointer_cast<JointHistoryTree>(jh) == *std::dynamic_pointer_cast<JointHistoryTree>(joint_label))
+                {
+                    joint_label = jh;
+                    break;
+                }
+            }
+      
+
+            for (const auto &belief : occupancy_state->toOccupancyState()->getBeliefsAt(joint_label))
+            {
+                auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_label, decision_rule, t);
+                reward += occupancy_state->toOccupancyState()->getProbability(joint_label, belief) / occupancy_state->toOccupancyState()->getProbabilityOverJointHistory(joint_label) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
+            }
+            return reward;
+        }
+    }
+
+    std::shared_ptr<Space> PrivateHierarchicalOccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
+    {
+        if (!this->use_hierarchical_qvf_)
+            return OccupancyMDP::getActionSpaceAt(ostate, t);
+        else
+            return OccupancyMDP::getActionSpaceAt(std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(ostate)->first->toState(), t);
     }
 
     std::shared_ptr<Space> PrivateHierarchicalOccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
