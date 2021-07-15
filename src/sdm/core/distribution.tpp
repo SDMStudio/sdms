@@ -16,7 +16,7 @@ namespace sdm
         // std::cout << "this->bimap_item_to_index_.size() " << this->bimap_item_to_index_.size() << std::endl;
         // std::cout << "n " << n << std::endl;
         // for (auto it = this->bimap_item_to_index_.begin(); it != this->bimap_item_to_index_.end(); ++it)
-            // std::cout << it->left << " " << it->right << "\n";
+        // std::cout << it->left << " " << it->right << "\n";
         return this->bimap_item_to_index_.right.at(n);
     }
 
@@ -41,6 +41,13 @@ namespace sdm
             else
             {
                 this->probabilities_[this->bimap_item_to_index_.left.at(item)] = proba;
+            }
+        }
+        else
+        {
+            if (this->bimap_item_to_index_.left.find(item) != this->bimap_item_to_index_.left.end())
+            {
+                this->probabilities_[this->bimap_item_to_index_.left.at(item)] = 0.;
             }
         }
     }

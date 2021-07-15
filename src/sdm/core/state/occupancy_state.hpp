@@ -266,7 +266,6 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-
             size_t seed = 0;
             double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
             std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
