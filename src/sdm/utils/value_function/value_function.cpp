@@ -19,30 +19,6 @@ namespace sdm
         return this->getValueAt(state, t);
     }
 
-    // std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> ValueFunction::getQValueAt(const std::shared_ptr<State> &state, number t)
-    // {
-    //     // Compute Q(s,*)
-    //     std::shared_ptr<MappedVector<std::shared_ptr<Action>, double>> q_s = std::make_shared<MappedVector<std::shared_ptr<Action>, double>>();
-    //     for (const auto &action : *this->getWorld()->getActionSpaceAt(state, t))
-    //     {
-    //         auto casted_action = std::static_pointer_cast<Action>(action);
-    //         (*q_s)[casted_action] = this->getQValueAt(state, casted_action, t);
-    //     }
-    //     return q_s;
-    // }
-
-    // double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-    // {
-    //     // implement bellman operator
-    //     return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
-    // }
-
-    // std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
-    // {
-    //     // Get the best action (i.e. the action that maximizes the q value function)
-    //     return this->backup_->getBestAction(this->getptr(), state, t);
-    // }
-
     void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
     {
         this->init_function_ = init_function;
@@ -67,7 +43,7 @@ namespace sdm
 
         return action;
     }
-
+    
     #ifdef LOGTIME
         void ValueFunction::StartTime()
         {

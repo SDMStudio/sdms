@@ -27,13 +27,86 @@ include_directories(${SDMS_INCLUDE_DIRS}
 					)
 	
 # Build libsdm (contains all sdms sources)
-file(
-	GLOB_RECURSE
-	libsdm_srcs
-	${SOURCE_DIR}/*.cpp
-)
-add_library(${LIB_SDMS} SHARED ${libsdm_srcs})
-install(TARGETS ${LIB_SDMS} DESTINATION lib)
+# file(
+# 	GLOB_RECURSE
+# 	libsdm_srcs
+# 	${SOURCE_DIR}/*.cpp
+# )
+# add_library(${LIB_SDMS} SHARED ${libsdm_srcs})
+# install(TARGETS ${LIB_SDMS} DESTINATION lib)
+
+if(GLOBAL)
+	# LIB CORE
+	file(
+		GLOB_RECURSE
+		lib_core
+		${INCLUDE_DIR}/tools.cpp
+		${INCLUDE_DIR}/common.cpp
+		${INCLUDE_DIR}/public/**
+		${INCLUDE_DIR}/utils/struct/**
+		${INCLUDE_DIR}/utils/linear_algebra/**
+		${INCLUDE_DIR}/core/**
+	)
+	add_library(core SHARED ${lib_core})
+
+	file(
+		GLOB_RECURSE
+		lib_value_function
+		${INCLUDE_DIR}/utils/value_function/**
+		${INCLUDE_DIR}/utils/linear_programming/**
+	)
+	add_library(value_function SHARED ${lib_value_function})
+	target_link_libraries(value_function core ${CPLEX_LIBRARIES})
+
+	# LIB WORLD
+	file(
+		GLOB_RECURSE
+		lib_world
+		${INCLUDE_DIR}/world/**
+	)
+	add_library(world SHARED ${lib_world})
+	target_link_libraries(world core)
+
+	# LIB PARSER
+	file(
+		GLOB_RECURSE
+		lib_parser
+		${INCLUDE_DIR}/parser/**
+	)
+	add_library(parser SHARED ${lib_parser})
+	target_link_libraries(parser world)
+
+	# LIB HSVI
+	file(
+		GLOB_RECURSE
+		planning
+		${INCLUDE_DIR}/algorithms/hsvi.cpp
+	)
+	add_library(planning SHARED ${planning})
+	target_link_libraries(planning world core fmt)
+
+
+	# LIB HSVI
+	file(
+		GLOB_RECURSE
+		lib_rl
+		${INCLUDE_DIR}/utils/rl/**
+		${INCLUDE_DIR}/algorithms/q_learning.cpp
+	)
+	add_library(rl SHARED ${lib_rl})
+	target_link_libraries(rl world core fmt)
+
+	# LIB SDMS
+	file(
+		GLOB_RECURSE
+		lib_sdm
+		${INCLUDE_DIR}/algorithms.cpp
+	)
+	add_library(${LIB_SDMS} SHARED ${lib_sdm})
+	target_link_libraries(${LIB_SDMS} value_function parser planning rl)
+
+	install(TARGETS ${LIB_SDMS} DESTINATION lib)
+endif()
 
 ########### BUILD PROGRAMS ###########
 
@@ -41,7 +114,7 @@ install(TARGETS ${LIB_SDMS} DESTINATION lib)
 set(SDMS_PROGRAM_NAME "SDMStudio")
 
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
-target_link_libraries(${SDMS_PROGRAM_NAME} fmt dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${CPLEX_LIBRARIES} ${LIB_SDMS})
+target_link_libraries(${SDMS_PROGRAM_NAME} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${LIB_SDMS})
 
 ########### INSTALL #################
 install(DIRECTORY ${INCLUDE_DIR} DESTINATION include)
@@ -75,4 +148,5 @@ add_subdirectory(algos)
 # 	${SDM_SOURCE_DIR}/sdm/parsing/*.cpp
 # )
 # add_library(sdm_world SHARED ${libsdm_world_srcs})
-# install(TARGETS sdm_world DESTINATION lib)
+# install(TARGETS sdm_world DESTINATION lib)<>
+

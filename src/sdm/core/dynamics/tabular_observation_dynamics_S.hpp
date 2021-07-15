@@ -9,7 +9,6 @@
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 #include <sdm/core/dynamics/tabular_observation_dynamics.hpp>
 
-
 namespace sdm
 {
     //!
@@ -21,7 +20,7 @@ namespace sdm
         TabularObservationDynamicsS();
 
         TabularObservationDynamicsS(const TabularObservationDynamicsS &copy);
-        
+
         virtual ~TabularObservationDynamicsS();
 
         /**
@@ -41,7 +40,7 @@ namespace sdm
          * @param action the action
          * @return the observation matrix
          */
-        const MappedVector<std::shared_ptr<Observation>> &getObservationProbabilities(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
+        const MappedVector<std::shared_ptr<Observation>> &getObservationProbabilities(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
         /**
          * @brief Set the observation probability
@@ -60,7 +59,7 @@ namespace sdm
          * @param next_state 
          * @param observation_probas 
          */
-        void setObservationProbabilities(const std::shared_ptr<State> &state,const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const MappedVector<std::shared_ptr<Observation>> &observation_probas);
+        void setObservationProbabilities(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const MappedVector<std::shared_ptr<Observation>> &observation_probas);
 
         void setObservationModel(const MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>> &o_model);
 
@@ -87,12 +86,18 @@ namespace sdm
          */
         void setReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t = 0);
 
+        std::shared_ptr<Distribution<std::shared_ptr<Observation>>> getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0);
+
     protected:
+        void updateNextObsDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba);
+
         //! \brief transition and observation matrices
         MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Observation>> observation_model_;
-        
+
         //! \brief map from next-state to set of next observations
         std::unordered_map<std::shared_ptr<State>, std::set<std::shared_ptr<Observation>>> successor_observations_;
+        
+        /** @brief map from state, current action pairs to the distribution over next states */
+        std::unordered_map<std::shared_ptr<State>, std::shared_ptr<DiscreteDistribution<std::shared_ptr<Observation>>>> next_observations_distrib_;
     };
 } // namespace sdm
-

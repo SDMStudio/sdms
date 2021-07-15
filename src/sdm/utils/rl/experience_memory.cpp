@@ -1,5 +1,3 @@
-#pragma once
-
 #include <sdm/utils/rl/experience_memory.hpp>
 
 namespace sdm

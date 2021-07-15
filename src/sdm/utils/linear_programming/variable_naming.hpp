@@ -22,21 +22,6 @@ namespace sdm
          */
         std::string getVarNameWeight(number);
 
-        // /**
-        //  * @brief Get the name of a free variable  
-        //  * @param number identifier of a variable 
-        //  * @return std::string  name 
-        //  */
-        // std::string getVarNameWeight(const TVector &);
-
-        // /**
-        //  * @brief Get the name associated with a pair of action and joint history 
-        //  * @param action 
-        //  * @param typename TVector::jhistory_type
-        //  * @return std::string name 
-        //  */
-        // std::string getVarNameJointHistoryDecisionRule(int, const typename TVector::jhistory_type &);
-
         /**
          * @brief Get the name associated with a pair of action and joint history 
          * @param action 
@@ -44,15 +29,6 @@ namespace sdm
          * @return std::string name 
          */
         std::string getVarNameJointHistoryDecisionRule(const std::shared_ptr<Action>&, const std::shared_ptr<JointHistoryInterface>&);
-
-        // /**
-        //  * @brief Get the name associated with a pair of action and individual history 
-        //  * @param action 
-        //  * @param typename TVector::jhistory_type::element_type::ihistory_type
-        //  * @param agent
-        //  * @return std::string name 
-        //  */
-        // std::string getVarNameIndividualHistoryDecisionRule(int, const typename TVector::jhistory_type::element_type::ihistory_type&, const number&);
 
         /**
          * @brief Get the name associated with a pair of action and individual history 
@@ -76,8 +52,6 @@ namespace sdm
          * @return std::string 
          */
         std::string getVarNameWeightedStateJointHistory(const std::shared_ptr<State>&, const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryInterface> &);
-
-        // std::string getVarNameWeightedStateJointHistory(const std::shared_ptr<TVector> &, const typename TVector::state_type &, const typename TVector::jhistory_type &);
 
     protected:
         /**

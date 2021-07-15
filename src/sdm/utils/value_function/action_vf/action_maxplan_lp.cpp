@@ -17,11 +17,13 @@ namespace sdm
         std::shared_ptr<Action> max_decision_rule;
         double max = -std::numeric_limits<double>::max();
 
+        // Go over all hyperplan in the Support
         for (const auto &hyperplan : vf->getSupport(t + 1))
         {
             this->tmp_representation = hyperplan->toBelief();
             auto pair_action_value = this->createLP(vf,state, t);
 
+            // Select the Best Action 
             if (pair_action_value.second > max)
             {
                 max_decision_rule = pair_action_value.first;
@@ -43,6 +45,7 @@ namespace sdm
         VarName = this->getVarNameWeight(0);
         var.add(IloNumVar(env, -IloInfinity, +IloInfinity, VarName.c_str()));
         this->setNumber(VarName, index++);
+
         //<! set decentralized decision rule variables
         this->createDecentralizedVariables(vf,occupancy_state, env, var, index, t);
     }
@@ -55,22 +58,28 @@ namespace sdm
         number recover = 0;
         double weight = 0.0, factor = 0.0;
 
-        // std::cout<<"\n \n New Objective FUnction "<<std::endl;
-
+        // Go over all joint history 
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
+            // Go over all action
             for (const auto &action : *under_pb->getActionSpace(t))
             {
+                // Compute \sum_{x} s(o,x)* discount * [ r(x,o) + \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
                 weight = 0.0;
                 
+                // Go over all hidden state in the belief conditionning to a joint history
                 for(const auto &hidden_state : occupancy_state->getBeliefAt(joint_history)->getStates())
                 {
+                    // Determine the reward for the hidden state and the action
                     factor = under_pb->getReward(hidden_state,action->toAction(),t);
 
+                    // Go over all reachable next hidden state 
                     for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action->toAction(),t))
                     {
+                        // Go over all reachable observation 
                         for(const auto &observation : under_pb->getReachableObservations(hidden_state,action->toAction(),next_hidden_state,t))
                         {
+                            // Determine the next joint history conditionning to the observation
                             auto next_joint_history = joint_history->expand(observation->toObservation())->toJointHistory();
 
                             factor += this->tmp_representation->toOccupancyState()->getProbability(next_joint_history,next_hidden_state) * under_pb->getDynamics(hidden_state,action->toAction(),next_hidden_state,observation,t);
@@ -88,7 +97,7 @@ namespace sdm
         }   // for all o
     }
     
-    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>&state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionVFMaxplanLP::createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>&state, IloEnv &env, IloModel &, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         this->createDecentralizedConstraints(vf,state, env, con, var, index, t);
     }

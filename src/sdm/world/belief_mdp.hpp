@@ -130,9 +130,6 @@ namespace sdm
         /** @brief The probability transition. (i.e. p(o | b, a) */
         RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Observation>, double> transition_probability;
 
-        /** @brief A pointer on the bag containing all actions. */
-        // RecursiveMap<TAction, std::shared_ptr<Action>> action_space_;
-
         /** @brief the MDP Graph (graph of state transition) */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
         

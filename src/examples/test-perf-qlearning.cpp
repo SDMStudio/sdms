@@ -25,42 +25,24 @@
 using namespace sdm;
 using namespace std;
 namespace po = boost::program_options;
-
-int learn(int argv, char **args)
+int main(int argc, char **argv)
 {
     try
     {
         std::string path, formalism, name, qvalue, q_init;
         unsigned long max_steps;
         number horizon, memory, batch_size;
-        double lr, discount, sf, precision, precision2;
+        double lr, discount, sf, belief_precision, ostate_precision, compress_precision;
         int seed;
 
         po::options_description options("Options");
-        options.add_options()
-        ("help", "produce help message")
-        ("test", "test the policy found");
+        options.add_options()("help", "produce help message")("test", "test the policy found");
 
         po::options_description config("Configuration");
-        config.add_options()
-        ("path,p", po::value<string>(&path)->default_value("tiger"), "the path to the problem to be solved")
-        ("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")
-        ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
-        ("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")
-        ("precision,r", po::value<double>(&precision)->default_value(0.0001), "the precision of hierarchical private occupancy states (occupancy states) ")
-        // ("precision2,w", po::value<double>(&precision2)->default_value(0.000001), "the precision of private occupancy states (private occupancy states)")
-        ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
-        ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
-        ("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")
-        ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "batch size, that is K from the paper")
-        ("max_steps,t", po::value<unsigned long>(&max_steps)->default_value(100000), "the maximum number of timesteps")
-        ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
-        ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
+        config.add_options()("path,p", po::value<string>(&path)->default_value("tiger"), "the path to the problem to be solved")("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")("belief_precision", po::value<double>(&belief_precision)->default_value(0.001), "the precision of beliefs")("ostate_precision", po::value<double>(&ostate_precision)->default_value(0.1), "the precision of occupancy states")("compress_precision", po::value<double>(&compress_precision)->default_value(0.1), "the precision of the compression")("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")("batch_size,b", po::value<number>(&batch_size)->default_value(0), "batch size, that is K from the paper")("max_steps,t", po::value<unsigned long>(&max_steps)->default_value(100000), "the maximum number of timesteps")("seed,s", po::value<int>(&seed)->default_value(1), "random seed")("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
-        algo_config.add_options()
-        ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
-        ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
+        algo_config.add_options()("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -71,7 +53,7 @@ int learn(int argv, char **args)
         po::variables_map vm;
         try
         {
-            po::store(po::command_line_parser(argv, args).options(visible).run(), vm);
+            po::store(po::command_line_parser(argc, argv).options(visible).run(), vm);
             po::notify(vm);
             if (vm.count("help"))
             {
@@ -88,9 +70,6 @@ int learn(int argv, char **args)
 
         common::global_urng().seed(seed);
 
-        OccupancyState::PRECISION = precision;
-        PrivateOccupancyState::PRECISION = precision;
-
         auto dpomdp = sdm::parser::parse_file(path);
 
         auto start_distribution = dpomdp->getStartDistribution();
@@ -98,7 +77,7 @@ int learn(int argv, char **args)
         auto state_space = dpomdp->getStateSpace();
         auto action_space = dpomdp->getActionSpace();
         auto observation_space = dpomdp->getObservationSpace(0);
-        auto reward_space = dpomdp->getRewardSpace(); 
+        auto reward_space = dpomdp->getRewardSpace();
 
         auto state_dynamics = dpomdp->getStateDynamics();
         auto observation_dynamics = dpomdp->getObservationDynamics();
@@ -119,36 +98,37 @@ int learn(int argv, char **args)
         else if (formalism == "PrivateHierarchicalOccupancyMDP")
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
 
-        // // Set precision
-        // Belief::PRECISION = 0.001;
-        // OccupancyState::PRECISION = 0.01;
-        // PrivateOccupancyState::PRECISION_COMPRESSION = 0.1;
+        // Set precision
+        Belief::PRECISION = belief_precision;
+        OccupancyState::PRECISION = ostate_precision;
+        PrivateOccupancyState::PRECISION_COMPRESSION = compress_precision;
 
-
+        std::cout << "MEMORY=" << memory << std::endl;
+        std::cout << "Belief::PRECISION=" << Belief::PRECISION << std::endl;
+        std::cout << "OccupancyState::PRECISION=" << OccupancyState::PRECISION << std::endl;
+        std::cout << "PrivateOccupancyState::PRECISION_COMPRESSION=" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
+        // Instanciate the initializer
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
         std::shared_ptr<QValueFunction> q_value_table;
-        if (qvalue == "tabular")
-            q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
-        else if (qvalue == "hierarchical")
-            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, action_space);
+        q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+
+        std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
 
         std::shared_ptr<QValueFunction> target_q_value_table;
-        if (qvalue == "tabular")
-            target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
-        else if (qvalue == "hierarchical")
-            target_q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, action_space);
+        target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
+        // Instanciate exploration process
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
-
+        // Instanciate the memory
         std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
-        std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        std::shared_ptr<QValueBackupInterface> backup;
+        backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
 
         std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
-
         algorithm->do_solve();
 
         std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
@@ -166,7 +146,7 @@ int learn(int argv, char **args)
         std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
-    
+        std::cout << "OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
     }
     catch (std::exception &e)
     {
@@ -175,12 +155,5 @@ int learn(int argv, char **args)
     }
 
     return sdm::SUCCESS;
-}
 
-#ifndef __main_program__
-#define __main_program__
-int main(int argv, char **args)
-{
-    return learn(argv, args);
-}
-#endif
+} // END main

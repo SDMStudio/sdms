@@ -175,7 +175,7 @@ namespace sdm
         void setup();
         void normalize();
 
-        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR;
+        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_HASH;
         static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
 
         std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoryVectorFor(number t, number agent);
@@ -229,6 +229,9 @@ namespace sdm
          */
         RecursiveMap<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> map_joint_history_to_belief_;
 
+        /**
+         * @brief 
+         */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
 
         /**
@@ -271,22 +274,24 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
+            clock_t t_begin = clock();
 
             size_t seed = 0;
-            // double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
-            // std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
-            // std::vector<int> rounded;
-            // for (const auto &pair_jhist_proba : ordered)
-            // {
-            //     sdm::hash_combine(seed, pair_jhist_proba.first);
-            //     // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
-            //     rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
-            // }
-            // for (const auto &v : rounded)
-            // {
-            //     //Combine the hash of the current vector with the hashes of the previous ones
-            //     sdm::hash_combine(seed, v);
-            // }
+            double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
+            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
+            std::vector<int> rounded;
+            for (const auto &pair_jhist_proba : ordered)
+            {
+                sdm::hash_combine(seed, pair_jhist_proba.first);
+                // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
+                rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
+            }
+            for (const auto &v : rounded)
+            {
+                //Combine the hash of the current vector with the hashes of the previous ones
+                sdm::hash_combine(seed, v);
+            }
+            sdm::OccupancyState::TIME_IN_HASH += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
             return seed;
             // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }

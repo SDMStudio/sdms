@@ -64,29 +64,29 @@ int learn(int argv, char **args)
             return sdm::ERROR_IN_COMMAND_LINE;
         }
 
-        std::vector<std::string> av_algos = sdm::algo::available();
-        if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
-        {
-            auto algo = sdm::algo::make(algorithm, problem, formalism, qvalue, q_init, horizon, discount, lr,  1, nb_timesteps, name);
-            algo->do_initialize();
-            algo->do_solve();
+        // std::vector<std::string> av_algos = sdm::algo::available();
+        // if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
+        // {
+        //     auto algo = sdm::algo::make(algorithm, problem, formalism, qvalue, q_init, horizon, discount, lr,  1, nb_timesteps, name);
+        //     algo->do_initialize();
+        //     algo->do_solve();
 
-            if (vm.count("test"))
-            {
-                algo->do_test();
-            }
-        }
-        else
-        {
-            std::cout << "Error: " << algorithm << " is not a valid algorithm." << std::endl
-                      << std::endl;
-            std::cout << "#> Available algorithms are : " << std::endl;
-            std::cout << "ALGORITHM\t" << std::endl;
-            for (auto algo : sdm::algo::available())
-            {
-                std::cout << algo << std::endl;
-            }
-        }
+        //     if (vm.count("test"))
+        //     {
+        //         algo->do_test();
+        //     }
+        // }
+        // else
+        // {
+        //     std::cout << "Error: " << algorithm << " is not a valid algorithm." << std::endl
+        //               << std::endl;
+        //     std::cout << "#> Available algorithms are : " << std::endl;
+        //     std::cout << "ALGORITHM\t" << std::endl;
+        //     for (auto algo : sdm::algo::available())
+        //     {
+        //         std::cout << algo << std::endl;
+        //     }
+        // }
     }
     catch (std::exception &e)
     {

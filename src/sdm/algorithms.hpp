@@ -29,10 +29,9 @@ namespace sdm
                                             int trials = 1000,
                                             std::string name = "",
                                             double time_max = 2000,
-                                            std::string current_type_of_resolution = "BigM" ,
+                                            std::string current_type_of_resolution = "BigM",
                                             number BigM = 100,
                                             std::string type_sawtooth_linear_programming = "Full");
-
 
         /**
          * @brief Build the ValueIteration version. 
@@ -49,7 +48,6 @@ namespace sdm
         //                                                         double discount,
         //                                                         double error,
         //                                                         number horizon);
-
 
         /**
          * @brief Build an algorithm given his name and the configurations required. 
@@ -91,22 +89,18 @@ namespace sdm
         //                                                                 double batch_size = 1,
         //                                                                 unsigned long num_max_steps = 100000,
         //                                                                 std::string name = "qlearning")
+
+        /**
+         * @brief Get all available algorithms.
+         * 
+         * @return the list of available algorithms.
+         */
+        std::vector<std::string> available()
+        {
+            return {"hsvi", "qlearning"};
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // #include <random>
 
@@ -141,8 +135,8 @@ namespace sdm
 //     namespace algo
 //     {
 //         /**
-//          * @brief Build the HSVI version that use TabularValueFunction Representation. 
-//          * 
+//          * @brief Build the HSVI version that use TabularValueFunction Representation.
+//          *
 //          * @tparam TState Type of the state.
 //          * @tparam TAction Type of the action.
 //          * @param problem the problem to be solved
@@ -220,8 +214,8 @@ namespace sdm
 //         }
 
 //         // /**
-//         //  * @brief Build the ValueIteration version. 
-//         //  * 
+//         //  * @brief Build the ValueIteration version.
+//         //  *
 //         //  * @tparam TState Type of the state.
 //         //  * @tparam TAction Type of the action.
 //         //  * @param problem the problem to be solved
@@ -245,16 +239,16 @@ namespace sdm
 //         // }
 
 //         /**
-//          * @brief Build an algorithm given his name and the configurations required. 
-//          * 
+//          * @brief Build an algorithm given his name and the configurations required.
+//          *
 //          * @tparam TState Type of the state.
 //          * @tparam TAction Type of the action.
-//          * @param algo_name the name of the algorithm to be built* 
+//          * @param algo_name the name of the algorithm to be built*
 //          * @param problem the problem to be solved
 //          * @param discount the discount factor
 //          * @param error the accuracy
 //          * @param horizon the planning horizon
-//          * @param trials the maximum number of trials 
+//          * @param trials the maximum number of trials
 //          * @return auto pointer on algorithm instance
 //          */
 //         std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount = 0.99, double error = 0.001, number horizon = 0, int trials = 1000, int truncation = -1, std::string name = "", std::string current_type_of_resolution = "BigM", number BigM = 100, std::string type_sawtooth_linear_programming = "Full")
@@ -267,7 +261,6 @@ namespace sdm
 //             //     {
 //             //         // Attention, il faut créer un autre constructeur pour que le problème créer le MDP Interface avec seulement le problem path ?
 //             //         auto base_mdp  = std::make_shared<BaseMDP>();
-
 
 //             //         auto mdp = std::make_shared<MDP>(problem_path);
 //             //         p_algo = makeHSVI(mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name, current_type_of_resolution, BigM, type_sawtooth_linear_programming);
@@ -358,16 +351,16 @@ namespace sdm
 //         // }
 
 //         // /**
-//         //  * @brief Build an algorithm given his name and the configurations required. 
-//         //  * 
+//         //  * @brief Build an algorithm given his name and the configurations required.
+//         //  *
 //         //  * @tparam TState Type of the state.
 //         //  * @tparam TAction Type of the action.
-//         //  * @param algo_name the name of the algorithm to be built* 
+//         //  * @param algo_name the name of the algorithm to be built*
 //         //  * @param problem the problem to be solved
 //         //  * @param discount the discount factor
 //         //  * @param error the accuracy
 //         //  * @param horizon the planning horizon
-//         //  * @param trials the maximum number of trials 
+//         //  * @param trials the maximum number of trials
 //         //  * @return auto pointer on algorithm instance
 //         //  */
 //         // std::shared_ptr<Algorithm> make(std::string algo_name,
@@ -449,16 +442,6 @@ namespace sdm
 
 //         //     return p_algo;
 //         // }
-
-//         /**
-//          * @brief Get all available algorithms.
-//          * 
-//          * @return the list of available algorithms.
-//          */
-//         std::vector<std::string> available()
-//         {
-//             return {"hsvi", "qlearning"};
-//         }
 
 //     } // namespace algo
 // } // namespace sdm

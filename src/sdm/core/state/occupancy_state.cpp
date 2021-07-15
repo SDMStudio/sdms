@@ -7,7 +7,7 @@
 namespace sdm
 {
     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
-    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0;
+    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0, OccupancyState::TIME_IN_HASH = 0;
     unsigned long OccupancyState::PASSAGE_GET_PROBA = 0, OccupancyState::PASSAGE_SET_PROBA = 0, OccupancyState::PASSAGE_FINALIZE = 0;
 
     OccupancyState::OccupancyState() : OccupancyState(2)
@@ -111,59 +111,45 @@ namespace sdm
 
     Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> OccupancyState::sampleJointHistoryBelief()
     {
-        auto distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<JointHistoryInterface>>>();
-        for (auto const joint_history : this->getJointHistories())
-        {
-            distribution->setProbability(joint_history, this->getProbability(joint_history));
-        }
-        auto sampled_joint_history = distribution->sample();
+        auto sampled_joint_history = this->distribution_->sample()->toHistory()->toJointHistory();
         return std::make_pair(sampled_joint_history, this->getBeliefAt(sampled_joint_history));
     }
 
     bool OccupancyState::operator==(const OccupancyState &other) const
     {
         clock_t t_begin = clock();
-        // std::cout << "Start Equality " << std::endl;
-        // std::cout << "this=" << *this << std::endl;
-        // std::cout << "other=" << other << std::endl;
-        // std::cout << "E1" << std::endl;
         if (this->size() != other.size())
         {
             OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
             return false;
         }
-        // std::cout << "E2" << std::endl;
         if (std::abs(this->getDefault() - other.getDefault()) > PRECISION)
         {
             OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
             return false;
         }
 
-        // std::cout << "E3" << std::endl;
         // For all points in the support
         for (const auto &jhistory : this->getJointHistories())
         {
             // For all states in the corresponding belief
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
-                // std::cout << "E4" << std::endl;
                 // Does the corresponding probabilities are equals ?
                 if (std::abs(this->getProbability(jhistory, state) - other.getProbability(jhistory, state)) > OccupancyState::PRECISION)
                 {
-                    // std::cout << "E5" << std::endl;
                     OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
                     return false;
                 }
             }
         }
-        // std::cout << "E6" << std::endl;
         OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return true;
     }
 
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        // Does the size are equal ?
+        // Check size equality
         if (this->size() != other->size())
         {
             return false;
@@ -255,7 +241,6 @@ namespace sdm
                 {
                     this->all_list_ihistories_.push_back({});
                 }
-
                 this->all_list_ihistories_[i].insert(ihists[i]);
             }
             first_passage = false;

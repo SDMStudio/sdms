@@ -9,7 +9,7 @@ file(
 foreach(f ${usage_examples})
   get_filename_component(exampleName ${f} NAME_WE) 
   add_executable (${exampleName} ${f}) 
-  target_link_libraries(${exampleName} fmt dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${CPLEX_LIBRARIES} ${LIB_SDMS})
+  target_link_libraries(${exampleName} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${LIB_SDMS})
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${exampleName}
     DESTINATION bin/
     RENAME "sdms-${exampleName}")
@@ -24,11 +24,7 @@ file(
 	${INCLUDE_DIR}/algorithms/hsvi.cpp
 	${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 	${INCLUDE_DIR}/world/belief_mdp.cpp
-	${INCLUDE_DIR}/utils/value_function/value_function.cpp
-	${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
-	${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
-	${INCLUDE_DIR}/utils/value_function/initializer/**
-	${INCLUDE_DIR}/utils/value_function/backup/**
+	${INCLUDE_DIR}/utils/value_function/**
 
 	${INCLUDE_DIR}/world/mdp.cpp
 	${INCLUDE_DIR}/world/mmdp.cpp
@@ -37,6 +33,8 @@ file(
 	${INCLUDE_DIR}/world/pomdp.cpp
 	${INCLUDE_DIR}/parser/**
 	${INCLUDE_DIR}/world/serialized_mpomdp.cpp
+	${INCLUDE_DIR}/world/occupancy_mdp.cpp
+
 
 	${INCLUDE_DIR}/core/*
 	${INCLUDE_DIR}/utils/struct/iterator/*

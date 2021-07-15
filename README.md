@@ -102,7 +102,7 @@ make install
 ```
 
 > :warning: 
-> **Default path to ILOG CPLEX is `/opt/ibm/ILOG/CPLEX_Studio_Community201/`**. Use `cmake .. -DCPLEX_ROOT_DIR=/path/to/your/ILOG/CPLEX/` to specify the installation directory on your machine.
+> **Default path to ILOG CPLEX is `/opt/ibm/ILOG/CPLEX_Studio201/`**. Use `cmake .. -DCPLEX_ROOT_DIR=/path/to/your/ILOG/CPLEX/` to specify the installation directory on your machine.
 
 ## 2.3 Docker Image
 

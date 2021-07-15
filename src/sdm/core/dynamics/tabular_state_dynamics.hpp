@@ -70,16 +70,29 @@ namespace sdm
      * @param  next_state A specific state (the state at timestep t+1)
      * @param t Timestep t 
      */
-    void setReachablesStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,const std::shared_ptr<State> &next_state, number t = 0);
+    void setReachablesStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0);
 
+    /**
+     * @brief Get the distribution over next state (given current state and action)
+     * 
+     * @param state the current state
+     * @param action the action
+     * @param t the timestep
+     * @return std::shared_ptr<Distribution<std::shared_ptr<State>>> 
+     */
     std::shared_ptr<Distribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
   protected:
+    void updateNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, double proba);
+
     /** @brief transition and observation matrices */
     std::unordered_map<std::shared_ptr<Action>, matrix_type> t_model;
 
     /** @brief map from state, action pairs to set of next states */
     std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, std::set<std::shared_ptr<State>>>> successor_states;
+
+    /** @brief map from state, action pairs to the distribution over next states */
+    std::unordered_map<std::shared_ptr<State>, std::unordered_map<std::shared_ptr<Action>, std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>>>> next_states_distrib;
   };
 
 } // namespace sdm

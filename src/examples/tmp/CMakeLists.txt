@@ -26,19 +26,9 @@ if(DAVID)
 		lib_value_function
 		${INCLUDE_DIR}/utils/value_function/**
 		${INCLUDE_DIR}/utils/linear_programming/**
-		# ${INCLUDE_DIR}/utils/value_function/initializer/**
-		# ${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
-		# ${INCLUDE_DIR}/utils/value_function/value_function.cpp
-		# ${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
-		# ${INCLUDE_DIR}/utils/value_function/point_set_value_function.cpp
-		# ${INCLUDE_DIR}/utils/value_function/hyperplan_value_function.cpp
-		# ${INCLUDE_DIR}/utils/value_function/backup/**
-		# ${INCLUDE_DIR}/utils/value_function/evaluate_vf/**
-		# ${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
-		# ${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
 	)
 	add_library(value_function SHARED ${lib_value_function})
-	target_link_libraries(value_function core)
+	target_link_libraries(value_function core ${CPLEX_LIBRARIES})
 
 	# LIB WORLD
 	file(
@@ -71,6 +61,15 @@ if(DAVID)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world core fmt)
 
+	# LIB SDMS
+	file(
+		GLOB_RECURSE
+		lib_sdm
+		${INCLUDE_DIR}/algorithms.cpp
+	)
+	add_library(sdm SHARED ${lib_sdm})
+	target_link_libraries(sdm value_function parser hsvi)
+
 	include_directories(${SDMS_INCLUDE_DIRS})
 
 	add_executable(quicktest_david quicktest_david.cpp)
@@ -78,10 +77,7 @@ if(DAVID)
 		dl
 		${Boost_LIBRARIES}
 		${TORCH_LIBRARIES}
-		${CPLEX_LIBRARIES}
-		value_function
-		parser
-		hsvi
+		sdm
 	)
 endif()
 

@@ -117,6 +117,10 @@ namespace sdm
         }
         //
         this->getUnderlyingProblem()->setInternalState(true_state);
+
+        // Finalize belief
+        next_belief->toBelief()->finalize();
+        
         // Return next belief.
         return std::make_pair(next_belief, nullptr);
     }
@@ -173,11 +177,12 @@ namespace sdm
         else
         {
             // Return next belief without storing its value in the graph
-            // **WARNING** : The returned action will be different even for similar states.
             auto [computed_next_belief, proba_belief] = this->computeNextStateAndProbability(belief, action, observation, t);
-            return computed_next_belief;
+
+            // Cast the belief
+            TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
+            return (this->state_space_.find(b) != this->state_space_.end()) ? this->state_space_.at(b): computed_next_belief;
         }
-        // std::cout << "End Next Belief" << std::endl;
     }
 
     template <class TBelief>
