@@ -115,22 +115,6 @@ namespace sdm
 
     std::shared_ptr<Space> OccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
-        switch (ostate->getTypeState())
-        {
-        case TypeState::OCCUPANCY_STATE:
-            return this->computeActionSpaceAtOccupancy(ostate, t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE:
-            return this->computeActionSpaceAtSerial(ostate, t);
-            break;
-        default:
-            throw sdm::exception::Exception("OccupancyMDP::computeActionSpaceAt error, the state doesn't use a formalism acceptable!");
-            break;
-        }
-    }
-
-    std::shared_ptr<Space> OccupancyMDP::computeActionSpaceAtOccupancy(const std::shared_ptr<State> &ostate, number t)
-    {
         // Vector of individual deterministic decision rules of each agent.
         std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
         // For each agent from 0 to N-1:
@@ -156,21 +140,6 @@ namespace sdm
         return joint_ddr_space;
     }
 
-    std::shared_ptr<Space> OccupancyMDP::computeActionSpaceAtSerial(const std::shared_ptr<State> &ostate, number t)
-    {
-        // number ag_id = ostate->toSerialOccupancyState()->getCurrentAgentId();
-
-        // // Get individual histories of agent i.
-        // std::set<std::shared_ptr<HistoryInterface>> individual_histories = ostate->toOccupancyState()->getIndividualHistories(agent);
-        // // Get individual history space of agent i.
-        // std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
-        // // Get action space of agent i.
-        // std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent);
-        // // Get individual ddr of agent i.
-        // std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_actions_);
-        // // Add it to the corresponding vector.
-        // individual_ddr_spaces.push_back(individual_ddr_space);
-    }
 
     Pair<std::shared_ptr<State>, double> OccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {

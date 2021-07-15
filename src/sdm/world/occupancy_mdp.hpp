@@ -111,7 +111,5 @@ namespace sdm
                 std::shared_ptr<HistoryInterface> getNextHistory(const std::shared_ptr<Observation> &observation);
 
                 virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
-                std::shared_ptr<Space> computeActionSpaceAtOccupancy(const std::shared_ptr<State> &occupancy_state, number t = 0);
-                std::shared_ptr<Space> computeActionSpaceAtSerial(const std::shared_ptr<State> &occupancy_state, number t = 0);
         };
 } // namespace sdm
