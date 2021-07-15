@@ -48,6 +48,9 @@ namespace sdm
         // Initialize Transition Graph
         this->mdp_graph_ = std::make_shared<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>>();
         this->mdp_graph_->addNode(this->initial_state_);
+
+        this->reward_graph_ = std::make_shared<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>>();
+        this->reward_graph_->addNode(0.0);
     }
 
     std::shared_ptr<Observation> OccupancyMDP::reset()
@@ -86,10 +89,10 @@ namespace sdm
         clock_t t_begin = clock();
 
         // If the action space corresponding to this ostate and t does not exist:
-        if (ostate->toOccupancyState()->getActionSpaceAt(t) == nullptr)
+        if (ostate->toOccupancyState()->getActionSpaceAt(0) == nullptr)
         {
             // Compute the action space at this occupancy state and timestep
-            std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, t);
+            std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, 0);
 
             // If we don't store action spaces
             if (!this->store_actions_)
@@ -99,13 +102,13 @@ namespace sdm
             else
             {
                 // Store the action space for state o
-                ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
+                ostate->toOccupancyState()->setActionSpaceAt(0, joint_ddr_space);
             }
         }
 
         OccupancyMDP::TIME_IN_GET_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         // Return the action space corresponding to this ostate and t.
-        return ostate->toOccupancyState()->getActionSpaceAt(t);
+        return ostate->toOccupancyState()->getActionSpaceAt(0);
     }
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
@@ -399,18 +402,29 @@ namespace sdm
 
     double OccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
-        double reward = 0;
-        // For all histories in the occupancy state
-        for (const auto &joint_history : occupancy_state->toOccupancyState()->getJointHistories())
+        auto state_action = std::make_pair(occupancy_state, decision_rule);
+        auto successor = this->reward_graph_->getNode(0.0)->getSuccessor(state_action);
+        if (successor != nullptr)
         {
-            // Get the belief corresponding to this history
-            auto belief = occupancy_state->toOccupancyState()->getBeliefAt(joint_history);
-            // Get the action from decision rule
-            auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
-            // Update the expected reward
-            reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
+            // Return the successor node
+            return successor->getData();
         }
-        return reward;
+        else
+        {
+            double reward = 0;
+            // For all histories in the occupancy state
+            for (const auto &joint_history : occupancy_state->toOccupancyState()->getJointHistories())
+            {
+                // Get the belief corresponding to this history
+                auto belief = occupancy_state->toOccupancyState()->getBeliefAt(joint_history);
+                // Get the action from decision rule
+                auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), joint_history, decision_rule, t);
+                // Update the expected reward
+                reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
+            }
+            this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
+            return reward;
+        }
     }
 
     double OccupancyMDP::getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t)

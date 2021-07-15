@@ -132,6 +132,8 @@ namespace sdm
 
         /** @brief the MDP Graph (graph of state transition) */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
+
+        std::shared_ptr<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>> reward_graph_;
         
         /**
          * @brief Compute the state transition in order to return next state and associated probability.

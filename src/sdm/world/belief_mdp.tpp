@@ -39,6 +39,9 @@ namespace sdm
         this->initial_state_ = initial_state;
         this->mdp_graph_ = std::make_shared<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>>();
         this->mdp_graph_->addNode(this->initial_state_);
+        
+        this->reward_graph_ = std::make_shared<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>>();
+        this->reward_graph_->addNode(0.0);
     }
 
     template <class TBelief>
@@ -208,13 +211,24 @@ namespace sdm
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
     {
-        // Compute reward : \sum_{s} b(s)r(s,a)
-        double reward = 0;
-        for (const auto &state : belief->toBelief()->getStates())
+        auto state_action = std::make_pair(belief, action);
+        auto successor = this->reward_graph_->getNode(0.0)->getSuccessor(state_action);
+        if (successor != nullptr)
         {
-            reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
+            // Return the successor node
+            return successor->getData();
         }
-        return reward;
+        else
+        {
+            // Compute reward : \sum_{s} b(s)r(s,a)
+            double reward = 0;
+            for (const auto &state : belief->toBelief()->getStates())
+            {
+                reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
+            }
+            this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
+            return reward;
+        }
     }
 
     template <class TBelief>
