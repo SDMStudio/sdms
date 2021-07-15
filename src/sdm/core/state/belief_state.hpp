@@ -82,6 +82,9 @@ namespace sdm
     {
       archive &boost::serialization::base_object<MappedVector<std::shared_ptr<State>, double>>(*this);
     }
+
+  protected:
+    std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>> distribution_;
   };
 } // namespace sdm
 

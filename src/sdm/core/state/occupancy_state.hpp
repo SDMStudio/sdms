@@ -178,11 +178,14 @@ namespace sdm
         void setup();
         void normalize();
 
-        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR;
+        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_HASH;
         static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
 
         std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoryVectorFor(number t, number agent);
         void pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history);
+
+        std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t);
+        void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history);
     protected:
         /**
          * @brief the number of agents 
@@ -229,6 +232,9 @@ namespace sdm
          */
         RecursiveMap<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> map_joint_history_to_belief_;
 
+        /**
+         * @brief 
+         */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
 
         /**
@@ -255,6 +261,8 @@ namespace sdm
         std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
         // necessary for now for phoMDP
         std::vector<std::shared_ptr<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>> individual_hierarchical_history_vector_map_vector;
+        //
+        std::shared_ptr<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>> joint_history_map_vector;
         
     };
 } // namespace sdm
@@ -269,6 +277,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
+            clock_t t_begin = clock();
 
             size_t seed = 0;
             double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
@@ -285,6 +294,7 @@ namespace std
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
+            sdm::OccupancyState::TIME_IN_HASH += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
             return seed;
             // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }

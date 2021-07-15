@@ -21,6 +21,11 @@ namespace sdm
 
     void TabularStateDynamics::updateNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, double proba)
     {
+        // If the state is the map of state to next state distributions, we initialize this
+        if (this->next_states_distrib.find(state) == this->next_states_distrib.end())
+        {
+            this->next_states_distrib.emplace(state, std::unordered_map<std::shared_ptr<Action>, std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>>>());
+        }
         // If the distribution does not already exists
         if (this->next_states_distrib[state].find(action) == this->next_states_distrib[state].end())
         {
@@ -31,21 +36,7 @@ namespace sdm
 
     void TabularStateDynamics::setTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, double prob, number, bool cumul)
     {
-        // If the state is the map of state to next state distributions, we initialize this
-        if (this->next_states_distrib.find(state) == this->next_states_distrib.end())
-        {
-            this->next_states_distrib.emplace(state, std::unordered_map<std::shared_ptr<Action>, std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>>>());
-        }
-        // If the proba is equal to zero, erase corresponding next state in the successor list
-        if (prob <= 0)
-        {
-            this->successor_states[state][action].erase(next_state);
-            this->next_states_distrib[state].emplace(action, std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>());
-            this->t_model[action].setValueAt(state, next_state, prob);
-        }
-        else
-        {
-            // Else update the transition probability
+            // Set reachable state
             this->setReachablesStates(state, action, next_state);
             if (cumul)
             {
@@ -58,7 +49,6 @@ namespace sdm
                 this->t_model[action].setValueAt(state, next_state, prob);
                 this->updateNextStateDistribution(state, action, next_state, prob);
             }
-        }
     }
 
     double TabularStateDynamics::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number) const
@@ -90,13 +80,13 @@ namespace sdm
         // return {};
     }
 
-    std::shared_ptr<Distribution<std::shared_ptr<State>>> TabularStateDynamics::getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number) const
+    std::shared_ptr<Distribution<std::shared_ptr<State>>> TabularStateDynamics::getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
         return this->next_states_distrib.at(state).at(action);
         // auto next_state_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         // for (const auto &reachable_state : this->getReachableStates(state, action, t))
         // {
-        //     next_state_distribution->setProbability(reachable_state, this->getTransitionProbability(state, action, reachable_state, t));
+            // next_state_distribution->setProbability(reachable_state, this->getTransitionProbability(state, action, reachable_state, t));
         // }
         // return next_state_distribution;
     }

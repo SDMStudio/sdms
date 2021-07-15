@@ -30,12 +30,13 @@ namespace sdm
     }
   }
 
-  Belief::Belief(const Belief &v) : MappedVector<std::shared_ptr<State>>(v)
+  Belief::Belief(const Belief &v) : MappedVector<std::shared_ptr<State>>(v), distribution_(v.distribution_)
   {
   }
 
   Belief::Belief(const MappedVector<std::shared_ptr<State>> &v) : MappedVector<std::shared_ptr<State>>(v)
   {
+    this->finalize();
   }
 
   Belief::~Belief()
@@ -64,12 +65,7 @@ namespace sdm
 
   std::shared_ptr<State> Belief::sampleState()
   {
-    auto distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
-    for (auto const state : this->getStates())
-    {
-      distribution->setProbability(state, this->getProbability(state));
-    }
-    return distribution->sample();
+    return this->distribution_->sample();
   }
 
   void Belief::normalizeBelief(double norm_1)
@@ -160,6 +156,11 @@ namespace sdm
   void Belief::finalize()
   {
     MappedVector<std::shared_ptr<State>>::finalize();
+    this->distribution_ = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
+    for (const auto &state : this->getStates())
+    {
+      this->distribution_->setProbability(state, this->getProbability(state));
+    }
   }
 
   std::string Belief::str() const

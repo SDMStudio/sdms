@@ -7,7 +7,7 @@
 namespace sdm
 {
     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
-    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0;
+    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0, OccupancyState::TIME_IN_HASH = 0;
     unsigned long OccupancyState::PASSAGE_GET_PROBA = 0, OccupancyState::PASSAGE_SET_PROBA = 0, OccupancyState::PASSAGE_FINALIZE = 0;
 
     OccupancyState::OccupancyState() : OccupancyState(2)
@@ -25,6 +25,7 @@ namespace sdm
             //
             this->individual_hierarchical_history_vector_map_vector.push_back(std::make_shared<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>());
         }
+        this->joint_history_map_vector = std::make_shared<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>();
     }
 
     OccupancyState::OccupancyState(const OccupancyState &occupancy_state)
@@ -72,7 +73,7 @@ namespace sdm
     void OccupancyState::setProbability(const std::shared_ptr<State> &joint_history, double proba)
     {
         Belief::setProbability(joint_history, proba);
-        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
+        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -91,7 +92,7 @@ namespace sdm
         // Add the probability of being in a joint history
         this->setProbability(joint_history, this->getProbability(joint_history) + proba);
 
-        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
+        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -110,12 +111,7 @@ namespace sdm
 
     Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> OccupancyState::sampleJointHistoryBelief()
     {
-        auto distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<JointHistoryInterface>>>();
-        for (auto const joint_history : this->getJointHistories())
-        {
-            distribution->setProbability(joint_history, this->getProbability(joint_history));
-        }
-        auto sampled_joint_history = distribution->sample();
+        auto sampled_joint_history = this->distribution_->sample()->toHistory()->toJointHistory();
         return std::make_pair(sampled_joint_history, this->getBeliefAt(sampled_joint_history));
     }
 
@@ -644,7 +640,7 @@ namespace sdm
     }
 
     // #############################################
-    // ######### ............ ######################
+    // ######### PHOS ##############################
     // #############################################
 
     std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getIndividualHierarchicalHistoryVectorFor(number t, number agent)
@@ -659,6 +655,20 @@ namespace sdm
             this->individual_hierarchical_history_vector_map_vector[agent]->emplace(t, std::vector<std::shared_ptr<JointHistoryInterface>>{});
         }
         this->individual_hierarchical_history_vector_map_vector[agent]->at(t).push_back(individual_hierarchical_history);
+    }
+
+    std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getJointHistoryVector(number t)
+    {
+        return this->joint_history_map_vector->at(t);
+    }
+
+    void OccupancyState::pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history)
+    {
+        if (this->joint_history_map_vector->find(t) == this->joint_history_map_vector->end())
+        {
+            this->joint_history_map_vector->emplace(t, std::vector<std::shared_ptr<JointHistoryInterface>>{});
+        }
+        this->joint_history_map_vector->at(t).push_back(individual_hierarchical_history);
     }
 
 } // namespace sdm

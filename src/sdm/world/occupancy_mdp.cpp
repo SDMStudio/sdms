@@ -225,7 +225,7 @@ namespace sdm
 
         auto occupancy_state = ostate->toOccupancyState();
         auto decision_rule = action->toDecisionRule();
-        
+
         OccupancyMDP::PASSAGE_IN_NEXT_STATE++;
         OccupancyMDP::MEAN_SIZE_STATE += occupancy_state->getFullyUncompressedOccupancy()->getStates().size();
 
@@ -285,6 +285,7 @@ namespace sdm
     {
         // The new fully uncompressed occupancy state
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
+
         // The new one step left occupancy state
         std::shared_ptr<OccupancyStateInterface> one_step_left_compressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
 
@@ -367,6 +368,7 @@ namespace sdm
                     next_belief->setProbability(next_state, next_state_count / next_joint_history_count);
                 }
             }
+            next_belief->finalize();
             belief_graph->addNode(next_belief);
             fully_uncompressed_next_occupancy_state->addProbability(next_joint_history->toJointHistory(), next_belief, next_joint_history_count / this->batch_size_);
             auto joint_history_ = next_joint_history->getPreviousHistory();

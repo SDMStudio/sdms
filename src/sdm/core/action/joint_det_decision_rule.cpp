@@ -32,39 +32,17 @@ namespace sdm
 
     std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::shared_ptr<State> &joint_state) const
     {
-        // std::cout << "JointDeterministicDecisionRule::act()" << std::endl;
-        // assert(this->size() == joint_state.size());
         std::shared_ptr<Joint<std::shared_ptr<Action>>> joint_action = std::make_shared<Joint<std::shared_ptr<Action>>>();
         // List of states
         auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
-        // std::cout << "*joint_state" << std::endl;
-        // std::cout << *joint_state << std::endl;
-        // std::cout << "*joint_state_" << std::endl;
-        // std::cout << *joint_state_ << std::endl;
-        // std::cout << "*joint_action" << std::endl;
-        // std::cout << *joint_action << std::endl;
 
         for (number agent = 0; agent < joint_state_->size(); agent++)
         {
-            // std::cout << "agent " << agent << std::endl;
             auto individual_decision_rule = this->get(agent);
-            // std::cout << "*individual_decision_rule" << std::endl;
-            // std::cout << *individual_decision_rule << std::endl;
             auto individual_state = joint_state_->get(agent);
-            // std::cout << "*individual_state" << std::endl;
-            // std::cout << *individual_state << std::endl;
-            // std::cout << "*individual_state->get(0)" << std::endl;
-            // std::cout << *std::dynamic_pointer_cast<JointHistoryTree>(individual_state)->get(0) << std::endl;
             auto individual_action = individual_decision_rule->act(individual_state);
-            // std::cout << "*individual_action" << std::endl;
-            // std::cout << *individual_action << std::endl;
-            // std::cout << "*individual_action->toAction()" << std::endl;
-            // std::cout << *individual_action->toAction() << std::endl;
             joint_action->push_back(individual_action->toAction());
-            // std::cout << "*joint_action" << std::endl;
-            // std::cout << *joint_action << std::endl;
         }
-        // std::cout << "END JointDeterministicDecisionRule::act()" << std::endl;
         return joint_action;
     }
 

@@ -36,6 +36,7 @@ namespace sdm
     {
       this->setReachableObservations(state,action,next_state,observation);
       this->observation_model_.setValueAt(next_state, observation, proba);
+      this->updateNextObsDistribution(state,action,next_state, observation, proba);
     }
   }
 
@@ -60,6 +61,22 @@ namespace sdm
     this->successor_observations_[next_state].insert(observation);
   }
 
+
+  void TabularObservationDynamicsS::updateNextObsDistribution(const std::shared_ptr<State> &, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba)
+  {
+    // If the distribution does not already exists
+    if (this->next_observations_distrib_.find(next_state) == this->next_observations_distrib_.end())
+    {
+      this->next_observations_distrib_.emplace(next_state, std::make_shared<DiscreteDistribution<std::shared_ptr<Observation>>>());
+    }
+    this->next_observations_distrib_[next_state]->setProbability(observation, proba);
+  }
+
+
+    std::shared_ptr<Distribution<std::shared_ptr<Observation>>> TabularObservationDynamicsS::getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number)
+    {
+        return this->next_observations_distrib_.at(next_state);
+    }
   /* ################################### */
   /* ### DYNAMICS -- P(O, S' | S, A) ### */
   /* ################################### */
