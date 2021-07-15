@@ -76,7 +76,7 @@ namespace sdm
             {
                 acc_states_b2.push_back(std::make_pair(individual_hierarchical_history, lower_ranked_agents_joint_action));
                 std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> q_values_agent_2 = std::make_shared<MappedVector<std::shared_ptr<Action>, double>>();
-                for (const auto &u2 : std::static_pointer_cast<MultiDiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(this->action_space_)->get(1))->getAll())
+                for (const auto &u2 : *std::static_pointer_cast<MultiDiscreteSpace>(this->action_space_)->get(1))
                 {
                     q_values_agent_2->setValueAt(u2->toAction(), 0);
                     auto u1 = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(lower_ranked_agents_joint_action)->get(0);
