@@ -36,7 +36,6 @@ include_directories(${SDMS_INCLUDE_DIRS}
 # install(TARGETS ${LIB_SDMS} DESTINATION lib)
 
 if(GLOBAL)
-
 	# LIB CORE
 	file(
 		GLOB_RECURSE
@@ -80,15 +79,22 @@ if(GLOBAL)
 	# LIB HSVI
 	file(
 		GLOB_RECURSE
-		lib_hsvi
+		planning
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/algorithms/q_learning.cpp
-		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
-		${INCLUDE_DIR}/world/belief_mdp.cpp
-		${INCLUDE_DIR}/world/occupancy_mdp.cpp
 	)
-	add_library(hsvi SHARED ${lib_hsvi})
-	target_link_libraries(hsvi world core fmt)
+	add_library(planning SHARED ${planning})
+	target_link_libraries(planning world core fmt)
+
+
+	# LIB HSVI
+	file(
+		GLOB_RECURSE
+		lib_rl
+		${INCLUDE_DIR}/utils/rl/**
+		${INCLUDE_DIR}/algorithms/q_learning.cpp
+	)
+	add_library(rl SHARED ${lib_rl})
+	target_link_libraries(rl world core fmt)
 
 	# LIB SDMS
 	file(
@@ -97,7 +103,7 @@ if(GLOBAL)
 		${INCLUDE_DIR}/algorithms.cpp
 	)
 	add_library(${LIB_SDMS} SHARED ${lib_sdm})
-	target_link_libraries(${LIB_SDMS} value_function parser hsvi)
+	target_link_libraries(${LIB_SDMS} value_function parser planning rl)
 
 	install(TARGETS ${LIB_SDMS} DESTINATION lib)
 endif()
