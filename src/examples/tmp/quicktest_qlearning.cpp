@@ -118,10 +118,10 @@ int learn(int argv, char **args)
         else if (formalism == "PrivateHierarchicalOccupancyMDP")
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
 
-        // Set precision
-        Belief::PRECISION = 0.001;
-        OccupancyState::PRECISION = 0.01;
-        PrivateOccupancyState::PRECISION_COMPRESSION = 0.1;
+        // // Set precision
+        // Belief::PRECISION = 0.001;
+        // OccupancyState::PRECISION = 0.01;
+        // PrivateOccupancyState::PRECISION_COMPRESSION = 0.1;
 
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();

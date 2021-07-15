@@ -129,12 +129,20 @@ namespace sdm
         
         // Action selection following policy and exploration process
         this->action = this->select_action(this->observation);
+        // std::cout << "-------- do_step() --------- 1" << std::endl;
+
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
+        // std::cout << "-------- do_step() --------- 2" << std::endl;
+
         // Push experience to memory
         this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->step);
+        // std::cout << "-------- do_step() --------- 3" << std::endl;
+
         // Backup and get Q Value Error
         double delta = this->backup_->backup(this->step);
+        // std::cout << "-------- do_step() --------- 4" << std::endl;
+
 
         this->observation = this->next_observation;
         this->step++;

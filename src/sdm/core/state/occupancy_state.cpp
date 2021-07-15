@@ -72,7 +72,7 @@ namespace sdm
     void OccupancyState::setProbability(const std::shared_ptr<State> &joint_history, double proba)
     {
         Belief::setProbability(joint_history, proba);
-        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
+        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -91,7 +91,7 @@ namespace sdm
         // Add the probability of being in a joint history
         this->setProbability(joint_history, this->getProbability(joint_history) + proba);
 
-        std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
+        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
