@@ -126,10 +126,13 @@ int main(int argc, char **argv)
         std::shared_ptr<QValueBackupInterface> backup;
         backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
 
-        std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+        auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
         algorithm->do_solve();
+
+        algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
+
 
         std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
         std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
