@@ -5,28 +5,27 @@
 
 namespace sdm
 {
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    double MappedVector<TIndex, T, Hash, KeyEqual>::PRECISION = config::PRECISION_MAPPED_VECTOR;
 
-    template <typename TIndex, typename T>
-    double MappedVector<TIndex, T>::PRECISION = config::PRECISION_MAPPED_VECTOR;
-
-    template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector() : RecursiveMap<TIndex, T>(), default_value_(0.), size_(-1)
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    MappedVector<TIndex, T, Hash, KeyEqual>::MappedVector() : std::unordered_map<TIndex, T, Hash, KeyEqual>(), default_value_(0.), size_(-1)
     {
     }
 
-    template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(T default_value) : RecursiveMap<TIndex, T>(), default_value_(default_value), size_(-1)
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    MappedVector<TIndex, T, Hash, KeyEqual>::MappedVector(T default_value) : std::unordered_map<TIndex, T, Hash, KeyEqual>(), default_value_(default_value), size_(-1)
     {
     }
 
-    template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(long size, T default_value) : RecursiveMap<TIndex, T>(), default_value_(default_value), size_(size)
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    MappedVector<TIndex, T, Hash, KeyEqual>::MappedVector(long size, T default_value) : std::unordered_map<TIndex, T, Hash, KeyEqual>(), default_value_(default_value), size_(size)
     {
     }
 
-    template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(const MappedVector &v)
-        : RecursiveMap<TIndex, T>(v),
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    MappedVector<TIndex, T, Hash, KeyEqual>::MappedVector(const MappedVector &v)
+        : std::unordered_map<TIndex, T, Hash, KeyEqual>(v),
           default_value_(v.default_value_),
           size_(v.size_),
           v_indexes(v.v_indexes),
@@ -37,16 +36,16 @@ namespace sdm
     {
     }
 
-    template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::MappedVector(std::initializer_list<value_list_type> vals) : RecursiveMap<TIndex, T>(vals), default_value_(0), size_(-1)
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    MappedVector<TIndex, T, Hash, KeyEqual>::MappedVector(std::initializer_list<value_list_type> vals) : std::unordered_map<TIndex, T, Hash, KeyEqual>(vals), default_value_(0), size_(-1)
     {
     }
 
-    template <typename TIndex, typename T>
-    MappedVector<TIndex, T>::~MappedVector() {}
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    MappedVector<TIndex, T, Hash, KeyEqual>::~MappedVector() {}
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::norm_1() const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::norm_1() const
     {
         T v = 0;
         for (const auto &item : *this)
@@ -56,12 +55,12 @@ namespace sdm
         return v;
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::at(const TIndex &i) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::at(const TIndex &i) const
     {
         if (this->find(i) != this->end())
         {
-            auto value = RecursiveMap<TIndex, T>::at(i);
+            auto value = std::unordered_map<TIndex, T, Hash, KeyEqual>::at(i);
             return value;
         }
         else
@@ -70,20 +69,20 @@ namespace sdm
         }
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::getValueAt(const TIndex &index) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::getValueAt(const TIndex &index) const
     {
         return this->at(index);
     }
 
-    template <typename TIndex, typename T>
-    void MappedVector<TIndex, T>::setValueAt(const TIndex &index, const T &value)
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    void MappedVector<TIndex, T, Hash, KeyEqual>::setValueAt(const TIndex &index, const T &value)
     {
         (*this)[index] = value;
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::norm_2() const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::norm_2() const
     {
         T v = 0;
         for (const auto &item : *this)
@@ -93,8 +92,8 @@ namespace sdm
         return v;
     }
 
-    template <typename TIndex, typename T>
-    const std::pair<TIndex, T> &MappedVector<TIndex, T>::getMin()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    const std::pair<TIndex, T> &MappedVector<TIndex, T, Hash, KeyEqual>::getMin()
     {
         if (!this->bmin)
         {
@@ -120,20 +119,20 @@ namespace sdm
         return this->pmin;
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::min()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::min()
     {
         return this->getMin().second;
     }
 
-    template <typename TIndex, typename T>
-    TIndex MappedVector<TIndex, T>::argmin()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    TIndex MappedVector<TIndex, T, Hash, KeyEqual>::argmin()
     {
         return this->getMin().first;
     }
 
-    template <typename TIndex, typename T>
-    const std::pair<TIndex, T> &MappedVector<TIndex, T>::getMax()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    const std::pair<TIndex, T> &MappedVector<TIndex, T, Hash, KeyEqual>::getMax()
     {
         if (!this->bmax)
         {
@@ -160,26 +159,26 @@ namespace sdm
         return this->pmax;
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::max()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::max()
     {
         return this->getMax().second;
     }
 
-    template <typename TIndex, typename T>
-    TIndex MappedVector<TIndex, T>::argmax()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    TIndex MappedVector<TIndex, T, Hash, KeyEqual>::argmax()
     {
         return this->getMax().first;
     }
 
-    template <typename TIndex, typename T>
-    void MappedVector<TIndex, T>::setPrecision(double precision)
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    void MappedVector<TIndex, T, Hash, KeyEqual>::setPrecision(double precision)
     {
-        MappedVector<TIndex, T>::PRECISION = precision;
+        MappedVector<TIndex, T, Hash, KeyEqual>::PRECISION = precision;
     }
 
-    template <typename TIndex, typename T>
-    bool MappedVector<TIndex, T>::is_equal(const MappedVector<TIndex, T> &other, double precision) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::is_equal(const MappedVector<TIndex, T, Hash, KeyEqual> &other, double precision) const
     {
         if (this->size() != other.size())
         {
@@ -208,20 +207,20 @@ namespace sdm
         return true;
     }
 
-    template <typename TIndex, typename T>
-    bool MappedVector<TIndex, T>::operator==(const MappedVector<TIndex, T> &other) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::operator==(const MappedVector<TIndex, T, Hash, KeyEqual> &other) const
     {
         return this->is_equal(other, PRECISION);
     }
 
-    template <typename TIndex, typename T>
-    bool MappedVector<TIndex, T>::operator!=(const MappedVector<TIndex, T> &v2) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::operator!=(const MappedVector<TIndex, T, Hash, KeyEqual> &v2) const
     {
         return (!this->operator==(v2));
     }
 
-    template <typename TIndex, typename T>
-    bool MappedVector<TIndex, T>::operator<(const MappedVector &v2) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::operator<(const MappedVector &v2) const
     {
         for (const auto &item : *this)
         {
@@ -240,20 +239,20 @@ namespace sdm
         return true;
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::operator*(const MappedVector &v2) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::operator*(const MappedVector &v2) const
     {
         return this->dot(v2);
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::operator^(const MappedVector &v2) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::operator^(const MappedVector &v2) const
     {
         return this->dot(v2);
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::dot(const MappedVector &v2) const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::dot(const MappedVector &v2) const
     {
         T product = 0;
 
@@ -265,26 +264,26 @@ namespace sdm
         return product;
     }
 
-    template <typename TIndex, typename T>
-    size_t MappedVector<TIndex, T>::size() const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    size_t MappedVector<TIndex, T, Hash, KeyEqual>::size() const
     {
-        return RecursiveMap<TIndex, T>::size();
+        return std::unordered_map<TIndex, T, Hash, KeyEqual>::size();
     }
 
-    template <typename TIndex, typename T>
-    T MappedVector<TIndex, T>::getDefault() const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    T MappedVector<TIndex, T, Hash, KeyEqual>::getDefault() const
     {
         return this->default_value_;
     }
 
-    template <typename TIndex, typename T>
-    void MappedVector<TIndex, T>::setDefault(double default_value)
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    void MappedVector<TIndex, T, Hash, KeyEqual>::setDefault(double default_value)
     {
         this->default_value_ = default_value;
     }
 
-    template <typename TIndex, typename T>
-    void MappedVector<TIndex, T>::setupIndexes()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    void MappedVector<TIndex, T, Hash, KeyEqual>::setupIndexes()
     {
         if (this->v_indexes.size() == 0)
         {
@@ -295,8 +294,8 @@ namespace sdm
         }
     }
 
-    template <typename TIndex, typename T>
-    std::vector<TIndex> MappedVector<TIndex, T>::getIndexes() const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    std::vector<TIndex> MappedVector<TIndex, T, Hash, KeyEqual>::getIndexes() const
     {
         if (this->v_indexes.size() > 0)
         {
@@ -313,14 +312,14 @@ namespace sdm
         }
     }
 
-    template <typename TIndex, typename T>
-    void MappedVector<TIndex, T>::finalize()
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    void MappedVector<TIndex, T, Hash, KeyEqual>::finalize()
     {
         this->setupIndexes();
     }
 
-    template <typename TIndex, typename T>
-    std::string MappedVector<TIndex, T>::str() const
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    std::string MappedVector<TIndex, T, Hash, KeyEqual>::str() const
     {
         std::ostringstream res;
         std::string size = ((this->size_ > 0) ? std::to_string(this->size_) : "?");
@@ -336,13 +335,13 @@ namespace sdm
         return res.str();
     }
 
-    template <typename TIndex, typename T>
+    template <class TIndex, class T, class Hash, class KeyEqual>
     template <class Archive>
-    void MappedVector<TIndex, T>::serialize(Archive &archive, const unsigned int)
+    void MappedVector<TIndex, T, Hash, KeyEqual>::serialize(Archive &archive, const unsigned int)
     {
         using boost::serialization::make_nvp;
 
-        archive &boost::serialization::base_object<RecursiveMap<TIndex, T>>(*this);
+        archive &boost::serialization::base_object<std::unordered_map<TIndex, T, Hash, KeyEqual>>(*this);
         archive &make_nvp("default_value", default_value_);
         archive &make_nvp("size", size_);
         archive &make_nvp("PRECISION", PRECISION);
@@ -367,22 +366,22 @@ namespace sdm
 
 namespace std
 {
-    template <typename S, typename V>
-    struct hash<sdm::MappedVector<S, V>>
+    template <class Key, class Value, class Hash, class KeyEqual>
+    struct hash<sdm::MappedVector<Key, Value, Hash, KeyEqual>>
     {
-        typedef sdm::MappedVector<S, V> argument_type;
+        typedef sdm::MappedVector<Key, Value, Hash, KeyEqual> argument_type;
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            return this->operator()(in, sdm::MappedVector<S, V>::PRECISION);
+            return this->operator()(in, sdm::MappedVector<Key, Value, Hash, KeyEqual>::PRECISION);
         }
 
         inline result_type operator()(const argument_type &in, double precision) const
         {
             size_t seed = 0;
             double inverse_of_precision = 1. / precision;
-            std::map<S, V> ordered(in.begin(), in.end());
-            std::map<S, int> rounded;
+            std::map<Key, Value> ordered(in.begin(), in.end());
+            std::map<Key, int> rounded;
             for (const auto &pair_item_value : in)
             {
                 rounded.emplace(pair_item_value.first, lround(inverse_of_precision * pair_item_value.second));

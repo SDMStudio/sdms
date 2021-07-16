@@ -99,6 +99,7 @@ namespace sdm
 
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;
+        // using HyperplanSet = std::unordered_set<std::shared_ptr<State>, Hash, KeyEqual>;
 
         // std::vector<std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>>> getAllVectorInterface(number t);
 

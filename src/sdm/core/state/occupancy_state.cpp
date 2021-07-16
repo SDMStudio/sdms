@@ -115,6 +115,12 @@ namespace sdm
         return std::make_pair(sampled_joint_history, this->getBeliefAt(sampled_joint_history));
     }
 
+    size_t OccupancyState::hash() const
+    {
+        return std::hash<OccupancyState>()(*this);
+    }
+
+    
     bool OccupancyState::operator==(const OccupancyState &other) const
     {
         clock_t t_begin = clock();
@@ -132,7 +138,7 @@ namespace sdm
 
         // For all points in the support
         for (const auto &jhistory : this->getJointHistories())
-        {   
+        {
             // if (this->getBeliefAt(jhistory)->size() != other.getBeliefAt(jhistory)->size())
             // {
             //     return false;
@@ -152,17 +158,22 @@ namespace sdm
         OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return true;
     }
+    
+    bool OccupancyState::operator==(const std::shared_ptr<State> &other) const
+    {
+        return this->operator==(*std::dynamic_pointer_cast<OccupancyState>(other));
+    }
 
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        return OccupancyState::operator==(*std::dynamic_pointer_cast<OccupancyState>(other->toOccupancyState()));
+        return OccupancyState::operator==(*std::dynamic_pointer_cast<OccupancyState>(other));
     }
-
+    
     double OccupancyState::operator<(const OccupancyState &other) const
     {
         // std::cout<<this->str()<<std::endl;
         for (const auto &jhistory : this->getJointHistories())
-        {   
+        {
             // For all states in the corresponding belief
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
@@ -171,15 +182,15 @@ namespace sdm
 
                 // std::cout<<"Value Mine "<<this->getProbability(jhistory,state)<<std::endl;
                 // std::cout<<"Value Other "<< other.getProbability(jhistory,state)<<std::endl;
-                if (this->getProbability(jhistory,state) > other.getProbability(jhistory,state))
+                if (this->getProbability(jhistory, state) > other.getProbability(jhistory, state))
                 {
                     return false;
-                }  
+                }
             }
-        }  
+        }
 
         for (const auto &jhistory : other.getJointHistories())
-        {   
+        {
             // For all states in the corresponding belief
             for (const auto &state : other.getBeliefAt(jhistory)->getStates())
             {
@@ -188,13 +199,13 @@ namespace sdm
 
                 // std::cout<<"Value Mine "<<this->getProbability(jhistory,state)<<std::endl;
                 // std::cout<<"Value Other "<< other.getProbability(jhistory,state)<<std::endl;
-                if (other.getProbability(jhistory,state)<this->getProbability(jhistory,state))
+                if (other.getProbability(jhistory, state) < this->getProbability(jhistory, state))
                 {
                     return false;
-                }  
+                }
             }
         }
-        return true;   
+        return true;
     }
 
     double OccupancyState::operator<(const std::shared_ptr<BeliefInterface> &other) const
@@ -210,10 +221,9 @@ namespace sdm
         {
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
-                product += this->getProbability(jhistory, state) * other->toOccupancyState()->getProbability(jhistory,state);
+                product += this->getProbability(jhistory, state) * other->toOccupancyState()->getProbability(jhistory, state);
             }
         }
-
         return product;
     }
 
@@ -580,7 +590,7 @@ namespace sdm
         std::ostringstream res;
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
-        res << "<occupancy-state defaut=\""<<this->getDefault()<<"\" \t size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
+        res << "<occupancy-state defaut=\"" << this->getDefault() << "\" \t size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
         for (const auto &history_as_state : this->getIndexes())
         {
             auto joint_history = history_as_state->toHistory()->toJointHistory();
@@ -648,7 +658,7 @@ namespace sdm
         return this->individual_hierarchical_history_vector_map_vector[agent]->at(t);
     }
 
-    void OccupancyState::pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history)
+    void OccupancyState::pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history)
     {
         if (this->individual_hierarchical_history_vector_map_vector[agent]->find(t) == this->individual_hierarchical_history_vector_map_vector[agent]->end())
         {
@@ -662,7 +672,7 @@ namespace sdm
         return this->joint_history_map_vector->at(t);
     }
 
-    void OccupancyState::pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history)
+    void OccupancyState::pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history)
     {
         if (this->joint_history_map_vector->find(t) == this->joint_history_map_vector->end())
         {
