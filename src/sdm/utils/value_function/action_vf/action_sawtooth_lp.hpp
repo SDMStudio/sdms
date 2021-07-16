@@ -255,8 +255,8 @@ namespace sdm
          */
         double getQValueRelaxation(const std::shared_ptr<ValueFunction>&vf,const  std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> joint_history, std::shared_ptr<Action> action, number t);
 
-        TypeSawtoothLinearProgram getSawtoothType();
-        void setSawtoothType(const TypeSawtoothLinearProgram &);
+        // TypeSawtoothLinearProgram getSawtoothType();
+        // void setSawtoothType(const TypeSawtoothLinearProgram &);
 
         std::shared_ptr<MappedVector<std::shared_ptr<State>,double>> representation;
 

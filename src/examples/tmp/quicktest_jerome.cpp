@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
     std::vector<std::string> all_sawtooth_current_type_of_resolution = {"IloIfThen"};
     std::vector<sdm::number> all_sawtooth_BigM = {1000};
-    std::vector<std::string> all_sawtooth_type_of_linear_program = {"Full"};
+    std::vector<std::string> all_sawtooth_type_of_linear_program = {"Relaxed"};
 
     std::vector<int> all_truncation = {3};
     std::vector<int> all_freq_prunning_lower_bound = {-1,5,10,50};
