@@ -35,12 +35,12 @@ namespace sdm
      * @tparam TIndex Type of index
      * @tparam T Type of value
      */
-    template <typename TIndex, typename T = double>
-    class MappedVector : public RecursiveMap<TIndex, T>, public VectorInterface<TIndex, T>
+    template <class TIndex, class T = double, class Hash = std::hash<TIndex>, class KeyEqual = std::equal_to<TIndex>>
+    class MappedVector : public std::unordered_map<TIndex, T, Hash, KeyEqual>, public VectorInterface<TIndex, T>
     {
     public:
-        using iterator = typename std::unordered_map<TIndex, T>::iterator;
-        using const_iterator = typename std::unordered_map<TIndex, T>::const_iterator;
+        using iterator = typename std::unordered_map<TIndex, T, Hash, KeyEqual>::iterator;
+        using const_iterator = typename std::unordered_map<TIndex, T, Hash, KeyEqual>::const_iterator;
 
         using type = typename RecursiveMap<TIndex, T>::type;
         using value_type = typename RecursiveMap<TIndex, T>::value_type;
@@ -79,7 +79,7 @@ namespace sdm
         bool operator!=(const MappedVector &) const;
         bool operator<(const MappedVector &) const;
         bool operator==(const MappedVector &other) const;
-        bool is_equal(const MappedVector<TIndex, T> &other, double precision) const;
+        bool is_equal(const MappedVector &other, double precision) const;
 
         /**
          * @brief This method implements a non-commutative dot product

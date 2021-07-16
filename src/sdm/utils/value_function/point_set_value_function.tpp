@@ -5,21 +5,24 @@
 
 namespace sdm
 {
-    PointSetValueFunction::PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf,int freq_prunning )
-        : TabularValueFunction(horizon, initializer, backup,action_vf), freq_prune_(freq_prunning)
+    template <class Hash, class KeyEqual>
+    BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
+        : BaseTabularValueFunction<Hash, KeyEqual>(horizon, initializer, backup, action_vf), freq_prune_(freq_prunning)
     {
     }
 
-    PointSetValueFunction::PointSetValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf,int freq_prunning)
-        : TabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf),freq_prune_(freq_prunning)
+    template <class Hash, class KeyEqual>
+    BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
+        : BaseTabularValueFunction<Hash, KeyEqual>(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf), freq_prune_(freq_prunning)
     {
     }
 
-    double PointSetValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
         assert(this->getInitFunction() != nullptr);
 
-        // Determine if the element exist 
+        // Determine if the element exist
         bool already_exist = false;
         for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
         {
@@ -29,15 +32,17 @@ namespace sdm
             }
         }
         // If the element doesn't exit, we determine this value else with take the value stocked
-        return (already_exist or (t>=this->getHorizon()) ) ? this->representation[t].at(state) : this->evaluate(state, t).second;
+        return (already_exist or (t >= this->getHorizon())) ? this->representation[t].at(state) : this->evaluate(state, t).second;
     }
 
-    void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
+    template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
-        TabularValueFunction::updateValueAt(state, t, target);
+        BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(state, t, target);
     }
 
-    std::string PointSetValueFunction::str() const
+    template <class Hash, class KeyEqual>
+    std::string BasePointSetValueFunction<Hash, KeyEqual>::str() const
     {
         std::ostringstream res;
         res << "<point_set_representation, horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
@@ -64,7 +69,8 @@ namespace sdm
         return res.str();
     }
 
-    Pair<std::shared_ptr<State>,double> PointSetValueFunction::evaluate(const std::shared_ptr<State>& state_tmp, number t)
+    template <class Hash, class KeyEqual>
+    Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state_tmp, number t)
     {
         assert(this->getInitFunction() != nullptr);
         assert(state_tmp->getTypeState() != TypeState::STATE);
@@ -79,26 +85,26 @@ namespace sdm
         // Go over all element in the support
         for (const auto &point_value : this->getRepresentation(t))
         {
-            auto [point,v_kappa] = point_value;
+            auto [point, v_kappa] = point_value;
             auto point_to_belief_interface = point->toBelief();
 
             double v_ub_kappa = this->getInitFunction()->operator()(point, t);
-            
+
             double phi;
 
             switch (state->getTypeState())
             {
-            case TypeState::BELIEF_STATE :
-                phi = this->ratioBelief(state,point_to_belief_interface);
+            case TypeState::BELIEF_STATE:
+                phi = this->ratioBelief(state, point_to_belief_interface);
                 break;
-            case TypeState::OCCUPANCY_STATE :
-                phi = this->ratioOccupancy(state,point_to_belief_interface);
+            case TypeState::OCCUPANCY_STATE:
+                phi = this->ratioOccupancy(state, point_to_belief_interface);
                 break;
-            case TypeState::SERIAL_OCCUPANCY_STATE :
-                phi = this->ratioOccupancy(state,point_to_belief_interface);
+            case TypeState::SERIAL_OCCUPANCY_STATE:
+                phi = this->ratioOccupancy(state, point_to_belief_interface);
                 break;
             default:
-                throw sdm::exception::Exception("PointSetValueFunction::evaluate not defined for this state!");
+                throw sdm::exception::Exception("BasePointSetValueFunction::evaluate not defined for this state!");
                 break;
             }
 
@@ -110,10 +116,11 @@ namespace sdm
                 argmin_ = point_to_belief_interface;
             }
         }
-        return std::make_pair(argmin_,v_ub_state + min_ext);
+        return std::make_pair(argmin_, v_ub_state + min_ext);
     }
 
-    double PointSetValueFunction::ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point)
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point)
     {
         // Determine the ratio for the specific case when the state is a belief
         double phi = 1.0;
@@ -130,10 +137,11 @@ namespace sdm
         return phi;
     }
 
-    double PointSetValueFunction::ratioOccupancy(const std::shared_ptr<BeliefInterface>& state_tmp, const std::shared_ptr<BeliefInterface>& point_tmp)
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<BeliefInterface> &state_tmp, const std::shared_ptr<BeliefInterface> &point_tmp)
     {
         // Determine the ratio for the specific case when the state is a Occupancy State
-        
+
         double phi = 1.0;
 
         auto point = point_tmp->toOccupancyState();
@@ -143,9 +151,9 @@ namespace sdm
         for (auto &joint_history : point->getJointHistories())
         {
             // Go over all hidden state in the belief conditionning to the joitn history
-            for(const auto& hidden_state :  point->getBeliefAt(joint_history)->getStates())
+            for (const auto &hidden_state : point->getBeliefAt(joint_history)->getStates())
             {
-                double v_int = (occupancy_state->getProbability(joint_history,hidden_state) / point->getProbability(joint_history,hidden_state));
+                double v_int = (occupancy_state->getProbability(joint_history, hidden_state) / point->getProbability(joint_history, hidden_state));
                 // determine the min int
                 if (v_int < phi)
                 {
@@ -160,7 +168,8 @@ namespace sdm
     // ****** Prunning ******
     // **********************
 
-    void PointSetValueFunction::do_prunning(number t)
+    template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::do_prunning(number t)
     {
         if (this->last_prunning == this->freq_prune_)
         {
@@ -173,7 +182,8 @@ namespace sdm
         this->last_prunning++;
     }
 
-    void PointSetValueFunction::prune(number t)
+    template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
     {
         // Pour le moment, la méthode n'est pas efficace 
         // On peut améliorer cela, en effecutant une première boucle qui note le nombre de fois où le point est le support de quelqu'un

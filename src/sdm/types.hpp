@@ -158,26 +158,48 @@ namespace sdm
     sdm::hash_combine(seed, tr_double);
   }
 
+  // template <typename T>
+  // struct equal_from_ptr
+  // {
+  //   virtual bool operator()(const std::shared_ptr<void> &left, const std::shared_ptr<void> &right) const
+  //   {
+  //     auto casted_left = std::static_pointer_cast<T>(left);
+  //     auto casted_right = std::static_pointer_cast<T>(right);
+  //     return ((left == right) || std::equal_to<T>()(*casted_left, *casted_right));
+  //   }
+  // };
+
+  // template <typename T>
+  // struct hash_from_ptr
+  // {
+  //   virtual size_t operator()(const std::shared_ptr<void> &item) const
+  //   {
+  //     auto casted_item = std::static_pointer_cast<T>(item);
+  //     return std::hash<T>()(*casted_item);
+  //   }
+  // };
+
   template <typename T>
   struct equal_from_ptr
   {
-    virtual bool operator()(const std::shared_ptr<void> &left, const std::shared_ptr<void> &right) const
+    virtual bool operator()(const std::shared_ptr<T> &left, const std::shared_ptr<T> &right) const
     {
-      auto casted_left = std::static_pointer_cast<T>(left);
-      auto casted_right = std::static_pointer_cast<T>(right);
-      return ((left == right) || std::equal_to<T>()(*casted_left, *casted_right));
+      // if left or right is a nullptr, then return false
+      if ((left == nullptr) ^ (right == nullptr))
+        return false;
+      return ((left == right) || left->operator==(right));
     }
   };
 
   template <typename T>
   struct hash_from_ptr
   {
-    virtual size_t operator()(const std::shared_ptr<void> &item) const
+    virtual size_t operator()(const std::shared_ptr<T> &item) const
     {
-      auto casted_item = std::static_pointer_cast<T>(item);
-      return std::hash<T>()(*casted_item);
+      return (item == nullptr) ? 0 : item->hash();
     }
   };
+
 } // namespace sdm
 
 namespace std
@@ -224,9 +246,9 @@ namespace std
       return std::dynamic_pointer_cast<T>(MultipleInheritableEnableSharedFromThis::shared_from_this());
     }
     /* Utility method to easily downcast.
-   * Useful when a child doesn't inherit directly from enable_shared_from_this
-   * but wants to use the feature.
-   */
+     * Useful when a child doesn't inherit directly from enable_shared_from_this
+     * but wants to use the feature.
+     */
     template <class Down>
     std::shared_ptr<Down> downcasted_shared_from_this()
     {

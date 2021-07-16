@@ -15,7 +15,7 @@
 #include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
-{   
+{
     // Observation from the P.O.V. of the central agent.
     class Observation : public Item
     {
@@ -33,10 +33,29 @@ namespace sdm
     class BaseSerialInterface;
     class SerialOccupancyInterface;
 
+    /**
+     * @brief A generic state object.
+     */
     class State : public Observation
     {
     public:
         virtual ~State() {}
+
+        /**
+         * @brief Get the hash of the state
+         * 
+         * @return size_t the hash
+         */
+        virtual size_t hash() const;
+
+        /**
+         * @brief Check equality between two states.
+         * 
+         * @param other the state to be compared to current state
+         * @return true if states are equal
+         * @return false if they are different
+         */
+        virtual bool operator==(const std::shared_ptr<State> &other) const;
 
         /**
          * @brief Transform the State in a BeliefInterface
@@ -103,7 +122,7 @@ namespace sdm
     using JointHistoryBeliefPair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>;
 
     using JointHistoryJointActionPair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<Action>>;
-    
+
     using PrivateHierarchicalOccupancyStateJointHistoryPair = StatePair<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<JointHistoryInterface>>;
 
     // template <typename TItem, typename SuperClass = Item>

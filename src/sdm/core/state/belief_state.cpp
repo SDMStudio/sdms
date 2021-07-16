@@ -84,6 +84,16 @@ namespace sdm
     return state;
   }
 
+  size_t Belief::hash() const
+  {
+    return std::hash<Belief>()(*this);
+  }
+
+  bool Belief::operator==(const std::shared_ptr<State> &other) const
+  {
+    return this->operator==(*std::dynamic_pointer_cast<Belief>(other));
+  }
+
   bool Belief::operator==(const std::shared_ptr<BeliefInterface> &other) const
   {
     if (this->size() != other->size())
@@ -124,9 +134,8 @@ namespace sdm
 
   double Belief::operator<(const std::shared_ptr<BeliefInterface> &other) const
   {
-      return MappedVector<std::shared_ptr<State>, double>::operator<(*std::dynamic_pointer_cast<Belief>(other));
+    return MappedVector<std::shared_ptr<State>, double>::operator<(*std::dynamic_pointer_cast<Belief>(other));
   }
-
 
   double Belief::norm_1() const
   {
