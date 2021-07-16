@@ -118,8 +118,16 @@ int main(int argc, char **argv)
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
 
         // Instanciate value functions
-        auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
-        auto ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+        if (vm.count("store_states") && vm.count("store_actions"))
+        {
+            auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+            auto ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+        }
+        else
+        {
+            auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+            auto ub = std::make_shared<PointSetValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+        }
 
         // Instanciate HSVI
         auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
@@ -136,7 +144,6 @@ int main(int argc, char **argv)
         // std::cout << *algo->getUpperBound() << std::endl;
 
         // -----------------------------------------------------------------------------
-
 
         /* // ---------- Comment / Uncomment this section to enable test compression ---------- 
 
