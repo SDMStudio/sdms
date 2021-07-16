@@ -4,6 +4,7 @@
 
 namespace sdm
 {
+    MMDP::MMDP() {}
 
     MMDP::MMDP(const std::shared_ptr<Space> &state_space,
                const std::shared_ptr<Space> &action_space,

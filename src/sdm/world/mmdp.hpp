@@ -30,6 +30,7 @@ namespace sdm
     class MMDP : virtual public MDP, virtual public MMDPInterface
     {
     public:
+        MMDP();
         MMDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
              const std::shared_ptr<RewardInterface> &reward,
@@ -41,7 +42,7 @@ namespace sdm
 
         std::shared_ptr<Space> getActionSpace(number t = 0) const;
         std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
-        
+
         std::string toStdFormat();
     };
 

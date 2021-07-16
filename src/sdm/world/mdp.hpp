@@ -31,6 +31,7 @@ namespace sdm
                 virtual public GymInterface
     {
     public:
+        MDP();
         MDP(const std::shared_ptr<Space> &state_space,
             const std::shared_ptr<Space> &action_space,
             const std::shared_ptr<RewardInterface> &reward_space,

@@ -5,6 +5,8 @@
 namespace sdm
 {
 
+    MPOMDP::MPOMDP() {}
+
     MPOMDP::MPOMDP(const std::shared_ptr<Space> &state_space,
                    const std::shared_ptr<Space> &action_space,
                    const std::shared_ptr<Space> &obs_space,
@@ -81,7 +83,7 @@ namespace sdm
                         }
                         res << ": " << state_space->getItemIndex(state)
                             << " : " << state_space->getItemIndex(next_state)
-                            << " : " << this->getTransitionProbability(state->toState(),action->toAction(), next_state->toState())
+                            << " : " << this->getTransitionProbability(state->toState(), action->toAction(), next_state->toState())
                             << std::endl;
                     }
                 }
@@ -106,7 +108,7 @@ namespace sdm
                             auto obs_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(observation)->get(agent);
                             res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
                         }
-                        res << ": " << this->getObservationProbability(next_state->toState(),action->toAction(), next_state->toState(), observation->toObservation(), 0) << std::endl;
+                        res << ": " << this->getObservationProbability(next_state->toState(), action->toAction(), next_state->toState(), observation->toObservation(), 0) << std::endl;
                     }
                 }
             }

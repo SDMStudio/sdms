@@ -6,6 +6,12 @@
 
 namespace sdm
 {
+    // template <typename T>
+    // std::shared_ptr<DiscreteDistribution<T>> Distribution<T>::toDiscreteDistribution()
+    // {
+    //     return std::static_pointer_cast<DiscreteDiscreteDistribution<T>>(this->shared_from_this());
+    // }
+
     template <typename T>
     T DiscreteDistribution<T>::sample() const
     {
