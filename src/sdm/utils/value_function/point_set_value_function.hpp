@@ -49,7 +49,8 @@ namespace sdm
 
         double getValueAt(const std::shared_ptr<State> &state, number t);
 
-
+        void do_prunning(number t);
+        
     protected:
         /**
          * @brief Frequency before prunning.

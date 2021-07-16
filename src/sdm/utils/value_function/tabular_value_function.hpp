@@ -90,6 +90,8 @@ namespace sdm
         }
         Container getRepresentation(number t);
 
+        void do_prunning(number t);
+
     protected:
 
         /**

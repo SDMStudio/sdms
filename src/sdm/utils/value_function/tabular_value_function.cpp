@@ -104,4 +104,6 @@ namespace sdm
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
 
+    void TabularValueFunction::do_prunning(number ){}
+
 } // namespace sdm

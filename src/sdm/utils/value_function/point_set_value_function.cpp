@@ -35,16 +35,6 @@ namespace sdm
     void PointSetValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
         TabularValueFunction::updateValueAt(state, t, target);
-
-        if (this->last_prunning == this->freq_prune_)
-        {
-            for (number time = 0; time < this->getHorizon(); time++)
-            {
-                // this->prune(time);
-            }
-            this->last_prunning = 0;
-        }
-        this->last_prunning++;
     }
 
     std::string PointSetValueFunction::str() const
@@ -197,5 +187,19 @@ namespace sdm
         }
         return phi;
     }
+
+    void PointSetValueFunction::do_prunning(number t)
+    {
+        if (this->last_prunning == this->freq_prune_)
+        {
+            for (number time = 0; time < this->getHorizon(); time++)
+            {
+                // this->prune(time);
+            }
+            this->last_prunning = 0;
+        }
+        this->last_prunning++;
+    }
+
 
 } // namespace sdm

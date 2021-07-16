@@ -12,15 +12,16 @@ namespace sdm
 
     double HyperplanValueFunction::PRECISION = config::PRECISION_SDMS_VECTOR;
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
-        : ValueFunction(horizon, initializer,backup,action_vf), freq_prune_(freq_prunning)
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
+        : ValueFunction(horizon, initializer,backup,action_vf), freq_prune_(freq_prunning), type_of_maxplan_prunning_(type_of_maxplan_prunning)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
+        this->all_state_updated_so_far = std::vector<std::unordered_set<std::shared_ptr<State>>>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1,std::unordered_set<std::shared_ptr<State>>());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,freq_prunning){}
+    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,freq_prunning,type_of_maxplan_prunning){}
 
     HyperplanValueFunction::~HyperplanValueFunction(){}
 
@@ -41,23 +42,19 @@ namespace sdm
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
+        
         //Determine the new hyperplan
         const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state,this->getBestAction(state,t),t)->toBelief();
 
         // If the hyperplan doesn't exit, we add it to representation at t
         if (!this->exist(new_hyperplan,t))
+        {
             this->representation[t].push_back(new_hyperplan);
 
-        if (this->last_prunning == this->freq_prune_)
-        {
-            // std::cout<<"Search for prunning"<<std::endl;
-            for (number time = 0; time < this->getHorizon(); time++)
-            {
-                this->prune(time);
-            }
-            this->last_prunning = 0;
+            // Add state to all state update so far, only if the prunning used is Bounded
+            if(this->type_of_maxplan_prunning_ == TypeOfMaxPlanPrunning::BOUNDED)
+                this->all_state_updated_so_far[t].insert(state);
         }
-        this->last_prunning++;
     }
 
     
@@ -70,10 +67,34 @@ namespace sdm
     {
         return this->default_values_per_horizon[t];
     }
+
+    void HyperplanValueFunction::do_prunning(number t)
+    {
+        if (this->last_prunning == this->freq_prune_)
+        {
+            // std::cout<<"Search for prunning"<<std::endl;
+            for (number time = 0; time < this->getHorizon(); time++)
+            {
+                this->prune(time);
+            }
+            this->last_prunning = 0;
+        }
+        this->last_prunning++;
+    }
     
     void HyperplanValueFunction::prune(number t)
     {
-        this->pairwise_prune(t);
+        switch (this->type_of_maxplan_prunning_)
+        {
+        case TypeOfMaxPlanPrunning::PAIRWISE :
+            this->pairwise_prune(t);
+            break;
+        case TypeOfMaxPlanPrunning::BOUNDED :
+            this->bounded_prune(t);
+         
+        default:
+            break;
+        }
     }
 
     void HyperplanValueFunction::pairwise_prune(number t)
@@ -81,11 +102,6 @@ namespace sdm
         std::vector<std::shared_ptr<BeliefInterface>> hyperplan_not_to_be_deleted;
         std::vector<std::shared_ptr<BeliefInterface>> hyperplan_to_delete;
 
-        // std::cout<<"Print all Alpha at T"<<std::endl;
-        // for (const auto &alpha : this->getSupport(t))
-        // {
-        //     std::cout<<"element "<<alpha->str()<<std::endl;
-        // }
         // Go over all hyperplan
         for (const auto &alpha : this->getSupport(t))
         {
@@ -97,10 +113,6 @@ namespace sdm
                 // If beta dominate alpha, we had alpha to the hyperplan to delete
                 if (alpha->toBelief()->operator<(beta))
                 {
-                    // std::cout<<"Alpha is dominated by beta"<<std::endl;
-                    // std::cout<<"Alpha "<<alpha->str()<<std::endl;
-                    // std::cout<<"Beta "<<beta->str()<<std::endl;
-
                     hyperplan_to_delete.push_back(alpha->toBelief());
                     alpha_dominated = true;
                     break;
@@ -120,10 +132,6 @@ namespace sdm
                 //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
                 if (beta->operator<(alpha->toBelief()))
                 {
-                    // std::cout<<"Beta is dominated by alpha"<<std::endl;
-                    // std::cout<<"Alpha "<<alpha->str()<<std::endl;
-                    // std::cout<<"Beta "<<beta->str()<<std::endl;
-
                     erase_tempo.push_back(beta);
                     hyperplan_to_delete.push_back(beta);
                 }
@@ -139,47 +147,57 @@ namespace sdm
 
         for(const auto &to_delete : hyperplan_to_delete)
         {
-            // std::cout<<"Hyperplan to Delete "<<to_delete->str()<<std::endl;
             this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
         }
     }
     
     void HyperplanValueFunction::bounded_prune(number t)
     {
+        // Pour bounded prunning, il faut aussi noter les points intéressants , et chercher pour ces points la
+
+
         std::unordered_map<std::shared_ptr<State>, number> refCount;
         auto all_plan = this->getSupport(t);
 
+        // std::cout<<"All hyperplan "<<std::endl;
         // Initialize ref count to 0 for each hyperplan
-        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
+        // for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
+        // {
+        //     // std::cout<<"Element "<<(*iter)->str()<<std::endl;
+        //     refCount.emplace(*iter, 0);
+        // }
+
+        for(const auto&element : all_plan)
         {
-            refCount.emplace(*iter, 0);
+            refCount[element] = 0;
         }
 
         //<! update the count
         std::shared_ptr<State> max_alpha;
         double max_value = -std::numeric_limits<double>::max(), value;
-        for (const auto &hyperplan : all_plan)
+        for (const auto &hyperplan : this->all_state_updated_so_far[t])
         {
+            // std::cout<<"Element in all state updated so far "<<hyperplan->str()<<std::endl;
+
             for (const auto &alpha : refCount)
             {
-                if (max_value < (value = (hyperplan->toBelief()->operator^(alpha.first->toBelief()))))
+                // std::cout<<"Alpha "<<alpha.first->str()<<std::endl;
+                // std::cout<<"Value "<< (hyperplan->toBelief()->operator^(alpha.first->toBelief()))<<std::endl;
+                if (max_value < (value = (hyperplan->toBelief()->operator^(alpha.first->toBelief()))) )
                 {
                     max_value = value;
                     max_alpha = alpha.first;
                 }
             }
-
-            if(refCount.find(max_alpha) != refCount.end())
-            {
-                refCount.at(max_alpha)++;
-            }
+            refCount.at(max_alpha)++;
         }
 
-        for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
+        for (const auto& element : all_plan)
         {
-            if (refCount.at(*iter) == 0)
+            if (refCount.at(element) == 0)
             {
-                this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), *iter));
+                // std::cout<<"Hyperplan to delete "<<(*iter)->str()<<std::endl;
+                this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), element));
             }
         }
     }
