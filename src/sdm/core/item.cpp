@@ -1,6 +1,7 @@
 #include <sdm/core/item.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
+#include <sdm/exception.hpp>
 
 namespace sdm
 {
@@ -19,9 +20,8 @@ namespace sdm
         return std::static_pointer_cast<Observation>(this->getPointer());
     }
 
-     std::shared_ptr<Item> Item::getPointer()
+    std::shared_ptr<Item> Item::getPointer()
     {
         return this->shared_from_this();
     }
-
 } // namespace sdm

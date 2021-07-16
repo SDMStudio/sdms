@@ -8,27 +8,27 @@
 #include <sdm/core/state/occupancy_state.hpp>
 
 namespace sdm
-{        
+{
 
     double HyperplanValueFunction::PRECISION = config::PRECISION_SDMS_VECTOR;
 
     HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
-        : ValueFunction(horizon, initializer,backup,action_vf), freq_prune_(freq_prunning)
+        : ValueFunction(horizon, initializer, backup, action_vf), freq_prune_(freq_prunning)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,freq_prunning){}
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning)
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf, freq_prunning) {}
 
-    HyperplanValueFunction::~HyperplanValueFunction(){}
+    HyperplanValueFunction::~HyperplanValueFunction() {}
 
     void HyperplanValueFunction::initialize(double value, number t)
     {
         this->default_values_per_horizon[t] = value;
     }
-    
+
     void HyperplanValueFunction::initialize()
     {
         this->initializer_->init(this->getptr());
@@ -42,10 +42,10 @@ namespace sdm
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
         //Determine the new hyperplan
-        const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state,this->getBestAction(state,t),t)->toBelief();
+        const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state, this->getBestAction(state, t), t)->toBelief();
 
         // If the hyperplan doesn't exit, we add it to representation at t
-        if (!this->exist(new_hyperplan,t))
+        if (!this->exist(new_hyperplan, t))
             this->representation[t].push_back(new_hyperplan);
 
         if (this->last_prunning == this->freq_prune_)
@@ -60,7 +60,6 @@ namespace sdm
         this->last_prunning++;
     }
 
-    
     std::vector<std::shared_ptr<State>> HyperplanValueFunction::getSupport(number t)
     {
         return this->representation[t];
@@ -70,7 +69,7 @@ namespace sdm
     {
         return this->default_values_per_horizon[t];
     }
-    
+
     void HyperplanValueFunction::prune(number t)
     {
         this->pairwise_prune(t);
@@ -115,7 +114,7 @@ namespace sdm
             //Go over all hyperplan in hyperplan_not_to_be_deleted
             std::vector<std::shared_ptr<BeliefInterface>> erase_tempo;
 
-            for(const auto &beta : hyperplan_not_to_be_deleted)
+            for (const auto &beta : hyperplan_not_to_be_deleted)
             {
                 //If alpha dominate a vector in hyperplan_not_to_be_deleted, we deleted this vector
                 if (beta->operator<(alpha->toBelief()))
@@ -137,13 +136,13 @@ namespace sdm
             hyperplan_not_to_be_deleted.push_back(alpha->toBelief());
         }
 
-        for(const auto &to_delete : hyperplan_to_delete)
+        for (const auto &to_delete : hyperplan_to_delete)
         {
             // std::cout<<"Hyperplan to Delete "<<to_delete->str()<<std::endl;
             this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
         }
     }
-    
+
     void HyperplanValueFunction::bounded_prune(number t)
     {
         std::unordered_map<std::shared_ptr<State>, number> refCount;
@@ -169,7 +168,7 @@ namespace sdm
                 }
             }
 
-            if(refCount.find(max_alpha) != refCount.end())
+            if (refCount.find(max_alpha) != refCount.end())
             {
                 refCount.at(max_alpha)++;
             }
@@ -184,40 +183,40 @@ namespace sdm
         }
     }
 
-    bool HyperplanValueFunction::exist(const std::shared_ptr<BeliefInterface>& new_vector,number t, double )
+    bool HyperplanValueFunction::exist(const std::shared_ptr<BeliefInterface> &new_vector, number t, double)
     {
-        #ifdef LOGTIME
-            this->StartTime();
-        #endif
+#ifdef LOGTIME
+        this->StartTime();
+#endif
 
         // Go over all element in the Support
-        for(const auto& element : this->representation[t])
+        for (const auto &element : this->representation[t])
         {
-            // Test if the new vector is equal to the element 
-            if(new_vector->operator==(element->toBelief()))
+            // Test if the new vector is equal to the element
+            if (new_vector->operator==(element->toBelief()))
             {
-                #ifdef LOGTIME
-                    this->updateTime("Exist");
-                #endif
+#ifdef LOGTIME
+                this->updateTime("Exist");
+#endif
 
                 return true;
-            } 
+            }
         }
 
-        #ifdef LOGTIME
-            this->updateTime("Exist");
-        #endif
+#ifdef LOGTIME
+        this->updateTime("Exist");
+#endif
 
         return false;
     }
 
-    Pair<std::shared_ptr<State>,double> HyperplanValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<State>, double> HyperplanValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
     {
         try
         {
-            #ifdef LOGTIME
-                this->StartTime();
-            #endif
+#ifdef LOGTIME
+            this->StartTime();
+#endif
 
             double current, max = -std::numeric_limits<double>::max();
             std::shared_ptr<BeliefInterface> alpha_vector;
@@ -225,7 +224,7 @@ namespace sdm
             auto belief_state = state->toBelief();
 
             //Create Default State
-            this->createDefault(state,t);
+            this->createDefault(state, t);
 
             // Go over all hyperplan in the support
             for (const auto &plan : this->getSupport(t))
@@ -233,30 +232,30 @@ namespace sdm
                 auto belief_plan = plan->toBelief();
 
                 //Determine the best hyperplan which give the best value for the current state
-                if (max < (current = belief_state->operator^(belief_plan) ))
+                if (max < (current = belief_state->operator^(belief_plan)))
                 {
                     max = current;
                     alpha_vector = belief_plan;
                 }
             }
 
-            #ifdef LOGTIME
-                this->updateTime("Evaluate");
-            #endif
-            
-            return {alpha_vector,max};
+#ifdef LOGTIME
+            this->updateTime("Evaluate");
+#endif
+
+            return {alpha_vector, max};
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
-            std::cerr <<"HyperplanValueFunction::evaluate error"<< e.what() << '\n';
+            std::cerr << "HyperplanValueFunction::evaluate error" << e.what() << '\n';
             exit(-1);
         }
     }
 
-    void HyperplanValueFunction::createDefault(const std::shared_ptr<State>& state, number t)
+    void HyperplanValueFunction::createDefault(const std::shared_ptr<State> &state, number t)
     {
         // If there are not element at time t, we have to create the default State
-        if(this->representation[t].size() == 0)
+        if (this->representation[t].size() == 0)
         {
             //Create the default state
             std::shared_ptr<BeliefInterface> default_state;
@@ -264,10 +263,10 @@ namespace sdm
             switch (state->getTypeState())
             {
             case TypeState::BELIEF_STATE:
-                default_state =  std::make_shared<Belief>();
+                default_state = std::make_shared<Belief>();
                 break;
             case TypeState::OCCUPANCY_STATE:
-                default_state =  std::make_shared<OccupancyState>();
+                default_state = std::make_shared<OccupancyState>();
                 break;
             default:
                 throw sdm::exception::Exception("The initializer used is not available for this formalism !");

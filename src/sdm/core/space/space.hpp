@@ -53,7 +53,7 @@ namespace sdm
     /**
      * @brief Sample a random item from the space
      */
-    virtual std::shared_ptr<Item> sample() const { throw sdm::exception::NotImplementedException(); }
+    virtual std::shared_ptr<Item> sample() const { throw sdm::exception::Exception("Cannot sample Abstract space !!!"); }
 
     virtual iterator_type begin() = 0;
     virtual iterator_type end() = 0;
