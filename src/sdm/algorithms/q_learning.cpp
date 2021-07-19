@@ -188,8 +188,8 @@ namespace sdm
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            // return this->backup_->getGreedyAction(observation->toState(), this->step);
-            return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
+            return this->backup_->getGreedyAction(observation->toState(), this->step);
+            // return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
         }
         // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
     }
