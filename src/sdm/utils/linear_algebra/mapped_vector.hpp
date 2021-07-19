@@ -67,6 +67,7 @@ namespace sdm
         T at(const TIndex &) const;
         T getValueAt(const TIndex &) const;
         void setValueAt(const TIndex &, const T &);
+        void addValueAt(const TIndex &, const T &);
 
         /**
          * @brief This method implements a non-commutative dot product

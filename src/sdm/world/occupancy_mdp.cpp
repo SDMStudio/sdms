@@ -25,7 +25,7 @@ namespace sdm
         this->batch_size_ = batch_size;
 
         // Set underlying problem
-        this->underlying_problem = underlying_dpomdp;
+        this->underlying_problem_ = underlying_dpomdp;
 
         // Initialize underlying belief mdp
         this->belief_mdp_ = std::make_shared<BeliefMDP>(underlying_dpomdp, batch_size);

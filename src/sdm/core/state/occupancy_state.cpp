@@ -4,6 +4,9 @@
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 
+#include <sdm/core/state/jhistory_tree.hpp>
+
+
 namespace sdm
 {
     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
@@ -643,12 +646,73 @@ namespace sdm
     // ######### PHOS ##############################
     // #############################################
 
-    std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getIndividualHierarchicalHistoryVectorFor(number t, number agent)
+    std::shared_ptr<JointHistoryInterface> OccupancyState::getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory)
+    {
+        for (const std::shared_ptr<JointHistoryInterface>& joint_history: this->getJointHistories())
+        {
+            if (*std::dynamic_pointer_cast<JointHistoryTree>(joint_history) == *std::dynamic_pointer_cast<JointHistoryTree>(candidate_jhistory))
+            {
+                return joint_history;
+            }
+        }
+        return nullptr;
+    }
+
+    void OccupancyState::prepareIndividualHierarchicalHistoryVectors(number t)
+    {
+        std::set<std::shared_ptr<JointHistoryInterface>> joint_histories = this->getJointHistories();
+        // For all agents from 1 to N:
+        for (int agent = 0; agent < this->num_agents_; agent++)
+        {
+            if (!this->individualHierarchicalHistoryVectorForIsDone(t, agent))
+            {
+                // For each possible joint history:
+                for (std::shared_ptr<JointHistoryInterface> joint_history : joint_histories)
+                {
+                    //
+                    std::shared_ptr<JointHistoryInterface> individual_hierarchical_history = std::make_shared<JointHistoryTree>();
+                    // For each agent between agent I and agent N (both included):
+                    for (int lower_ranked_agent = agent; lower_ranked_agent < this->num_agents_; lower_ranked_agent++)
+                    {
+                        std::shared_ptr<HistoryInterface> individual_history = joint_history->getIndividualHistory(lower_ranked_agent);
+                        individual_hierarchical_history->addIndividualHistory(individual_history);
+                    }
+                    this->pushToIndividualHierarchicalHistoriesOf(t, agent, individual_hierarchical_history);
+                }
+            }
+        }
+    }
+
+    std::shared_ptr<JointHistoryInterface> OccupancyState::getIndividualHierarchicalHistory(number t, number agent, std::shared_ptr<JointHistoryInterface> candidate_ihhistory)
+    {
+        for (const std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history: this->individual_hierarchical_history_vector_map_vector[agent]->at(t))
+        {
+            if (*std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_history) == *std::dynamic_pointer_cast<JointHistoryTree>(candidate_ihhistory))
+            {
+                return individual_hierarchical_history;
+            }
+        }
+        return nullptr;
+    }
+
+    std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getIndividualHierarchicalHistoriesOf(number t, number agent)
     {
         return this->individual_hierarchical_history_vector_map_vector[agent]->at(t);
     }
 
-    void OccupancyState::pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history)
+    bool OccupancyState::individualHierarchicalHistoryVectorForIsDone(number t, number agent)
+    {
+        if (this->individual_hierarchical_history_vector_map_vector[agent]->find(t) == this->individual_hierarchical_history_vector_map_vector[agent]->end())
+        {
+            return false;
+        }
+        else
+        {
+            return (this->individual_hierarchical_history_vector_map_vector[agent]->at(t).size() != 0);
+        }
+    }
+
+    void OccupancyState::pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history)
     {
         if (this->individual_hierarchical_history_vector_map_vector[agent]->find(t) == this->individual_hierarchical_history_vector_map_vector[agent]->end())
         {

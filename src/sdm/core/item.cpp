@@ -4,6 +4,11 @@
 
 namespace sdm
 {
+    std::shared_ptr<Item> Item::toItem()
+    {
+        return std::static_pointer_cast<Item>(this->getPointer());
+    }
+
     std::shared_ptr<State> Item::toState()
     {
         return std::static_pointer_cast<State>(this->getPointer());

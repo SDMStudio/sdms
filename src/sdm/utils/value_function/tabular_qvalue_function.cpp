@@ -36,15 +36,15 @@ namespace sdm
         return this->getQValuesAt(state, t)->at(action);
     }
 
-    double TabularQValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
-    {
-        return this->getQValuesAt(state, t)->max();
-    }
+    // double TabularQValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
+    // {
+    //     return this->getQValuesAt(state, t)->max();
+    // }
 
-    std::shared_ptr<Action> TabularQValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
-    {
-        return this->getQValuesAt(state, t)->argmax();
-    }
+    // std::shared_ptr<Action> TabularQValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
+    // {
+    //     return this->getQValuesAt(state, t)->argmax();
+    // }
 
     void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta)
     {
@@ -103,7 +103,7 @@ namespace sdm
                 {
                     res << "\t\t\t<action id=\"" << action_value.first << "\" value=" << action_value.second << ">" << std::endl;
                     tools::indentedOutput(res, action_value.first->str().c_str(), 4);
-                    res << "\t\t\t</action>" << std::endl;
+                    res << std::endl << "\t\t\t</action>" << std::endl;
                 }
                 res << "\t\t</actions>" << std::endl;
             }

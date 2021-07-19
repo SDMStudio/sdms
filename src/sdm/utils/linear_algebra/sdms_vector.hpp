@@ -64,6 +64,7 @@ namespace sdm
     T at(const I &) const;
     T getValueAt(const I &) const;
     void setValueAt(const I &, const T &value);
+    void addValueAt(const I &, const T &value); // ps: added by baris, not tested.
 
     T sum() const;
     T norm_1() const;

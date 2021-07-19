@@ -83,6 +83,12 @@ namespace sdm
     }
 
     template <typename TIndex, typename T>
+    void MappedVector<TIndex, T>::addValueAt(const TIndex &index, const T &value)
+    {
+        (*this)[index] = this->getValueAt(index) + value;
+    }
+
+    template <typename TIndex, typename T>
     T MappedVector<TIndex, T>::norm_2() const
     {
         T v = 0;

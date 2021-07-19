@@ -70,6 +70,20 @@ namespace sdm
         return probability;
     }
 
+    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &joint_state, const std::shared_ptr<Action> &joint_action) const
+    {
+
+        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        auto joint_action_ = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action);
+
+        double probability = 1.;
+        for (number agent_id = 0; agent_id < this->size(); agent_id++)
+        {
+            probability *= this->get(agent_id)->getProbability(joint_state_->at(agent_id), joint_action_->at(agent_id));
+        }
+        return probability;
+    }
+
     double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const
     {
         assert(agent_id < this->size());

@@ -14,6 +14,7 @@ namespace sdm
     public:
         virtual std::string str() const = 0;
 
+        virtual std::shared_ptr<Item> toItem();
         virtual std::shared_ptr<State> toState();
         virtual std::shared_ptr<Action> toAction();
         virtual std::shared_ptr<Observation> toObservation();

@@ -86,6 +86,8 @@ namespace sdm
 
         std::shared_ptr<Observation> getObservation();
 
+        number getHorizon() const;
+
         /*!
          *  @brief  Expands the tree
          *  @param  data the data of the expanded node
@@ -122,7 +124,6 @@ namespace sdm
          * 
          * @return number 
          */
-        number getHorizon() const;
 
         std::string str() const;
         std::string short_str() const;

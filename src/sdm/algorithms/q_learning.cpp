@@ -70,7 +70,7 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log_)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_table_->getValueAt(this->env_->reset()->toState(), 0), (float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(this->episode, this->global_step, this->backup_->getValueAt(this->env_->reset()->toState(), 0), (float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
                 this->do_log_ = false;
             }
             if (this->do_test_)
@@ -132,6 +132,8 @@ namespace sdm
         this->action = this->select_action(this->observation);
         // std::cout << "-------- do_step() --------- 1" << std::endl;
 
+        // std::cout << *this->action << std::endl;
+
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
         // std::cout << "-------- do_step() --------- 2" << std::endl;
@@ -176,6 +178,7 @@ namespace sdm
 
     std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation)
     {
+        // std::cout << "-------- QLearning::select_action ---------" << std::endl;
         // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
         if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), this->step))
         {
@@ -185,7 +188,7 @@ namespace sdm
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            // return this->q_value_table_->getBestAction(observation->toState(), this->step);
+            // return this->backup_->getGreedyAction(observation->toState(), this->step);
             return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
         }
         // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
@@ -198,7 +201,7 @@ namespace sdm
         std::ofstream ofs;
         ofs.open(filename, std::ios::out | std::ios::app);
         ofs << other << ",";
-        ofs << this->q_value_table_->getValueAt(this->env_->reset()->toState(), 0) << ",";
+        ofs << this->backup_->getValueAt(this->env_->reset()->toState(), 0) << ",";
         ofs << std::static_pointer_cast<OccupancyMDP>(this->env_)->getMDPGraph()->getNumNodes() << ",";
         // number num_max_jhist = 0, tmp;
         // for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->env_)->getStoredStates())

@@ -17,6 +17,8 @@ namespace sdm
 
         virtual std::shared_ptr<Observation> getObservation() = 0;
 
+        virtual number getHorizon() const = 0;
+
         // virtual std::shared_ptr<Action> getLastAction() = 0;
         // virtual std::shared_ptr<Observation> getObservation() = 0;
 

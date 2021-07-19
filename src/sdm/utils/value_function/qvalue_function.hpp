@@ -63,7 +63,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+        // virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-values for all actions at a state
@@ -82,7 +82,7 @@ namespace sdm
          */
         virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
-        virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0) = 0;
+        // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0) = 0;
 
         /**
          * @brief Update the value at a given state
