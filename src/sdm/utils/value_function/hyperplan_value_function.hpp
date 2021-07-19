@@ -98,7 +98,7 @@ namespace sdm
 
         void createDefault(const std::shared_ptr<State> &state, number t);
 
-        void do_prunning(number t);
+        void do_pruning(number t);
 
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;
@@ -120,7 +120,7 @@ namespace sdm
          * @brief Frequency before prunning
          * 
          */
-        number freq_prune_;
+        number freq_pruning_;
 
         /**
          * @brief The last time the prunning took place

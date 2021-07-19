@@ -48,7 +48,7 @@ namespace sdm
          * @param state the state
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
-        void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
+        virtual void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Update the value function at state s and timestep t to the target value.
@@ -57,7 +57,7 @@ namespace sdm
          * @param t the timestep
          * @param target the target
          */
-        virtual void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
+        void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
 
         // /**
         //  * @brief Save a value function into a file.
@@ -89,7 +89,7 @@ namespace sdm
 
         Container getRepresentation(number t);
 
-        void do_prunning(number t);
+        void do_pruning(number t);
 
     protected:
         /**
