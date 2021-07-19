@@ -15,7 +15,6 @@ namespace sdm
     class Item : public std::inheritable_enable_shared_from_this<Item>
     {
     public:
-        virtual std::string str() const = 0;
 
         virtual std::shared_ptr<Item> toItem();
         /** @brief Cast the item into a pointer on state. */

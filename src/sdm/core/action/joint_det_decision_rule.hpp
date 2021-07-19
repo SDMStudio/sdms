@@ -34,8 +34,6 @@ namespace sdm
          */
         double getProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action) const;
 
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
-
         /**
          * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
          * 
