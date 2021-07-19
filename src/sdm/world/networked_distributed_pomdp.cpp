@@ -135,7 +135,6 @@ namespace sdm
         std::stringstream lineStream;
         std::string line, contenu, useless, useless2;
         std::vector<std::string> intermediate, intermediate2;
-
         size_t index;
         // int found;
         while (std::getline(input_file, line))

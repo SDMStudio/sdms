@@ -50,8 +50,6 @@ namespace sdm
             Node(agent id, std::unordered_set<agent>);
         };
 
-        number num_agents_;
-
         std::map<int, int> transitionmatrix;
         std::unordered_set<state> *stateSuccessor;
         std::map<std::string, double> observationsmatrix;
