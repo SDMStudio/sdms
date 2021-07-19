@@ -8,10 +8,10 @@ namespace sdm
     {
     public:
         using TData = double;
-        
+
         ActionVFTabulaire();
-        ActionVFTabulaire(const std::shared_ptr<SolvableByHSVI>& world);
-        
+        ActionVFTabulaire(const std::shared_ptr<SolvableByHSVI> &world);
+
         /**
          * @brief Select the best action for a state at a precise time
          * 
@@ -20,6 +20,6 @@ namespace sdm
          * @param number t : time step
          * @return std::shared_ptr<Action> : Action
          */
-        std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+        std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
     };
 }

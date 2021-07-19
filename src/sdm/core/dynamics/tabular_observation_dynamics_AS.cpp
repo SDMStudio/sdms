@@ -75,7 +75,7 @@ namespace sdm
     this->next_observations_distrib_[action][next_state]->setProbability(observation, proba);
   }
 
-  std::shared_ptr<Distribution<std::shared_ptr<Observation>>> TabularObservationDynamicsAS::getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number)
+  std::shared_ptr<Distribution<std::shared_ptr<Observation>>> TabularObservationDynamicsAS::getNextObservationDistribution(const std::shared_ptr<State> &, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number)
   {
     return this->next_observations_distrib_.at(action).at(next_state);
   }

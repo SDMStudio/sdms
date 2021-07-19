@@ -11,14 +11,15 @@
  */
 namespace sdm
 {
-    class PointSetValueFunction : public TabularValueFunction
+    template <class Hash = std::hash<std::shared_ptr<State>>, class KeyEqual = std::equal_to<std::shared_ptr<State>>>
+    class BasePointSetValueFunction : public BaseTabularValueFunction<Hash, KeyEqual>
     {
     public:
-        using Container = MappedVector<std::shared_ptr<State>, double>;
+        using Container = typename BaseTabularValueFunction<Hash, KeyEqual>::Container;
 
-        PointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning = 10);
+        BasePointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning = -1);
 
-        PointSetValueFunction(number horizon,double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = 10);
+        BasePointSetValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = -1);
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -39,9 +40,9 @@ namespace sdm
          * @param t 
          * @return Pair<std::shared_ptr<State>, double> 
          */
-        Pair<std::shared_ptr<State>,double> evaluate(const std::shared_ptr<State>& state, number t);
+        Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
 
-        friend std::ostream &operator<<(std::ostream &os, PointSetValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, BasePointSetValueFunction &vf)
         {
             os << vf.str();
             return os;
@@ -49,7 +50,8 @@ namespace sdm
 
         double getValueAt(const std::shared_ptr<State> &state, number t);
 
-
+        void do_prunning(number t);
+        
     protected:
         /**
          * @brief Frequency before prunning.
@@ -81,7 +83,7 @@ namespace sdm
         * @param point : Point in the Point Set
         * @return Pair<std::shared_ptr<State>,double> 
         */
-        double ratioOccupancy(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point);
+        double ratioOccupancy(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point);
 
         /**
          * @brief Ratio specialized for the case Beleif (used for the evaluate function)
@@ -90,8 +92,7 @@ namespace sdm
          * @param point :Point in the Point Set
          * @return Pair<std::shared_ptr<State>,double> 
          */
-        double ratioBelief(const std::shared_ptr<BeliefInterface>& state, const std::shared_ptr<BeliefInterface>& point);
-
+        double ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point);
 
     public:
         friend class boost::serialization::access;
@@ -102,8 +103,13 @@ namespace sdm
             using boost::serialization::make_nvp;
 
             archive &make_nvp("horizon", this->horizon_);
-            archive &make_nvp("representation", representation);
+            archive &make_nvp("representation", this->representation);
         }
     };
 
+    using PointSetValueFunction = BasePointSetValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
+    using PointSetValueFunction2 = BasePointSetValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
+
 } // namespace sdm
+
+#include <sdm/utils/value_function/point_set_value_function.tpp>

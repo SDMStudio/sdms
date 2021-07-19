@@ -151,6 +151,8 @@ namespace sdm
             void printTime();
         #endif
 
+        virtual void do_prunning(number t) =0;
+
     protected:
         /**
          * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.

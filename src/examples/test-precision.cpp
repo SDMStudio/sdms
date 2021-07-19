@@ -118,8 +118,8 @@ int main(int argc, char **argv)
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
 
         // Instanciate value functions
-        auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
-        auto ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+        auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
+        auto ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
 
         // Instanciate HSVI
         auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);

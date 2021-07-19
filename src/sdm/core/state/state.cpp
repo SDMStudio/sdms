@@ -25,17 +25,26 @@ namespace sdm
 
     std::shared_ptr<BaseSerialInterface> State::toSerial()
     {
-        return std::dynamic_pointer_cast<BaseSerialInterface>(this->getPointer()); 
+        return std::dynamic_pointer_cast<BaseSerialInterface>(this->getPointer());
     }
 
     std::shared_ptr<SerialOccupancyInterface> State::toSerialOccupancyState()
     {
-        return std::dynamic_pointer_cast<SerialOccupancyInterface>(this->getPointer()); 
+        return std::dynamic_pointer_cast<SerialOccupancyInterface>(this->getPointer());
     }
 
-    TypeState State::getTypeState() const 
+    TypeState State::getTypeState() const
     {
-      return TypeState::STATE;
+        return TypeState::STATE;
+    }
+
+    size_t State::hash() const
+    {
+        throw exception::Exception("Hash (i.e. size_t X::hash() const ) is not implemented for this class");
+    }
+    bool State::operator==(const std::shared_ptr<State> &other) const
+    {
+        throw exception::Exception("Equal Operator (i.e. bool X::operator==() const ) is not implemented for this class");
     }
 
 } // namespace sdm

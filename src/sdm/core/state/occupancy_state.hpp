@@ -30,6 +30,9 @@ namespace sdm
         OccupancyState(number num_agents);
         OccupancyState(const OccupancyState &copy);
 
+        size_t hash() const;
+
+        bool operator==(const std::shared_ptr<State> &other) const;
         bool operator==(const OccupancyState &other) const;
 
         double getProbability(const std::shared_ptr<State> &joint_history) const;
@@ -190,7 +193,8 @@ namespace sdm
         void pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history);
 
         std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t);
-        void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history);
+        void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
+
     protected:
         /**
          * @brief the number of agents 
@@ -268,7 +272,6 @@ namespace sdm
         std::vector<std::shared_ptr<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>> individual_hierarchical_history_vector_map_vector;
         //
         std::shared_ptr<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>> joint_history_map_vector;
-        
     };
 } // namespace sdm
 

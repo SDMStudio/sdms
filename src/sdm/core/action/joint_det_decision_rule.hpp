@@ -37,6 +37,15 @@ namespace sdm
         double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
 
         /**
+         * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
+         * 
+         * @param s the state
+         * @param a the action
+         * @return the probability
+         */
+        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
+
+        /**
          * @brief Get the probability of action 'action' in state 'state' for agent id 
          * 
          * @param agent_id the agent identifier
@@ -54,6 +63,15 @@ namespace sdm
          * @param proba the probability
          */
         void setProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action, double proba = 0);
+
+        /**
+         * @brief Set the probability of selecting action a in state s.
+         * 
+         * @param s the state
+         * @param a the action
+         * @param proba the probability
+         */
+        void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba = 1);
 
         std::string str() const;
 

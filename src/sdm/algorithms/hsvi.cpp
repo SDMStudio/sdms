@@ -78,6 +78,9 @@ namespace sdm
 
             this->do_explore(start_state, 0, 0);
 
+            this->lower_bound_->do_prunning(this->trial);
+            this->upper_bound_->do_prunning(this->trial);
+
             this->current_time = std::chrono::high_resolution_clock::now();
             this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(this->current_time - this->start_time).count();
             

@@ -189,6 +189,7 @@ namespace sdm
             this->createDecentralizedVariablesSerial(vf,state,env,var,index,t);
         
         default:
+            throw sdm::exception::Exception("DecentralizedLP::createDecentralizedVariables This state is not defined for this function");
             break;
         }
     }
@@ -205,6 +206,7 @@ namespace sdm
             this->createDecentralizedConstraintsSerial(vf,state,env,con,var,index,t);
         
         default:
+            throw sdm::exception::Exception("DecentralizedLP::createDecentralizedConstraints This state is not defined for this function");
             break;
         }
     }
@@ -221,6 +223,7 @@ namespace sdm
             return this->getVariableResultSerial(vf,state,cplex,var,t);
 
         default:
+            throw sdm::exception::Exception("DecentralizedLP::getVariableResult This state is not defined for this function");
             break;
         }
     }

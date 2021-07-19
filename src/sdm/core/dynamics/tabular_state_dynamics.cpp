@@ -80,7 +80,7 @@ namespace sdm
         // return {};
     }
 
-    std::shared_ptr<Distribution<std::shared_ptr<State>>> TabularStateDynamics::getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
+    std::shared_ptr<Distribution<std::shared_ptr<State>>> TabularStateDynamics::getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number ) const
     {
         return this->next_states_distrib.at(state).at(action);
         // auto next_state_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();

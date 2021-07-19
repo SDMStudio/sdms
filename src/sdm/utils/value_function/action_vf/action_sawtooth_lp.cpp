@@ -11,7 +11,7 @@ namespace sdm
 {
     ActionVFSawtoothLP::ActionVFSawtoothLP() {}
     ActionVFSawtoothLP::ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution) : 
-        ActionVFBase(world),DecentralizedLP(world) , csawtooth_lp_(type_sawtooth_resolution), current_type_of_resolution_(current_type_of_resolution)
+        ActionVFBase(world),DecentralizedLP(world) , current_type_of_resolution_(current_type_of_resolution), csawtooth_lp_(type_sawtooth_resolution)
     {
         // If the problem is relaxed, the Big have to be equal to 0
         switch (type_sawtooth_resolution)
@@ -26,21 +26,10 @@ namespace sdm
         }
     }
 
-    TypeSawtoothLinearProgram ActionVFSawtoothLP::getSawtoothType()
-    {
-        return this->csawtooth_lp_;
-    }
-
-    void ActionVFSawtoothLP::setSawtoothType(const TypeSawtoothLinearProgram &csawtooth_lp)
-    {
-        this->csawtooth_lp_ = csawtooth_lp;
-    }
-
-
     std::shared_ptr<Action> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         // Determine the type of Linear Program to use
-        switch (this->getSawtoothType())
+        switch (this->csawtooth_lp_)
         {
         case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
             return this->createFullSawtooth(vf,state, t);
@@ -492,6 +481,7 @@ namespace sdm
 
     void ActionVFSawtoothLP::createSawtoothBigMSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface>& , const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double , double , IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number )
     {
+        throw sdm::exception::NotImplementedException();
         // try
         // {
         //     auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
@@ -529,6 +519,7 @@ namespace sdm
 
     void ActionVFSawtoothLP::createSawtoothIloIfThenSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface>& , const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double , double , IloEnv &, IloModel &, IloNumVarArray &,number )
     {
+        throw sdm::exception::NotImplementedException();
         // try
         // {
         //     auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
@@ -563,8 +554,8 @@ namespace sdm
         // }
     }
 
-    double ActionVFSawtoothLP::calculRelaxationContrainteSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, std::shared_ptr<Action>& , number ){}
+    double ActionVFSawtoothLP::calculRelaxationContrainteSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, std::shared_ptr<Action>& , number ){throw sdm::exception::NotImplementedException();}
 
-    void ActionVFSawtoothLP::createObjectiveFunctionSerial(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &, IloNumVarArray &, IloObjective &, number ){}
+    void ActionVFSawtoothLP::createObjectiveFunctionSerial(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &, IloNumVarArray &, IloObjective &, number ){throw sdm::exception::NotImplementedException();}
     
 }

@@ -33,6 +33,7 @@ namespace sdm
                                             number BigM = 100,
                                             std::string type_sawtooth_linear_programming = "Full",
                                             int freq_prunning_lower_bound = -1,
+                                            TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE,
                                             int freq_prunning_upper_bound = -1);
 
         /**
@@ -82,6 +83,7 @@ namespace sdm
                                         number BigM = 100,
                                         std::string type_sawtooth_linear_programming = "Full",
                                         int freq_prunning_lower_bound = -1,
+                                        TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE,
                                         int freq_prunning_upper_bound = -1);
 
         // std::shared_ptr<sdm::QLearning<TObservation, TAction>> makeQLearning(std::shared_ptr<GymInterface<TObservation, TAction>> problem,

@@ -86,13 +86,12 @@ namespace sdm
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
-        clock_t t_begin = clock();
 
         // If the action space corresponding to this ostate and t does not exist:
-        if (ostate->toOccupancyState()->getActionSpaceAt(0) == nullptr)
+        if (ostate->toOccupancyState()->getActionSpaceAt(t) == nullptr)
         {
             // Compute the action space at this occupancy state and timestep
-            std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, 0);
+            std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, t);
 
             // If we don't store action spaces
             if (!this->store_actions_)
@@ -102,13 +101,12 @@ namespace sdm
             else
             {
                 // Store the action space for state o
-                ostate->toOccupancyState()->setActionSpaceAt(0, joint_ddr_space);
+                ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
             }
         }
 
-        OccupancyMDP::TIME_IN_GET_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         // Return the action space corresponding to this ostate and t.
-        return ostate->toOccupancyState()->getActionSpaceAt(0);
+        return ostate->toOccupancyState()->getActionSpaceAt(t);
     }
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
@@ -118,6 +116,8 @@ namespace sdm
 
     std::shared_ptr<Space> OccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
+        clock_t t_begin = clock();
+
         // Vector of individual deterministic decision rules of each agent.
         std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
         // For each agent from 0 to N-1:
@@ -140,9 +140,9 @@ namespace sdm
             std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{nullptr}),
             std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
             this->store_actions_);
+        OccupancyMDP::TIME_IN_GET_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return joint_ddr_space;
     }
-
 
     Pair<std::shared_ptr<State>, double> OccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
