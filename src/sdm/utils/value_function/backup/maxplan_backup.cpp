@@ -97,7 +97,7 @@ namespace sdm
             for (const auto &jhistory : occupancy->getFullyUncompressedOccupancy()->getJointHistories())
             {
                 // Select the joint action
-                auto action = occupancy_mdp->applyDecisionRule(occupancy->toOccupancyState(), jhistory, decision_rule, t);
+                auto action = occupancy_mdp->applyDecisionRule(occupancy->toOccupancyState(), occupancy->toOccupancyState()->getCompressedJointHistory(jhistory), decision_rule, t);
 
                 // Create new belief
                 auto new_belief = std::make_shared<Belief>();

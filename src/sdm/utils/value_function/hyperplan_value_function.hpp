@@ -21,6 +21,7 @@ namespace sdm
         ~HyperplanValueFunction();
 
         void initialize();
+        
         void initialize(double, number = 0);
 
         /**

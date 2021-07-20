@@ -69,9 +69,7 @@ namespace sdm
         // auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(joint_action);
         OccupancyMDP::TIME_IN_UNDER_STEP += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
-        t_tmp = clock();
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
-        OccupancyMDP::TIME_IN_GET_REWARD += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
         t_tmp = clock();
         this->current_state_ = this->nextOccupancyState(this->current_state_, action, nullptr, this->step_);
@@ -87,6 +85,7 @@ namespace sdm
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
 
+        clock_t t_begin = clock();
         // If the action space corresponding to this ostate and t does not exist:
         if (ostate->toOccupancyState()->getActionSpaceAt(t) == nullptr)
         {
@@ -106,6 +105,7 @@ namespace sdm
         }
 
         // Return the action space corresponding to this ostate and t.
+        OccupancyMDP::TIME_IN_GET_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return ostate->toOccupancyState()->getActionSpaceAt(t);
     }
 
@@ -116,7 +116,6 @@ namespace sdm
 
     std::shared_ptr<Space> OccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
-        clock_t t_begin = clock();
 
         // Vector of individual deterministic decision rules of each agent.
         std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
@@ -140,7 +139,6 @@ namespace sdm
             std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{nullptr}),
             std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
             this->store_actions_);
-        OccupancyMDP::TIME_IN_GET_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return joint_ddr_space;
     }
 
@@ -157,6 +155,8 @@ namespace sdm
         // The new one step left occupancy state
         std::shared_ptr<State> one_step_left_compressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
 
+        clock_t t_begin = clock();
+
         if (this->batch_size_ == 0)
         {
             // Compute exact next state
@@ -167,10 +167,11 @@ namespace sdm
             // Compute sampled next state
             std::tie(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state) = this->computeSampledNextState(ostate, action, observation, t);
         }
+        OccupancyMDP::TIME_IN_NEXT_STATE += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
         if (this->compression_)
         {
-            clock_t t_begin = clock();
+            t_begin = clock();
 
             // The new compressed occupancy state
             std::shared_ptr<State> compressed_next_occupancy_state;
@@ -193,8 +194,6 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> OccupancyMDP::computeExactNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
-        clock_t t_begin = clock();
-
         auto occupancy_state = ostate->toOccupancyState();
         auto decision_rule = action->toDecisionRule();
 
@@ -205,7 +204,6 @@ namespace sdm
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
         // The new one step left occupancy state
         std::shared_ptr<OccupancyStateInterface> one_step_left_compressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
-
 
         // For each joint history in the support of the fully uncompressed occupancy state
         for (const auto &joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
@@ -248,8 +246,6 @@ namespace sdm
 
         fully_uncompressed_next_occupancy_state->finalize();
         one_step_left_compressed_next_occupancy_state->finalize();
-
-        OccupancyMDP::TIME_IN_NEXT_STATE += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
         return std::make_pair(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state);
     }
@@ -374,19 +370,6 @@ namespace sdm
 
     std::shared_ptr<Action> OccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
-        // Get the list of individual history labels
-        // auto joint_labels = ostate->toOccupancyState()->getJointLabels(joint_history->getIndividualHistories()).toJoint<State>();
-        //           << *ostate->getOneStepUncompressedOccupancy() << std::endl;
-        // //           << std::dynamic_pointer_cast<OccupancyState>(ostate)->private_ihistory_map_ << std::endl;
-        // for (number agent_id = 0; agent_id < 2; agent_id++)
-        // {
-        //     for (const auto &pair_hist_plabel : std::dynamic_pointer_cast<OccupancyState>(ostate)->private_ihistory_map_.get(agent_id))
-        //     {
-        //     }
-        // }
-        //           << *joint_history << std::endl;
-        //           << *decision_rule << std::endl;
-
         // Get the selected joint action
         auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_history->getIndividualHistories().toJoint<State>());
 
@@ -414,16 +397,18 @@ namespace sdm
 
     double OccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
+        clock_t t_begin = clock();
+
         auto state_action = std::make_pair(occupancy_state, decision_rule);
         auto successor = this->reward_graph_->getNode(0.0)->getSuccessor(state_action);
+        double reward = 0;
         if (successor != nullptr)
         {
             // Return the successor node
-            return successor->getData();
+            reward = successor->getData();
         }
         else
         {
-            double reward = 0;
             // For all histories in the occupancy state
             for (const auto &joint_history : occupancy_state->toOccupancyState()->getJointHistories())
             {
@@ -435,8 +420,10 @@ namespace sdm
                 reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
             }
             this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
-            return reward;
         }
+        // FOR PROFILING
+        OccupancyMDP::TIME_IN_GET_REWARD += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        return reward;
     }
 
     double OccupancyMDP::getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t)
@@ -469,18 +456,4 @@ namespace sdm
     {
         return std::min(ub - lb, cost_so_far + this->getUnderlyingProblem()->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
     }
-
-    // void OccupancyMDP::setInitialState(const std::shared_ptr<State> &state)
-    // {
-    //     // Initialize empty state
-    //     auto initial_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
-    //     initial_state->toOccupancyState()->setProbability(this->initial_history_->toJointHistory(), state->toBelief(), 1);
-
-    //     initial_state->toOccupancyState()->finalize();
-    //     initial_state->toOccupancyState()->setFullyUncompressedOccupancy(initial_state);
-    //     initial_state->toOccupancyState()->setOneStepUncompressedOccupancy(initial_state);
-
-    //     this->initial_state_ = std::static_pointer_cast<State>(std::make_shared<OccupancyStateGraph>(initial_state));
-    //     std::dynamic_pointer_cast<OccupancyStateGraph>(this->initial_state_)->initialize();
-    // }
 } // namespace sdm

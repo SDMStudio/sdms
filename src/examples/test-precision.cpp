@@ -1,4 +1,5 @@
 
+#include <iomanip>
 #include <iostream>
 
 #include <boost/program_options.hpp>
@@ -92,6 +93,7 @@ int main(int argc, char **argv)
         std::cout << "Precision Belief =" << Belief::PRECISION << std::endl;
         std::cout << "Precision OccupancyState =" << OccupancyState::PRECISION << std::endl;
         std::cout << "Precision Compression =" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
+        clock_t t_begin = clock();
 
         // Parse file into MPOMDP
         auto mdp = sdm::parser::parse_file(path);
@@ -121,15 +123,19 @@ int main(int argc, char **argv)
         // Instanciate value functions
         if (vm.count("store_states") && vm.count("store_actions"))
         {
-            lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-            ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            // lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            // ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
+            ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
             // ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
         }
         else
         {
             lb = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-            ub = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            // ub = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
+            ub = std::make_shared<PointSetValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
             // ub = std::make_shared<PointSetValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
         }
@@ -140,6 +146,8 @@ int main(int argc, char **argv)
         // Initialize and solve the problem
         algo->do_initialize();
         algo->do_solve();
+
+        double TOTAL_TIME = ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
         // Save results in a CSV file
         algo->saveResults(name + "_test.csv", compress_precision);
@@ -167,19 +175,24 @@ int main(int argc, char **argv)
         // ----------------------------------------------------------------------------- */
 
         // Log execution times
-        std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
-        std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
-        std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
-        std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
-        std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
-        std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
-        std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
-        std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
-        std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
+        std::cout << std::setprecision(5) << std::fixed;
+        std::cout << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        std::cout << "| NAME\t\t\t\t|\tTIME\t\t|\tPERCENT\t\t|" << std::endl;
+        std::cout << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        std::cout << "| TOTAL_TIME \t\t\t|\t" << TOTAL_TIME << " s\t|\t" << 100 * (TOTAL_TIME / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        std::cout << "| HSVI::TIME_INITIALIZATION \t|\t" << HSVI::TIME_INITIALIZATION << " s\t|\t" << 100 * (HSVI::TIME_INITIALIZATION / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| HSVI::TIME_IN_SELECT_ACTION \t|\t" << HSVI::TIME_IN_SELECT_ACTION << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| HSVI::TIME_IN_SELECT_STATE \t|\t" << HSVI::TIME_IN_SELECT_STATE << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| HSVI::TIME_IN_UPDATE_LB \t|\t" << HSVI::TIME_IN_UPDATE_LB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_LB / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| HSVI::TIME_IN_UPDATE_UB \t|\t" << HSVI::TIME_IN_UPDATE_UB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_UB / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_GET_ACTION \t|\t" << OccupancyMDP::TIME_IN_GET_ACTION << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_NEXT_STATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_STATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_COMPRESS \t|\t" << OccupancyMDP::TIME_IN_COMPRESS << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_GET_REWARD \t|\t" << OccupancyMDP::TIME_IN_GET_REWARD << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_REWARD / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+
     }
     catch (sdm::exception::Exception &e)
     {

@@ -61,7 +61,7 @@ namespace sdm
      * 
      */
     int trial, MAX_TRIALS;
-    double error_,time_max_;
+    double error_, time_max_;
     number planning_horizon_;
     std::string name_ = "hsvi";
 
@@ -72,17 +72,17 @@ namespace sdm
     std::chrono::high_resolution_clock::time_point start_time, current_time;
     double duration;
 
-    #ifdef LOGTIME
-      double time_start;
-      double total_time_select_action =0;
-      double total_time_next_state =0;
-      double total_time_update_upper =0;
-      double total_time_update_lower =0;
+#ifdef LOGTIME
+    double time_start;
+    double total_time_select_action = 0;
+    double total_time_next_state = 0;
+    double total_time_update_upper = 0;
+    double total_time_update_lower = 0;
 
-      void StartTime();
-      void updateTime(std::string information);
-      void printTime();
-    #endif
+    void StartTime();
+    void updateTime(std::string information);
+    void printTime();
+#endif
   public:
     /**
      * @brief Construct the HSVI object.
@@ -102,7 +102,7 @@ namespace sdm
          double epsilon,
          number num_max_trials = 10000,
          std::string name = "hsvi",
-        double time_max = 1000);
+         double time_max = 1000);
 
     std::shared_ptr<HSVI> getptr();
 
@@ -172,5 +172,6 @@ namespace sdm
 
     void saveResults(std::string filename, double other);
 
+    static double TIME_IN_SELECT_STATE, TIME_IN_SELECT_ACTION, TIME_INITIALIZATION, TIME_IN_UPDATE_LB, TIME_IN_UPDATE_UB;
   };
 } // namespace sdm
