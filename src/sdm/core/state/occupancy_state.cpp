@@ -6,11 +6,12 @@
 
 #include <sdm/core/state/jhistory_tree.hpp>
 
+#include <algorithm>
 
 namespace sdm
 {
     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
-    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0, OccupancyState::TIME_IN_HASH = 0;
+    double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0, OccupancyState::TIME_IN_HASH = 0, OccupancyState::TIME_IN_MINUS_OPERATOR = 0;
     unsigned long OccupancyState::PASSAGE_GET_PROBA = 0, OccupancyState::PASSAGE_SET_PROBA = 0, OccupancyState::PASSAGE_FINALIZE = 0;
 
     OccupancyState::OccupancyState() : OccupancyState(2)
@@ -203,6 +204,57 @@ namespace sdm
     double OccupancyState::operator<(const std::shared_ptr<BeliefInterface> &other) const
     {
         return this->operator<(*std::dynamic_pointer_cast<OccupancyState>(other->toOccupancyState()));
+    }
+
+    double OccupancyState::operator-(const std::shared_ptr<BeliefInterface> &other) const
+    {
+        clock_t t_begin = clock();
+        double distance = 0;
+        std::set<std::shared_ptr<JointHistoryInterface>> this_jhistories = this->getJointHistories();
+        std::set<std::shared_ptr<JointHistoryInterface>> other_jhistories = other->toOccupancyState()->getJointHistories();
+        std::set<std::shared_ptr<JointHistoryInterface>> all_jhistories;
+        std::set_union(std::begin(this_jhistories), std::end(this_jhistories), std::begin(other_jhistories), std::end(other_jhistories), std::inserter(all_jhistories, std::begin(all_jhistories)));
+        // For all joint histories
+        for (const auto &jhistory : all_jhistories)
+        {   
+            // For all states in the corresponding belief
+            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
+            {
+                // Add the distance
+                distance += std::abs(this->getProbability(jhistory, state) - other->toOccupancyState()->getProbability(jhistory, state));
+            }
+        }
+        OccupancyState::TIME_IN_MINUS_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        return distance;
+    }
+
+    double OccupancyState::minus(const std::shared_ptr<BeliefInterface> &other) const
+    {
+        // std::cout << "OccupancyState::minus()" << std::endl;
+        clock_t t_begin = clock();
+        double distance = 0;
+        // For all joint histories in this
+        for (const auto &jhistory : this->getJointHistories())
+        {   
+            // For all states in the corresponding belief
+            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
+            {
+                // Add the distance
+                distance += std::abs(this->getProbability(jhistory, state) - other->toOccupancyState()->getProbability(jhistory, state));
+            }
+        }
+        // For all joint histories in other
+        for (const auto &jhistory : other->toOccupancyState()->getJointHistories())
+        {   
+            // For all states in the corresponding belief
+            for (const auto &state : other->toOccupancyState()->getBeliefAt(jhistory)->getStates())
+            {
+                // Add the distance
+                distance += std::abs(this->getProbability(jhistory, state) - other->toOccupancyState()->getProbability(jhistory, state));
+            }
+        }
+        OccupancyState::TIME_IN_MINUS_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        return distance;
     }
 
     double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &other) const
@@ -720,6 +772,8 @@ namespace sdm
         }
         this->individual_hierarchical_history_vector_map_vector[agent]->at(t).push_back(individual_hierarchical_history);
     }
+
+
 
     std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getJointHistoryVector(number t)
     {

@@ -96,6 +96,8 @@ namespace sdm
 
         virtual bool isNotSeen(const std::shared_ptr<State> &state, number t) = 0;
 
+        virtual int getNumStates() const = 0;
+
         // virtual void printNumberOfActions() = 0;
 
         /**

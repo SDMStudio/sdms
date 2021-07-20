@@ -64,6 +64,8 @@ namespace sdm
 
         bool isNotSeen(const std::shared_ptr<State> &state, number t);
 
+        int getNumStates() const;
+
         // void printNumberOfActions();
         // size_t getSize() const
         // {
