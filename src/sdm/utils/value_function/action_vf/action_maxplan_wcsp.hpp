@@ -3,7 +3,8 @@
 #include <sdm/utils/value_function/action_vf/action_vf_base.hpp>
 #include <sdm/utils/linear_programming/variable_naming.hpp>
 
-#include "../../toulbar2/src/toulbar2lib.hpp"
+// #include "../../toulbar2/src/toulbar2lib.hpp"
+#include "toulbar2lib.hpp"
 
 
 namespace sdm
@@ -48,13 +49,13 @@ namespace sdm
          * 
          * @param double defines a real value
          */
-        int getCost(double);
+        long getCost(double);
 
         double getValueAt(const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action,const std::shared_ptr<State>& next_hyperplan, number t);
 
         std::shared_ptr<BeliefInterface> tmp_representation;
 
-        void determineMaxValue(std::shared_ptr<State>& state, number t);
+        void determineMaxValue(const std::shared_ptr<State>& state, number t);
 
     };
 }

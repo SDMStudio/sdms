@@ -43,6 +43,8 @@ namespace sdm
 
         this->determineMaxValue(state,t);
 
+        std::cout<<"Max value "<<this->max<<std::endl;
+
         number index;
 
         double value;
@@ -59,12 +61,10 @@ namespace sdm
         {
             for(const auto& ihistory : occupancy_state->getIndividualHistories(agent))
             {
-                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory,agent), 0, under_pb->getActionSpace(agent,t)->getDim()[0] - 1);
-                this->variables.emplace(ihistory->str(), index);
-                index ++;
+                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory,agent), 0, under_pb->getActionSpace(agent,t)->getDim()[0]);
+                this->variables.emplace(this->getVarNameIndividualHistory(ihistory,agent), index);
             }
         }
-
         // Creation of the cost network
 
         // Go over all joint histories 
@@ -75,8 +75,10 @@ namespace sdm
             //Go over all joint action
             for(const auto &joint_action : *under_pb->getActionSpace(t))
             {
+                std::cout<<"joint aciton"<<joint_action->str()<<std::endl;
                 costs.push_back(this->getCost(this->getValueAt(occupancy_state,joint_history,joint_action->toAction(),this->tmp_representation,t)));
             }
+            std::cout<<"Cost "<<costs<<std::endl;
             wcsp_solver->getWCSP()->postBinaryConstraint(this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(0),0)], this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(1),1)], costs);
         }
 
@@ -110,7 +112,7 @@ namespace sdm
                     // Search which action is the solution
                     for(const auto& indiv_action : *under_pb->getActionSpace(agent,t))
                     {
-                        if ( std::dynamic_pointer_cast<DiscreteAction>(indiv_action)->getAction() ==  sol[this->variables[this->getVarNameIndividualHistory(indiv_history,agent)]])
+                        if ( indiv_action->str() ==  under_pb->getActionSpace(agent,t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history,agent)]])->str())
                         {
                            indiv_actions.push_back(indiv_action);
                         }
@@ -120,9 +122,12 @@ namespace sdm
                 actions.push_back(indiv_actions);
                 joint_histories.push_back(indiv_histories);
             }
+            std::cout<<"DEcision rule created "<<std::endl;
 
             //Create JOint Deterministic Decision Rule
             decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories,actions);
+
+            std::cout<<"Decision rule "<<decision_rule->str()<<std::endl;
 
             for(const auto& joint_history : occupancy_state->getJointHistories())
             {
@@ -173,12 +178,12 @@ namespace sdm
         return weight;
     }
 
-    int ActionVFMaxplanWCSP::getCost(double value)
+    long ActionVFMaxplanWCSP::getCost(double value)
     {
-        return (int)this->offset * (this->max - value);
+        return (long)this->offset * (this->max - value);
     }
 
-    void ActionVFMaxplanWCSP::determineMaxValue(std::shared_ptr<State>& state, number t)
+    void ActionVFMaxplanWCSP::determineMaxValue(const std::shared_ptr<State>& state, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();

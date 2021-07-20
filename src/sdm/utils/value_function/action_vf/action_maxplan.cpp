@@ -28,6 +28,7 @@ namespace sdm
                 action_ = action->toAction();
             }
         }
+        std::cout<<'best decision rule '<<action_->str()<<std::endl;
         return action_;
     }
 }
