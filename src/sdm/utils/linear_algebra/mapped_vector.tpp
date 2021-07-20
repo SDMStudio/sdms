@@ -82,6 +82,12 @@ namespace sdm
     }
 
     template <class TIndex, class T, class Hash, class KeyEqual>
+    void MappedVector<TIndex, T, Hash, KeyEqual>::addValueAt(const TIndex &index, const T &value)
+    {
+        (*this)[index] = this->getValueAt(index) + value;
+    }
+
+    template <class TIndex, class T, class Hash, class KeyEqual>
     T MappedVector<TIndex, T, Hash, KeyEqual>::norm_2() const
     {
         T v = 0;

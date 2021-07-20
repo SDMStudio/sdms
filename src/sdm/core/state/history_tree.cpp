@@ -14,11 +14,6 @@ namespace sdm
     {
     }
 
-    number HistoryTree::getHorizon() const
-    {
-        return this->getDepth();
-    }
-
     std::shared_ptr<HistoryInterface> HistoryTree::getPreviousHistory()
     {
         return this->getParent();
@@ -27,6 +22,11 @@ namespace sdm
     std::shared_ptr<Observation> HistoryTree::getObservation()
     {
         return this->getData();
+    }
+
+    number HistoryTree::getHorizon() const
+    {
+        return this->getDepth();
     }
 
     // template <typename output>

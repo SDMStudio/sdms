@@ -40,7 +40,12 @@ namespace sdm
         {
             auto individual_decision_rule = this->get(agent);
             auto individual_state = joint_state_->get(agent);
+            // std::cout << "------------ AGENT " << agent << "-------------" << std::endl;
+            // std::cout << "*individual_state=" << *individual_state << std::endl;
+            // std::cout << "individual_state=" << individual_state << std::endl;
+            // std::cout << "individual_decision_rule=" << *individual_decision_rule << std::endl;
             auto individual_action = individual_decision_rule->act(individual_state);
+            // std::cout << "individual_action=" << individual_action << std::endl;
             joint_action->push_back(individual_action->toAction());
         }
         return joint_action;
@@ -70,14 +75,24 @@ namespace sdm
         return probability;
     }
 
+    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &joint_state, const std::shared_ptr<Action> &joint_action) const
+    {
+
+        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        auto joint_action_ = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action);
+
+        double probability = 1.;
+        for (number agent_id = 0; agent_id < this->size(); agent_id++)
+        {
+            probability *= this->get(agent_id)->getProbability(joint_state_->at(agent_id), joint_action_->at(agent_id));
+        }
+        return probability;
+    }
+
     double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const
     {
         assert(agent_id < this->size());
         return this->get(agent_id)->getProbability(state, action);
-    }
-    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &, const std::shared_ptr<Action> &) const
-    {
-        throw exception::Exception("Not implemented exception (JointDeterministicDecisionRule::getProbability)");
     }
 
     void JointDeterministicDecisionRule::setProbability(const Joint<std::shared_ptr<State>> &states, const Joint<std::shared_ptr<Action>> &actions, double probability)
@@ -101,7 +116,7 @@ namespace sdm
         }
     }
 
-    void JointDeterministicDecisionRule::setProbability(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, double )
+    void JointDeterministicDecisionRule::setProbability(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, double)
     {
         throw exception::Exception("Not implemented exception (JointDeterministicDecisionRule::setProbability)");
     }

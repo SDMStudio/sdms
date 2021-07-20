@@ -12,13 +12,15 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
-#include <sdm/utils/value_function/hierarchical_qvalue_function.hpp>
+#include <sdm/utils/value_function/hierarchical_qvalue_function_v1.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
+#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v1.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
+#include <sdm/world/private_hierarchical_occupancy_mdp_with_history.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
@@ -33,7 +35,7 @@ int learn(int argv, char **args)
         std::string path, formalism, name, qvalue, q_init;
         unsigned long max_steps;
         number horizon, memory, batch_size;
-        double lr, discount, sf, precision, precision2;
+        double lr, discount, sf, p_b, p_o, p_c;
         int seed;
 
         po::options_description options("Options");
@@ -47,8 +49,9 @@ int learn(int argv, char **args)
         ("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")
         ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
         ("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")
-        ("precision,r", po::value<double>(&precision)->default_value(0.0001), "the precision of hierarchical private occupancy states (occupancy states) ")
-        // ("precision2,w", po::value<double>(&precision2)->default_value(0.000001), "the precision of private occupancy states (private occupancy states)")
+        ("p_b", po::value<double>(&p_b)->default_value(0.0001), "the precision of belief state")
+        ("p_o", po::value<double>(&p_o)->default_value(0.0001), "the precision of occupancy state ")
+        ("p_c", po::value<double>(&p_c)->default_value(0.01), "the precision of compression ")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")
@@ -88,8 +91,9 @@ int learn(int argv, char **args)
 
         common::global_urng().seed(seed);
 
-        OccupancyState::PRECISION = precision;
-        PrivateOccupancyState::PRECISION = precision;
+        Belief::PRECISION = p_b;
+        OccupancyState::PRECISION = p_o;
+        PrivateOccupancyState::PRECISION = p_c;
 
         auto dpomdp = sdm::parser::parse_file(path);
 
@@ -116,14 +120,10 @@ int learn(int argv, char **args)
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
-        else if (formalism == "PrivateHierarchicalOccupancyMDP")
+        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
-
-        // // Set precision
-        // Belief::PRECISION = 0.001;
-        // OccupancyState::PRECISION = 0.01;
-        // PrivateOccupancyState::PRECISION_COMPRESSION = 0.1;
-
+        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "hierarchical"))
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, true, batch_size);
 
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
@@ -131,19 +131,23 @@ int learn(int argv, char **args)
         if (qvalue == "tabular")
             q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
         else if (qvalue == "hierarchical")
-            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, action_space);
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
 
         std::shared_ptr<QValueFunction> target_q_value_table;
         if (qvalue == "tabular")
             target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
         else if (qvalue == "hierarchical")
-            target_q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, action_space);
+            target_q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
 
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
 
         std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
-        std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        std::shared_ptr<QValueBackupInterface> backup;
+        if (qvalue == "tabular")
+            backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        else if (qvalue == "hierarchical")
+            backup = std::make_shared<HierarchicalQValueBackupV1>(experience_memory, q_value_table, q_value_table, discount, action_space);
 
         std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
@@ -151,21 +155,21 @@ int learn(int argv, char **args)
 
         algorithm->do_solve();
 
-        std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
-        std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
-        std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
-        std::cout << "TOTAL TIME IN APPLY DR : " << OccupancyMDP::TIME_IN_APPLY_DR << std::endl;
-        std::cout << "TOTAL TIME IN UNDERLYING STEP : " << OccupancyMDP::TIME_IN_UNDER_STEP << std::endl;
-        std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
-        std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
-        std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
-        std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
-        std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
-        std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
+        // std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
+        // std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
+        // std::cout << "TOTAL TIME IN APPLY DR : " << OccupancyMDP::TIME_IN_APPLY_DR << std::endl;
+        // std::cout << "TOTAL TIME IN UNDERLYING STEP : " << OccupancyMDP::TIME_IN_UNDER_STEP << std::endl;
+        // std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
+        // std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
+        // std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
+        // std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
+        // std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
     
     }
     catch (std::exception &e)

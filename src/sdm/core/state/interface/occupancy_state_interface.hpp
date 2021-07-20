@@ -87,6 +87,11 @@ namespace sdm
         virtual void updateJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &, const Joint<std::shared_ptr<HistoryInterface>> &) = 0;
 
         /**
+         * @brief Get the label that corresponds to the ihistory.
+         */
+        virtual std::shared_ptr<HistoryInterface> getLabel(const std::shared_ptr<HistoryInterface> &ihistory, number agent_id) const = 0;
+
+        /**
          * @brief Get the Compressed Joint History. 
          */
         virtual std::shared_ptr<JointHistoryInterface> getCompressedJointHistory(const std::shared_ptr<JointHistoryInterface> &) const = 0;
@@ -111,9 +116,14 @@ namespace sdm
 
         virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
         virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space) = 0;
-        //
-        virtual std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoryVectorFor(number t, number agent) = 0;
-        virtual void pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;
+
+        virtual std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory) = 0;
+
+        virtual void prepareIndividualHierarchicalHistoryVectors(number t) = 0;
+        virtual std::shared_ptr<JointHistoryInterface> getIndividualHierarchicalHistory(number t, number agent, std::shared_ptr<JointHistoryInterface> candidate_ihhistory) = 0;
+        virtual std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoriesOf(number t, number agent) = 0;
+        virtual bool individualHierarchicalHistoryVectorForIsDone(number t, number agent) = 0;
+        virtual void pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;
 
         virtual std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t) = 0;
         virtual void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;

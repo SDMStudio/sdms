@@ -10,6 +10,9 @@ RUN apt-get -y update \
     libeigen3-dev \
     libboost-all-dev \
     libfmt-dev \
+    libgmp-dev \
+    zlib1g-dev \
+    liblzma-dev \
     unzip \
     wget \
     clang \

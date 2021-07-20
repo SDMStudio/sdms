@@ -12,19 +12,25 @@ endif()
 
 # Check CPLEX dependancy and include directories
 if(CPLEX_FOUND)
-	include_directories(${CPLEX_INCLUDE_DIRS})
-	add_definitions("-DWITH_CPLEX")
-	add_definitions("-DIL_STD")
+include_directories(${CPLEX_INCLUDE_DIRS})
+add_definitions("-DWITH_CPLEX")
+add_definitions("-DIL_STD")
 endif()
 
 # Add boost definitions
 add_definitions (-DBOOST)
 add_definitions (-DDENSE)
 
+# Add TOULBAR2 definitions
+add_definitions (-DLONGDOUBLE_PROB -DLONGLONG_COST -DWCSPFORMATONLY)
+
 # Add include directories
 include_directories(${SDMS_INCLUDE_DIRS}
 					${Boost_INCLUDE_DIRS}
+					${TOULBAR_INCLUDE_DIR}
 					)
+					
+# -lboost_graph -lboost_iostreams -lgmp -lz -llzma -static
 	
 # Build libsdm (contains all sdms sources)
 # file(
@@ -114,7 +120,7 @@ endif()
 set(SDMS_PROGRAM_NAME "SDMStudio")
 
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
-target_link_libraries(${SDMS_PROGRAM_NAME} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${LIB_SDMS})
+target_link_libraries(${SDMS_PROGRAM_NAME} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} libtb2.so ${LIB_SDMS})
 
 ########### INSTALL #################
 install(DIRECTORY ${INCLUDE_DIR} DESTINATION include)

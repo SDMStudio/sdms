@@ -9,7 +9,7 @@ file(
 foreach(f ${usage_examples})
   get_filename_component(exampleName ${f} NAME_WE) 
   add_executable (${exampleName} ${f}) 
-  target_link_libraries(${exampleName} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${LIB_SDMS})
+  target_link_libraries(${exampleName} -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${SDMS_LIB_DIR}/libtb2.so ${LIB_SDMS})
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${exampleName}
     DESTINATION bin/
     RENAME "sdms-${exampleName}")
@@ -17,7 +17,6 @@ endforeach(f)
 
 
 #### This section can be uncommented and rewrite in order to compile only a part of sdms (quicktest.cpp file)
-
 file(
 	GLOB_RECURSE
 	lib_world

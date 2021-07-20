@@ -4,19 +4,38 @@
 
 namespace sdm
 {
+    class State;
+    class Action;
 
     class QValueBackupInterface
     {
     public:  
+
         /**
          * @brief 
          * 
-         * @param const std::shared_ptr<ValueFunction>& vf : Value function
-         * @param const std::shared_ptr<State>& state : current state
          * @param number t : time step
          * @return 
          */
         virtual double backup(number t) = 0;
+
+        /**
+         * @brief 
+         * 
+         * @param const std::shared_ptr<State>& state : current state
+         * @param number t : time step
+         * @return 
+         */
+        virtual std::shared_ptr<Action> getGreedyAction(const std::shared_ptr<State> &state, number t) = 0;
+
+        /**
+         * @brief 
+         * 
+         * @param const std::shared_ptr<State>& state : current state
+         * @param number t : time step
+         * @return 
+         */
+        virtual double getValueAt(const std::shared_ptr<State> &state, number t) = 0;
     };
 
 } // namespace sdm

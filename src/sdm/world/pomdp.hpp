@@ -26,6 +26,7 @@ namespace sdm
     class POMDP : virtual public MDP, virtual public POMDPInterface
     {
     public:
+        POMDP();
         POMDP(const std::shared_ptr<Space> &state_space,
               const std::shared_ptr<Space> &action_space,
               const std::shared_ptr<Space> &obs_space,
@@ -80,7 +81,7 @@ namespace sdm
 
         std::shared_ptr<ObservationDynamicsInterface> getObservationDynamics() const;
 
-        std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t);
+        std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
     protected:
         std::shared_ptr<Space> observation_space_;

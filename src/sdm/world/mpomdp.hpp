@@ -27,6 +27,7 @@ namespace sdm
     class MPOMDP : public MPOMDPInterface, public POMDP, public MMDP
     {
     public:
+        MPOMDP();
         MPOMDP(const std::shared_ptr<Space> &state_space,
                const std::shared_ptr<Space> &action_space,
                const std::shared_ptr<Space> &obs_space,
@@ -55,7 +56,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpace(number t) const;
+        virtual std::shared_ptr<Space> getObservationSpace(number t = 0) const;
         
         virtual std::string toStdFormat();
 

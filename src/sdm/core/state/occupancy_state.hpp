@@ -184,8 +184,13 @@ namespace sdm
         static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_HASH;
         static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
 
-        std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoryVectorFor(number t, number agent);
-        void pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
+        std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory);
+
+        void prepareIndividualHierarchicalHistoryVectors(number t);
+        std::shared_ptr<JointHistoryInterface> getIndividualHierarchicalHistory(number t, number agent, std::shared_ptr<JointHistoryInterface> candidate_ihhistory);
+        std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoriesOf(number t, number agent);
+        bool individualHierarchicalHistoryVectorForIsDone(number t, number agent);
+        void pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history);
 
         std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t);
         void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
@@ -204,13 +209,10 @@ namespace sdm
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state, compressed_occupancy_state;
 
         /** @brief Keep relations between all private ihistories and labels */
-        Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<std::shared_ptr<HistoryInterface>>>> private_ihistory_map_;
-
-        /** @brief */
-        Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<std::shared_ptr<HistoryInterface>>>> map_label_to_pointer;
+        Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<HistoryInterface>>> private_ihistory_map_;
 
         /** @brief Keep relation between list of individual histories and joint histories */
-        RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
+        static RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
 
         /** @brief probability of a private history space for a precise agent */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, double>> probability_ihistories;

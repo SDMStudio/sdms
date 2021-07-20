@@ -8,7 +8,7 @@ namespace sdm
     {
     }
 
-    SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp) : underlying_problem(mdp)
+    SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp) : underlying_problem_(mdp)
     {
         this->initial_state_ = (*this->getUnderlyingProblem()->getStateSpace(0)->begin())->toState();
     }
@@ -31,9 +31,9 @@ namespace sdm
     {
         double max = -std::numeric_limits<double>::max();
         std::shared_ptr<State> argmax = 0;
-        for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
+        for (const auto &next_state : this->underlying_problem_->getReachableStates(state, action, t))
         {
-            double tmp = this->underlying_problem->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
+            double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
             if (tmp > max)
             {
                 max = tmp;
@@ -55,20 +55,20 @@ namespace sdm
 
     std::shared_ptr<Space> SolvableByMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
-        return std::dynamic_pointer_cast<MDPInterface>(this->underlying_problem)->getActionSpace(t);
+        return std::dynamic_pointer_cast<MDPInterface>(this->underlying_problem_)->getActionSpace(t);
     }
 
     double SolvableByMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        return this->underlying_problem->getReward(state, action, t);
+        return this->underlying_problem_->getReward(state, action, t);
     }
 
     double SolvableByMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         double tmp = 0;
-        for (const auto &next_state : this->underlying_problem->getReachableStates(state, action, t))
+        for (const auto &next_state : this->underlying_problem_->getReachableStates(state, action, t))
         {
-            tmp += this->underlying_problem->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
+            tmp += this->underlying_problem_->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
         }
         return tmp;
     }
@@ -80,17 +80,17 @@ namespace sdm
 
     const std::shared_ptr<MDPInterface> &SolvableByMDP::getUnderlyingProblem() const
     {
-        return this->underlying_problem;
+        return this->underlying_problem_;
     }
 
     const std::shared_ptr<MDPInterface> &SolvableByMDP::getUnderlyingMDP() const
     {
-        return this->underlying_problem;
+        return this->underlying_problem_;
     }
 
     double SolvableByMDP::getDiscount(number t)
     {
-        return this->underlying_problem->getDiscount(t);
+        return this->underlying_problem_->getDiscount(t);
     }
 
     double SolvableByMDP::getWeightedDiscount(number t)

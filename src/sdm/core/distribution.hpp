@@ -16,11 +16,12 @@
 namespace sdm
 {
     template <typename T>
-    class Distribution
+    class Distribution : public std::enable_shared_from_this<Distribution<T>>
     {
     public:
         virtual T sample() const = 0;
         virtual double getProbability(const T &begin, const T &end) const = 0;
+        // std::shared_ptr<DiscreteDistribution<T>> toDiscreteDistribution();
     };
 
     template <typename T>

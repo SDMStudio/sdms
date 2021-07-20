@@ -48,13 +48,17 @@ endif()
 # Set useful variables
 set(SDMS_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src)
 set(SDMS_SOURCE_DIRS ${CMAKE_SOURCE_DIR}/src)
+set(SDMS_LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(SDMS_DOC_DIR ${CMAKE_SOURCE_DIR}/docs)
 set(SDMS_MAN_DIR ${SDMS_DOC_DIR}/man)
+
+set(TOULBAR_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/tb2)
 
 set(INCLUDE_DIR ${SDMS_INCLUDE_DIRS}/sdm)
 set(SOURCE_DIR ${SDMS_SOURCE_DIRS}/sdm)
 set(EXAMPLES_DIR ${SDMS_SOURCE_DIRS}/examples)
 set(ALGOS_DIR ${SDMS_SOURCE_DIRS}/algos)
+
 
 # Set names of libraries
 set(LIB_SDMS ${CMAKE_PROJECT_NAME})

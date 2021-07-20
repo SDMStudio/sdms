@@ -4,6 +4,7 @@
 
 namespace sdm
 {
+    MDP::MDP(){}
 
     MDP::MDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
@@ -117,7 +118,7 @@ namespace sdm
         return this->internal_state_;
     }
 
-    std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t) 
+    std::shared_ptr<Observation> MDP::sampleNextObservation(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         std::shared_ptr<State> next_state = this->state_dynamics_->getNextStateDistribution(state, action, t)->sample();
         this->setInternalState(next_state);
@@ -131,7 +132,7 @@ namespace sdm
         std::shared_ptr<Observation> observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
 
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
-        
+
         this->current_timestep_++;
 
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
@@ -144,7 +145,7 @@ namespace sdm
         std::shared_ptr<Observation> observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
 
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
-        
+
         if (increment_timestep)
             this->current_timestep_++;
 

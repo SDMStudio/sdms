@@ -5,7 +5,7 @@
 
 #include <sdm/parser/ast.hpp>
 #include <sdm/world/mpomdp.hpp>
-// #include <sdm/world/networked_distributed_pomdp.hpp>
+#include <sdm/world/networked_distributed_pomdp.hpp>
 #include <boost/spirit/home/x3.hpp>
 
 namespace sdm

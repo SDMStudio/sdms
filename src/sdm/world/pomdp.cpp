@@ -2,6 +2,7 @@
 
 namespace sdm
 {
+    POMDP::POMDP() {}
 
     POMDP::POMDP(const std::shared_ptr<Space> &state_space,
                  const std::shared_ptr<Space> &action_space,
@@ -43,7 +44,7 @@ namespace sdm
         return this->observation_dynamics_;
     }
 
-    std::shared_ptr<Observation> POMDP::sampleNextObservation(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action, number t)
+    std::shared_ptr<Observation> POMDP::sampleNextObservation(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         MDP::sampleNextObservation(state, action, t);
         return this->observation_dynamics_->getNextObservationDistribution(state, action, this->getInternalState(), t)->sample();

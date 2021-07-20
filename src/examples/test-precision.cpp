@@ -117,9 +117,22 @@ int main(int argc, char **argv)
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
 
+        std::shared_ptr<ValueFunction> lb, ub;
         // Instanciate value functions
-        auto lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
-        auto ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        if (vm.count("store_states") && vm.count("store_actions"))
+        {
+            lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+            // ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+        }
+        else
+        {
+            lb = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            ub = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+            // ub = std::make_shared<PointSetValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+        }
 
         // Instanciate HSVI
         auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
@@ -136,7 +149,6 @@ int main(int argc, char **argv)
         // std::cout << *algo->getUpperBound() << std::endl;
 
         // -----------------------------------------------------------------------------
-
 
         /* // ---------- Comment / Uncomment this section to enable test compression ---------- 
 

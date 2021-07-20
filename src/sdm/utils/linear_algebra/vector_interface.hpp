@@ -33,6 +33,7 @@ namespace sdm
     virtual T at(const I &index) const = 0;
     virtual T getValueAt(const I &index) const = 0;
     virtual void setValueAt(const I &index, const T &value) = 0;
+    virtual void addValueAt(const I &index, const T &value) = 0;
 
     virtual T min() = 0;
     virtual I argmin() = 0;

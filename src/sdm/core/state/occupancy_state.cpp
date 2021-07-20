@@ -4,11 +4,15 @@
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 
+#include <sdm/core/state/jhistory_tree.hpp>
+
+
 namespace sdm
 {
     double OccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
     double OccupancyState::TIME_IN_GET_PROBA = 0, OccupancyState::TIME_IN_SET_PROBA = 0, OccupancyState::TIME_IN_ADD_PROBA = 0, OccupancyState::TIME_IN_FINALIZE = 0, OccupancyState::TIME_IN_EQUAL_OPERATOR = 0, OccupancyState::TIME_IN_HASH = 0;
     unsigned long OccupancyState::PASSAGE_GET_PROBA = 0, OccupancyState::PASSAGE_SET_PROBA = 0, OccupancyState::PASSAGE_FINALIZE = 0;
+    RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> OccupancyState::jhistory_map_ = {};
 
     OccupancyState::OccupancyState() : OccupancyState(2)
     {
@@ -21,7 +25,6 @@ namespace sdm
             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
             this->weight_of_private_occupancy_state_.push_back({});
             this->private_ihistory_map_.push_back({});
-            this->map_label_to_pointer.push_back({});
             //
             this->individual_hierarchical_history_vector_map_vector.push_back(std::make_shared<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>());
         }
@@ -37,8 +40,6 @@ namespace sdm
           one_step_left_compressed_occupancy_state(occupancy_state.one_step_left_compressed_occupancy_state),
           compressed_occupancy_state(occupancy_state.compressed_occupancy_state),
           private_ihistory_map_(occupancy_state.private_ihistory_map_),
-          map_label_to_pointer(occupancy_state.map_label_to_pointer),
-          jhistory_map_(occupancy_state.jhistory_map_),
           probability_ihistories(occupancy_state.probability_ihistories),
           list_beliefs_(occupancy_state.list_beliefs_),
           list_joint_histories_(occupancy_state.list_joint_histories_),
@@ -73,7 +74,6 @@ namespace sdm
     void OccupancyState::setProbability(const std::shared_ptr<State> &joint_history, double proba)
     {
         Belief::setProbability(joint_history, proba);
-        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::setProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -92,7 +92,6 @@ namespace sdm
         // Add the probability of being in a joint history
         this->setProbability(joint_history, this->getProbability(joint_history) + proba);
 
-        // std::cout << "-------------------ERROOOOOR --------------\n\n\n\n\n\n\n";
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
@@ -120,7 +119,6 @@ namespace sdm
         return std::hash<OccupancyState>()(*this);
     }
 
-    
     bool OccupancyState::operator==(const OccupancyState &other) const
     {
         clock_t t_begin = clock();
@@ -158,7 +156,7 @@ namespace sdm
         OccupancyState::TIME_IN_EQUAL_OPERATOR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return true;
     }
-    
+
     bool OccupancyState::operator==(const std::shared_ptr<State> &other) const
     {
         return this->operator==(*std::dynamic_pointer_cast<OccupancyState>(other));
@@ -168,7 +166,7 @@ namespace sdm
     {
         return OccupancyState::operator==(*std::dynamic_pointer_cast<OccupancyState>(other));
     }
-    
+
     double OccupancyState::operator<(const OccupancyState &other) const
     {
         // std::cout<<this->str()<<std::endl;
@@ -357,7 +355,7 @@ namespace sdm
     std::shared_ptr<HistoryInterface> OccupancyState::getLabel(const std::shared_ptr<HistoryInterface> &ihistory, number agent_id) const
     {
         auto iterator = this->private_ihistory_map_.at(agent_id).find(ihistory);
-        return (iterator == this->private_ihistory_map_.at(agent_id).end()) ? ihistory : *iterator->second;
+        return (iterator == this->private_ihistory_map_.at(agent_id).end()) ? ihistory : iterator->second;
     }
 
     Joint<std::shared_ptr<HistoryInterface>> OccupancyState::getJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &list_ihistories) const
@@ -373,30 +371,15 @@ namespace sdm
 
     void OccupancyState::updateLabel(number agent_id, const std::shared_ptr<HistoryInterface> &ihistory, const std::shared_ptr<HistoryInterface> &label)
     {
-        // if there is a label for ihistory
-        auto iterator = this->private_ihistory_map_[agent_id].find(ihistory);
-        if (iterator != this->private_ihistory_map_[agent_id].end())
+        this->private_ihistory_map_[agent_id][ihistory] = label;
+        if (ihistory != label)
         {
-            // Get the old label
-            auto &&old_label_ptr = iterator->second;
-
-            // Change every labels of ihistories that have old_label_ptr as label
-            *old_label_ptr = label;
-        }
-        else
-        {
-            auto iterator_on_label_to_ptr = this->map_label_to_pointer[agent_id].find(label);
-            // Check if the label is already used for another indiv history
-            if (iterator_on_label_to_ptr != this->map_label_to_pointer[agent_id].end())
+            for (const auto &pair_ihistory_label : this->private_ihistory_map_[agent_id])
             {
-                this->private_ihistory_map_[agent_id][ihistory] = iterator_on_label_to_ptr->second;
-            }
-            else
-            {
-                // If no such label is already used, create a pointer on it and store it
-                auto &&new_ptr_on_label = std::make_shared<std::shared_ptr<HistoryInterface>>(label);
-                this->map_label_to_pointer[agent_id][label] = new_ptr_on_label;
-                this->private_ihistory_map_[agent_id][ihistory] = new_ptr_on_label;
+                if (pair_ihistory_label.second == ihistory)
+                {
+                    this->updateLabel(agent_id, pair_ihistory_label.first, label);
+                }
             }
         }
     }
@@ -432,10 +415,9 @@ namespace sdm
      */
     std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
     {
-        // std::cout << "Start Compress" << std::endl;
         auto current_compact_ostate = std::make_shared<OccupancyState>(this->num_agents_);
         auto previous_compact_ostate = std::make_shared<OccupancyState>(*this);
-
+       
         for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
         {
             // Get support (a set of individual histories for agent i)
@@ -503,11 +485,12 @@ namespace sdm
             previous_compact_ostate->private_ihistory_map_ = this->private_ihistory_map_;
             previous_compact_ostate->finalize();
             current_compact_ostate->clear();
+
+            
         }
 
         previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
         previous_compact_ostate->setOneStepUncompressedOccupancy(this->getptr());
-        // std::cout << "End Compress" << std::endl;
 
         return previous_compact_ostate;
     }
@@ -653,12 +636,73 @@ namespace sdm
     // ######### PHOS ##############################
     // #############################################
 
-    std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getIndividualHierarchicalHistoryVectorFor(number t, number agent)
+    std::shared_ptr<JointHistoryInterface> OccupancyState::getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory)
+    {
+        for (const std::shared_ptr<JointHistoryInterface>& joint_history: this->getJointHistories())
+        {
+            if (*std::dynamic_pointer_cast<JointHistoryTree>(joint_history) == *std::dynamic_pointer_cast<JointHistoryTree>(candidate_jhistory))
+            {
+                return joint_history;
+            }
+        }
+        return nullptr;
+    }
+
+    void OccupancyState::prepareIndividualHierarchicalHistoryVectors(number t)
+    {
+        std::set<std::shared_ptr<JointHistoryInterface>> joint_histories = this->getJointHistories();
+        // For all agents from 1 to N:
+        for (int agent = 0; agent < this->num_agents_; agent++)
+        {
+            if (!this->individualHierarchicalHistoryVectorForIsDone(t, agent))
+            {
+                // For each possible joint history:
+                for (std::shared_ptr<JointHistoryInterface> joint_history : joint_histories)
+                {
+                    //
+                    std::shared_ptr<JointHistoryInterface> individual_hierarchical_history = std::make_shared<JointHistoryTree>();
+                    // For each agent between agent I and agent N (both included):
+                    for (int lower_ranked_agent = agent; lower_ranked_agent < this->num_agents_; lower_ranked_agent++)
+                    {
+                        std::shared_ptr<HistoryInterface> individual_history = joint_history->getIndividualHistory(lower_ranked_agent);
+                        individual_hierarchical_history->addIndividualHistory(individual_history);
+                    }
+                    this->pushToIndividualHierarchicalHistoriesOf(t, agent, individual_hierarchical_history);
+                }
+            }
+        }
+    }
+
+    std::shared_ptr<JointHistoryInterface> OccupancyState::getIndividualHierarchicalHistory(number t, number agent, std::shared_ptr<JointHistoryInterface> candidate_ihhistory)
+    {
+        for (const std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history: this->individual_hierarchical_history_vector_map_vector[agent]->at(t))
+        {
+            if (*std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_history) == *std::dynamic_pointer_cast<JointHistoryTree>(candidate_ihhistory))
+            {
+                return individual_hierarchical_history;
+            }
+        }
+        return nullptr;
+    }
+
+    std::vector<std::shared_ptr<JointHistoryInterface>> OccupancyState::getIndividualHierarchicalHistoriesOf(number t, number agent)
     {
         return this->individual_hierarchical_history_vector_map_vector[agent]->at(t);
     }
 
-    void OccupancyState::pushToIndividualHierarchicalHistoryVectorFor(number t, number agent, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history)
+    bool OccupancyState::individualHierarchicalHistoryVectorForIsDone(number t, number agent)
+    {
+        if (this->individual_hierarchical_history_vector_map_vector[agent]->find(t) == this->individual_hierarchical_history_vector_map_vector[agent]->end())
+        {
+            return false;
+        }
+        else
+        {
+            return (this->individual_hierarchical_history_vector_map_vector[agent]->at(t).size() != 0);
+        }
+    }
+
+    void OccupancyState::pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history)
     {
         if (this->individual_hierarchical_history_vector_map_vector[agent]->find(t) == this->individual_hierarchical_history_vector_map_vector[agent]->end())
         {

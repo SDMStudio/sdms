@@ -18,17 +18,22 @@
 #include <sdm/core/item.hpp>
 #include <sdm/utils/struct/iterator.hpp>
 
+
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
  */
 namespace sdm
 {
+
+  class DiscreteSpace;
+  class MultiDiscreteSpace;
+
   /**
    * @class Space
    * @brief This class is an abstract interface that all spaces should inherite. It gives some useful general methods to use generic spaces in your algorithms. 
    */
-  class Space
+  class Space : public std::enable_shared_from_this<Space>
   {
   public:
     using iterator_type = std::shared_ptr<ItemIterator>;
@@ -49,6 +54,9 @@ namespace sdm
      * @brief Get the dimension of the space.
      */
     virtual std::vector<number> getDim() const = 0;
+
+    std::shared_ptr<DiscreteSpace> toDiscreteSpace();
+    std::shared_ptr<MultiDiscreteSpace> toMultiDiscreteSpace();
 
     /**
      * @brief Sample a random item from the space

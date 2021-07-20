@@ -12,7 +12,6 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
-#include <sdm/utils/value_function/hierarchical_qvalue_function.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
@@ -71,6 +70,8 @@ int main(int argc, char **argv)
         common::global_urng().seed(seed);
 
         auto dpomdp = sdm::parser::parse_file(path);
+        dpomdp->setHorizon(horizon);
+        dpomdp->setDiscount(discount);
 
         auto start_distribution = dpomdp->getStartDistribution();
 

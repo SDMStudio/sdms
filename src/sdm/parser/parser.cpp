@@ -82,8 +82,7 @@ namespace sdm
     {
       if (regex_match(filename, std::regex(".*\\.ndpomdp$")) || regex_match(filename, std::regex(".*\\.NDPOMDP$")))
       {
-        throw exception::NotImplementedException();
-        // return std::make_shared<NetworkedDistributedPOMDP>(filename);
+        return std::make_shared<NetworkedDistributedPOMDP>(filename);
       }
       else
       {
