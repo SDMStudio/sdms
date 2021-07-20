@@ -117,5 +117,7 @@ namespace sdm
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::do_prunning(number ){}
 
 } // namespace sdm

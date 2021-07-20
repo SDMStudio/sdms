@@ -128,6 +128,7 @@ namespace sdm
         catch(const std::exception& e)
         {
             std::cerr <<"MaxPlanBackup::setHyperplanOccupancy error "<< e.what() << '\n';
+            exit(-1);
         }
     }
 }

@@ -2,22 +2,20 @@
 
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
-#include <sdm/core/state/interface/joint_history_interface.hpp>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
  */
 namespace sdm
 {
-    class HierarchicalQValueFunction : public QValueFunction
+    class HierarchicalQValueFunctionV1 : public QValueFunction
     {
 
     public:
-        using Container = TabularQValueFunction;
 
-        HierarchicalQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, std::shared_ptr<Space> action_space);
+        HierarchicalQValueFunctionV1(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
 
-        HierarchicalQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0., std::shared_ptr<Space> action_space = nullptr);
+        HierarchicalQValueFunctionV1(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
 
         /**
          * @brief Initialize the value function 
@@ -44,13 +42,9 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
+        double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t);
+
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
-
-        double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &state, const std::shared_ptr<JointHistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
-
-        double getValueAt(const std::shared_ptr<State> &state, number t);
-
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Update the value at a given state
@@ -62,6 +56,8 @@ namespace sdm
          */
         void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta);
 
+        void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t, double delta);
+
         bool isNotSeen(const std::shared_ptr<State> &state, number t);
 
         /**
@@ -69,7 +65,7 @@ namespace sdm
          */
         virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, HierarchicalQValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, HierarchicalQValueFunctionV1 &vf)
         {
             os << vf.str();
             return os;
@@ -79,17 +75,17 @@ namespace sdm
 
         number num_agents_ = 2;
 
-        std::shared_ptr<Space> action_space_;
+        int num_of_ = 0;
 
-        std::vector<std::vector<std::shared_ptr<Action>>> lower_ranked_agents_joint_actions_for_each_agent_;
+        double learning_rate_;
+
+        number horizon_;
 
         /**
          * @brief The value function represention.
          * 
          */
-        std::unordered_map<std::shared_ptr<State>, Container> representation;
-
-        double learning_rate_;
+        std::unordered_map<std::shared_ptr<OccupancyStateInterface>, TabularQValueFunction> representation;
 
         /**
          * @brief The initializer to use for this value function. 
@@ -98,10 +94,6 @@ namespace sdm
         std::shared_ptr<QInitializer> initializer_;
 
         void initializeIfNeeded(const std::shared_ptr<State> &state);
-
-        std::shared_ptr<Action> getJointAction(const std::shared_ptr<Action> &joint_decision_rule, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &ostate, number t = 0);
-        std::shared_ptr<State> getJointHierarchicalHistory(const std::shared_ptr<State> &joint_labels, const std::shared_ptr<State> &ostate, number t) const;
-        std::vector<std::vector<std::shared_ptr<Action>>> getLowerRankedAgentsJointActionsForEachAgent();
     };
 
 } // namespace sdm

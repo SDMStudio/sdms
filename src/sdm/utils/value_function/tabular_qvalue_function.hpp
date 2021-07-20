@@ -48,9 +48,9 @@ namespace sdm
          */
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
-        double getValueAt(const std::shared_ptr<State> &state, number t);
+        // double getValueAt(const std::shared_ptr<State> &state, number t);
 
-        std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0);
+        // std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Update the value at a given state

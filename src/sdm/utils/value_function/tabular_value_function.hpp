@@ -89,6 +89,8 @@ namespace sdm
 
         Container getRepresentation(number t);
 
+        void do_prunning(number t);
+
     protected:
         /**
          * @brief The value function represention.

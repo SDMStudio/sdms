@@ -25,7 +25,7 @@ namespace sdm
         this->batch_size_ = batch_size;
 
         // Set underlying problem
-        this->underlying_problem = underlying_dpomdp;
+        this->underlying_problem_ = underlying_dpomdp;
 
         // Initialize underlying belief mdp
         this->belief_mdp_ = std::make_shared<BeliefMDP>(underlying_dpomdp, batch_size);
@@ -88,10 +88,10 @@ namespace sdm
     {
 
         // If the action space corresponding to this ostate and t does not exist:
-        if (ostate->toOccupancyState()->getActionSpaceAt(0) == nullptr)
+        if (ostate->toOccupancyState()->getActionSpaceAt(t) == nullptr)
         {
             // Compute the action space at this occupancy state and timestep
-            std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, 0);
+            std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, t);
 
             // If we don't store action spaces
             if (!this->store_actions_)
@@ -101,12 +101,12 @@ namespace sdm
             else
             {
                 // Store the action space for state o
-                ostate->toOccupancyState()->setActionSpaceAt(0, joint_ddr_space);
+                ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
             }
         }
 
         // Return the action space corresponding to this ostate and t.
-        return ostate->toOccupancyState()->getActionSpaceAt(0);
+        return ostate->toOccupancyState()->getActionSpaceAt(t);
     }
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)

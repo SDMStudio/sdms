@@ -62,7 +62,7 @@ namespace sdm
   }
 
 
-  void TabularObservationDynamicsS::updateNextObsDistribution(const std::shared_ptr<State> &, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba)
+  void TabularObservationDynamicsS::updateNextObsDistribution(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, double proba)
   {
     // If the distribution does not already exists
     if (this->next_observations_distrib_.find(next_state) == this->next_observations_distrib_.end())
@@ -73,7 +73,7 @@ namespace sdm
   }
 
 
-    std::shared_ptr<Distribution<std::shared_ptr<Observation>>> TabularObservationDynamicsS::getNextObservationDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number)
+    std::shared_ptr<Distribution<std::shared_ptr<Observation>>> TabularObservationDynamicsS::getNextObservationDistribution(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, number)
     {
         return this->next_observations_distrib_.at(next_state);
     }

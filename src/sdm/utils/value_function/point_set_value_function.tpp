@@ -39,16 +39,6 @@ namespace sdm
     void BasePointSetValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
         BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(state, t, target);
-
-        if (this->last_prunning == this->freq_prune_)
-        {
-            for (number time = 0; time < this->getHorizon(); time++)
-            {
-                // this->prune(time);
-            }
-            this->last_prunning = 0;
-        }
-        this->last_prunning++;
     }
 
     template <class Hash, class KeyEqual>
@@ -77,40 +67,6 @@ namespace sdm
 
         res << "</point_set_representation>" << std::endl;
         return res.str();
-    }
-
-    template <class Hash, class KeyEqual>
-    void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
-    {
-        std::vector<std::shared_ptr<State>> to_delete;
-
-        for (auto iter = this->representation[t].begin(); iter != this->representation[t].end(); iter++)
-        {
-            if (this->is_dominated(iter->first, iter->second, t))
-            {
-                to_delete.push_back(iter->first);
-            }
-        }
-
-        for (const auto &i : to_delete)
-        {
-            this->representation[t].erase(i);
-        }
-    }
-
-    template <class Hash, class KeyEqual>
-    bool BasePointSetValueFunction<Hash, KeyEqual>::is_dominated(const std::shared_ptr<State> &state, double value, number t)
-    {
-        auto pair_witness_ostate = this->evaluate(state, t);
-
-        if (pair_witness_ostate.first == state)
-        {
-            return false;
-        }
-        else
-        {
-            return (pair_witness_ostate.second <= value + this->epsilon_prunning);
-        }
     }
 
     template <class Hash, class KeyEqual>
@@ -208,4 +164,86 @@ namespace sdm
         return phi;
     }
 
+    // **********************
+    // ****** Prunning ******
+    // **********************
+
+    template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::do_prunning(number t)
+    {
+        if (this->last_prunning == this->freq_prune_)
+        {
+            for (number time = 0; time < this->getHorizon(); time++)
+            {
+                this->prune(time);
+            }
+            this->last_prunning = 0;
+        }
+        this->last_prunning++;
+    }
+
+    template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
+    {
+        // Pour le moment, la méthode n'est pas efficace 
+        // On peut améliorer cela, en effecutant une première boucle qui note le nombre de fois où le point est le support de quelqu'un
+        // Et grâce à cela, on refait la suite de mon code, mais à la place, on parcourt les points qui ont pour support notre points 
+        // (dans l'ordre décroissant )
+
+
+        std::vector<std::shared_ptr<State>> to_delete;
+
+        Container start_representation = this->getRepresentation(t);
+        Container current_representation = start_representation;
+        Container tempo_representation;
+
+        double value_without_me;
+        bool is_useful;
+
+        // Go over all point 
+        for(const auto &point_AND_value : start_representation)
+        {
+            // Delete the current point in order to test if it's useful to another point 
+            tempo_representation = current_representation;
+            tempo_representation.erase(point_AND_value.first);
+
+            this->representation[t] = tempo_representation;
+
+            is_useful = false;
+
+            //Go over all point 
+            for(const auto &point_AND_value_2 : current_representation)
+            {
+                // Test the value without the current point
+                value_without_me = this->evaluate(point_AND_value_2.first,t).second;
+
+                if(value_without_me>point_AND_value_2.second)
+                {
+                    is_useful = true;
+                }
+
+                if(is_useful)
+                    break;
+            }
+
+            if(!is_useful)
+                current_representation.erase(point_AND_value.first);
+        }
+
+        this->representation[t] = current_representation;
+    }
+
+    // bool PointSetValueFunction::is_dominated(const std::shared_ptr<State> &state, double value, number t)
+    // {
+    //     auto pair_witness_ostate = this->evaluate(state,t);
+
+    //     if (pair_witness_ostate.first == state)
+    //     {
+    //         return false;
+    //     }
+    //     else
+    //     {
+    //         return (pair_witness_ostate.second > value);// + this->epsilon_prunning);
+    //     }
+    // }
 } // namespace sdm

@@ -58,7 +58,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+        // virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-value at a state

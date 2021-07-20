@@ -75,6 +75,13 @@ namespace sdm
     }
 
     template <class I, class T, class TBaseVector>
+    void sdmsVector<I, T,TBaseVector>::addValueAt(const I &element, const T &value)
+    {
+        assert(this->map_element_to_index_->find(element) != this->map_element_to_index_->end());
+        this->tbasevector_[this->map_element_to_index_->at(element)] = this->getValueAt(element) + value;
+    }
+
+    template <class I, class T, class TBaseVector>
     const std::vector<I> &sdmsVector<I, T,TBaseVector>::getIndexes() const
     {
         return this->vector_element_;
