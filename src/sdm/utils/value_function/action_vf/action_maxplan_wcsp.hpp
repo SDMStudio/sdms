@@ -1,8 +1,9 @@
 #pragma once
 
 #include <sdm/utils/value_function/action_vf/action_vf_base.hpp>
+#include <sdm/utils/linear_programming/variable_naming.hpp>
+
 #include "../../toulbar2/src/toulbar2lib.hpp"
-#include <sdm/utils/value_function/variable_naming.hpp>
 
 
 namespace sdm
@@ -26,7 +27,7 @@ namespace sdm
         std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
     
         // Fonction temporaire le temps de bien comprendre 
-        void createWCSPProblem(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+        Pair<std::shared_ptr<Action>,double>  createWCSPProblem(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
     
     protected :
 
@@ -48,5 +49,12 @@ namespace sdm
          * @param double defines a real value
          */
         int getCost(double);
+
+        double getValueAt(const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action,const std::shared_ptr<State>& next_hyperplan, number t);
+
+        std::shared_ptr<BeliefInterface> tmp_representation;
+
+        void determineMaxValue(std::shared_ptr<State>& state, number t);
+
     };
 }
