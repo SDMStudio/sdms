@@ -204,13 +204,10 @@ namespace sdm
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state, compressed_occupancy_state;
 
         /** @brief Keep relations between all private ihistories and labels */
-        Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<std::shared_ptr<HistoryInterface>>>> private_ihistory_map_;
-
-        /** @brief */
-        Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<std::shared_ptr<HistoryInterface>>>> map_label_to_pointer;
+        Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<HistoryInterface>>> private_ihistory_map_;
 
         /** @brief Keep relation between list of individual histories and joint histories */
-        RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
+        static RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
 
         /** @brief probability of a private history space for a precise agent */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, double>> probability_ihistories;

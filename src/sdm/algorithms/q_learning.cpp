@@ -84,7 +84,6 @@ namespace sdm
         // std::ofstream QValueStream(this->name_ + ".qvalue");
         // QValueStream << *this->q_value_table_ << std::endl;
         // QValueStream.close();
-
     }
 
     void QLearning::do_save()
@@ -97,7 +96,7 @@ namespace sdm
     }
 
     void QLearning::do_episode()
-    {   
+    {
         // std::cout << "-------- do_episode() ---------" << std::endl;
         // std::cout << *this->q_value_table_ << std::endl;
         // Le update marche pas, du coup pour le moment j'utilise le meme QVF pour le target depuis le debut
@@ -125,9 +124,9 @@ namespace sdm
     }
 
     void QLearning::do_step()
-    {   
+    {
         // std::cout << "-------- QLearning::do_step() ---------" << std::endl;
-        
+
         // Action selection following policy and exploration process
         this->action = this->select_action(this->observation);
         // std::cout << "-------- do_step() --------- 1" << std::endl;
@@ -143,7 +142,6 @@ namespace sdm
         // Backup and get Q Value Error
         double delta = this->backup_->backup(this->step);
         // std::cout << "-------- do_step() --------- 4" << std::endl;
-
 
         // std::cout << "delta " << delta << std::endl;
 
@@ -185,13 +183,11 @@ namespace sdm
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            // return this->q_value_table_->getBestAction(observation->toState(), this->step);
-            return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
+            return this->q_value_table_->getBestAction(observation->toState(), this->step);
+            // return this->env_->getActionSpaceAt(observation->toState(), this->step)->sample()->toAction();
         }
         // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
     }
-
-
 
     void QLearning::saveResults(std::string filename, double other)
     {

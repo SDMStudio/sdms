@@ -71,6 +71,8 @@ int main(int argc, char **argv)
         common::global_urng().seed(seed);
 
         auto dpomdp = sdm::parser::parse_file(path);
+        dpomdp->setHorizon(horizon);
+        dpomdp->setDiscount(discount);
 
         auto start_distribution = dpomdp->getStartDistribution();
 
