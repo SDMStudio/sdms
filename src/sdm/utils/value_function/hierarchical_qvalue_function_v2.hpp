@@ -14,6 +14,8 @@ namespace sdm
     public:
         using Container = std::unordered_map<std::shared_ptr<OccupancyStateInterface>, TabularQValueFunction>;
 
+        std::vector<Container> representation;
+
         HierarchicalQValueFunctionV2(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r);
 
         HierarchicalQValueFunctionV2(number horizon = 0, double learning_rate = 0.1, double default_value = 0., double ball_r = 1.0);
@@ -94,7 +96,6 @@ namespace sdm
          * @brief The value function represention.
          * 
          */
-        std::vector<Container> representation;
 
         /**
          * @brief The initializer to use for this value function. 

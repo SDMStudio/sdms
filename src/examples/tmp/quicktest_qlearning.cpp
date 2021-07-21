@@ -18,6 +18,7 @@
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 #include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v1.hpp>
 #include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v2.hpp>
+#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v3.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
@@ -144,6 +145,8 @@ int main(int argc, char **argv)
             q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
         else if ((qvalue == "hierarchical") && (version == "2"))
             q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
+        else if ((qvalue == "hierarchical") && (version == "3"))
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
 
         std::shared_ptr<QValueFunction> target_q_value_table;
         if (qvalue == "tabular")
@@ -151,6 +154,8 @@ int main(int argc, char **argv)
         else if ((qvalue == "hierarchical") && (version == "1"))
             target_q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
         else if ((qvalue == "hierarchical") && (version == "2"))
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
+        else if ((qvalue == "hierarchical") && (version == "3"))
             q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
 
         // Instanciate exploration process
@@ -165,6 +170,8 @@ int main(int argc, char **argv)
             backup = std::make_shared<HierarchicalQValueBackupV1>(experience_memory, q_value_table, q_value_table, discount, action_space);
         else if ((qvalue == "hierarchical") && (version == "2"))
             backup = std::make_shared<HierarchicalQValueBackupV2>(experience_memory, q_value_table, q_value_table, discount, action_space);
+        else if ((qvalue == "hierarchical") && (version == "3"))
+            backup = std::make_shared<HierarchicalQValueBackupV3>(experience_memory, q_value_table, q_value_table, discount, action_space);
 
         auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 

@@ -162,7 +162,7 @@ namespace sdm
     std::string HierarchicalQValueFunctionV2::str() const
     {
         std::ostringstream res;
-        res << "<hierarchical_qvalue_function_v1 horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
+        res << "<hierarchical_qvalue_function_v2 horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
         for (sdm::size_t i = 0; i < this->representation.size(); i++)
         {
             res << "\t<timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << 0 << "\">" << std::endl;
@@ -180,7 +180,7 @@ namespace sdm
             }
             res << "\t</timestep>" << std::endl;
         }
-        res << "</hierarchical_qvalue_function_v1>" << std::endl;
+        res << "</hierarchical_qvalue_function_v2>" << std::endl;
         return res.str();
     }
 } // namespace sdm

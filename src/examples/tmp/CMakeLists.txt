@@ -277,6 +277,7 @@ if(QLEARNING)
 		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v1.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v2.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v3.cpp
 		${INCLUDE_DIR}/utils/rl/experience_memory.cpp
 
 	)
