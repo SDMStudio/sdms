@@ -14,22 +14,22 @@ namespace sdm
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> PrivateHierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
-        std::cout << "PrivateHierarchicalOccupancyMDP::step " << std::endl;
+        // std::cout << "PrivateHierarchicalOccupancyMDP::step " << std::endl;
         clock_t t_begin = clock(), t_tmp = clock();
         this->current_action_ = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
         OccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
-        std::cout << "PrivateHierarchicalOccupancyMDP::step 1" << std::endl;
+        // std::cout << "PrivateHierarchicalOccupancyMDP::step 1" << std::endl;
 
         t_tmp = clock();
         auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(this->current_action_);
         OccupancyMDP::TIME_IN_UNDER_STEP += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
-        std::cout << "PrivateHierarchicalOccupancyMDP::step 2" << std::endl;
+        // std::cout << "PrivateHierarchicalOccupancyMDP::step 2" << std::endl;
 
         t_tmp = clock();
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
         OccupancyMDP::TIME_IN_GET_REWARD += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
-        std::cout << "occupancy_reward " << occupancy_reward << std::endl;
+        // std::cout << "occupancy_reward " << occupancy_reward << std::endl;
         std::shared_ptr<Observation> observation_n = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(observation)->at(this->getUnderlyingMDP()->getNumAgents() - 1);
 
         t_tmp = clock();
@@ -315,7 +315,7 @@ namespace sdm
 
         // std::cout << std::endl;
 
-        std::cout << "*action " << *action << std::endl;
+        // std::cout << "*action " << *action << std::endl;
 
         // std::cout << std::endl;
 
@@ -329,7 +329,7 @@ namespace sdm
 
     std::shared_ptr<State> PrivateHierarchicalOccupancyMDP::getJointHierarchicalLabels(const std::shared_ptr<State> &joint_labels, const std::shared_ptr<State> &ostate) const
     {
-        std::cout << "getJointHierarchicalLabels()" << std::endl;
+        // std::cout << "getJointHierarchicalLabels()" << std::endl;
         // std::cout << "*joint_labels" << std::endl;
         // std::cout << *joint_labels << std::endl;
 
@@ -344,7 +344,7 @@ namespace sdm
         // For agent from N-1 till 0 (N till 1):
         for(int agent = this->getUnderlyingMDP()->getNumAgents() - 1; agent >= 0; agent--)
         {
-            std::cout << "agent " << agent << std::endl;
+            // std::cout << "agent " << agent << std::endl;
             // Push agent I's Label.
             auto individual_label = std::dynamic_pointer_cast<Joint<std::shared_ptr<State>>>(joint_labels)->get(agent);
             // std::cout << "*individual_label " << *individual_label << std::endl;
@@ -353,16 +353,16 @@ namespace sdm
             // std::cout << "*individual_hierarchical_label_reversed " << *individual_hierarchical_label_reversed << std::endl;
             // This will be in the correct order, that is Labels for agent I till N.
             std::shared_ptr<JointHistoryInterface> individual_hierarchical_label = std::make_shared<JointHistoryTree>();
-            std::cout << "*individual_hierarchical_label " << *individual_hierarchical_label << std::endl;
+            // std::cout << "*individual_hierarchical_label " << *individual_hierarchical_label << std::endl;
             //
             for(int i = std::dynamic_pointer_cast<JointHistoryTree>(individual_hierarchical_label_reversed)->getNumAgents() - 1; i >= 0; i--)
             {
-                std::cout << "i " << i << std::endl;
+                // std::cout << "i " << i << std::endl;
                 // std::cout << "*individual_hierarchical_label_reversed->getIndividualHistory(i) " << *individual_hierarchical_label_reversed->getIndividualHistory(i) << std::endl;
                 // 
                 individual_hierarchical_label->addIndividualHistory(individual_hierarchical_label_reversed->getIndividualHistory(i));
             }
-            std::cout << "zzzzzzzzzz" << std::endl;
+            // std::cout << "zzzzzzzzzz" << std::endl;
             //
             individual_hierarchical_label = ostate->toOccupancyState()->getIndividualHierarchicalHistory(this->step_, agent, individual_hierarchical_label);
             // for (const std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history: ostate->toOccupancyState()->getIndividualHierarchicalHistoriesOf(0, agent))

@@ -127,10 +127,10 @@ int main(int argc, char **argv)
         OccupancyState::PRECISION = p_o;
         PrivateOccupancyState::PRECISION_COMPRESSION = p_c;
 
-        std::cout << "MEMORY=" << memory << std::endl;
-        std::cout << "Belief::PRECISION=" << Belief::PRECISION << std::endl;
-        std::cout << "OccupancyState::PRECISION=" << OccupancyState::PRECISION << std::endl;
-        std::cout << "PrivateOccupancyState::PRECISION_COMPRESSION=" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
+        // std::cout << "MEMORY=" << memory << std::endl;
+        // std::cout << "Belief::PRECISION=" << Belief::PRECISION << std::endl;
+        // std::cout << "OccupancyState::PRECISION=" << OccupancyState::PRECISION << std::endl;
+        // std::cout << "PrivateOccupancyState::PRECISION_COMPRESSION=" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
         // Instanciate the initializer
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
@@ -166,6 +166,7 @@ int main(int argc, char **argv)
         auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
+        std::cout << "algorithm->do_initialize();" << std::endl;
         algorithm->do_solve();
 
         algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
