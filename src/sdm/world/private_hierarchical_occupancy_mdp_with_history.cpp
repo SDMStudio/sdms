@@ -42,11 +42,21 @@ namespace sdm
         return this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
     }
 
-    std::shared_ptr<Space> PrivateHierarchicalOccupancyMDPWithHistory::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
+    std::shared_ptr<Action> PrivateHierarchicalOccupancyMDPWithHistory::getRandomAction(const std::shared_ptr<Observation> &ostate, number t)
     {
-        auto state_history = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(ostate)->first;
-        return OccupancyMDP::getActionSpaceAt(state_history->first->toState(), t);
+        // std::cout << "PrivateHierarchicalOccupancyMDPWithHistory::getRandomAction() " << std::endl;
+
+        auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(ostate)->first;
+
+        return PrivateHierarchicalOccupancyMDP::getRandomAction(s_o->first->toState()->toObservation(), t);
     }
+
+    // std::shared_ptr<Space> PrivateHierarchicalOccupancyMDPWithHistory::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
+    // {
+    //     std::cout << "PrivateHierarchicalOccupancyMDPWithHistory::getActionSpaceAt() " << std::endl;
+    //     auto state_history = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(ostate)->first;
+    //     return OccupancyMDP::getActionSpaceAt(state_history->first->toState(), t);
+    // }
 
     std::shared_ptr<HistoryInterface> PrivateHierarchicalOccupancyMDPWithHistory::getJointLabel(const std::shared_ptr<HistoryInterface> &joint_history, const std::shared_ptr<State> &occupancy_state)
     {

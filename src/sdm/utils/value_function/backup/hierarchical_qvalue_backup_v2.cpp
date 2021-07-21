@@ -37,7 +37,6 @@ namespace sdm
 
     double HierarchicalQValueBackupV2::backup(number t)
     {   
-        // std::cout << "-------- HierarchicalQValueBackupV2::backup() ---------" << std::endl;
         auto [observation, decision_rule, reward, next_observation] = this->experience_memory_->sample(t)[0];
         auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(observation)->first;
         auto s = s_o->first;
@@ -46,8 +45,6 @@ namespace sdm
         auto ns = ns_no->first;
         auto no = ns_no->second;
         auto u = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->second;
-
-        // std::cout << *s << std::endl;
 
         double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
         double next_value = this->getValueAt(next_observation->toState(), t + 1);
@@ -64,8 +61,6 @@ namespace sdm
         auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first;
         auto s = s_o->first;
         s->prepareIndividualHierarchicalHistoryVectors(t);
-
-        // std::cout << *s << std::endl;
 
         std::unordered_map<std::shared_ptr<JointHistoryInterface>, std::unordered_map<std::shared_ptr<Joint<std::shared_ptr<Action>>>, std::shared_ptr<JointHistoryJointActionPair>>> individual_hierarchical_history_subordinate_jaction_finder;
 
@@ -207,11 +202,8 @@ namespace sdm
 
     double HierarchicalQValueBackupV2::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        // std::cout << "-------- HierarchicalQValueBackupV2::getValueAt() ---------" << std::endl;
         auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first;
         std::shared_ptr<OccupancyStateInterface> s = s_o->first;
-
-        // std::cout << *s << std::endl;
 
         std::shared_ptr<DecisionRule> a =  this->getGreedyAction(state, t)->toDecisionRule();
 

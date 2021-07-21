@@ -45,18 +45,38 @@ namespace sdm
         
     }
 
+    std::shared_ptr<Action> PrivateHierarchicalOccupancyMDP::computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t)
+    {
+        // std::cout << "PrivateHierarchicalOccupancyMDP::computeRandomAction() " << std::endl;
+        //
+        ostate->toOccupancyState()->prepareIndividualHierarchicalHistoryVectors(t);
+        // Vector for storing individual decision rules.
+        std::vector<std::shared_ptr<DeterministicDecisionRule>> a;
+        for (int agent = 0; agent < this->getUnderlyingProblem()->getNumAgents(); agent++)
+        {
+            // Input states for the a of agent.
+            std::vector<std::shared_ptr<Item>> inputs;
+            // Outputed actions for each of these.
+            std::vector<std::shared_ptr<Item>> outputs;
+            for (const auto& individual_history : ostate->getIndividualHierarchicalHistoriesOf(t, agent))
+            {
+                inputs.push_back(individual_history);
+                outputs.push_back(std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent)->sample());
+            }
+            a.push_back(std::make_shared<DeterministicDecisionRule>(inputs, outputs));
+        }
+        return std::make_shared<JointDeterministicDecisionRule>(a);
+    }
+
     std::shared_ptr<Space> PrivateHierarchicalOccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
         // std::cout << std::endl << "PrivateHierarchicalOccupancyMDP::computeActionSpaceAt()" << std::endl;
         ostate->toOccupancyState()->prepareIndividualHierarchicalHistoryVectors(t);
-        // Get joint histories that are in the support of the occupancy state.
-        std::set<std::shared_ptr<JointHistoryInterface>> joint_histories = ostate->toOccupancyState()->getJointHistories();
         // Vector for individual hierarchical histories of all agents from 1 to N.
         std::vector<std::set<std::shared_ptr<JointHistoryInterface>>> all_individual_hierarchical_histories;
         // For all agents from 1 to N:
         for (int agent = 0; agent < this->getUnderlyingProblem()->getNumAgents(); agent++)
         {
-            // std::cout << "agent " << agent << std::endl;
             // Individual hierarchical histories for Agent I.
             std::set<std::shared_ptr<JointHistoryInterface>> individual_hierarchical_histories;
             for (const auto &individual_hierarchical_history : ostate->toOccupancyState()->getIndividualHierarchicalHistoriesOf(t, agent))
@@ -292,7 +312,6 @@ namespace sdm
         // Get the adress of the action object from the space of available action object.
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*action->toJoint<Item>())->toAction();
     }
-
 
     std::shared_ptr<State> PrivateHierarchicalOccupancyMDP::getJointHierarchicalLabels(const std::shared_ptr<State> &joint_labels, const std::shared_ptr<State> &ostate) const
     {

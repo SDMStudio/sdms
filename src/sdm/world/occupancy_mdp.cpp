@@ -23,8 +23,6 @@ namespace sdm
     {
         this->store_states_ = store_states;
         this->batch_size_ = batch_size;
-
-        // Set underlying problem
         this->underlying_problem_ = underlying_dpomdp;
 
         // Initialize underlying belief mdp
@@ -84,6 +82,7 @@ namespace sdm
 
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
+        // std::cout << "OccupancyMDP::getActionSpaceAt() " << std::endl;
 
         clock_t t_begin = clock();
         // If the action space corresponding to this ostate and t does not exist:
@@ -91,31 +90,58 @@ namespace sdm
         {
             // Compute the action space at this occupancy state and timestep
             std::shared_ptr<Space> joint_ddr_space = this->computeActionSpaceAt(ostate, t);
-
-            // If we don't store action spaces
-            if (!this->store_actions_)
-            {
-                return joint_ddr_space;
-            }
-            else
-            {
-                // Store the action space for state o
-                ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
-            }
+            // Store the action space for state o
+            ostate->toOccupancyState()->setActionSpaceAt(t, joint_ddr_space);
         }
-
         // Return the action space corresponding to this ostate and t.
         OccupancyMDP::TIME_IN_GET_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return ostate->toOccupancyState()->getActionSpaceAt(t);
     }
 
+    // Useless
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
     {
+        std::cout << "This is a useless function, so this will never be seen by anyone." << std::endl;
         return this->getActionSpaceAt(ostate->toState(), t);
+    }
+
+    std::shared_ptr<Action> OccupancyMDP::getRandomAction(const std::shared_ptr<Observation> &ostate, number t)
+    {
+        // std::cout << "OccupancyMDP::getRandomAction() " << std::endl;
+
+        // return this->getActionSpaceAt(ostate->toState(), t)->sample()->toAction();
+
+        if (this->store_actions_)
+            return this->getActionSpaceAt(ostate->toState(), t)->sample()->toAction();
+        else
+            return this->computeRandomAction(ostate->toState()->toOccupancyState(), t);
+    }
+
+    std::shared_ptr<Action> OccupancyMDP::computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t)
+    {
+        // std::cout << "OccupancyMDP::computeRandomAction() " << std::endl;
+
+        // Vector for storing individual decision rules.
+        std::vector<std::shared_ptr<DeterministicDecisionRule>> a;
+        for (int agent = 0; agent < this->getUnderlyingProblem()->getNumAgents(); agent++)
+        {
+            // Input states for the a of agent.
+            std::vector<std::shared_ptr<Item>> inputs;
+            // Outputed actions for each of these.
+            std::vector<std::shared_ptr<Item>> outputs;
+            for (const auto& individual_history : ostate->getIndividualHistories(agent))
+            {
+                inputs.push_back(individual_history);
+                outputs.push_back(std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent)->sample());
+            }
+            a.push_back(std::make_shared<DeterministicDecisionRule>(inputs, outputs));
+        }
+        return std::make_shared<JointDeterministicDecisionRule>(a);
     }
 
     std::shared_ptr<Space> OccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
+        // std::cout << "OccupancyMDP::computeActionSpaceAt() " << std::endl;
 
         // Vector of individual deterministic decision rules of each agent.
         std::vector<std::shared_ptr<Space>> individual_ddr_spaces;
@@ -453,4 +479,5 @@ namespace sdm
     {
         return std::min(ub - lb, cost_so_far + this->getUnderlyingProblem()->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
     }
+
 } // namespace sdm
