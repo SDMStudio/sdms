@@ -31,34 +31,17 @@ int main(int argc, char **argv)
         std::string path, formalism, name, qvalue, q_init;
         unsigned long max_steps;
         number horizon, memory, batch_size;
-        double lr, discount, sf, p_b, p_o, p_c;
+        double lr, discount, sf, belief_precision, ostate_precision, compress_precision;
         int seed;
 
         po::options_description options("Options");
-        options.add_options()
-        ("help", "produce help message")("test", "test the policy found");
+        options.add_options()("help", "produce help message")("test", "test the policy found");
 
         po::options_description config("Configuration");
-        config.add_options()
-        ("path,p", po::value<string>(&path)->default_value("tiger"), "the path to the problem to be solved")
-        ("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")
-        ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
-        ("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")
-        ("p_b", po::value<double>(&p_b)->default_value(0.001), "the precision of beliefs")
-        ("p_o", po::value<double>(&p_o)->default_value(0.1), "the precision of occupancy states")
-        ("p_c", po::value<double>(&p_c)->default_value(0.1), "the precision of the compression")
-        ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
-        ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
-        ("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")
-        ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "batch size, that is K from the paper")
-        ("max_steps,t", po::value<unsigned long>(&max_steps)->default_value(100000), "the maximum number of timesteps")
-        ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
-        ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
+        config.add_options()("path,p", po::value<string>(&path)->default_value("tiger"), "the path to the problem to be solved")("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")("belief_precision", po::value<double>(&belief_precision)->default_value(0.001), "the precision of beliefs")("ostate_precision", po::value<double>(&ostate_precision)->default_value(0.1), "the precision of occupancy states")("compress_precision", po::value<double>(&compress_precision)->default_value(0.1), "the precision of the compression")("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")("batch_size,b", po::value<number>(&batch_size)->default_value(0), "batch size, that is K from the paper")("max_steps,t", po::value<unsigned long>(&max_steps)->default_value(100000), "the maximum number of timesteps")("seed,s", po::value<int>(&seed)->default_value(1), "random seed")("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
-        algo_config.add_options()
-        ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
-        ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
+        algo_config.add_options()("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -117,9 +100,9 @@ int main(int argc, char **argv)
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
 
         // Set precision
-        Belief::PRECISION = p_b;
-        OccupancyState::PRECISION = p_o;
-        PrivateOccupancyState::PRECISION_COMPRESSION = p_c;
+        Belief::PRECISION = belief_precision;
+        OccupancyState::PRECISION = ostate_precision;
+        PrivateOccupancyState::PRECISION_COMPRESSION = compress_precision;
 
         std::cout << "MEMORY=" << memory << std::endl;
         std::cout << "Belief::PRECISION=" << Belief::PRECISION << std::endl;
