@@ -62,11 +62,11 @@ namespace sdm
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> OccupancyMDP::step(std::shared_ptr<Action> action)
     {
         clock_t t_begin = clock(), t_tmp = clock();
-        // auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
+        auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
         OccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
         t_tmp = clock();
-        // auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(joint_action);
+        auto [observation, _, __] = this->getUnderlyingProblem()->step(joint_action);
         OccupancyMDP::TIME_IN_UNDER_STEP += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
@@ -75,7 +75,7 @@ namespace sdm
         this->current_state_ = this->nextOccupancyState(this->current_state_, action, nullptr, this->step_);
         OccupancyMDP::TIME_IN_NEXT_OSTATE += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
-        // this->current_history_ = this->current_state_->toOccupancyState()->getCompressedJointHistory(this->getNextHistory(observation)->toJointHistory());
+        this->current_history_ = this->getNextHistory(observation);
         this->step_++;
 
         OccupancyMDP::TIME_IN_STEP += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -370,26 +370,25 @@ namespace sdm
 
     std::shared_ptr<Action> OccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
-        // Get the selected joint action
-        auto tmp_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_history->getIndividualHistories().toJoint<State>()));
-
-        // Get the adress of the joint action object from the space of available joint action object.
-        auto action = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*tmp_action->toJoint<Item>())->toAction();
-
-        return action;
+        //
+        auto individual_histories = joint_history->getIndividualHistories().toJoint<State>();
+        // Get the selected action
+        auto action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(individual_histories));
+        // Get the adress of the action object from the space of available action object.
+        return std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*action->toJoint<Item>())->toAction();
     }
 
     std::shared_ptr<HistoryInterface> OccupancyMDP::getNextHistory(const std::shared_ptr<Observation> &observation)
     {
         if (this->batch_size_ == 0)
         {
-            return this->current_history_->expand(observation);
+            return this->current_state_->toOccupancyState()->getCompressedJointHistory(this->current_history_->expand(observation)->toJointHistory());
         }
         else
         {
             auto [jh, b] = this->current_state_->toOccupancyState()->sampleJointHistoryBelief();
             this->getUnderlyingProblem()->setInternalState(b->sampleState());
-            return jh;
+            return this->current_state_->toOccupancyState()->getCompressedJointHistory(jh);
         }
     }
 

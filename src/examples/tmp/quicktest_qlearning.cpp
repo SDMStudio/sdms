@@ -22,6 +22,7 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
+#include <sdm/world/private_hierarchical_occupancy_mdp_with_history.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
@@ -119,8 +120,10 @@ int main(int argc, char **argv)
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
-        else if (formalism == "PrivateHierarchicalOccupancyMDP")
+        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
+        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "hierarchical"))
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, true, batch_size);
 
         // Set precision
         Belief::PRECISION = p_b;
@@ -166,28 +169,39 @@ int main(int argc, char **argv)
         auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
-        std::cout << "algorithm->do_initialize();" << std::endl;
+        // std::cout << "algorithm->do_initialize();" << std::endl;
         algorithm->do_solve();
 
         algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 
+        std::cout << std::endl;
 
         std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
         std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
-        std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
+
+        std::cout << std::endl;
+
+        std::cout << "TOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
         std::cout << "TOTAL TIME IN APPLY DR : " << OccupancyMDP::TIME_IN_APPLY_DR << std::endl;
         std::cout << "TOTAL TIME IN UNDERLYING STEP : " << OccupancyMDP::TIME_IN_UNDER_STEP << std::endl;
         std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
         std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
         std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
-        std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
+
+        std::cout << std::endl;
+
+        std::cout << "TOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
         std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
-        std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
+        
+        std::cout << std::endl;
+        
+        std::cout << "TOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
         std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
-        std::cout << "OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
+        std::cout << "TOTAL TIME IN OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
+        std::cout << "TOTAL TIME IN OccupancyState::TIME_IN_MINUS_OPERATOR : " << OccupancyState::TIME_IN_MINUS_OPERATOR << std::endl;
     }
     catch (std::exception &e)
     {
