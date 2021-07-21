@@ -33,11 +33,11 @@ namespace sdm
 
     void QLearning::initLogger()
     {
-        std::string format = "#> Episode : {}\tStep : {}/?\tValue : {}\n";
+        std::string format = "#> Episode : {}\tStep : {}/?\tValue : {}\tT(s) : {}\tN(S) : {}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "Value", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "Value", "Time", "N(S)"});
 
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
@@ -70,7 +70,13 @@ namespace sdm
             // Test current policy and write logs
             if (this->do_log_)
             {
-                this->logger_->log(this->episode, this->global_step, this->backup_->getValueAt(this->env_->reset()->toState(), 0), (float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
+                this->logger_->log(
+                    this->episode, 
+                    this->global_step, 
+                    this->backup_->getValueAt(this->env_->reset()->toState(), 0), 
+                    (float)(clock() - this->t_begin) / CLOCKS_PER_SEC,
+                    this->q_value_table_->getNumStates()
+                );
                 this->do_log_ = false;
             }
             if (this->do_test_)
@@ -81,9 +87,10 @@ namespace sdm
         }
         // std::cout << *this->q_value_table_ << std::endl;
         // this->q_value_table_->printNumberOfActions();
-        // std::ofstream QValueStream(this->name_ + ".qvalue");
-        // QValueStream << *this->q_value_table_ << std::endl;
-        // QValueStream.close();
+        std::ofstream QValueStream(this->name_ + ".qvalue");
+        QValueStream << *this->q_value_table_ << std::endl;
+        QValueStream.close();
+
     }
 
     void QLearning::do_save()
@@ -125,12 +132,12 @@ namespace sdm
 
     void QLearning::do_step()
     {   
-        // std::cout << "-------- QLearning::do_step() ---------" << std::endl;
+        // std::cout << "-------- QLearning::do_step() --------- " << this->step << std::endl;
         
         // Action selection following policy and exploration process
         this->action = this->select_action(this->observation);
-        // std::cout << "-------- do_step() --------- 1" << std::endl;
 
+        // std::cout << "*this->action" << std::endl;
         // std::cout << *this->action << std::endl;
 
         // One step in env and get next observation and rewards

@@ -12,8 +12,12 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/hierarchical_qvalue_function_v1.hpp>
+#include <sdm/utils/value_function/hierarchical_qvalue_function_v2.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
+#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v1.hpp>
+#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v2.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
@@ -28,10 +32,10 @@ int main(int argc, char **argv)
 {
     try
     {
-        std::string path, formalism, name, qvalue, q_init;
+        std::string path, formalism, name, qvalue, version, q_init;
         unsigned long max_steps;
         number horizon, memory, batch_size;
-        double lr, discount, sf, p_b, p_o, p_c;
+        double lr, discount, sf, p_b, p_o, p_c, ball_r;
         int seed;
 
         po::options_description options("Options");
@@ -44,9 +48,10 @@ int main(int argc, char **argv)
         ("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")
         ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
         ("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")
-        ("p_b", po::value<double>(&p_b)->default_value(0.001), "the precision of beliefs")
-        ("p_o", po::value<double>(&p_o)->default_value(0.1), "the precision of occupancy states")
-        ("p_c", po::value<double>(&p_c)->default_value(0.1), "the precision of the compression")
+        ("p_b", po::value<double>(&p_b)->default_value(0.0001), "the precision of belief state")
+        ("p_o", po::value<double>(&p_o)->default_value(0.0001), "the precision of occupancy state ")
+        ("p_c", po::value<double>(&p_c)->default_value(0.01), "the precision of compression ")
+        ("ball_r", po::value<double>(&ball_r)->default_value(1.0), "the radius of the balls of s in the hqvf")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")
@@ -58,6 +63,7 @@ int main(int argc, char **argv)
         po::options_description algo_config("Algorithms configuration");
         algo_config.add_options()
         ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
+        ("version,v", po::value<string>(&version)->default_value("1"), "the version of hierarchical qvf")
         ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
@@ -129,12 +135,20 @@ int main(int argc, char **argv)
         std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
         std::shared_ptr<QValueFunction> q_value_table;
-        q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
-
-        std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
+        if (qvalue == "tabular")
+            q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        else if ((qvalue == "hierarchical") && (version == "1"))
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
+        else if ((qvalue == "hierarchical") && (version == "2"))
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
 
         std::shared_ptr<QValueFunction> target_q_value_table;
-        target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        if (qvalue == "tabular")
+            target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        else if ((qvalue == "hierarchical") && (version == "1"))
+            target_q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
+        else if ((qvalue == "hierarchical") && (version == "2"))
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
 
         // Instanciate exploration process
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -142,7 +156,12 @@ int main(int argc, char **argv)
         std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
         std::shared_ptr<QValueBackupInterface> backup;
-        backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        if (qvalue == "tabular")
+            backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+        else if ((qvalue == "hierarchical") && (version == "1"))
+            backup = std::make_shared<HierarchicalQValueBackupV1>(experience_memory, q_value_table, q_value_table, discount, action_space);
+        else if ((qvalue == "hierarchical") && (version == "2"))
+            backup = std::make_shared<HierarchicalQValueBackupV2>(experience_memory, q_value_table, q_value_table, discount, action_space);
 
         auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 

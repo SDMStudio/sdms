@@ -8,15 +8,15 @@
  */
 namespace sdm
 {
-    class HierarchicalQValueFunctionV1 : public QValueFunction
+    class HierarchicalQValueFunctionV2 : public QValueFunction
     {
 
     public:
         using Container = std::unordered_map<std::shared_ptr<OccupancyStateInterface>, TabularQValueFunction>;
 
-        HierarchicalQValueFunctionV1(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
+        HierarchicalQValueFunctionV2(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r);
 
-        HierarchicalQValueFunctionV1(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
+        HierarchicalQValueFunctionV2(number horizon = 0, double learning_rate = 0.1, double default_value = 0., double ball_r = 1.0);
 
         /**
          * @brief Initialize the value function 
@@ -43,7 +43,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t);
+        double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t);
 
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
@@ -57,7 +57,7 @@ namespace sdm
          */
         void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta);
 
-        void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t, double delta);
+        void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t, double delta);
 
         bool isNotSeen(const std::shared_ptr<State> &state, number t);
 
@@ -68,7 +68,7 @@ namespace sdm
          */
         virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, HierarchicalQValueFunctionV1 &vf)
+        friend std::ostream &operator<<(std::ostream &os, HierarchicalQValueFunctionV2 &vf)
         {
             os << vf.str();
             return os;
@@ -80,9 +80,15 @@ namespace sdm
 
         int num_states_ = 0;
 
+        // std::vector<int> num_states_vector_;
+
         double learning_rate_;
 
+        double ball_r_;
+
         number horizon_;
+
+        std::vector<std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>> closest_s_map_;
 
         /**
          * @brief The value function represention.
@@ -96,7 +102,16 @@ namespace sdm
          */
         std::shared_ptr<QInitializer> initializer_;
 
-        void initializeIfNeeded(const std::shared_ptr<State> &state, number t);
+        void initializeIfNeeded(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_, number t);
+
+        void initializeQValueFunctionAtWith(const std::shared_ptr<OccupancyStateInterface> &s, number t, const std::shared_ptr<OccupancyStateInterface> &s_);
+
+        void initializeToZeroQValueFunctionAt(const std::shared_ptr<OccupancyStateInterface> &s, number t);
+
+        std::shared_ptr<OccupancyStateInterface> getClosestS(const std::shared_ptr<OccupancyStateInterface> &s, number t);
+
+        bool areInTheSameBall(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_, number t);
+
     };
 
 } // namespace sdm
