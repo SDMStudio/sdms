@@ -101,7 +101,6 @@ namespace sdm
         auto h = this->isInfiniteHorizon() ? 0 : t;
   
         this->representation[h].emplace(s, TabularQValueFunction(0, learning_rate_, initializer_));
-        // this->representation.at(s).initialize();
         this->representation[h].at(s) = this->representation[h].at(s_);
         this->num_states_++;
         
@@ -133,34 +132,23 @@ namespace sdm
         // If t=h is empty, s is the very first one to arrive.
         else if (this->representation[h].size() == 0)
         {
-            // std::cout << "A" << std::endl;
             this->initializeToZeroQValueFunctionAt(s, t);
             return s;
         }
-        // // If s already has a q.
-        // else if (this->representation[h].find(s) != this->representation[h].end())
-        // {
-        //     // std::cout << "B" << std::endl;
-        //     return s;
-        // }
         else
         {
-            // std::cout << "C" << std::endl;
             double smallest_distance = 10000.0;
             std::shared_ptr<OccupancyStateInterface> closest_s;
             
             for (auto const& [s_, q_] : this->representation[h])
             {
-                // std::cout << *s_ << std::endl;
                 double distance = s_->minus(s);
-                // std::cout << "distance " << distance << std::endl;
                 if (distance < smallest_distance)
                 {
                     smallest_distance = distance;
                     closest_s = s_;
                 }
             }
-            // std::cout << closest_s << std::endl;
             return closest_s;
         }
     }

@@ -51,13 +51,6 @@ namespace sdm
         return PrivateHierarchicalOccupancyMDP::getRandomAction(s_o->first->toState()->toObservation(), t);
     }
 
-    // std::shared_ptr<Space> PrivateHierarchicalOccupancyMDPWithHistory::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
-    // {
-    //     std::cout << "PrivateHierarchicalOccupancyMDPWithHistory::getActionSpaceAt() " << std::endl;
-    //     auto state_history = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(ostate)->first;
-    //     return OccupancyMDP::getActionSpaceAt(state_history->first->toState(), t);
-    // }
-
     std::shared_ptr<HistoryInterface> PrivateHierarchicalOccupancyMDPWithHistory::getJointLabel(const std::shared_ptr<HistoryInterface> &joint_history, const std::shared_ptr<State> &occupancy_state)
     {
         std::shared_ptr<JointHistoryInterface> joint_label = std::make_shared<JointHistoryTree>();

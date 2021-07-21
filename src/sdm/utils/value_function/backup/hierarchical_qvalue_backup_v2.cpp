@@ -231,7 +231,6 @@ namespace sdm
         {
             this->all_subordinate_jactions->emplace(agent, std::vector<std::shared_ptr<Joint<std::shared_ptr<Action>>>>{});
         }
-        // std::cout << "-------- HierarchicalQValueBackupV2::prepareSubordinateJointActions() --------- 1" << std::endl;
         // We do it for agent N-1. (it has jactions of agent N, not for herself)
         for (const auto & u2: *this->action_space_->get(this->num_agents_ - 1))
         {
@@ -239,7 +238,6 @@ namespace sdm
             jaction->push_back(u2->toAction());
             this->all_subordinate_jactions->at(this->num_agents_ - 2).push_back(jaction);
         }
-        // std::cout << "-------- HierarchicalQValueBackupV2::prepareSubordinateJointActions() --------- 2" << std::endl;
         // // We do it for the rest of the agents.
         // for (int agent = this->num_agents_ - 3; agent >= 0; agent--)
         // {
