@@ -47,7 +47,7 @@ namespace sdm
 
     number SerializedMMDP::getHorizon() const
     {
-        return this->mmdp_->getHorizon();
+        return this->mmdp_->getHorizon() * this->getNumAgents();
     }
 
     std::shared_ptr<Distribution<std::shared_ptr<State>>> SerializedMMDP::getStartDistribution() const

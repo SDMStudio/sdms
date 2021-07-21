@@ -28,8 +28,6 @@ namespace sdm
   using DiscreteObservationString = BaseObservation<std::string>;
   using ContinuousObservation = BaseObservation<double>;
 
-  const std::shared_ptr<Observation> DEFAULT_OBSERVATION = std::make_shared<DiscreteObservationString>("NoObs");
-
 } // namespace sdm
 
 #include <sdm/core/base_observation.tpp>

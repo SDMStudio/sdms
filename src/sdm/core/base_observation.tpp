@@ -28,5 +28,4 @@ namespace sdm
         res << this->observation_;
         return res.str();
     }
-
 } // namespace sdm

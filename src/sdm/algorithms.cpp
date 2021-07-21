@@ -30,12 +30,6 @@ namespace sdm
         {
             assert(((discount < 1) || (horizon > 0)));
 
-            // Increase the horizon for the value function if the problem is serialized
-            if (problem->isSerialized())
-            {
-                horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
-            }
-
             auto tabular_backup = std::make_shared<TabularBackup>(problem);
             auto maxplan_backup = std::make_shared<MaxPlanBackup>(problem);
 
@@ -123,26 +117,27 @@ namespace sdm
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
-                    auto oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon, true, true, true);
+                    auto oMDP = std::make_shared<OccupancyMDP>(problem, truncation, true, true, true);
                     p_algo = makeHSVI(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, freq_prunning_lower_bound, type_of_maxplan_prunning, freq_prunning_upper_bound);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
                 {
                     auto serialized_mmdp = std::make_shared<SerializedMMDP>(problem);
                     auto s_mdp = std::make_shared<SolvableByMDP>(serialized_mmdp);
-                    p_algo = makeHSVI(s_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon * serialized_mmdp->getNumAgents(), trials, (name == "") ? "tab_ext_mdphsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, freq_prunning_lower_bound, type_of_maxplan_prunning, freq_prunning_upper_bound);
+                    p_algo = makeHSVI(s_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, serialized_mmdp->getHorizon(), trials, (name == "") ? "tab_ext_mdphsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, freq_prunning_lower_bound, type_of_maxplan_prunning, freq_prunning_upper_bound);
                 }
                 else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
                 {
                     auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
                     auto s_beliefMDP = std::make_shared<BeliefMDP>(serialized_mpomdp);
-                    p_algo = makeHSVI(s_beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon * serialized_mpomdp->getNumAgents(), trials, (name == "") ? "tab_hsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, freq_prunning_lower_bound, type_of_maxplan_prunning, freq_prunning_upper_bound);
+                    p_algo = makeHSVI(s_beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, serialized_mpomdp->getHorizon(), trials, (name == "") ? "tab_hsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, freq_prunning_lower_bound, type_of_maxplan_prunning, freq_prunning_upper_bound);
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
+                    // problem->setHorizon();
                     auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                    auto s_oMDP = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, (truncation > 0) ? truncation * serialized_mpomdp->getNumAgents() : horizon * serialized_mpomdp->getNumAgents(), true, true, true);
-                    p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon * serialized_mpomdp->getNumAgents(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, freq_prunning_lower_bound, type_of_maxplan_prunning, freq_prunning_upper_bound);
+                    std::shared_ptr<SolvableByHSVI> s_oMDP = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, truncation, true, true, true);
+                    p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, serialized_mpomdp->getHorizon(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, freq_prunning_lower_bound, type_of_maxplan_prunning, freq_prunning_upper_bound);
                 }
             }
             else if ((algo_name == "qlearning") || (algo_name == "QLEARNING"))

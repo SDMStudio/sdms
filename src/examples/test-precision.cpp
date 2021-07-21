@@ -99,8 +99,6 @@ int main(int argc, char **argv)
 
         // Parse file into MPOMDP
         auto mdp = sdm::parser::parse_file(path);
-        horizon = horizon * mdp->getNumAgents();
-        memory = memory * mdp->getNumAgents();
         mdp->setHorizon(horizon);
         mdp->setDiscount(discount);
 
@@ -130,8 +128,8 @@ int main(int argc, char **argv)
         // Instanciate value functions
         if (vm.count("store_states") && vm.count("store_actions"))
         {
-            lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-            ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            lb = std::make_shared<TabularValueFunction>(serialized_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            ub = std::make_shared<TabularValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
             // ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
@@ -159,7 +157,8 @@ int main(int argc, char **argv)
         // Save results in a CSV file
         algo->saveResults(name + "_test.csv", compress_precision);
 
-        std::cout << "History Graph" << std::dynamic_pointer_cast<Tree<std::shared_ptr<Observation>>>(hsvi_mdp->initial_history_);
+        // auto casted_hsvi_mdp = std::static_pointer_cast<OccupancyMDP>(hsvi_mdp);
+        // std::cout << "History Graph" << std::dynamic_pointer_cast<Tree<std::shared_ptr<Observation>>>(casted_hsvi_mdp->initial_history_)->str() << std::endl;
 
         // Display bounds
         // std::cout << *algo->getLowerBound() << std::endl;

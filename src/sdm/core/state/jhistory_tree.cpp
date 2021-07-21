@@ -33,7 +33,7 @@ namespace sdm
 
     JointHistoryTree::JointHistoryTree(const Joint<std::shared_ptr<HistoryInterface>> &ihistories) : HistoryTree(), Joint<std::shared_ptr<HistoryInterface>>(ihistories)
     {
-        this->setupDefaultObs(this->size(), sdm::DEFAULT_OBSERVATION);
+        this->setupDefaultObs(ihistories.size(), sdm::DEFAULT_OBSERVATION);
     }
 
     void JointHistoryTree::addIndividualHistory(std::shared_ptr<HistoryInterface> ihist)
@@ -83,7 +83,7 @@ namespace sdm
     std::string JointHistoryTree::str() const
     {
         std::ostringstream res;
-        res << "<joint-history id=\"" << this << "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str()  << "\"/>";
+        res << "<joint-history id=\"" << this << "\"  horizon=\"" << this->getDepth() << "\" value=\"" << this->short_str() << "\"/>";
         return res.str();
     }
 
@@ -95,7 +95,10 @@ namespace sdm
     void JointHistoryTree::setupDefaultObs(number n_agents, const std::shared_ptr<Observation> &default_observation)
     {
         auto default_joint_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>();
-        default_joint_observation->push_back(default_observation);
+        for (number i = 0; i < n_agents; i++)
+        {
+            default_joint_observation->push_back(default_observation);
+        }
         this->setDefaultObs(default_joint_observation);
     }
 
