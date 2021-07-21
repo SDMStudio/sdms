@@ -99,7 +99,7 @@ namespace sdm
 
         //---------------------------------//
         this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), this->lower_bound_->getSize(), this->upper_bound_->getSize(), this->duration);
-        // std::cout << "Final LB : \n" << this->lower_bound_->str() << "Final UB : \n" << this->upper_bound_->str() << std::endl;
+        // std::cout << "Final LB : \n"<< this->lower_bound_->str() << "Final UB : \n"<< this->upper_bound_->str() << std::endl;
         //---------------------------------//
     }
 
@@ -129,6 +129,7 @@ namespace sdm
                 std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
                 HSVI::TIME_IN_SELECT_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
+                // std::cout << "Select Action \n"  << a->str() << std::endl;
 #ifdef LOGTIME
                 this->updateTime("Action");
                 this->StartTime();
@@ -136,6 +137,7 @@ namespace sdm
                 t_begin = clock();
                 std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
                 HSVI::TIME_IN_SELECT_STATE += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
+                // std::cout << "Select State\n"<< s_->str() << std::endl;
 
 #ifdef LOGTIME
                 this->updateTime("Next State");

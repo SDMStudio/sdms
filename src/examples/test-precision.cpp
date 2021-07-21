@@ -19,6 +19,8 @@
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/serial_occupancy_mdp.hpp>
+#include <sdm/world/serialized_mpomdp.hpp>
 #include <sdm/parser/parser.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -97,13 +99,18 @@ int main(int argc, char **argv)
 
         // Parse file into MPOMDP
         auto mdp = sdm::parser::parse_file(path);
+        horizon = horizon * mdp->getNumAgents();
+        memory = memory * mdp->getNumAgents();
         mdp->setHorizon(horizon);
         mdp->setDiscount(discount);
 
         // Instanciate the problem
 
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+        // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+
+        auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(mdp);
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
         // ---------- Comment / Uncomment this section to enable solving with HSVI ----------
         //
@@ -117,25 +124,25 @@ int main(int argc, char **argv)
 
         // Instanciate Initializer
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-        auto init_ub = std::make_shared<MDPInitializer>(hsvi_mdp, "");
+        auto init_ub = std::make_shared<POMDPInitializer>(hsvi_mdp, "");
 
         std::shared_ptr<ValueFunction> lb, ub;
         // Instanciate value functions
         if (vm.count("store_states") && vm.count("store_actions"))
         {
-            // lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-            // ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-            lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
-            ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
+            // ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
             // ub = std::make_shared<PointSetValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
         }
         else
         {
             lb = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-            // ub = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            ub = std::make_shared<TabularValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
-            ub = std::make_shared<PointSetValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            // ub = std::make_shared<PointSetValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(mdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
             // ub = std::make_shared<PointSetValueFunction2>(mdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
         }
@@ -151,6 +158,8 @@ int main(int argc, char **argv)
 
         // Save results in a CSV file
         algo->saveResults(name + "_test.csv", compress_precision);
+
+        std::cout << "History Graph" << std::dynamic_pointer_cast<Tree<std::shared_ptr<Observation>>>(hsvi_mdp->initial_history_);
 
         // Display bounds
         // std::cout << *algo->getLowerBound() << std::endl;
@@ -187,12 +196,11 @@ int main(int argc, char **argv)
         std::cout << "| HSVI::TIME_IN_UPDATE_LB \t|\t" << HSVI::TIME_IN_UPDATE_LB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_LB / TOTAL_TIME) << " %\t|" << std::endl;
         std::cout << "| HSVI::TIME_IN_UPDATE_UB \t|\t" << HSVI::TIME_IN_UPDATE_UB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_UB / TOTAL_TIME) << " %\t|" << std::endl;
         std::cout << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
-        std::cout << "| OccMDP::TIME_IN_GET_ACTION \t|\t" << OccupancyMDP::TIME_IN_GET_ACTION << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
-        std::cout << "| OccMDP::TIME_IN_NEXT_STATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_STATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
-        std::cout << "| OccMDP::TIME_IN_COMPRESS \t|\t" << OccupancyMDP::TIME_IN_COMPRESS << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
-        std::cout << "| OccMDP::TIME_IN_GET_REWARD \t|\t" << OccupancyMDP::TIME_IN_GET_REWARD << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_REWARD / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_GET_ACTION \t|\t" << SerialOccupancyMDP::TIME_IN_GET_ACTION << " s\t|\t" << 100 * (SerialOccupancyMDP::TIME_IN_GET_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_NEXT_STATE \t|\t" << SerialOccupancyMDP::TIME_IN_NEXT_STATE << " s\t|\t" << 100 * (SerialOccupancyMDP::TIME_IN_NEXT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_COMPRESS \t|\t" << SerialOccupancyMDP::TIME_IN_COMPRESS << " s\t|\t" << 100 * (SerialOccupancyMDP::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
+        std::cout << "| OccMDP::TIME_IN_GET_REWARD \t|\t" << SerialOccupancyMDP::TIME_IN_GET_REWARD << " s\t|\t" << 100 * (SerialOccupancyMDP::TIME_IN_GET_REWARD / TOTAL_TIME) << " %\t|" << std::endl;
         std::cout << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
-
     }
     catch (sdm::exception::Exception &e)
     {

@@ -6,8 +6,8 @@
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 
 namespace sdm
-{ 
-    class SerialInterface : virtual public State
+{
+    class SerialInterface
     {
     public:
         /**
@@ -16,17 +16,11 @@ namespace sdm
          * @return number 
          */
         virtual number getCurrentAgentId() const = 0;
-
-        /**
-         * @brief Set the Agent Id of the object
-         * 
-         */
-        virtual void setAgentId(number) = 0;
     };
 
-    class BaseSerialInterface : virtual public SerialInterface
+    class BaseSerialInterface : public SerialInterface, virtual public State
     {
-    public :
+    public:
         /**
          * @brief Get the Hidden State of the serial object
          * 
@@ -42,7 +36,7 @@ namespace sdm
         virtual Joint<std::shared_ptr<Action>> getAction() const = 0;
     };
 
-    class SerialOccupancyInterface :virtual public SerialInterface,virtual public OccupancyStateInterface
+    class SerialOccupancyInterface : virtual public SerialInterface, virtual public OccupancyStateInterface
     {
     };
 }

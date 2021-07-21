@@ -120,7 +120,7 @@ endif()
 set(SDMS_PROGRAM_NAME "SDMStudio")
 
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
-target_link_libraries(${SDMS_PROGRAM_NAME} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} libtb2.so ${LIB_SDMS})
+target_link_libraries(${SDMS_PROGRAM_NAME} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${SDMS_LIB_DIR}/libtb2.so ${LIB_SDMS})
 
 ########### INSTALL #################
 install(DIRECTORY ${INCLUDE_DIR} DESTINATION include)

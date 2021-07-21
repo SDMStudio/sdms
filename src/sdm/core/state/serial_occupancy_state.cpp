@@ -1,23 +1,18 @@
-#include <sdm/core/state/serial_occupancy_state.hpp>
 #include <iomanip>
+#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serial_occupancy_state.hpp>
 
 namespace sdm
 {
     SerialOccupancyState::SerialOccupancyState() : OccupancyState() {}
-    SerialOccupancyState::SerialOccupancyState(number num_agents) :OccupancyState(num_agents) {}
-    SerialOccupancyState::SerialOccupancyState(const SerialOccupancyState &copy) : OccupancyState(copy) 
+    SerialOccupancyState::SerialOccupancyState(number num_agents) : OccupancyState(num_agents) {}
+    SerialOccupancyState::SerialOccupancyState(const SerialOccupancyState &copy) : OccupancyState(copy)
     {
-        this->setAgentId(copy.agentID_);
     }
 
     number SerialOccupancyState::getCurrentAgentId() const
     {
-        return this->agentID_;
-    }
-
-    void SerialOccupancyState::setAgentId(number agent_id)
-    {
-        this->agentID_ = agent_id;
+        return std::dynamic_pointer_cast<SerializedState>(*this->getBeliefAt(*this->getJointHistories().begin())->getStates().begin())->getCurrentAgentId();
     }
 
     TypeState SerialOccupancyState::getTypeState() const
@@ -30,7 +25,7 @@ namespace sdm
         std::ostringstream res;
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
-        res << "<serial-occupancy-state agent_id=\""<<this->getCurrentAgentId()<<"\t size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
+        res << "<serial-occupancy-state agent_id=\"" << this->getCurrentAgentId() << "\t size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
         for (const auto &history_as_state : this->getIndexes())
         {
             auto joint_history = history_as_state->toHistory()->toJointHistory();
@@ -43,4 +38,5 @@ namespace sdm
         res << "</serial-occupancy-state>";
         return res.str();
     }
+    
 }

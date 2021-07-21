@@ -17,11 +17,12 @@
  */
 namespace sdm
 {
-        class OccupancyMDP : public BaseBeliefMDP<OccupancyState>
+        template <class TOccupancyState = OccupancyState>
+        class BaseOccupancyMDP : public BaseBeliefMDP<TOccupancyState>
         {
         public:
-                OccupancyMDP();
-                OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                BaseOccupancyMDP();
+                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
                 void initialize(number memory);
 
@@ -77,6 +78,8 @@ namespace sdm
                 static number PASSAGE_IN_NEXT_STATE;
                 static unsigned long MEAN_SIZE_STATE;
 
+                /** @brief Initial and current histories. */
+                std::shared_ptr<HistoryInterface> initial_history_, current_history_;
         protected:
                 /** @brief Hyperparameters. */
                 bool compression_ = true, store_actions_ = true;
@@ -84,13 +87,11 @@ namespace sdm
                 /** @brief Keep a pointer on the associated belief mdp that is used to compute next beliefs. */
                 std::shared_ptr<BeliefMDP> belief_mdp_;
 
-                /** @brief Initial and current histories. */
-                std::shared_ptr<HistoryInterface> initial_history_, current_history_;
 
                 /**
                  * @brief Compute the state transition in order to return next state and associated probability.
                  * This function can be modified in an inherited class to define a belief MDP with a different representation of the belief state. 
-                 * (i.e. OccupancyMDP inherits from BaseBeliefMDP with TBelief = OccupancyState)
+                 * (i.e. BaseOccupancyMDP inherits from BaseBeliefMDP with TBelief = OccupancyState)
                  * 
                  * @param belief the belief
                  * @param action the action
@@ -107,4 +108,8 @@ namespace sdm
 
                 virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
         };
+
+        using OccupancyMDP = BaseOccupancyMDP<OccupancyState>;
 } // namespace sdm
+
+#include <sdm/world/occupancy_mdp.tpp>
