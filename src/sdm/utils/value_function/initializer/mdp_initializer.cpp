@@ -53,7 +53,7 @@ namespace sdm
             auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
             auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
 
-            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_, 10000, "MDP_Initialisation");
+            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_, 100000, "MDP_Initialisation");
 
             algorithm->do_initialize();
 

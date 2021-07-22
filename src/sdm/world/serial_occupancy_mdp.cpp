@@ -61,69 +61,24 @@ namespace sdm
 
     std::shared_ptr<Action> SerialOccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
+        clock_t t_begin = clock();
+
         // Transform in serial occupancy state
         auto serial_ostate = std::dynamic_pointer_cast<OccupancyState>(ostate);
 
         // Get the selected joint action
         auto action = std::static_pointer_cast<DeterministicDecisionRule>(decision_rule)->act(joint_history->getIndividualHistory(this->getAgentId(t)));
-
+        SerialOccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return action;
     }
 
-    // std::shared_ptr<State> SerialOccupancyMDP::nextStateSerialStep(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, number t) const
-    // {
-    //     auto occupancy_state = ostate->toOccupancyState();
-    //     auto decision_rule = action->toDecisionRule();
-
-    //     OccupancyMDP::PASSAGE_IN_NEXT_STATE++;
-    //     OccupancyMDP::MEAN_SIZE_STATE += occupancy_state->getFullyUncompressedOccupancy()->getStates().size();
-
-    //     // The new fully uncompressed occupancy state
-    //     std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(occupancy_state);
-    //     // The new one step left occupancy state
-    //     std::shared_ptr<OccupancyStateInterface> one_step_left_compressed_next_occupancy_state = std::make_shared<OccupancyState>(occupancy_state);
-
-    //     // For each joint history in the support of the fully uncompressed occupancy state
-    //     for (const auto &joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
-    //     {
-    //         fully_uncompressed_next_occupancy_state->getBeliefAt(joint_history);
-    //         // Apply the joint decision rule at joint_history to get the joint_action
-    //         auto compressed_joint_history = occupancy_state->getCompressedJointHistory(joint_history);
-    //         auto indiv_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), compressed_joint_history, decision_rule, t);
-
-    //         // Compute next belief
-    //         auto next_belief = this->getUnderlyingBeliefMDP()->nextBelief(fully_uncompressed_next_occupancy_state->getBeliefAt(joint_history), indiv_action, sdm::DEFAULT_OBSERVATION, t);
-
-    //         double proba = occupancy_state->getFullyUncompressedOccupancy()->getProbability(joint_history);
-
-    //         // Build fully uncompressed occupancy state
-    //         fully_uncompressed_next_occupancy_state->addProbability(joint_history->toJointHistory(), next_belief->toBelief(), proba);
-
-    //         // Update the probability of being in this next history (for the one step left uncompressed occupancy state)
-    //         one_step_left_compressed_next_occupancy_state->addProbability(compressed_joint_history->toJointHistory(), next_belief->toBelief(), proba);
-    //     }
-
-    //     fully_uncompressed_next_occupancy_state->finalize();
-    //     one_step_left_compressed_next_occupancy_state->finalize();
-
-    //     return std::make_pair(fully_uncompressed_next_occupancy_state, one_step_left_compressed_next_occupancy_state);
-    // }
-
-    Pair<std::shared_ptr<State>, std::shared_ptr<State>> SerialOccupancyMDP::computeExactNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    bool SerialOccupancyMDP::do_compression(number t) const
     {
-        // if (!this->isLastAgent(t))
-        // {
-        //     return this->nextStateSerialStep(ostate, action, t);
-        // }
-        // else
-        // {
-            return OccupancyMDP::computeExactNextState(ostate, action, observation, t);
-        // }
+        return (OccupancyMDP::do_compression(t) && this->isLastAgent(t));
     }
 
     double SerialOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
-        // 
         return (!this->isLastAgent(t)) ? 0. : OccupancyMDP::getReward(occupancy_state, decision_rule, t);
     }
 } // namespace sdm
