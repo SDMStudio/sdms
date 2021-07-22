@@ -9,9 +9,9 @@ namespace sdm
         const double PRECISION_MAPPED_VECTOR = 0.0001;
         const double PRECISION_VECTO_INTERFACE = PRECISION_MAPPED_VECTOR;
 
-        const double PRECISION_BELIEF = 0.001;
-        const double PRECISION_OCCUPANCY_STATE = 0.001;
-        const double PRECISION_COMPRESSION = 0.01;
+        const double PRECISION_BELIEF = 0.0001;
+        const double PRECISION_OCCUPANCY_STATE = 0.0001;
+        const double PRECISION_COMPRESSION = 0.001;
 
         /** Number of decimal to display */
         const unsigned short BELIEF_DECIMAL_PRINT = 5;

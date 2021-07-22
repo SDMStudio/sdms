@@ -149,8 +149,8 @@ namespace sdm
 
         double phi = 1.0;
 
-        auto point = point_tmp->toOccupancyState();
-        auto occupancy_state = state_tmp->toOccupancyState();
+        auto point = point_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
+        auto occupancy_state = state_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
 
         // Go over all joint history
         for (auto &joint_history : point->getJointHistories())

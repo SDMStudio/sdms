@@ -36,14 +36,14 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>,double>  ActionVFMaxplanWCSP::createWCSPProblem(const std::shared_ptr<ValueFunction>& , const std::shared_ptr<State>& state, number t)
     {
+        this->variables.clear();
+
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
 
         auto occupancy_state = state->toOccupancyState();
 
         this->determineMaxValue(state,t);
-
-        std::cout<<"Max value "<<this->max<<std::endl;
 
         number index;
 
@@ -61,7 +61,7 @@ namespace sdm
         {
             for(const auto& ihistory : occupancy_state->getIndividualHistories(agent))
             {
-                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory,agent), 0, under_pb->getActionSpace(agent,t)->getDim()[0]);
+                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory,agent), 0, under_pb->getActionSpace(agent,t)->toDiscreteSpace()->getNumItems()-1);
                 this->variables.emplace(this->getVarNameIndividualHistory(ihistory,agent), index);
             }
         }
@@ -75,10 +75,8 @@ namespace sdm
             //Go over all joint action
             for(const auto &joint_action : *under_pb->getActionSpace(t))
             {
-                std::cout<<"joint aciton"<<joint_action->str()<<std::endl;
                 costs.push_back(this->getCost(this->getValueAt(occupancy_state,joint_history,joint_action->toAction(),this->tmp_representation,t)));
             }
-            std::cout<<"Cost "<<costs<<std::endl;
             wcsp_solver->getWCSP()->postBinaryConstraint(this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(0),0)], this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(1),1)], costs);
         }
 
@@ -90,8 +88,6 @@ namespace sdm
             value = 0;
             std::vector<Value> sol;        // show optimal solution
             wcsp_solver->getSolution(sol); // cost optimum
-
-            std::cout<<"SOlution "<<sol<<std::endl;
 
             //Creation of the joint decision rule
 
@@ -122,22 +118,18 @@ namespace sdm
                 actions.push_back(indiv_actions);
                 joint_histories.push_back(indiv_histories);
             }
-            std::cout<<"DEcision rule created "<<std::endl;
 
             //Create JOint Deterministic Decision Rule
             decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories,actions);
 
-            std::cout<<"Decision rule "<<decision_rule->str()<<std::endl;
-
             for(const auto& joint_history : occupancy_state->getJointHistories())
             {
-                auto action = occupancy_mdp->applyDecisionRule(occupancy_state, joint_history, decision_rule, t);
+                auto action = occupancy_mdp->applyDecisionRule(occupancy_state->toOccupancyState(), occupancy_state->toOccupancyState()->getCompressedJointHistory(joint_history), decision_rule, t);
                 value += this->getValueAt(occupancy_state,joint_history,action,this->tmp_representation,t);
             }
         }
         else
         {
-            std::cout << "No solution found!" << std::endl;
             std::cout << wcsp_solver->getWCSP() << std::endl;
             exit(-1);
         }
@@ -198,61 +190,4 @@ namespace sdm
             }
         }
     }
-
-        // //   wcsp_solver->getWCSP()->sortConstraints(); // must be done before the search
-
-        // //   if (wcsp_solver->solve())
-        // //   {
-        // //     value = 0;
-        // //     std::vector<Value> sol;        // show optimal solution
-        // //     wcsp_solver->getSolution(sol); // cost optimum
-
-        // //     //<! populates the decision rule
-        // //     for (iter = this->s->begin(); iter != this->s->end(); ++iter)
-        // //     {
-        // //       u1 = sol[vars[iter->first->at(0)->to_string()]];
-        // //       u2 = sol[vars[iter->first->at(1)->to_string()]];
-        // //       u = common::model->getJointActionIndex(std::vector<action>({u1, u2}));
-        // //       value += iter->second.first * this->getValueAt(iter->first, u);
-        // //       for(action v=0; v<common::model->getNumStates(); ++v)
-        // //       {
-        // //         a->setJointProbability(iter->first, v, 0.0);
-        // //       }
-        // //       a->setJointProbability(iter->first, u, 1.0);
-        // //     }
-        // //   }
-
-        // //   else
-        // //   {
-        // //     std::cout << "No solution found!" << std::endl;
-        // //     std::cout << wcsp_solver->getWCSP() << std::endl;
-        // //     exit(-1);
-        // //   }
-
-        // //   return a;
-        // }
-
-        // // template <typename TVector, typename TAction, typename TValue = double>
-        // // void q_vector<TVector,TAction,TValue>::setOffSet(number offset)
-        // // {
-        // //   this->offset = offset;
-        // // }
-
-        // // template <typename TVector, typename TAction, typename TValue = double>
-        // // void q_vector<TVector,TAction,TValue>::setJointTypes(const std::shared_ptr<State> &s)
-        // // {
-        // //   action u;
-        // //   this->max = std::numeric_limits<double>::lowest();
-
-        // //   base_q_vector<i_type, j_type, value_function>::setJointTypes(s);
-
-        // //   for (auto iter = this->s->begin(); iter != this->s->end(); ++iter)
-        // //   {
-        // //     for (u = 0; u < common::model->getNumActions(); u++)
-        // //     {
-        // //       this->max = std::max(max, iter->second.first * this->getValueAt(iter->first, u));
-        // //     }
-        // //   }
-        // // }
-        // }
 }

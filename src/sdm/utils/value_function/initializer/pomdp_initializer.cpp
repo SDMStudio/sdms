@@ -34,7 +34,7 @@ namespace sdm
         auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_pomdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
-        auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp,"HSVI");
+        auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp,"HSVI",0);
 
         auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(),init_lb,tabular_backup,action_tabular);
         auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(),init_ub,tabular_backup,action_tabular);
