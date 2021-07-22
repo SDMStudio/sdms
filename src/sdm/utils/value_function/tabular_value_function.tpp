@@ -38,7 +38,7 @@ namespace sdm
             if ((this->representation[t].find(state) == this->representation[t].end()))
             {
                 double i_value = this->evaluate(state, t).second;
-                this->updateValueAt(state, t, i_value);
+                // this->updateValueAt(state, t, i_value);
                 return i_value;
             }
         }
@@ -118,6 +118,6 @@ namespace sdm
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
     template <class Hash, class KeyEqual>
-    void BaseTabularValueFunction<Hash, KeyEqual>::do_prunning(number ){}
+    void BaseTabularValueFunction<Hash, KeyEqual>::do_pruning(number ){}
 
 } // namespace sdm

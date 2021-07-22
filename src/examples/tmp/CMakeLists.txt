@@ -95,10 +95,13 @@ if(JEROME)
 	file(
 		GLOB_RECURSE
 		lib_core
-		${INCLUDE_DIR}/core/*
-		${INCLUDE_DIR}/utils/struct/iterator/*
 		${INCLUDE_DIR}/common.cpp
 		${INCLUDE_DIR}/tools.cpp
+		${INCLUDE_DIR}/public/**
+		${INCLUDE_DIR}/core/**
+
+		${INCLUDE_DIR}/utils/struct/**
+		${INCLUDE_DIR}/utils/linear_algebra/**
 	)
 	add_library(core SHARED ${lib_core})
 
@@ -106,14 +109,8 @@ if(JEROME)
 	file(
 		GLOB_RECURSE
 		lib_world
-		${INCLUDE_DIR}/world/mdp.cpp
-		${INCLUDE_DIR}/world/mmdp.cpp
-		${INCLUDE_DIR}/world/serialized_mmdp.cpp
-		${INCLUDE_DIR}/world/mpomdp.cpp
-		${INCLUDE_DIR}/world/pomdp.cpp
 		${INCLUDE_DIR}/parser/**
-		${INCLUDE_DIR}/world/serialized_mpomdp.cpp
-		${INCLUDE_DIR}/world/occupancy_mdp.cpp
+		${INCLUDE_DIR}/world/**
 
 	)
 	add_library(world SHARED ${lib_world})
@@ -124,28 +121,12 @@ if(JEROME)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms.cpp
-
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
-		${INCLUDE_DIR}/utils/value_function/value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/tabular_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/point_set_value_function.cpp
-		${INCLUDE_DIR}/utils/value_function/hyperplan_value_function.cpp
-		
+		${INCLUDE_DIR}/algorithms/q_learning.cpp
 
-		${INCLUDE_DIR}/utils/value_function/initializer/**
-		${INCLUDE_DIR}/utils/value_function/backup/**
-		${INCLUDE_DIR}/utils/value_function/evaluate_vf/**
-		# ${INCLUDE_DIR}/utils/value_function/action_vf/**
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan.cpp
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_tabulaire.cpp
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_vf_base.cpp
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_maxplan_lp.cpp
-		${INCLUDE_DIR}/utils/value_function/action_vf/action_sawtooth_lp.cpp
-
+		${INCLUDE_DIR}/utils/value_function/**
 		${INCLUDE_DIR}/utils/linear_programming/**
-		${INCLUDE_DIR}/world/gym_interface.cpp
+
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)
@@ -153,10 +134,13 @@ if(JEROME)
 
 	add_executable(quicktest_jerome quicktest_jerome.cpp)
 	target_link_libraries(quicktest_jerome
+		-L${SDMS_LIB_DIR} 
 		dl
 		${Boost_LIBRARIES}
 		${TORCH_LIBRARIES}
 		${CPLEX_LIBRARIES}
+		${SDMS_LIB_DIR}/libtb2.so 
+		#${LIB_SDMS}
 		hsvi
 	)
 endif()

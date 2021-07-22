@@ -39,7 +39,7 @@ namespace sdm
         this->initial_state_ = initial_state;
         this->mdp_graph_ = std::make_shared<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>>();
         this->mdp_graph_->addNode(this->initial_state_);
-        
+
         this->reward_graph_ = std::make_shared<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>>();
         this->reward_graph_->addNode(0.0);
     }

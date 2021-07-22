@@ -141,9 +141,6 @@ namespace sdm
         // Action selection following policy and exploration process
         this->action = this->select_action(this->observation);
 
-        // std::cout << "*this->action" << std::endl;
-        // std::cout << *this->action << std::endl;
-
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
         // std::cout << "-------- do_step() --------- 2" << std::endl;

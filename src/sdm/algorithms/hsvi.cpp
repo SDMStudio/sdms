@@ -87,8 +87,8 @@ namespace sdm
 
             this->do_explore(start_state, 0, 0);
 
-            this->lower_bound_->do_prunning(this->trial);
-            this->upper_bound_->do_prunning(this->trial);
+            this->lower_bound_->do_pruning(this->trial);
+            this->upper_bound_->do_pruning(this->trial);
 
             this->current_time = std::chrono::high_resolution_clock::now();
             this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(this->current_time - this->start_time).count();
@@ -150,7 +150,7 @@ namespace sdm
 
                 // Update bounds
                 t_begin = clock();
-                this->lower_bound_->updateValueAt(s, h);
+                this->lower_bound_->updateValueAt(s,h);
                 HSVI::TIME_IN_UPDATE_LB += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
 #ifdef LOGTIME
@@ -209,10 +209,10 @@ namespace sdm
                       << std::endl;
             jdr = this->lower_bound_->getBestAction(ostate, i);
             std::cout << "#> State\n"
-                      << ostate << "\n"
+                      << ostate->str() << "\n"
                       << std::endl;
             std::cout << "#> Action\n"
-                      << jdr << std::endl;
+                      << jdr->str() << std::endl;
             ostate = this->world_->nextState(ostate, jdr, i, this->getptr());
         }
     }

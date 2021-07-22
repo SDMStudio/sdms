@@ -151,7 +151,7 @@ namespace sdm
             void printTime();
         #endif
 
-        virtual void do_prunning(number t) =0;
+        virtual void do_pruning(number t) =0;
 
     protected:
         /**

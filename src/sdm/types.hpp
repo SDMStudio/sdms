@@ -121,6 +121,32 @@ namespace sdm
     BOUNDED
   };
 
+  // std::ostream& operator<<(std::ostream& out, const TypeOfMaxPlanPrunning value)
+  // {
+  //   const char* s = 0;
+
+  //   switch (value)
+  //   {
+  //   case TypeOfMaxPlanPrunning::PAIRWISE :
+  //     s = "PAIRWISE";
+  //   case TypeOfMaxPlanPrunning::BOUNDED :    
+  //     s = "BOUNDED";
+
+  //   default:
+  //     break;
+  //   }
+  //   return out<<s;
+  // }
+
+  enum TypeOfSawtoothPrunning
+  {
+    ITERATIVE,
+    GLOBAL,
+    BOTH,
+    NONE
+  };
+
+
   enum TypeState
   {
     STATE,

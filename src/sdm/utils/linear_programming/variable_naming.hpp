@@ -39,6 +39,8 @@ namespace sdm
          */
         std::string getVarNameIndividualHistoryDecisionRule(const std::shared_ptr<Action>&,const std::shared_ptr<HistoryInterface>&, const number&);
 
+        std::string getVarNameIndividualHistory(const std::shared_ptr<HistoryInterface>& ihistory, const number agent);
+
         /**
          * @brief Get the identifier associated with a given name 
          * @param const std::string& name

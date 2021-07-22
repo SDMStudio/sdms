@@ -17,9 +17,9 @@ namespace sdm
     public:
         using Container = typename BaseTabularValueFunction<Hash, KeyEqual>::Container;
 
-        BasePointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning = -1);
+        BasePointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning = -1, TypeOfSawtoothPrunning type_of_sawtooth_prunning = TypeOfSawtoothPrunning::NONE);
 
-        BasePointSetValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = -1);
+        BasePointSetValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = -1, TypeOfSawtoothPrunning type_of_sawtooth_prunning = TypeOfSawtoothPrunning::NONE);
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -27,7 +27,7 @@ namespace sdm
          * @param state the state
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
-        void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
+        void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
 
         bool is_dominated(const std::shared_ptr<State> &ostate, double value, number t);
 
@@ -50,13 +50,13 @@ namespace sdm
 
         double getValueAt(const std::shared_ptr<State> &state, number t);
 
-        void do_prunning(number t);
+        void do_pruning(number t);
         
     protected:
         /**
          * @brief Frequency before prunning.
          */
-        number freq_prune_;
+        number freq_pruning_;
 
         /**
          * @brief The last time the prunning took place.
@@ -69,6 +69,8 @@ namespace sdm
          * 
          */
         double epsilon_prunning;
+
+        TypeOfSawtoothPrunning type_of_sawtooth_prunning_;
 
         /**
          * @brief Point-wise pruning.
@@ -93,6 +95,8 @@ namespace sdm
          * @return Pair<std::shared_ptr<State>,double> 
          */
         double ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point);
+
+        Pair<std::unordered_map<std::shared_ptr<State>,std::vector<std::shared_ptr<State>>>,std::map<int,std::vector<std::shared_ptr<State>>>> iterative_pruning(number t);
 
     public:
         friend class boost::serialization::access;

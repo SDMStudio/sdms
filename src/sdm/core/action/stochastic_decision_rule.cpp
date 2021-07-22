@@ -69,6 +69,14 @@ namespace sdm
         res << "<decision-rule/>" << std::endl;
         return res.str();
     }
+
+    bool StochasticDecisionRule::elementExist(const std::shared_ptr<State>& state)
+    {
+        //A tester 
+        throw sdm::exception::NotImplementedException();
+        // return (this->find(state) != this->end()) ? true : false;
+    }
+
 } // namespace sdm
 
 namespace std

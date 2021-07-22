@@ -12,16 +12,16 @@ namespace sdm
 
     double HyperplanValueFunction::PRECISION = config::PRECISION_SDMS_VECTOR;
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
-        : ValueFunction(horizon, initializer,backup,action_vf), freq_prune_(freq_prunning), type_of_maxplan_prunning_(type_of_maxplan_prunning)
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
+        : ValueFunction(horizon, initializer,backup,action_vf), freq_pruning_(freq_pruning), type_of_maxplan_prunning_(type_of_maxplan_prunning)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->all_state_updated_so_far = std::vector<std::unordered_set<std::shared_ptr<State>>>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1,std::unordered_set<std::shared_ptr<State>>());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_prunning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,freq_prunning,type_of_maxplan_prunning){}
+    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,freq_pruning,type_of_maxplan_prunning){}
 
     HyperplanValueFunction::~HyperplanValueFunction() {}
 
@@ -67,17 +67,15 @@ namespace sdm
         return this->default_values_per_horizon[t];
     }
 
-    void HyperplanValueFunction::do_prunning(number t)
+    void HyperplanValueFunction::do_pruning(number t)
     {
-        if (this->last_prunning == t)
+        if (t%this->freq_pruning_ == 0)
         {
             for (number time = 0; time < this->getHorizon(); time++)
             {
                 this->prune(time);
             }
-            this->last_prunning = 0;
         }
-        this->last_prunning++;
     }
     
     void HyperplanValueFunction::prune(number t)

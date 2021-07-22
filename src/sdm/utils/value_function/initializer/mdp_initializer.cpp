@@ -19,11 +19,11 @@ namespace sdm
 }
 namespace sdm
 {
-    MDPInitializer::MDPInitializer(std::shared_ptr<SolvableByHSVI> world,std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials), world_(world)
+    MDPInitializer::MDPInitializer(std::shared_ptr<SolvableByHSVI> world, std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials), world_(world)
     {
         std::cout << "In MDPInitializer" << std::endl;
     }
-    
+
     void MDPInitializer::init(std::shared_ptr<ValueFunction> vf)
     {
         // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
@@ -34,7 +34,7 @@ namespace sdm
         {
             // std::cout<<"Value Iteration";
             // auto value_iteration = algo::makeValueIteration(hsvi_mdp, mdp->getDiscount(), this->error_, mdp->getPlanningHorizon());
-            
+
             // value_iteration->do_initialize();
             // value_iteration->do_solve();
 
@@ -42,7 +42,7 @@ namespace sdm
         }
         else
         {
-            std::cout<<"MDP Iteration";
+            std::cout << "MDP Iteration";
 
             auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
             auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
@@ -50,14 +50,14 @@ namespace sdm
             auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
             auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-            auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(),init_lb,tabular_backup,action_tabular);
-            auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(),init_ub,tabular_backup,action_tabular);
+            auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
 
-            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_,10000,"MDP_Initialisation");
+            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_, 100000, "MDP_Initialisation");
 
             algorithm->do_initialize();
 
-            for(const auto &element : *mdp->getStateSpace(0))
+            for (const auto &element : *mdp->getStateSpace(0))
             {
                 auto state = element->toState();
                 hsvi_mdp->setInitialState(state);

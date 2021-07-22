@@ -25,7 +25,6 @@ namespace sdm
                             virtual public POMDPInterface
     {
     public:
-
         /**
          * @brief Get ths observation space of agent i at timestep t.
          * 
@@ -42,6 +41,15 @@ namespace sdm
          * @return the observation space
          */
         virtual std::shared_ptr<Space> getObservationSpace(number t) const = 0;
+    };
+
+    /**
+     * @brief The class for Discrete Markov Decision Processes. 
+     * 
+     */
+    class SerialMPOMDPInterface : virtual public SerialMMDPInterface,
+                                  virtual public MPOMDPInterface
+    {
     };
 
 } // namespace sdm

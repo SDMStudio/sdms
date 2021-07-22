@@ -37,6 +37,7 @@ file(
 
 	${INCLUDE_DIR}/core/*
 	${INCLUDE_DIR}/utils/struct/iterator/*
+	${INCLUDE_DIR}/utils/linear_programming/*
 	${INCLUDE_DIR}/common.cpp
 	${INCLUDE_DIR}/tools.cpp
 )

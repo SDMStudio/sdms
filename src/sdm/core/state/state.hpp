@@ -24,8 +24,6 @@ namespace sdm
         virtual std::string str() const = 0;
     };
 
-    const std::shared_ptr<Observation> DEFAULT_OBSERVATION = nullptr;
-
     class BeliefInterface;
     class OccupancyStateInterface;
     class HistoryInterface;

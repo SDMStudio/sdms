@@ -54,6 +54,8 @@ namespace sdm
         virtual std::string str() const = 0;
 
         virtual TypeAction getTypeAction() const { return TypeAction::DECISION_RULE; }
+
+        virtual bool elementExist(const std::shared_ptr<State>&)  =0;
     };
 
 } // namespace sdm
