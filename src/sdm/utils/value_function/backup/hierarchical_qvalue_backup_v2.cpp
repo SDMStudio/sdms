@@ -1,4 +1,4 @@
-#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v1.hpp>
+#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v2.hpp>
 
 #include <sdm/core/state/occupancy_state.hpp>
 
@@ -10,41 +10,40 @@
 
 namespace sdm
 {
-    HierarchicalQValueBackupV1::HierarchicalQValueBackupV1()
+    HierarchicalQValueBackupV2::HierarchicalQValueBackupV2()
     {
 
     }
 
-    HierarchicalQValueBackupV1::HierarchicalQValueBackupV1(
+    HierarchicalQValueBackupV2::HierarchicalQValueBackupV2(
         std::shared_ptr<ExperienceMemory> experience_memory, 
         std::shared_ptr<QValueFunction> q_value_table, 
         std::shared_ptr<QValueFunction> target_q_value_table, 
         double discount,
         std::shared_ptr<Space> action_space
     ) : experience_memory_(experience_memory), 
-        q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunctionV1>(q_value_table)),
-        target_q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunctionV1>(target_q_value_table)), 
+        q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunctionV2>(q_value_table)),
+        target_q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunctionV2>(target_q_value_table)), 
         discount_(discount), 
         action_space_(std::static_pointer_cast<MultiDiscreteSpace>(action_space))
     {
         this->prepareSubordinateJointActions();
     }
 
-    HierarchicalQValueBackupV1::~HierarchicalQValueBackupV1()
+    HierarchicalQValueBackupV2::~HierarchicalQValueBackupV2()
     {
 
     }
 
-    double HierarchicalQValueBackupV1::backup(number t)
+    double HierarchicalQValueBackupV2::backup(number t)
     {   
-        // std::cout << "-------- HierarchicalQValueBackupV1::backup() ---------" << std::endl;
         auto [observation, decision_rule, reward, next_observation] = this->experience_memory_->sample(t)[0];
         auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(observation)->first;
         auto s = s_o->first;
         auto o = s_o->second;
-        auto next_state_next_history = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->first;
-        auto next_state = next_state_next_history->first;
-        auto next_history = next_state_next_history->second;
+        auto ns_no = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->first;
+        auto ns = ns_no->first;
+        auto no = ns_no->second;
         auto u = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->second;
 
         double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
@@ -56,9 +55,9 @@ namespace sdm
         return delta;
     }
 
-    std::shared_ptr<Action> HierarchicalQValueBackupV1::getGreedyAction(const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<Action> HierarchicalQValueBackupV2::getGreedyAction(const std::shared_ptr<State> &state, number t)
     {
-        // std::cout  << std::endl << "-------- HierarchicalQValueBackupV1::getGreedyAction() ---------" << std::endl;
+        // std::cout << "-------- HierarchicalQValueBackupV2::getGreedyAction() ---------" << std::endl;
         auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first;
         auto s = s_o->first;
         s->prepareIndividualHierarchicalHistoryVectors(t);
@@ -201,11 +200,13 @@ namespace sdm
         return std::make_shared<JointDeterministicDecisionRule>(a);
     }
 
-    double HierarchicalQValueBackupV1::getValueAt(const std::shared_ptr<State> &state, number t)
+    double HierarchicalQValueBackupV2::getValueAt(const std::shared_ptr<State> &state, number t)
     {
         auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first;
-        std::shared_ptr<DecisionRule> a =  this->getGreedyAction(state, t)->toDecisionRule();
         std::shared_ptr<OccupancyStateInterface> s = s_o->first;
+
+        std::shared_ptr<DecisionRule> a =  this->getGreedyAction(state, t)->toDecisionRule();
+
         double value = 0;
         for (const auto& o : s->getJointHistories())
         {
@@ -219,10 +220,9 @@ namespace sdm
         return value;
     }
 
-
-    void HierarchicalQValueBackupV1::prepareSubordinateJointActions()
+    void HierarchicalQValueBackupV2::prepareSubordinateJointActions()
     {
-        // std::cout << "-------- HierarchicalQValueBackupV1::prepareSubordinateJointActions() ---------" << std::endl;
+        // std::cout << "-------- HierarchicalQValueBackupV2::prepareSubordinateJointActions() ---------" << std::endl;
         // Initialize it.
         this->all_subordinate_jactions = std::make_shared<std::unordered_map<int, std::vector<std::shared_ptr<Joint<std::shared_ptr<Action>>>>>>();
         // Fill it up with empty vectors for each agent.
@@ -230,7 +230,6 @@ namespace sdm
         {
             this->all_subordinate_jactions->emplace(agent, std::vector<std::shared_ptr<Joint<std::shared_ptr<Action>>>>{});
         }
-        // std::cout << "-------- HierarchicalQValueBackupV1::prepareSubordinateJointActions() --------- 1" << std::endl;
         // We do it for agent N-1. (it has jactions of agent N, not for herself)
         for (const auto & u2: *this->action_space_->get(this->num_agents_ - 1))
         {
@@ -238,7 +237,6 @@ namespace sdm
             jaction->push_back(u2->toAction());
             this->all_subordinate_jactions->at(this->num_agents_ - 2).push_back(jaction);
         }
-        // std::cout << "-------- HierarchicalQValueBackupV1::prepareSubordinateJointActions() --------- 2" << std::endl;
         // // We do it for the rest of the agents.
         // for (int agent = this->num_agents_ - 3; agent >= 0; agent--)
         // {
@@ -256,10 +254,9 @@ namespace sdm
         //         }
         //     }
         // }
-        // std::cout << "-------- HierarchicalQValueBackupV1::prepareSubordinateJointActions() --------- 3" << std::endl;
     }
 
-    std::shared_ptr<State> HierarchicalQValueBackupV1::getJointHierarchicalHistory(const std::shared_ptr<JointHistoryInterface> &joint_labels, const std::shared_ptr<State> &ostate, number t) const
+    std::shared_ptr<State> HierarchicalQValueBackupV2::getJointHierarchicalHistory(const std::shared_ptr<JointHistoryInterface> &joint_labels, const std::shared_ptr<State> &ostate, number t) const
     {
         // This is the reversed version of what we want, that is Joint Hierarchical Labels, that is Hierarchical Labels for each agent.
         // Each Hierarchical Label contains Labels for agents between agent I and agent N.

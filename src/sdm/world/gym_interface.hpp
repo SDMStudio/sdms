@@ -29,6 +29,14 @@ namespace sdm
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
 
         /**
+         * @brief Get random action.
+         * @param observation the observation in consideration.
+         * @param t time step.
+         * @return the random action. 
+         */
+        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t) = 0;
+
+        /**
          * @brief Reset the environment and return initial observation.
          * @return the initial observation
          */

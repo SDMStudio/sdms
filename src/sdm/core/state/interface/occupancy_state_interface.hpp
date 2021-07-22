@@ -22,6 +22,10 @@ namespace sdm
         virtual void addProbability(const std::shared_ptr<State> &pair_history_belief, double proba) = 0;
         virtual void addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba) = 0;
 
+        virtual double operator-(const std::shared_ptr<BeliefInterface> &other) const = 0;
+
+        virtual double minus(const std::shared_ptr<BeliefInterface> &other) const = 0;
+
         virtual Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> sampleJointHistoryBelief() = 0;
 
         /**

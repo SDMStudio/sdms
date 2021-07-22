@@ -63,7 +63,8 @@ namespace sdm
 
                 std::shared_ptr<Observation> reset();
                 std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-                std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+                virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+                virtual std::shared_ptr<Action> computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t);
 
                 // *****************
                 // Temporary methods

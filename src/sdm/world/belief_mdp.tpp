@@ -239,11 +239,18 @@ namespace sdm
     {
         return this->getUnderlyingPOMDP()->getActionSpace(t);
     }
-
+    
+    // Useless
     template <class TBelief>
     std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
     {
         return this->getUnderlyingPOMDP()->getActionSpace(t);
+    }
+
+    template <class TBelief>
+    std::shared_ptr<Action> BaseBeliefMDP<TBelief>::getRandomAction(const std::shared_ptr<Observation> &, number t)
+    {
+        return this->getUnderlyingPOMDP()->getActionSpace(t)->sample()->toAction();
     }
 
     template <class TBelief>

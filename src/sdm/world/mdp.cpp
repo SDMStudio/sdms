@@ -152,9 +152,15 @@ namespace sdm
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
+    // Useless
     std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
     {
         return this->getActionSpace(t);
+    }
+
+    std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<Observation> &, number t)
+    {
+        return this->getActionSpace(t)->sample()->toAction();
     }
 
     std::string MDP::toStdFormat()

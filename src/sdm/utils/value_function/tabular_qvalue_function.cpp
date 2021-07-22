@@ -63,6 +63,11 @@ namespace sdm
         return (this->representation[h].find(state) == this->representation[h].end());
     }
 
+    int TabularQValueFunction::getNumStates() const
+    {
+        return 0;
+    }
+
     // void TabularQValueFunction::printNumberOfActions()
     // {
     //     std::cout << "Printing number of actions" << std::endl;

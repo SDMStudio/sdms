@@ -47,7 +47,7 @@ namespace sdm
          * @return true 
          * @return false 
          */
-        bool isLastAgent(number t) const ;
+        bool isLastAgent(number t) const;
 
         /**
          * @brief Get the discount factor at timestep t.
@@ -76,7 +76,7 @@ namespace sdm
          * 
          * @return the set of states 
          */
-        std::shared_ptr<Space> getStateSpace(number t =0) const;
+        std::shared_ptr<Space> getStateSpace(number t = 0) const;
 
         /**
          * @brief Get the reachable next states
@@ -101,8 +101,7 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Space> 
          */
-        std::shared_ptr<Space> getActionSpace(number agent_id, number t ) const;
-
+        std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
 
         /**
          * @brief Get the reward
@@ -115,7 +114,7 @@ namespace sdm
         double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
         double getMinReward(number t = 0) const;
-        
+
         double getMaxReward(number t = 0) const;
         /**
          * @brief Get the Transition Probability object
@@ -156,9 +155,12 @@ namespace sdm
         void setInternalState(std::shared_ptr<State> state);
 
         std::shared_ptr<State> getInternalState() const;
+
+        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &, number t);
+        
     protected:
         std::shared_ptr<MMDPInterface> mmdp_;
-        
+
         /**
          * @brief Refer to the Serialized State Space
          * 
@@ -210,7 +212,6 @@ namespace sdm
         const std::shared_ptr<State> getPointeurState(SerializedState &) const;
 
         void createDistribution();
-
     };
 
 } // namespace sdm

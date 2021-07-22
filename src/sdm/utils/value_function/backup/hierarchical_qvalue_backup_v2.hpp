@@ -6,19 +6,19 @@
 
 #include <sdm/core/space/multi_discrete_space.hpp>
 
-#include <sdm/utils/value_function/hierarchical_qvalue_function_v1.hpp>
+#include <sdm/utils/value_function/hierarchical_qvalue_function_v2.hpp>
 
 namespace sdm
 {
 
-    class HierarchicalQValueBackupV1 : public QValueBackupInterface
+    class HierarchicalQValueBackupV2 : public QValueBackupInterface
     {
     public:
 
-        HierarchicalQValueBackupV1();
-        HierarchicalQValueBackupV1(std::shared_ptr<ExperienceMemory> experience_memory, std::shared_ptr<QValueFunction> q_value_table, std::shared_ptr<QValueFunction> target_q_value_table, double discount, std::shared_ptr<Space> action_space);
+        HierarchicalQValueBackupV2();
+        HierarchicalQValueBackupV2(std::shared_ptr<ExperienceMemory> experience_memory, std::shared_ptr<QValueFunction> q_value_table, std::shared_ptr<QValueFunction> target_q_value_table, double discount, std::shared_ptr<Space> action_space);
         
-        ~HierarchicalQValueBackupV1();
+        ~HierarchicalQValueBackupV2();
         
         /**
          * @brief 
@@ -48,8 +48,8 @@ namespace sdm
 
     protected:
         std::shared_ptr<ExperienceMemory> experience_memory_;
-        std::shared_ptr<HierarchicalQValueFunctionV1> q_value_table_;
-        std::shared_ptr<HierarchicalQValueFunctionV1> target_q_value_table_;
+        std::shared_ptr<HierarchicalQValueFunctionV2> q_value_table_;
+        std::shared_ptr<HierarchicalQValueFunctionV2> target_q_value_table_;
         double discount_;
         number num_agents_ = 2;
         std::shared_ptr<MultiDiscreteSpace> action_space_;

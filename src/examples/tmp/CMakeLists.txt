@@ -250,14 +250,18 @@ if(QLEARNING)
 		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp.cpp
 		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
+		${INCLUDE_DIR}/world/networked_distributed_pomdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/hierarchical_qvalue_function_v1.cpp
+		${INCLUDE_DIR}/utils/value_function/hierarchical_qvalue_function_v2.cpp
 		${INCLUDE_DIR}/utils/value_function/initializer/initializer.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v1.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v2.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v3.cpp
 		${INCLUDE_DIR}/utils/rl/experience_memory.cpp
 
 	)

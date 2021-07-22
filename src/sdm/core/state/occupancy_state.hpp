@@ -176,12 +176,16 @@ namespace sdm
         double operator<(const OccupancyState &other) const;
         double operator<(const std::shared_ptr<BeliefInterface> &other) const;
 
+        double operator-(const std::shared_ptr<BeliefInterface> &other) const;
+
+        double minus(const std::shared_ptr<BeliefInterface> &other) const;
+
         std::shared_ptr<Space> getActionSpaceAt(number t);
         void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
         void setup();
         void normalize();
 
-        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_HASH;
+        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_MINUS_OPERATOR, TIME_IN_HASH;
         static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
 
         std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory);
