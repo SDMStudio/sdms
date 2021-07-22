@@ -253,19 +253,13 @@ namespace sdm
          * @param std::shared_ptr<Action> action
          * @param number t : Time Step 
          */
-        double getQValueRelaxation(const std::shared_ptr<ValueFunction>&vf,const  std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> joint_history, std::shared_ptr<Action> action, number t);
+        double getQValueRelaxation(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, number t);
 
-        // TypeSawtoothLinearProgram getSawtoothType();
-        // void setSawtoothType(const TypeSawtoothLinearProgram &);
+        std::shared_ptr<Joint<std::shared_ptr<Observation>>> determineNextJointObservation(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>&);
+        std::set<std::shared_ptr<JointHistoryInterface>> determineJointHistory(const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface>&, const std::shared_ptr<Observation>&);
 
         std::shared_ptr<MappedVector<std::shared_ptr<State>,double>> representation;
 
         std::unordered_map<std::shared_ptr<State>,std::shared_ptr<Action>> state_linked_to_decision_rule;
-
-        bool RelaxationConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action,double value, number t);
-        double calculRelaxationContrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action, number t);
-        double calculRelaxationContrainteSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action, number t);
-        double calculRelaxationContrainteOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& action, number t);
-
     };
 }

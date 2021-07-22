@@ -67,5 +67,11 @@ namespace sdm
         return this->map_state_to_action_;
     }
 
+    bool DeterministicDecisionRule::elementExist(const std::shared_ptr<State>& state)
+    {
+        return (this->map_state_to_action_.find(state) != this->map_state_to_action_.end()) ? true : false;
+    }
+
+
 } // namespace sdm
 

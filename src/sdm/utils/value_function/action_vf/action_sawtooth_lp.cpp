@@ -43,7 +43,7 @@ namespace sdm
     std::shared_ptr<Action> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action;
-        double min_value = std::numeric_limits<double>::max();
+        double min_value = std::numeric_limits<double>::max(), value_tmp;
         
         if (vf->getSupport(t + 1).empty())
         {
@@ -71,11 +71,11 @@ namespace sdm
                 }
             }
             // Verification of the Relaxation Contraint.
-            if(min_value> (value = vf->getValueAt(state,t)))
+            if(min_value > (value_tmp = vf->getValueAt(state,t)))
             {
                 // If the contraint is not verified , we used the decision rule previously stocked
                 best_action = this->state_linked_to_decision_rule.at(state);
-                min_value = value;
+                min_value = value_tmp;
             }
 
         }
@@ -87,7 +87,7 @@ namespace sdm
     std::shared_ptr<Action> ActionVFSawtoothLP::createFullSawtooth(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
     {
         // For the Full version of Sawtooth, wo over all the Point Set
-        this->representation = std::make_shared<MappedVector<std::shared_ptr<State>,double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));
+        this->representation = std::make_shared<MappedVector<std::shared_ptr<State>,double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));        
         return this->createLP(vf,state, t).first;
     }
 
@@ -136,7 +136,7 @@ namespace sdm
         }
     }
 
-    double ActionVFSawtoothLP::getQValueRelaxation(const std::shared_ptr<ValueFunction>&vf,const  std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> joint_history, std::shared_ptr<Action> action, number t)
+    double ActionVFSawtoothLP::getQValueRelaxation(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, number t)
     {
         // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
         double weight = 0.0;
@@ -188,33 +188,19 @@ namespace sdm
                     {
                         double probability = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
 
-                        std::shared_ptr<Joint<std::shared_ptr<Observation>>> joint_observation;
-                        // Get next observation
-                        if (compressed_occupancy_state->getTypeState() == TypeState::SERIAL_OCCUPANCY_STATE)
-                        {
-                            // int next_agent_id = compressed_occupancy_state->toSerialOccupancyState()->getCurrentAgentId();
-                            // joint_observation = next_agent_id == 0 ? next_joint_history->getData() : next_joint_history->getDefaultObs();
-                        }
-                        else
-                        {
-                            joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
-                        }
+                        auto next_joint_observation = this->determineNextJointObservation(compressed_occupancy_state,next_joint_history);
 
-                        // Verification of joint_history 
-                        for(const auto &joint_history : compressed_occupancy_state->getJointHistories())
+                        // We search for the joint_history which allow us to obtain the current next_joint_history conditionning to the next joint observation
+                        for(const auto &joint_history : this->determineJointHistory(compressed_occupancy_state,next_joint_history,next_joint_observation))
                         {
-                            auto verification = joint_history->expand(joint_observation);
-                            if(verification == next_joint_history)
+                            switch (this->current_type_of_resolution_)
                             {
-                                switch (this->current_type_of_resolution_)
-                                {
-                                case TypeOfResolution::BigM:
-                                    // this->createSawtoothBigM(compressed_occupancy_state,joint_history,next_hidden_state,joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,con,var,index, t);
-                                    break;
-                                case TypeOfResolution::IloIfThenResolution:
-                                    this->createSawtoothIloIfThen(vf,compressed_occupancy_state,joint_history,next_hidden_state,joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,model,var, t);
-                                    break;
-                                }
+                            case TypeOfResolution::BigM:
+                                // this->createSawtoothBigM(compressed_occupancy_state,joint_history,next_hidden_state,next_joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,con,var,index, t);
+                                break;
+                            case TypeOfResolution::IloIfThenResolution:
+                                this->createSawtoothIloIfThen(vf,compressed_occupancy_state,joint_history,next_hidden_state,next_joint_observation,next_joint_history,next_one_step_uncompressed_occupancy_state,probability,difference,env,model,var, t);
+                                break;
                             }
                         }
                     }
@@ -252,17 +238,21 @@ namespace sdm
     
     double ActionVFSawtoothLP::getSawtoothMinimumRatio(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, const std::shared_ptr<State>& next_hidden_state, const std::shared_ptr<Observation>& next_observation, double denominator, number t)
     {
-        double factor = 0.0;
+        double numerator = 0.0;
 
         try
         {
+            // Compute the numerator for the Sawtooth Ratio, i.e. we compute the \sum_{x} s(x,o) * T(x,u,x_,z_)
+            // This formulation allow us to tranform the problem at t+1, like the next_one_step_uncompressed_occupancy_state
+            // therefore, we can have the sawtooth ration equivalent to 1.
+
             auto compressed_occupancy_state = state->toOccupancyState();
             auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
 
             // Go over all hidden state  in a belief conditionning to a joint history
             for(const auto &hidden_state : compressed_occupancy_state->getBeliefAt(joint_history)->getStates())
             {
-                factor += compressed_occupancy_state->getProbability(joint_history,hidden_state)*under_pb->getDynamics(hidden_state,action,next_hidden_state,next_observation,t);
+                numerator += compressed_occupancy_state->getProbability(joint_history,hidden_state)*under_pb->getDynamics(hidden_state,action,next_hidden_state,next_observation,t);
             }
         }
         catch (const std::exception &exc)
@@ -270,7 +260,7 @@ namespace sdm
             std::cerr << "ActionVFSawtoothLP::getSawtoothMinimumRatio(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
-        return factor / denominator;
+        return numerator / denominator;
     }
 
     void ActionVFSawtoothLP::createSawtoothBigM(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
@@ -320,6 +310,40 @@ namespace sdm
             break;
         }
     }
+
+    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLP::determineNextJointObservation(const std::shared_ptr<State> &compressed_occupancy_state, const std::shared_ptr<JointHistoryInterface>& next_joint_history)
+    {
+        std::shared_ptr<Joint<std::shared_ptr<Observation>>> next_joint_observation;
+        // Get next observation
+        if (compressed_occupancy_state->getTypeState() == TypeState::SERIAL_OCCUPANCY_STATE)
+        {
+            // int next_agent_id = compressed_occupancy_state->toSerialOccupancyState()->getCurrentAgentId();
+            // next_joint_observation = next_agent_id == 0 ? next_joint_history->getData() : next_joint_history->getDefaultObs();
+        }
+        else
+        {
+            next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
+        }
+        return next_joint_observation;
+    }
+
+    std::set<std::shared_ptr<JointHistoryInterface>> ActionVFSawtoothLP::determineJointHistory(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& next_joint_history, const std::shared_ptr<Observation>&next_joint_observation)
+    {
+        std::set<std::shared_ptr<JointHistoryInterface>> joint_histories;
+
+        auto compressed_occupancy_state = state->toOccupancyState();
+
+        for(const auto &joint_history : compressed_occupancy_state->getJointHistories())
+        {
+            auto verification = joint_history->expand(next_joint_observation);
+            if(verification == next_joint_history)
+            {
+                joint_histories.insert(joint_history);
+            }
+        }
+        return joint_histories;
+    }
+
 
     // *********************************************
     // Specialisation for the Occupancy State 
@@ -502,57 +526,5 @@ namespace sdm
         //     exit(-1);
         // }
     }
-
-    double ActionVFSawtoothLP::calculRelaxationContrainteSerial(const std::shared_ptr<ValueFunction>&,const std::shared_ptr<State> &, std::shared_ptr<Action>& , number ){throw sdm::exception::NotImplementedException();}
-
     void ActionVFSawtoothLP::createObjectiveFunctionSerial(const std::shared_ptr<ValueFunction>&, const std::shared_ptr<State> &, IloNumVarArray &, IloObjective &, number ){throw sdm::exception::NotImplementedException();}
-
-    // *********************************************
-    // Function for the Relaxation Contrainte 
-    // *********************************************
-
-    double ActionVFSawtoothLP::calculRelaxationContrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, number t)
-    {
-        //Specialisation for type of state
-        switch (state->getTypeState())
-        {
-        case TypeState::OCCUPANCY_STATE :
-            return this->calculRelaxationContrainteOccupancy(vf,state, decision_rule,t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE :
-            return this->calculRelaxationContrainteSerial(vf,state, decision_rule,t);
-            break;
-        default:
-            throw sdm::exception::Exception("ActionVFSawtoothLP::calculRelaxationContrainte - it's not possible to use this type of state");
-            break;
-        }
-    }
-
-    bool ActionVFSawtoothLP::RelaxationConstrainte(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, std::shared_ptr<Action>& decision_rule, double value, number t)
-    {
-        // Verified if the relaxation contrainst is verified
-        double value_so_far = vf->getValueAt(state);
-        double QvalueRelaxation = this->calculRelaxationContrainte(vf,state, decision_rule,t);
-
-        return (value >= QvalueRelaxation - value_so_far) ? true : false;
-    }
-
-    double ActionVFSawtoothLP::calculRelaxationContrainteOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state_tmp, std::shared_ptr<Action>& decision_rule, number t)
-    {
-        double QvalueRelaxation = 0.0;
-        auto occupancy_state = state_tmp->toOccupancyState();
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
-
-        // Go over all Joint History
-        for (const auto &jhistory : occupancy_state->getJointHistories())
-        {
-            // Determine the action 
-            auto action = occupancy_mdp->applyDecisionRule(occupancy_state->toOccupancyState(), jhistory, decision_rule, t);
-            
-            //Calculate the Q Value Relaxation
-            QvalueRelaxation += this->getQValueRelaxation(vf,occupancy_state, jhistory, action->toAction(), t);
-        }
-        return QvalueRelaxation;
-    }
-
 }

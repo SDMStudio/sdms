@@ -50,15 +50,15 @@ int main(int argc, char **argv)
 
     // sdm::test(all_formalism,all_problem,all_horizon,all_discount,upper_bound_name,lower_bound_name,all_lower__init_name,all_upper_init_name,all_truncation,all_sawtooth_current_type_of_resolution,all_sawtooth_BigM,all_sawtooth_type_of_linear_program,all_type_of_maxplan_prunning,all_freq_prunning_lower_bound,all_type_of_sawtooth_prunning,all_freq_prunning_upper_bound,mean,filepath,save_path);
 
-    std::string filename = "../data/world/dpomdp/tiger.dpomdp";
-    int horizon = 4;
+    std::string filename = "../data/world/dpomdp/recycling.dpomdp";
+    int horizon = 10;
     int discount = 1;
     double error = 0.01;
     int trials = 1000;
-	int truncation = 4;
+	int truncation = 1;
 
     TypeOfResolution type_of_resolution = TypeOfResolution::IloIfThenResolution;
-	TypeSawtoothLinearProgram type_of_linear_program = TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING;
+	TypeSawtoothLinearProgram type_of_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING;
 
 	auto ValueBigM = 100;
 

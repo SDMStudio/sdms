@@ -78,6 +78,9 @@ namespace sdm
             os << joint_dr.str();
             return os;
         }
+        
+        bool elementExist(const std::shared_ptr<State>&);
+
     };
 
 } // namespace sdm

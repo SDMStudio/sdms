@@ -54,7 +54,10 @@ namespace sdm
 
         double getValueAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action,const std::shared_ptr<State>& next_hyperplan, number t);
 
-        std::shared_ptr<MappedVector<std::shared_ptr<State>,double>> representation;
+        Pair<std::shared_ptr<State>,double> representation;
+        std::shared_ptr<HistoryInterface> support_of_the_next_history;
+        std::shared_ptr<Action> support_of_the_next_action;
+        bool support_empty;
 
         std::unordered_map<std::shared_ptr<State>,std::shared_ptr<Action>> state_linked_to_decision_rule;
 

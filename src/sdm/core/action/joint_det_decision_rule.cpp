@@ -133,4 +133,22 @@ namespace sdm
         res << "<joint-decision-rule/>" << std::endl;
         return res.str();
     }
+
+    bool JointDeterministicDecisionRule::elementExist(const std::shared_ptr<State>& joint_state)
+    {
+        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+
+        for (number agent = 0; agent < joint_state_->size(); agent++)
+        {
+            auto individual_decision_rule = this->get(agent);
+            auto individual_state = joint_state_->at(agent);
+
+            if(!individual_decision_rule->elementExist(individual_state))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

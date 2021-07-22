@@ -75,30 +75,67 @@ namespace sdm
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
 
         std::shared_ptr<Action> best_action;
-        double value = -std::numeric_limits<double>::max();
+        double max_value = -std::numeric_limits<double>::max();
+
 
         if (vf->getSupport(t + 1).empty())
         {
+            this->support_empty = true;
 
-        }else
-        {
-            // For the Relaxation version of Sawtooth, we go over all element in the Point Set
-            // for (const auto &point : std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
-            // {
-            //     // We go over the support of the point i.e. we go over the history and the action
-
-            //     // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-            //     for (const auto &next_joint_history : point.first->toOccupancyState()->getOneStepUncompressedOccupancy()->getJointHistories())
-            //     {
-                    
-            //         for(const auto&action : *under_pb->getActionSpace(t))
-            //         {
-            //             if (decision_rule_associed->))
-
-            //         }
-            //     }
-            // }
+            auto [action,value] = this->createWCSPProblem(vf,state, t);
+            best_action = action;
+            max_value = value;
         }
+        else
+        {
+            this->support_empty = false;
+
+            // For the Relaxation version of Sawtooth, we go over all element in the Point Set
+            for (const auto &point_AND_value : std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
+            {
+                this->representation = point_AND_value;
+
+                // We go over the support of the point i.e. we go over the history and the action
+                auto decision_rule_associed = this->state_linked_to_decision_rule.at(point_AND_value.first)->toDecisionRule();
+
+                double max_value_support = -std::numeric_limits<double>::max();
+                std::shared_ptr<Action> best_action_support;
+
+                // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
+                for (const auto& next_joint_history_of_support : point_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy()->getJointHistories())
+                {
+                    // Search the action and next joint history which have a probability >0
+                    for(const auto& action_of_support : *under_pb->getActionSpace(t))
+                    {
+                        if (decision_rule_associed->elementExist(next_joint_history_of_support->getIndividualHistories().toJoint<State>()))
+                        {
+                            // Associate the variable next joint history and the action to the support 
+                            this->support_of_the_next_history = next_joint_history_of_support;
+                            this->support_of_the_next_action = action_of_support->toAction();
+
+                            //Resolve the WCSP problem
+                            auto [action,value] = this->createWCSPProblem(vf,state, t);
+
+                            // We take the best action with the minimum value
+                            if (max_value_support < value)
+                            {
+                                max_value_support = value;
+                                best_action_support = action->toAction();
+                            }
+                        }
+                    }
+                }
+                // We take the best action with the minimum value
+                if (max_value < max_value_support)
+                {
+                    max_value = max_value_support;
+                    best_action = best_action_support;
+                }
+            }
+        }
+        // Save the best action associed to a state
+        this->state_linked_to_decision_rule[state] = best_action;
+        return best_action;
     }
 
     Pair<std::shared_ptr<Action>,double>  ActionVFSawtoothWCSP::createWCSPProblem(const std::shared_ptr<ValueFunction>& vf , const std::shared_ptr<State>& state, number t)
@@ -109,6 +146,8 @@ namespace sdm
         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
 
         auto occupancy_state = state->toOccupancyState();
+
+        this->determineMaxValue(vf,state,t);
 
         number index;
 
@@ -130,8 +169,6 @@ namespace sdm
                 this->variables.emplace(this->getVarNameIndividualHistory(ihistory,agent), index);
             }
         }
-        // IL manque la variable v cost so far ? Comment faire pour la rajouter
-
 
         // Creation of the cost network
 
@@ -206,99 +243,54 @@ namespace sdm
 
     double ActionVFSawtoothWCSP::getValueAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action,const std::shared_ptr<State>& , number t)
     {
-        double weight =0.0;
-        double init_value =0.0;
-        double factor;
+        double factor = 0.0;
 
         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
-        // auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
-
-        // Go over all hidden state in the belief conditionning to a joint history
         auto belief = occupancy_state->getBeliefAt(joint_history);
-        for(const auto &hidden_state : belief->getStates())
+
+        auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(vf->getInitFunction());
+        // Compute the value for the relaxation problem
+        double init_value = relaxation->operator()(std::make_pair(belief, action), t);
+
+        // Point set at t+1
+        if(!support_empty)
         {
-            auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(vf->getInitFunction());
-            init_value = relaxation->operator()(std::make_pair(belief, action), t);
-            // init_value = under_pb->getReward(hidden_state,action->toAction(),t);
+            // Take all information associated to the support i.e the point set and this value at t+1, the joint history associated to the point set 
+            // and the action conditionning to the point set and the joint history
 
-            factor =0.0;
+            auto point_AND_value_next_point_set = this->representation;
+            // Next joint history conditionning to the point set
+            auto next_joint_history = this->support_of_the_next_history->toJointHistory();
+            // Action conditionning to the point set and next joint history
+            auto action_of_support = this->support_of_the_next_action;
 
-            // GO over the point set at t+1
-            for (const auto &element_state_AND_upper_bound : *this->representation)
+            const auto &next_one_step_uncompressed_occupancy_state = point_AND_value_next_point_set.first->toOccupancyState()->getOneStepUncompressedOccupancy();
+            
+            // Compute the value (v-f(point_set)) i.e. the current value of the point set minus the value at the initialisation of the point set
+            double current_upper_bound = point_AND_value_next_point_set.second;
+            double initial_upper_bound = vf->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
+
+            double difference = current_upper_bound - initial_upper_bound;
+
+            // Compute the denominator
+            // Comment faire ? SAchant que mon support est next joint history et action maintenant ? 
+            // double denominator = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
+            double denominator = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history);
+            // Dans les notes de hier, on a le denominateur en fonction du joint history et de l'action
+
+            // auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
+
+            if(action == action_of_support)
             {
-                const auto &next_one_step_uncompressed_occupancy_state = element_state_AND_upper_bound.first->toOccupancyState()->getOneStepUncompressedOccupancy();
-
-                double current_upper_bound = element_state_AND_upper_bound.second;
-                double initial_upper_bound = vf->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
-
-                double difference = current_upper_bound - initial_upper_bound;
-
-                // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-                for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
-                {
-                    auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
-
-                    // Go over all Hidden State in the Belief for a precise Joint History
-                    for(const auto &next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
-                    {
-                        double probability = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
-                        auto verification = joint_history->expand(joint_observation);
-                        
-                        if(verification == next_joint_history)
-                        {
-                            factor += (difference* under_pb->getDynamics(hidden_state,action,next_hidden_state,joint_observation,t))/probability;
-                            // p_o += next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state)* under_pb->getDynamics(hidden_state,action,next_hidden_state,joint_observation,t);
-                        
-                        }
-                    }
-                }
+                factor = difference/denominator;
             }
-            weight += occupancy_state->getProbability(joint_history,hidden_state) *(init_value +factor);
+
+            // factor += (difference* under_pb->getDynamics(hidden_state,action,next_hidden_state,joint_observation,t))/denominator;
+
+
         }
-        return weight;
-
-        // auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
-        // auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
-
-        // double weight = 0.0;
-
-        // for (const auto &element_state_AND_upper_bound : *this->representation)
-        // {
-        //     const auto &next_one_step_uncompressed_occupancy_state = element_state_AND_upper_bound.first->toOccupancyState()->getOneStepUncompressedOccupancy();
-
-        //     double current_upper_bound = element_state_AND_upper_bound.second;
-        //     double initial_upper_bound = vf->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
-
-        //     double difference = current_upper_bound - initial_upper_bound;
-
-        //     // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-        //     for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
-        //     {
-        //         // Go over all Hidden State in the Belief for a precise Joint History
-        //         for(const auto &next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
-        //         {
-        //             double probability = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
-
-        //             auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
-                    
-        //             auto verification = joint_history->expand(joint_observation);
-
-        //             double factor =0.0;
-
-        //             if(verification == next_joint_history)
-        //             {
-        //                 // Go over all hidden state  in a belief conditionning to a joint history
-        //                 for(const auto &hidden_state : occupancy_state->getBeliefAt(joint_history)->getStates())
-        //                 {
-        //                     factor += occupancy_state->getProbability(joint_history,hidden_state) * under_pb->getDynamics(hidden_state,action,next_hidden_state,joint_observation,t);
-        //                 }
-        //             }
-        //             weight += factor/probability;
-        //         }
-        //     }
-        //     weight *= difference;
-        // }
-        // return weight + occupancy_mdp->getRewardBelief(occupancy_state->getBeliefAt(joint_history),action->toAction(),t);
+        // Il faut aussi vérifier que 2 pair <historique,action> ne puissent pas donner le même next joint historique.
+        return occupancy_state->getProbability(joint_history) * (init_value + factor);
     }
 
     long ActionVFSawtoothWCSP::getCost(double value)
@@ -310,7 +302,6 @@ namespace sdm
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
 
         this->max = std::numeric_limits<double>::lowest();
 

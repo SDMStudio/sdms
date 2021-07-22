@@ -52,6 +52,8 @@ namespace sdm
 
     std::map<std::shared_ptr<State>, std::shared_ptr<Action>> getMap() const;
 
+    bool elementExist(const std::shared_ptr<State>&);
+
   protected:
     std::map<std::shared_ptr<State>, std::shared_ptr<Action>> map_state_to_action_;
   };
