@@ -42,8 +42,8 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_action_spaces, bool store_actions, int batch_size)
-        : compression_(compression), store_action_spaces_(store_action_spaces)
+    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_action_spaces, bool store_actions, int batch_size)
+        : compression_(compression)
     {
         this->store_states_ = store_states;
         this->store_action_spaces_ = store_action_spaces;
