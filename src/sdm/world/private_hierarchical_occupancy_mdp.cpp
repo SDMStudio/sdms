@@ -7,8 +7,8 @@ namespace sdm
     {
     }
 
-    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
-        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, batch_size)
+    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_action_spaces, bool store_actions, int batch_size)
+        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_action_spaces, store_actions, batch_size)
     {
     }
 
@@ -98,7 +98,7 @@ namespace sdm
             // Get action space of agent I.
             std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent);
             // Get individual ddr of agent I.
-            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_hierarchical_history_space, individual_action_space, this->store_actions_);
+            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_hierarchical_history_space, individual_action_space, this->store_action_spaces_);
             // Add it to the corresponding vector.
             individual_ddr_spaces.push_back(individual_ddr_space);
         }
@@ -106,8 +106,8 @@ namespace sdm
         // Create the function space of joint deterministic decision rules.
         std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
             std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{std::make_shared<DiscreteState>(3)}),
-            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
-            this->store_actions_);
+            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_action_spaces_),
+            this->store_action_spaces_);
         return joint_ddr_space;
     }
 

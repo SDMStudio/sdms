@@ -47,6 +47,8 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "BaseBeliefMDP<TBelief>::computeNextStateAndProbability() " << std::endl;
+
         //
         std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
         // Compute the coefficient of normalization (eta)
@@ -58,6 +60,8 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<State> BaseBeliefMDP<TBelief>::computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "BaseBeliefMDP<TBelief>::computeNextState() " << std::endl;
+
         if (this->batch_size_ == 0)
         {
             return this->computeExactNextState(belief, action, observation, t).first;
@@ -71,6 +75,8 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "BaseBeliefMDP<TBelief>::computeExactNextState() " << std::endl;
+
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
         // For each possible next state:
@@ -99,6 +105,8 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number)
     {
+        // std::cout << "BaseBeliefMDP<TBelief>::computeSampledNextState() " << std::endl;
+
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
         //
@@ -131,11 +139,12 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        // std::cout << "Begin Next Belief" << std::endl;
+        // std::cout << "BaseBeliefMDP<TBelief>::nextBelief() " << std::endl;
+
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
-        if (this->store_states_)
+        if ((this->store_states_) && (this->store_action_spaces_ || this->store_actions_))
         {
             // Get the successor
             auto successor = this->mdp_graph_->getNode(belief)->getSuccessor(action_observation);
@@ -151,28 +160,22 @@ namespace sdm
                 // Build next belief and proba
                 auto [computed_next_belief, next_belief_probability] = this->computeNextStateAndProbability(belief, action, observation, t);
 
-                // std::cout << "Pass " << std::endl;
                 // Store the probability of next belief
                 this->transition_probability[belief][action][observation] = next_belief_probability;
 
-                // std::cout << "Pass 2" << std::endl;
                 // Check if the next belief is already in the graph
                 TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
-                // std::cout << "Pass 3" << std::endl;
                 if (this->state_space_.find(b) == this->state_space_.end())
                 {
                     // Add the belief in the space of beliefs
                     this->state_space_.emplace(b, computed_next_belief);
                 }
-                // std::cout << "Pass 4" << std::endl;
 
                 // Get the next belief
                 auto next_belief = this->state_space_.at(b);
-                // std::cout << "Pass 5" << std::endl;
 
                 // Add the sucessor in the list of successors
                 this->mdp_graph_->getNode(belief)->addSuccessor(action_observation, next_belief);
-                // std::cout << "Pass 6" << std::endl;
 
                 return next_belief;
             }
@@ -223,7 +226,8 @@ namespace sdm
             {
                 reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
             }
-            this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
+            if ((this->store_states_) && (this->store_action_spaces_ || this->store_actions_))
+                this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
             return reward;
         }
     }

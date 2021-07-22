@@ -18,7 +18,7 @@ namespace sdm
                                                 number memory = -1,
                                                 bool compression = true,
                                                 bool store_states = true,
-                                                bool store_actions = true,
+                                                bool store_action_spaces = true,
                                                 int batch_size = 0);
                 std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
         };

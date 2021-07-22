@@ -57,7 +57,7 @@ int main(int argc, char **argv)
         options.add_options()("help", "produce help message")("test", "test the policy found");
 
         po::options_description config("Configuration");
-        config.add_options()("path,p", po::value<std::string>(&path)->default_value("tiger"), "the path to the problem to be solved")("belief_precision,r", po::value<double>(&belief_precision)->default_value(0.00001), "the precision of hierarchical private occupancy states (occupancy states) ")("ostate_precision", po::value<double>(&ostate_precision)->default_value(0.00001), "the precision of occupancy states (occupancy states)")("compress_precision,c", po::value<double>(&compress_precision)->default_value(0.001), "the precision for compression")("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")("trial,t", po::value<unsigned long>(&trial)->default_value(10000), "the maximum number of timesteps")("seed,s", po::value<int>(&seed)->default_value(1), "random seed")("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")("compression", "do compression")("store_actions", "store_actions")("store_states", "store_states");
+        config.add_options()("path,p", po::value<std::string>(&path)->default_value("tiger"), "the path to the problem to be solved")("belief_precision,r", po::value<double>(&belief_precision)->default_value(0.00001), "the precision of hierarchical private occupancy states (occupancy states) ")("ostate_precision", po::value<double>(&ostate_precision)->default_value(0.00001), "the precision of occupancy states (occupancy states)")("compress_precision,c", po::value<double>(&compress_precision)->default_value(0.001), "the precision for compression")("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")("error,e", po::value<double>(&error)->default_value(0.001), "the error")("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")("memory,m", po::value<number>(&memory)->default_value(0), "the memory. If 0 then infinite memory.")("trial,t", po::value<unsigned long>(&trial)->default_value(10000), "the maximum number of timesteps")("seed,s", po::value<int>(&seed)->default_value(1), "random seed")("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")("compression", "do compression")("store_action_spaces", "store_action_spaces")("store_states", "store_states");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
         visible.add(options).add(config);
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
         // Instanciate the problem
 
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_action_spaces"));
 
         // ---------- Comment / Uncomment this section to enable solving with HSVI ----------
         //
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 
         std::shared_ptr<ValueFunction> lb, ub;
         // Instanciate value functions
-        if (vm.count("store_states") && vm.count("store_actions"))
+        if (vm.count("store_states") && vm.count("store_action_spaces"))
         {
             // lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
             // ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);

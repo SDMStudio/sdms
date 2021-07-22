@@ -39,6 +39,7 @@ int main(int argc, char **argv)
         number horizon, memory, batch_size;
         double lr, discount, sf, p_b, p_o, p_c, ball_r;
         int seed;
+        bool store_actions, store_action_spaces;
 
         po::options_description options("Options");
         options.add_options()
@@ -60,7 +61,9 @@ int main(int argc, char **argv)
         ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "batch size, that is K from the paper")
         ("max_steps,t", po::value<unsigned long>(&max_steps)->default_value(100000), "the maximum number of timesteps")
         ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
-        ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
+        ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")
+        ("store_actions", "store actions")("store_action_spaces", "store action spaces")
+        ;
 
         po::options_description algo_config("Algorithms configuration");
         algo_config.add_options()
@@ -84,6 +87,17 @@ int main(int argc, char **argv)
                 std::cout << visible << std::endl;
                 return sdm::SUCCESS;
             }
+
+            if (vm.count("store_actions"))
+                store_actions = true;
+            else
+                store_actions = false;
+            
+            if (vm.count("store_action_spaces"))
+                store_action_spaces = true;
+            else
+                store_action_spaces = false;
+            
         }
         catch (po::error &e)
         {
@@ -120,11 +134,11 @@ int main(int argc, char **argv)
         else if (formalism == "BeliefMDP")
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
-            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
+            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, store_action_spaces, store_actions, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, store_action_spaces, store_actions, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "hierarchical"))
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, false, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, store_action_spaces, store_actions, batch_size);
 
         // Set precision
         Belief::PRECISION = p_b;
@@ -144,9 +158,9 @@ int main(int argc, char **argv)
         else if ((qvalue == "hierarchical") && (version == "1"))
             q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
         else if ((qvalue == "hierarchical") && (version == "2"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
         else if ((qvalue == "hierarchical") && (version == "3"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
 
         std::shared_ptr<QValueFunction> target_q_value_table;
         if (qvalue == "tabular")
@@ -154,9 +168,9 @@ int main(int argc, char **argv)
         else if ((qvalue == "hierarchical") && (version == "1"))
             target_q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
         else if ((qvalue == "hierarchical") && (version == "2"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
         else if ((qvalue == "hierarchical") && (version == "3"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r);
+            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
 
         // Instanciate exploration process
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -173,10 +187,11 @@ int main(int argc, char **argv)
         else if ((qvalue == "hierarchical") && (version == "3"))
             backup = std::make_shared<HierarchicalQValueBackupV3>(experience_memory, q_value_table, q_value_table, discount, action_space);
 
-        auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+        std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name, store_actions);
 
         algorithm->do_initialize();
-        // std::cout << "algorithm->do_initialize();" << std::endl;
+        std::cout << "store_actions " << store_actions << std::endl;
+        std::cout << "store_action_spaces " << store_action_spaces << std::endl;
         algorithm->do_solve();
 
         algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);

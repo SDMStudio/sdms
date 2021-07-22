@@ -16,9 +16,9 @@ namespace sdm
 
         std::vector<Container> representation;
 
-        HierarchicalQValueFunctionV2(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r);
+        HierarchicalQValueFunctionV2(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r, bool keep_map);
 
-        HierarchicalQValueFunctionV2(number horizon = 0, double learning_rate = 0.1, double default_value = 0., double ball_r = 1.0);
+        HierarchicalQValueFunctionV2(number horizon = 0, double learning_rate = 0.1, double default_value = 0., double ball_r = 1.0, bool keep_map = true);
 
         /**
          * @brief Initialize the value function 
@@ -89,6 +89,8 @@ namespace sdm
         double ball_r_;
 
         number horizon_;
+
+        bool keep_map_;
 
         std::vector<std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>> closest_s_map_;
 

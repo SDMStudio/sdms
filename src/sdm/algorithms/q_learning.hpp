@@ -83,6 +83,12 @@ namespace sdm
 
     std::string name_ = "qlearning";
 
+    bool store_actions_ = false;
+
+    std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
+
+    std::shared_ptr<Action> getActionPointer(std::shared_ptr<Action> action_tmp);
+
   public:
     QLearning(std::shared_ptr<GymInterface> &env,
               std::shared_ptr<ExperienceMemoryInterface> experience_memory,
@@ -95,7 +101,9 @@ namespace sdm
               double lr = 0.001,
               double batch_size = 1,
               unsigned long num_max_steps = 10000,
-              std::string name = "qlearning");
+              std::string name = "qlearning",
+              bool store_actions = false
+            );
 
     /**
      * @brief Initialize the algorithm

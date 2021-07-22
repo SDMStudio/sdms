@@ -4,8 +4,8 @@
 
 namespace sdm
 {
-    HierarchicalQValueFunctionV2::HierarchicalQValueFunctionV2(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r)
-        : QValueFunction(horizon), horizon_(horizon), learning_rate_(learning_rate), initializer_(initializer), ball_r_(ball_r)
+    HierarchicalQValueFunctionV2::HierarchicalQValueFunctionV2(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r, bool keep_map)
+        : QValueFunction(horizon), horizon_(horizon), learning_rate_(learning_rate), initializer_(initializer), ball_r_(ball_r), keep_map_(keep_map)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
         this->num_states_ = 0;
@@ -13,7 +13,7 @@ namespace sdm
         this->closest_s_map_ = std::vector<std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>());
     }
 
-    HierarchicalQValueFunctionV2::HierarchicalQValueFunctionV2(number horizon, double learning_rate, double default_value, double ball_r) : HierarchicalQValueFunctionV2(horizon, learning_rate, std::make_shared<ValueInitializer>(default_value), ball_r)
+    HierarchicalQValueFunctionV2::HierarchicalQValueFunctionV2(number horizon, double learning_rate, double default_value, double ball_r, bool keep_map) : HierarchicalQValueFunctionV2(horizon, learning_rate, std::make_shared<ValueInitializer>(default_value), ball_r, keep_map)
     {
         
     }
@@ -81,18 +81,30 @@ namespace sdm
     {   
         // std::cout << "HierarchicalQValueFunctionV2::initializeIfNeeded()" << std::endl;
         auto h = this->isInfiniteHorizon() ? 0 : t;
-        if (this->closest_s_map_[h].find(s) == this->closest_s_map_[h].end())
+
+        if (this->keep_map_)
         {
-            if (this->areInTheSameBall(s, s_, t))
+            if (this->closest_s_map_[h].find(s) == this->closest_s_map_[h].end())
             {
-                this->closest_s_map_[h].emplace(s, s_);
-            }
-            else
-            {
-                this->initializeQValueFunctionAtWith(s, t, s_);
-                this->closest_s_map_[h].emplace(s, s);
+                if (this->areInTheSameBall(s, s_, t))
+                {
+                    this->closest_s_map_[h].emplace(s, s_);
+                }
+                else
+                {
+                    this->initializeQValueFunctionAtWith(s, t, s_);
+                    this->closest_s_map_[h].emplace(s, s);
+                }
             }
         }
+        else
+        {
+            if (!this->areInTheSameBall(s, s_, t))
+            {
+                this->initializeQValueFunctionAtWith(s, t, s_);
+            }
+        }
+        
     }
 
     void HierarchicalQValueFunctionV2::initializeQValueFunctionAtWith(const std::shared_ptr<OccupancyStateInterface> &s, number t, const std::shared_ptr<OccupancyStateInterface> &s_)
@@ -122,7 +134,47 @@ namespace sdm
     std::shared_ptr<OccupancyStateInterface> HierarchicalQValueFunctionV2::getClosestS(const std::shared_ptr<OccupancyStateInterface> &s, number t)
     {
         // std::cout << "HierarchicalQValueFunctionV2::getClosestS()" << std::endl;
+        // std::cout << "this->keep_map_ " << this->keep_map_ << std::endl;
         auto h = this->isInfiniteHorizon() ? 0 : t;
+
+        // //
+        // if (this->keep_map_)
+        // {
+        //     std::cout << "a " << std::endl;
+        //     // If s already has a label
+        //     if (this->closest_s_map_[h].find(s) != this->closest_s_map_[h].end())
+        //     {
+        //         std::cout << "b " << std::endl;
+        //         std::cout << *this->closest_s_map_[h].find(s) << std::endl;
+        //         return this->closest_s_map_[h].find(s)->second;
+        //     }
+        // }
+        // // If t=h is empty, s is the very first one to arrive.
+        // else if (this->representation[h].size() == 0)
+        // {
+        //     std::cout << "c " << std::endl;
+        //     this->initializeToZeroQValueFunctionAt(s, t);
+        //     return s;
+        // }
+        // else
+        // {
+        //     std::cout << "d " << std::endl;
+        //     double smallest_distance = 10000.0;
+        //     std::shared_ptr<OccupancyStateInterface> closest_s;
+            
+        //     for (auto const& [s_, q_] : this->representation[h])
+        //     {
+        //         double distance = s_->minus(s);
+        //         if (distance < smallest_distance)
+        //         {
+        //             smallest_distance = distance;
+        //             closest_s = s_;
+        //         }
+        //     }
+        //     return closest_s;
+        // }
+
+
 
         // If s already has a label
         if (this->closest_s_map_[h].find(s) != this->closest_s_map_[h].end())
@@ -132,25 +184,37 @@ namespace sdm
         // If t=h is empty, s is the very first one to arrive.
         else if (this->representation[h].size() == 0)
         {
+            // std::cout << "A" << std::endl;
             this->initializeToZeroQValueFunctionAt(s, t);
             return s;
         }
+        // // If s already has a q.
+        // else if (this->representation[h].find(s) != this->representation[h].end())
+        // {
+        //     // std::cout << "B" << std::endl;
+        //     return s;
+        // }
         else
         {
+            // std::cout << "C" << std::endl;
             double smallest_distance = 10000.0;
             std::shared_ptr<OccupancyStateInterface> closest_s;
             
             for (auto const& [s_, q_] : this->representation[h])
             {
+                // std::cout << *s_ << std::endl;
                 double distance = s_->minus(s);
+                // std::cout << "distance " << distance << std::endl;
                 if (distance < smallest_distance)
                 {
                     smallest_distance = distance;
                     closest_s = s_;
                 }
             }
+            // std::cout << closest_s << std::endl;
             return closest_s;
         }
+
     }
 
     bool HierarchicalQValueFunctionV2::areInTheSameBall(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_, number t)

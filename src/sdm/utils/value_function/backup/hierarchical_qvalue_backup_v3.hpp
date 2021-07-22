@@ -56,7 +56,7 @@ namespace sdm
         // All possible joint actions of subordinate agents from the p.o.v. of each agent.
         std::shared_ptr<std::unordered_map<int, std::vector<std::shared_ptr<Joint<std::shared_ptr<Action>>>>>> all_subordinate_jactions;
         double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s_, const std::shared_ptr<OccupancyStateInterface> &s, std::shared_ptr<JointDeterministicDecisionRule> &a, number t);
-        std::shared_ptr<JointDeterministicDecisionRule> getPossibleGreedyAction(const std::shared_ptr<OccupancyStateInterface> &s, number t);
+        std::shared_ptr<JointDeterministicDecisionRule> getPossibleGreedyAction(const std::shared_ptr<OccupancyStateInterface> &s_, const std::shared_ptr<OccupancyStateInterface> &s, number t);
         void prepareSubordinateJointActions();
         std::shared_ptr<State> getJointHierarchicalHistory(const std::shared_ptr<JointHistoryInterface> &joint_labels, const std::shared_ptr<State> &ostate, number t) const;
     };

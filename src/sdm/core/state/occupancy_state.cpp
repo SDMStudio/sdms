@@ -715,6 +715,7 @@ namespace sdm
                 {
                     //
                     std::shared_ptr<JointHistoryInterface> individual_hierarchical_history = std::make_shared<JointHistoryTree>();
+                    // individual_hierarchical_history->isNotOrigin();
                     // For each agent between agent I and agent N (both included):
                     for (int lower_ranked_agent = agent; lower_ranked_agent < this->num_agents_; lower_ranked_agent++)
                     {

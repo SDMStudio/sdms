@@ -18,10 +18,12 @@ namespace sdm
     {
     }
 
-    OccupancyMDP::OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
-        : compression_(compression), store_actions_(store_actions)
+    OccupancyMDP::OccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_action_spaces, bool store_actions, int batch_size)
+        : compression_(compression)
     {
         this->store_states_ = store_states;
+        this->store_action_spaces_ = store_action_spaces;
+        this->store_actions_ = store_actions;
         this->batch_size_ = batch_size;
         this->underlying_problem_ = underlying_dpomdp;
 
@@ -101,7 +103,7 @@ namespace sdm
     // Useless
     std::shared_ptr<Space> OccupancyMDP::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
     {
-        std::cout << "This is a useless function, so this will never be seen by anyone." << std::endl;
+        // std::cout << "This is a useless function, so this will never be seen by anyone." << std::endl;
         return this->getActionSpaceAt(ostate->toState(), t);
     }
 
@@ -109,9 +111,7 @@ namespace sdm
     {
         // std::cout << "OccupancyMDP::getRandomAction() " << std::endl;
 
-        // return this->getActionSpaceAt(ostate->toState(), t)->sample()->toAction();
-
-        if (this->store_actions_)
+        if (this->store_action_spaces_)
             return this->getActionSpaceAt(ostate->toState(), t)->sample()->toAction();
         else
             return this->computeRandomAction(ostate->toState()->toOccupancyState(), t);
@@ -155,7 +155,7 @@ namespace sdm
             // Get action space of agent i.
             std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent);
             // Get individual ddr of agent i.
-            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_actions_);
+            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_action_spaces_);
             // Add it to the corresponding vector.
             individual_ddr_spaces.push_back(individual_ddr_space);
         }
@@ -163,18 +163,22 @@ namespace sdm
         // Create the function space of joint deterministic decision rules.
         std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
             std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{nullptr}),
-            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
-            this->store_actions_);
+            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_action_spaces_),
+            this->store_action_spaces_);
         return joint_ddr_space;
     }
 
     Pair<std::shared_ptr<State>, double> OccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "OccupancyMDP::computeNextStateAndProbability() " << std::endl;
+
         return {this->computeNextState(ostate, action, observation, t), 1};
     }
 
     std::shared_ptr<State> OccupancyMDP::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "OccupancyMDP::computeNextState() " << std::endl;
+
         // The new fully uncompressed occupancy state
         std::shared_ptr<State> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
 
@@ -220,6 +224,8 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> OccupancyMDP::computeExactNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
+        // std::cout << "OccupancyMDP::computeExactNextState() " << std::endl;
+
         auto occupancy_state = ostate->toOccupancyState();
         auto decision_rule = action->toDecisionRule();
 
@@ -278,6 +284,8 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> OccupancyMDP::computeSampledNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
+        // std::cout << "OccupancyMDP::computeSampledNextState() " << std::endl;
+
         // The new fully uncompressed occupancy state
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
 
@@ -391,6 +399,8 @@ namespace sdm
 
     std::shared_ptr<State> OccupancyMDP::nextOccupancyState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "OccupancyMDP::nextOccupancyState() " << std::endl;
+
         return BaseBeliefMDP<OccupancyState>::nextBelief(belief, action, observation, t);
     }
 
@@ -420,6 +430,8 @@ namespace sdm
 
     double OccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
+        // std::cout << "OccupancyMDP::getReward() " << std::endl;
+
         clock_t t_begin = clock();
 
         auto state_action = std::make_pair(occupancy_state, decision_rule);
@@ -442,7 +454,8 @@ namespace sdm
                 // Update the expected reward
                 reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
             }
-            this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
+            if (this->store_states_ && (this->store_action_spaces_ || this->store_actions_))
+                this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
         }
         // FOR PROFILING
         OccupancyMDP::TIME_IN_GET_REWARD += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);

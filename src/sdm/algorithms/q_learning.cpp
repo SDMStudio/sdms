@@ -15,19 +15,23 @@ namespace sdm
                          double lr,
                          double batch_size,
                          unsigned long num_max_steps,
-                         std::string name) : env_(env),
-                                             experience_memory_(experience_memory),
-                                             q_value_table_(q_value_table),
-                                             q_value_table_target_(q_value_table_target),
-                                             backup_(backup),
-                                             exploration_process(exploration),
-                                             horizon_(horizon),
-                                             discount_(discount),
-                                             lr_(lr),
-                                             batch_size_(batch_size),
-                                             max_steps_(num_max_steps),
-                                             target_update_(1),
-                                             name_(name)
+                         std::string name,
+                         bool store_actions
+                         ) : env_(env),
+                             experience_memory_(experience_memory),
+                             q_value_table_(q_value_table),
+                             q_value_table_target_(q_value_table_target),
+                             backup_(backup),
+                             exploration_process(exploration),
+                             horizon_(horizon),
+                             discount_(discount),
+                             lr_(lr),
+                             batch_size_(batch_size),
+                             max_steps_(num_max_steps),
+                             target_update_(1),
+                             name_(name),
+                             store_actions_(store_actions),
+                             action_map_(std::make_shared<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>>())
     {
     }
 
@@ -184,19 +188,36 @@ namespace sdm
 
     std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation)
     {
-        // std::cout << "-------- QLearning::select_action ---------" << std::endl;
-        // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
+        std::shared_ptr<Action> action_tmp;
+        
         if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), this->step))
         {
             // std::cout << "-------- RANDOM ---------" << std::endl;
-            return this->env_->getRandomAction(observation, this->step);
+            action_tmp = this->env_->getRandomAction(observation, this->step);
         }
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            return this->backup_->getGreedyAction(observation->toState(), this->step);
+            action_tmp = this->backup_->getGreedyAction(observation->toState(), this->step);
         }
-        // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
+
+        if (!this->store_actions_)
+        {
+            return action_tmp;
+        }
+        else
+        {
+            return getActionPointer(action_tmp);
+        }
+    }
+
+    std::shared_ptr<Action> QLearning::getActionPointer(std::shared_ptr<Action> action_tmp)
+    {
+        if (this->action_map_->find(*action_tmp->toJointDeterministicDecisionRule()) == this->action_map_->end())
+        {
+            this->action_map_->emplace(*action_tmp->toJointDeterministicDecisionRule(), action_tmp);
+        }
+        return this->action_map_->at(*action_tmp->toJointDeterministicDecisionRule());
     }
 
     void QLearning::saveResults(std::string filename, double other)
