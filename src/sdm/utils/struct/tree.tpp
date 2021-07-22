@@ -125,12 +125,18 @@ namespace sdm
         std::ostringstream res;
         res << sdm::tools::addIndent("", this->getDepth());
         res << "<tree address=\"" << this << "\" size=\"" << this->getNumChildren() << "\"  horizon=\"" << this->getDepth() << "\">" << std::endl;
-        res << sdm::tools::addIndent("<data>", this->getDepth() + 1) << std::endl;
-        res << sdm::tools::addIndent("", this->getDepth() + 2) << this->getData() << std::endl;
-        res << sdm::tools::addIndent("</data>", this->getDepth() + 1) << std::endl;
+        if (!this->is_origin)
+        {
+            std::ostringstream tmp;
+            tmp << "<data>" << std::endl;
+            tmp << "\t"<< this->getData()->str() << std::endl;
+            tmp << "</data>"<< std::endl;
+            sdm::tools::indentedOutput(res, tmp.str().c_str(), this->getDepth() + 1);
+        }
         for (auto child : this->getChildren())
         {
-            res << *child << std::endl;
+            sdm::tools::indentedOutput(res, child->str().c_str(), this->getDepth() + 1);
+            res << std::endl;
         }
         res << sdm::tools::addIndent("", this->getDepth());
         res << "</tree>" << std::endl;

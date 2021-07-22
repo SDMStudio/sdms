@@ -51,7 +51,11 @@ namespace sdm
             res << "discount: " << this->getDiscount() / 1.0 << std::endl;
             res << "values: \"" << ((this->criterion_ == Criterion::COST_MIN) ? "cost" : "reward") << "\"" << std::endl;
             res << "states: " << state_space->getNumItems() << std::endl;
-            res << "start: \"uniform\"" << std::endl;
+            res << "start: " << std::endl;
+            for (const auto &initial_state : *this->getStateSpace(0))
+            {
+                res << std::static_pointer_cast<DiscreteDistribution<std::shared_ptr<State>>>(this->getStartDistribution())->getProbability(initial_state->toState()) << " ";
+            }
 
             // Action space
             res << "actions: \n";
@@ -67,7 +71,6 @@ namespace sdm
                 res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(ag))->getNumItems() << "\n";
             }
 
-            std::cout << "1" << std::endl;
             for (const auto &state : *state_space)
             {
                 for (const auto &action : *action_space)
@@ -88,7 +91,6 @@ namespace sdm
                     }
                 }
             }
-            std::cout << "2" << std::endl;
 
             for (const auto &next_state : *state_space)
             {
@@ -113,7 +115,6 @@ namespace sdm
                 }
             }
 
-            std::cout << "3" << std::endl;
             for (const auto &state : *state_space)
             {
                 for (const auto &action : *action_space)

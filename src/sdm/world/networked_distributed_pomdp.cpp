@@ -406,7 +406,12 @@ namespace sdm
 
                                 auto iaction = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action)->get(agent_id);
                                 number idx_action_ag = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id)->toDiscreteSpace()->getItemIndex(iaction);
+
+                                // Compute probability
                                 proba *= this->n[agent_id].observationFunction[std::to_string(idx_state) + ":" + std::to_string(idx_action_ag) + ":" + std::to_string(idx_obs_ag)];
+                            }
+                            if (proba > 0.00001)
+                            {
                                 observation_dynamics_tmp->setObservationProbability(nullptr, joint_action->toAction(), next_state->toState(), joint_obs->toObservation(), proba);
                             }
                         }

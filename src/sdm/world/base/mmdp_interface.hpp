@@ -13,6 +13,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/space/space.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 
 namespace sdm
 {
@@ -31,7 +32,7 @@ namespace sdm
          * @return the action space
          */
         virtual std::shared_ptr<Space> getActionSpace(number agent_id, number t) const = 0;
-        
+
         /**
          * @brief Get ths action space at timestep t.
          * 
@@ -39,7 +40,37 @@ namespace sdm
          * @return the action space
          */
         virtual std::shared_ptr<Space> getActionSpace(number t) const = 0;
+    };
 
+
+    class SerialProblemInterface
+    {
+    public:
+        /**
+         * @brief Get the identifier of the current agent.
+         * 
+         * @param t the timestep
+         * @return number the agent id
+         */
+        virtual number getAgentId(number t) const = 0;
+
+        /**
+         * @brief 
+         * 
+         * @param t 
+         * @return true 
+         * @return false 
+         */
+        virtual bool isLastAgent(number t) const = 0;
+    };
+
+
+    /**
+     * @brief The class for Discrete Markov Decision Processes. 
+     * 
+     */
+    class SerialMMDPInterface : virtual public MMDPInterface, public SerialProblemInterface
+    {
     };
 
 } // namespace sdm

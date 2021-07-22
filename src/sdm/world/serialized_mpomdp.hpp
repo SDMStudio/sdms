@@ -21,11 +21,10 @@
 #include <sdm/world/serialized_mmdp.hpp>
 
 #include <sdm/core/dynamics/tabular_observation_dynamics_SAS.hpp>
-#include <sdm/core/base_observation.hpp>
 
 namespace sdm
 {
-    class SerializedMPOMDP : public MPOMDPInterface, public SerializedMMDP
+    class SerializedMPOMDP : public SerialMPOMDPInterface, public SerializedMMDP
     {
     public:
         SerializedMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp);

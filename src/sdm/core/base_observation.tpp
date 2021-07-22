@@ -25,8 +25,7 @@ namespace sdm
     std::string BaseObservation<TObservation>::str() const
     {
         std::ostringstream res;
-        res << "Observation(" << this->observation_ << ")";
+        res << this->observation_;
         return res.str();
     }
-
 } // namespace sdm

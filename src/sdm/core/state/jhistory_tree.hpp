@@ -14,6 +14,7 @@
 #include <sdm/core/state/history_tree.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/types.hpp>
+#include <sdm/core/observation/default_observation.hpp>
 #include <sdm/core/state/interface/joint_history_interface.hpp>
 
 namespace sdm
