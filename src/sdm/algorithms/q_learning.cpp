@@ -151,8 +151,6 @@ namespace sdm
 
         // Backup and get Q Value Error
         double delta = this->backup_->backup(this->step);
-        // std::cout << "-------- do_step() --------- 4" << std::endl;
-
 
         // std::cout << "delta " << delta << std::endl;
 

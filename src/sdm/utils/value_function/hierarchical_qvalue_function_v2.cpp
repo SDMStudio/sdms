@@ -43,8 +43,8 @@ namespace sdm
         // std::cout << "HierarchicalQValueFunctionV2::getQValueAt()" << std::endl;
         auto h = this->isInfiniteHorizon() ? 0 : t;
         auto s_ = this->getClosestS(s, t);
+        // this->initializeIfNeeded(s, s_, t);
         return this->representation[h].at(s_).getQValueAt(o, u, t);
-        this->initializeIfNeeded(s, s_, t);
 
     }
 

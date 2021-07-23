@@ -41,9 +41,6 @@ namespace sdm
         auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(observation)->first;
         auto s = s_o->first;
         auto o = s_o->second;
-        auto ns_no = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->first;
-        auto ns = ns_no->first;
-        auto no = ns_no->second;
         auto u = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->second;
 
         double q_value = this->q_value_table_->getQValueAt(s, o, u, t);

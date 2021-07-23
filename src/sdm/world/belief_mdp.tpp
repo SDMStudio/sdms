@@ -144,7 +144,7 @@ namespace sdm
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
-        if ((this->store_states_) && (this->store_action_spaces_ || this->store_actions_))
+        if (this->store_states_ && this->store_actions_)
         {
             // Get the successor
             auto successor = this->mdp_graph_->getNode(belief)->getSuccessor(action_observation);
@@ -226,7 +226,7 @@ namespace sdm
             {
                 reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
             }
-            if ((this->store_states_) && (this->store_action_spaces_ || this->store_actions_))
+            if (this->store_states_ && this->store_actions_)
                 this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
             return reward;
         }

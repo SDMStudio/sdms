@@ -134,11 +134,11 @@ int main(int argc, char **argv)
         else if (formalism == "BeliefMDP")
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
-            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, store_action_spaces, store_actions, batch_size);
+            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, false, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, store_action_spaces, store_actions, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, false, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "hierarchical"))
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, store_action_spaces, store_actions, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, true, false, batch_size);
 
         // Set precision
         Belief::PRECISION = p_b;

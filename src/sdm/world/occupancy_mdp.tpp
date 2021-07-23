@@ -42,11 +42,10 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_action_spaces, bool store_actions, int batch_size)
-        : compression_(compression)
+    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, bool generate_action_spaces, int batch_size)
+        : compression_(compression), generate_action_spaces_(generate_action_spaces)
     {
         this->store_states_ = store_states;
-        this->store_action_spaces_ = store_action_spaces;
         this->store_actions_ = store_actions;
         this->batch_size_ = batch_size;
         this->underlying_problem_ = underlying_dpomdp;
@@ -137,7 +136,7 @@ namespace sdm
     {
         // std::cout << "OccupancyMDP::getRandomAction() " << std::endl;
 
-        if (this->store_action_spaces_)
+        if (this->generate_action_spaces_)
             return this->getActionSpaceAt(ostate->toState(), t)->sample()->toAction();
         else
             return this->computeRandomAction(ostate->toState()->toOccupancyState(), t);
@@ -183,7 +182,7 @@ namespace sdm
             // Get action space of agent i.
             std::shared_ptr<Space> individual_action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->get(agent);
             // Get individual ddr of agent i.
-            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_action_spaces_);
+            std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_actions_);
             // Add it to the corresponding vector.
             individual_ddr_spaces.push_back(individual_ddr_space);
         }
@@ -191,8 +190,8 @@ namespace sdm
         // Create the function space of joint deterministic decision rules.
         std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
             std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{nullptr}),
-            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_action_spaces_),
-            this->store_action_spaces_);
+            std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
+            this->store_actions_);
         return joint_ddr_space;
     }
 
@@ -496,7 +495,7 @@ namespace sdm
                 // Update the expected reward
                 reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
             }
-            if (this->store_states_ && (this->store_action_spaces_ || this->store_actions_))
+            if (this->store_states_ && this->store_actions_)
                 this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
         }
         // FOR PROFILING

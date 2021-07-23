@@ -64,7 +64,7 @@ namespace sdm
 
         auto q_values = std::make_shared<MappedVector<std::shared_ptr<JointDeterministicDecisionRule>, double>>();
 
-        for (auto const& [s_, q] : this->q_value_table_->representation[h])
+        for (auto const& [s_, q_] : this->q_value_table_->representation[h])
         {
             std::shared_ptr<JointDeterministicDecisionRule> a = this->getPossibleGreedyAction(s_, s, t);
             q_values->setValueAt(a, this->getQValueAt(s_, s, a, t));
