@@ -134,11 +134,11 @@ int main(int argc, char **argv)
         else if (formalism == "BeliefMDP")
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
-            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, false, batch_size);
+            gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, true, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, false, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, true, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "hierarchical"))
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, true, false, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, true, true, batch_size);
 
         // Set precision
         Belief::PRECISION = p_b;
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
         else if ((qvalue == "hierarchical") && (version == "3"))
             backup = std::make_shared<HierarchicalQValueBackupV3>(experience_memory, q_value_table, q_value_table, discount, action_space);
 
-        std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name, store_actions);
+        std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
         std::cout << "store_actions " << store_actions << std::endl;

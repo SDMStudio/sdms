@@ -15,8 +15,7 @@ namespace sdm
                          double lr,
                          double batch_size,
                          unsigned long num_max_steps,
-                         std::string name,
-                         bool store_actions
+                         std::string name
                          ) : env_(env),
                              experience_memory_(experience_memory),
                              q_value_table_(q_value_table),
@@ -29,9 +28,7 @@ namespace sdm
                              batch_size_(batch_size),
                              max_steps_(num_max_steps),
                              target_update_(1),
-                             name_(name),
-                             store_actions_(store_actions),
-                             action_map_(std::make_shared<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>>())
+                             name_(name)
     {
     }
 
@@ -183,37 +180,20 @@ namespace sdm
 
     std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation)
     {
-        std::shared_ptr<Action> action_tmp;
         
         if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), this->step))
         {
             // std::cout << "-------- RANDOM ---------" << std::endl;
-            action_tmp = this->env_->getRandomAction(observation, this->step);
+            return this->env_->getRandomAction(observation, this->step);
         }
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            action_tmp = this->backup_->getGreedyAction(observation->toState(), this->step);
+            return this->backup_->getGreedyAction(observation->toState(), this->step);
         }
 
-        if (!this->store_actions_)
-        {
-            return action_tmp;
-        }
-        else
-        {
-            return getActionPointer(action_tmp);
-        }
     }
 
-    std::shared_ptr<Action> QLearning::getActionPointer(std::shared_ptr<Action> action_tmp)
-    {
-        if (this->action_map_->find(*action_tmp->toJointDeterministicDecisionRule()) == this->action_map_->end())
-        {
-            this->action_map_->emplace(*action_tmp->toJointDeterministicDecisionRule(), action_tmp);
-        }
-        return this->action_map_->at(*action_tmp->toJointDeterministicDecisionRule());
-    }
 
     void QLearning::saveResults(std::string filename, double other)
     {
