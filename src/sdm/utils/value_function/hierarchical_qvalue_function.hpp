@@ -8,7 +8,7 @@
  */
 namespace sdm
 {
-    class HierarchicalQValueFunctionV2 : public QValueFunction
+    class HierarchicalQValueFunction : public QValueFunction
     {
 
     public:
@@ -16,9 +16,9 @@ namespace sdm
 
         std::vector<Container> representation;
 
-        HierarchicalQValueFunctionV2(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r, bool keep_map);
+        HierarchicalQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r, bool keep_map);
 
-        HierarchicalQValueFunctionV2(number horizon = 0, double learning_rate = 0.1, double default_value = 0., double ball_r = 1.0, bool keep_map = true);
+        HierarchicalQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0., double ball_r = 1.0, bool keep_map = true);
 
         /**
          * @brief Initialize the value function 
@@ -70,7 +70,7 @@ namespace sdm
          */
         virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, HierarchicalQValueFunctionV2 &vf)
+        friend std::ostream &operator<<(std::ostream &os, HierarchicalQValueFunction &vf)
         {
             os << vf.str();
             return os;

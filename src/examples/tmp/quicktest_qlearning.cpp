@@ -12,13 +12,11 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
-#include <sdm/utils/value_function/hierarchical_qvalue_function_v1.hpp>
-#include <sdm/utils/value_function/hierarchical_qvalue_function_v2.hpp>
+#include <sdm/utils/value_function/hierarchical_qvalue_function.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
-#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v1.hpp>
-#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v2.hpp>
-#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup_v3.hpp>
+#include <sdm/utils/value_function/backup/simple_hierarchical_qvalue_backup.hpp>
+#include <sdm/utils/value_function/backup/hierarchical_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
@@ -137,7 +135,7 @@ int main(int argc, char **argv)
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, true, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, true, batch_size);
-        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "hierarchical"))
+        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && ((qvalue == "hierarchical" || (qvalue == "simple-hierarchical"))))
             gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, true, true, batch_size);
 
         // Set precision
@@ -155,22 +153,18 @@ int main(int argc, char **argv)
         std::shared_ptr<QValueFunction> q_value_table;
         if (qvalue == "tabular")
             q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
-        else if ((qvalue == "hierarchical") && (version == "1"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
-        else if ((qvalue == "hierarchical") && (version == "2"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
-        else if ((qvalue == "hierarchical") && (version == "3"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
+        else if (qvalue == "simple-hierarchical")
+            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, ball_r, true);
+        else if (qvalue == "hierarchical")
+            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, ball_r, true);
 
         std::shared_ptr<QValueFunction> target_q_value_table;
         if (qvalue == "tabular")
             target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
-        else if ((qvalue == "hierarchical") && (version == "1"))
-            target_q_value_table = std::make_shared<HierarchicalQValueFunctionV1>(horizon, lr, initializer);
-        else if ((qvalue == "hierarchical") && (version == "2"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
-        else if ((qvalue == "hierarchical") && (version == "3"))
-            q_value_table = std::make_shared<HierarchicalQValueFunctionV2>(horizon, lr, initializer, ball_r, true);
+        else if (qvalue == "simple-hierarchical")
+            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, ball_r, true);
+        else if (qvalue == "hierarchical")
+            q_value_table = std::make_shared<HierarchicalQValueFunction>(horizon, lr, initializer, ball_r, true);
 
         // Instanciate exploration process
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -180,12 +174,10 @@ int main(int argc, char **argv)
         std::shared_ptr<QValueBackupInterface> backup;
         if (qvalue == "tabular")
             backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
-        else if ((qvalue == "hierarchical") && (version == "1"))
-            backup = std::make_shared<HierarchicalQValueBackupV1>(experience_memory, q_value_table, q_value_table, discount, action_space);
-        else if ((qvalue == "hierarchical") && (version == "2"))
-            backup = std::make_shared<HierarchicalQValueBackupV2>(experience_memory, q_value_table, q_value_table, discount, action_space);
-        else if ((qvalue == "hierarchical") && (version == "3"))
-            backup = std::make_shared<HierarchicalQValueBackupV3>(experience_memory, q_value_table, q_value_table, discount, action_space);
+        else if (qvalue == "simple-hierarchical")
+            backup = std::make_shared<SimpleHierarchicalQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
+        else if (qvalue == "hierarchical")
+            backup = std::make_shared<HierarchicalQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
 
         std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 

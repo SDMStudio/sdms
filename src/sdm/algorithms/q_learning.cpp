@@ -111,9 +111,9 @@ namespace sdm
         // if (this->episode % target_update_ == 0)
         //     this->update_target();
         this->step = 0;
-        this->episode += 1;
+        this->episode++;
         this->observation = this->env_->reset();
-
+        
         unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
         {
@@ -147,7 +147,7 @@ namespace sdm
         // std::cout << "-------- do_step() --------- 3" << std::endl;
 
         // Backup and get Q Value Error
-        double delta = this->backup_->backup(this->step);
+        double delta = this->backup_->update(this->step);
 
         // std::cout << "delta " << delta << std::endl;
 

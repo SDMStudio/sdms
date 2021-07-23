@@ -255,13 +255,11 @@ if(QLEARNING)
 		${INCLUDE_DIR}/utils/value_function/qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_qvalue_function.cpp
-		${INCLUDE_DIR}/utils/value_function/hierarchical_qvalue_function_v1.cpp
-		${INCLUDE_DIR}/utils/value_function/hierarchical_qvalue_function_v2.cpp
+		${INCLUDE_DIR}/utils/value_function/hierarchical_qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/initializer/initializer.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
-		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v1.cpp
-		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v2.cpp
-		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup_v3.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/simple_hierarchical_qvalue_backup.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/rl/experience_memory.cpp
 
 	)
