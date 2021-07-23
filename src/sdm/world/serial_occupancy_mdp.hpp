@@ -16,12 +16,7 @@ namespace sdm
         {
         public:
                 SerialOccupancyMDP();
-                SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &dpomdp,
-                                   number memory = -1,
-                                   bool compression = true,
-                                   bool store_states = true,
-                                   bool store_action_spaces = true,
-                                   int batch_size = 0);
+                SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true,  bool generate_action_spaces = false, int batch_size = 0);
 
                 number getAgentId(number t) const;
                 bool isLastAgent(number t) const;
