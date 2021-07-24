@@ -16,16 +16,18 @@ namespace sdm
     }
 
     SimpleHierarchicalQValueBackup::SimpleHierarchicalQValueBackup(
-        std::shared_ptr<ExperienceMemory> experience_memory, 
+        std::shared_ptr<ExperienceMemoryInterface> experience_memory, 
         std::shared_ptr<QValueFunction> q_value_table, 
         std::shared_ptr<QValueFunction> target_q_value_table, 
         double discount,
+        number horizon,
         std::shared_ptr<Space> action_space,
         std::shared_ptr<GymInterface> env
-    ) : experience_memory_(experience_memory), 
+    ) : experience_memory_(std::static_pointer_cast<ExperienceMemory>(experience_memory)), 
         q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunction>(q_value_table)),
         target_q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunction>(target_q_value_table)), 
         discount_(discount), 
+        horizon_(horizon),
         action_space_(std::static_pointer_cast<MultiDiscreteSpace>(action_space)),
         env_(std::dynamic_pointer_cast<PrivateHierarchicalOccupancyMDP>(env))
     {
@@ -37,25 +39,28 @@ namespace sdm
 
     }
 
-    double SimpleHierarchicalQValueBackup::update(number t)
+    double SimpleHierarchicalQValueBackup::update()
     {   
-        auto [observation, a, reward, next_observation, next_a] = this->experience_memory_->sample(t)[0];
+        for (number t = 0; t < this->horizon_; t++)
+        {
+            auto [_, observation, a, reward, next_observation, next_a] = this->experience_memory_->sample(t)[0];
 
-        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->first;
-        auto next_s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(next_observation)->first;
-        auto o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->second;
-        auto next_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(next_observation)->second;
-        auto u = this->action_space_->getItemAddress(*std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(a)->act(this->getJointHierarchicalHistory(o, s, t)))->toJoint<Item>())->toAction();
-        auto next_u = this->action_space_->getItemAddress(*std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(next_a)->act(this->getJointHierarchicalHistory(next_o, next_s, t + 1)))->toJoint<Item>())->toAction();
+            auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->first;
+            auto next_s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(next_observation)->first;
+            auto o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->second;
+            auto next_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(next_observation)->second;
+            auto u = this->action_space_->getItemAddress(*std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(a)->act(this->getJointHierarchicalHistory(o, s, t)))->toJoint<Item>())->toAction();
+            auto next_u = this->action_space_->getItemAddress(*std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(next_a)->act(this->getJointHierarchicalHistory(next_o, next_s, t + 1)))->toJoint<Item>())->toAction();
 
-        double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
-        // double next_value = this->getValueAt(next_observation->toState(), t + 1);
-        double next_value = this->q_value_table_->getQValueAt(next_s, next_o, next_u, t + 1);
-        double target_q_value = reward + this->discount_ * next_value;
-        double delta = target_q_value - q_value;
-        this->q_value_table_->updateQValueAt(s, o, u, t, delta);
+            double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
+            // double next_value = this->getValueAt(next_observation->toState(), t + 1);
+            double next_value = this->q_value_table_->getQValueAt(next_s, next_o, next_u, t + 1);
+            double target_q_value = reward + this->discount_ * next_value;
+            double delta = target_q_value - q_value;
+            this->q_value_table_->updateQValueAt(s, o, u, t, delta);
+        }
 
-        return delta;
+        return 0;
     }
 
     std::shared_ptr<Action> SimpleHierarchicalQValueBackup::getGreedyAction(const std::shared_ptr<State> &state, number t)

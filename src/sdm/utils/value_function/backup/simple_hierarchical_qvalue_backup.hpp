@@ -20,23 +20,18 @@ namespace sdm
 
         SimpleHierarchicalQValueBackup();
         SimpleHierarchicalQValueBackup(
-            std::shared_ptr<ExperienceMemory> experience_memory, 
+            std::shared_ptr<ExperienceMemoryInterface> experience_memory, 
             std::shared_ptr<QValueFunction> q_value_table, 
             std::shared_ptr<QValueFunction> target_q_value_table, 
             double discount, 
+            number horizon,
             std::shared_ptr<Space> action_space,
             std::shared_ptr<GymInterface> env
         );
         
         ~SimpleHierarchicalQValueBackup();
         
-        /**
-         * @brief 
-         * 
-         * @param number t : time step
-         * @return 
-         */
-        double update(number t);
+        double update();
 
         /**
          * @brief 
@@ -62,6 +57,7 @@ namespace sdm
         std::shared_ptr<HierarchicalQValueFunction> target_q_value_table_;
         std::shared_ptr<PrivateHierarchicalOccupancyMDP> env_;
         double discount_;
+        number horizon_;
         number num_agents_ = 2;
         std::shared_ptr<MultiDiscreteSpace> action_space_;
         // All possible joint actions of subordinate agents from the p.o.v. of each agent.

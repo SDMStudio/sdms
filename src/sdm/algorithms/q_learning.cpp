@@ -119,7 +119,6 @@ namespace sdm
         while (this->global_step < stop_cond)
         {
             this->do_step();
-
             //Save the model
             this->do_save_ = (this->global_step % this->save_freq == 0);
             this->do_log_ = (this->global_step % this->log_freq == 0);
@@ -130,6 +129,8 @@ namespace sdm
                 break;
             }
         }
+        this->backup_->update();
+
     }
 
     void QLearning::do_step()
@@ -147,11 +148,6 @@ namespace sdm
         // Push experience to memory
         this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
         // std::cout << "-------- do_step() --------- 3" << std::endl;
-
-        // Backup and get Q Value Error
-        double delta = this->backup_->update(this->step);
-
-        // std::cout << "delta " << delta << std::endl;
 
         this->observation = this->next_observation;
         this->action = this->next_action;

@@ -17,9 +17,9 @@ namespace sdm
     {
         if (this->experience_memory_[t].size() < this->capacity_)
         {
-            this->experience_memory_[t].push_back(std::make_tuple(nullptr, nullptr, 0., nullptr, nullptr));
+            this->experience_memory_[t].push_back(std::make_tuple(0, nullptr, nullptr, 0., nullptr, nullptr));
         }
-        this->experience_memory_[t][this->position] = std::make_tuple(observation, action, reward, next_observation, next_action);
+        this->experience_memory_[t][this->position] = std::make_tuple(t, observation, action, reward, next_observation, next_action);
         this->position = (this->position + 1) % this->capacity_;
     }
 
@@ -28,6 +28,12 @@ namespace sdm
         std::vector<sars_transition> out;
         std::experimental::sample(this->experience_memory_[t].begin(), this->experience_memory_[t].end(), std::back_inserter(out), n, std::mt19937{std::random_device{}()});
         return out;
+    }
+    
+    // Not useful
+    std::vector<ExperienceMemory::sars_transition> ExperienceMemory::sample(int n)
+    {
+        return this->sample(0, n);
     }
 
     int ExperienceMemory::size()

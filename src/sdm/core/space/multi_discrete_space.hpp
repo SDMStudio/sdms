@@ -77,6 +77,7 @@ namespace sdm
          * @param   item the item we want to get the index
          */
         number getItemIndex(number ag_id, const std::shared_ptr<Item> &item) const;
+        number getItemIndex(const std::shared_ptr<Item> &item) const;
 
         /**
          * @brief Get a specific item from its index

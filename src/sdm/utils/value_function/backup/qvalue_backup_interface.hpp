@@ -11,13 +11,7 @@ namespace sdm
     {
     public:  
 
-        /**
-         * @brief 
-         * 
-         * @param number t : time step
-         * @return 
-         */
-        virtual double update(number t) = 0;
+        virtual double update() = 0;
 
         /**
          * @brief 

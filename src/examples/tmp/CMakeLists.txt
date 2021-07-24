@@ -253,6 +253,7 @@ if(QLEARNING)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
+		${INCLUDE_DIR}/algorithms/deep_q_learning.cpp
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
@@ -269,7 +270,10 @@ if(QLEARNING)
 		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/simple_hierarchical_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/dqn_mmdp_backup.cpp
 		${INCLUDE_DIR}/utils/rl/experience_memory.cpp
+		${INCLUDE_DIR}/utils/rl/deep_experience_memory.cpp
+		${INCLUDE_DIR}/utils/nn/mlpnet.cpp
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)

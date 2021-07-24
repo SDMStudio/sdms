@@ -48,6 +48,11 @@ namespace sdm
         return this->cast(this->getSpace(ag_id))->getItemIndex(item);
     }
 
+    number MultiDiscreteSpace::getItemIndex(const std::shared_ptr<Item> &item) const
+    {
+        return DiscreteSpace::getItemIndex(item);
+    }
+
     std::shared_ptr<Item> MultiDiscreteSpace::getJointItem(number idx) const
     {
         return DiscreteSpace::getItem(idx);

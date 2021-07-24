@@ -12,17 +12,11 @@ namespace sdm
     public:
 
         TabularQValueBackup();
-        TabularQValueBackup(std::shared_ptr<ExperienceMemory> experience_memory, std::shared_ptr<QValueFunction> q_value_table, std::shared_ptr<QValueFunction> target_q_value_table, double discount);
+        TabularQValueBackup(std::shared_ptr<ExperienceMemoryInterface> experience_memory, std::shared_ptr<QValueFunction> q_value_table, std::shared_ptr<QValueFunction> target_q_value_table, double discount, number horizon);
         
         ~TabularQValueBackup();
         
-        /**
-         * @brief 
-         * 
-         * @param number t : time step
-         * @return 
-         */
-        double update(number t);
+        double update();
 
         /**
          * @brief 
@@ -47,6 +41,7 @@ namespace sdm
         std::shared_ptr<QValueFunction> q_value_table_;
         std::shared_ptr<QValueFunction> target_q_value_table_;
         double discount_;
+        number horizon_;
     };
     
 
