@@ -113,7 +113,8 @@ namespace sdm
         this->step = 0;
         this->episode++;
         this->observation = this->env_->reset();
-        
+        this->action = this->select_action(this->observation, this->step);
+
         unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
         {
@@ -136,14 +137,15 @@ namespace sdm
         // std::cout << "-------- QLearning::do_step() --------- " << this->step << std::endl;
         
         // Action selection following policy and exploration process
-        this->action = this->select_action(this->observation);
 
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
         // std::cout << "-------- do_step() --------- 2" << std::endl;
 
+        this->next_action = this->select_action(this->next_observation, this->step + 1);
+
         // Push experience to memory
-        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->step);
+        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
         // std::cout << "-------- do_step() --------- 3" << std::endl;
 
         // Backup and get Q Value Error
@@ -152,6 +154,7 @@ namespace sdm
         // std::cout << "delta " << delta << std::endl;
 
         this->observation = this->next_observation;
+        this->action = this->next_action;
         this->step++;
         this->global_step++;
     }
@@ -178,18 +181,18 @@ namespace sdm
         *this->q_value_table_target_ = *this->q_value_table_;
     }
 
-    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation)
+    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation, number t)
     {
         
-        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), this->step))
+        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), t))
         {
             // std::cout << "-------- RANDOM ---------" << std::endl;
-            return this->env_->getRandomAction(observation, this->step);
+            return this->env_->getRandomAction(observation, t);
         }
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            return this->backup_->getGreedyAction(observation->toState(), this->step);
+            return this->backup_->getGreedyAction(observation->toState(), t);
         }
 
     }

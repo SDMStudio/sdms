@@ -140,12 +140,15 @@ namespace sdm
     std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         // std::cout << "BaseBeliefMDP<TBelief>::nextBelief() " << std::endl;
+        // std::cout << "this->store_states_" << this->store_states_ << std::endl;
+        // std::cout << "this->store_actions_" << this->store_actions_ << std::endl;
 
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
         if (this->store_states_ && this->store_actions_)
         {
+            // std::cout << "both " << std::endl;
             // Get the successor
             auto successor = this->mdp_graph_->getNode(belief)->getSuccessor(action_observation);
 
@@ -180,8 +183,24 @@ namespace sdm
                 return next_belief;
             }
         }
+        else if (this->store_states_)
+        {
+            // std::cout << "one " << std::endl;
+
+            // Return next belief without storing its value in the graph
+            auto [computed_next_belief, proba_belief] = this->computeNextStateAndProbability(belief, action, observation, t);
+            TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
+            if (this->state_space_.find(b) == this->state_space_.end())
+            {
+                // Add the belief in the space of beliefs
+                this->state_space_.emplace(b, computed_next_belief);
+            }
+            return this->state_space_.at(b);
+        }
         else
         {
+            // std::cout << "none " << std::endl;
+
             // Return next belief without storing its value in the graph
             auto [computed_next_belief, proba_belief] = this->computeNextStateAndProbability(belief, action, observation, t);
             return computed_next_belief;
@@ -260,6 +279,7 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<Observation> BaseBeliefMDP<TBelief>::reset()
     {
+        // std::cout << this->state_space_.size() << " ";
         this->step_ = 0;
         this->current_state_ = this->initial_state_;
         std::dynamic_pointer_cast<MDP>(this->getUnderlyingProblem())->reset();

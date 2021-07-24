@@ -136,7 +136,7 @@ int main(int argc, char **argv)
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, true, batch_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && ((qvalue == "hierarchical" || (qvalue == "simple-hierarchical"))))
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, true, true, batch_size);
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, false, false, batch_size);
 
         // Set precision
         Belief::PRECISION = p_b;
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
         if (qvalue == "tabular")
             backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
         else if (qvalue == "simple-hierarchical")
-            backup = std::make_shared<SimpleHierarchicalQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
+            backup = std::make_shared<SimpleHierarchicalQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space, gym);
         else if (qvalue == "hierarchical")
             backup = std::make_shared<HierarchicalQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
 

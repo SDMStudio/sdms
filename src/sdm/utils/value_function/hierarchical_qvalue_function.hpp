@@ -12,9 +12,9 @@ namespace sdm
     {
 
     public:
-        using Container = std::unordered_map<std::shared_ptr<OccupancyStateInterface>, TabularQValueFunction>;
+        using psi = std::unordered_map<std::shared_ptr<OccupancyStateInterface>, TabularQValueFunction>;
 
-        std::vector<Container> representation;
+        std::vector<psi> Psi;
 
         HierarchicalQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer, double ball_r, bool keep_map);
 
@@ -80,6 +80,7 @@ namespace sdm
 
         number num_agents_ = 2;
 
+        int num_key_states_ = 0;
         int num_states_ = 0;
 
         // std::vector<int> num_states_vector_;
@@ -105,13 +106,11 @@ namespace sdm
          */
         std::shared_ptr<QInitializer> initializer_;
 
-        void initializeIfNeeded(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_, number t);
-
-        void initializeQValueFunctionAtWith(const std::shared_ptr<OccupancyStateInterface> &s, number t, const std::shared_ptr<OccupancyStateInterface> &s_);
+        void initializeQValueFunctionAtWith(const std::shared_ptr<OccupancyStateInterface> &s, TabularQValueFunction &q_, number t);
 
         void initializeToZeroQValueFunctionAt(const std::shared_ptr<OccupancyStateInterface> &s, number t);
 
-        std::shared_ptr<OccupancyStateInterface> getClosestS(const std::shared_ptr<OccupancyStateInterface> &s, number t);
+        std::shared_ptr<OccupancyStateInterface> getHyperPlaneIndex(const std::shared_ptr<OccupancyStateInterface> &s, number t);
 
         bool areInTheSameBall(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_, number t);
 

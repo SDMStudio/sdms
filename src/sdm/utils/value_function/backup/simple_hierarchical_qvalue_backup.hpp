@@ -8,6 +8,9 @@
 
 #include <sdm/utils/value_function/hierarchical_qvalue_function.hpp>
 
+#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
+
+
 namespace sdm
 {
 
@@ -16,7 +19,14 @@ namespace sdm
     public:
 
         SimpleHierarchicalQValueBackup();
-        SimpleHierarchicalQValueBackup(std::shared_ptr<ExperienceMemory> experience_memory, std::shared_ptr<QValueFunction> q_value_table, std::shared_ptr<QValueFunction> target_q_value_table, double discount, std::shared_ptr<Space> action_space);
+        SimpleHierarchicalQValueBackup(
+            std::shared_ptr<ExperienceMemory> experience_memory, 
+            std::shared_ptr<QValueFunction> q_value_table, 
+            std::shared_ptr<QValueFunction> target_q_value_table, 
+            double discount, 
+            std::shared_ptr<Space> action_space,
+            std::shared_ptr<GymInterface> env
+        );
         
         ~SimpleHierarchicalQValueBackup();
         
@@ -50,6 +60,7 @@ namespace sdm
         std::shared_ptr<ExperienceMemory> experience_memory_;
         std::shared_ptr<HierarchicalQValueFunction> q_value_table_;
         std::shared_ptr<HierarchicalQValueFunction> target_q_value_table_;
+        std::shared_ptr<PrivateHierarchicalOccupancyMDP> env_;
         double discount_;
         number num_agents_ = 2;
         std::shared_ptr<MultiDiscreteSpace> action_space_;
@@ -57,6 +68,8 @@ namespace sdm
         std::shared_ptr<std::unordered_map<int, std::vector<std::shared_ptr<Joint<std::shared_ptr<Action>>>>>> all_subordinate_jactions;
         void prepareSubordinateJointActions();
         std::shared_ptr<State> getJointHierarchicalHistory(const std::shared_ptr<JointHistoryInterface> &joint_labels, const std::shared_ptr<State> &ostate, number t) const;
+        //
+        
     };
     
 

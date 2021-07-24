@@ -24,7 +24,7 @@ namespace sdm
     public:
         ExperienceMemory(number horizon, int capacity = 1);
 
-        void push(const std::shared_ptr<Observation>& observation, const std::shared_ptr<Action>& action, const double reward, const std::shared_ptr<Observation>& next_observation, number t);
+        void push(const std::shared_ptr<Observation>& observation, const std::shared_ptr<Action>& action, const double reward, const std::shared_ptr<Observation>& next_observation, const std::shared_ptr<Action>& next_action, number t);
 
         std::vector<sars_transition> sample(number t, int n = 1);
 

@@ -20,12 +20,14 @@ namespace sdm
         std::shared_ptr<QValueFunction> q_value_table, 
         std::shared_ptr<QValueFunction> target_q_value_table, 
         double discount,
-        std::shared_ptr<Space> action_space
+        std::shared_ptr<Space> action_space,
+        std::shared_ptr<GymInterface> env
     ) : experience_memory_(experience_memory), 
         q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunction>(q_value_table)),
         target_q_value_table_(std::dynamic_pointer_cast<HierarchicalQValueFunction>(target_q_value_table)), 
         discount_(discount), 
-        action_space_(std::static_pointer_cast<MultiDiscreteSpace>(action_space))
+        action_space_(std::static_pointer_cast<MultiDiscreteSpace>(action_space)),
+        env_(std::dynamic_pointer_cast<PrivateHierarchicalOccupancyMDP>(env))
     {
         this->prepareSubordinateJointActions();
     }
@@ -37,13 +39,18 @@ namespace sdm
 
     double SimpleHierarchicalQValueBackup::update(number t)
     {   
-        auto [observation, decision_rule, reward, next_observation] = this->experience_memory_->sample(t)[0];
-        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(observation)->first->first;
-        auto o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(observation)->first->second;
-        auto u = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->second;
+        auto [observation, a, reward, next_observation, next_a] = this->experience_memory_->sample(t)[0];
+
+        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->first;
+        auto next_s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(next_observation)->first;
+        auto o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->second;
+        auto next_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(next_observation)->second;
+        auto u = this->action_space_->getItemAddress(*std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(a)->act(this->getJointHierarchicalHistory(o, s, t)))->toJoint<Item>())->toAction();
+        auto next_u = this->action_space_->getItemAddress(*std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(next_a)->act(this->getJointHierarchicalHistory(next_o, next_s, t + 1)))->toJoint<Item>())->toAction();
 
         double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
-        double next_value = this->getValueAt(next_observation->toState(), t + 1);
+        // double next_value = this->getValueAt(next_observation->toState(), t + 1);
+        double next_value = this->q_value_table_->getQValueAt(next_s, next_o, next_u, t + 1);
         double target_q_value = reward + this->discount_ * next_value;
         double delta = target_q_value - q_value;
         this->q_value_table_->updateQValueAt(s, o, u, t, delta);
@@ -54,7 +61,7 @@ namespace sdm
     std::shared_ptr<Action> SimpleHierarchicalQValueBackup::getGreedyAction(const std::shared_ptr<State> &state, number t)
     {
         // std::cout << "-------- SimpleHierarchicalQValueBackup::getGreedyAction() ---------" << std::endl;
-        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first->first;
+        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(state)->first;
         
         s->prepareIndividualHierarchicalHistoryVectors(t);
 
@@ -198,7 +205,7 @@ namespace sdm
 
     double SimpleHierarchicalQValueBackup::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first->first;
+        std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(state)->first;
 
         std::shared_ptr<DecisionRule> a =  this->getGreedyAction(state, t)->toDecisionRule();
 
@@ -293,5 +300,7 @@ namespace sdm
         }
         return joint_hierarchical_labels->toJoint<State>();
     }
+
+
 
 }

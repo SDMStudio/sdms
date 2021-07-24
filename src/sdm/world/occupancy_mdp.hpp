@@ -115,7 +115,7 @@ namespace sdm
 
                 std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
 
-                std::shared_ptr<Action> getActionPointer(std::shared_ptr<Action> action_tmp);
+                // std::shared_ptr<Action> getActionPointer(std::shared_ptr<Action> action_tmp);
         };
 
         using OccupancyMDP = BaseOccupancyMDP<OccupancyState>;

@@ -7,9 +7,10 @@ namespace sdm
     {
     }
 
-    PrivateHierarchicalOccupancyMDPWithHistory::PrivateHierarchicalOccupancyMDPWithHistory(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_action_spaces, bool store_actions, int batch_size)
-        : PrivateHierarchicalOccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_action_spaces, store_actions, batch_size)
+    PrivateHierarchicalOccupancyMDPWithHistory::PrivateHierarchicalOccupancyMDPWithHistory(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, bool generate_action_spaces, int batch_size)
+        : PrivateHierarchicalOccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, generate_action_spaces, batch_size)
     {
+        
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> PrivateHierarchicalOccupancyMDPWithHistory::step(std::shared_ptr<Action> action)
@@ -18,9 +19,7 @@ namespace sdm
 
         std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryPair> s_o = std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryPair>(std::make_pair(s->toState()->toOccupancyState(), this->current_history_->toJointHistory()));
 
-        std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair> s_o__u = std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(s_o, this->current_action_);
-
-        return std::make_tuple(s_o__u, rewards, is_done);
+        return std::make_tuple(s_o, rewards, is_done);
     }
 
     std::shared_ptr<Observation> PrivateHierarchicalOccupancyMDPWithHistory::reset()
@@ -29,9 +28,7 @@ namespace sdm
 
         std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryPair> s_o = std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryPair>(std::make_pair(this->current_state_->toState()->toOccupancyState(), this->current_history_->toJointHistory()));
 
-        std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair> s_o__u = std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(s_o, nullptr);
-
-        return s_o__u;
+        return s_o;
     }
 
     double PrivateHierarchicalOccupancyMDPWithHistory::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
@@ -46,7 +43,7 @@ namespace sdm
     {
         // std::cout << "PrivateHierarchicalOccupancyMDPWithHistory::getRandomAction() " << std::endl;
 
-        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(ostate)->first->first;
+        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(ostate)->first;
 
         return PrivateHierarchicalOccupancyMDP::getRandomAction(s->toState()->toObservation(), t);
     }
