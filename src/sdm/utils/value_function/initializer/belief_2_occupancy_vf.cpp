@@ -13,6 +13,7 @@ namespace sdm
     {
         double value = 0;
         auto ostate = state->toOccupancyState();
+
         // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
         for (const auto &joint_history : ostate->getJointHistories())
         {
