@@ -50,18 +50,26 @@ namespace sdm
          * 
          * @param double defines a real value
          */
-        long getCost(double);
+        Cost getCost(double);
 
         double getValueAt(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action,const std::shared_ptr<State>& next_hyperplan, number t);
 
         Pair<std::shared_ptr<State>,double> representation;
         std::shared_ptr<HistoryInterface> support_of_the_next_history;
+        std::shared_ptr<State> support_of_the_next_hidden_state;
         std::shared_ptr<Action> support_of_the_next_action;
         bool support_empty;
 
         std::unordered_map<std::shared_ptr<State>,std::shared_ptr<Action>> state_linked_to_decision_rule;
 
         void determineMaxValue(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State>& state, number t);
+
+        std::set<std::shared_ptr<JointHistoryInterface>> determineJointHistory(const std::shared_ptr<State> &state);
+
+        void createWCSPVariable(std::shared_ptr<WeightedCSPSolver>&,const std::shared_ptr<State>& state,number t);
+        void createWCSPCostGraph(std::shared_ptr<WeightedCSPSolver>& wcsp_solver,const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state,const std::set<std::shared_ptr<JointHistoryInterface>>& set_joint_history,number t);
+        Pair<std::shared_ptr<Action>,double> getWSCPResult(std::shared_ptr<WeightedCSPSolver>& wcsp_solver,const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state,const std::set<std::shared_ptr<JointHistoryInterface>>& set_joint_history,number t);
+
 
     };
 }

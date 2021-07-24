@@ -103,9 +103,9 @@ namespace sdm
                                                                                 auto algo = sdm::algo::make("hsvi",filepath_,formalism,upper_bound,lower_bound,upper_bound_init,lower_bound_init,discount,0.01,horizon,10000,truncation,name,1000,sawtooth_current_type_of_resolution,sawtooth_BigM,sawtooth_type_of_linear_program,type_of_maxplan_prunning,freq_prunning_lower_bound,type_of_sawtooth_pruning,freq_prunning_upper_bound);
 
                                                                                 //auto value = sdm::ValueIteration<TState,TAction>(smdp,discount,0,horizon);
+                                                                                algo->do_initialize();
                                                                                 t_begin = std::chrono::high_resolution_clock::now();
 
-                                                                                algo->do_initialize();
                                                                                 algo->do_solve();
 
                                                                                 t_end = std::chrono::high_resolution_clock::now();

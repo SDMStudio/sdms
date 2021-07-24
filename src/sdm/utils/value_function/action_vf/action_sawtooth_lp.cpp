@@ -178,7 +178,7 @@ namespace sdm
                 // Compute the difference i.e. (v_k - V_k)
                 double current_upper_bound = element_state_AND_upper_bound.second;
                 double initial_upper_bound = vf->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
-                double difference = current_upper_bound - initial_upper_bound;
+                double difference = initial_upper_bound - current_upper_bound;
 
                 // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
@@ -424,7 +424,7 @@ namespace sdm
             auto recover = this->getNumber(this->getVarNameWeight(0));
 
             //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) + discount * v0"
-            obj.setLinearCoef(var[recover], under_pb->getDiscount(t));
+            obj.setLinearCoef(var[recover], -under_pb->getDiscount(t));
 
             // Go over all action
             for (const auto &action : *under_pb->getActionSpace(t))
