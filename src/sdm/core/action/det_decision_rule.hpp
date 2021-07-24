@@ -22,7 +22,7 @@ namespace sdm
      * @param state the generic state
      * @return the corresponding action
      */
-    std::shared_ptr<Action> act(const std::shared_ptr<State> &state) const;
+    std::shared_ptr<Action> act(const std::shared_ptr<Observation> &state) const;
 
     /**
      * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
@@ -31,7 +31,7 @@ namespace sdm
      * @param a the action
      * @return the probability
      */
-    virtual double getProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a) const;
+    virtual double getProbability(const std::shared_ptr<Observation> &s, const std::shared_ptr<Action> &a) const;
 
     /**
      * @brief Set the probability of selecting action a in state s.
@@ -40,7 +40,7 @@ namespace sdm
      * @param a the action
      * @param proba the probability
      */
-    virtual void setProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, double proba = 1);
+    virtual void setProbability(const std::shared_ptr<Observation> &s, const std::shared_ptr<Action> &a, double proba = 1);
 
     std::string str() const;
 
@@ -50,12 +50,12 @@ namespace sdm
       return os;
     }
 
-    std::map<std::shared_ptr<State>, std::shared_ptr<Action>> getMap() const;
+    std::map<std::shared_ptr<Observation>, std::shared_ptr<Action>> getMap() const;
 
-    bool elementExist(const std::shared_ptr<State>&);
+    bool elementExist(const std::shared_ptr<Observation>&);
 
   protected:
-    std::map<std::shared_ptr<State>, std::shared_ptr<Action>> map_state_to_action_;
+    std::map<std::shared_ptr<Observation>, std::shared_ptr<Action>> map_state_to_action_;
   };
 } // namespace sdm
 

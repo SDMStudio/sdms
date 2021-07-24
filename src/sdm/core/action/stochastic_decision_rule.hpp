@@ -18,10 +18,10 @@ namespace sdm
     /**
    * @brief The stochastic decision rule class. This class is a function that maps generic states distribution over generic actions. 
    * 
-   * @tparam std::shared_ptr<State> the state type
+   * @tparam std::shared_ptr<Observation> the state type
    * @tparam std::shared_ptr<Action> the action type
    */
-    class StochasticDecisionRule : public DecisionRule, public RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, double>
+    class StochasticDecisionRule : public DecisionRule, public RecursiveMap<std::shared_ptr<Observation>, std::shared_ptr<Action>, double>
     {
     public:
         using input_type = typename DecisionRule::input_type;
@@ -35,7 +35,7 @@ namespace sdm
          * @param s the generic state
          * @return the corresponding action
          */
-        std::shared_ptr<Action> act(const std::shared_ptr<State> &s) const;
+        std::shared_ptr<Action> act(const std::shared_ptr<Observation> &s) const;
 
         // /**
         //  * @brief Apply the DetDecisionRule function (similar to `act` or even `at`)
@@ -43,11 +43,11 @@ namespace sdm
         //  * @param s the generic state
         //  * @return the corresponding action
         //  */
-        // std::shared_ptr<Action> operator()(const std::shared_ptr<State> &s);
+        // std::shared_ptr<Action> operator()(const std::shared_ptr<Observation> &s);
 
-        RecursiveMap<std::shared_ptr<Action>, double> getProbabilities(const std::shared_ptr<State> &state) const;
+        RecursiveMap<std::shared_ptr<Action>, double> getProbabilities(const std::shared_ptr<Observation> &state) const;
 
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
+        double getProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action) const;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -56,7 +56,7 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba);
+        void setProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, double proba);
 
         std::string str() const;
 
@@ -66,7 +66,7 @@ namespace sdm
             return os;        
         }
 
-        bool elementExist(const std::shared_ptr<State>& joint_state);
+        bool elementExist(const std::shared_ptr<Observation>& joint_state);
 
     };
 

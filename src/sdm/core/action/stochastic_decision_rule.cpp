@@ -7,20 +7,20 @@ namespace sdm
 {
     StochasticDecisionRule::StochasticDecisionRule() {}
 
-    std::shared_ptr<Action> StochasticDecisionRule::act(const std::shared_ptr<State> &) const
+    std::shared_ptr<Action> StochasticDecisionRule::act(const std::shared_ptr<Observation> &) const
     {
         // return this->at(s);
         throw sdm::exception::NotImplementedException();
     }
 
-    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>>
-    // std::shared_ptr<Action> StochasticDecisionRule::operator()(const std::shared_ptr<State> &s)
+    // template <typename std::shared_ptr<Observation>, typename std::shared_ptr<Action>>
+    // std::shared_ptr<Action> StochasticDecisionRule::operator()(const std::shared_ptr<Observation> &s)
     // {
     //     // return this->at(s);
     //     throw sdm::exception::NotImplementedException();
     // }
 
-    RecursiveMap<std::shared_ptr<Action>, double> StochasticDecisionRule::getProbabilities(const std::shared_ptr<State> &state) const
+    RecursiveMap<std::shared_ptr<Action>, double> StochasticDecisionRule::getProbabilities(const std::shared_ptr<Observation> &state) const
     {
         try
         {
@@ -28,12 +28,12 @@ namespace sdm
         }
         catch(const std::exception& e)
         {
-            std::cerr <<"State not found in the StochasticDecisionRule::getProbabilities"<< e.what() << '\n';
+            std::cerr <<"Observation not found in the StochasticDecisionRule::getProbabilities"<< e.what() << '\n';
             exit(-1) ;
         }
     }
 
-    double StochasticDecisionRule::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const
+    double StochasticDecisionRule::getProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action) const
     {
         try
         {
@@ -46,7 +46,7 @@ namespace sdm
         }
     }
 
-    void StochasticDecisionRule::setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba)
+    void StochasticDecisionRule::setProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, double proba)
     {
         (*this)[state][action] = proba;
     }
@@ -70,7 +70,7 @@ namespace sdm
         return res.str();
     }
 
-    bool StochasticDecisionRule::elementExist(const std::shared_ptr<State>& state)
+    bool StochasticDecisionRule::elementExist(const std::shared_ptr<Observation>& state)
     {
         //A tester 
         throw sdm::exception::NotImplementedException();

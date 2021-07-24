@@ -30,11 +30,11 @@ namespace sdm
         }
     }
 
-    std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::shared_ptr<State> &joint_state) const
+    std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::shared_ptr<Observation> &joint_state) const
     {
         std::shared_ptr<Joint<std::shared_ptr<Action>>> joint_action = std::make_shared<Joint<std::shared_ptr<Action>>>();
         // List of states
-        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_state);
 
         for (number agent = 0; agent < joint_state_->size(); agent++)
         {
@@ -63,7 +63,7 @@ namespace sdm
     // }
 
     // Get probabilities of decision a(u | o)
-    double JointDeterministicDecisionRule::getProbability(const Joint<std::shared_ptr<State>> &states, const Joint<std::shared_ptr<Action>> &actions) const
+    double JointDeterministicDecisionRule::getProbability(const Joint<std::shared_ptr<Observation>> &states, const Joint<std::shared_ptr<Action>> &actions) const
     {
         assert((this->size() == states.size()) && (this->size() == actions.size()));
 
@@ -75,10 +75,10 @@ namespace sdm
         return probability;
     }
 
-    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &joint_state, const std::shared_ptr<Action> &joint_action) const
+    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<Observation> &joint_state, const std::shared_ptr<Action> &joint_action) const
     {
 
-        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_state);
         auto joint_action_ = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action);
 
         double probability = 1.;
@@ -89,13 +89,13 @@ namespace sdm
         return probability;
     }
 
-    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const
+    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, const number &agent_id) const
     {
         assert(agent_id < this->size());
         return this->get(agent_id)->getProbability(state, action);
     }
 
-    void JointDeterministicDecisionRule::setProbability(const Joint<std::shared_ptr<State>> &states, const Joint<std::shared_ptr<Action>> &actions, double probability)
+    void JointDeterministicDecisionRule::setProbability(const Joint<std::shared_ptr<Observation>> &states, const Joint<std::shared_ptr<Action>> &actions, double probability)
     {
         assert(probability == 1 || probability == 0);
 
@@ -116,7 +116,7 @@ namespace sdm
         }
     }
 
-    void JointDeterministicDecisionRule::setProbability(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, double)
+    void JointDeterministicDecisionRule::setProbability(const std::shared_ptr<Observation> &, const std::shared_ptr<Action> &, double)
     {
         throw exception::Exception("Not implemented exception (JointDeterministicDecisionRule::setProbability)");
     }
@@ -134,9 +134,9 @@ namespace sdm
         return res.str();
     }
 
-    bool JointDeterministicDecisionRule::elementExist(const std::shared_ptr<State>& joint_state)
+    bool JointDeterministicDecisionRule::elementExist(const std::shared_ptr<Observation>& joint_state)
     {
-        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_state);
 
         for (number agent = 0; agent < joint_state_->size(); agent++)
         {

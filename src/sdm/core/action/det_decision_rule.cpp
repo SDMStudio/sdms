@@ -12,7 +12,7 @@ namespace sdm
         {
             // std::cout << *acc_states[i] << std::endl;
             // std::cout << *n_actions[i] << std::endl;
-            this->setProbability(acc_states[i]->toState(), n_actions[i]->toAction(), 1);
+            this->setProbability(acc_states[i]->toObservation(), n_actions[i]->toAction(), 1);
         }
     }
 
@@ -20,7 +20,7 @@ namespace sdm
     {
     }
 
-    std::shared_ptr<Action> DeterministicDecisionRule::act(const std::shared_ptr<State> &state) const
+    std::shared_ptr<Action> DeterministicDecisionRule::act(const std::shared_ptr<Observation> &state) const
     {
         try
         {
@@ -29,22 +29,22 @@ namespace sdm
         }
         catch (const std::exception &e)
         {
-            std::cerr << "State not found in the DeterministicDecisionRule, error :" << e.what() << '\n';
+            std::cerr << "Observation not found in the DeterministicDecisionRule, error :" << e.what() << '\n';
             exit(-1);
         }
     }
 
-    // std::shared_ptr<Action> DeterministicDecisionRule::operator()(const std::shared_ptr<State> &s)
+    // std::shared_ptr<Action> DeterministicDecisionRule::operator()(const std::shared_ptr<Observation> &s)
     // {
     //     return this->act(s);
     // }
 
-    double DeterministicDecisionRule::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const
+    double DeterministicDecisionRule::getProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action) const
     {
         return (this->act(state) == action) ? 1 : 0;
     }
 
-    void DeterministicDecisionRule::setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba)
+    void DeterministicDecisionRule::setProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, double proba)
     {
         assert(((proba == 0) || (proba == 1)));
         if (proba == 1)
@@ -65,12 +65,12 @@ namespace sdm
         return res.str();
     }
 
-    std::map<std::shared_ptr<State>, std::shared_ptr<Action>> DeterministicDecisionRule::getMap() const
+    std::map<std::shared_ptr<Observation>, std::shared_ptr<Action>> DeterministicDecisionRule::getMap() const
     {
         return this->map_state_to_action_;
     }
 
-    bool DeterministicDecisionRule::elementExist(const std::shared_ptr<State>& state)
+    bool DeterministicDecisionRule::elementExist(const std::shared_ptr<Observation>& state)
     {
         return (this->map_state_to_action_.find(state) != this->map_state_to_action_.end()) ? true : false;
     }

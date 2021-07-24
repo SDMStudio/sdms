@@ -23,7 +23,7 @@ namespace sdm
         JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions);
         JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr);
 
-        std::shared_ptr<Action> act(const std::shared_ptr<State> &joint_state) const;
+        std::shared_ptr<Action> act(const std::shared_ptr<Observation> &joint_state) const;
 
         /**
          * @brief Get the probability of joint action 'action' in joint state 'state'
@@ -32,7 +32,7 @@ namespace sdm
          * @param action the joint action
          * @param proba the probability
          */
-        double getProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action) const;
+        double getProbability(const Joint<std::shared_ptr<Observation>> &state, const Joint<std::shared_ptr<Action>> &action) const;
 
         /**
          * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
@@ -41,7 +41,7 @@ namespace sdm
          * @param a the action
          * @return the probability
          */
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
+        double getProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action) const;
 
         /**
          * @brief Get the probability of action 'action' in state 'state' for agent id 
@@ -51,7 +51,7 @@ namespace sdm
          * @param action the action
          * @return the probability selecting action 'action' in state 'state' 
          */
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const;
+        double getProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, const number &agent_id) const;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -60,7 +60,7 @@ namespace sdm
          * @param action the joint action
          * @param proba the probability
          */
-        void setProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action, double proba = 0);
+        void setProbability(const Joint<std::shared_ptr<Observation>> &state, const Joint<std::shared_ptr<Action>> &action, double proba = 0);
 
         /**
          * @brief Set the probability of selecting action a in state s.
@@ -69,7 +69,7 @@ namespace sdm
          * @param a the action
          * @param proba the probability
          */
-        void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba = 1);
+        void setProbability(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, double proba = 1);
 
         std::string str() const;
 
@@ -79,7 +79,7 @@ namespace sdm
             return os;
         }
         
-        bool elementExist(const std::shared_ptr<State>&);
+        bool elementExist(const std::shared_ptr<Observation>&);
 
     };
 
