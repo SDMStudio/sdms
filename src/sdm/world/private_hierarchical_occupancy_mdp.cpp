@@ -7,13 +7,15 @@ namespace sdm
     {
     }
 
-    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
-        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, batch_size)
+    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, bool generate_action_spaces, int batch_size)
+        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, generate_action_spaces, batch_size)
     {
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> PrivateHierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
+    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> PrivateHierarchicalOccupancyMDP::step(std::shared_ptr<Action> action_tmp)
     {
+        std::shared_ptr<Action> action = this->getActionPointer(action_tmp);
+
         // std::cout << "PrivateHierarchicalOccupancyMDP::step " << std::endl;
         clock_t t_begin = clock(), t_tmp = clock();
         this->current_action_ = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);

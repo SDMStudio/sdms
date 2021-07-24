@@ -14,6 +14,7 @@
 #include <sdm/core/state/history_tree.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/types.hpp>
+#include <sdm/core/observation/default_observation.hpp>
 #include <sdm/core/state/interface/joint_history_interface.hpp>
 
 namespace sdm
@@ -113,6 +114,7 @@ namespace sdm
 
         std::shared_ptr<JointHistoryTree> getParent() const;
         std::shared_ptr<JointHistoryTree> getOrigin();
+        void isNotOrigin();
         std::vector<std::shared_ptr<JointHistoryTree>> getChildren() const;
         std::shared_ptr<JointHistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
 

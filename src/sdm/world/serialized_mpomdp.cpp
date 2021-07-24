@@ -1,4 +1,5 @@
 #include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/core/observation/default_observation.hpp>
 
 namespace sdm
 {   
@@ -77,15 +78,14 @@ namespace sdm
     void SerializedMPOMDP::setupObservationSpace(std::shared_ptr<MPOMDPInterface> mpomdp)
     {
         // Set default joint observation : "No Observation"
-        Joint<std::shared_ptr<Observation>> empty_observation_tmp;
+        auto empty_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>();
 
         // Create the Default Joint Observation
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
-            empty_observation_tmp.push_back(sdm::DEFAULT_OBSERVATION);
+            empty_observation->push_back(sdm::DEFAULT_OBSERVATION);
         }
 
-        std::shared_ptr<Observation> empty_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>(empty_observation_tmp);
         // Add the information in the variable empty_serial_observation
         this->empty_serial_observation = empty_observation;
         // Create the Serial Observation Space

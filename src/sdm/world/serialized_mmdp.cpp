@@ -47,7 +47,7 @@ namespace sdm
 
     number SerializedMMDP::getHorizon() const
     {
-        return this->mmdp_->getHorizon();
+        return this->mmdp_->getHorizon() * this->getNumAgents();
     }
 
     std::shared_ptr<Distribution<std::shared_ptr<State>>> SerializedMMDP::getStartDistribution() const
@@ -172,7 +172,7 @@ namespace sdm
                 {
                     // Add new serial state with the state of the problem and vector of action
                     auto next_serial_state = std::make_shared<SerializedState>(state->toState(), action);
-                    std::shared_ptr<State> next_serial_state_str = std::shared_ptr<BaseSerialInterface>(next_serial_state);
+                    std::shared_ptr<State> next_serial_state_str = next_serial_state;
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
                     this->map_serialized_state_to_pointeur[*next_serial_state] = next_serial_state_str;

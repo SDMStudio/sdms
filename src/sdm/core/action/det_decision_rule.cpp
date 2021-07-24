@@ -6,9 +6,12 @@ namespace sdm
 
     DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions)
     {
+        // std::cout << "DeterministicDecisionRule::DeterministicDecisionRule" << std::endl;
         assert(acc_states.size() == n_actions.size());
         for (std::size_t i = 0; i < acc_states.size(); i++)
         {
+            // std::cout << *acc_states[i] << std::endl;
+            // std::cout << *n_actions[i] << std::endl;
             this->setProbability(acc_states[i]->toState(), n_actions[i]->toAction(), 1);
         }
     }
@@ -54,9 +57,9 @@ namespace sdm
     {
         std::ostringstream res;
         res << "<decision-rule type=\"deterministic\">" << std::endl;
-        for (const auto &state_action : this->map_state_to_action_)
+        for (const auto &[state, action] : this->map_state_to_action_)
         {
-            res << "\t<decision state=\"" << state_action.first->str() << "\" action=\"" << *state_action.second << "\"/>" << std::endl;
+            res << "\t<decision state=\"" << state->str() << "\" action=\"" << *action << "\"/>" << std::endl;
         }
         res << "<decision-rule/>";
         return res.str();

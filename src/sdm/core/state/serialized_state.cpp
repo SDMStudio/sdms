@@ -42,7 +42,7 @@ namespace sdm
     std::string SerializedState::str() const
     {
         std::ostringstream res;
-        res << "Serial State(" << *this->getHiddenState()<<","<<this->getAction() << ")";
+        res << "SerialState(" << *this->getHiddenState()<<", "<<this->getAction() << ")";
         return res.str();
     }
 

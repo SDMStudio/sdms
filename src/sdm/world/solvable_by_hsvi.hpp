@@ -103,7 +103,7 @@ namespace sdm
          * @param number decision epoch or any other parameter 
          * @return double discount factor
          */
-        virtual double getDiscount(number t) = 0;
+        virtual double getDiscount(number t) const = 0;
 
         /**
          * @brief Get the specific weighted discount factor for the problem at hand

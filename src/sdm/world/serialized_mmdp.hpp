@@ -18,7 +18,7 @@
 
 namespace sdm
 {
-    class SerializedMMDP : virtual public MMDPInterface
+    class SerializedMMDP : virtual public SerialMMDPInterface
     {
     public:
         SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp);
@@ -101,7 +101,7 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Space> 
          */
-        std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
+        std::shared_ptr<Space> getActionSpace(number agent_id, number t ) const;
 
         /**
          * @brief Get the reward

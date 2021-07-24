@@ -88,7 +88,7 @@ namespace sdm
         return this->underlying_problem_;
     }
 
-    double SolvableByMDP::getDiscount(number t)
+    double SolvableByMDP::getDiscount(number t) const
     {
         return this->underlying_problem_->getDiscount(t);
     }

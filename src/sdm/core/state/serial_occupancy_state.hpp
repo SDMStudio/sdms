@@ -1,12 +1,13 @@
-#pragma once 
+#pragma once
 
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/interface/serial_interface.hpp>
 
 namespace sdm
 {
-    class SerialOccupancyState : public OccupancyState, public SerialOccupancyInterface
+    class SerialOccupancyState : public OccupancyState, public SerialInterface
     {
+    public:
         SerialOccupancyState();
         SerialOccupancyState(number num_agents);
         SerialOccupancyState(const SerialOccupancyState &copy);
@@ -28,9 +29,21 @@ namespace sdm
 
         std::string str() const;
 
-  protected : 
+    protected:
+        number agentID_;
+    };
+}
 
-    number agentID_;
-    
+namespace std
+{
+    template <>
+    struct hash<sdm::SerialOccupancyState>
+    {
+        typedef sdm::SerialOccupancyState argument_type;
+        typedef std::size_t result_type;
+        inline result_type operator()(const argument_type &in) const
+        {
+            return std::hash<sdm::OccupancyState>()(in);
+        }
     };
 }

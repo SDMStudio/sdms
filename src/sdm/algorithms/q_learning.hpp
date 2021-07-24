@@ -95,7 +95,8 @@ namespace sdm
               double lr = 0.001,
               double batch_size = 1,
               unsigned long num_max_steps = 10000,
-              std::string name = "qlearning");
+              std::string name = "qlearning"
+            );
 
     /**
      * @brief Initialize the algorithm
