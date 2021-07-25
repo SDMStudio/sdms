@@ -24,12 +24,15 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/private_hierarchical_occupancy_mdp_with_history.hpp>
+#include <sdm/world/private_hierarchical_occupancy_mdp_with_observation.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
-#include <sdm/utils/value_function/backup/dqn_mmdp_backup.hpp>
+#include <sdm/utils/value_function/backup/dqn_mdp_backup.hpp>
+#include <sdm/utils/value_function/backup/dqn_bmdp_backup.hpp>
+#include <sdm/utils/value_function/backup/dqn_phomdp_backup.hpp>
 
-#include <sdm/utils/nn/mlpnet.hpp>
+#include <sdm/utils/nn/dqn.hpp>
 
 using namespace sdm;
 using namespace std;
@@ -139,13 +142,15 @@ int main(int argc, char **argv)
         else if (formalism == "MPOMDP")
             gym = std::make_shared<MPOMDP>(state_space, action_space, observation_space, reward_space, state_dynamics, observation_dynamics, start_distribution, horizon, 1.);
         else if (formalism == "BeliefMDP")
-            gym = std::make_shared<BeliefMDP>(dpomdp, sampling_size);
+            gym = std::make_shared<BeliefMDP>(dpomdp, false, false, sampling_size);
         else if (formalism == "OccupancyMDP")
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, true, sampling_size);
         else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "tabular"))
             gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, true, sampling_size);
-        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && ((qvalue == "hierarchical" || (qvalue == "simple-hierarchical"))))
+        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && ((qvalue == "hierarchical") || (qvalue == "simple-hierarchical")))
             gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithHistory>(dpomdp, memory, true, true, false, false, sampling_size);
+        else if ((formalism == "PrivateHierarchicalOccupancyMDP") && (qvalue == "deep"))
+            gym = std::make_shared<PrivateHierarchicalOccupancyMDPWithObservation>(dpomdp, memory, true, false, false, false, sampling_size);
 
         // Set precision
         Belief::PRECISION = p_b;
@@ -189,6 +194,22 @@ int main(int argc, char **argv)
                 policy_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
                 target_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
             }
+            else if (formalism == "BeliefMDP")
+            {
+                number input_dim = x_dim + horizon;
+                number inner_dim = x_dim + 1;
+                number output_dim = u1_dim * u2_dim;
+                policy_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
+                target_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
+            }
+            else if (formalism == "PrivateHierarchicalOccupancyMDP")
+            {
+                number input_dim = x_dim * z1_dim + z1_dim + z2_dim + horizon;
+                number inner_dim = x_dim * z1_dim + z1_dim + z2_dim + 1;
+                number output_dim = u1_dim * u2_dim;
+                policy_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
+                target_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
+            }
             std::cout << *policy_net << std::endl;
         }
 
@@ -210,16 +231,22 @@ int main(int argc, char **argv)
         // else if (qvalue == "hierarchical")
         //     backup = std::make_shared<HierarchicalQValueBackup>(experience_memory, q_value_table, q_value_table, discount, horizon, action_space);
         else if ((qvalue == "deep") && (formalism == "MDP"))
-            backup = std::make_shared<DqnMmdpBackup>(experience_memory, policy_net, target_net, discount, horizon, batch_size, lr, state_space, action_space);
+            backup = std::make_shared<DqnMdpBackup>(experience_memory, policy_net, target_net, discount, horizon, batch_size, lr, state_space, action_space);
+        else if ((qvalue == "deep") && (formalism == "BeliefMDP"))
+            backup = std::make_shared<DqnBmdpBackup>(experience_memory, policy_net, target_net, discount, horizon, batch_size, lr, state_space, action_space);
+        else if ((qvalue == "deep") && (formalism == "PrivateHierarchicalOccupancyMDP"))
+            backup = std::make_shared<DqnPhomdpBackup>(experience_memory, policy_net, target_net, discount, horizon, batch_size, lr, state_space, observation_space, action_space);
 
-
+        std::cout << "aaa" << std::endl;
         std::shared_ptr<Algorithm> algorithm;
         if (qvalue != "deep")
             algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, name);
         else
             algorithm = std::make_shared<DeepQLearning>(gym, experience_memory, policy_net, target_net, backup, exploration, horizon, discount, lr, num_episodes, name);
+        std::cout << "bbb" << std::endl;
 
         algorithm->do_initialize();
+        std::cout << "ccc" << std::endl;
 
         algorithm->do_solve();
     }

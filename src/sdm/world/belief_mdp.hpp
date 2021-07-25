@@ -33,7 +33,7 @@ namespace sdm
     {
     public:
         BaseBeliefMDP();
-        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
+        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
         /**
          * @brief Get the next belief.

@@ -110,11 +110,13 @@ namespace sdm
             number ste = 0;
             this->observation = this->env_->reset();
             this->action = this->backup_->getGreedyAction(this->observation->toState(), ste);
+            // this->action = this->env_->getRandomAction(this->observation, ste);
             for (number ste = 0; ste < this->horizon_; ste++)
             {
                 std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
-                total_reward += pow(this->discount_, ste) * this->rewards_[0];
+                total_reward += pow(this->discount_, ste) * this->rewards_[1];
                 this->next_action = this->backup_->getGreedyAction(this->next_observation->toState(), ste + 1);
+                // this->next_action = this->env_->getRandomAction(this->next_observation, ste + 1);
                 this->observation = next_observation;
                 this->action = next_action;
             }
@@ -142,12 +144,16 @@ namespace sdm
 
     void DeepQLearning::do_step()
     {   
-        // std::cout << "DeepQLearning::do_step()" << std::endl;
+        // std::cout << "DeepQLearning::do_step() a " << this->step << std::endl;
 
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
 
+        // std::cout << "DeepQLearning::do_step() b " << this->step << std::endl;
+
         this->next_action = this->select_action(this->next_observation, this->step + 1);
+
+        // std::cout << "DeepQLearning::do_step() c " << this->step << std::endl;
 
         // Push experience to memory
         this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
@@ -180,6 +186,7 @@ namespace sdm
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
             return this->backup_->getGreedyAction(observation->toState(), t);
+            // return this->env_->getRandomAction(observation, t);
         }
     }
 

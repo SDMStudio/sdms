@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/utils/value_function/backup/qvalue_backup_interface.hpp>
-#include <sdm/utils/nn/mlpnet.hpp>
+#include <sdm/utils/nn/dqn.hpp>
 #include <sdm/utils/rl/deep_experience_memory.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 
@@ -9,14 +9,14 @@
 namespace sdm
 {
 
-    class DqnMmdpBackup : public QValueBackupInterface
+    class DqnMdpBackup : public QValueBackupInterface
     {
     public:
 
-        DqnMmdpBackup();
-        DqnMmdpBackup(std::shared_ptr<ExperienceMemoryInterface> experience_memory, std::shared_ptr<DQN> policy_net, std::shared_ptr<DQN> target_net, double discount, number horizon, number batch_size, double lr, std::shared_ptr<Space> state_space, std::shared_ptr<Space> action_space);
+        DqnMdpBackup();
+        DqnMdpBackup(std::shared_ptr<ExperienceMemoryInterface> experience_memory, std::shared_ptr<DQN> policy_net, std::shared_ptr<DQN> target_net, double discount, number horizon, number batch_size, double lr, std::shared_ptr<Space> state_space, std::shared_ptr<Space> action_space);
         
-        ~DqnMmdpBackup();
+        ~DqnMdpBackup();
 
         double update();
 

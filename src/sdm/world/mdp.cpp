@@ -135,7 +135,7 @@ namespace sdm
 
         this->current_timestep_++;
 
-        return std::make_tuple(observation, std::vector<double>{reward}, is_done);
+        return std::make_tuple(observation, std::vector<double>{reward, reward}, is_done);
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action, bool increment_timestep)

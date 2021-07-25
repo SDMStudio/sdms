@@ -1,13 +1,13 @@
-#include <sdm/utils/value_function/backup/dqn_mmdp_backup.hpp>
+#include <sdm/utils/value_function/backup/dqn_mdp_backup.hpp>
 
 namespace sdm
 {
-    DqnMmdpBackup::DqnMmdpBackup()
+    DqnMdpBackup::DqnMdpBackup()
     {
 
     }
 
-    DqnMmdpBackup::DqnMmdpBackup(
+    DqnMdpBackup::DqnMdpBackup(
         std::shared_ptr<ExperienceMemoryInterface> experience_memory, 
         std::shared_ptr<DQN> policy_net, 
         std::shared_ptr<DQN> target_net, 
@@ -33,14 +33,14 @@ namespace sdm
         this->optimizer_ = std::make_shared<torch::optim::Adam>((*this->policy_net_)->parameters(), options);
     }
 
-    DqnMmdpBackup::~DqnMmdpBackup()
+    DqnMdpBackup::~DqnMdpBackup()
     {
 
     }
 
-    double DqnMmdpBackup::update()
+    double DqnMdpBackup::update()
     {   
-        // std::cout << "DqnMmdpBackup::update()" << std::endl;
+        // std::cout << "DqnMdpBackup::update()" << std::endl;
 
         if (this->experience_memory_->size() < this->batch_size_)
         {
@@ -96,9 +96,9 @@ namespace sdm
         return loss.item<double>();
     }
 
-    std::shared_ptr<Action> DqnMmdpBackup::getGreedyAction(const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<Action> DqnMdpBackup::getGreedyAction(const std::shared_ptr<State> &state, number t)
     {
-        // std::cout << "DqnMmdpBackup::getGreedyAction()" << std::endl;
+        // std::cout << "DqnMdpBackup::getGreedyAction()" << std::endl;
 
         // 
         if (t == this->horizon_)
@@ -124,14 +124,14 @@ namespace sdm
         return this->action_space_->getItem(u)->toAction();
     }
 
-    double DqnMmdpBackup::getValueAt(const std::shared_ptr<State> &state, number t)
+    double DqnMdpBackup::getValueAt(const std::shared_ptr<State> &state, number t)
     {
         // return this->target_net_->getQValuesAt(state, t)->max();
     }
 
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> DqnMmdpBackup::constructBatch(std::vector<sars_transition> transitions)
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> DqnMdpBackup::constructBatch(std::vector<sars_transition> transitions)
     {
-        // std::cout << "DqnMmdpBackup::constructBatch()" << std::endl;
+        // std::cout << "DqnMdpBackup::constructBatch()" << std::endl;
 
         std::vector<torch::Tensor> t_batch_vector;
         std::vector<long> regular_t_batch_vector;
@@ -192,9 +192,9 @@ namespace sdm
         return std::make_tuple(t_batch, regular_t_batch, x_batch, u_batch, r_batch, next_t_batch, next_x_batch);
     }
 
-    torch::Tensor DqnMmdpBackup::getQValues(torch::Tensor t_batch, torch::Tensor x_batch, torch::Tensor u_batch)
+    torch::Tensor DqnMdpBackup::getQValues(torch::Tensor t_batch, torch::Tensor x_batch, torch::Tensor u_batch)
     {
-        // std::cout << "DqnMmdpBackup::getQValues()" << std::endl;
+        // std::cout << "DqnMdpBackup::getQValues()" << std::endl;
 
         torch::Tensor x_t_batch = torch::cat({x_batch, t_batch}, 1);
 
@@ -204,9 +204,9 @@ namespace sdm
 		return this->policy_net_->operator()(x_t_batch).gather(-1, u_batch);
     }
 
-    torch::Tensor DqnMmdpBackup::getTargetQValues(torch::Tensor next_t_batch, torch::Tensor next_x_batch, torch::Tensor r_batch, torch::Tensor regular_t_batch)
+    torch::Tensor DqnMdpBackup::getTargetQValues(torch::Tensor next_t_batch, torch::Tensor next_x_batch, torch::Tensor r_batch, torch::Tensor regular_t_batch)
     {
-        // std::cout << "DqnMmdpBackup::getTargetQValues()" << std::endl;
+        // std::cout << "DqnMdpBackup::getTargetQValues()" << std::endl;
 
         // Let PyTorch know that we don't need to keep track of the gradient in this context.
 		torch::NoGradGuard no_grad;

@@ -259,6 +259,7 @@ if(QLEARNING)
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
 		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp.cpp
 		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
+		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_observation.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/networked_distributed_pomdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
@@ -270,10 +271,12 @@ if(QLEARNING)
 		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/simple_hierarchical_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup.cpp
-		${INCLUDE_DIR}/utils/value_function/backup/dqn_mmdp_backup.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/dqn_mdp_backup.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/dqn_bmdp_backup.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/dqn_phomdp_backup.cpp
 		${INCLUDE_DIR}/utils/rl/experience_memory.cpp
 		${INCLUDE_DIR}/utils/rl/deep_experience_memory.cpp
-		${INCLUDE_DIR}/utils/nn/mlpnet.cpp
+		${INCLUDE_DIR}/utils/nn/dqn.cpp
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)

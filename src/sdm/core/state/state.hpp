@@ -123,6 +123,8 @@ namespace sdm
 
     using PrivateHierarchicalOccupancyStateJointHistoryPair = StatePair<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<JointHistoryInterface>>;
 
+    using PrivateHierarchicalOccupancyStateObservationPair = StatePair<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<Observation>>;
+
     // using PrivateHierarchicalOccupancyStateJointHistoryJointActionPair = StatePair<std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryPair>, std::shared_ptr<Action>>;
 
     // template <typename TItem, typename SuperClass = Item>

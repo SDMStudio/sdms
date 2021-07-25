@@ -105,7 +105,7 @@ namespace sdm
 
     void QLearning::do_episode()
     {
-        // std::cout << "-------- do_episode() ---------" << std::endl;
+        std::cout << "-------- do_episode() ---------" << std::endl;
         // std::cout << *this->q_value_table_ << std::endl;
         // Le update marche pas, du coup pour le moment j'utilise le meme QVF pour le target depuis le debut
         // if (this->episode % target_update_ == 0)
@@ -135,19 +135,19 @@ namespace sdm
 
     void QLearning::do_step()
     {   
-        // std::cout << "-------- QLearning::do_step() --------- " << this->step << std::endl;
+        std::cout << "-------- QLearning::do_step() --------- step:::::::::" << this->step << std::endl;
         
         // Action selection following policy and exploration process
 
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
-        // std::cout << "-------- do_step() --------- 2" << std::endl;
+        std::cout << "-------- do_step() --------- 2" << std::endl;
 
         this->next_action = this->select_action(this->next_observation, this->step + 1);
 
         // Push experience to memory
         this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
-        // std::cout << "-------- do_step() --------- 3" << std::endl;
+        std::cout << "-------- do_step() --------- 3" << std::endl;
 
         this->observation = this->next_observation;
         this->action = this->next_action;

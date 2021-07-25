@@ -23,7 +23,7 @@ namespace sdm
         // std::cout << "PrivateHierarchicalOccupancyMDP::step 1" << std::endl;
 
         t_tmp = clock();
-        auto [observation, _, __] = this->getUnderlyingProblem()->step(this->current_action_);
+        auto [observation, rewards, __] = this->getUnderlyingProblem()->step(this->current_action_);
         OccupancyMDP::TIME_IN_UNDER_STEP += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
         // std::cout << "PrivateHierarchicalOccupancyMDP::step 2" << std::endl;
 
@@ -43,7 +43,7 @@ namespace sdm
 
         OccupancyMDP::TIME_IN_STEP += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
-        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward}, (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
+        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward, rewards[0]}, (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
         
     }
 
@@ -179,7 +179,7 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, double> PrivateHierarchicalOccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        //
+        // std::cout << "PrivateHierarchicalOccupancyMDP::computeNextStateAndProbability() " << std::endl;
         std::shared_ptr<State> next_state = this->computeNextState(belief, action, observation, t);
         // Compute the coefficient of normalization (eta)
         double eta = next_state->toBelief()->norm_1();
@@ -189,6 +189,8 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> PrivateHierarchicalOccupancyMDP::computeSampledNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation_n, number t)
     {
+        // std::cout << "PrivateHierarchicalOccupancyMDP::computeSampledNextState() " << std::endl;
+
         // The new fully uncompressed occupancy state
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
         // The new one step left occupancy state
@@ -207,6 +209,7 @@ namespace sdm
 
         while (k < this->batch_size_)
         {
+            // std::cout << "k " << k << std::endl;
             // Sample joint history and belief.
             auto [joint_history, belief] = ostate->toOccupancyState()->sampleJointHistoryBelief();
             // Sample state.
@@ -305,19 +308,15 @@ namespace sdm
 
         //
         auto individual_histories = joint_history->getIndividualHistories();
-        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 1" << std::endl;
 
         // Get list of individual history labels
         auto joint_labels = ostate->toOccupancyState()->getJointLabels(individual_histories).toJoint<State>();
-        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 2" << std::endl;
 
         //
         auto joint_hierarchical_labels = this->getJointHierarchicalLabels(joint_labels, ostate);
-        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 3" << std::endl;
 
        // Get the selected action
         auto action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_hierarchical_labels));
-        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 4" << std::endl;
 
         // Get the adress of the action object from the space of available action object.
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*action->toJoint<Item>())->toAction();
