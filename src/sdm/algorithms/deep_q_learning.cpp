@@ -44,10 +44,10 @@ namespace sdm
     void DeepQLearning::do_initialize()
     {
         this->initLogger();
-        std::cout << "horizon_ " << horizon_ << std::endl;
-        std::cout << "discount_ " << discount_ << std::endl;
-        std::cout << "lr_ " << lr_ << std::endl;
-        std::cout << "num_episodes_ " << num_episodes_ << std::endl;
+        // std::cout << "horizon_ " << horizon_ << std::endl;
+        // std::cout << "discount_ " << discount_ << std::endl;
+        // std::cout << "lr_ " << lr_ << std::endl;
+        // std::cout << "num_episodes_ " << num_episodes_ << std::endl;
     }
 
     void DeepQLearning::do_solve()
@@ -104,6 +104,7 @@ namespace sdm
 
     double DeepQLearning::do_evaluate()
     {
+        // std::cout << "DeepQLearning::do_evaluate() " << std::endl;
         double total_reward = 0;
         for (number episod = 0; episod < this->test_n; episod++)
         {
@@ -126,6 +127,8 @@ namespace sdm
 
     void DeepQLearning::do_episode()
     {
+        // std::cout << "DeepQLearning::do_episode() " << this->episode << std::endl;
+
         this->step = 0;
         this->q_value_error = 0;
         this->observation = this->env_->reset();
@@ -177,7 +180,7 @@ namespace sdm
 
     std::shared_ptr<Action> DeepQLearning::select_action(const std::shared_ptr<Observation> &observation, number t)
     {
-        if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
+        if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon() || t == this->horizon_)
         {
             // std::cout << "-------- RANDOM ---------" << std::endl;
             return this->env_->getRandomAction(observation, t);

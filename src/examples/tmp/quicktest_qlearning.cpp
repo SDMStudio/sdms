@@ -237,16 +237,13 @@ int main(int argc, char **argv)
         else if ((qvalue == "deep") && (formalism == "PrivateHierarchicalOccupancyMDP"))
             backup = std::make_shared<DqnPhomdpBackup>(experience_memory, policy_net, target_net, discount, horizon, batch_size, lr, state_space, observation_space, action_space);
 
-        std::cout << "aaa" << std::endl;
         std::shared_ptr<Algorithm> algorithm;
         if (qvalue != "deep")
             algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, name);
         else
             algorithm = std::make_shared<DeepQLearning>(gym, experience_memory, policy_net, target_net, backup, exploration, horizon, discount, lr, num_episodes, name);
-        std::cout << "bbb" << std::endl;
 
         algorithm->do_initialize();
-        std::cout << "ccc" << std::endl;
 
         algorithm->do_solve();
     }

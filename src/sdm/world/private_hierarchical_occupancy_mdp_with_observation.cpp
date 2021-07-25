@@ -21,22 +21,13 @@ namespace sdm
 
         this->current_action_ = this->applyDecisionRule(this->current_observation_, action, this->step_);
 
-        // std::cout << "*this->current_action_ " << *this->current_action_ << std::endl;
-
         auto [next_observation, rewards, __] = this->getUnderlyingProblem()->step(this->current_action_);
 
-        // double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
-
-        // std::cout << "*next_observation " << *next_observation << std::endl;
+        double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
 
         std::shared_ptr<Observation> next_observation_n = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_observation)->at(this->getUnderlyingMDP()->getNumAgents() - 1);
 
-        // std::cout << "*next_observation_n " << *next_observation_n << std::endl;
-
         this->current_state_ = this->nextOccupancyState(this->current_state_, action, next_observation_n, this->step_);
-
-        // std::cout << "*this->current_state_ " << std::endl;
-        // std::cout << *this->current_state_  << std::endl;
 
         this->current_history_ = this->getNextHistory(next_observation);
         this->current_observation_ = this->current_history_->getObservation();
@@ -44,7 +35,7 @@ namespace sdm
 
         std::shared_ptr<PrivateHierarchicalOccupancyStateObservationPair> s_z = std::make_shared<PrivateHierarchicalOccupancyStateObservationPair>(std::make_pair(this->current_state_->toOccupancyState(), this->current_observation_));
 
-        return std::make_tuple(s_z, std::vector<double>{21211, rewards[0]}, (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
+        return std::make_tuple(s_z, std::vector<double>{occupancy_reward, rewards[0]}, (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
     }
 
     std::shared_ptr<Observation> PrivateHierarchicalOccupancyMDPWithObservation::reset()
@@ -133,10 +124,7 @@ namespace sdm
                 }
             }
 
-            
-
             a.push_back(std::make_shared<DeterministicDecisionRule>(inputs, outputs));
-            // std::cout << *std::make_shared<DeterministicDecisionRule>(inputs, outputs) << std::endl;
         }
 
         return std::make_shared<JointDeterministicDecisionRule>(a);
@@ -147,12 +135,6 @@ namespace sdm
     {
         // std::cout << "PrivateHierarchicalOccupancyMDPWithObservation::applyDecisionRule()" << std::endl;
 
-        // std::cout << "observation" << std::endl;
-        // std::cout << observation << std::endl;
-        
-
-        
-
         std::shared_ptr<Joint<std::shared_ptr<Observation>>> joint_hierarchical_observations = std::make_shared<Joint<std::shared_ptr<Observation>>>();
         if (observation == nullptr)
         {
@@ -161,27 +143,14 @@ namespace sdm
         }
         else
         {
-            // std::cout << "*observation" << std::endl;
-            // std::cout << *observation << std::endl;
             std::shared_ptr<Observation> observation_1 = observation;
             std::shared_ptr<Observation> observation_2 = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(observation)->at(this->getUnderlyingMDP()->getNumAgents() - 1);
             joint_hierarchical_observations->push_back(observation_1);
             joint_hierarchical_observations->push_back(observation_2);
         }
-        
-        // std::cout << "decision_rule" << std::endl;
-        // std::cout << decision_rule << std::endl;
-        // std::cout << "*decision_rule" << std::endl;
-        // std::cout << *decision_rule << std::endl;
 
        // Get the selected action
         auto action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_hierarchical_observations));
-
-        // std::cout << "action" << std::endl;
-        // std::cout << action << std::endl;
-        // std::cout << "*action" << std::endl;
-        // std::cout << *action << std::endl;
-
 
         // Get the adress of the action object from the space of available action object.
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*action->toJoint<Item>())->toAction();
@@ -258,7 +227,6 @@ namespace sdm
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> PrivateHierarchicalOccupancyMDPWithObservation::computeSampledNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation_n, number t)
     {
         // std::cout << "PrivateHierarchicalOccupancyMDPWithObservation::computeSampledNextState() " << std::endl;
-        // std::cout << "PrivateHierarchicalOccupancyMDPWithObservation::computeSampledNextState() 0" << std::endl;
 
         // The new fully uncompressed occupancy state
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<OccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());

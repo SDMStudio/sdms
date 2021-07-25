@@ -55,9 +55,11 @@ namespace sdm
         std::shared_ptr<MultiDiscreteSpace> action_space_;
         std::shared_ptr<torch::optim::Optimizer> optimizer_;
 
-        std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> constructBatch(std::vector<sars_transition> transitions);
-        torch::Tensor getQValues(torch::Tensor t_batch, torch::Tensor b_batch, torch::Tensor u_batch);
-        torch::Tensor getTargetQValues(torch::Tensor next_t_batch, torch::Tensor next_b_batch, torch::Tensor r_batch, torch::Tensor regular_t_batch);
+        std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor> constructBatch(std::vector<sars_transition> transitions);
+        torch::Tensor getQValues(torch::Tensor t_batch, torch::Tensor s_batch, torch::Tensor z1_batch, torch::Tensor z2_batch, torch::Tensor u_batch);
+        torch::Tensor getTargetQValues(torch::Tensor next_t_batch, torch::Tensor next_s_batch, torch::Tensor next_z1_batch, torch::Tensor next_z2_batch, torch::Tensor next_u_batch, torch::Tensor r_batch, torch::Tensor regular_t_batch);
+        std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &decision_rule, number t) const;
+        
     };
     
 
