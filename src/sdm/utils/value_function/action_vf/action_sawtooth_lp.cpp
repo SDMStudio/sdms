@@ -10,92 +10,30 @@
 namespace sdm
 {
     ActionVFSawtoothLP::ActionVFSawtoothLP() {}
-    ActionVFSawtoothLP::ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution) : 
-        ActionVFBase(world),DecentralizedLP(world) , current_type_of_resolution_(current_type_of_resolution), csawtooth_lp_(type_sawtooth_resolution)
+    ActionVFSawtoothLP::ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution, number bigM_value) : 
+        ActionVFBase(world),DecentralizedLP(world) , current_type_of_resolution_(current_type_of_resolution)
     {
-        // If the problem is relaxed, the Big have to be equal to 0
-        switch (type_sawtooth_resolution)
-        {
-        case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING :
-            this->bigM_value_ = 0;
-            break;
-        
-        default:
-            this->bigM_value_ = bigM_value;
-            break;
-        }
+        this->bigM_value_ = bigM_value;
     }
 
     std::shared_ptr<Action> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
-        // Determine the type of Linear Program to use
-        switch (this->csawtooth_lp_)
-        {
-        case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
-            return this->createFullSawtooth(vf,state, t);
-        case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING:
-            return this->createRelaxedSawtooth(vf,state, t);
-        default:
-            return this->createFullSawtooth(vf,state, t);
-        }
-    }
-
-    std::shared_ptr<Action> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state, number t)
-    {
-        std::shared_ptr<Action> best_action;
-        double min_value = std::numeric_limits<double>::max(), value_tmp;
-        
-        if (vf->getSupport(t + 1).empty())
-        {
-            // Resolution of the problem when the support of Point Set is empty
-            std::cout<<"No support"<<std::endl;
-            this->representation = {std::make_shared<MappedVector<std::shared_ptr<State>,double>>()};
-            best_action = this->createLP(vf,state, t).first;
-        }
-        else
-        {
-            std::cout<<"Support"<<std::endl;
-
-            // For the Relaxation version of Sawtooth, we go over all element in the Point Set
-            for (const auto &point : std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
-            {
-                auto vector = std::make_shared<MappedVector<std::shared_ptr<State>,double>>();
-                vector->setValueAt(point.first,point.second);
-
-                this->representation = vector;
-
-                auto [action,value] = this->createLP(vf,state, t);
-
-                // We take the best action with the minimum value
-                if (min_value > value)
-                {
-                    min_value = value;
-                    best_action = action;
-                }
-            }
-            // Verification of the Relaxation Contraint.
-            if(min_value > (value_tmp = vf->getValueAt(state,t)))
-            {
-                // If the contraint is not verified , we used the decision rule previously stocked
-                best_action = this->state_linked_to_decision_rule.at(state);
-                min_value = value_tmp;
-            }
-
-        }
-        // Save the best action associed to a state
-        this->state_linked_to_decision_rule[state] = best_action;
-        return best_action;
-    }
-
-    std::shared_ptr<Action> ActionVFSawtoothLP::createFullSawtooth(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
-    {
         // For the Full version of Sawtooth, wo over all the Point Set
-        this->representation = std::make_shared<MappedVector<std::shared_ptr<State>,double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));        
+        this->representation = std::make_shared<MappedVector<std::shared_ptr<State>,double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));
+        std::cout<<"Size "<<  this->representation->size()<<std::endl;      
         auto a = this->createLP(vf,state, t);
 
         if(std::abs(a.second - vf->template backup<double>(state,a.first,t))>0.01)
         {
-
+            std::cout<<"Erreur "<<std::endl;
+            // std::cout<<"Action "<<a.first->str()<<std::endl;
+            std::cout<<"LP value : "<<a.second<<", Bakcup Value : "<<vf->template backup<double>(state,a.first,t)<<std::endl;
+            // system("cat lb_bellman_op.lp");
+            // exit(-1);
+        }
+        else
+        {
+            std::cout<<"No problem"<<std::endl;
         }
 
         return a.first;
@@ -188,7 +126,9 @@ namespace sdm
                 // Compute the difference i.e. (v_k - V_k)
                 double current_upper_bound = element_state_AND_upper_bound.second;
                 double initial_upper_bound = vf->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
-                double difference = initial_upper_bound - current_upper_bound;
+                
+                // double difference = initial_upper_bound - current_upper_bound;
+                double difference = current_upper_bound - initial_upper_bound;
 
                 // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
@@ -201,7 +141,7 @@ namespace sdm
                         auto next_joint_observation = this->determineNextJointObservation(compressed_occupancy_state,next_joint_history);
 
                         // We search for the joint_history which allow us to obtain the current next_joint_history conditionning to the next joint observation
-                        for(const auto &joint_history : this->determineJointHistory(compressed_occupancy_state,next_joint_history,next_joint_observation))
+                        for(const auto &joint_history : this->determineJointHistory(compressed_occupancy_state,next_joint_history,next_joint_observation, element_state_AND_upper_bound.first))
                         {
                             switch (this->current_type_of_resolution_)
                             {
@@ -337,20 +277,46 @@ namespace sdm
         return next_joint_observation;
     }
 
-    std::set<std::shared_ptr<JointHistoryInterface>> ActionVFSawtoothLP::determineJointHistory(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& next_joint_history, const std::shared_ptr<Observation>&next_joint_observation)
+    std::set<std::shared_ptr<JointHistoryInterface>> ActionVFSawtoothLP::determineJointHistory(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& next_joint_history, const std::shared_ptr<Observation>&next_joint_observation, const std::shared_ptr<State> &next_state)
     {
         std::set<std::shared_ptr<JointHistoryInterface>> joint_histories;
+        std::set<std::shared_ptr<JointHistoryInterface>> joint_histories2;
 
         auto compressed_occupancy_state = state->toOccupancyState();
+        auto next_occupancy_state = next_state->toOccupancyState();
 
         for(const auto &joint_history : compressed_occupancy_state->getJointHistories())
         {
+            // (R)
+            //(R), (L,L)
+            // (R,L) -> (L,L)
+            // std::cout<<"jhistory"<<joint_history->short_str()<<std::endl;
+            // std::cout<<"next obs"<<next_joint_observation->str()<<std::endl;
+            // std::cout<<"getLAbel"<<next_occupancy_state->getCompressedJointHistory(joint_history->expand(next_joint_observation)->toJointHistory())->short_str()<<std::endl;
+            // std::cout<<"next_joint_history"<<next_joint_history->short_str()<<std::endl;
+            // std::cout<<"next Label"<<next_occupancy_state->getCompressedJointHistory(next_joint_history)->short_str()<<std::endl;
+
+            auto verification2 = next_occupancy_state->getCompressedJointHistory(joint_history->expand(next_joint_observation)->toJointHistory());
             auto verification = joint_history->expand(next_joint_observation);
             if(verification == next_joint_history)
             {
                 joint_histories.insert(joint_history);
             }
+
+            if(verification2 == next_occupancy_state->getCompressedJointHistory(next_joint_history))
+            {
+                joint_histories2.insert(joint_history);
+            }
+
         }
+        if(joint_histories2.size() != joint_histories.size())
+        {
+            std::cout<<"size : "<<joint_histories.size()<<std::endl;
+            std::cout<<"size2 : "<<joint_histories2.size()<<std::endl;
+            exit(-1);
+        }
+        // exit(-1);
+
         return joint_histories;
     }
 
@@ -405,11 +371,11 @@ namespace sdm
 
             // Go over all actions
             for(const auto & action : *under_pb->getActionSpace(t))
-            { 
+            {
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
                 //<! 1.c.4 get variable a(u|o) and set constant 
                 expr -= this->getQValueRealistic(vf,state, joint_history, action->toAction(), next_hidden_state, next_observation, probability, difference,t) * var[recover];
-            }               
+            }          
 
             // <! get variable \omega_k(x',o')
             recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state, next_hidden_state, next_joint_history));
@@ -434,7 +400,7 @@ namespace sdm
             auto recover = this->getNumber(this->getVarNameWeight(0));
 
             //<! 1.b set coefficient of objective function "\sum_{o,u} a(u|o) \sum_x s(x,o) Q_MDP(x,u) + discount * v0"
-            obj.setLinearCoef(var[recover], -under_pb->getDiscount(t));
+            obj.setLinearCoef(var[recover], under_pb->getDiscount(t));
 
             // Go over all action
             for (const auto &action : *under_pb->getActionSpace(t))

@@ -13,6 +13,8 @@
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan_wcsp.hpp>
 #include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_sawtooth_lp_relaxed.hpp>
+
 #include <sdm/utils/value_function/action_vf/action_sawtooth_wcsp.hpp>
 
 #include <sdm/parser/parser.hpp>
@@ -51,14 +53,13 @@ int main(int argc, char **argv)
     // sdm::test(all_formalism,all_problem,all_horizon,all_discount,upper_bound_name,lower_bound_name,all_lower__init_name,all_upper_init_name,all_truncation,all_sawtooth_current_type_of_resolution,all_sawtooth_BigM,all_sawtooth_type_of_linear_program,all_type_of_maxplan_prunning,all_freq_prunning_lower_bound,all_type_of_sawtooth_prunning,all_freq_prunning_upper_bound,mean,filepath,save_path);
 
     std::string filename = "../data/world/dpomdp/tiger.dpomdp";
-    int horizon = 2;
+    int horizon = 4;
     int discount = 1;
     double error = 0.01;
     int trials = 1000;
-	int truncation = 2;
+	int truncation = 3;
 
     TypeOfResolution type_of_resolution = TypeOfResolution::IloIfThenResolution;
-	TypeSawtoothLinearProgram type_of_linear_program = TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING;
 
 	auto ValueBigM = 100;
 
@@ -66,7 +67,7 @@ int main(int argc, char **argv)
     problem->setHorizon(horizon);
     problem->setDiscount(discount);
 
-    std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon);
+    std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon, true,true,true);
 
     auto tabular_backup = std::make_shared<TabularBackup>(oMDP);
     auto maxplan_backup = std::make_shared<MaxPlanBackup>(oMDP);
@@ -77,7 +78,9 @@ int main(int argc, char **argv)
     auto action_maxplan = std::make_shared<ActionVFMaxplan>(oMDP);
 
     auto action_tabular = std::make_shared<ActionVFTabulaire>(oMDP);
-    auto action_sawtooth_lp =  std::make_shared<ActionVFSawtoothLP>(oMDP, type_of_resolution,ValueBigM,type_of_linear_program);
+    auto action_sawtooth_lp =  std::make_shared<ActionVFSawtoothLP>(oMDP, type_of_resolution,ValueBigM);
+    auto action_sawtooth_lp_relaxed =  std::make_shared<ActionVFSawtoothLPRelaxed>(oMDP, type_of_resolution);
+
     auto action_sawtooth_wcsp=  std::make_shared<ActionVFSawtoothWCSP>(oMDP);
 
     auto init_lb = std::make_shared<MinInitializer>(oMDP);
@@ -85,7 +88,7 @@ int main(int argc, char **argv)
 
     // Instanciate bounds
     std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_wcsp);
-    std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_lp);
+    std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_lp_relaxed);
 
     auto algo = std::make_shared<HSVI>(oMDP, lower_bound, upper_bound, problem->getHorizon(), error, trials);
 

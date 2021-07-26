@@ -11,6 +11,8 @@
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
 #include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_sawtooth_lp_relaxed.hpp>
+
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan_wcsp.hpp>
 
@@ -81,16 +83,16 @@ namespace sdm
                 {
                     if (current_type_of_resolution == "BigM")
                     {
-                        upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING), freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                        upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::BigM, BigM), freq_prunning_upper_bound, type_of_sawtooth_pruning);
                     }
                     else
                     {
-                        upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING), freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                        upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::IloIfThenResolution, 0), freq_prunning_upper_bound, type_of_sawtooth_pruning);
                     }
                 }
                 else
                 {
-                    upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING), freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                    upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLPRelaxed>(problem, TypeOfResolution::BigM), freq_prunning_upper_bound, type_of_sawtooth_pruning);
                 }
             }
             else

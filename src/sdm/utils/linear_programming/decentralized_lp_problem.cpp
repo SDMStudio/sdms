@@ -48,7 +48,7 @@ namespace sdm
             {
                 //<! 0.c Build variables a_i(u_i|o_i)
                 VarName = this->getVarNameIndividualHistoryDecisionRule(serial_action->toAction(), indiv_history, agent_id);
-                var.add(IloBoolVar(env, VarName.c_str()));
+                var.add(IloBoolVar(env, 0.0, 1.0, VarName.c_str()));
                 this->setNumber(VarName, index++);
             }
         }
@@ -141,7 +141,7 @@ namespace sdm
             {
                 //< 0.b Build variables a(u|o)
                 VarName = this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history);
-                var.add(IloNumVar(env, 0.0, +IloInfinity, VarName.c_str()));
+                var.add(IloBoolVar(env, 0.0, 1.0, VarName.c_str()));
                 this->setNumber(VarName, index++);
             }
         }
