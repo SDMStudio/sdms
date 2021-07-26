@@ -57,7 +57,7 @@ namespace sdm
 
         this->exploration_process->reset(this->num_episodes_);
 
-        while (this->episode < this->num_episodes_)
+        while (this->episode <= this->num_episodes_)
         {
             // Update exploration process
             this->exploration_process->update(this->episode);

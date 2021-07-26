@@ -43,8 +43,8 @@ int main(int argc, char **argv)
     {
         std::string path, formalism, name, qvalue, version, q_init;
         unsigned long num_episodes;
-        number horizon, memory, sampling_size, batch_size;
-        double lr, discount, sf, p_b, p_o, p_c, ball_r, epsilon_optimal;
+        number horizon, memory, sampling_size, batch_size, inner_dim;
+        double lr, discount, sf, p_b, p_o, p_c, ball_r, epsilon_optimal, exploration_end, final_epsilon;
         int seed;
         int capacity;
         bool store_actions, store_action_spaces;
@@ -63,11 +63,14 @@ int main(int argc, char **argv)
         ("p_c", po::value<double>(&p_c)->default_value(0.01), "the precision of compression ")
         ("ball_r", po::value<double>(&ball_r)->default_value(1.0), "the radius of the balls of s in the hqvf")
         ("optimal-epsilon", po::value<double>(&epsilon_optimal)->default_value(0.0001), "set the epsilon optimal parameter")
+        ("exp-end", po::value<double>(&exploration_end)->default_value(0.9), "set the epsilon optimal parameter")
+        ("final-eps", po::value<double>(&final_epsilon)->default_value(0.1), "set the epsilon optimal parameter")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")
         ("batch_size,b", po::value<number>(&batch_size)->default_value(32), "batch size")
         ("sampling_size,z", po::value<number>(&sampling_size)->default_value(0), "sampling size")
+        ("inner_dim,i", po::value<number>(&inner_dim)->default_value(0), "inner dimension of the NN")
         ("num_episodes,t", po::value<unsigned long>(&num_episodes)->default_value(100000), "number of episodes")
         ("capacity,c", po::value<int>(&capacity)->default_value(1000), "capacity of the experience memory")
         ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
@@ -79,7 +82,7 @@ int main(int argc, char **argv)
         algo_config.add_options()
         ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
         ("version,v", po::value<string>(&version)->default_value("1"), "the version of hierarchical qvf")
-        ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
+        ("init", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -196,11 +199,12 @@ int main(int argc, char **argv)
             number u2_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(action_space)->get(1))->getNumItems();
             number z1_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(observation_space)->get(0))->getNumItems();
             number z2_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(observation_space)->get(1))->getNumItems();
-
+            std::cout << "|X| = " << x_dim << std::endl << "|U1| = " << u1_dim << std::endl << "|U2| = " << u2_dim << std::endl << "|Z1| = " << z1_dim << std::endl << "|Z2| = " << z2_dim << std::endl;
             if (formalism == "MDP")
             {
                 number input_dim = x_dim + horizon;
-                number inner_dim = x_dim + 1;
+                if (inner_dim == 0)
+                    inner_dim = x_dim + 1;
                 number output_dim = u1_dim * u2_dim;
                 policy_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
                 target_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
@@ -208,7 +212,8 @@ int main(int argc, char **argv)
             else if (formalism == "BeliefMDP")
             {
                 number input_dim = x_dim + horizon;
-                number inner_dim = x_dim + 1;
+                if (inner_dim == 0)
+                    inner_dim = x_dim + 1;
                 number output_dim = u1_dim * u2_dim;
                 policy_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
                 target_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
@@ -216,7 +221,8 @@ int main(int argc, char **argv)
             else if (formalism == "PrivateHierarchicalOccupancyMDP")
             {
                 number input_dim = x_dim * z1_dim + z1_dim + z2_dim + horizon;
-                number inner_dim = x_dim * z1_dim + z1_dim + z2_dim + 1;
+                if (inner_dim == 0)
+                    inner_dim = x_dim * z1_dim + z1_dim + z2_dim + 1;
                 number output_dim = u1_dim * u2_dim;
                 policy_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
                 target_net = std::make_shared<DQN>(input_dim, inner_dim, output_dim);
@@ -225,7 +231,7 @@ int main(int argc, char **argv)
         }
 
         // Instanciate exploration process
-        std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
+        std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>(1.0, final_epsilon, 0.0, exploration_end);
 
         // Instanciate the memory
         std::shared_ptr<ExperienceMemoryInterface> experience_memory;
