@@ -48,11 +48,14 @@ namespace sdm
         if (vf->getSupport(t + 1).empty())
         {
             // Resolution of the problem when the support of Point Set is empty
+            std::cout<<"No support"<<std::endl;
             this->representation = {std::make_shared<MappedVector<std::shared_ptr<State>,double>>()};
             best_action = this->createLP(vf,state, t).first;
         }
         else
         {
+            std::cout<<"Support"<<std::endl;
+
             // For the Relaxation version of Sawtooth, we go over all element in the Point Set
             for (const auto &point : std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
             {
@@ -88,7 +91,14 @@ namespace sdm
     {
         // For the Full version of Sawtooth, wo over all the Point Set
         this->representation = std::make_shared<MappedVector<std::shared_ptr<State>,double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));        
-        return this->createLP(vf,state, t).first;
+        auto a = this->createLP(vf,state, t);
+
+        if(std::abs(a.second - vf->template backup<double>(state,a.first,t))>0.01)
+        {
+
+        }
+
+        return a.first;
     }
 
     void ActionVFSawtoothLP::createVariables(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var,number &index, number t)
