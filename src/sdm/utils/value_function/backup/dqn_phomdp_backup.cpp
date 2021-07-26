@@ -345,14 +345,6 @@ namespace sdm
 
         return std::make_shared<JointDeterministicDecisionRule>(a);
 
-        // // Get u.
-        // auto u = torch::argmax(this->policy_net_->operator()(s_z_t)).item<int>();
-        // // Get the real u from the action space.
-        // std::cout << *this->action_space_->getItem(u) << std::endl;
-        // return this->action_space_->getItem(u)->toAction();
-
-        return nullptr;
-
     }
 
     double DqnPhomdpBackup::getValueAt(const std::shared_ptr<State> &state, number t)

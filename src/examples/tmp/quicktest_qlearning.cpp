@@ -44,7 +44,7 @@ int main(int argc, char **argv)
         std::string path, formalism, name, qvalue, version, q_init;
         unsigned long num_episodes;
         number horizon, memory, sampling_size, batch_size;
-        double lr, discount, sf, p_b, p_o, p_c, ball_r;
+        double lr, discount, sf, p_b, p_o, p_c, ball_r, epsilon_optimal;
         int seed;
         int capacity;
         bool store_actions, store_action_spaces;
@@ -62,13 +62,14 @@ int main(int argc, char **argv)
         ("p_o", po::value<double>(&p_o)->default_value(0.0001), "the precision of occupancy state ")
         ("p_c", po::value<double>(&p_c)->default_value(0.01), "the precision of compression ")
         ("ball_r", po::value<double>(&ball_r)->default_value(1.0), "the radius of the balls of s in the hqvf")
+        ("optimal-epsilon", po::value<double>(&epsilon_optimal)->default_value(0.0001), "set the epsilon optimal parameter")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")
         ("batch_size,b", po::value<number>(&batch_size)->default_value(32), "batch size")
         ("sampling_size,z", po::value<number>(&sampling_size)->default_value(0), "sampling size")
         ("num_episodes,t", po::value<unsigned long>(&num_episodes)->default_value(100000), "number of episodes")
-        ("capacity,c", po::value<int>(&capacity)->default_value(333), "capacity of the experience memory")
+        ("capacity,c", po::value<int>(&capacity)->default_value(1000), "capacity of the experience memory")
         ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")
         ("store_actions", "store actions")("store_action_spaces", "store action spaces")
@@ -119,8 +120,6 @@ int main(int argc, char **argv)
         torch::manual_seed(seed);
 
         auto dpomdp = sdm::parser::parse_file(path);
-        dpomdp->setHorizon(horizon);
-        dpomdp->setDiscount(discount);
 
         auto start_distribution = dpomdp->getStartDistribution();
 
@@ -131,6 +130,18 @@ int main(int argc, char **argv)
 
         auto state_dynamics = dpomdp->getStateDynamics();
         auto observation_dynamics = dpomdp->getObservationDynamics();
+
+        if (horizon == 0 && discount < 1.0)
+        {
+            horizon = (number)(log((1 - discount) * epsilon_optimal / reward_space->getMaxReward(0)) / log(discount));
+        }
+        else if (horizon == 0 && discount == 1.0)
+        {
+            horizon = 1000;
+        }
+
+        dpomdp->setHorizon(horizon);
+        dpomdp->setDiscount(discount);
 
         std::shared_ptr<GymInterface> gym;
         if (formalism == "MDP")
@@ -221,7 +232,7 @@ int main(int argc, char **argv)
         if (qvalue != "deep")
             experience_memory = std::make_shared<ExperienceMemory>(horizon);
         else
-            experience_memory = std::make_shared<DeepExperienceMemory>(200); // <-capacity
+            experience_memory = std::make_shared<DeepExperienceMemory>(capacity);
 
         std::shared_ptr<QValueBackupInterface> backup;
         if (qvalue == "tabular")

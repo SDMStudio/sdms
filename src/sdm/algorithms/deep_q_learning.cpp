@@ -25,7 +25,7 @@ namespace sdm
                              discount_(discount),
                              lr_(lr),
                              num_episodes_(num_episodes),
-                             target_update_(10), /////
+                             target_update_freq(11), /////
                              name_(name)
     {
     }
@@ -44,10 +44,10 @@ namespace sdm
     void DeepQLearning::do_initialize()
     {
         this->initLogger();
-        // std::cout << "horizon_ " << horizon_ << std::endl;
-        // std::cout << "discount_ " << discount_ << std::endl;
-        // std::cout << "lr_ " << lr_ << std::endl;
-        // std::cout << "num_episodes_ " << num_episodes_ << std::endl;
+        std::cout << "horizon_ " << horizon_ << std::endl;
+        std::cout << "discount_ " << discount_ << std::endl;
+        std::cout << "lr_ " << lr_ << std::endl;
+        std::cout << "num_episodes_ " << num_episodes_ << std::endl;
     }
 
     void DeepQLearning::do_solve()
@@ -61,9 +61,6 @@ namespace sdm
         {
             // Update exploration process
             this->exploration_process->update(this->episode);
-
-            // Do one episode
-            this->do_episode();
 
             // Test current policy and write logs
             if (this->episode % this->log_freq == 0)
@@ -86,6 +83,8 @@ namespace sdm
             {
                 this->do_save();
             }
+
+            this->do_episode();
 
 
         }
