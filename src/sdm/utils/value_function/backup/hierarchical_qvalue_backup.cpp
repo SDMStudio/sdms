@@ -39,19 +39,17 @@ namespace sdm
     {   
         // std::cout << "HierarchicalQValueBackup::backup" << std::endl;
 
-        auto [observation, decision_rule, reward, next_observation] = this->experience_memory_->sample(t)[0];
-        auto s_o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(observation)->first;
-        auto s = s_o->first;
-        auto o = s_o->second;
-        auto u = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(next_observation)->second;
+        auto [observation, a, reward, next_observation, next_a] = this->experience_memory_->sample(t)[0];
+        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->first;
+        auto o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->second;
 
-        double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
-        double next_value = this->getValueAt(next_observation->toState(), t + 1);
-        double target_q_value = reward + this->discount_ * next_value;
-        double delta = target_q_value - q_value;
-        this->q_value_table_->updateQValueAt(s, o, u, t, delta);
+        // double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
+        // double next_value = this->getValueAt(next_observation->toState(), t + 1);
+        // double target_q_value = reward + this->discount_ * next_value;
+        // double delta = target_q_value - q_value;
+        // this->q_value_table_->updateQValueAt(s, o, u, t, delta);
 
-        return delta;
+        // return delta;
     }
     
     std::shared_ptr<Action> HierarchicalQValueBackup::getGreedyAction(const std::shared_ptr<State> &state, number t)
@@ -60,11 +58,11 @@ namespace sdm
 
         auto h = this->q_value_table_->isInfiniteHorizon() ? 0 : t;
 
-        std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first->first;
+        std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(state)->first;
 
         auto q_values = std::make_shared<MappedVector<std::shared_ptr<JointDeterministicDecisionRule>, double>>();
 
-        for (auto const& [s_, q_] : this->q_value_table_->representation[h])
+        for (auto const& [s_, q_] : this->q_value_table_->Psi[h])
         {
             std::shared_ptr<JointDeterministicDecisionRule> a = this->getPossibleGreedyAction(s_, s, t);
             q_values->setValueAt(a, this->getQValueAt(s_, s, a, t));
@@ -226,11 +224,11 @@ namespace sdm
 
         auto h = this->q_value_table_->isInfiniteHorizon() ? 0 : t;
 
-        std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryJointActionPair>(state)->first->first;
+        std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(state)->first;
 
         auto q_values = std::make_shared<MappedVector<std::shared_ptr<JointDeterministicDecisionRule>, double>>();
 
-        for (auto const& [s_, q_] : this->q_value_table_->representation[h])
+        for (auto const& [s_, q_] : this->q_value_table_->Psi[h])
         {
             std::shared_ptr<JointDeterministicDecisionRule> a = this->getPossibleGreedyAction(s_, s, t);
             q_values->setValueAt(a, this->getQValueAt(s_, s, a, t));

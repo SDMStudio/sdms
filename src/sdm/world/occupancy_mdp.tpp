@@ -84,9 +84,8 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseOccupancyMDP<TOccupancyState>::step(std::shared_ptr<Action> action_tmp)
+    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseOccupancyMDP<TOccupancyState>::step(std::shared_ptr<Action> action)
     {
-        std::shared_ptr<Action> action = this->getActionPointer(action_tmp);
 
         clock_t t_begin = clock(), t_tmp = clock();
         auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
@@ -550,19 +549,19 @@ namespace sdm
         return this->compression_;
     }
 
-    template <class TOccupancyState>
-    std::shared_ptr<Action> BaseOccupancyMDP<TOccupancyState>::getActionPointer(std::shared_ptr<Action> action_tmp)
-    {
-        if (this->action_map_->find(*action_tmp->toJointDeterministicDecisionRule()) == this->action_map_->end())
-        {
-            this->action_map_->emplace(*action_tmp->toJointDeterministicDecisionRule(), action_tmp);
-        }
-        else
-        {
-            // std::cout << " HEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE";
-        }
-        std::cout << this->action_map_->size() << " ";
-        return this->action_map_->at(*action_tmp->toJointDeterministicDecisionRule());
-    }
+    // template <class TOccupancyState>
+    // std::shared_ptr<Action> BaseOccupancyMDP<TOccupancyState>::getActionPointer(std::shared_ptr<Action> action_tmp)
+    // {
+    //     if (this->store_actions_)
+    //     {
+    //         if (this->action_map_->find(*action_tmp->toJointDeterministicDecisionRule()) == this->action_map_->end())
+    //         {
+    //             this->action_map_->emplace(*action_tmp->toJointDeterministicDecisionRule(), action_tmp);
+    //         }
+    //         std::cout << this->action_map_->size() << " ";
+    //         return this->action_map_->at(*action_tmp->toJointDeterministicDecisionRule());
+    //     }
+    //     return action_tmp;
+    // }
     
 } // namespace sdm

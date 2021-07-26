@@ -98,7 +98,7 @@ namespace std
             for (auto &input : in)
             {
                 //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, input);
+                sdm::hash_combine(seed, *input);
             }
             return seed;
         }

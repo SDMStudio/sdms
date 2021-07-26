@@ -26,7 +26,7 @@ namespace sdm
   {
   private:
     std::shared_ptr<Observation> observation, next_observation;
-    std::shared_ptr<Action> action;
+    std::shared_ptr<Action> action, next_action;
     number log_freq = 1, test_freq = 1000, save_freq = 10000;
     bool do_log_ = false, do_test_ = false, do_save_ = false, is_done = false;
     unsigned long target_update_;
@@ -142,7 +142,7 @@ namespace sdm
 
     void update_target();
 
-    std::shared_ptr<Action> select_action(const std::shared_ptr<Observation> &obs);
+    std::shared_ptr<Action> select_action(const std::shared_ptr<Observation> &observation, number t);
 
     void initLogger();
 
