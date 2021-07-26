@@ -108,7 +108,7 @@ namespace sdm
             //<! Define variables \omega_k(x',o')
 
             // Go over all Point Set in t+1
-            for (const auto &element_state_AND_upper_bound : *vf->)
+            for (const auto &element_state_AND_upper_bound : *this->representation)
             {
                 const auto &next_one_step_uncompressed_occupancy_state = element_state_AND_upper_bound.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
