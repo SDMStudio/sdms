@@ -278,7 +278,7 @@ namespace sdm
             double denominator = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history);
             // Dans les notes de hier, on a le denominateur en fonction du joint history et de l'action
 
-            // auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
+            // auto joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation());
 
             if(action == action_of_support)
             {

@@ -291,6 +291,7 @@ namespace sdm
     template <class TIndex, class T, class Hash, class KeyEqual>
     void MappedVector<TIndex, T, Hash, KeyEqual>::setupIndexes()
     {
+        this->v_indexes.clear();
         if (this->v_indexes.size() == 0)
         {
             for (const auto &p_i_v : *this)
@@ -308,6 +309,7 @@ namespace sdm
             assert((this->v_indexes.size() == this->size()));
             return this->v_indexes;
         }
+        else
         {
             std::vector<TIndex> indexes = {};
             for (const auto &p_i_v : *this)

@@ -164,6 +164,23 @@ namespace sdm
          */
         std::shared_ptr<OccupancyStateInterface> compress();
 
+
+        /**
+         * @brief Get the Private Occupancy States object
+         * 
+         * @return const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>>& 
+         */
+        const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> &getPrivateOccupancyStates() const;
+
+        /**
+         * @brief Get the 
+         * 
+         * @param agent_id 
+         * @param ihistory 
+         * @return const std::shared_ptr<PrivateOccupancyState>& 
+         */
+        const std::shared_ptr<PrivateOccupancyState> &getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const;
+
         TypeState getTypeState() const;
 
         std::shared_ptr<OccupancyState> getptr();
@@ -246,22 +263,6 @@ namespace sdm
          * @brief 
          */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
-
-        /**
-         * @brief Get the Private Occupancy States object
-         * 
-         * @return const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>>& 
-         */
-        const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> &getPrivateOccupancyStates() const;
-
-        /**
-         * @brief Get the 
-         * 
-         * @param agent_id 
-         * @param ihistory 
-         * @return const std::shared_ptr<PrivateOccupancyState>& 
-         */
-        const std::shared_ptr<PrivateOccupancyState> &getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const;
 
         void setupIndividualHistories();
         void setupBeliefsAndHistories();

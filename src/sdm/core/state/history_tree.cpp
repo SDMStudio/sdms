@@ -19,7 +19,7 @@ namespace sdm
         return this->getParent();
     }
 
-    std::shared_ptr<Observation> HistoryTree::getObservation()
+    std::shared_ptr<Observation> HistoryTree::getLastObservation()
     {
         return this->getData();
     }

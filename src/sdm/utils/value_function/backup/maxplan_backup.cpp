@@ -7,6 +7,7 @@
 
 #include <sdm/utils/value_function/hyperplan_value_function.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/serial_occupancy_state.hpp>
 #include <sdm/core/state/belief_state.hpp>
 
 // #include <sdm/core/action/decision_rule.hpp>
@@ -29,9 +30,6 @@ namespace sdm
             return this->setHyperplanBelief(vf, state, action, t);
             break;
         case TypeState::OCCUPANCY_STATE:
-            return this->setHyperplanOccupancy(vf, state, action, t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE:
             return this->setHyperplanOccupancy(vf, state, action, t);
             break;
         default:
@@ -83,8 +81,8 @@ namespace sdm
             auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
 
             auto occupancy = belief_state->toState()->toOccupancyState();
-            
-            // Create the new hyperplan 
+
+            // Create the new hyperplan
             auto new_hyperplan = std::make_shared<OccupancyState>(under_pb->getNumAgents());
             new_hyperplan->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
 
@@ -101,23 +99,23 @@ namespace sdm
 
                 // Create new belief
                 auto new_belief = std::make_shared<Belief>();
-                for(const auto &hidden_state : occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())
+                for (const auto &hidden_state : occupancy->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())
                 {
                     double tmp = 0.0;
                     // Go over all hidden state reachable
-                    for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state,action,t))
+                    for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state, action, t))
                     {
                         //Go over all observation reachable
-                        for(const auto &observation : under_pb->getReachableObservations(hidden_state,action,next_hidden_state,t))
+                        for (const auto &observation : under_pb->getReachableObservations(hidden_state, action, next_hidden_state, t))
                         {
                             //Expand the current joint history
                             auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
 
-                            tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state)* under_pb->getDynamics(hidden_state,action,next_hidden_state,observation,t);
+                            tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state) * under_pb->getDynamics(hidden_state, action, next_hidden_state, observation, t);
                         }
                     }
                     // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
-                    new_belief->setProbability(hidden_state, under_pb->getReward(hidden_state,action,t) + this->world_->getDiscount(t) * tmp);
+                    new_belief->setProbability(hidden_state, under_pb->getReward(hidden_state, action, t) + this->world_->getDiscount(t) * tmp);
                 }
                 new_belief->finalize();
                 new_hyperplan->setProbability(jhistory, new_belief, 1);
@@ -125,9 +123,9 @@ namespace sdm
             new_hyperplan->finalize();
             return new_hyperplan;
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
-            std::cerr <<"MaxPlanBackup::setHyperplanOccupancy error "<< e.what() << '\n';
+            std::cerr << "MaxPlanBackup::setHyperplanOccupancy error " << e.what() << '\n';
             exit(-1);
         }
     }

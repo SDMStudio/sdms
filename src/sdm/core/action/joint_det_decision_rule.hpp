@@ -92,13 +92,13 @@ namespace std
     {
         typedef sdm::JointDeterministicDecisionRule argument_type;
         typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
+        inline result_type operator()(const argument_type &joint_det_decision_rule) const
         {
             size_t seed = 0;
-            for (auto &input : in)
+            for (auto &indiv_decision_rule_ptr : joint_det_decision_rule)
             {
                 //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, input);
+                sdm::hash_combine(seed, *indiv_decision_rule_ptr);
             }
             return seed;
         }

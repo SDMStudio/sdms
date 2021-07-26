@@ -4,11 +4,11 @@ namespace sdm
 {
     LPBase::LPBase() {}
 
-    LPBase::LPBase(const std::shared_ptr<SolvableByHSVI>&world) : world_(world){}
+    LPBase::LPBase(const std::shared_ptr<SolvableByHSVI> &world) : world_(world) {}
 
     LPBase::~LPBase() {}
 
-    Pair<std::shared_ptr<Action>,double> LPBase::createLP(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> LPBase::createLP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         number index = 0;
 
@@ -30,14 +30,14 @@ namespace sdm
             ///////  BEGIN CORE CPLEX Code  ///////
 
             // Create all Variable of the LP problem
-            this->createVariables(vf,state, env, var,index, t);
+            this->createVariables(vf, state, env, var, index, t);
 
             // Create the objective function of the LP problem
             this->createObjectiveFunction(vf, state, var, obj, t);
 
             index = 0;
             // Create all Constraints of the LP problem
-            this->createConstraints(vf, state, env,model, con, var, index, t);
+            this->createConstraints(vf, state, env, model, con, var, index, t);
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
@@ -55,7 +55,17 @@ namespace sdm
             else
             {
                 value = cplex.getObjValue();
-                action = this->getVariableResult(vf,state, cplex,var,t);
+                action = this->getVariableResult(vf, state, cplex, var, t);
+                // std::cout << "BEST ACTION" << std::endl;
+                // std::cout << *action << std::endl;
+
+                double qvalue = this->world_->getReward(state, action, t) + this->world_->getDiscount(t) * this->world_->getExpectedNextValue(vf, state, action, t);
+                if (std::abs(qvalue - value) > 0.01)
+                {
+                    // cplex.exportModel("lb_bellman_op.lp");
+                    // system("cat lb_bellman_op.lp");
+                    std::cout << "LP(" << value << ") - EX(" << qvalue << ")" << std::endl;
+                }
             }
         }
         catch (IloException &e)
@@ -70,6 +80,6 @@ namespace sdm
 
         env.end();
 
-        return std::make_pair(action,value);
+        return std::make_pair(action, value);
     }
 }

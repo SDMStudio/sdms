@@ -84,7 +84,7 @@ namespace sdm
 
         std::shared_ptr<HistoryInterface> getPreviousHistory();
 
-        std::shared_ptr<Observation> getObservation();
+        std::shared_ptr<Observation> getLastObservation();
 
         number getHorizon() const;
 

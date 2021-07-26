@@ -9,6 +9,9 @@ namespace sdm
     SerialOccupancyState::SerialOccupancyState(const SerialOccupancyState &copy) : OccupancyState(copy)
     {
     }
+    SerialOccupancyState::SerialOccupancyState(const OccupancyState &copy) : OccupancyState(copy)
+    {
+    }
 
     number SerialOccupancyState::getCurrentAgentId() const
     {
