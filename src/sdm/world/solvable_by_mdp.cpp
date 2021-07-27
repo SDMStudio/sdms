@@ -103,9 +103,9 @@ namespace sdm
         return (ub - lb) - error / this->getWeightedDiscount(t);
     }
 
-    std::shared_ptr<Action> SolvableByMDP::selectNextAction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h)
+    Pair<std::shared_ptr<Action>, double> SolvableByMDP::selectNextAction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h)
     {
-        return ub->getBestAction(s, h);
+        return ub->getBestActionAndValue(s, h);
     }
 
 }

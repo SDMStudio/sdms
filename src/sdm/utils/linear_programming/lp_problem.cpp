@@ -65,6 +65,7 @@ namespace sdm
                 {
                     // cplex.exportModel("lb_bellman_op.lp");
                     // system("cat lb_bellman_op.lp");
+                    std::cout << "----- NOT EQUAL -----" << std::endl;
                     std::cout << "LP(" << value << ") - EX(" << qvalue << ")" << std::endl;
                 }
             }

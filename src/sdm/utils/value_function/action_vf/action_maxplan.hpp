@@ -8,10 +8,10 @@ namespace sdm
     {
     public:
         using TData = std::shared_ptr<State>;
-        
+
         ActionVFMaxplan();
-        ActionVFMaxplan(const std::shared_ptr<SolvableByHSVI>& world);
-        
+        ActionVFMaxplan(const std::shared_ptr<SolvableByHSVI> &world);
+
         /**
          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time
          * 
@@ -20,6 +20,6 @@ namespace sdm
          * @param number t : time step
          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
          */
-        std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+        Pair<std::shared_ptr<Action>, double> selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
     };
 }

@@ -11,7 +11,7 @@ namespace sdm
 
     ActionVFMaxplanSerial::ActionVFMaxplanSerial(const std::shared_ptr<SolvableByHSVI> &world) : ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFMaxplanSerial::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>,double> ActionVFMaxplanSerial::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         // Definie local Variable
         double argmax_global = -std::numeric_limits<double>::max();
@@ -33,7 +33,7 @@ namespace sdm
             }
         }
         // return std::make_pair(decision_max,best_hyperplan);
-        return decision_max;
+        return {decision_max, argmax_global};
     }
 
     Pair<std::shared_ptr<Action>, double> ActionVFMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)

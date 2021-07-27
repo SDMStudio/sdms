@@ -12,7 +12,7 @@ namespace sdm
 
     ActionVFSawtoothWCSP::ActionVFSawtoothWCSP(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFSawtoothWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
 
@@ -84,7 +84,7 @@ namespace sdm
         }
         // Save the best action associed to a state
         this->state_linked_to_decision_rule[state] = best_action;
-        return best_action;
+        return {best_action, min_value};
     }
 
     Pair<std::shared_ptr<Action>,double>  ActionVFSawtoothWCSP::createWCSPProblem(const std::shared_ptr<ValueFunction>& vf , const std::shared_ptr<State>& state, number t)

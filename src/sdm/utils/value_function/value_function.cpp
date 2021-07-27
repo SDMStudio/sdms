@@ -31,17 +31,22 @@ namespace sdm
 
     std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
+        return this->getBestActionAndValue(state,t).first;
+    }
+
+    Pair<std::shared_ptr<Action>, double> ValueFunction::getBestActionAndValue(const std::shared_ptr<State> &state, number t)
+    {
         #ifdef LOGTIME
             this->StartTime();
         #endif
 
-        auto action = this->action_->selectBestAction(this->getptr(), state, t);
+        auto pair_action_value = this->action_->selectBestAction(this->getptr(), state, t);
 
         #ifdef LOGTIME
             this->updateTime("Best Action");
         #endif
 
-        return action;
+        return pair_action_value;
     }
     
     #ifdef LOGTIME
