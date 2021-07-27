@@ -121,6 +121,7 @@ namespace sdm
                 this->StartTime();
             #endif
 
+            
             auto backup = std::static_pointer_cast<BackupInterface<TData>>(this->backup_)->backup(this->getptr(),state,action,t);
 
             #ifdef LOGTIME 
@@ -138,6 +139,9 @@ namespace sdm
          * @return std::shared_ptr<Action> 
          */
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
+
+        Pair<std::shared_ptr<Action>, double> getBestActionAndValue(const std::shared_ptr<State> &state, number t);
+
 
         #ifdef LOGTIME
             double time_start;

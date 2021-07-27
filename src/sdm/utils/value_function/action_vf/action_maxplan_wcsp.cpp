@@ -13,7 +13,7 @@ namespace sdm
 
     ActionVFMaxplanWCSP::ActionVFMaxplanWCSP(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFMaxplanWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>,double> ActionVFMaxplanWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         std::shared_ptr<Action> max_decision_rule;
         double max = -std::numeric_limits<double>::max();
@@ -31,7 +31,7 @@ namespace sdm
                 max = pair_action_value.second;
             }
         }
-        return max_decision_rule;
+        return {max_decision_rule, max};
     }
 
     Pair<std::shared_ptr<Action>,double>  ActionVFMaxplanWCSP::createWCSPProblem(const std::shared_ptr<ValueFunction>& , const std::shared_ptr<State>& state, number t)

@@ -133,7 +133,7 @@ namespace sdm
          * @param number h : horizon
          * @return TAction 
          */
-        std::shared_ptr<Action> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h);
+        Pair<std::shared_ptr<Action>, double> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h);
 
     protected:
         /** @brief Get the underlying mdp */

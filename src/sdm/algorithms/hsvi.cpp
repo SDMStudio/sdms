@@ -112,16 +112,16 @@ namespace sdm
         return ((this->do_excess(s, cost_so_far, h) <= 0) || (this->trial > this->MAX_TRIALS));
     }
 
-    void HSVI::do_explore(const std::shared_ptr<State> &s, double cost_so_far, number h)
+    void HSVI::do_explore(const std::shared_ptr<State> &state, double cost_so_far, number h)
     {
         try
         {
-            if (!this->do_stop(s, cost_so_far, h))
+            if (!this->do_stop(state, cost_so_far, h))
             {
                 if (this->lower_bound_->isInfiniteHorizon())
                 {
-                    this->lower_bound_->updateValueAt(s, h);
-                    this->upper_bound_->updateValueAt(s, h);
+                    this->lower_bound_->updateValueAt(state, h);
+                    this->upper_bound_->updateValueAt(state, h);
                 }
 
 #ifdef LOGTIME
@@ -131,7 +131,7 @@ namespace sdm
 
                     // Select next action and state following search process
                     clock_t t_begin = clock();
-                std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+                auto [selected_action, value] = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, state, h);
                 HSVI::TIME_IN_SELECT_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
 #ifdef LOGTIME
@@ -139,7 +139,7 @@ namespace sdm
                 this->StartTime();
 #endif
                 t_begin = clock();
-                std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
+                std::shared_ptr<State> s_ = this->world_->nextState(state, selected_action, h, this->getptr());
                 HSVI::TIME_IN_SELECT_STATE += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
 #ifdef LOGTIME
@@ -147,7 +147,7 @@ namespace sdm
 #endif
 
                 // Recursive explore
-                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
+                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, selected_action, h), h + 1);
 
 #ifdef LOGTIME
                 this->StartTime();
@@ -157,7 +157,7 @@ namespace sdm
                 t_begin = clock();
                 if (((this->trial+1) % this->lb_update_frequency_) == 0)
                 {
-                    this->lower_bound_->updateValueAt(s, h);
+                    this->lower_bound_->updateValueAt(state, h);
                 }
                 HSVI::TIME_IN_UPDATE_LB += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
@@ -169,7 +169,7 @@ namespace sdm
                 t_begin = clock();
                 if (((this->trial+1) % this->ub_update_frequency_) == 0)
                 {
-                    this->upper_bound_->updateValueAt(s, h);
+                    this->upper_bound_->updateValueAt(state, h);
                 }
 
                 HSVI::TIME_IN_UPDATE_UB += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
