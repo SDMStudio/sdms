@@ -41,13 +41,13 @@ int main(int argc, char **argv)
 {
     try
     {
-        std::string path, formalism, name, qvalue, version, q_init;
+        std::string path, formalism, name, qvalue, version, q_init, net_name;
         unsigned long num_episodes;
         number horizon, memory, sampling_size, batch_size, inner_dim;
-        double lr, discount, sf, p_b, p_o, p_c, ball_r, epsilon_optimal, exploration_end, final_epsilon, smooth;
+        double lr, discount, sf, p_b, p_o, p_c, ball_r, epsilon_optimal, exploration_end, start_epsilon, final_epsilon, smooth;
         int seed;
         int capacity;
-        bool store_actions, store_action_spaces;
+        bool store_actions, store_action_spaces, load_net, save_net;
 
         po::options_description options("Options");
         options.add_options()
@@ -65,6 +65,7 @@ int main(int argc, char **argv)
         ("optimal-epsilon", po::value<double>(&epsilon_optimal)->default_value(0.0001), "set the epsilon optimal parameter")
         ("exp-end", po::value<double>(&exploration_end)->default_value(0.8), "set the epsilon optimal parameter")
         ("final-eps", po::value<double>(&final_epsilon)->default_value(0.0001), "set the epsilon optimal parameter")
+        ("start-eps", po::value<double>(&start_epsilon)->default_value(0.0001), "set the epsilon optimal parameter")
         ("smooth,a", po::value<double>(&smooth)->default_value(0.99), "set the epsilon optimal parameter")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
@@ -76,7 +77,9 @@ int main(int argc, char **argv)
         ("capacity,c", po::value<int>(&capacity)->default_value(1000), "capacity of the experience memory")
         ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")
+        ("net_name", po::value<std::string>(&net_name)->default_value(""), "where net is saved/loaded from")
         ("store_actions", "store actions")("store_action_spaces", "store action spaces")
+        ("save_net", "save network")("load_net", "load network")
         ;
 
         po::options_description algo_config("Algorithms configuration");
@@ -111,6 +114,16 @@ int main(int argc, char **argv)
                 store_action_spaces = true;
             else
                 store_action_spaces = false;
+
+            if (vm.count("save_net"))
+                save_net = true;
+            else
+                save_net = false;
+
+            if (vm.count("load_net"))
+                load_net = true;
+            else
+                load_net = false;
             
         }
         catch (po::error &e)
@@ -233,7 +246,7 @@ int main(int argc, char **argv)
         }
 
         // Instanciate exploration process
-        std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>(1.0, final_epsilon, 0.0, exploration_end);
+        std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>(start_epsilon, final_epsilon, 0.0, exploration_end);
 
         // Instanciate the memory
         std::shared_ptr<ExperienceMemoryInterface> experience_memory;
@@ -260,7 +273,7 @@ int main(int argc, char **argv)
         if (qvalue != "deep")
             algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, name);
         else
-            algorithm = std::make_shared<DeepQLearning>(gym, experience_memory, policy_net, target_net, backup, exploration, horizon, discount, lr, num_episodes, smooth, name);
+            algorithm = std::make_shared<DeepQLearning>(gym, experience_memory, policy_net, target_net, backup, exploration, horizon, discount, lr, num_episodes, smooth, name, net_name, save_net, load_net);
 
         algorithm->do_initialize();
 

@@ -15,7 +15,10 @@ namespace sdm
                          double lr,
                          unsigned long num_episodes,
                          double smooth,
-                         std::string name
+                         std::string name,
+                         std::string net_name,
+                         bool save_net,
+                         bool load_net
                          ) : env_(env),
                              experience_memory_(experience_memory),
                              policy_net_(policy_net),
@@ -28,7 +31,10 @@ namespace sdm
                              num_episodes_(num_episodes),
                              smooth_(smooth),
                              target_update_freq(11), /////
-                             name_(name)
+                             name_(name),
+                             net_name_(net_name),
+                             save_net_(save_net),
+                             load_net_(load_net)
     {
     }
 
@@ -50,6 +56,9 @@ namespace sdm
         std::cout << "discount_ " << discount_ << std::endl;
         std::cout << "lr_ " << lr_ << std::endl;
         std::cout << "num_episodes_ " << num_episodes_ << std::endl;
+        std::cout << "net_name_ " << net_name_ << std::endl;
+        std::cout << "save_net_ " << save_net_ << std::endl;
+        std::cout << "load_net_ " << load_net_ << std::endl;
     }
 
     void DeepQLearning::do_solve()
@@ -58,6 +67,11 @@ namespace sdm
         this->t_begin = clock();
 
         this->exploration_process->reset(this->num_episodes_);
+
+        if (this->load_net_)
+        {
+            this->do_load();
+        }
 
         this->value_p = this->do_evaluate();
 
@@ -84,7 +98,7 @@ namespace sdm
                 this->update_target();
             }
 
-            if (this->episode % this->save_freq == 0)
+            if ((this->episode % this->save_freq == 0) && this->save_net_)
             {
                 this->do_save();
             }
@@ -98,7 +112,16 @@ namespace sdm
 
     void DeepQLearning::do_save()
     {
-        /////
+        // std::cout << "do_save() " << std::endl;
+
+        torch::save(*this->policy_net_, net_name_);
+    }
+
+    void DeepQLearning::do_load()
+    {
+        // std::cout << "do_load() " << std::endl;
+
+		torch::load(*this->policy_net_, net_name_);
     }
 
     void DeepQLearning::do_test()
