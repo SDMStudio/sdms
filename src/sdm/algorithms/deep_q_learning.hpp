@@ -69,7 +69,7 @@ namespace sdm
      */
     number horizon_, step;
 
-    double discount_, lr_, q_value_error;
+    double discount_, lr_, smooth_, q_value_error, value_p, R;
 
     std::vector<double> rewards_;
 
@@ -88,6 +88,7 @@ namespace sdm
               double discount = 0.9,
               double lr = 0.001,
               unsigned long num_episodes = 10000,
+              double smooth = 0.99,
               std::string name = "deepqlearning"
             );
 

@@ -44,7 +44,7 @@ int main(int argc, char **argv)
         std::string path, formalism, name, qvalue, version, q_init;
         unsigned long num_episodes;
         number horizon, memory, sampling_size, batch_size, inner_dim;
-        double lr, discount, sf, p_b, p_o, p_c, ball_r, epsilon_optimal, exploration_end, final_epsilon;
+        double lr, discount, sf, p_b, p_o, p_c, ball_r, epsilon_optimal, exploration_end, final_epsilon, smooth;
         int seed;
         int capacity;
         bool store_actions, store_action_spaces;
@@ -63,8 +63,9 @@ int main(int argc, char **argv)
         ("p_c", po::value<double>(&p_c)->default_value(0.01), "the precision of compression ")
         ("ball_r", po::value<double>(&ball_r)->default_value(1.0), "the radius of the balls of s in the hqvf")
         ("optimal-epsilon", po::value<double>(&epsilon_optimal)->default_value(0.0001), "set the epsilon optimal parameter")
-        ("exp-end", po::value<double>(&exploration_end)->default_value(0.9), "set the epsilon optimal parameter")
-        ("final-eps", po::value<double>(&final_epsilon)->default_value(0.1), "set the epsilon optimal parameter")
+        ("exp-end", po::value<double>(&exploration_end)->default_value(0.8), "set the epsilon optimal parameter")
+        ("final-eps", po::value<double>(&final_epsilon)->default_value(0.0001), "set the epsilon optimal parameter")
+        ("smooth,a", po::value<double>(&smooth)->default_value(0.99), "set the epsilon optimal parameter")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")
@@ -195,11 +196,12 @@ int main(int argc, char **argv)
         if (qvalue == "deep")
         {
             number x_dim = std::static_pointer_cast<DiscreteSpace>(state_space)->getNumItems();
-            number u1_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(action_space)->get(0))->getNumItems();
-            number u2_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(action_space)->get(1))->getNumItems();
             number z1_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(observation_space)->get(0))->getNumItems();
             number z2_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(observation_space)->get(1))->getNumItems();
-            std::cout << "|X| = " << x_dim << std::endl << "|U1| = " << u1_dim << std::endl << "|U2| = " << u2_dim << std::endl << "|Z1| = " << z1_dim << std::endl << "|Z2| = " << z2_dim << std::endl;
+            number u1_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(action_space)->get(0))->getNumItems();
+            number u2_dim = std::static_pointer_cast<DiscreteSpace>(std::static_pointer_cast<MultiDiscreteSpace>(action_space)->get(1))->getNumItems();
+            
+            std::cout << "|X| = " << x_dim << std::endl << "|Z1| = " << z1_dim << std::endl << "|Z2| = " << z2_dim << std::endl << "|U1| = " << u1_dim << std::endl << "|U2| = " << u2_dim << std::endl;
             if (formalism == "MDP")
             {
                 number input_dim = x_dim + horizon;
@@ -258,7 +260,7 @@ int main(int argc, char **argv)
         if (qvalue != "deep")
             algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, name);
         else
-            algorithm = std::make_shared<DeepQLearning>(gym, experience_memory, policy_net, target_net, backup, exploration, horizon, discount, lr, num_episodes, name);
+            algorithm = std::make_shared<DeepQLearning>(gym, experience_memory, policy_net, target_net, backup, exploration, horizon, discount, lr, num_episodes, smooth, name);
 
         algorithm->do_initialize();
 

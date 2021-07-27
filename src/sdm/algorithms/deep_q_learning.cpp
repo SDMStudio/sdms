@@ -14,6 +14,7 @@ namespace sdm
                          double discount,
                          double lr,
                          unsigned long num_episodes,
+                         double smooth,
                          std::string name
                          ) : env_(env),
                              experience_memory_(experience_memory),
@@ -25,6 +26,7 @@ namespace sdm
                              discount_(discount),
                              lr_(lr),
                              num_episodes_(num_episodes),
+                             smooth_(smooth),
                              target_update_freq(11), /////
                              name_(name)
     {
@@ -32,11 +34,11 @@ namespace sdm
 
     void DeepQLearning::initLogger()
     {
-        std::string format = "#> Episode : {}\tEpsilon : {}\tValue : {}\tQ Value Error : {}\tT(s) : {}\n";
+        std::string format = "#> Episode : {}\tEpsilon : {}\tValue_g : {}\tValue_p : {}\tQ Value Error : {}\tT(s) : {}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Epsilon", "Value", "Q Value Error", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Epsilon", "Value_g", "Value_p", "Q Value Error", "Time"});
 
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
@@ -57,6 +59,8 @@ namespace sdm
 
         this->exploration_process->reset(this->num_episodes_);
 
+        this->value_p = this->do_evaluate();
+
         while (this->episode <= this->num_episodes_)
         {
             // Update exploration process
@@ -69,6 +73,7 @@ namespace sdm
                     this->episode, 
                     this->exploration_process->getEpsilon(), 
                     this->do_evaluate(), 
+                    this->value_p,
                     this->q_value_error,
                     (float)(clock() - this->t_begin) / CLOCKS_PER_SEC
                 );
@@ -129,7 +134,8 @@ namespace sdm
         // std::cout << "DeepQLearning::do_episode() " << this->episode << std::endl;
 
         this->step = 0;
-        this->q_value_error = 0;
+        this->R = 0.0;
+        this->q_value_error = 0.0;
         this->observation = this->env_->reset();
         this->action = this->select_action(this->observation, this->step);
 
@@ -140,6 +146,8 @@ namespace sdm
 
         // Backup and get Q Value Error
         this->q_value_error += this->backup_->update();
+
+        this->value_p = this->smooth_ * this->value_p + (1 - this->smooth_) * this->R;
 
         this->episode++;
     }
@@ -154,6 +162,8 @@ namespace sdm
         // std::cout << "DeepQLearning::do_step() b " << this->step << std::endl;
 
         this->next_action = this->select_action(this->next_observation, this->step + 1);
+
+        this->R += pow(this->discount_, step) * this->rewards_[1];
 
         // std::cout << "DeepQLearning::do_step() c " << this->step << std::endl;
 
