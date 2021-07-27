@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdm/core/function.hpp>
+#include <sdm/utils/struct/pair.hpp>
 
 namespace sdm
 {
@@ -18,6 +19,6 @@ namespace sdm
          * @param number t : time step
          * @return std::shared_ptr<Action> : Action
          */
-        virtual std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t) = 0;
+        virtual Pair<std::shared_ptr<Action>, double> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t) = 0;
     };
 }

@@ -18,13 +18,17 @@ namespace sdm
                double error,
                number num_max_trials,
                std::string name,
+               number lb_update_frequency,
+               number ub_update_frequency,
                double time_max) : world_(world),
                                   lower_bound_(lower_bound),
                                   upper_bound_(upper_bound),
                                   error_(error),
                                   time_max_(time_max),
                                   planning_horizon_(planning_horizon),
-                                  name_(name)
+                                  name_(name),
+                                  lb_update_frequency_(lb_update_frequency),
+                                  ub_update_frequency_(ub_update_frequency)
     {
         this->MAX_TRIALS = num_max_trials;
     }
@@ -108,25 +112,26 @@ namespace sdm
         return ((this->do_excess(s, cost_so_far, h) <= 0) || (this->trial > this->MAX_TRIALS));
     }
 
-    void HSVI::do_explore(const std::shared_ptr<State> &s, double cost_so_far, number h)
+    void HSVI::do_explore(const std::shared_ptr<State> &state, double cost_so_far, number h)
     {
         try
         {
-            if (!this->do_stop(s, cost_so_far, h))
+            if (!this->do_stop(state, cost_so_far, h))
             {
                 if (this->lower_bound_->isInfiniteHorizon())
                 {
-                    this->lower_bound_->updateValueAt(s, h);
-                    this->upper_bound_->updateValueAt(s, h);
+                    this->lower_bound_->updateValueAt(state, h);
+                    this->upper_bound_->updateValueAt(state, h);
                 }
 
 #ifdef LOGTIME
                 this->StartTime();
+                *
 #endif
 
-                // Select next action and state following search process
-                clock_t t_begin = clock();
-                std::shared_ptr<Action> a = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, s, h);
+                    // Select next action and state following search process
+                    clock_t t_begin = clock();
+                auto [selected_action, value] = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, state, h);
                 HSVI::TIME_IN_SELECT_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
 #ifdef LOGTIME
@@ -134,7 +139,7 @@ namespace sdm
                 this->StartTime();
 #endif
                 t_begin = clock();
-                std::shared_ptr<State> s_ = this->world_->nextState(s, a, h, this->getptr());
+                std::shared_ptr<State> s_ = this->world_->nextState(state, selected_action, h, this->getptr());
                 HSVI::TIME_IN_SELECT_STATE += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
 #ifdef LOGTIME
@@ -142,7 +147,7 @@ namespace sdm
 #endif
 
                 // Recursive explore
-                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(s, a, h), h + 1);
+                this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, selected_action, h), h + 1);
 
 #ifdef LOGTIME
                 this->StartTime();
@@ -150,7 +155,10 @@ namespace sdm
 
                 // Update bounds
                 t_begin = clock();
-                this->lower_bound_->updateValueAt(s,h);
+                if (((this->trial+1) % this->lb_update_frequency_) == 0)
+                {
+                    this->lower_bound_->updateValueAt(state, h);
+                }
                 HSVI::TIME_IN_UPDATE_LB += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
 #ifdef LOGTIME
@@ -159,7 +167,11 @@ namespace sdm
 #endif
 
                 t_begin = clock();
-                this->upper_bound_->updateValueAt(s, h);
+                if (((this->trial+1) % this->ub_update_frequency_) == 0)
+                {
+                    this->upper_bound_->updateValueAt(state, h);
+                }
+
                 HSVI::TIME_IN_UPDATE_UB += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
 #ifdef LOGTIME

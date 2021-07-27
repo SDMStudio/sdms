@@ -62,7 +62,7 @@ namespace sdm
      */
     int trial, MAX_TRIALS;
     double error_, time_max_;
-    number planning_horizon_;
+    number planning_horizon_, lb_update_frequency_, ub_update_frequency_;
     std::string name_ = "hsvi";
 
     std::shared_ptr<State> start_state;
@@ -102,6 +102,8 @@ namespace sdm
          double epsilon,
          number num_max_trials = 10000,
          std::string name = "hsvi",
+         number lb_update_frequency = 1,
+         number ub_update_frequency = 1,
          double time_max = 1000);
 
     std::shared_ptr<HSVI> getptr();

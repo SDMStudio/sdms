@@ -6,7 +6,7 @@ namespace sdm
 
     ActionVFTabulaire::ActionVFTabulaire(const std::shared_ptr<SolvableByHSVI> &world) : ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFTabulaire::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFTabulaire::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
@@ -22,6 +22,6 @@ namespace sdm
             }
         }
         // std::cout<<"best action "<<best_action->str()<<", max value "<<max<<std::endl;
-        return best_action;
+        return {best_action, max};
     }
 }

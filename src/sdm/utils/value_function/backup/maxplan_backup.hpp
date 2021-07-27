@@ -11,13 +11,12 @@ namespace sdm
         using TData = std::shared_ptr<State>;
 
         MaxPlanBackup();
-        MaxPlanBackup(const std::shared_ptr<SolvableByHSVI>& );
+        MaxPlanBackup(const std::shared_ptr<SolvableByHSVI> &);
 
-        virtual TData backup(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t);
-    protected : 
+        virtual TData backup(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
-        TData setHyperplanBelief(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
-        TData setHyperplanOccupancy(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
-
+    protected:
+        TData setHyperplanBelief(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+        TData setHyperplanOccupancy(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
     };
 }

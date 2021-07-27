@@ -196,6 +196,7 @@ namespace sdm
 
     void DecentralizedLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
+        std::cout << "DecentralizedLP::createDecentralizedConstraints"<<std::endl;
         //Specialisation for type of state
         switch (state->getTypeState())
         {
@@ -276,6 +277,7 @@ namespace sdm
             this->createDecentralizedConstraintsIndividual(vf,state, env, con, var, index, t,agent);
         }
     }
+    
     std::shared_ptr<Action> DecentralizedLP::getVariableResultSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         //Determine the Agent

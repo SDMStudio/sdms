@@ -11,6 +11,7 @@ namespace sdm
         SerialOccupancyState();
         SerialOccupancyState(number num_agents);
         SerialOccupancyState(const SerialOccupancyState &copy);
+        SerialOccupancyState(const OccupancyState &copy);
 
         /**
          * @brief Get the current Agent Id of the object
@@ -18,19 +19,8 @@ namespace sdm
          * @return number 
          */
         number getCurrentAgentId() const;
-
-        /**
-         * @brief Set the Agent Id of the object
-         * 
-         */
-        void setAgentId(number);
-
         TypeState getTypeState() const;
-
         std::string str() const;
-
-    protected:
-        number agentID_;
     };
 }
 

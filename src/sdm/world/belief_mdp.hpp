@@ -113,6 +113,10 @@ namespace sdm
 
         /** @brief A pointer on the bag containing all states. */
         RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
+
+
+        /** @brief A pointer on the bag containing all states. */
+        // RecursiveMap<TAction, std::shared_ptr<Action>> action_space_;
         
     protected:
         // If 0, it means the exact transitions will be used and not sampled ones.

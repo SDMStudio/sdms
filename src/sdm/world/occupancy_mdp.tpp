@@ -406,7 +406,7 @@ namespace sdm
             belief_graph->addNode(next_belief);
             fully_uncompressed_next_occupancy_state->addProbability(next_joint_history->toJointHistory(), next_belief, next_joint_history_count / this->batch_size_);
             auto joint_history_ = next_joint_history->getPreviousHistory();
-            auto observation_ = next_joint_history->getObservation();
+            auto observation_ = next_joint_history->getLastObservation();
             auto compressed_joint_history = ostate->toOccupancyState()->getCompressedJointHistory(joint_history->toJointHistory());
             auto next_compressed_joint_history = compressed_joint_history->expand(observation->toObservation());
             one_step_left_compressed_next_occupancy_state->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_count / this->batch_size_);

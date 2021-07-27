@@ -12,7 +12,7 @@ namespace sdm
 
     ActionVFSawtoothWCSP::ActionVFSawtoothWCSP(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFSawtoothWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
 
@@ -84,7 +84,7 @@ namespace sdm
         }
         // Save the best action associed to a state
         this->state_linked_to_decision_rule[state] = best_action;
-        return best_action;
+        return {best_action, min_value};
     }
 
     Pair<std::shared_ptr<Action>,double>  ActionVFSawtoothWCSP::createWCSPProblem(const std::shared_ptr<ValueFunction>& vf , const std::shared_ptr<State>& state, number t)
@@ -165,7 +165,8 @@ namespace sdm
             double denominator = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
 
             // Determine the next joint observation thinks to the Next joint history of the support
-            auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
+            // auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
+            auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation());
 
             double numerator = 0.0;
 
@@ -207,7 +208,7 @@ namespace sdm
         {
             std::set<std::shared_ptr<JointHistoryInterface>> joint_histories;
 
-            auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(this->support_of_the_next_history->getObservation());
+            auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(this->support_of_the_next_history->getLastObservation());
 
             //Determine all Joing History which respect the fact that the next joint history can be create by the current joint history and the next joint observation
 

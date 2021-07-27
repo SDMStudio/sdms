@@ -6,22 +6,23 @@
 #include <sdm/core/state/belief_default.hpp>
 
 #include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/serial_occupancy_state.hpp>
 
 namespace sdm
 {
 
     double HyperplanValueFunction::PRECISION = config::PRECISION_SDMS_VECTOR;
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
-        : ValueFunction(horizon, initializer,backup,action_vf), freq_pruning_(freq_pruning), type_of_maxplan_prunning_(type_of_maxplan_prunning)
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning, TypeOfMaxPlanPrunning type_of_maxplan_prunning)
+        : ValueFunction(horizon, initializer, backup, action_vf), freq_pruning_(freq_pruning), type_of_maxplan_prunning_(type_of_maxplan_prunning)
     {
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
-        this->all_state_updated_so_far = std::vector<std::unordered_set<std::shared_ptr<State>>>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1,std::unordered_set<std::shared_ptr<State>>());
+        this->all_state_updated_so_far = std::vector<std::unordered_set<std::shared_ptr<State>>>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, std::unordered_set<std::shared_ptr<State>>());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
     }
 
-    HyperplanValueFunction::HyperplanValueFunction(number horizon,double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning,TypeOfMaxPlanPrunning type_of_maxplan_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value),backup,action_vf,freq_pruning,type_of_maxplan_prunning){}
+    HyperplanValueFunction::HyperplanValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning, TypeOfMaxPlanPrunning type_of_maxplan_prunning)
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf, freq_pruning, type_of_maxplan_prunning) {}
 
     HyperplanValueFunction::~HyperplanValueFunction() {}
 
@@ -42,17 +43,17 @@ namespace sdm
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        
+
         //Determine the new hyperplan
         const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state, this->getBestAction(state, t), t)->toBelief();
 
         // If the hyperplan doesn't exit, we add it to representation at t
-        if (!this->exist(new_hyperplan,t))
+        if (!this->exist(new_hyperplan, t))
         {
             this->representation[t].push_back(new_hyperplan);
 
             // Add state to all state update so far, only if the prunning used is Bounded
-            if(this->type_of_maxplan_prunning_ == TypeOfMaxPlanPrunning::BOUNDED)
+            if (this->type_of_maxplan_prunning_ == TypeOfMaxPlanPrunning::BOUNDED)
                 this->all_state_updated_so_far[t].insert(state);
         }
     }
@@ -69,7 +70,7 @@ namespace sdm
 
     void HyperplanValueFunction::do_pruning(number t)
     {
-        if (t%this->freq_pruning_ == 0)
+        if (t % this->freq_pruning_ == 0)
         {
             for (number time = 0; time < this->getHorizon(); time++)
             {
@@ -77,17 +78,17 @@ namespace sdm
             }
         }
     }
-    
+
     void HyperplanValueFunction::prune(number t)
     {
         switch (this->type_of_maxplan_prunning_)
         {
-        case TypeOfMaxPlanPrunning::PAIRWISE :
+        case TypeOfMaxPlanPrunning::PAIRWISE:
             this->pairwise_prune(t);
             break;
-        case TypeOfMaxPlanPrunning::BOUNDED :
+        case TypeOfMaxPlanPrunning::BOUNDED:
             this->bounded_prune(t);
-         
+
         default:
             break;
         }
@@ -151,7 +152,6 @@ namespace sdm
     {
         // Pour bounded prunning, il faut aussi noter les points intéressants , et chercher pour ces points la
 
-
         std::unordered_map<std::shared_ptr<State>, number> refCount;
         auto all_plan = this->getSupport(t);
 
@@ -163,7 +163,7 @@ namespace sdm
         //     refCount.emplace(*iter, 0);
         // }
 
-        for(const auto&element : all_plan)
+        for (const auto &element : all_plan)
         {
             refCount[element] = 0;
         }
@@ -179,7 +179,7 @@ namespace sdm
             {
                 // std::cout<<"Alpha "<<alpha.first->str()<<std::endl;
                 // std::cout<<"Value "<< (hyperplan->toBelief()->operator^(alpha.first->toBelief()))<<std::endl;
-                if (max_value < (value = (hyperplan->toBelief()->operator^(alpha.first->toBelief()))) )
+                if (max_value < (value = (hyperplan->toBelief()->operator^(alpha.first->toBelief()))))
                 {
                     max_value = value;
                     max_alpha = alpha.first;
@@ -188,7 +188,7 @@ namespace sdm
             refCount.at(max_alpha)++;
         }
 
-        for (const auto& element : all_plan)
+        for (const auto &element : all_plan)
         {
             if (refCount.at(element) == 0)
             {
@@ -282,6 +282,9 @@ namespace sdm
                 break;
             case TypeState::OCCUPANCY_STATE:
                 default_state = std::make_shared<OccupancyState>();
+                break;
+            case TypeState::SERIAL_OCCUPANCY_STATE:
+                default_state = std::make_shared<SerialOccupancyState>();
                 break;
             default:
                 throw sdm::exception::Exception("The initializer used is not available for this formalism !");

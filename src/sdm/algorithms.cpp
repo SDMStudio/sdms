@@ -14,6 +14,7 @@
 #include <sdm/utils/value_function/action_vf/action_sawtooth_lp_relaxed.hpp>
 
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan_wcsp.hpp>
 
 #include <sdm/parser/parser.hpp>
@@ -29,7 +30,24 @@ namespace sdm
 {
     namespace algo
     {
-        std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, double time_max, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming, TypeOfMaxPlanPrunning type_of_maxplan_prunning, int freq_prunning_lower_bound, TypeOfSawtoothPrunning type_of_sawtooth_pruning, int freq_prunning_upper_bound)
+        std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem,
+                                            std::string upper_bound_name,
+                                            std::string lower_bound_name,
+                                            std::string ub_init_name,
+                                            std::string lb_init_name,
+                                            double discount,
+                                            double error,
+                                            number horizon,
+                                            int trials,
+                                            std::string name,
+                                            double time_max,
+                                            std::string current_type_of_resolution,
+                                            number BigM,
+                                            std::string type_sawtooth_linear_programming,
+                                            TypeOfMaxPlanPrunning type_of_maxplan_prunning,
+                                            int freq_prunning_lower_bound,
+                                            TypeOfSawtoothPrunning type_of_sawtooth_pruning,
+                                            int freq_prunning_upper_bound)
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -38,6 +56,7 @@ namespace sdm
 
             auto action_tabular = std::make_shared<ActionVFTabulaire>(problem);
             auto action_maxplan = std::make_shared<ActionVFMaxplan>(problem);
+            auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(problem);
             auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
             auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(problem);
 
@@ -57,7 +76,7 @@ namespace sdm
             }
             else if (lower_bound_name == "maxplan_serial")
             {
-                // lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized>(problem, horizon, lb_init);
+                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
             else if (lower_bound_name == "maxplan_lp")
             {
@@ -100,7 +119,7 @@ namespace sdm
                 upper_bound = std::make_shared<TabularValueFunction>(horizon, ub_init, tabular_backup, action_tabular);
             }
 
-            return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, time_max);
+            return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, 1, 1, time_max);
         }
 
         std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount, double error, number horizon, int trials, int truncation, std::string name, double time_max, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming, TypeOfMaxPlanPrunning type_of_maxplan_prunning, int freq_prunning_lower_bound, TypeOfSawtoothPrunning type_of_sawtooth_pruning, int freq_prunning_upper_bound)

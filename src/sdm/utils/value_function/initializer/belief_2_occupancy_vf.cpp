@@ -30,7 +30,9 @@ namespace sdm
         case TypeState::OCCUPANCY_STATE:
             return operatorMPOMDP(state, tau);
             break;
-
+        case TypeState::SERIAL_OCCUPANCY_STATE:
+            return operatorMPOMDP(state, tau);
+            break;
         default:
             throw sdm::exception::Exception("The initializer used is not available for this formalism !");
             break;
