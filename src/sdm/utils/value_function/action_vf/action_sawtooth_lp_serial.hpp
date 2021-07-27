@@ -11,7 +11,7 @@ namespace sdm
         using TData = ActionVFSawtoothLP::TData;
 
         ActionVFSawtoothLPSerial();
-        ActionVFSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution);
+        ActionVFSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution, number bigM_value);
 
         /**
          * @brief Create a Objective Constraint of the LP

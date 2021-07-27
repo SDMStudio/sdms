@@ -13,9 +13,8 @@ namespace sdm
     ActionVFSawtoothLPSerial::ActionVFSawtoothLPSerial() {}
     ActionVFSawtoothLPSerial::ActionVFSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world,
                                                        TypeOfResolution current_type_of_resolution,
-                                                       number bigM_value,
-                                                       TypeSawtoothLinearProgram type_sawtooth_resolution)
-        : ActionVFSawtoothLP(world, current_type_of_resolution, bigM_value, type_sawtooth_resolution)
+                                                       number bigM_value)
+        : ActionVFSawtoothLP(world, current_type_of_resolution, bigM_value)
     {
     }
 

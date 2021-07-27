@@ -208,7 +208,7 @@ namespace sdm
         {
             std::set<std::shared_ptr<JointHistoryInterface>> joint_histories;
 
-            auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(this->support_of_the_next_history->getObservation());
+            auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(this->support_of_the_next_history->getLastObservation());
 
             //Determine all Joing History which respect the fact that the next joint history can be create by the current joint history and the next joint observation
 

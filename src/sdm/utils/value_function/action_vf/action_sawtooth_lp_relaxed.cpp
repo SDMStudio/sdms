@@ -10,7 +10,7 @@
 namespace sdm
 {
     ActionVFSawtoothLPRelaxed::ActionVFSawtoothLPRelaxed() {}
-    ActionVFSawtoothLPRelaxed::ActionVFSawtoothLPRelaxed(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution) : ActionVFSawtoothLP(world,current_type_of_resolution,0)
+    ActionVFSawtoothLPRelaxed::ActionVFSawtoothLPRelaxed(const std::shared_ptr<SolvableByHSVI>& world, TypeOfResolution current_type_of_resolution) : ActionVFSawtoothLP(world,current_type_of_resolution,0)
     {
     }
 
@@ -153,7 +153,7 @@ namespace sdm
                     {
                         double probability = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
 
-                        auto next_joint_observation = this->determineNextJointObservation(compressed_occupancy_state,next_joint_history);
+                        auto next_joint_observation = this->determineNextJointObservation(compressed_occupancy_state,next_joint_history, t);
 
                         // We search for the joint_history which allow us to obtain the current next_joint_history conditionning to the next joint observation
                         for(const auto &joint_history : this->determineJointHistory(compressed_occupancy_state,next_joint_history,next_joint_observation, element_state_AND_upper_bound.first))
