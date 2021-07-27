@@ -15,7 +15,7 @@ namespace sdm
 
     ActionVFSawtoothWCSP::ActionVFSawtoothWCSP(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFSawtoothWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothWCSP::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         // std::shared_ptr<Action> best_action;
         // double min_value = std::numeric_limits<double>::max();
@@ -135,7 +135,7 @@ namespace sdm
         }
         // Save the best action associed to a state
         this->state_linked_to_decision_rule[state] = best_action;
-        return best_action;
+        return {best_action, max_value};
     }
 
     Pair<std::shared_ptr<Action>,double>  ActionVFSawtoothWCSP::createWCSPProblem(const std::shared_ptr<ValueFunction>& vf , const std::shared_ptr<State>& state, number t)

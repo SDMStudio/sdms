@@ -25,9 +25,8 @@ namespace sdm
         }
     }
 
-    std::shared_ptr<Action> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
-        // std::cout << "selectBestAction::begin" << std::endl;
         // Determine the type of Linear Program to use
         switch (this->csawtooth_lp_)
         {
@@ -38,19 +37,20 @@ namespace sdm
         default:
             return this->createFullSawtooth(vf, state, t);
         }
-        // std::cout << "selectBestAction::end" << std::endl;
     }
 
-    std::shared_ptr<Action> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::createRelaxedSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action;
-        double min_value = std::numeric_limits<double>::max(), value_tmp;
+        double min_value = std::numeric_limits<double>::max(), value_tmp, value;
 
         if (vf->getSupport(t + 1).empty())
         {
             // Resolution of the problem when the support of Point Set is empty
             this->representation = {std::make_shared<MappedVector<std::shared_ptr<State>, double>>()};
-            best_action = this->createLP(vf, state, t).first;
+            auto pair_action_value = this->createLP(vf, state, t);
+            best_action = pair_action_value.first;
+            min_value = pair_action_value.second;
         }
         else
         {
@@ -81,14 +81,14 @@ namespace sdm
         }
         // Save the best action associed to a state
         this->state_linked_to_decision_rule[state] = best_action;
-        return best_action;
+        return {best_action, min_value};
     }
 
-    std::shared_ptr<Action> ActionVFSawtoothLP::createFullSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::createFullSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         // For the Full version of Sawtooth, wo over all the Point Set
-        this->representation = std::make_shared<MappedVector<std::shared_ptr<State>, double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));
-        return this->createLP(vf, state, t).first;
+        // this->representation = std::make_shared<MappedVector<std::shared_ptr<State>, double>>(std::static_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1));
+        return this->createLP(vf, state, t);
     }
 
     void ActionVFSawtoothLP::createVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
@@ -108,9 +108,13 @@ namespace sdm
             //<! Define variables \omega_k(x',o')
 
             // Go over all Point Set in t+1
-            for (const auto &element_state_AND_upper_bound : *this->representation)
+            for (const auto &ostate : vf->getSupport(t+1))
             {
-                const auto &next_one_step_uncompressed_occupancy_state = element_state_AND_upper_bound.first->toOccupancyState()->getOneStepUncompressedOccupancy();
+
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // !! A REMETTRE EN ONE STEP SI NECESSAIRE !!
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                const auto &next_one_step_uncompressed_occupancy_state = ostate->toOccupancyState();//->getOneStepUncompressedOccupancy();
 
                 // Go over all Joint History Next
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
@@ -173,12 +177,16 @@ namespace sdm
             auto compressed_occupancy_state = state->toOccupancyState();
 
             // Go over all points in the point set at t+1
-            for (const auto &element_state_AND_upper_bound : *this->representation)
+            for (const auto &ostate : vf->getSupport(t+1))
             {
-                const auto &next_one_step_uncompressed_occupancy_state = element_state_AND_upper_bound.first->toOccupancyState()->getOneStepUncompressedOccupancy();
+
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // !! A REMETTRE EN ONE STEP SI NECESSAIRE !!
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                const auto &next_one_step_uncompressed_occupancy_state = ostate->toOccupancyState();//->getOneStepUncompressedOccupancy();
 
                 // Compute the difference i.e. (v_k - V_k)
-                double current_upper_bound = element_state_AND_upper_bound.second;
+                double current_upper_bound = vf->getValueAt(ostate, t);
                 double initial_upper_bound = vf->getInitFunction()->operator()(next_one_step_uncompressed_occupancy_state, t + 1);
                 double difference = current_upper_bound - initial_upper_bound;
 
@@ -381,8 +389,7 @@ namespace sdm
 
     std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLP::determineNextJointObservation(const std::shared_ptr<State> &compressed_occupancy_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
     {
-        auto next_joint_observation = next_joint_history->getLastObservation()->to<Joint<std::shared_ptr<Observation>>>();
-        return next_joint_observation;
+        return next_joint_history->getLastObservation()->to<Joint<std::shared_ptr<Observation>>>();
     }
 
     std::set<std::shared_ptr<JointHistoryInterface>> ActionVFSawtoothLP::determineJointHistory(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_joint_observation)

@@ -9,7 +9,7 @@ namespace sdm
 
     ActionVFMaxplan::ActionVFMaxplan(const std::shared_ptr<SolvableByHSVI>& world): ActionVFBase(world) {}
 
-    std::shared_ptr<Action> ActionVFMaxplan::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>,double> ActionVFMaxplan::selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<POMDPInterface>(this->world_->getUnderlyingProblem());
 
@@ -28,6 +28,6 @@ namespace sdm
                 action_ = action->toAction();
             }
         }
-        return action_;
+        return {action_, argmax_global};
     }
 }

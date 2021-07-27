@@ -62,8 +62,8 @@ namespace sdm
                 double qvalue = this->world_->getReward(state, action, t) + this->world_->getDiscount(t) * this->world_->getExpectedNextValue(vf, state, action, t);
                 if (std::abs(qvalue - value) > 0.01)
                 {
-                    // cplex.exportModel("lb_bellman_op.lp");
-                    // system("cat lb_bellman_op.lp");
+                    cplex.exportModel("lb_bellman_op.lp");
+                    system("cat lb_bellman_op.lp");
                     std::cout << "LP(" << value << ") - EX(" << qvalue << ")" << std::endl;
                 }
             }
