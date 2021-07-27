@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     // sdm::test(all_formalism,all_problem,all_horizon,all_discount,upper_bound_name,lower_bound_name,all_lower__init_name,all_upper_init_name,all_truncation,all_sawtooth_current_type_of_resolution,all_sawtooth_BigM,all_sawtooth_type_of_linear_program,all_type_of_maxplan_prunning,all_freq_prunning_lower_bound,all_type_of_sawtooth_prunning,all_freq_prunning_upper_bound,mean,filepath,save_path);
 
     std::string filename = "../data/world/dpomdp/tiger.dpomdp";
-    int horizon = 4;
+    int horizon = 3;
     int discount = 1;
     double error = 0.01;
     int trials = 1000;
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
     // Instanciate bounds
     std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_wcsp);
-    std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_lp_relaxed);
+    std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_lp);
 
     auto algo = std::make_shared<HSVI>(oMDP, lower_bound, upper_bound, problem->getHorizon(), error, trials);
 

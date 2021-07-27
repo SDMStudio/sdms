@@ -23,7 +23,15 @@ namespace sdm
         std::cout<<"Size "<<  this->representation->size()<<std::endl;      
         auto a = this->createLP(vf,state, t);
 
-        if(std::abs(a.second - vf->template backup<double>(state,a.first,t))>0.01)
+
+        auto resultat = vf->template backup<double>(state,a.first,t);
+
+        std::cout<<"Resultat "<<resultat<<std::endl;
+
+        auto resultat2 = vf->template backup<double>(state->toOccupancyState()->getOneStepUncompressedOccupancy(),a.first,t);
+        std::cout<<"Resultat2 "<<resultat2<<std::endl;
+
+        if(std::abs(a.second - resultat)>0.01)
         {
             std::cout<<"Erreur "<<std::endl;
             // std::cout<<"Action "<<a.first->str()<<std::endl;
