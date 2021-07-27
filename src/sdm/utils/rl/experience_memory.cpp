@@ -13,13 +13,13 @@ namespace sdm
         this->position = 0;
     }
 
-    void ExperienceMemory::push(const std::shared_ptr<Observation>& observation, const std::shared_ptr<Action>& action, const double reward, const std::shared_ptr<Observation>& next_observation, number t)
+    void ExperienceMemory::push(const std::shared_ptr<Observation>& observation, const std::shared_ptr<Action>& action, const double reward, const std::shared_ptr<Observation>& next_observation, const std::shared_ptr<Action>& next_action, number t)
     {
         if (this->experience_memory_[t].size() < this->capacity_)
         {
-            this->experience_memory_[t].push_back(std::make_tuple(nullptr, nullptr, 0., nullptr));
+            this->experience_memory_[t].push_back(std::make_tuple(nullptr, nullptr, 0., nullptr, nullptr));
         }
-        this->experience_memory_[t][this->position] = std::make_tuple(observation, action, reward, next_observation);
+        this->experience_memory_[t][this->position] = std::make_tuple(observation, action, reward, next_observation, next_action);
         this->position = (this->position + 1) % this->capacity_;
     }
 

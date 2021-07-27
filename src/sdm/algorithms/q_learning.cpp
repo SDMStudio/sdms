@@ -15,19 +15,20 @@ namespace sdm
                          double lr,
                          double batch_size,
                          unsigned long num_max_steps,
-                         std::string name) : env_(env),
-                                             experience_memory_(experience_memory),
-                                             q_value_table_(q_value_table),
-                                             q_value_table_target_(q_value_table_target),
-                                             backup_(backup),
-                                             exploration_process(exploration),
-                                             horizon_(horizon),
-                                             discount_(discount),
-                                             lr_(lr),
-                                             batch_size_(batch_size),
-                                             max_steps_(num_max_steps),
-                                             target_update_(1),
-                                             name_(name)
+                         std::string name
+                         ) : env_(env),
+                             experience_memory_(experience_memory),
+                             q_value_table_(q_value_table),
+                             q_value_table_target_(q_value_table_target),
+                             backup_(backup),
+                             exploration_process(exploration),
+                             horizon_(horizon),
+                             discount_(discount),
+                             lr_(lr),
+                             batch_size_(batch_size),
+                             max_steps_(num_max_steps),
+                             target_update_(1),
+                             name_(name)
     {
     }
 
@@ -110,8 +111,9 @@ namespace sdm
         // if (this->episode % target_update_ == 0)
         //     this->update_target();
         this->step = 0;
-        this->episode += 1;
+        this->episode++;
         this->observation = this->env_->reset();
+        this->action = this->select_action(this->observation, this->step);
 
         unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
@@ -135,24 +137,24 @@ namespace sdm
         // std::cout << "-------- QLearning::do_step() --------- " << this->step << std::endl;
         
         // Action selection following policy and exploration process
-        this->action = this->select_action(this->observation);
 
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
         // std::cout << "-------- do_step() --------- 2" << std::endl;
 
+        this->next_action = this->select_action(this->next_observation, this->step + 1);
+
         // Push experience to memory
-        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->step);
+        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
         // std::cout << "-------- do_step() --------- 3" << std::endl;
 
         // Backup and get Q Value Error
-        double delta = this->backup_->backup(this->step);
-        // std::cout << "-------- do_step() --------- 4" << std::endl;
-
+        double delta = this->backup_->update(this->step);
 
         // std::cout << "delta " << delta << std::endl;
 
         this->observation = this->next_observation;
+        this->action = this->next_action;
         this->step++;
         this->global_step++;
     }
@@ -179,22 +181,22 @@ namespace sdm
         *this->q_value_table_target_ = *this->q_value_table_;
     }
 
-    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation)
+    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation, number t)
     {
-        // std::cout << "-------- QLearning::select_action ---------" << std::endl;
-        // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
-        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), this->step))
+        
+        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), t))
         {
             // std::cout << "-------- RANDOM ---------" << std::endl;
-            return this->env_->getRandomAction(observation, this->step);
+            return this->env_->getRandomAction(observation, t);
         }
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            return this->backup_->getGreedyAction(observation->toState(), this->step);
+            return this->backup_->getGreedyAction(observation->toState(), t);
         }
-        // return this->exploration_->getAction(this->qvalue_, observation, this->step); // random is (tmp < epsilon) else qvalue(observation)
+
     }
+
 
     void QLearning::saveResults(std::string filename, double other)
     {

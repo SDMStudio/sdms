@@ -39,6 +39,7 @@ namespace sdm
     void JointHistoryTree::addIndividualHistory(std::shared_ptr<HistoryInterface> ihist)
     {
         this->push_back(ihist);
+        // this->is_origin = false;
     }
 
     std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &data, bool backup)
@@ -120,6 +121,11 @@ namespace sdm
     std::shared_ptr<JointHistoryTree> JointHistoryTree::getOrigin()
     {
         return std::static_pointer_cast<JointHistoryTree>(HistoryTree::getOrigin());
+    }
+
+    void JointHistoryTree::isNotOrigin()
+    {
+        this->is_origin = false;
     }
 
     std::vector<std::shared_ptr<JointHistoryTree>> JointHistoryTree::getChildren() const

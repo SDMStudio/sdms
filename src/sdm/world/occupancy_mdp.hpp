@@ -22,7 +22,7 @@ namespace sdm
         {
         public:
                 BaseOccupancyMDP();
-                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, bool generate_action_spaces = false, int batch_size = 0);
 
                 void initialize(number memory);
 
@@ -84,7 +84,7 @@ namespace sdm
 
         protected:
                 /** @brief Hyperparameters. */
-                bool compression_ = true, store_actions_ = true;
+                bool compression_ = true, generate_action_spaces_ = false;
 
                 /** @brief Keep a pointer on the associated belief mdp that is used to compute next beliefs. */
                 std::shared_ptr<BeliefMDP> belief_mdp_;
@@ -112,6 +112,10 @@ namespace sdm
 
                 /** @brief Return true if compression must be done */
                 bool do_compression(number t) const;
+
+                std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
+
+                // std::shared_ptr<Action> getActionPointer(std::shared_ptr<Action> action_tmp);
         };
 
         using OccupancyMDP = BaseOccupancyMDP<OccupancyState>;

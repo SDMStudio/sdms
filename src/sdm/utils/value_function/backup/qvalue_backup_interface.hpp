@@ -17,7 +17,7 @@ namespace sdm
          * @param number t : time step
          * @return 
          */
-        virtual double backup(number t) = 0;
+        virtual double update(number t) = 0;
 
         /**
          * @brief 

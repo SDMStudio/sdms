@@ -12,7 +12,7 @@ namespace sdm
         using TData = double;
 
         ActionVFSawtoothLP();
-        ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_sawtooth_resolution);
+        ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution, number bigM_value);
 
         /**
          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time
@@ -22,7 +22,7 @@ namespace sdm
          * @param number t : time step
          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
          */
-        std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        virtual std::shared_ptr<Action> selectBestAction(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
 
         /**
          * @brief Create the variable which will be used to resolve the LP
@@ -75,24 +75,6 @@ namespace sdm
         TypeSawtoothLinearProgram csawtooth_lp_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
 
         number bigM_value_;
-
-        /**
-         * @brief Create the Relaxed Version of LP problem
-         * 
-         * @param const std::shared_ptr<ValueFunction>& vf : Value function
-         * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param number t : Time Step 
-         */
-        std::shared_ptr<Action> createRelaxedSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
-
-        /**
-         * @brief Create the Full Version of LP problem
-         * 
-         * @param const std::shared_ptr<ValueFunction>& vf : Value function
-         * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param number t : Time Step 
-         */
-        std::shared_ptr<Action> createFullSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Create constraints with the Big M formalim
@@ -178,7 +160,7 @@ namespace sdm
          * @return std::shared_ptr<Joint<std::shared_ptr<Observation>>> 
          */
         virtual std::shared_ptr<Joint<std::shared_ptr<Observation>>> determineNextJointObservation(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, number t);
-        virtual std::set<std::shared_ptr<JointHistoryInterface>> determineJointHistory(const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<Observation> &);
+        virtual std::set<std::shared_ptr<JointHistoryInterface>> determineJointHistory(const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<Observation> &, const std::shared_ptr<State>&);
 
         std::shared_ptr<MappedVector<std::shared_ptr<State>, double>> representation;
 

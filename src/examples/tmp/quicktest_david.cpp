@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")
         ("compression", "do compression")
-        ("store_actions", "store_actions")
+        ("store_action_spaces", "store_action_spaces")
         ("store_states", "store_states");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
 
         // std::cout << "# Build OccupancyMDP" << std::endl;
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
-        // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+        // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_action_spaces"));
 
         // auto state = hsvi_mdp->getInitialState();
         // std::cout << "# State 0\n"

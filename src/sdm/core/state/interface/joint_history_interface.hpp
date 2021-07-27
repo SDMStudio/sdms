@@ -21,5 +21,6 @@ namespace sdm
         virtual void addIndividualHistory(std::shared_ptr<HistoryInterface> ihist) = 0;
         virtual std::shared_ptr<Joint<std::shared_ptr<Observation>>> getDefaultObs() = 0;
         // virtual number getNumAgents() const;
+        virtual void isNotOrigin() = 0;
     };
 }

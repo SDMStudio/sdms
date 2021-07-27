@@ -42,10 +42,11 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
-        : compression_(compression), store_actions_(store_actions)
+    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, bool generate_action_spaces, int batch_size)
+        : compression_(compression), generate_action_spaces_(generate_action_spaces), action_map_(std::make_shared<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>>())
     {
         this->store_states_ = store_states;
+        this->store_actions_ = store_actions;
         this->batch_size_ = batch_size;
         this->underlying_problem_ = underlying_dpomdp;
 
@@ -85,6 +86,7 @@ namespace sdm
     template <class TOccupancyState>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseOccupancyMDP<TOccupancyState>::step(std::shared_ptr<Action> action)
     {
+
         clock_t t_begin = clock(), t_tmp = clock();
         auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
         OccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
@@ -126,7 +128,7 @@ namespace sdm
     template <class TOccupancyState>
     std::shared_ptr<Space> BaseOccupancyMDP<TOccupancyState>::getActionSpaceAt(const std::shared_ptr<Observation> &ostate, number t)
     {
-        std::cout << "This is a useless function, so this will never be seen by anyone." << std::endl;
+        // std::cout << "This is a useless function, so this will never be seen by anyone." << std::endl;
         return this->getActionSpaceAt(ostate->toState(), t);
     }
 
@@ -135,9 +137,7 @@ namespace sdm
     {
         // std::cout << "OccupancyMDP::getRandomAction() " << std::endl;
 
-        // return this->getActionSpaceAt(ostate->toState(), t)->sample()->toAction();
-
-        if (this->store_actions_)
+        if (this->generate_action_spaces_)
             return this->getActionSpaceAt(ostate->toState(), t)->sample()->toAction();
         else
             return this->computeRandomAction(ostate->toState()->toOccupancyState(), t);
@@ -199,12 +199,16 @@ namespace sdm
     template <class TOccupancyState>
     Pair<std::shared_ptr<State>, double> BaseOccupancyMDP<TOccupancyState>::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "OccupancyMDP::computeNextStateAndProbability() " << std::endl;
+
         return {this->computeNextState(ostate, action, observation, t), 1};
     }
 
     template <class TOccupancyState>
     std::shared_ptr<State> BaseOccupancyMDP<TOccupancyState>::computeNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "OccupancyMDP::computeNextState() " << std::endl;
+
         clock_t t_begin = clock();
         // The new fully uncompressed occupancy state
         std::shared_ptr<State> fully_uncompressed_next_occupancy_state = std::make_shared<TOccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
@@ -250,6 +254,8 @@ namespace sdm
     template <class TOccupancyState>
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseOccupancyMDP<TOccupancyState>::computeExactNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
+        // std::cout << "OccupancyMDP::computeExactNextState() " << std::endl;
+
         auto occupancy_state = ostate->toOccupancyState();
         auto decision_rule = action->toDecisionRule();
 
@@ -309,6 +315,8 @@ namespace sdm
     template <class TOccupancyState>
     Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseOccupancyMDP<TOccupancyState>::computeSampledNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
     {
+        // std::cout << "OccupancyMDP::computeSampledNextState() " << std::endl;
+
         // The new fully uncompressed occupancy state
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_next_occupancy_state = std::make_shared<TOccupancyState>(this->getUnderlyingMPOMDP()->getNumAgents());
 
@@ -464,6 +472,8 @@ namespace sdm
     template <class TOccupancyState>
     double BaseOccupancyMDP<TOccupancyState>::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
+        // std::cout << "OccupancyMDP::getReward() " << std::endl;
+
         clock_t t_begin = clock();
 
         auto state_action = std::make_pair(occupancy_state, decision_rule);
@@ -486,7 +496,8 @@ namespace sdm
                 // Update the expected reward
                 reward += occupancy_state->toOccupancyState()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
             }
-            this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
+            if (this->store_states_ && this->store_actions_)
+                this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
         }
         // FOR PROFILING
         BaseOccupancyMDP<TOccupancyState>::TIME_IN_GET_REWARD += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
@@ -537,4 +548,20 @@ namespace sdm
     {
         return this->compression_;
     }
+
+    // template <class TOccupancyState>
+    // std::shared_ptr<Action> BaseOccupancyMDP<TOccupancyState>::getActionPointer(std::shared_ptr<Action> action_tmp)
+    // {
+    //     if (this->store_actions_)
+    //     {
+    //         if (this->action_map_->find(*action_tmp->toJointDeterministicDecisionRule()) == this->action_map_->end())
+    //         {
+    //             this->action_map_->emplace(*action_tmp->toJointDeterministicDecisionRule(), action_tmp);
+    //         }
+    //         std::cout << this->action_map_->size() << " ";
+    //         return this->action_map_->at(*action_tmp->toJointDeterministicDecisionRule());
+    //     }
+    //     return action_tmp;
+    // }
+    
 } // namespace sdm

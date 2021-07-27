@@ -7,14 +7,16 @@ namespace sdm
     {
     }
 
-    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
-        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, batch_size)
+    PrivateHierarchicalOccupancyMDP::PrivateHierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, bool generate_action_spaces, int batch_size)
+        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, generate_action_spaces, batch_size)
     {
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> PrivateHierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
-        // std::cout << "PrivateHierarchicalOccupancyMDP::step " << std::endl;
+
+        // std::cout << "PrivateHierarchicalOccupancyMDP::step 0" << std::endl;
+        // std::cout << *action << std::endl;
         clock_t t_begin = clock(), t_tmp = clock();
         this->current_action_ = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
         OccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
@@ -300,16 +302,24 @@ namespace sdm
 
     std::shared_ptr<Action> PrivateHierarchicalOccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
-        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule()" << std::endl;
+        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 0" << std::endl;
 
         //
         auto individual_histories = joint_history->getIndividualHistories();
+        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 1" << std::endl;
+
         // Get list of individual history labels
         auto joint_labels = ostate->toOccupancyState()->getJointLabels(individual_histories).toJoint<State>();
+        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 2" << std::endl;
+
         //
         auto joint_hierarchical_labels = this->getJointHierarchicalLabels(joint_labels, ostate);
+        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 3" << std::endl;
+
        // Get the selected action
         auto action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_hierarchical_labels));
+        // std::cout << "PrivateHierarchicalOccupancyMDP::applyDecisionRule() 4" << std::endl;
+
         // Get the adress of the action object from the space of available action object.
         return std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingProblem()->getActionSpace(t))->getItemAddress(*action->toJoint<Item>())->toAction();
     }

@@ -22,7 +22,7 @@ namespace sdm
          * @param number t : time step
          * @return 
          */
-        double backup(number t);
+        double update(number t);
 
         /**
          * @brief 

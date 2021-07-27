@@ -114,6 +114,7 @@ namespace sdm
 
         std::shared_ptr<JointHistoryTree> getParent() const;
         std::shared_ptr<JointHistoryTree> getOrigin();
+        void isNotOrigin();
         std::vector<std::shared_ptr<JointHistoryTree>> getChildren() const;
         std::shared_ptr<JointHistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
 
