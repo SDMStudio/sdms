@@ -150,18 +150,8 @@ namespace sdm
 
     void HyperplanValueFunction::bounded_prune(number t)
     {
-        // Pour bounded prunning, il faut aussi noter les points intéressants , et chercher pour ces points la
-
         std::unordered_map<std::shared_ptr<State>, number> refCount;
         auto all_plan = this->getSupport(t);
-
-        // std::cout<<"All hyperplan "<<std::endl;
-        // Initialize ref count to 0 for each hyperplan
-        // for (auto iter = all_plan.begin(); iter != all_plan.end(); iter++)
-        // {
-        //     // std::cout<<"Element "<<(*iter)->str()<<std::endl;
-        //     refCount.emplace(*iter, 0);
-        // }
 
         for (const auto &element : all_plan)
         {
@@ -173,12 +163,8 @@ namespace sdm
         double max_value = -std::numeric_limits<double>::max(), value;
         for (const auto &hyperplan : this->all_state_updated_so_far[t])
         {
-            // std::cout<<"Element in all state updated so far "<<hyperplan->str()<<std::endl;
-
             for (const auto &alpha : refCount)
             {
-                // std::cout<<"Alpha "<<alpha.first->str()<<std::endl;
-                // std::cout<<"Value "<< (hyperplan->toBelief()->operator^(alpha.first->toBelief()))<<std::endl;
                 if (max_value < (value = (hyperplan->toBelief()->operator^(alpha.first->toBelief()))))
                 {
                     max_value = value;
@@ -192,7 +178,6 @@ namespace sdm
         {
             if (refCount.at(element) == 0)
             {
-                // std::cout<<"Hyperplan to delete "<<(*iter)->str()<<std::endl;
                 this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), element));
             }
         }

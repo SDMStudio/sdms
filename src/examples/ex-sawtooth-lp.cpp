@@ -23,25 +23,35 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string filename;
-    int horizon = 3;
+    int horizon = 2;
     int discount = 1;
     double error = 0.00001;
-    int trials = 3;
-	int truncation = 3;
+    int trials = 50;
+	int truncation = 2;
 
 	TypeOfResolution type_of_resolution = TypeOfResolution::IloIfThenResolution;
-	TypeSawtoothLinearProgram type_of_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING;
+	TypeSawtoothLinearProgram type_of_linear_program;
 
 	auto ValueBigM = 100;
 
-	if (argc > 1)
+	if (argc > 2)
 	{
 		filename = argv[1];
+		if(strcmp( argv[2],"Full") ==0)
+		{
+			type_of_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING;
+		}else if(strcmp( argv[2],"Relaxed")==0)
+		{
+			type_of_linear_program = TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING;
+		}
+		else if(strcmp(argv[2],"RelaxedV2") == 0)
+		{
+			type_of_linear_program = TypeSawtoothLinearProgram::RELAXED_V2_SAWTOOTH_LINER_PROGRAMMING;
+		}
 	}
-
 	else
 	{
-		std::cerr << "Error: Require 1 input file." << std::endl;
+		std::cerr << "Error: Require 2 input, the file path and the type of Linear Program (Full, Relaxed, RelaxedV2)." << std::endl;
 		return 1;
 	}
 
@@ -56,11 +66,12 @@ int main(int argc, char **argv)
 
 		auto tabular_backup = std::make_shared<TabularBackup>(oMDP);
 		auto maxplan_backup = std::make_shared<MaxPlanBackup>(oMDP);
+
 		auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(oMDP);
 		auto action_sawtooth_lp =  std::make_shared<ActionVFSawtoothLP>(oMDP, type_of_resolution,ValueBigM,type_of_linear_program);
 
         auto init_lb = std::make_shared<MinInitializer>(oMDP);
-        auto init_ub = std::make_shared<POMDPInitializer>(oMDP, "Pomdp Init");
+        auto init_ub = std::make_shared<MDPInitializer>(oMDP, "Pomdp Init");
 
 		// Instanciate bounds
 		std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_lp);

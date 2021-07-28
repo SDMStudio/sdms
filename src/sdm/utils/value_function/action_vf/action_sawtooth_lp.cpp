@@ -18,8 +18,6 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionFull(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
     {
-        //Prepare the support of point
-
         // For the Full version of Sawtooth, wo over all the Point Set  
         this->all_support = std::unordered_map<std::shared_ptr<State>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
 
