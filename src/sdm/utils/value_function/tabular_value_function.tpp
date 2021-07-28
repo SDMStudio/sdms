@@ -62,8 +62,8 @@ namespace sdm
     {
         auto [best_action, tmp] = this->getBestActionAndValue(state, t);
         // COMMENTER LA LIGNE CI-DESSOUS et mettre 'tmp' dans le update
-        auto value = this->template backup<double>(state, best_action, t);
-        this->updateValueAt(state, t, value);
+        // auto value = this->template backup<double>(state, best_action, t);
+        this->updateValueAt(state, t, tmp);
     }
 
     template <class Hash, class KeyEqual>

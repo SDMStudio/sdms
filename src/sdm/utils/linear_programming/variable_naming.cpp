@@ -53,7 +53,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "wsh"
-          << "." << i << "." << s << "." << jh->short_str();
+          << "." << i << "." << s->str() << "." << jh->short_str();
       return oss.str();
     }
 

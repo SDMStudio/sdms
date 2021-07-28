@@ -5,11 +5,11 @@
 
 // namespace sdm
 // {
-//     class ActionVFSawtoothLPRelaxed : public ActionVFSawtoothLP
+//     class ActionVFSawtoothLPRelaxedV2 : public ActionVFSawtoothLP
 //     {
 //     public:        
-//         ActionVFSawtoothLPRelaxed();
-//         ActionVFSawtoothLPRelaxed(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution);
+//         ActionVFSawtoothLPRelaxedV2();
+//         ActionVFSawtoothLPRelaxedV2(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution,number bigM_value);
 
 //         /**
 //          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time
@@ -52,21 +52,5 @@
 
 //         std::shared_ptr<State> support_point_set;
 //         bool support_empty;
-//         std::shared_ptr<HistoryInterface> support_of_the_next_history;
-//         std::shared_ptr<State> support_of_the_next_hidden_state;
-//         /**
-//          * @brief Create the constraints with the Big M formalim specialized for the case Occupancy State
-//          * 
-//          * @param const std::shared_ptr<ValueFunction>& vf : Value function
-//          * @param const std::shared_ptr<State> & occupancy_state : current state
-//          * @param IloEnv & : env 
-//          * @param IloModel & : var 
-//          * @param IloRangeArray& : model 
-//          * @param IloRangeArray &con
-//          * @param IloNumVarArray &var
-//          * @param double& index
-//          * @param number t : Time Step 
-//          */
-//         void createSawtoothBigM(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 //     };
 // }

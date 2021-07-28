@@ -146,11 +146,9 @@ namespace sdm
     double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<BeliefInterface> &state_tmp, const std::shared_ptr<BeliefInterface> &point_tmp)
     {
         // Determine the ratio for the specific case when the state is a Occupancy State
-
         double phi = 1.0;
-
-        auto point = point_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
-        auto occupancy_state = state_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
+        auto point = point_tmp->toOccupancyState();
+        auto occupancy_state = state_tmp->toOccupancyState();
 
         // Go over all joint history
         for (auto &joint_history : point->getJointHistories())

@@ -196,7 +196,7 @@ namespace sdm
 
     void DecentralizedLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        std::cout << "DecentralizedLP::createDecentralizedConstraints"<<std::endl;
+        // std::cout << "DecentralizedLP::createDecentralizedConstraints"<<std::endl;
         //Specialisation for type of state
         switch (state->getTypeState())
         {

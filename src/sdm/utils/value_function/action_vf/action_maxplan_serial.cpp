@@ -36,7 +36,7 @@ namespace sdm
         return {decision_max, argmax_global};
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionVFMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)
     {
         auto serial_occupancy_state = state->toOccupancyState();
         auto under_pb = std::dynamic_pointer_cast<SerialMMDPInterface>(this->world_->getUnderlyingProblem());
@@ -87,7 +87,7 @@ namespace sdm
     double ActionVFMaxplanSerial::evaluationOfHyperplanKnowingNextHyperplanAndDiscreteAction(const std::shared_ptr<PrivateOccupancyState> &private_occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hyperplan, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->world_->getUnderlyingProblem());
-        number agent = under_pb->getAgentId(t);
+        // number agent = under_pb->getAgentId(t);
 
         double value = 0;
 

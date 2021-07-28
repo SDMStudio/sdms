@@ -36,6 +36,7 @@ namespace sdm
             this->createObjectiveFunction(vf, state, var, obj, t);
 
             index = 0;
+
             // Create all Constraints of the LP problem
             this->createConstraints(vf, state, env, model, con, var, index, t);
 
@@ -57,17 +58,6 @@ namespace sdm
             {
                 value = cplex.getObjValue();
                 action = this->getVariableResult(vf, state, cplex, var, t);
-                // std::cout << "BEST ACTION" << std::endl;
-                // std::cout << *action << std::endl;
-
-                double qvalue = this->world_->getReward(state, action, t) + this->world_->getDiscount(t) * this->world_->getExpectedNextValue(vf, state, action, t);
-                if (std::abs(qvalue - value) > 0.01)
-                {
-                    // cplex.exportModel("lb_bellman_op.lp");
-                    // system("cat lb_bellman_op.lp");
-                    std::cout << "----- NOT EQUAL -----" << std::endl;
-                    std::cout << "LP(" << value << ") - EX(" << qvalue << ")" << std::endl;
-                }
             }
         }
         catch (IloException &e)

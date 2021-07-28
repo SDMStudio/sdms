@@ -13,25 +13,25 @@ namespace sdm
     ActionVFSawtoothLPSerial::ActionVFSawtoothLPSerial() {}
     ActionVFSawtoothLPSerial::ActionVFSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world,
                                                        TypeOfResolution current_type_of_resolution,
-                                                       number bigM_value)
-        : ActionVFSawtoothLP(world, current_type_of_resolution, bigM_value)
+                                                       number bigM_value, TypeSawtoothLinearProgram type_of_linear_programm)
+        : ActionVFSawtoothLP(world, current_type_of_resolution, bigM_value, type_of_linear_programm)
     {
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<State> &compressed_occupancy_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
+    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
         
         // Check if last agent
         bool last_agent = std::dynamic_pointer_cast<SerialProblemInterface>(ActionVFBase::world_)->isLastAgent(t);
-      
+
         // Get next observation
         auto next_joint_observation = (last_agent) ? next_joint_history->getLastObservation()->to<Joint<std::shared_ptr<Observation>>>() : under_pb->getDefaultObservation();
 
         return next_joint_observation;
     }
 
-    void ActionVFSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionVFSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double , double , IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number )
     {
         throw sdm::exception::NotImplementedException();
         // try
@@ -69,18 +69,20 @@ namespace sdm
         // }
     }
 
-    void ActionVFSawtoothLPSerial::createSawtoothIloIfThen(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
+    void ActionVFSawtoothLPSerial::createSawtoothIloIfThen(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
     {
-        // throw sdm::exception::NotImplementedException();
+
         try
         {
-            auto under_pb = std::dynamic_pointer_cast<SerialMMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
+            auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+            auto compressed_occupancy_state = state->toOccupancyState();
 
             // Gets the current individual history conditional on the current joint history
             number agent_id = under_pb->getAgentId(t);
-            auto indiv_history = joint_history->getIndividualHistory(agent_id);
 
             number recover = 0;
+
+            double Qrelaxation,SawtoothRatio;
 
             IloExpr expr(env);
             //<! 1.c.1 get variable v and set coefficient of variable v
@@ -89,9 +91,24 @@ namespace sdm
             // Go over all actions
             for (const auto &action : *under_pb->getActionSpace(t))
             {
-                recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
-                //<! 1.c.4 get variable a(u|o) and set constant
-                expr -= this->getQValueRealistic(vf, state, joint_history, action->toAction(), next_hidden_state, next_observation, probability, difference, t) * var[recover];
+                for(const auto& indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
+                {
+                    recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
+
+                    Qrelaxation = 0.0;
+                    SawtoothRatio = 0.0;
+                    for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
+                    {
+                        Qrelaxation += this->getQValueRelaxation(vf, compressed_occupancy_state, joint_history, action->toAction(), t);
+
+                        if(joint_history->expand(next_observation) == next_joint_history)
+                        {
+                            SawtoothRatio += this->getSawtoothMinimumRatio(vf, state, joint_history, action->toAction(), next_hidden_state, next_observation, denominator, t);
+                        }
+                    }
+                    //<! 1.c.4 get variable a(u|o) and set constant
+                    expr -=  (Qrelaxation + SawtoothRatio * difference) * var[recover];
+                }
             }
 
             // <! get variable \omega_k(x',o')
@@ -106,44 +123,37 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLPSerial::createObjectiveFunction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
+    void ActionVFSawtoothLPSerial::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,  IloEnv &env,IloRangeArray &con, IloNumVarArray &var,number &index, number t)
     {
-        try
+        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        number agent_id = under_pb->getAgentId(t);
+
+        auto compressed_occupancy_state = state->toOccupancyState();
+
+        number recover = 0;
+        double Qrelaxation;
+
+        con.add(IloRange(env, -IloInfinity, 0));
+        con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
+
+        // Go over all actions
+        for (const auto &action : *under_pb->getActionSpace(t))
         {
-            auto under_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
-            auto compressed_occupancy_state = state->toOccupancyState();
-
-            // <! 1.a get variable v
-            auto recover = this->getNumber(this->getVarNameWeight(0));
-
-            number agent_id = under_pb->getAgentId(t);
-
-            //<! 1.b set coefficient of objective function "\sum_{o_i,u_i} a_i(u_i|o_i) \sum_x s(x,o_i) Q_MDP(x,u_i) + discount * v0"
-            obj.setLinearCoef(var[recover], under_pb->getDiscount(t));
-
-            // Go over all indiv history
-            for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
+            for(const auto& indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
             {
-                // Go over all action
-                for (const auto &action : *under_pb->getActionSpace(t))
+                //<! 1.c.4 get variable a(u|o) and set constant
+                recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
+
+                Qrelaxation = 0;
+                for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
                 {
-
-                    recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
-
-                    double res = 0.0;
-                    for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
-                    {
-                        res += this->getQValueRelaxation(vf, compressed_occupancy_state, joint_history, action->toAction(), t);
-                    }
-                    obj.setLinearCoef(var[recover], res);
+                    Qrelaxation += this->getQValueRelaxation(vf, compressed_occupancy_state, joint_history, action->toAction(), t);
                 }
+
+                con[index].setLinearCoef(var[recover], -Qrelaxation);
             }
         }
-        catch (const std::exception &exc)
-        {
-            std::cerr << "ActionVFSawtoothLPSerial::createObjectiveFunctionOccupancy(..) exception caught: " << exc.what() << std::endl;
-            exit(-1);
-        }
+        index++;
     }
 
     void ActionVFSawtoothLPSerial::createDecentralizedVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
