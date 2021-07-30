@@ -60,7 +60,7 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Joint<std::shared_ptr<Observation>>> 
          */
-        std::shared_ptr<Joint<std::shared_ptr<Observation>>> determineNextJointObservation(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, number t);
+        std::shared_ptr<Joint<std::shared_ptr<Observation>>> determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &joint_history, number t);
 
         void createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 

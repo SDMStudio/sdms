@@ -26,13 +26,13 @@ int main(int argc, char **argv)
     int horizon = 2;
     int discount = 1;
     double error = 0.00001;
-    int trials = 50;
+    int trials = 3;
 	int truncation = 2;
 
-	TypeOfResolution type_of_resolution = TypeOfResolution::IloIfThenResolution;
+	TypeOfResolution type_of_resolution = TypeOfResolution::BigM;
 	TypeSawtoothLinearProgram type_of_linear_program;
 
-	auto ValueBigM = 100;
+	auto ValueBigM = 1000;
 
 	if (argc > 2)
 	{
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         problem->setHorizon(horizon);
         problem->setDiscount(discount);
 
-		std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon);
+		std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon, true, false, false);
 
 		auto tabular_backup = std::make_shared<TabularBackup>(oMDP);
 		auto maxplan_backup = std::make_shared<MaxPlanBackup>(oMDP);

@@ -1,6 +1,7 @@
 #include <sdm/exception.hpp>
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/utils/value_function/tabular_value_function.hpp>
 
 namespace sdm
 {
@@ -80,9 +81,9 @@ namespace sdm
 
         do
         {
-#ifdef LOGTIME
-            this->printTime();
-#endif
+// #ifdef LOGTIME
+            // this->printTime();
+// #endif
 
             // Logging (save data and print algorithms variables)
             //---------------------------------//
@@ -90,6 +91,11 @@ namespace sdm
             //---------------------------------//
 
             this->do_explore(start_state, 0, 0);
+
+            // if(this->trial >0)
+            // {
+            //     std::cout<<this->upper_bound_->str()<<std::endl;
+            // }
 
             this->lower_bound_->do_pruning(this->trial);
             this->upper_bound_->do_pruning(this->trial);
@@ -109,6 +115,11 @@ namespace sdm
 
     bool HSVI::do_stop(const std::shared_ptr<State> &s, double cost_so_far, number h)
     {
+        // if(h==1)
+        // {
+        //     std::cout<<"DO excess "<<this->do_excess(s, cost_so_far, h)<<std::endl;
+        //     // std::cout<<"state "<<s->str()<<std::endl;
+        // }
         return ((this->do_excess(s, cost_so_far, h) <= 0) || (this->trial > this->MAX_TRIALS));
     }
 
@@ -124,63 +135,50 @@ namespace sdm
                     this->upper_bound_->updateValueAt(state, h);
                 }
 
-#ifdef LOGTIME
+// #ifdef LOGTIME
                 this->StartTime();
-                *
-#endif
+// #endif
 
-                    // Select next action and state following search process
-                    clock_t t_begin = clock();
+                // Select next action and state following search process
                 auto [selected_action, value] = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, state, h);
-                HSVI::TIME_IN_SELECT_ACTION += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
-
-#ifdef LOGTIME
+// #ifdef LOGTIME
                 this->updateTime("Action");
                 this->StartTime();
-#endif
-                t_begin = clock();
+// #endif
                 std::shared_ptr<State> s_ = this->world_->nextState(state, selected_action, h, this->getptr());
-                HSVI::TIME_IN_SELECT_STATE += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
-#ifdef LOGTIME
+// #ifdef LOGTIME
                 this->updateTime("Next State");
-#endif
+// #endif
 
                 // Recursive explore
                 this->do_explore(s_, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, selected_action, h), h + 1);
 
-#ifdef LOGTIME
+// #ifdef LOGTIME
                 this->StartTime();
-#endif
+// #endif
 
                 // Update bounds
-                t_begin = clock();
                 if (((this->trial+1) % this->lb_update_frequency_) == 0)
                 {
                     this->lower_bound_->updateValueAt(state, h);
                 }
-                HSVI::TIME_IN_UPDATE_LB += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
-
-#ifdef LOGTIME
+// #ifdef LOGTIME
                 this->updateTime("Update Lower");
                 this->StartTime();
-#endif
+// #endif
 
-                t_begin = clock();
                 if (((this->trial+1) % this->ub_update_frequency_) == 0)
                 {
                     this->upper_bound_->updateValueAt(state, h);
                 }
-
-                HSVI::TIME_IN_UPDATE_UB += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
-
-#ifdef LOGTIME
+// #ifdef LOGTIME
                 this->updateTime("Update Upper");
-#endif
+// #endif
             }
 
             //---------------DEBUG-----------------//
-            // std::cout << "\t\t#> h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
+            // std::cout << "\t\t#>s h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
             //-----------------DEBUG----------------//
 
             // ------------- TEST ------------
@@ -200,6 +198,33 @@ namespace sdm
             const auto &lb = this->lower_bound_->getValueAt(s, h);
             const auto &ub = this->upper_bound_->getValueAt(s, h);
             const auto &incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
+
+            // if(h==1)
+            // {
+            //     std::cout<<"cost_so_far"<<cost_so_far<<std::endl;
+
+            //     std::cout<<"Do excess : ub "<<ub<<", lb "<<lb<<std::endl;
+            //     // std::cout<<"State Compressed"<<s->str()<<std::endl;
+                
+            //     if(lb>ub)
+            //     {
+            //         exit(-1);
+            //     }
+            // }
+
+            // if(h==1)
+            // {
+            //     switch (s->getTypeState())
+            //     {
+            //     case TypeState::OCCUPANCY_STATE:
+            //         std::cout<<"State UnCompressed"<<s->toOccupancyState()->getOneStepUncompressedOccupancy()->str()<<std::endl;
+            //         break;
+                
+            //     default:
+            //         break;
+            //     }
+            // }
+
             return this->world_->do_excess(incumbent, lb, ub, cost_so_far, this->error_, h);
         }
         catch (const std::exception &exc)
@@ -281,45 +306,49 @@ namespace sdm
         return this->lower_bound_->getValueAt(this->world_->getInitialState());
     }
 
-#ifdef LOGTIME
+// #ifdef LOGTIME
     void HSVI::StartTime()
     {
-        this->time_start = clock();
+        this->time_start = std::chrono::high_resolution_clock::now();
     }
 
     void HSVI::updateTime(std::string information)
     {
         if (information == "Action")
         {
-            this->total_time_select_action += (float)(clock() - this->time_start) / CLOCKS_PER_SEC;
+            HSVI::TIME_IN_SELECT_ACTION += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
         else if (information == "Update Lower")
         {
-            this->total_time_update_lower += (float)(clock() - this->time_start) / CLOCKS_PER_SEC;
+            HSVI::TIME_IN_UPDATE_LB += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
         else if (information == "Update Upper")
         {
-            this->total_time_update_upper += (float)(clock() - this->time_start) / CLOCKS_PER_SEC;
+            HSVI::TIME_IN_UPDATE_UB += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
         else if (information == "Next State")
         {
-            this->total_time_next_state += (float)(clock() - this->time_start) / CLOCKS_PER_SEC;
+            HSVI::TIME_IN_SELECT_STATE += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
+        }
+        else if (information == "Intialisation")
+        {
+            HSVI::TIME_IN_SELECT_STATE += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
     }
 
     void HSVI::printTime()
     {
-        std::cout << "Total Time Select Action :" << this->total_time_select_action << std::endl;
-        std::cout << "Total Time Update Lower :" << this->total_time_update_lower << std::endl;
-        std::cout << "Total Time Update Upper :" << this->total_time_update_upper << std::endl;
-        std::cout << "Total Time Determien Next State : " << this->total_time_next_state << std::endl;
+        // std::cout << "Total Time Select Action :" << this->total_time_select_action << std::endl;
+        // std::cout << "Total Time Update Lower :" << this->total_time_update_lower << std::endl;
+        // std::cout << "Total Time Update Upper :" << this->total_time_update_upper << std::endl;
+        // std::cout << "Total Time Determien Next State : " << this->total_time_next_state << std::endl;
 
-        std::cout << "\n Total Time Lower Bound : " << std::endl;
-        this->lower_bound_->printTime();
+        // std::cout << "\n Total Time Lower Bound : " << std::endl;
+        // this->lower_bound_->printTime();
 
-        std::cout << "\n Total Time Upper Bound : " << std::endl;
-        this->upper_bound_->printTime();
+        // std::cout << "\n Total Time Upper Bound : " << std::endl;
+        // this->upper_bound_->printTime();
     }
-#endif
+// #endif
 
 } // namespace sdm

@@ -72,17 +72,13 @@ namespace sdm
     std::chrono::high_resolution_clock::time_point start_time, current_time;
     double duration;
 
-#ifdef LOGTIME
-    double time_start;
-    double total_time_select_action = 0;
-    double total_time_next_state = 0;
-    double total_time_update_upper = 0;
-    double total_time_update_lower = 0;
+// #ifdef LOGTIME
+    std::chrono::high_resolution_clock::time_point time_start;
 
     void StartTime();
     void updateTime(std::string information);
     void printTime();
-#endif
+// #endif
   public:
     /**
      * @brief Construct the HSVI object.
@@ -104,7 +100,7 @@ namespace sdm
          std::string name = "hsvi",
          number lb_update_frequency = 1,
          number ub_update_frequency = 1,
-         double time_max = 1000);
+         double time_max = 5000);
 
     std::shared_ptr<HSVI> getptr();
 

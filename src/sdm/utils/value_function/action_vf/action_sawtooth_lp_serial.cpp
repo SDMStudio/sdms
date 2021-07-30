@@ -18,7 +18,7 @@ namespace sdm
     {
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
+    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
         

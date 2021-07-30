@@ -72,18 +72,7 @@ namespace sdm
                     best_action = best_action_support;
                 }
             }
-
-            double value_tmp;
-            // Verification of the Relaxation Contraint.
-            if(min_value > (value_tmp = vf->getValueAt(state,t)))
-            {
-                // If the contraint is not verified , we used the decision rule previously stocked
-                best_action = this->state_linked_to_decision_rule.at(state);
-                min_value = value_tmp;
-            }
         }
-        // Save the best action associed to a state
-        this->state_linked_to_decision_rule[state] = best_action;
         return {best_action, min_value};
     }
 
@@ -95,6 +84,8 @@ namespace sdm
 
         double value = -std::numeric_limits<double>::max();
         std::shared_ptr<Action> decision_rule;
+
+        initCosts(); // last check for compatibility issues between ToulBar2 options and Cost data-type
 
         tb2init();              // must be call before setting specific ToulBar2 options and creating a model
         ToulBar2::verbose = -1; // change to 0 or higher values to see more trace information
@@ -165,7 +156,6 @@ namespace sdm
             double denominator = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
 
             // Determine the next joint observation thinks to the Next joint history of the support
-            // auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getObservation());
             auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation());
 
             double numerator = 0.0;
@@ -211,7 +201,6 @@ namespace sdm
             auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(this->support_of_the_next_history->getLastObservation());
 
             //Determine all Joing History which respect the fact that the next joint history can be create by the current joint history and the next joint observation
-
             for(const auto &joint_history : compressed_occupancy_state->getJointHistories())
             {
                 //Expand current joint history with the next joitn observation
