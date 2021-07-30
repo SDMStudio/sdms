@@ -174,7 +174,7 @@ namespace sdm
                     }
                 }
 
-                if (min_value >max_value_support)
+                if (min_value > max_value_support)
                 {
                     min_value = max_value_support;
                     best_action = best_action_support;
