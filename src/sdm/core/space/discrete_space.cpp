@@ -6,17 +6,12 @@ namespace sdm
 {
     DiscreteSpace::DiscreteSpace() : num_items_(0) 
     {
-        // std::cout << "DiscreteSpace() a" << std::endl;
-        // std::cout << "this->num_items_ " << this->num_items_ << std::endl;
     }
 
     DiscreteSpace::DiscreteSpace(const std::vector<std::shared_ptr<Item>> &items) : num_items_(items.size()), list_items_(items)
     {
-        // std::cout << "DiscreteSpace() b" << std::endl;
-        // std::cout << "this->num_items_ " << this->num_items_ << std::endl;
         for (number i = 0; i < this->num_items_; i++)
         {
-            // std::cout << "i " << i << std::endl;
             this->all_items_.insert(items_bimap_value(i, items[i]));
         }
     }

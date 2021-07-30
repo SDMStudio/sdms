@@ -31,7 +31,7 @@ namespace sdm
         return next_joint_observation;
     }
 
-    void ActionVFSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionVFSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double , double , IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number )
     {
         throw sdm::exception::NotImplementedException();
         // try

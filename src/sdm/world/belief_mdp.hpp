@@ -46,13 +46,14 @@ namespace sdm
          * @param t the timestep
          * @return the next belief
          */
-        std::shared_ptr<State> nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-        
+        virtual Pair<std::shared_ptr<State>, double> nextBeliefAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual std::shared_ptr<State> nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+
         /** @brief Get the Observation Probability p(o | b', a) */
-        double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
+        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
 
         /** @brief Get the address of the underlying POMDP */
-        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
+        virtual std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
 
         /**
          * @brief Select the next belief.
@@ -63,7 +64,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next state
          */
-        std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
 
         /**
          * @brief Get the action space at a specific belief and timestep.
@@ -73,7 +74,7 @@ namespace sdm
          * @param t the timestep
          * @return the action space 
          */
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
         /**
          * @brief Get the expected reward of executing a specific action in a specific belief at timestep t. 
@@ -84,7 +85,7 @@ namespace sdm
          * @param t the timestep
          * @return the reward
          */
-        double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
+        virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
          * @brief Get the expected next value
@@ -95,13 +96,24 @@ namespace sdm
          * @param t 
          * @return double 
          */
-        double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
+        virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
 
-        std::shared_ptr<Observation> reset();
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
-        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+        // *****************
+        //    RL methods
+        // *****************
 
+        virtual std::shared_ptr<Observation> reset();
+        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
+        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+
+        /**
+         * @brief Get the controller observation space 
+         * 
+         * @param t the timestep
+         * @return the space of all possible observations
+         */
+        virtual std::shared_ptr<Space> getObservationSpace(number t);
 
         /**
          * @brief Get the graph of 
@@ -114,10 +126,6 @@ namespace sdm
         /** @brief A pointer on the bag containing all states. */
         RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
 
-
-        /** @brief A pointer on the bag containing all states. */
-        // RecursiveMap<TAction, std::shared_ptr<Action>> action_space_;
-        
     protected:
         // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;
@@ -138,7 +146,7 @@ namespace sdm
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
 
         std::shared_ptr<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>> reward_graph_;
-        
+
         /**
          * @brief Compute the state transition in order to return next state and associated probability.
          * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
@@ -151,8 +159,6 @@ namespace sdm
          * @return the couple (next state, transition probability in the next state)
          */
         virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-
-        
         virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
         virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
         virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);

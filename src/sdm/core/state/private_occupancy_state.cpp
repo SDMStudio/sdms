@@ -97,7 +97,7 @@ namespace sdm
         return bimap_jhist_partial_jhist.left.at(joint_history);
     }
 
-    std::shared_ptr<JointHistoryInterface> PrivateOccupancyState::getJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &partial_joint_history) const
+    std::shared_ptr<JointHistoryInterface> PrivateOccupancyState::getJointHistoryFromPartial(const std::vector<std::shared_ptr<HistoryInterface>> &partial_joint_history) const
     {
         return bimap_jhist_partial_jhist.right.at(partial_joint_history);
     }

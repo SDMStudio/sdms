@@ -14,7 +14,7 @@ namespace sdm
         {
             this->addIndividualHistory(std::make_shared<HistoryTree>());
         }
-        this->setupDefaultObs(n_agents, sdm::DEFAULT_OBSERVATION);
+        this->setupDefaultObs(n_agents, sdm::NO_OBSERVATION);
     }
 
     JointHistoryTree::JointHistoryTree(number n_agents, number max_depth) : HistoryTree(max_depth)
@@ -23,7 +23,7 @@ namespace sdm
         {
             this->addIndividualHistory(std::make_shared<HistoryTree>(max_depth));
         }
-        this->setupDefaultObs(n_agents, sdm::DEFAULT_OBSERVATION);
+        this->setupDefaultObs(n_agents, sdm::NO_OBSERVATION);
     }
 
     JointHistoryTree::JointHistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item) : HistoryTree(parent, item)
@@ -33,7 +33,7 @@ namespace sdm
 
     JointHistoryTree::JointHistoryTree(const Joint<std::shared_ptr<HistoryInterface>> &ihistories) : HistoryTree(), Joint<std::shared_ptr<HistoryInterface>>(ihistories)
     {
-        this->setupDefaultObs(ihistories.size(), sdm::DEFAULT_OBSERVATION);
+        this->setupDefaultObs(ihistories.size(), sdm::NO_OBSERVATION);
     }
 
     void JointHistoryTree::addIndividualHistory(std::shared_ptr<HistoryInterface> ihist)
