@@ -53,6 +53,9 @@ namespace sdm
         case TypeState::OCCUPANCY_STATE:
             return operatorOccupancy(state, tau);
             break;
+        case TypeState::SERIAL_OCCUPANCY_STATE:
+            return operatorOccupancy(state, tau);
+            break;
 
         default:
             return operatorState(state, tau);

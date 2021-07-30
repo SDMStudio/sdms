@@ -85,7 +85,7 @@ namespace sdm
         * @param point : Point in the Point Set
         * @return Pair<std::shared_ptr<State>,double> 
         */
-        double ratioOccupancy(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point);
+        double ratioOccupancy(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point,number t);
 
         /**
          * @brief Ratio specialized for the case Beleif (used for the evaluate function)
@@ -97,6 +97,8 @@ namespace sdm
         double ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point);
 
         Pair<std::unordered_map<std::shared_ptr<State>,std::vector<std::shared_ptr<State>>>,std::map<int,std::vector<std::shared_ptr<State>>>> iterative_pruning(number t);
+
+        std::vector<std::tuple<std::shared_ptr<State>,std::shared_ptr<Action>, double>> state_action_value;
 
     public:
         friend class boost::serialization::access;

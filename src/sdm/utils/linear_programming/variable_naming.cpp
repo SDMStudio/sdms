@@ -56,7 +56,7 @@ namespace sdm
           << "." << i << "." << s->str() << "." << jh->short_str();
       return oss.str();
     }
-
+    
     std::string VarNaming::getVarNameIndividualHistory(const std::shared_ptr<HistoryInterface>& ihistory, const number agent)
     {
       std::ostringstream oss;

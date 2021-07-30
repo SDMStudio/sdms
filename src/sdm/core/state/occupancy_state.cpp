@@ -68,7 +68,7 @@ namespace sdm
         // Get the probability p(x,o) = p(o) * b(x | o)
         clock_t t_begin = clock();
         auto belief = this->getBeliefAt(joint_history);
-        auto output = (belief == nullptr) ? this->getDefault() : this->getProbability(joint_history) * belief->getProbability(state);
+        auto output = (belief == nullptr or !belief->isStateExist(state)) ? this->getDefault() : this->getProbability(joint_history) * belief->getProbability(state);
         OccupancyState::TIME_IN_GET_PROBA += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return output;
         // return this->getProbability(joint_history) * this->getBeliefAt(joint_history)->getProbability(state);

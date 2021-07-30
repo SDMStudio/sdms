@@ -39,5 +39,15 @@ namespace sdm
         {
             return TypeState::BELIEF_STATE;
         }
+
+        bool isStateExist(const std::shared_ptr<State>& state_tmp) 
+        {
+            for(const auto& state : this->getStates())
+            {
+                if(state == state_tmp )
+                    return true;
+            }
+            return false;
+        }
     };
 }

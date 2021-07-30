@@ -185,7 +185,8 @@ namespace sdm
       res << pair_state_proba.first->str() << " : " << pair_state_proba.second;
       i++;
     }
-    res << " )";
+    res << ", default value =";
+    res<<this->getDefaultValue()<<" )";
     return res.str();
   }
 

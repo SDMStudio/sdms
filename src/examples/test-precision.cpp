@@ -116,7 +116,6 @@ int main(int argc, char **argv)
         std::cout << "Precision Belief =" << Belief::PRECISION << std::endl;
         std::cout << "Precision OccupancyState =" << OccupancyState::PRECISION << std::endl;
         std::cout << "Precision Compression =" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
-        clock_t t_begin = clock();
 
         // Parse file into MPOMDP
         auto mdp = sdm::parser::parse_file(path);
@@ -129,10 +128,10 @@ int main(int argc, char **argv)
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
-        // auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(mdp);
-        auto serialized_mpomdp = mdp;
-        // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+        auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(mdp);
+        // auto serialized_mpomdp = mdp;
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+        // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
         // ---------- Comment / Uncomment this section to enable solving with HSVI ----------
         //
@@ -143,8 +142,8 @@ int main(int argc, char **argv)
         auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi_mdp);
         auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(hsvi_mdp);
         auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(hsvi_mdp);
-        auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0);
-        auto action_sawtooth_lp_serial = std::make_shared<ActionVFSawtoothLPSerial>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0);
+        auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0,TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        auto action_sawtooth_lp_serial = std::make_shared<ActionVFSawtoothLPSerial>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0,TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
 
         // Instanciate Initializer
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
@@ -154,21 +153,21 @@ int main(int argc, char **argv)
         // Instanciate value functions
         if (vm.count("store_states") && vm.count("store_actions"))
         {
-            lb = std::make_shared<TabularValueFunction>(serialized_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            // lb = std::make_shared<TabularValueFunction>(serialized_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
             // ub = std::make_shared<TabularValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-            // lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
+            lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
             // ub = std::make_shared<PointSetValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
-            ub = std::make_shared<PointSetValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+            ub = std::make_shared<PointSetValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
         }
         else
         {
-            lb = std::make_shared<TabularValueFunction2>(serialized_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+            // lb = std::make_shared<TabularValueFunction2>(serialized_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
             // ub = std::make_shared<TabularValueFunction2>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-            // lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
+            lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
             // ub = std::make_shared<PointSetValueFunction2>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
             // lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
-            ub = std::make_shared<PointSetValueFunction2>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp);
+            ub = std::make_shared<PointSetValueFunction2>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
         }
 
         // Instanciate HSVI
@@ -191,9 +190,12 @@ int main(int argc, char **argv)
 
         // Initialize and solve the problem
         algo->do_initialize();
-        algo->do_solve();
+        std::chrono::high_resolution_clock::time_point t_begin = std::chrono::high_resolution_clock::now();
 
-        double TOTAL_TIME = ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
+        algo->do_solve();
+        std::chrono::high_resolution_clock::time_point t_end = std::chrono::high_resolution_clock::now();
+
+        double TOTAL_TIME = std::chrono::duration_cast<std::chrono::duration<double>>(t_end-t_begin).count();
 
         // Save results in a CSV file
         // std::static_pointer_cast<HSVI>(algo)->saveResults(name + "_test.csv", compress_precision);

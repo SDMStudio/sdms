@@ -32,6 +32,9 @@ namespace sdm
         case TypeState::OCCUPANCY_STATE:
             return this->setHyperplanOccupancy(vf, state, action, t);
             break;
+        case TypeState::SERIAL_OCCUPANCY_STATE:
+            return this->setHyperplanOccupancy(vf, state, action, t);
+            break;
         default:
             throw sdm::exception::Exception("The state is not a compatible with maxplan backup !");
             break;
