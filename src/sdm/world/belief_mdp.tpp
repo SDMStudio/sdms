@@ -63,6 +63,7 @@ namespace sdm
         std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
         // Compute the coefficient of normalization (eta)
         double eta = next_belief->toBelief()->norm_1();
+
         // Normalize to belief
         next_belief->toBelief()->normalizeBelief(eta);
         // Return the pair next belief / proba of the transition in this belief
@@ -272,7 +273,6 @@ namespace sdm
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
     {
-
         double exp_next_v = 0;
         // For all observations from the controller point of view
         auto accessible_observation_space = this->getObservationSpace(t);

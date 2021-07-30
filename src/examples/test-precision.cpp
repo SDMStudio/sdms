@@ -18,6 +18,7 @@
 
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
+#include <sdm/world/hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/world/serialized_mpomdp.hpp>
@@ -214,7 +215,7 @@ int main(int argc, char **argv)
         //     auto action = std::static_pointer_cast<DiscreteSpace>(hsvi_mdp->getActionSpaceAt(state, i))->sample();
 
         //     std::cout << "# Action " << i << "\n" << *action << std::endl;
-        //     state = hsvi_mdp->nextState(state, action->toAction());
+        //     state = hsvi_mdp->nextState(state, action->toAction(), i, algo);
         //     std::cout << "------------------" << std::endl;
         //     std::cout << "# State " << i + 1 << "\n" << *state << std::endl;
         // }

@@ -314,6 +314,7 @@ namespace sdm
                             // Get p(z_{t+1} | b_t, u_t)
                             double proba_observation = this->getUnderlyingBeliefMDP()->getObservationProbability(belief, joint_action, next_belief->toBelief(), joint_observation->toObservation(), t);
 
+                            // std::cout << "ph=" << proba_history << "/pa=" << proba_action << "po=" << proba_observation << std::endl;
                             // Compute the probability of next history, i.e. p(o') = p(o_t) * p(u_t | o_t) * p(z_{t+1} | b_t, u_t)
                             double next_joint_history_probability = proba_history * proba_action * proba_observation;
 
@@ -335,6 +336,20 @@ namespace sdm
                     }
                 }
             }
+
+            // // Normalize the one step left occupancy state
+            // double norm_one_step = next_one_step_left_compressed_occupancy_state->toBelief()->norm_1();
+            // if (norm_one_step != 1.)
+            // {
+            //     next_one_step_left_compressed_occupancy_state->normalizeBelief(norm_one_step);
+            // }
+
+            // // Normalize the fully uncompressed occupancy state
+            // double norm_fully = next_fully_uncompressed_occupancy_state->toBelief()->norm_1();
+            // if (norm_fully != 1.)
+            // {
+            //     next_fully_uncompressed_occupancy_state->normalizeBelief(norm_fully);
+            // }
 
             next_fully_uncompressed_occupancy_state->finalize();
             next_one_step_left_compressed_occupancy_state->finalize();

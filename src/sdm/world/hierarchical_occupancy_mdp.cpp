@@ -30,18 +30,7 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, double> HierarchicalOccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        // return BaseBeliefMDP<OccupancyState>::computeNextStateAndProbability(belief, action, observation, t);
-
-        // Compute next state
-        std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
-        std::cout << "Next State" << std::endl;
-        std::cout << *next_belief << std::endl;
-        // Compute the coefficient of normalization (eta)
-        // double eta = next_belief->toBelief()->norm_1();
-        // // Normalize to belief
-        // next_belief->toBelief()->normalizeBelief(eta);
-        // Return the pair next belief / proba of the transition in this belief
-        return {next_belief, 1};
+        return BaseBeliefMDP<OccupancyState>::computeNextStateAndProbability(belief, action, observation, t);
     }
 
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
