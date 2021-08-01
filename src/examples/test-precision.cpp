@@ -117,7 +117,7 @@ int main(int argc, char **argv)
         // auto serialized_mpomdp = std::make_shared<TransformedMPOMDP>(mdp);
         // auto serialized_mpomdp = mdp;
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
-        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"), true);
+        std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<HierarchicalOccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"), true);
 
         // ---------- Comment / Uncomment this section to enable solving with HSVI ----------
         //

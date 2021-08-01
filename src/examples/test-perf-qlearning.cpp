@@ -18,6 +18,7 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
+#include <sdm/world/hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
@@ -114,7 +115,7 @@ int main(int argc, char **argv)
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, true, batch_size);
         else if (formalism == "HierarchicalOccupancyMDP"){
             auto hierarchical_dpomdp = std::make_shared<HierarchicalMPOMDP>(dpomdp);
-            gym = std::make_shared<OccupancyMDP>(hierarchical_dpomdp, memory, true, true, true, true, batch_size);
+            gym = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_dpomdp, memory, true, true, true, true, batch_size);
         }
 
         // Set precision

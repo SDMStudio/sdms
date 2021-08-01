@@ -11,6 +11,10 @@
  */
 namespace sdm
 {
+    /**
+     * @brief 
+     * 
+     */
     class HierarchicalOccupancyMDP : public OccupancyMDP
     {
     public:
