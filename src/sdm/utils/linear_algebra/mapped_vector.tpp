@@ -195,15 +195,15 @@ namespace sdm
             return false;
         }
 
-        for (const auto &v : *this)
+        for (const auto &pair_state_value : *this)
         {
-            if (other.find(v.first) == other.end())
+            if (other.find(pair_state_value.first) == other.end())
             {
                 return false;
             }
             else
             {
-                if (std::abs(other.at(v.first) - v.second) > precision)
+                if (std::abs(other.at(pair_state_value.first) - pair_state_value.second) > precision)
                 {
                     return false;
                 }
@@ -261,7 +261,6 @@ namespace sdm
     T MappedVector<TIndex, T, Hash, KeyEqual>::dot(const MappedVector &v2) const
     {
         T product = 0;
-
         for (const auto &item : *this)
         {
             product += item.second * v2.at(item.first);
@@ -269,6 +268,12 @@ namespace sdm
 
         return product;
     }
+
+    // template <class TOutput>
+    // template <class TIndex, class T, class Hash, class KeyEqual>
+    // std::shared_ptr<TOutput> MappedVector<TIndex, T, Hash, KeyEqual>::add(const std::shared_ptr<TOutput> &v2) const
+    // {
+    // }
 
     template <class TIndex, class T, class Hash, class KeyEqual>
     size_t MappedVector<TIndex, T, Hash, KeyEqual>::size() const
