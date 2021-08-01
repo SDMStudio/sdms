@@ -16,7 +16,7 @@ int solve(int argv, char **args)
     {
         std::string problem, algorithm, formalism, name, upper_bound, lower_bound, ub_init, lb_init,sawtooth_type_of_resolution,type_sawtooth_linear_programming;
         int trials, truncation;
-        number horizon;
+        number horizon, seed;
         double error, discount;
         number sawtooth_BigM_value;
 
@@ -36,6 +36,7 @@ int solve(int argv, char **args)
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon")
         ("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials")
         ("truncation", po::value<int>(&truncation)->default_value(-1), "the truncation parameter (for history)")
+        ("seed,s", po::value<number>(&seed)->default_value(1), "the seed")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
@@ -71,6 +72,8 @@ int solve(int argv, char **args)
             std::cerr << visible << std::endl;
             return sdm::ERROR_IN_COMMAND_LINE;
         }
+
+        common::global_urng().seed(seed);
 
         std::vector<std::string> av_algos = sdm::algo::available();
         if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())

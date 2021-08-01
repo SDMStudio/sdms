@@ -37,33 +37,41 @@ namespace sdm
                  * @param t the timestep
                  * @return the next occupancy state
                  */
-                std::shared_ptr<State> nextOccupancyState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual std::shared_ptr<State> nextOccupancyState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, const std::shared_ptr<Observation> &observation, number t = 0);
 
                 /** @brief Get the address of the underlying MPOMDP */
-                std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
+                virtual std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 
                 /** @brief Get the address of the underlying BeliefMDP */
-                std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
+                virtual std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
 
-                std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
-                std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &occupancy_state, number t = 0);
-                double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);
+                /**
+                 * @brief Get the observation space of the central planner. 
+                 * Depending of the case, the central planner may observe or not what agents observe.
+                 * 
+                 * @param t the timestep
+                 * @return the space of observation of the central planner. 
+                 */
+                virtual std::shared_ptr<Space> getObservationSpace(number t);
+                virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &occupancy_state, number t = 0);
+                virtual double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);
+                virtual bool checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation);
 
                 // **********************
                 // SolvableByHSVI methods
                 // **********************
 
-                std::shared_ptr<State> nextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
-                double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t);
-                double do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon);
-                double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
+                // std::shared_ptr<State> nextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
+                // double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t);
+                virtual double do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon);
 
                 // *****************
                 //    RL methods
                 // *****************
 
-                std::shared_ptr<Observation> reset();
-                std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+                virtual std::shared_ptr<Observation> reset();
+                virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
                 virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
                 virtual std::shared_ptr<Action> computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t);
 
@@ -72,7 +80,12 @@ namespace sdm
                 // *****************
 
                 // void setInitialState(const std::shared_ptr<State> &state);
+                double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
                 virtual std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
+
+                // *****************
+                //    PROFILING
+                // *****************
 
                 static double TIME_IN_NEXT_STATE, TIME_IN_COMPRESS, TIME_IN_GET_ACTION, TIME_IN_STEP, TIME_IN_GET_REWARD, TIME_IN_NEXT_OSTATE, TIME_IN_EXP_NEXT;
                 static double TIME_IN_UNDER_STEP, TIME_IN_APPLY_DR;
@@ -101,8 +114,7 @@ namespace sdm
                  * @return the couple (next state, transition probability in the next state)
                  */
                 virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-                
-                std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
 
@@ -111,7 +123,9 @@ namespace sdm
                 virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
 
                 /** @brief Return true if compression must be done */
-                bool do_compression(number t) const;
+                virtual bool do_compression(number t) const;
+
+                virtual void update_occupancy_state_proba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
 
                 std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
 
