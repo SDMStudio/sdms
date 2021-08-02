@@ -37,11 +37,6 @@ namespace sdm
         return this->bimap_classic_to_hierarchical_obs.left.at(classic_joint_observation);
     }
 
-    // std::shared_ptr<Space> HierarchicalMPOMDP::getSubordinateActionSpace(number agent_id) const
-    // {
-    // }
-
-
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalMPOMDP::step(std::shared_ptr<Action> action)
     {
         auto [obs, rewards, is_done] = this->mpomdp_->step(action);
@@ -63,11 +58,12 @@ namespace sdm
         // List of all possible joint hierarchical observations
         std::vector<std::shared_ptr<Observation>> list_possible_joint_hierarchical_observation;
         // Initialize for each agent
-        for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
+        for (number agent = 0; agent < this->getNumAgents(); agent++)
         {
+            // std::cout << "agent " << agent << std::endl;
             map_new_obs_to_ptr.push_back({});
         }
-
+        
         // For all joint observations
         for (const auto &joint_observation : *this->mpomdp_->getObservationSpace(0))
         {
@@ -75,19 +71,19 @@ namespace sdm
             auto joint_hierarchical_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>();
             // Instanciate temporary joint observation of agent 0:i
             Joint<std::shared_ptr<Observation>> tmp;
-            for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
+            for (number agent = 0; agent < this->getNumAgents(); agent++)
             {
                 // Get observation of agent i
-                auto indiv_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(agent_id);
+                auto indiv_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(agent);
                 // Add it to the temporary structure
                 tmp.push_back(indiv_observation);
-                if (map_new_obs_to_ptr.at(agent_id).find(tmp) == map_new_obs_to_ptr.at(agent_id).end())
+                if (map_new_obs_to_ptr.at(agent).find(tmp) == map_new_obs_to_ptr.at(agent).end())
                 {
                     auto indiv_h_obs = std::make_shared<Joint<std::shared_ptr<Observation>>>(tmp);
-                    map_new_obs_to_ptr.at(agent_id).emplace(tmp, indiv_h_obs);
+                    map_new_obs_to_ptr.at(agent).emplace(tmp, indiv_h_obs);
                 }
                 // Add indiv hierarchical observation of agent i in the joint observation
-                joint_hierarchical_observation->push_back(map_new_obs_to_ptr.at(agent_id).at(tmp));
+                joint_hierarchical_observation->push_back(map_new_obs_to_ptr.at(agent).at(tmp));
             }
             list_possible_joint_hierarchical_observation.push_back(joint_hierarchical_observation);
             // Add mapping from basic joint observation to hierarchical joint observation
@@ -96,10 +92,10 @@ namespace sdm
         this->joint_observation_space_ = std::make_shared<DiscreteSpace>(list_possible_joint_hierarchical_observation);
 
         // Setup individual observation spaces
-        for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
+        for (number agent = 0; agent < this->getNumAgents(); agent++)
         {
             std::vector<std::shared_ptr<Observation>> list_indiv_obs;
-            for (const auto &pair_obs_pobs : map_new_obs_to_ptr.at(agent_id))
+            for (const auto &pair_obs_pobs : map_new_obs_to_ptr.at(agent))
             {
                 list_indiv_obs.push_back(pair_obs_pobs.second);
             }

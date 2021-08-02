@@ -256,7 +256,9 @@ if(QLEARNING)
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
+		${INCLUDE_DIR}/world/hierarchical_occupancy_mdp.cpp
 		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp.cpp
+		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
 		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/networked_distributed_pomdp.cpp
@@ -270,6 +272,8 @@ if(QLEARNING)
 		${INCLUDE_DIR}/utils/value_function/backup/simple_hierarchical_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/rl/experience_memory.cpp
+		${INCLUDE_DIR}/world/hierarchical_mpomdp.cpp
+		${INCLUDE_DIR}/world/transformed_mpomdp.cpp
 	)
 	add_library(hsvi SHARED ${lib_hsvi})
 	target_link_libraries(hsvi world fmt)
@@ -277,6 +281,24 @@ if(QLEARNING)
 
 	add_executable(quicktest_qlearning quicktest_qlearning.cpp)
 	target_link_libraries(quicktest_qlearning
+		dl
+		${Boost_LIBRARIES}
+		${TORCH_LIBRARIES}
+		${CPLEX_LIBRARIES}
+		hsvi
+	)
+
+	add_executable(ex-hierarchical-mpomdp ex-hierarchical-mpomdp.cpp)
+	target_link_libraries(ex-hierarchical-mpomdp
+		dl
+		${Boost_LIBRARIES}
+		${TORCH_LIBRARIES}
+		${CPLEX_LIBRARIES}
+		hsvi
+	)
+
+	add_executable(test-perf-qlearning test-perf-qlearning.cpp)
+	target_link_libraries(test-perf-qlearning
 		dl
 		${Boost_LIBRARIES}
 		${TORCH_LIBRARIES}
