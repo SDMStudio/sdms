@@ -28,6 +28,21 @@ namespace sdm
     {
         BaseTabularValueFunction<Hash,KeyEqual>::updateValueAt(state,t);
 
+        // std::cout<<"Evaluation "<<this->evaluate(state,t)<<std::endl;
+
+        if(this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::ITERATIVE)
+        {
+            this->iterative_pruning(t);
+        }
+    }
+
+    template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, number t)
+    {
+        BaseTabularValueFunction<Hash,KeyEqual>::updateValueAt(state,action,t);
+
+        // std::cout<<"Evaluation "<<this->evaluate(state,t)<<std::endl;
+
         if(this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::ITERATIVE)
         {
             this->iterative_pruning(t);

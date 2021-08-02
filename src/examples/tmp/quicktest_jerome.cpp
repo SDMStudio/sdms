@@ -32,12 +32,12 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    std::vector<std::string> all_formalism={"decpomdp"};
-    std::vector<std::string> all_problem={"Mars"};
+    std::vector<std::string> all_formalism={"extensive-decpomdp"};
+    std::vector<std::string> all_problem={"boxPushingUAI07"};
     std::vector<int> all_horizon={10};
     std::vector<double> all_discount={1};
-    std::vector<std::string> upper_bound_name = {"sawtooth_lp"};
-    std::vector<std::string> lower_bound_name={"maxplan_lp"};
+    std::vector<std::string> upper_bound_name = {"sawtooth_lp_serial"};
+    std::vector<std::string> lower_bound_name={"maxplan_lp_serial"};
     std::vector<std::string> all_lower__init_name={"Min"};
     std::vector<std::string> all_upper_init_name= {"PomdpHsvi"};
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     std::vector<sdm::number> all_sawtooth_BigM = {1000};
     std::vector<std::string> all_sawtooth_type_of_linear_program = {"Full"};
 
-    std::vector<int> all_truncation = {1,2,3};
+    std::vector<int> all_truncation = {1};
     std::vector<int> all_freq_prunning_lower_bound = {5};
     std::vector<sdm::TypeOfMaxPlanPrunning> all_type_of_maxplan_prunning = {sdm::TypeOfMaxPlanPrunning::BOUNDED};
     std::vector<int> all_freq_prunning_upper_bound = {5};

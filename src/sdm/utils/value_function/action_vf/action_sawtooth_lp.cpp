@@ -38,12 +38,22 @@ namespace sdm
             }
         }
         auto a = this->createLP(vf,state, t);
+        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
+        auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
+
+        // std::cout<<"LP Value "<<a.second<<std::endl;
+        // std::cout<<"Evaluation LP"<<this->evaluate(vf,state,a.first,t)<<std::endl;
+        // std::cout<<"Q Value "<<occupancy_mdp->getReward(state,a.first,t) +vf->getValueAt(occupancy_mdp->nextOccupancyState(state, a.first, nullptr, t),t+1)<<std::endl;
 
         if(t==0)
         {
+            // std::cout<<"Action "<<a.first->str()<<std::endl;
             // system("cat lb_bellman_op.lp");
+            // if(a.second<= -4)
+            // {
+            //     system("cat lb_bellman_op.lp");
+            // }
         }
-
 
         return a;
     }
@@ -287,7 +297,7 @@ namespace sdm
             if(vf->getSupport(t+1).empty())
             {
                 this->createInitialConstraints(vf, state,env, con, var,index, t);
-                this->createInitialConstraints2(vf, state,env, con, var,index, t);
+                // this->createInitialConstraints2(vf, state,env, con, var,index, t);
             }
             else
             {
@@ -331,7 +341,7 @@ namespace sdm
 
     void ActionVFSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        con.add(IloRange(env, -IloInfinity, vf->getValueAt(state)));
+        con.add(IloRange(env, -IloInfinity, IloInfinity));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
         index ++;
     }
@@ -343,11 +353,11 @@ namespace sdm
         {
         case TypeOfResolution::BigM:
             this->createSawtoothBigM(vf,state,nullptr,next_hidden_state,next_joint_observation,next_joint_history, next_state,denominator,difference,env,con,var,index, t);
-            this->createSawtoothBigM2(vf,state,nullptr,next_hidden_state,next_joint_observation,next_joint_history, next_state,denominator,difference,env,con,var,index, t);
+            // this->createSawtoothBigM2(vf,state,nullptr,next_hidden_state,next_joint_observation,next_joint_history, next_state,denominator,difference,env,con,var,index, t);
             break;
         case TypeOfResolution::IloIfThenResolution:
             this->createSawtoothIloIfThen(vf, state,nullptr, next_hidden_state, next_joint_observation, next_joint_history,  next_state, denominator, difference, env, model, var, t);
-            this->createSawtoothIloIfThen2(vf, state,nullptr, next_hidden_state, next_joint_observation, next_joint_history,  next_state, denominator, difference, env, model, var, t);
+            // this->createSawtoothIloIfThen2(vf, state,nullptr, next_hidden_state, next_joint_observation, next_joint_history,  next_state, denominator, difference, env, model, var, t);
             break;
         }
     }
@@ -669,6 +679,32 @@ namespace sdm
 
     std::shared_ptr<Action> ActionVFSawtoothLP::getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
+        for (const auto &next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state : this->all_support)
+        {
+            // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
+            for (const auto &next_history_AND_All_next_hidden_state : next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.second)
+            {
+                const auto &next_history = next_history_AND_All_next_hidden_state.first->toJointHistory();
+
+                for (const auto &next_hidden_state : next_history_AND_All_next_hidden_state.second)
+                {
+                    // <! \omega_k(x',o')
+                    auto recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first, next_hidden_state, next_history));
+                    if( cplex.getValue(var[recover]) + .5 >= 1 )
+                    {
+                        // std::cout<<"Point "<<next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first<<std::endl;
+                        // std::cout<<"Point "<<next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first->str()<<std::endl;
+
+                        // std::cout<<"Next JOitn History "<<next_history->str()<<std::endl;
+                        // std::cout<<"Next Hidden State "<<next_hidden_state->str()<<std::endl;
+
+                    }
+
+                }
+            }
+        }
+
+
         return DecentralizedLP::getVariableResultOccupancy(vf, state, cplex, var, t);
     }
 

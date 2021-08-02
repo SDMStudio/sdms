@@ -49,6 +49,7 @@ namespace sdm
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
         virtual void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
+        virtual void updateValueAt(const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t = 0);
 
         /**
          * @brief Update the value function at state s and timestep t to the target value.

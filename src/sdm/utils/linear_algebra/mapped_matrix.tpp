@@ -90,17 +90,35 @@ namespace sdm
         // }
     }
 
-    // template <typename TLig, typename TCol, typename TValue>
-    // const std::vector<TCol> &MappedMatrix<TLig, TCol, TValue>::getIndexCol() const
-    // {
-    //     return this->index_col;
-    // }
+    template <typename TLig, typename TCol, typename TValue>
+    std::vector<Pair<TLig,TCol>> MappedMatrix<TLig, TCol, TValue>::getIndexes()
+    {
+        std::vector<Pair<TLig,TCol>> indexes;
 
-    // template <typename TLig, typename TCol, typename TValue>
-    // const std::vector<TLig> &MappedMatrix<TLig, TCol, TValue>::getIndexLine() const
-    // {
-    //     return this->index_line;
-    // }
+        for(const auto&lig_AND_col_AND_Value : this)
+        {
+            for(const auto&col_AND_Value : lig_AND_col_AND_Value.second)
+            {
+                indexes.push_back(std::make_pair(lig_AND_col_AND_Value.first,col_AND_Value.first));
+            }
+        }
+        return indexes;
+    }
+
+    template <typename TLig, typename TCol, typename TValue>
+    std::vector<std::tuple<TLig,TCol,TValue>> MappedMatrix<TLig, TCol, TValue>::getAllElement()
+    {
+        std::vector<std::tuple<TLig,TCol,TValue>> all_element;
+
+        for(const auto&lig_AND_col_AND_Value : this)
+        {
+            for(const auto&col_AND_Value : lig_AND_col_AND_Value.second)
+            {
+                all_element.push_back(std::make_tuple(lig_AND_col_AND_Value.first,col_AND_Value.first,col_AND_Value.second));
+            }
+        }
+        return all_element;
+    }
 
     template <typename TLig, typename TCol, typename TValue>
     const MappedVector<TCol, TValue> &MappedMatrix<TLig, TCol, TValue>::at(const TLig &i) const

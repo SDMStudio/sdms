@@ -64,6 +64,7 @@ namespace sdm
     double error_, time_max_;
     number planning_horizon_, lb_update_frequency_, ub_update_frequency_;
     std::string name_ = "hsvi";
+    bool keep_same_action_forward_backward_;
 
     std::shared_ptr<State> start_state;
 
@@ -100,7 +101,8 @@ namespace sdm
          std::string name = "hsvi",
          number lb_update_frequency = 1,
          number ub_update_frequency = 1,
-         double time_max = 5000);
+         double time_max = 10000, 
+         bool keep_same_action_forward_backward = false);
 
     std::shared_ptr<HSVI> getptr();
 

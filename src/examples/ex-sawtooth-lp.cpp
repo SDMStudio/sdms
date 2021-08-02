@@ -23,10 +23,10 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string filename;
-    int horizon = 2;
+    int horizon = 3;
     int discount = 1;
     double error = 0.00001;
-    int trials = 3;
+    int trials = 50;
 	int truncation = 2;
 
 	TypeOfResolution type_of_resolution = TypeOfResolution::BigM;
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         problem->setHorizon(horizon);
         problem->setDiscount(discount);
 
-		std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon, true, false, false);
+		std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon, true, true, true);
 
 		auto tabular_backup = std::make_shared<TabularBackup>(oMDP);
 		auto maxplan_backup = std::make_shared<MaxPlanBackup>(oMDP);

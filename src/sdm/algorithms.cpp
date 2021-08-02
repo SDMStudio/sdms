@@ -11,6 +11,7 @@
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
 #include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
 
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
@@ -59,6 +60,26 @@ namespace sdm
             auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
             auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(problem);
 
+            TypeOfResolution type_of_resolution;
+
+            if (current_type_of_resolution == "BigM")
+            {
+                type_of_resolution = TypeOfResolution::BigM;
+            }
+            else
+            {
+                type_of_resolution = TypeOfResolution::IloIfThenResolution ;
+            }
+
+            TypeSawtoothLinearProgram type_of_sawtooth_linear_program;
+            if (type_sawtooth_linear_programming == "Full")
+            {
+                type_of_sawtooth_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING;
+            }
+
+            auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
+            auto action_sawtooth_lp_serial = std::make_shared<ActionVFSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
+
 
             // Instanciate initializers
             auto lb_init = sdm::makeInitializer(lb_init_name, problem);
@@ -97,21 +118,11 @@ namespace sdm
             }
             else if (upper_bound_name == "sawtooth_lp")
             {
-                if (type_sawtooth_linear_programming == "Full")
-                {
-                    if (current_type_of_resolution == "BigM")
-                    {
-                        upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING), freq_prunning_upper_bound, type_of_sawtooth_pruning);
-                    }
-                    else
-                    {
-                        upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLP>(problem, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING), freq_prunning_upper_bound, type_of_sawtooth_pruning);
-                    }
-                }
-                else
-                {
-                    // upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, std::make_shared<ActionVFSawtoothLPRelaxed>(problem, TypeOfResolution::BigM), freq_prunning_upper_bound, type_of_sawtooth_pruning);
-                }
+                upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_sawtooth_lp, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+            }
+            else if (upper_bound_name == "sawtooth_lp_serial")
+            {
+                upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_sawtooth_lp_serial, freq_prunning_upper_bound, type_of_sawtooth_pruning);
             }
             else
             {

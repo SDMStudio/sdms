@@ -106,14 +106,4 @@ namespace sdm
          */
         std::shared_ptr<QInitializer> initializer_;
     };
-
-    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
-    // using MappedQValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, MappedMatrix>;
-
-    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
-    // using SparseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, SparseVector>;
-
-    // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>, typename double = double>
-    // using DenseValueFunction = TabularQValueFunction<std::shared_ptr<State>, std::shared_ptr<Action>, double, ClassicBellmanBackupOperator, DenseVector>;
-
 } // namespace sdm

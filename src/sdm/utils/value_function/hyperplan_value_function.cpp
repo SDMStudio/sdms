@@ -41,11 +41,10 @@ namespace sdm
         return this->evaluate(state, t).second;
     }
 
-    void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
+    void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t)
     {
-
         //Determine the new hyperplan
-        const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state, this->getBestAction(state, t), t)->toBelief();
+        const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state, action, t)->toBelief();
 
         // If the hyperplan doesn't exit, we add it to representation at t
         if (!this->exist(new_hyperplan, t))
@@ -55,7 +54,13 @@ namespace sdm
             // Add state to all state update so far, only if the prunning used is Bounded
             if (this->type_of_maxplan_prunning_ == TypeOfMaxPlanPrunning::BOUNDED)
                 this->all_state_updated_so_far[t].insert(state);
-        }
+        } 
+    }
+
+
+    void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
+    {
+        this->updateValueAt(state,this->getBestAction(state,t),t);
     }
 
     std::vector<std::shared_ptr<State>> HyperplanValueFunction::getSupport(number t)

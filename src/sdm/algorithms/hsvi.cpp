@@ -21,7 +21,8 @@ namespace sdm
                std::string name,
                number lb_update_frequency,
                number ub_update_frequency,
-               double time_max) : world_(world),
+               double time_max,
+               bool keep_same_action_forward_backward) : world_(world),
                                   lower_bound_(lower_bound),
                                   upper_bound_(upper_bound),
                                   error_(error),
@@ -29,7 +30,8 @@ namespace sdm
                                   planning_horizon_(planning_horizon),
                                   name_(name),
                                   lb_update_frequency_(lb_update_frequency),
-                                  ub_update_frequency_(ub_update_frequency)
+                                  ub_update_frequency_(ub_update_frequency), 
+                                  keep_same_action_forward_backward_(keep_same_action_forward_backward)
     {
         this->MAX_TRIALS = num_max_trials;
     }
@@ -161,7 +163,13 @@ namespace sdm
                 // Update bounds
                 if (((this->trial+1) % this->lb_update_frequency_) == 0)
                 {
-                    this->lower_bound_->updateValueAt(state, h);
+                    if(keep_same_action_forward_backward_)
+                    {
+                        this->lower_bound_->updateValueAt(state, selected_action, h);
+                    }else
+                    {
+                        this->lower_bound_->updateValueAt(state, h);
+                    }
                 }
 // #ifdef LOGTIME
                 this->updateTime("Update Lower");
@@ -170,15 +178,20 @@ namespace sdm
 
                 if (((this->trial+1) % this->ub_update_frequency_) == 0)
                 {
-                    this->upper_bound_->updateValueAt(state, h);
-                }
+                    if(keep_same_action_forward_backward_)
+                    {
+                        this->upper_bound_->updateValueAt(state, selected_action, h);
+                    }else
+                    {
+                        this->upper_bound_->updateValueAt(state, h);
+                    }                }
 // #ifdef LOGTIME
                 this->updateTime("Update Upper");
 // #endif
             }
 
             //---------------DEBUG-----------------//
-            // std::cout << "\t\t#>s h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(s, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(s, h) << ")" << std::endl;
+            std::cout << "\t\t#>s h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(state, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(state, h) << ")" << std::endl;
             //-----------------DEBUG----------------//
 
             // ------------- TEST ------------
@@ -316,18 +329,22 @@ namespace sdm
     {
         if (information == "Action")
         {
+            // std::cout<<"Select Action"<<std::endl;
             HSVI::TIME_IN_SELECT_ACTION += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
         else if (information == "Update Lower")
         {
+            // std::cout<<"Update Lower"<<std::endl;
             HSVI::TIME_IN_UPDATE_LB += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
         else if (information == "Update Upper")
         {
+            // std::cout<<"Update Upper"<<std::endl;
             HSVI::TIME_IN_UPDATE_UB += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
         else if (information == "Next State")
         {
+            // std::cout<<"Next State"<<std::endl;
             HSVI::TIME_IN_SELECT_STATE += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->time_start).count();
         }
         else if (information == "Intialisation")

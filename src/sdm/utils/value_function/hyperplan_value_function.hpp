@@ -38,6 +38,11 @@ namespace sdm
         void updateValueAt(const std::shared_ptr<State> &, number = 0);
 
         /**
+         * @brief Update the max plan representation by adding a new hyperplan knowing the action
+         */
+        void updateValueAt(const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t = 0);
+
+        /**
          * @brief 
          * 
          * @return std::string 

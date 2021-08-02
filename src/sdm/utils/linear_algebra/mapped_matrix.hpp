@@ -14,6 +14,7 @@
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/matrix_interface.hpp>
+// #include <tuple>
 
 namespace sdm
 {
@@ -52,6 +53,11 @@ namespace sdm
         TValue at(const TLig &i, const TCol &j) const;
 
         std::string str() const;
+
+        std::vector<Pair<TLig,TCol>> getIndexes();
+        std::vector<std::tuple<TLig,TCol,TValue>> getAllElement();
+
+
     };
 } // namespace sdm
 #include <sdm/utils/linear_algebra/mapped_matrix.tpp>

@@ -70,6 +70,11 @@ namespace sdm
          * @brief Update the value at a given state
          */
         virtual void updateValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+        
+        /**
+         * @brief Update the value at a given state knowing an action
+         */
+        virtual void updateValueAt(const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t = 0) = 0;
 
         /**
          * @brief Return the possible indexes of the value function

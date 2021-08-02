@@ -43,10 +43,10 @@ namespace sdm
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp,"HSVI",0);
 
-        auto lb = std::make_shared<HyperplanValueFunction>(pomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan);
-        auto ub = std::make_shared<PointSetValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        auto lb = std::make_shared<HyperplanValueFunction>(pomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan,5,TypeOfMaxPlanPrunning::BOUNDED);
+        auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
 
-        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_, 10000, "POMDP_Initialisation");
+        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_, 5000, "POMDP_Initialisation");
 
         algorithm->do_initialize();
         algorithm->do_solve();

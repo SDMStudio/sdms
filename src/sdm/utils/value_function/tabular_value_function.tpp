@@ -61,9 +61,14 @@ namespace sdm
     void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
         auto [best_action, tmp] = this->getBestActionAndValue(state, t);
-        // COMMENTER LA LIGNE CI-DESSOUS et mettre 'tmp' dans le update
-        // auto value = this->template backup<double>(state, best_action, t);
         this->updateValueAt(state, t, tmp);
+    }
+
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, number t)
+    {
+        auto value = this->template backup<double>(state, action, t);
+        this->updateValueAt(state, t, value);
     }
 
     template <class Hash, class KeyEqual>

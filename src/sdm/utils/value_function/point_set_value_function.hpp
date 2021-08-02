@@ -28,8 +28,7 @@ namespace sdm
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
         void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
-
-        bool is_dominated(const std::shared_ptr<State> &ostate, double value, number t);
+        void updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, number t);
 
         std::string str() const;
 
@@ -97,8 +96,6 @@ namespace sdm
         double ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point);
 
         Pair<std::unordered_map<std::shared_ptr<State>,std::vector<std::shared_ptr<State>>>,std::map<int,std::vector<std::shared_ptr<State>>>> iterative_pruning(number t);
-
-        std::vector<std::tuple<std::shared_ptr<State>,std::shared_ptr<Action>, double>> state_action_value;
 
     public:
         friend class boost::serialization::access;
