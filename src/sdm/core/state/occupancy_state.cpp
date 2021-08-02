@@ -520,7 +520,7 @@ namespace sdm
                             auto partial_jhist = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_one_step_left)->getPartialJointHistory(private_joint_history);
 
                             // Get the joint history corresponding to this partial joint history in the private occupancy state of the history label
-                            auto joint_history_from_partial = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getJointHistory(partial_jhist);
+                            auto joint_history_from_partial = previous_compact_ostate->getPrivateOccupancyState(agent_id, ihistory_label)->getJointHistoryFromPartial(partial_jhist);
 
                             // Update the current compact occupancy state
                             current_compact_ostate->addProbability(joint_history_from_partial,

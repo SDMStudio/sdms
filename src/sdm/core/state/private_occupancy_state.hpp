@@ -23,7 +23,7 @@ namespace sdm
 
         number getAgentId() const;
         const std::vector<std::shared_ptr<HistoryInterface>> &getPartialJointHistory(const std::shared_ptr<JointHistoryInterface> &) const;
-        std::shared_ptr<JointHistoryInterface> getJointHistory(const std::vector<std::shared_ptr<HistoryInterface>> &) const;
+        std::shared_ptr<JointHistoryInterface> getJointHistoryFromPartial(const std::vector<std::shared_ptr<HistoryInterface>> &) const;
 
         void finalize();
         void finalize(bool do_compression);

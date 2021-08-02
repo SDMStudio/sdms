@@ -250,20 +250,22 @@ namespace sdm
 
     void HSVI::do_test()
     {
-        std::shared_ptr<State> ostate = this->world_->getInitialState();
+        auto interactive_env = std::dynamic_pointer_cast<GymInterface>(this->world_);
+        std::shared_ptr<Observation> ostate = interactive_env->reset();
         std::shared_ptr<Action> jdr;
         number end = (this->planning_horizon_ > 0) ? this->planning_horizon_ : 10;
-        for (number i = 0; i < end; i++)
+        for (number t = 0; t < end; t++)
         {
-            std::cout << "\n------------------------\nTIMESTEP " << i << "\n------------------------\n"
+            std::cout << "\n------------------------\nTIMESTEP " << t << "\n------------------------\n"
                       << std::endl;
-            jdr = this->lower_bound_->getBestAction(ostate, i);
-            std::cout << "#> State\n"
-                      << ostate->str() << "\n"
-                      << std::endl;
-            std::cout << "#> Action\n"
-                      << jdr->str() << std::endl;
-            ostate = this->world_->nextState(ostate, jdr, i, this->getptr());
+            jdr = this->lower_bound_->getBestAction(ostate->toState(), t);
+            std::cout << "#> State" << std::endl;
+            std::cout << ostate->str() << std::endl;
+            std::cout << "#> Action" << std::endl;
+            std::cout << jdr->str() << std::endl;
+            auto [tmp_ostate, rew, _] = interactive_env->step(jdr);
+            ostate = tmp_ostate;
+            std::cout << "Reward : " << rew << std::endl;
         }
     }
 

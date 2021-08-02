@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     try
     {
         std::string path, formalism, name, qvalue, version, q_init;
-        unsigned long max_steps;
+        unsigned long num_episodes;
         number horizon, memory, batch_size;
         double lr, discount, sf, p_b, p_o, p_c, ball_r;
         int seed;
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
         ("memory,m", po::value<number>(&memory)->default_value(-1), "the memory. If 0 then infinite memory.")
         ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "batch size, that is K from the paper")
-        ("max_steps,t", po::value<unsigned long>(&max_steps)->default_value(100000), "the maximum number of timesteps")
+        ("num_episodes,t", po::value<unsigned long>(&num_episodes)->default_value(100000), "the maximum number of timesteps")
         ("seed,s", po::value<int>(&seed)->default_value(1), "random seed")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")
         ("store_actions", "store actions")("store_action_spaces", "store action spaces")
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
         else if (qvalue == "hierarchical")
             backup = std::make_shared<HierarchicalQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
 
-        std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+        std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, name);
 
         algorithm->do_initialize();
         std::cout << "store_actions " << store_actions << std::endl;

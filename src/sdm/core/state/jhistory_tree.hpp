@@ -127,7 +127,7 @@ namespace sdm
     protected:
         void addIndividualHistory(std::shared_ptr<HistoryInterface> ihist);
 
-        void setupDefaultObs(number num_agents, const std::shared_ptr<Observation> &default_observation = sdm::DEFAULT_OBSERVATION);
+        void setupDefaultObs(number num_agents, const std::shared_ptr<Observation> &default_observation = sdm::NO_OBSERVATION);
         std::shared_ptr<Joint<std::shared_ptr<Observation>>> default_observation_;
     };
 

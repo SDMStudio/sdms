@@ -84,7 +84,7 @@ namespace sdm
         // Create the Default Joint Observation
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
-            empty_observation->push_back(sdm::DEFAULT_OBSERVATION);
+            empty_observation->push_back(sdm::NO_OBSERVATION);
         }
 
         // Add the information in the variable empty_serial_observation

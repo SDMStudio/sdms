@@ -79,7 +79,7 @@ namespace sdm
 
     std::vector<double> rewards_;
 
-    unsigned long global_step, max_steps_, episode;
+    unsigned long global_step, num_episodes_, episode;
 
     std::string name_ = "qlearning";
 
@@ -94,7 +94,7 @@ namespace sdm
               double discount = 0.9,
               double lr = 0.001,
               double batch_size = 1,
-              unsigned long num_max_steps = 10000,
+              unsigned long num_episodes = 10000,
               std::string name = "qlearning"
             );
 

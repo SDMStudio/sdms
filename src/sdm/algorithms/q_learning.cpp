@@ -14,7 +14,7 @@ namespace sdm
                          double discount,
                          double lr,
                          double batch_size,
-                         unsigned long num_max_steps,
+                         unsigned long num_episodes,
                          std::string name
                          ) : env_(env),
                              experience_memory_(experience_memory),
@@ -26,7 +26,7 @@ namespace sdm
                              discount_(discount),
                              lr_(lr),
                              batch_size_(batch_size),
-                             max_steps_(num_max_steps),
+                             num_episodes_(num_episodes),
                              target_update_(1),
                              name_(name)
     {
@@ -58,9 +58,9 @@ namespace sdm
         this->episode = 0;
         this->t_begin = clock();
 
-        this->exploration_process->reset(this->max_steps_);
+        this->exploration_process->reset(this->num_episodes_);
 
-        while (this->global_step < this->max_steps_)
+        while (this->episode < this->num_episodes_)
         {
             // Update exploration process
             this->exploration_process->update(this->global_step);
