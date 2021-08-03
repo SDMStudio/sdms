@@ -14,7 +14,7 @@ namespace sdm
 
     template <class Hash, class KeyEqual>
     BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf)
-        : BaseTabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf)
+        : BaseTabularValueFunction(horizon, std::make_shared<ValueInitializer<>>(default_value), backup, action_vf)
     {
     }
 

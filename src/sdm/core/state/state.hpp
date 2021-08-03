@@ -12,7 +12,9 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/item.hpp>
+// #include <sdm/core/joint.hpp>
 #include <sdm/utils/struct/pair.hpp>
+
 
 namespace sdm
 {
@@ -30,6 +32,8 @@ namespace sdm
     class JointHistoryInterface;
     class BaseSerialInterface;
     class SerialOccupancyInterface;
+    template <class T>
+    class Joint;
 
     /**
      * @brief A generic state object.
@@ -122,6 +126,8 @@ namespace sdm
     using JointHistoryJointActionPair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<Action>>;
 
     using PrivateHierarchicalOccupancyStateJointHistoryPair = StatePair<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<JointHistoryInterface>>;
+
+    using OccupancyStateJointHistoryPair = StatePair<std::shared_ptr<OccupancyStateInterface>, Joint<std::shared_ptr<HistoryInterface>>>;
 
     // using PrivateHierarchicalOccupancyStateJointHistoryJointActionPair = StatePair<std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryPair>, std::shared_ptr<Action>>;
 

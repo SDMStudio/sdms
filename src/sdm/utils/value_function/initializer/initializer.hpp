@@ -38,10 +38,11 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
+    template <class TInput = std::shared_ptr<State>>
     class QInitializer
     {
     public:
-        virtual void init(std::shared_ptr<QValueFunction> vf) = 0;
+        virtual void init(std::shared_ptr<QValueFunction<TInput>> vf) = 0;
         virtual ~QInitializer() {}
     };
 
@@ -51,7 +52,8 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    class ValueInitializer : public Initializer, public QInitializer
+    template <class TInput = std::shared_ptr<State>>
+    class ValueInitializer : public Initializer, public QInitializer<TInput>
     {
     protected:
         double value;
@@ -61,7 +63,7 @@ namespace sdm
 
         void initBase(std::shared_ptr<BaseValueFunction> vf);
         void init(std::shared_ptr<ValueFunction> vf);
-        void init(std::shared_ptr<QValueFunction> vf);
+        void init(std::shared_ptr<QValueFunction<TInput>> vf);
     };
 
     /**
@@ -70,74 +72,75 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    class ZeroInitializer : public ValueInitializer
+    template <class TInput = std::shared_ptr<State>>
+    class ZeroInitializer : public ValueInitializer<TInput>
     {
     public:
         ZeroInitializer(std::shared_ptr<SolvableByHSVI> world = nullptr);
     };
 
-    /**
-     * @brief This initializer initializes a value function to the estimation of the value if we get a constant reward at every timestep.
-     * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
-     */
-    class BoundInitializer : public Initializer
-    {
-    protected:
-        double value_;
-        double (MDPInterface::*callback_value)(number) const = nullptr;
-        std::shared_ptr<SolvableByHSVI> world_;
+    // /**
+    //  * @brief This initializer initializes a value function to the estimation of the value if we get a constant reward at every timestep.
+    //  * 
+    //  * @tparam TState the state type
+    //  * @tparam TAction the action type
+    //  */
+    // class BoundInitializer : public Initializer
+    // {
+    // protected:
+    //     double value_;
+    //     double (MDPInterface::*callback_value)(number) const = nullptr;
+    //     std::shared_ptr<SolvableByHSVI> world_;
 
-    public:
-        BoundInitializer();
-        BoundInitializer(std::shared_ptr<SolvableByHSVI> world,double value);
+    // public:
+    //     BoundInitializer();
+    //     BoundInitializer(std::shared_ptr<SolvableByHSVI> world,double value);
 
-        void init(std::shared_ptr<ValueFunction> vf);
-        double getValue(std::shared_ptr<ValueFunction> vf, number t);
-        double computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf);
-    };
+    //     void init(std::shared_ptr<ValueFunction> vf);
+    //     double getValue(std::shared_ptr<ValueFunction> vf, number t);
+    //     double computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf);
+    // };
 
-    /**
-     * @brief This initializer initializes a value function to the worst value. This is a pessimistic initialization.
-     * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
-     */
-    class MinInitializer : public BoundInitializer
-    {
-    public:
-        MinInitializer(std::shared_ptr<SolvableByHSVI> world);
+    // /**
+    //  * @brief This initializer initializes a value function to the worst value. This is a pessimistic initialization.
+    //  * 
+    //  * @tparam TState the state type
+    //  * @tparam TAction the action type
+    //  */
+    // class MinInitializer : public BoundInitializer
+    // {
+    // public:
+    //     MinInitializer(std::shared_ptr<SolvableByHSVI> world);
 
-        void init(std::shared_ptr<ValueFunction> vf);
-    };
+    //     void init(std::shared_ptr<ValueFunction> vf);
+    // };
 
-    /**
-     * @brief This initializer initializes a value function to the best value. This is an optimistic initialization.
-     * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
-     */
-    class MaxInitializer : public BoundInitializer
-    {
-    public:
-        MaxInitializer(std::shared_ptr<SolvableByHSVI> world);
+    // /**
+    //  * @brief This initializer initializes a value function to the best value. This is an optimistic initialization.
+    //  * 
+    //  * @tparam TState the state type
+    //  * @tparam TAction the action type
+    //  */
+    // class MaxInitializer : public BoundInitializer
+    // {
+    // public:
+    //     MaxInitializer(std::shared_ptr<SolvableByHSVI> world);
 
-        void init(std::shared_ptr<ValueFunction> vf);
-    };
+    //     void init(std::shared_ptr<ValueFunction> vf);
+    // };
 
-    /**
-     * @brief This initializer calculates the initial lower bound $\bar{V}_0$ using the blind  policy method [Hauskrecht, 1997]. 
-     * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf . 
-     * 
-     */
-    class BlindInitializer : public BoundInitializer
-    {
-    public:
-        BlindInitializer(std::shared_ptr<SolvableByHSVI> world);
+    // /**
+    //  * @brief This initializer calculates the initial lower bound $\bar{V}_0$ using the blind  policy method [Hauskrecht, 1997]. 
+    //  * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf . 
+    //  * 
+    //  */
+    // class BlindInitializer : public BoundInitializer
+    // {
+    // public:
+    //     BlindInitializer(std::shared_ptr<SolvableByHSVI> world);
 
-        void init(std::shared_ptr<ValueFunction> vf);
-    };
+    //     void init(std::shared_ptr<ValueFunction> vf);
+    // };
 
 } // namespace sdm
-
+#include <sdm/utils/value_function/initializer/initializer.tpp>

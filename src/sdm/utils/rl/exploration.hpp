@@ -17,7 +17,7 @@ namespace sdm
         virtual ~Exploration(){}
         virtual void reset(unsigned long) = 0;
         virtual void update(unsigned long) = 0;
-        virtual Space getAction(std::shared_ptr<QValueFunction>, std::shared_ptr<Space>, number) = 0;
+        // virtual Space getAction(std::shared_ptr<QValueFunction>, std::shared_ptr<Space>, number) = 0;
     };
 
     class EpsGreedy : public Exploration
@@ -60,9 +60,9 @@ namespace sdm
             return this->eps_;
         }
 
-        Space getAction(std::shared_ptr<QValueFunction>, std::shared_ptr<Space>, number)
-        {
-            throw sdm::exception::NotImplementedException();
-        }
+        // Space getAction(std::shared_ptr<QValueFunction>, std::shared_ptr<Space>, number)
+        // {
+        //     throw sdm::exception::NotImplementedException();
+        // }
     };
 } // namespace sdm

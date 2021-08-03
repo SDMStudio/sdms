@@ -22,6 +22,7 @@
 
 namespace sdm
 {
+  template <class TInput = std::shared_ptr<State>>
   class QLearning : public Algorithm
   {
   private:
@@ -44,12 +45,12 @@ namespace sdm
     /**
      * @brief Q-value function. 
      */
-    std::shared_ptr<QValueFunction> q_value_table_;
+    std::shared_ptr<QValueFunction<TInput>> q_value_table_;
 
     /**
      * @brief Q-value target function. 
      */
-    std::shared_ptr<QValueFunction> q_value_table_target_;
+    std::shared_ptr<QValueFunction<TInput>> q_value_table_target_;
 
     std::shared_ptr<QValueBackupInterface> backup_;
 
@@ -86,8 +87,8 @@ namespace sdm
   public:
     QLearning(std::shared_ptr<GymInterface> &env,
               std::shared_ptr<ExperienceMemoryInterface> experience_memory,
-              std::shared_ptr<QValueFunction> q_value_table,
-              std::shared_ptr<QValueFunction> q_value_table_target,
+              std::shared_ptr<QValueFunction<TInput>> q_value_table,
+              std::shared_ptr<QValueFunction<TInput>> q_value_table_target,
               std::shared_ptr<QValueBackupInterface> backup,
               std::shared_ptr<EpsGreedy> exploration,
               number horizon,
@@ -152,7 +153,8 @@ namespace sdm
 
     double getResult() { throw sdm::exception::NotImplementedException(); }
 
-    void saveResults(std::string filename, double other);
+    // void saveResults(std::string filename, double other);
 
   };
 } // namespace sdm
+#include <sdm/algorithms/q_learning.tpp>

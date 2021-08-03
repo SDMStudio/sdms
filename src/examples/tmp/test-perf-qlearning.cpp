@@ -12,14 +12,17 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/extensive_qvalue_function.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
+#include <sdm/utils/value_function/backup/extensive_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
 #include <sdm/world/hierarchical_occupancy_mdp.hpp>
-#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
+#include <sdm/world/hierarchical_occupancy_mdp_with_history.hpp>
+// #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
@@ -56,7 +59,9 @@ int main(int argc, char **argv)
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
-        algo_config.add_options()("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
+        algo_config.add_options()
+        ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
+        ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -84,11 +89,19 @@ int main(int argc, char **argv)
 
         common::global_urng().seed(seed);
 
+         // Set precision
+        Belief::PRECISION = belief_precision;
+        OccupancyState::PRECISION = ostate_precision;
+        PrivateOccupancyState::PRECISION_COMPRESSION = compress_precision;
+
+        std::cout << "MEMORY=" << memory << std::endl;
+        std::cout << "Belief::PRECISION=" << Belief::PRECISION << std::endl;
+        std::cout << "OccupancyState::PRECISION=" << OccupancyState::PRECISION << std::endl;
+        std::cout << "PrivateOccupancyState::PRECISION_COMPRESSION=" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
+
         auto dpomdp = sdm::parser::parse_file(path);
         dpomdp->setHorizon(horizon);
         dpomdp->setDiscount(discount);
-
-
 
         auto start_distribution = dpomdp->getStartDistribution();
 
@@ -113,63 +126,67 @@ int main(int argc, char **argv)
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, true, batch_size);
-        else if (formalism == "HierarchicalOccupancyMDP"){
+        else if (formalism == "HierarchicalOccupancyMDP")
+        {
             auto hierarchical_dpomdp = std::make_shared<HierarchicalMPOMDP>(dpomdp);
-            gym = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_dpomdp, memory, true, true, true, true, batch_size);
+            if (qvalue == "tabular")
+                gym = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_dpomdp, memory, true, true, true, true, batch_size);
+            else if (qvalue == "extensive")
+                gym = std::make_shared<HierarchicalOccupancyMDPWithHistory>(hierarchical_dpomdp, memory, true, true, true, true, batch_size);
         }
-
-        // Set precision
-        Belief::PRECISION = belief_precision;
-        OccupancyState::PRECISION = ostate_precision;
-        PrivateOccupancyState::PRECISION_COMPRESSION = compress_precision;
-
-        std::cout << "MEMORY=" << memory << std::endl;
-        std::cout << "Belief::PRECISION=" << Belief::PRECISION << std::endl;
-        std::cout << "OccupancyState::PRECISION=" << OccupancyState::PRECISION << std::endl;
-        std::cout << "PrivateOccupancyState::PRECISION_COMPRESSION=" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
-        // Instanciate the initializer
-        std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
-
-        std::shared_ptr<QValueFunction> q_value_table;
-        q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
-
-        std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
-
-        std::shared_ptr<QValueFunction> target_q_value_table;
-        target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
         // Instanciate exploration process
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
         // Instanciate the memory
         std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
-        std::shared_ptr<QValueBackupInterface> backup;
-        backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
 
-        auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+        if (qvalue == "tabular")
+        {
+            std::shared_ptr<ZeroInitializer<>> initializer = std::make_shared<sdm::ZeroInitializer<>>();
+            std::shared_ptr<QValueFunction<>> q_value_table = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
+            std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
+            std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+            algorithm->do_initialize();
+            algorithm->do_solve();
+        }
+        else if (qvalue == "extensive")
+        {
+            std::shared_ptr<ZeroInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer = std::make_shared<sdm::ZeroInitializer<Joint<std::shared_ptr<HistoryInterface>>>>();
+            std::shared_ptr<QValueFunction<OccupancyStateJointHistoryPair>> q_value_table = std::make_shared<ExtensiveQValueFunction>(horizon, lr, initializer, 1.0, true);
+            std::shared_ptr<QValueBackupInterface> backup = std::make_shared<ExtensiveQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
+            std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<OccupancyStateJointHistoryPair>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+            algorithm->do_initialize();
+            algorithm->do_solve();
+        }
 
-        algorithm->do_initialize();
-        algorithm->do_solve();
-
-        algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 
 
-        std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
-        std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
-        std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
-        std::cout << "TOTAL TIME IN APPLY DR : " << OccupancyMDP::TIME_IN_APPLY_DR << std::endl;
-        std::cout << "TOTAL TIME IN UNDERLYING STEP : " << OccupancyMDP::TIME_IN_UNDER_STEP << std::endl;
-        std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
-        std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
-        std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
-        std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
-        std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
-        std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
-        std::cout << "OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
+
+
+
+
+
+
+
+
+
+        // std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
+        // std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
+        // std::cout << "TOTAL TIME IN APPLY DR : " << OccupancyMDP::TIME_IN_APPLY_DR << std::endl;
+        // std::cout << "TOTAL TIME IN UNDERLYING STEP : " << OccupancyMDP::TIME_IN_UNDER_STEP << std::endl;
+        // std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
+        // std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
+        // std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
+        // std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
+        // std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
+        // std::cout << "OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
     }
     catch (std::exception &e)
     {

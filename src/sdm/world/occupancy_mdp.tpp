@@ -250,7 +250,6 @@ namespace sdm
             aggregated_belief->normalizeBelief(aggregated_belief->norm_1());
 
             // Check if the belief already exists in the belief space
-
             if (this->getUnderlyingBeliefMDP()->state_space_.find(*aggregated_belief) == this->getUnderlyingBeliefMDP()->state_space_.end())
             {
                 // Store the belief in the graph

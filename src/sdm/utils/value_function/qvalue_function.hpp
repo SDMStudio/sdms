@@ -30,6 +30,7 @@ namespace sdm
      * @tparam std::shared_ptr<Action> Type of the action.
      * @tparam double Type of the value.
      */
+    template <class TInput = std::shared_ptr<State>>
     class QValueFunction : public BaseValueFunction
     {
     protected:
@@ -37,7 +38,7 @@ namespace sdm
          * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
          * 
          */
-        // std::shared_ptr<BinaryFunction<std::shared_ptr<State>, std::shared_ptr<Action>, number, double>> init_function_ = nullptr;
+        // std::shared_ptr<BinaryFunction<TInput, std::shared_ptr<Action>, number, double>> init_function_ = nullptr;
 
     public:
         QValueFunction();
@@ -63,7 +64,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        // virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+        // virtual double getValueAt(const TInput &state, number t = 0) = 0;
 
         /**
          * @brief Get the q-values for all actions at a state
@@ -71,7 +72,7 @@ namespace sdm
          * @param state the state
          * @return the q-value vector 
          */
-        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const TInput &state, number t) = 0;
 
         /**
          * @brief Get the q-value given state and action
@@ -80,21 +81,21 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual double getQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t) = 0;
 
-        // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0) = 0;
+        // virtual std::shared_ptr<Action> getBestAction(const TInput &state, number t = 0) = 0;
 
         /**
          * @brief Update the value at a given state
          */
-        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) = 0;
+        virtual void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t = 0) = 0;
 
         /**
          * @brief Update the value at a given state (given a target)
          */
-        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double target) = 0;
+        virtual void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t, double target) = 0;
 
-        virtual bool isNotSeen(const std::shared_ptr<State> &state, number t) = 0;
+        virtual bool isNotSeen(const TInput &state, number t) = 0;
 
         virtual int getNumStates() const = 0;
 
@@ -108,7 +109,8 @@ namespace sdm
         /**
          * @brief Get shared pointer on the current QValueFunction
          */
-        std::shared_ptr<QValueFunction> getptr();
+        std::shared_ptr<QValueFunction<TInput>> getptr();
 
     };
 } // namespace sdm
+#include <sdm/utils/value_function/qvalue_function.tpp>

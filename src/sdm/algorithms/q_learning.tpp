@@ -4,10 +4,11 @@
 namespace sdm
 {
 
-    QLearning::QLearning(std::shared_ptr<GymInterface> &env,
+    template <class TInput>
+    QLearning<TInput>::QLearning(std::shared_ptr<GymInterface> &env,
                          std::shared_ptr<ExperienceMemoryInterface> experience_memory,
-                         std::shared_ptr<QValueFunction> q_value_table,
-                         std::shared_ptr<QValueFunction> q_value_table_target,
+                         std::shared_ptr<QValueFunction<TInput>> q_value_table,
+                         std::shared_ptr<QValueFunction<TInput>> q_value_table_target,
                          std::shared_ptr<QValueBackupInterface> backup,
                          std::shared_ptr<EpsGreedy> exploration,
                          number horizon,
@@ -32,7 +33,8 @@ namespace sdm
     {
     }
 
-    void QLearning::initLogger()
+    template <class TInput>
+    void QLearning<TInput>::initLogger()
     {
         std::string format = "#> Episode : {}\tStep : {}/?\tValue : {}\tT(s) : {}\tN(S) : {}\n";
 
@@ -43,7 +45,8 @@ namespace sdm
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
-    void QLearning::do_initialize()
+    template <class TInput>
+    void QLearning<TInput>::do_initialize()
     {
         this->initLogger();
 
@@ -51,8 +54,9 @@ namespace sdm
         this->q_value_table_target_->initialize();
     }
 
+    template <class TInput>
     // std::shared_ptr<GymInterface> env, long nb_timesteps, number horizon, number test_freq, number save_freq, std::string save_folder, number verbose, long timestep_init, std::string log_file
-    void QLearning::do_solve()
+    void QLearning<TInput>::do_solve()
     {
         this->global_step = 0;
         this->episode = 0;
@@ -94,16 +98,19 @@ namespace sdm
 
     }
 
-    void QLearning::do_save()
+    template <class TInput>
+    void QLearning<TInput>::do_save()
     {
         this->q_value_table_->save(this->name_ + "_qvalue.bin");
     }
 
-    void QLearning::do_test()
+    template <class TInput>
+    void QLearning<TInput>::do_test()
     {
     }
 
-    void QLearning::do_episode()
+    template <class TInput>
+    void QLearning<TInput>::do_episode()
     {
         // std::cout << "-------- do_episode() ---------" << std::endl;
         // std::cout << *this->q_value_table_ << std::endl;
@@ -124,7 +131,6 @@ namespace sdm
             this->do_save_ = (this->global_step % this->save_freq == 0);
             this->do_log_ = (this->global_step % this->log_freq == 0);
             this->do_test_ = (this->global_step % this->test_freq == 0);
-
             if (this->is_done)
             {
                 break;
@@ -132,9 +138,10 @@ namespace sdm
         }
     }
 
-    void QLearning::do_step()
+    template <class TInput>
+    void QLearning<TInput>::do_step()
     {   
-        // std::cout << "-------- QLearning::do_step() --------- " << this->step << std::endl;
+        // std::cout << "-------- QLearning<TInput>::do_step() --------- " << this->step << std::endl;
         
         // Action selection following policy and exploration process
 
@@ -157,9 +164,11 @@ namespace sdm
         this->action = this->next_action;
         this->step++;
         this->global_step++;
+        // std::cout << "-------- do_step() --------- END" << std::endl;
     }
 
-    void QLearning::update_model()
+    template <class TInput>
+    void QLearning<TInput>::update_model()
     {
         // auto batch = this->experience_->sample(this->batch_size_);
 
@@ -176,15 +185,19 @@ namespace sdm
         // }
     }
 
-    void QLearning::update_target()
+    template <class TInput>
+    void QLearning<TInput>::update_target()
     {
         *this->q_value_table_target_ = *this->q_value_table_;
     }
 
-    std::shared_ptr<Action> QLearning::select_action(const std::shared_ptr<Observation> &observation, number t)
+    template <class TInput>
+    std::shared_ptr<Action> QLearning<TInput>::select_action(const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "-------- QLearning<TInput>::select_action ---------" << std::endl;
         
-        if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), t))
+        // if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), t))
+        if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
         {
             // std::cout << "-------- RANDOM ---------" << std::endl;
             return this->env_->getRandomAction(observation, t);
@@ -197,27 +210,27 @@ namespace sdm
 
     }
 
+    // template <class TInput>
+    // void QLearning<TInput>::saveResults(std::string filename, double other)
+    // {
+    //     std::ofstream ofs;
+    //     ofs.open(filename, std::ios::out | std::ios::app);
+    //     ofs << other << ",";
+    //     ofs << this->backup_->getValueAt(this->env_->reset()->toState(), 0) << ",";
+    //     ofs << std::static_pointer_cast<OccupancyMDP>(this->env_)->getMDPGraph()->getNumNodes() << ",";
+    //     // number num_max_jhist = 0, tmp;
+    //     // for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->env_)->getStoredStates())
+    //     // {
+    //     //     if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
+    //     //     {
+    //     //         num_max_jhist = tmp;
+    //     //     }
+    //     // }
+    //     // ofs << num_max_jhist << ",";
+    //     ofs << ((float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
 
-    void QLearning::saveResults(std::string filename, double other)
-    {
-        std::ofstream ofs;
-        ofs.open(filename, std::ios::out | std::ios::app);
-        ofs << other << ",";
-        ofs << this->backup_->getValueAt(this->env_->reset()->toState(), 0) << ",";
-        ofs << std::static_pointer_cast<OccupancyMDP>(this->env_)->getMDPGraph()->getNumNodes() << ",";
-        // number num_max_jhist = 0, tmp;
-        // for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->env_)->getStoredStates())
-        // {
-        //     if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
-        //     {
-        //         num_max_jhist = tmp;
-        //     }
-        // }
-        // ofs << num_max_jhist << ",";
-        ofs << ((float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
-
-        ofs << "\n";
-        ofs.close();
-    }
+    //     ofs << "\n";
+    //     ofs.close();
+    // }
 
 } // namespace sdm
