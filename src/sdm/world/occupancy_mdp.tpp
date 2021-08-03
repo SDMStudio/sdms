@@ -233,7 +233,7 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    void BaseOccupancyMDP<TOccupancyState>::update_occupancy_state_proba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability)
+    void BaseOccupancyMDP<TOccupancyState>::updateOccupancyStateProbability(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability)
     {
 
         if (occupancy_state->getProbability(joint_history) > 0.)
@@ -323,11 +323,11 @@ namespace sdm
                             {
                                 // Update new fully uncompressed occupancy state
                                 std::shared_ptr<JointHistoryInterface> next_joint_history = joint_history->expand(/* joint_action, */ joint_observation->toObservation())->toJointHistory();
-                                this->update_occupancy_state_proba(next_fully_uncompressed_occupancy_state, next_joint_history, next_belief, next_joint_history_probability);
+                                this->updateOccupancyStateProbability(next_fully_uncompressed_occupancy_state, next_joint_history, next_belief, next_joint_history_probability);
 
                                 // Update new one step uncompressed occupancy state
                                 std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(/* joint_action, */ joint_observation->toObservation())->toJointHistory();
-                                this->update_occupancy_state_proba(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief, next_joint_history_probability);
+                                this->updateOccupancyStateProbability(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief, next_joint_history_probability);
 
                                 // Update next history labels
                                 next_one_step_left_compressed_occupancy_state->updateJointLabels(next_joint_history->toJointHistory()->getIndividualHistories(), next_compressed_joint_history->toJointHistory()->getIndividualHistories());
