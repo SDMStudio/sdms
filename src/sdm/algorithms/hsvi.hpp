@@ -54,7 +54,7 @@ namespace sdm
      * @brief Logger.
      * 
      */
-    std::shared_ptr<MultiLogger> logger_;
+    std::shared_ptr<MultiLogger> logger_, logger_precise_;
 
     /**
      * @brief Some variables for the algorithm.

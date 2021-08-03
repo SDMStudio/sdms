@@ -77,99 +77,6 @@ namespace sdm
         return res.str();
     }
 
-    // template <class Hash, class KeyEqual>
-    // Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state_tmp, number t)
-    // {
-    //     assert(this->getInitFunction() != nullptr);
-    //     assert(state_tmp->getTypeState() != TypeState::STATE);
-
-    //     auto state = state_tmp->toBelief();
-
-    //     double min_ext = 0;
-    //     double v_ub_state = this->getInitFunction()->operator()(state, t);
-
-    //     std::shared_ptr<State> argmin_ = state;
-
-    //     // Go over all element in the support
-    //     for (const auto &point_value : this->getRepresentation(t))
-    //     {
-    //         auto [point, v_kappa] = point_value;
-    //         auto point_to_belief_interface = point->toBelief();
-
-    //         double v_ub_kappa = this->getInitFunction()->operator()(point, t);
-
-    //         double phi;
-
-    //         switch (state->getTypeState())
-    //         {
-    //         case TypeState::BELIEF_STATE:
-    //             phi = this->ratioBelief(state, point_to_belief_interface);
-    //             break;
-    //         case TypeState::OCCUPANCY_STATE:
-    //             phi = this->ratioOccupancy(state, point_to_belief_interface,t);
-    //             break;
-    //         case TypeState::SERIAL_OCCUPANCY_STATE:
-    //             phi = this->ratioOccupancy(state, point_to_belief_interface,t);
-    //             break;
-    //         default:
-    //             throw sdm::exception::Exception("BasePointSetValueFunction::evaluate not defined for this state!");
-    //             break;
-    //         }
-
-    //         // determine the min ext
-    //         double min_int = phi * (v_kappa - v_ub_kappa);
-    //         if (min_int < min_ext)
-    //         {
-    //             min_ext = min_int;
-    //             argmin_ = point_to_belief_interface;
-    //         }
-    //     }
-    //     return std::make_pair(argmin_, v_ub_state + min_ext);
-    // }
-
-    // template <class Hash, class KeyEqual>
-    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point)
-    // {
-    //     // Determine the ratio for the specific case when the state is a belief
-    //     double phi = 1.0;
-
-    //     for (auto &support : point->getStates())
-    //     {
-    //         double v_int = (state->getProbability(support) / point->getProbability(support));
-    //         // determine the min int
-    //         if (v_int < phi)
-    //         {
-    //             phi = v_int;
-    //         }
-    //     }
-    //     return phi;
-    // }
-
-    // template <class Hash, class KeyEqual>
-    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<BeliefInterface> &state_tmp, const std::shared_ptr<BeliefInterface> &point_tmp, number t)
-    // {
-    //     // Determine the ratio for the specific case when the state is a Occupancy State
-    //     double phi = 1.0;
-    //     auto point = point_tmp->toOccupancyState();
-    //     auto occupancy_state = state_tmp->toOccupancyState();
-
-    //     // Go over all joint history
-    //     for (auto &joint_history : point->getJointHistories())
-    //     {
-    //         // Go over all hidden state in the belief conditionning to the joitn history
-    //         for (const auto &hidden_state : point->getBeliefAt(joint_history)->getStates())
-    //         {
-    //             double v_int = (occupancy_state->getProbability(joint_history, hidden_state) / point->getProbability(joint_history, hidden_state));
-    //             // determine the min int
-    //             if (v_int < phi)
-    //             {
-    //                 phi = v_int;
-    //             }
-    //         }
-    //     }
-    //     return phi;
-    // }
-
     template <class Hash, class KeyEqual>
     Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state_tmp, number t)
     {
@@ -178,14 +85,7 @@ namespace sdm
 
         auto state = state_tmp->toBelief();
 
-        // double min_ext = 0;
-        double min_value = 0;
-        
-        if(this->getSupport(t).size() != 0)
-        {
-            min_value = std::numeric_limits<double>::max();
-        }
-
+        double min_ext = 0;
         double v_ub_state = this->getInitFunction()->operator()(state, t);
 
         std::shared_ptr<State> argmin_ = state;
@@ -196,7 +96,7 @@ namespace sdm
             auto [point, v_kappa] = point_value;
             auto point_to_belief_interface = point->toBelief();
 
-            double v_ub_kappa = this->getInitFunction()->operator()(point->toOccupancyState()->getOneStepUncompressedOccupancy(), t);
+            double v_ub_kappa = this->getInitFunction()->operator()(point, t);
 
             double phi;
 
@@ -218,13 +118,13 @@ namespace sdm
 
             // determine the min ext
             double min_int = phi * (v_kappa - v_ub_kappa);
-            if (min_int < min_value)
+            if (min_int < min_ext)
             {
-                min_value = min_int;
+                min_ext = min_int;
                 argmin_ = point_to_belief_interface;
             }
         }
-        return std::make_pair(argmin_,v_ub_state+ min_value);
+        return std::make_pair(argmin_, v_ub_state + min_ext);
     }
 
     template <class Hash, class KeyEqual>
@@ -249,9 +149,7 @@ namespace sdm
     double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<BeliefInterface> &state_tmp, const std::shared_ptr<BeliefInterface> &point_tmp, number t)
     {
         // Determine the ratio for the specific case when the state is a Occupancy State
-        // double phi = 1.0;
-        double min_value = std::numeric_limits<double>::max();
-
+        double phi = 1.0;
         auto point = point_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
         auto occupancy_state = state_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
 
@@ -263,14 +161,116 @@ namespace sdm
             {
                 double v_int = (occupancy_state->getProbability(joint_history, hidden_state) / point->getProbability(joint_history, hidden_state));
                 // determine the min int
-                if (min_value > v_int)
+                if (v_int < phi)
                 {
-                    min_value = v_int;
+                    phi = v_int;
                 }
             }
         }
-        return min_value;
+        return phi;
     }
+
+    // template <class Hash, class KeyEqual>
+    // Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state_tmp, number t)
+    // {
+    //     assert(this->getInitFunction() != nullptr);
+    //     assert(state_tmp->getTypeState() != TypeState::STATE);
+
+    //     auto state = state_tmp->toBelief();
+
+    //     // double min_ext = 0;
+    //     double min_value = 0;
+        
+    //     if(this->getSupport(t).size() != 0)
+    //     {
+    //         min_value = std::numeric_limits<double>::max();
+    //     }
+
+    //     double v_ub_state = this->getInitFunction()->operator()(state, t);
+
+    //     std::shared_ptr<State> argmin_ = state;
+
+    //     // Go over all element in the support
+    //     for (const auto &point_value : this->getRepresentation(t))
+    //     {
+    //         auto [point, v_kappa] = point_value;
+    //         auto point_to_belief_interface = point->toBelief();
+
+    //         double v_ub_kappa = this->getInitFunction()->operator()(point->toOccupancyState()->getOneStepUncompressedOccupancy(), t);
+
+    //         double phi;
+
+    //         switch (state->getTypeState())
+    //         {
+    //         case TypeState::BELIEF_STATE:
+    //             phi = this->ratioBelief(state, point_to_belief_interface);
+    //             break;
+    //         case TypeState::OCCUPANCY_STATE:
+    //             phi = this->ratioOccupancy(state, point_to_belief_interface,t);
+    //             break;
+    //         case TypeState::SERIAL_OCCUPANCY_STATE:
+    //             phi = this->ratioOccupancy(state, point_to_belief_interface,t);
+    //             break;
+    //         default:
+    //             throw sdm::exception::Exception("BasePointSetValueFunction::evaluate not defined for this state!");
+    //             break;
+    //         }
+
+    //         // determine the min ext
+    //         double min_int = phi * (v_kappa - v_ub_kappa);
+    //         if (min_int < min_value)
+    //         {
+    //             min_value = min_int;
+    //             argmin_ = point_to_belief_interface;
+    //         }
+    //     }
+    //     return std::make_pair(argmin_,v_ub_state+ min_value);
+    // }
+
+    // template <class Hash, class KeyEqual>
+    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point)
+    // {
+    //     // Determine the ratio for the specific case when the state is a belief
+    //     double phi = 1.0;
+
+    //     for (auto &support : point->getStates())
+    //     {
+    //         double v_int = (state->getProbability(support) / point->getProbability(support));
+    //         // determine the min int
+    //         if (v_int < phi)
+    //         {
+    //             phi = v_int;
+    //         }
+    //     }
+    //     return phi;
+    // }
+
+    // template <class Hash, class KeyEqual>
+    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<BeliefInterface> &state_tmp, const std::shared_ptr<BeliefInterface> &point_tmp, number t)
+    // {
+    //     // Determine the ratio for the specific case when the state is a Occupancy State
+    //     // double phi = 1.0;
+    //     double min_value = std::numeric_limits<double>::max();
+
+    //     auto point = point_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
+    //     auto occupancy_state = state_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
+
+    //     // Go over all joint history
+    //     for (auto &joint_history : point->getJointHistories())
+    //     {
+    //         // Go over all hidden state in the belief conditionning to the joitn history
+    //         for (const auto &hidden_state : point->getBeliefAt(joint_history)->getStates())
+    //         {
+    //             double v_int = (occupancy_state->getProbability(joint_history, hidden_state) / point->getProbability(joint_history, hidden_state));
+    //             // determine the min int
+    //             if (min_value > v_int)
+    //             {
+    //                 min_value = v_int;
+    //             }
+    //         }
+    //     }
+    //     return min_value;
+    // }
 
     // **********************
     // ****** Prunning ******

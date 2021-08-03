@@ -32,17 +32,20 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    std::vector<std::string> all_formalism={"extensive-decpomdp"};
-    std::vector<std::string> all_problem={"boxPushingUAI07"};
+    //Dimension taille d'occupation
+    //Pour chaque pas de tmps, dès statistique précise( horizon à horizon)
+
+    std::vector<std::string> all_formalism={"decpomdp"};
+    std::vector<std::string> all_problem={"example5P_3-1","example7H_3-1"};
     std::vector<int> all_horizon={10};
     std::vector<double> all_discount={1};
-    std::vector<std::string> upper_bound_name = {"sawtooth_lp_serial"};
-    std::vector<std::string> lower_bound_name={"maxplan_lp_serial"};
+    std::vector<std::string> upper_bound_name = {"sawtooth"};
+    std::vector<std::string> lower_bound_name={"maxplan_serial"};
     std::vector<std::string> all_lower__init_name={"Min"};
     std::vector<std::string> all_upper_init_name= {"PomdpHsvi"};
 
     int mean = 1;
-    std::string filepath = "../data/world/dpomdp/";
+    std::string filepath = "../data/world/ndpomdp/";
     std::string save_path = "../run/Resultat/resultat";
 
     std::vector<std::string> all_sawtooth_current_type_of_resolution = {"IloIfThen"};

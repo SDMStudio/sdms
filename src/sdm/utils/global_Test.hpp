@@ -40,7 +40,7 @@ namespace sdm
 
         for(const std::string & filename : all_problem)
         {
-            std::string filepath_ = filepath+filename+".dpomdp";
+            std::string filepath_ = filepath+filename+".ndpomdp";
             for(const int &horizon :all_horizon)
             {
                 for(const double & discount : all_discount)
