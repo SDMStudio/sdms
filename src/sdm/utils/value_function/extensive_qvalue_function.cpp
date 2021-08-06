@@ -7,11 +7,10 @@ namespace sdm
     ExtensiveQValueFunction::ExtensiveQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer, double ball_r, bool keep_map)
         : QValueFunction(horizon), horizon_(horizon), learning_rate_(learning_rate), initializer_(initializer), ball_r_(ball_r), keep_map_(keep_map)
     {
-        this->Psi = std::vector<psi>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, psi());
+        this->Psi = std::vector<psi>(this->horizon_ + 1, psi());
         this->num_states_ = 0;
         this->num_key_states_ = 0;
-        // this->num_states_vector_ = std::vector<int>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
-        this->closest_s_map_ = std::vector<std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>());
+        this->closest_s_map_ = std::vector<std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>>(this->horizon_ + 1, std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>());
     }
 
     ExtensiveQValueFunction::ExtensiveQValueFunction(number horizon, double learning_rate, double default_value, double ball_r, bool keep_map) : ExtensiveQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer<Joint<std::shared_ptr<HistoryInterface>>>>(default_value), ball_r, keep_map)
@@ -39,28 +38,27 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
+    //
     double ExtensiveQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t)
     {
-        auto h = this->isInfiniteHorizon() ? 0 : t;
         auto s_ = this->getHyperPlaneIndex(s, t);
-        return this->Psi[h].at(s_).getQValueAt(o, u, t);
+        return this->Psi[t].at(s_).getQValueAt(o, u, t);
     }
     double ExtensiveQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
         return this->getQValueAt(s, o->getIndividualHistories(), u, t);
     }
     
-
     void ExtensiveQValueFunction::updateQValueAt(const OccupancyStateJointHistoryPair &state, const std::shared_ptr<Action> &action, number t, double delta)
     {
         throw sdm::exception::NotImplementedException();
     }
 
+    //
     void ExtensiveQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t, double delta)
     {
-        auto h = this->isInfiniteHorizon() ? 0 : t;
         auto s_ = this->getHyperPlaneIndex(s, t);
-        this->Psi[h].at(s_).updateQValueAt(o, u, t, delta);
+        this->Psi[t].at(s_).updateQValueAt(o, u, t, delta);
     }
     void ExtensiveQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t, double delta)
     {
@@ -85,46 +83,31 @@ namespace sdm
 
     void ExtensiveQValueFunction::initializeQValueFunctionAtWith(const std::shared_ptr<OccupancyStateInterface> &s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>> &q_, number t)
     {   
-        // std::cout << "ExtensiveQValueFunction::initializeQValueFunctionAtWith()" << std::endl;
-        auto h = this->isInfiniteHorizon() ? 0 : t;
-  
-        this->Psi[h].emplace(s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>(0, learning_rate_, initializer_));
-        this->Psi[h].at(s) = q_;
+        this->Psi[t].emplace(s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>(0, learning_rate_, initializer_));
+        this->Psi[t].at(s) = q_;
         this->num_key_states_++;
-        
-        
     }
 
     void ExtensiveQValueFunction::initializeToZeroQValueFunctionAt(const std::shared_ptr<OccupancyStateInterface> &s, number t)
     {   
-        // std::cout << "ExtensiveQValueFunction::initializeToZeroQValueFunctionAt()" << std::endl;
-
-        auto h = this->isInfiniteHorizon() ? 0 : t;
-  
-        this->Psi[h].emplace(s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>(0, learning_rate_, initializer_));
-        this->Psi[h].at(s).initialize(0);
+        this->Psi[t].emplace(s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>(0, learning_rate_, initializer_));
+        this->Psi[t].at(s).initialize(0);
         this->num_key_states_++;
-        this->closest_s_map_[h].emplace(s, s);
-        
+        this->closest_s_map_[t].emplace(s, s);
     }
 
     std::shared_ptr<OccupancyStateInterface> ExtensiveQValueFunction::getHyperPlaneIndex(const std::shared_ptr<OccupancyStateInterface> &s, number t)
     {
-        // std::cout << "ExtensiveQValueFunction::getClosestS()" << std::endl;
-
-        auto h = this->isInfiniteHorizon() ? 0 : t;
-
         // If s already has a label
-        if (this->closest_s_map_[h].find(s) != this->closest_s_map_[h].end())
+        if (this->closest_s_map_[t].find(s) != this->closest_s_map_[t].end())
         {
-            return this->closest_s_map_[h].find(s)->second;
+            return this->closest_s_map_[t].find(s)->second;
         }
         
-        // If t=h is empty, s is the very first one to arrive.
-        else if (this->Psi[h].size() == 0)
+        // If t=t is empty, s is the very first one to arrive.
+        else if (this->Psi[t].size() == 0)
         {
             this->num_states_++;
-            // std::cout << "A" << std::endl;
             this->initializeToZeroQValueFunctionAt(s, t);
             return s;
         }
@@ -132,15 +115,12 @@ namespace sdm
         else
         {
             this->num_states_++;
-            // std::cout << "C" << std::endl;
             double smallest_distance = 10000.0;
             std::shared_ptr<OccupancyStateInterface> closest_s;
             
-            for (auto const& [s_, q_] : this->Psi[h])
+            for (auto const& [s_, q_] : this->Psi[t])
             {
-                // std::cout << *s_ << std::endl;
                 double distance = s_->minus(s);
-                // std::cout << "distance " << distance << std::endl;
                 if (distance < smallest_distance)
                 {
                     smallest_distance = distance;
@@ -153,7 +133,7 @@ namespace sdm
             }
             else
             {
-                this->initializeQValueFunctionAtWith(s, this->Psi[h][closest_s], t);
+                this->initializeQValueFunctionAtWith(s, this->Psi[t][closest_s], t);
                 return s;
             }
         }

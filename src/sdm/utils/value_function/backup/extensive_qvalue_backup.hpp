@@ -63,14 +63,20 @@ namespace sdm
         double discount_;
         number num_agents_ = 2;
         std::shared_ptr<MultiDiscreteSpace> action_space_;
-        std::shared_ptr<Action> getGreedyAction(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<JointHistoryInterface>& o, number t);
-        std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>> get_a2s(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<JointHistoryInterface>& o, number t);
-        std::shared_ptr<DeterministicDecisionRule> get_a1(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<JointHistoryInterface>& o, const std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>>& a2s, number t);
-        std::shared_ptr<Action> constructJointAction(const std::shared_ptr<Item> &u1, const std::shared_ptr<Item> &u2);
-        std::shared_ptr<Action> constructJointDecisionRule(const std::shared_ptr<DeterministicDecisionRule> &a1, const std::shared_ptr<DeterministicDecisionRule> &a2);
+        // functions
+        double update(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o,  const std::shared_ptr<Action>& u, double r, 
+                      const std::shared_ptr<OccupancyStateInterface> &next_s, const std::shared_ptr<JointHistoryInterface> &next_o, const std::shared_ptr<Action>& next_u, number t
+        );
+        std::shared_ptr<Action> getGreedyAction(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<HistoryInterface>& o1, number t);
+        std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>> get_a2s(const std::shared_ptr<OccupancyStateInterface>& s, number t);
+        std::shared_ptr<DeterministicDecisionRule> get_a1(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<HistoryInterface>& o1, const std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>>& a2s, number t);
+        // auxiliary functions
+        std::shared_ptr<Action> toJoint(const std::shared_ptr<Item> &u1, const std::shared_ptr<Item> &u2);
+        std::shared_ptr<Action> toJoint(const std::shared_ptr<DeterministicDecisionRule> &a1, const std::shared_ptr<DeterministicDecisionRule> &a2);
         std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>> initialize_a2s();
         std::shared_ptr<MappedVector<std::shared_ptr<Item>, double>> initializeQValues();
         std::shared_ptr<DeterministicDecisionRule> initializeDecisionRule();
+        std::shared_ptr<Action> getAction(const std::shared_ptr<Action>& a, const std::shared_ptr<JointHistoryInterface>& o);
     };
     
 

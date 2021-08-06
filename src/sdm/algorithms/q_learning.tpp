@@ -90,11 +90,10 @@ namespace sdm
                 this->do_test_ = false;
             }
         }
-        std::cout << *this->q_value_table_ << std::endl;
-        // this->q_value_table_->printNumberOfActions();
-        std::ofstream QValueStream(this->name_ + ".qvalue");
-        QValueStream << *this->q_value_table_ << std::endl;
-        QValueStream.close();
+        // std::cout << *this->q_value_table_ << std::endl;
+        // std::ofstream QValueStream(this->name_ + ".qvalue");
+        // QValueStream << *this->q_value_table_ << std::endl;
+        // QValueStream.close();
 
     }
 
@@ -205,7 +204,12 @@ namespace sdm
         else
         {
             // std::cout << "-------- GREEDY ---------" << std::endl;
-            return this->backup_->getGreedyAction(observation->toState(), t);
+            auto a = this->backup_->getGreedyAction(observation->toState(), t);
+            if (a == nullptr)
+            {
+                return this->env_->getRandomAction(observation, t);
+            }
+            return a;
         }
 
     }
