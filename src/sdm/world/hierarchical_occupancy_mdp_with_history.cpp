@@ -17,7 +17,7 @@ namespace sdm
     {
         auto [s, rewards, is_done] = HierarchicalOccupancyMDP::step(action);
 
-        std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryPair> s_o = std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryPair>(std::make_pair(s->toState()->toOccupancyState(), this->current_history_->toJointHistory()));
+        std::shared_ptr<OccupancyStateJointHistoryPointerPair> s_o = std::make_shared<OccupancyStateJointHistoryPointerPair>(std::make_pair(s->toState()->toOccupancyState(), this->current_history_->toJointHistory()));
 
         return std::make_tuple(s_o, rewards, is_done);
     }
@@ -26,7 +26,7 @@ namespace sdm
     {
         OccupancyMDP::reset();
 
-        std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryPair> s_o = std::make_shared<PrivateHierarchicalOccupancyStateJointHistoryPair>(std::make_pair(this->current_state_->toState()->toOccupancyState(), this->current_history_->toJointHistory()));
+        std::shared_ptr<OccupancyStateJointHistoryPointerPair> s_o = std::make_shared<OccupancyStateJointHistoryPointerPair>(std::make_pair(this->current_state_->toState()->toOccupancyState(), this->current_history_->toJointHistory()));
 
         return s_o;
     }
@@ -43,7 +43,7 @@ namespace sdm
     {
         // std::cout << "HierarchicalOccupancyMDPWithHistory::getRandomAction() " << std::endl;
 
-        auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(ostate)->first;
+        auto s = std::dynamic_pointer_cast<OccupancyStateJointHistoryPointerPair>(ostate)->first;
 
         return HierarchicalOccupancyMDP::getRandomAction(s->toState()->toObservation(), t);
     }

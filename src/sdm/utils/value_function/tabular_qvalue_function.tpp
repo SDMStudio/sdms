@@ -1,6 +1,8 @@
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 #include <iterator>
 
+#include <type_traits>
+
 namespace sdm
 {   
     template <class TInput>
@@ -95,26 +97,28 @@ namespace sdm
     {
         std::ostringstream res;
         res << "<tabular_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-        // for (sdm::size_t i = 0; i < this->representation.size(); i++)
-        // {
-        //     res << "\t<timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
-        //     for (auto state__actions_values : this->representation[i])
-        //     {
-        //         res << "\t\t<state id=\"" << state__actions_values.first << "\">" << std::endl;
-        //         tools::indentedOutput(res, state__actions_values.first->str().c_str(), 3);
-        //         res << std::endl;
-        //         res << "\t\t</state>" << std::endl;
-        //         res << "\t\t<actions>" << std::endl;
-        //         for (auto action_value : state__actions_values.second)
-        //         {
-        //             res << "\t\t\t<action id=\"" << action_value.first << "\" value=" << action_value.second << ">" << std::endl;
-        //             tools::indentedOutput(res, action_value.first->str().c_str(), 4);
-        //             res << std::endl << "\t\t\t</action>" << std::endl;
-        //         }
-        //         res << "\t\t</actions>" << std::endl;
-        //     }
-        //     res << "\t</timestep>" << std::endl;
-        // }
+        for (sdm::size_t i = 0; i < this->representation.size(); i++)
+        {
+            res << "\t<timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
+            for (auto state__actions_values : this->representation[i])
+            {
+                if constexpr (std::is_same_v<TInput, std::shared_ptr<State>>)
+                    tools::indentedOutput(res, state__actions_values.first->str().c_str(), 3);
+                else
+                    tools::indentedOutput(res, state__actions_values.first.str().c_str(), 3);
+                res << std::endl;
+                res << "\t\t</state>" << std::endl;
+                res << "\t\t<actions>" << std::endl;
+                for (auto action_value : state__actions_values.second)
+                {
+                    res << "\t\t\t<action id=\"" << action_value.first << "\" value=" << action_value.second << ">" << std::endl;
+                    tools::indentedOutput(res, action_value.first->str().c_str(), 4);
+                    res << std::endl << "\t\t\t</action>" << std::endl;
+                }
+                res << "\t\t</actions>" << std::endl;
+            }
+            res << "\t</timestep>" << std::endl;
+        }
 
         res << "</tabular_qvalue_function>" << std::endl;
         return res.str();

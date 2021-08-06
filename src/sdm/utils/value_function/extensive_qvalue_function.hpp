@@ -46,6 +46,7 @@ namespace sdm
          * @return the q-value
          */
         double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t);
+        double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t);
 
         double getQValueAt(const OccupancyStateJointHistoryPair &state, const std::shared_ptr<Action> &action, number t);
 
@@ -60,6 +61,7 @@ namespace sdm
         void updateQValueAt(const OccupancyStateJointHistoryPair &state, const std::shared_ptr<Action> &action, number t, double delta);
 
         void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t, double delta);
+        void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t, double delta);
 
         bool isNotSeen(const OccupancyStateJointHistoryPair &state, number t);
 

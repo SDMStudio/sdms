@@ -40,8 +40,8 @@
 //         // std::cout << "HierarchicalQValueBackup::backup" << std::endl;
 
 //         auto [observation, a, reward, next_observation, next_a] = this->experience_memory_->sample(t)[0];
-//         auto s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->first;
-//         auto o = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(observation)->second;
+//         auto s = std::dynamic_pointer_cast<OccupancyStateJointHistoryPointerPair>(observation)->first;
+//         auto o = std::dynamic_pointer_cast<OccupancyStateJointHistoryPointerPair>(observation)->second;
 
 //         // double q_value = this->q_value_table_->getQValueAt(s, o, u, t);
 //         // double next_value = this->getValueAt(next_observation->toState(), t + 1);
@@ -58,7 +58,7 @@
 
 //         auto h = this->q_value_table_->isInfiniteHorizon() ? 0 : t;
 
-//         std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(state)->first;
+//         std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<OccupancyStateJointHistoryPointerPair>(state)->first;
 
 //         auto q_values = std::make_shared<MappedVector<std::shared_ptr<JointDeterministicDecisionRule>, double>>();
 
@@ -224,7 +224,7 @@
 
 //         auto h = this->q_value_table_->isInfiniteHorizon() ? 0 : t;
 
-//         std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<PrivateHierarchicalOccupancyStateJointHistoryPair>(state)->first;
+//         std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<OccupancyStateJointHistoryPointerPair>(state)->first;
 
 //         auto q_values = std::make_shared<MappedVector<std::shared_ptr<JointDeterministicDecisionRule>, double>>();
 

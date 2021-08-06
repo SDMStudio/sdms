@@ -42,6 +42,8 @@ namespace sdm
      */
     virtual void setProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, double proba = 1);
 
+    void addCase(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a);
+
     std::string str() const;
 
     friend std::ostream &operator<<(std::ostream &os, const DeterministicDecisionRule &dr)

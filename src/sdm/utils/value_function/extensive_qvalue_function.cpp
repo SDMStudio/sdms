@@ -44,8 +44,12 @@ namespace sdm
         auto h = this->isInfiniteHorizon() ? 0 : t;
         auto s_ = this->getHyperPlaneIndex(s, t);
         return this->Psi[h].at(s_).getQValueAt(o, u, t);
-
     }
+    double ExtensiveQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
+    {
+        return this->getQValueAt(s, o->getIndividualHistories(), u, t);
+    }
+    
 
     void ExtensiveQValueFunction::updateQValueAt(const OccupancyStateJointHistoryPair &state, const std::shared_ptr<Action> &action, number t, double delta)
     {
@@ -54,10 +58,13 @@ namespace sdm
 
     void ExtensiveQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t, double delta)
     {
-        // std::cout << "ExtensiveQValueFunction::updateQValueAt()" << std::endl;
         auto h = this->isInfiniteHorizon() ? 0 : t;
         auto s_ = this->getHyperPlaneIndex(s, t);
         this->Psi[h].at(s_).updateQValueAt(o, u, t, delta);
+    }
+    void ExtensiveQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t, double delta)
+    {
+        this->updateQValueAt(s, o->getIndividualHistories(), u, t, delta);
     }
 
     void ExtensiveQValueFunction::updateQValueAt(const OccupancyStateJointHistoryPair &, const std::shared_ptr<Action> &, number)
@@ -161,8 +168,8 @@ namespace sdm
     std::string ExtensiveQValueFunction::str() const
     {
         std::ostringstream res;
-        res << "<hierarchical_qvalue_function_v2 horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-        for (sdm::size_t i = 0; i < this->Psi.size(); i++)
+        res << "<extensive_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
+        for (sdm::size_t i = 0; i < this->Psi.size() - 1; i++)
         {
             res << "\t<timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << 0 << "\">" << std::endl;
             for (auto const& [s, q] : this->Psi[i])
@@ -179,7 +186,7 @@ namespace sdm
             }
             res << "\t</timestep>" << std::endl;
         }
-        res << "</hierarchical_qvalue_function_v2>" << std::endl;
+        res << "</extensive_qvalue_function>" << std::endl;
         return res.str();
     }
 } // namespace sdm

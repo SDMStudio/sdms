@@ -53,6 +53,11 @@ namespace sdm
         }
     }
 
+    void DeterministicDecisionRule::addCase(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action)
+    {
+        this->map_state_to_action_[state] = action;
+    }
+
     std::string DeterministicDecisionRule::str() const
     {
         std::ostringstream res;
