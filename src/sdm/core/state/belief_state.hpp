@@ -47,6 +47,7 @@ namespace sdm
 
     void normalizeBelief(double norm_1);
 
+    bool isStateExist(const std::shared_ptr<State>& state_tmp)const;
     static std::shared_ptr<State> getState(const std::shared_ptr<State> &);
     size_t size() const { return MappedVector<std::shared_ptr<State>>::size(); }
 

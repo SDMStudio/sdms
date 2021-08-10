@@ -80,7 +80,7 @@ namespace std
     {
       size_t seed = 0;
       //Combine the hash of the current vector with the hashes of the previous ones
-      sdm::hash_combine(seed, in.getState());
+      sdm::hash_combine(seed, in.getHiddenState());
       sdm::hash_combine(seed, in.getAction());
       return seed;
     }

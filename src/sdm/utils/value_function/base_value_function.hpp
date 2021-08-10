@@ -16,7 +16,7 @@
 #include <sdm/exception.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-
+#include <sdm/public/boost_serializable.hpp>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
@@ -84,7 +84,7 @@ namespace sdm
          * @return the best action
          */
         // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &state, number t) = 0;
-
+        
         /**
          * @brief Save a value function into a file. 
          * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format). 

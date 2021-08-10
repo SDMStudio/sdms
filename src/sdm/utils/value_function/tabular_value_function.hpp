@@ -60,21 +60,27 @@ namespace sdm
          */
         void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
 
-        // /**
-        //  * @brief Save a value function into a file.
-        //  * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format).
-        //  *
-        //  * @param filename the filename
-        //  */
-        // void save(std::string filename);
+        /**
+         * @brief Save a value function into a file.
+         * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
+        /**
+         * @brief Save a value function into a file.
+         * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
+        void save(std::string filename);
 
-        // /**
-        //  * @brief Load a value function from a file.
-        //  * The extension of the file will indicate the type of formatage for reading (`.txt` = text format, '.xml' = XML format, other = binary format).
-        //  *
-        //  * @param filename the filename
-        //  */
-        // void load(std::string filename);
+        /**
+         * @brief Load a value function from a file.
+         * The extension of the file will indicate the type of formatage for reading (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
+        void load(std::string filename);
 
         std::string str() const;
 
@@ -103,8 +109,9 @@ namespace sdm
         friend class boost::serialization::access;
 
         template <class Archive>
-        void serialize(Archive &archive, const unsigned int)
+        void serialize(Archive &archive, const unsigned int& )
         {
+
             using boost::serialization::make_nvp;
 
             archive &make_nvp("horizon", this->horizon_);
@@ -114,10 +121,6 @@ namespace sdm
 
     using TabularValueFunction = BaseTabularValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
     using TabularValueFunction2 = BaseTabularValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
-
-    // using SparseValueFunction = BaseTabularValueFunction<SparseVector>;
-
-    // using DenseValueFunction = BaseTabularValueFunction<DenseVector>;
 
 } // namespace sdm
 

@@ -90,7 +90,7 @@ namespace sdm
             new_hyperplan->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
 
             // Get the next occupancy state associated to the decision rule
-            auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, nullptr, t);
+            auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, sdm::NO_OBSERVATION, t);
             // Determine the best next hyperplan associated to the next occupancy state
             auto best_evaluate_occupancy_state = vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState();
 
@@ -113,7 +113,6 @@ namespace sdm
                         {
                             //Expand the current joint history
                             auto next_jhistory = jhistory->expand(observation->toObservation())->toJointHistory();
-
                             tmp += best_evaluate_occupancy_state->getProbability(next_jhistory, next_hidden_state) * under_pb->getDynamics(hidden_state, action, next_hidden_state, observation, t);
                         }
                     }

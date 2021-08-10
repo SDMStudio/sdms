@@ -69,6 +69,8 @@ namespace sdm
         void setValueAt(const TIndex &, const T &);
         void addValueAt(const TIndex &, const T &);
 
+        bool isExist(const TIndex&) const;
+
         /**
          * @brief This method implements a non-commutative dot product
          * @comment: It is worth noticing that sometimes arg1.dot(arg2) !=  arg2.dot(arg1)
@@ -124,6 +126,11 @@ namespace sdm
             return os;
         }
 
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
+
     protected:
         T default_value_ = 0;
         long size_ = -1;
@@ -135,11 +142,6 @@ namespace sdm
 
         const std::pair<TIndex, T> &getMin();
         const std::pair<TIndex, T> &getMax();
-
-        friend class boost::serialization::access;
-
-        template <class Archive>
-        void serialize(Archive &archive, const unsigned int);
     };
 } // namespace sdm
 #include <sdm/utils/linear_algebra/mapped_vector.tpp>

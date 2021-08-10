@@ -16,6 +16,7 @@ template <class SerializableClass>
 class BoostSerializable
 {
 public:
+    BoostSerializable(){}
     /**
      * @brief Save a value function into a file. 
      * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format). 
@@ -76,6 +77,7 @@ protected:
     template <class Archive>
     void serialize(Archive &archive, const unsigned int version)
     {
+        std::cout<<"Est ce que cela fonctionne ? "<<std::endl;
         static_cast<SerializableClass *>(this)->serialize(archive, version);
     }
 };

@@ -35,6 +35,12 @@ namespace sdm
         return 0;
     }
 
+    bool BeliefDefault::isStateExist(const std::shared_ptr<State>& )const
+    {
+        return false;
+    }
+
+
     void BeliefDefault::setProbability(const std::shared_ptr<State> &, double )
     {
         throw sdm::exception::Exception("It isn't possible de add state in the class Default Belief");

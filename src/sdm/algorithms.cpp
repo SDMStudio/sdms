@@ -114,7 +114,7 @@ namespace sdm
             // Upper Bound
             if (upper_bound_name == "sawtooth")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_tabular, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                upper_bound = std::make_shared<PointSetValueFunction2>(horizon, ub_init, tabular_backup, action_tabular, freq_prunning_upper_bound, type_of_sawtooth_pruning);
             }
             else if (upper_bound_name == "sawtooth_lp")
             {
@@ -132,7 +132,30 @@ namespace sdm
             return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, 1, 1, time_max);
         }
 
-        std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism, std::string upper_bound, std::string lower_bound, std::string ub_init, std::string lb_init, double discount, double error, number horizon, int trials, int truncation, std::string name, double time_max, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming, TypeOfMaxPlanPrunning type_of_maxplan_prunning, int freq_prunning_lower_bound, TypeOfSawtoothPrunning type_of_sawtooth_pruning, int freq_prunning_upper_bound)
+        std::shared_ptr<Algorithm> make(std::string algo_name,
+                                        std::string problem_path,
+                                        std::string formalism, 
+                                        std::string upper_bound, 
+                                        std::string lower_bound, 
+                                        std::string ub_init, 
+                                        std::string lb_init, 
+                                        double discount, 
+                                        double error, 
+                                        number horizon, 
+                                        int trials, 
+                                        int truncation, 
+                                        std::string name, 
+                                        double time_max, 
+                                        std::string current_type_of_resolution, 
+                                        number BigM, 
+                                        std::string type_sawtooth_linear_programming, 
+                                        TypeOfMaxPlanPrunning type_of_maxplan_prunning, 
+                                        int freq_prunning_lower_bound, 
+                                        TypeOfSawtoothPrunning type_of_sawtooth_pruning, 
+                                        int freq_prunning_upper_bound, 
+                                        bool compression, 
+                                        bool store_action,
+                                        bool store_state)
         {
             std::shared_ptr<Algorithm> p_algo;
 
@@ -155,7 +178,7 @@ namespace sdm
                 }
                 else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
                 {
-                    auto oMDP = std::make_shared<OccupancyMDP>(problem, truncation, true, true, true);
+                    auto oMDP = std::make_shared<OccupancyMDP>(problem, truncation, compression, store_state, store_action);
                     p_algo = makeHSVI(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
                 }
                 else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
@@ -172,9 +195,8 @@ namespace sdm
                 }
                 else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
                 {
-                    // problem->setHorizon();
                     auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                    std::shared_ptr<SolvableByHSVI> s_oMDP = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, truncation, true, true, true);
+                    std::shared_ptr<SolvableByHSVI> s_oMDP = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, truncation, compression, store_state, store_action);
                     p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, serialized_mpomdp->getHorizon(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
                 }
             }

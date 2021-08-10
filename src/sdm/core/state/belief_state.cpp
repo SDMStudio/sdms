@@ -47,6 +47,11 @@ namespace sdm
     return this->getIndexes();
   }
 
+  bool Belief::isStateExist(const std::shared_ptr<State>& state_tmp)const
+  {
+    return MappedVector<std::shared_ptr<State>, double>::isExist(state_tmp);
+  }
+
   void Belief::setProbability(const std::shared_ptr<State> &state, double proba)
   {
     // Set the new occupancy measure
@@ -119,7 +124,6 @@ namespace sdm
       product += item.second * other->getProbability(item.first);
     }
     return product;
-    // throw sdm::exception::NotImplementedException();
   }
 
   bool Belief::operator==(const Belief &other) const

@@ -73,13 +73,8 @@ namespace sdm
     std::chrono::high_resolution_clock::time_point start_time, current_time;
     double duration;
 
-// #ifdef LOGTIME
-    std::chrono::high_resolution_clock::time_point time_start;
+    void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
 
-    void StartTime();
-    void updateTime(std::string information);
-    void printTime();
-// #endif
   public:
     /**
      * @brief Construct the HSVI object.
@@ -101,7 +96,7 @@ namespace sdm
          std::string name = "hsvi",
          number lb_update_frequency = 1,
          number ub_update_frequency = 1,
-         double time_max = 10000, 
+         double time_max = 1000, 
          bool keep_same_action_forward_backward = false);
 
     std::shared_ptr<HSVI> getptr();
@@ -172,6 +167,13 @@ namespace sdm
 
     void saveResults(std::string filename, double other);
 
-    static double TIME_IN_SELECT_STATE, TIME_IN_SELECT_ACTION, TIME_INITIALIZATION, TIME_IN_UPDATE_LB, TIME_IN_UPDATE_UB;
+    static void cleanTIME();
+
+    static double TIME_IN_SELECT_STATE, TIME_IN_SELECT_ACTION, TIME_INITIALIZATION, TIME_IN_UPDATE_LB, TIME_IN_UPDATE_UB, TIME_IN_PRUNING_LB, TIME_IN_PRUNING_UB, TIME_IN_DO_EXCESS, TIME_TO_REMOVE;
+    static double TIME_UPDATE_BACKUP_LB, TIME_BEST_ACTION_LB, TIME_EVALUATE_LB, TIME_GET_VALUE_AT_LB, TOTAL_TIME_LB;
+    static double TIME_UPDATE_BACKUP_UB, TIME_BEST_ACTION_UB, TIME_EVALUATE_UB, TIME_GET_VALUE_AT_UB, TOTAL_TIME_UB;
+
+    std::vector<std::unordered_map<std::shared_ptr<State>,double>> last_value;
+
   };
 } // namespace sdm

@@ -86,7 +86,10 @@ namespace sdm
                                         TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE,
                                         int freq_prunning_lower_bound = -1,
                                         TypeOfSawtoothPrunning type_of_sawtooth_pruning = TypeOfSawtoothPrunning::NONE,
-                                        int freq_prunning_upper_bound = -1);
+                                        int freq_prunning_upper_bound = -1,
+                                        bool compression = true, 
+                                        bool store_action = true,
+                                        bool store_state = true);
 
         // std::shared_ptr<sdm::QLearning<TObservation, TAction>> makeQLearning(std::shared_ptr<GymInterface<TObservation, TAction>> problem,
         //                                                                 std::string,

@@ -77,6 +77,8 @@ namespace sdm
          */
         void prune(number t = 0);
 
+        double computeRatio(const std::shared_ptr<State> &state, const std::shared_ptr<State> &point, number t);
+
         /**
         * @brief Ratio specialized for the case Occupancy (used for the evaluate function)
         * 
@@ -84,7 +86,7 @@ namespace sdm
         * @param point : Point in the Point Set
         * @return Pair<std::shared_ptr<State>,double> 
         */
-        double ratioOccupancy(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point,number t);
+        double ratioOccupancy(const std::shared_ptr<State> &state, const std::shared_ptr<State> &point,number t);
 
         /**
          * @brief Ratio specialized for the case Beleif (used for the evaluate function)
@@ -93,7 +95,7 @@ namespace sdm
          * @param point :Point in the Point Set
          * @return Pair<std::shared_ptr<State>,double> 
          */
-        double ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point);
+        double ratioBelief(const std::shared_ptr<State> &state, const std::shared_ptr<State> &point);
 
         Pair<std::unordered_map<std::shared_ptr<State>,std::vector<std::shared_ptr<State>>>,std::map<int,std::vector<std::shared_ptr<State>>>> iterative_pruning(number t);
 

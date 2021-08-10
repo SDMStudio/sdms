@@ -26,5 +26,4 @@ namespace sdm
     {
         return this->shared_from_this();
     }
-
 }

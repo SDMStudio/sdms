@@ -69,6 +69,7 @@ namespace sdm
 
         iterator_type begin();
         iterator_type end();
+
     };
 } // namespace sdm
 #include <sdm/core/space/function_space.tpp>

@@ -679,32 +679,6 @@ namespace sdm
 
     std::shared_ptr<Action> ActionVFSawtoothLP::getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
-        for (const auto &next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state : this->all_support)
-        {
-            // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-            for (const auto &next_history_AND_All_next_hidden_state : next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.second)
-            {
-                const auto &next_history = next_history_AND_All_next_hidden_state.first->toJointHistory();
-
-                for (const auto &next_hidden_state : next_history_AND_All_next_hidden_state.second)
-                {
-                    // <! \omega_k(x',o')
-                    auto recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first, next_hidden_state, next_history));
-                    if( cplex.getValue(var[recover]) + .5 >= 1 )
-                    {
-                        // std::cout<<"Point "<<next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first<<std::endl;
-                        // std::cout<<"Point "<<next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first->str()<<std::endl;
-
-                        // std::cout<<"Next JOitn History "<<next_history->str()<<std::endl;
-                        // std::cout<<"Next Hidden State "<<next_hidden_state->str()<<std::endl;
-
-                    }
-
-                }
-            }
-        }
-
-
         return DecentralizedLP::getVariableResultOccupancy(vf, state, cplex, var, t);
     }
 

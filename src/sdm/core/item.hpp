@@ -52,5 +52,7 @@ namespace sdm
             os << item.str();
             return os;
         }
+
+        virtual bool isBaseItem(){return false;}
     };
 } // namespace sdm

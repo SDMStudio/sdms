@@ -37,6 +37,7 @@ namespace sdm
 
         std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
 
+        bool isStateExist(const std::shared_ptr<State>& state_tmp)const;
 
     protected : 
         double default_value_;

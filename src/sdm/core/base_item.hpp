@@ -37,6 +37,9 @@ namespace sdm
 
             archive &boost::serialization::base_object<item_t>(*this);
         }
+
+        bool isBaseItem(){
+            return true;}
     };
 
     using StringItem = BaseItem<std::string>;

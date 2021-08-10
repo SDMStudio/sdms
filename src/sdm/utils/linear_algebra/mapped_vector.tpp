@@ -60,13 +60,18 @@ namespace sdm
     {
         if (this->find(i) != this->end())
         {
-            auto value = std::unordered_map<TIndex, T, Hash, KeyEqual>::at(i);
-            return value;
+            return std::unordered_map<TIndex, T, Hash, KeyEqual>::at(i);
         }
         else
         {
             return this->default_value_;
         }
+    }
+    template <class TIndex, class T, class Hash, class KeyEqual>
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::isExist(const TIndex&i) const
+    {
+        auto iterator = this->find(i);
+        return (iterator == this->end() ) ? false : true;
     }
 
     template <class TIndex, class T, class Hash, class KeyEqual>

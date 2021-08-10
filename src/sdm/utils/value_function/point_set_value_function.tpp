@@ -20,7 +20,13 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        return (t >= this->getHorizon()) ? this->representation[t].getDefault() : this->evaluate(state, t).second;
+        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
+
+        double value = (t >= this->getHorizon()) ? this->representation[t].getDefault() : this->evaluate(state, t).second;
+        
+        this->updateTime(time_start,"GetValueAt");
+
+        return value;
     }
 
     template <class Hash, class KeyEqual>
@@ -28,12 +34,10 @@ namespace sdm
     {
         BaseTabularValueFunction<Hash,KeyEqual>::updateValueAt(state,t);
 
-        // std::cout<<"Evaluation "<<this->evaluate(state,t)<<std::endl;
-
-        if(this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::ITERATIVE)
-        {
-            this->iterative_pruning(t);
-        }
+        // if(this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::ITERATIVE)
+        // {
+        //     this->iterative_pruning(t);
+        // }
     }
 
     template <class Hash, class KeyEqual>
@@ -41,12 +45,10 @@ namespace sdm
     {
         BaseTabularValueFunction<Hash,KeyEqual>::updateValueAt(state,action,t);
 
-        // std::cout<<"Evaluation "<<this->evaluate(state,t)<<std::endl;
-
-        if(this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::ITERATIVE)
-        {
-            this->iterative_pruning(t);
-        }
+        // if(this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::ITERATIVE)
+        // {
+        //     this->iterative_pruning(t);
+        // }
     }
 
     template <class Hash, class KeyEqual>
@@ -78,12 +80,12 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
-    Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state_tmp, number t)
+    Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state, number t)
     {
-        assert(this->getInitFunction() != nullptr);
-        assert(state_tmp->getTypeState() != TypeState::STATE);
+        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
 
-        auto state = state_tmp->toBelief();
+        assert(this->getInitFunction() != nullptr);
+        assert(state->getTypeState() != TypeState::STATE);
 
         double min_ext = 0;
         double v_ub_state = this->getInitFunction()->operator()(state, t);
@@ -94,44 +96,52 @@ namespace sdm
         for (const auto &point_value : this->getRepresentation(t))
         {
             auto [point, v_kappa] = point_value;
-            auto point_to_belief_interface = point->toBelief();
 
             double v_ub_kappa = this->getInitFunction()->operator()(point, t);
 
-            double phi;
-
-            switch (state->getTypeState())
-            {
-            case TypeState::BELIEF_STATE:
-                phi = this->ratioBelief(state, point_to_belief_interface);
-                break;
-            case TypeState::OCCUPANCY_STATE:
-                phi = this->ratioOccupancy(state, point_to_belief_interface,t);
-                break;
-            case TypeState::SERIAL_OCCUPANCY_STATE:
-                phi = this->ratioOccupancy(state, point_to_belief_interface,t);
-                break;
-            default:
-                throw sdm::exception::Exception("BasePointSetValueFunction::evaluate not defined for this state!");
-                break;
-            }
+            double phi = this->computeRatio(state,point,t);
 
             // determine the min ext
             double min_int = phi * (v_kappa - v_ub_kappa);
             if (min_int < min_ext)
             {
                 min_ext = min_int;
-                argmin_ = point_to_belief_interface;
+                argmin_ = point;
             }
         }
+        this->updateTime(time_start,"Evaluate");
+
         return std::make_pair(argmin_, v_ub_state + min_ext);
     }
 
     template <class Hash, class KeyEqual>
-    double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point)
+    double BasePointSetValueFunction<Hash, KeyEqual>::computeRatio(const std::shared_ptr<State> &state, const std::shared_ptr<State> &point, number t)
+    {
+        switch (state->getTypeState())
+        {
+        case TypeState::BELIEF_STATE:
+            return this->ratioBelief(state, point);
+            break;
+        case TypeState::OCCUPANCY_STATE:
+            return this->ratioOccupancy(state, point,t);
+            break;
+        case TypeState::SERIAL_OCCUPANCY_STATE:
+            return this->ratioOccupancy(state, point,t);
+            break;
+        default:
+            throw sdm::exception::Exception("BasePointSetValueFunction::evaluate not defined for this state!");
+            break;
+        }
+    }
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<State> &point_tmp)
     {
         // Determine the ratio for the specific case when the state is a belief
         double phi = 1.0;
+
+        auto state = state_tmp->toBelief();
+        auto point = point_tmp->toBelief();
 
         for (auto &support : point->getStates())
         {
@@ -146,12 +156,12 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
-    double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<BeliefInterface> &state_tmp, const std::shared_ptr<BeliefInterface> &point_tmp, number t)
+    double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<State> &point_tmp, number t)
     {
         // Determine the ratio for the specific case when the state is a Occupancy State
         double phi = 1.0;
-        auto point = point_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
-        auto occupancy_state = state_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
+        auto point = point_tmp->toOccupancyState();
+        auto occupancy_state = state_tmp->toOccupancyState();
 
         // Go over all joint history
         for (auto &joint_history : point->getJointHistories())
@@ -279,6 +289,8 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::do_pruning(number t)
     {
+        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
+
         if (t%this->freq_pruning_ == 0)
         {
             for (number time = 0; time < this->getHorizon(); time++)
@@ -286,6 +298,8 @@ namespace sdm
                 this->prune(time);
             }
         }
+
+        this->updateTime(time_start,"Pruning");
     }
 
     template <class Hash, class KeyEqual>

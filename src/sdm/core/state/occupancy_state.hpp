@@ -202,7 +202,7 @@ namespace sdm
         void setup();
         void normalize();
 
-        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_MINUS_OPERATOR, TIME_IN_HASH;
+        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_MINUS_OPERATOR, TIME_IN_HASH, TIME_IN_COMPRESS, TIME_IN_DOT_OPERATOR, TIME_IN_INFERIOR_OPERATOR;
         static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
 
         std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory);
@@ -215,6 +215,9 @@ namespace sdm
 
         std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t);
         void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
+
+        static void cleanTIME();
+        void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information) const;
 
     protected:
         /**
@@ -287,7 +290,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            clock_t t_begin = clock();
+            std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
 
             size_t seed = 0;
             double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
@@ -304,7 +307,7 @@ namespace std
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
-            sdm::OccupancyState::TIME_IN_HASH += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
+            sdm::OccupancyState::TIME_IN_HASH += std::Performance::computeTime(time_start);
             return seed;
             // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }

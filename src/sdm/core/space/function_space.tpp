@@ -76,6 +76,7 @@ namespace sdm
             std::vector<std::shared_ptr<ItemIterator>> out_begin_iterators, out_end_iterators;
             std::vector<std::shared_ptr<Item>> list_input;
             number i = 0;
+
             for (const auto &input : *this->input_space_)
             {
                 list_input.push_back(input);
@@ -83,7 +84,7 @@ namespace sdm
                 out_end_iterators.push_back(this->output_space_[(this->output_space_.size() == 1) ? 0 : i]->end());
                 i++;
             }
-            return std::make_shared<sdm::iterator::FunctionIterator<TFunction>>(list_input, out_begin_iterators, out_end_iterators);
+            return  std::make_shared<sdm::iterator::FunctionIterator<TFunction>>(list_input, out_begin_iterators, out_end_iterators);
         }
     }
 

@@ -42,7 +42,7 @@ namespace sdm
     {
         throw exception::Exception("Hash (i.e. size_t X::hash() const ) is not implemented for this class");
     }
-    bool State::operator==(const std::shared_ptr<State> &other) const
+    bool State::operator==(const std::shared_ptr<State> &) const
     {
         throw exception::Exception("Equal Operator (i.e. bool X::operator==() const ) is not implemented for this class");
     }

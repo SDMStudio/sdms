@@ -7,6 +7,12 @@
 #include <iostream>
 #include <boost/bimap.hpp>
 
+#include "sys/types.h"
+#include "sys/sysinfo.h"
+
+#include <chrono>
+
+
 //!
 //! \file     types.hpp
 //! \author   Jilles S. Dibangoye
@@ -289,6 +295,42 @@ namespace std
     bool operator()(const std::string &a, const std::string &b) const
     {
       return a.length() < b.length();
+    }
+  };
+
+  struct Performance
+  {
+
+    static long long RanMemoryUsed(struct sysinfo memInfo)
+    {
+        sysinfo (&memInfo);
+
+        long long physMemUsed = memInfo.totalram - memInfo.freeram;
+        //Multiply in next statement to avoid int overflow on right hand side...
+        physMemUsed *= memInfo.mem_unit;
+
+        return physMemUsed;
+    }
+
+    static long long totalMemory(struct sysinfo memInfo)
+    {
+        sysinfo (&memInfo);
+
+        long long totalPhysMem = memInfo.totalram;
+        //Multiply in next statement to avoid int overflow on right hand side...
+        totalPhysMem *= memInfo.mem_unit;
+
+        return totalPhysMem;
+    }
+
+    // static void StartTime()
+    // {
+    //     Performance::time_start = std::chrono::high_resolution_clock::now();
+    // }
+
+    static double computeTime(std::chrono::high_resolution_clock::time_point start_time)
+    {
+      return std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - start_time).count();
     }
   };
 
