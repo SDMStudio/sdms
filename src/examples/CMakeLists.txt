@@ -21,6 +21,8 @@ file(
 	GLOB_RECURSE
 	lib_world
 	${INCLUDE_DIR}/algorithms/hsvi.cpp
+	${INCLUDE_DIR}/algorithms/value_iteration.cpp
+
 	${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 	${INCLUDE_DIR}/world/belief_mdp.cpp
 	${INCLUDE_DIR}/utils/value_function/**

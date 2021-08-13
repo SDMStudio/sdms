@@ -3,20 +3,26 @@
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/backup/backup_base.hpp>
 
+#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+
 namespace sdm
 {
     template <class Hash, class KeyEqual>
-    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf)
-        : ValueFunction(horizon, initializer, backup, action_vf)
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, bool is_upper_bound)
+        : ValueFunction(horizon, initializer, backup, action_vf), is_upper_bound_(is_upper_bound)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
     template <class Hash, class KeyEqual>
-    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf)
-        : BaseTabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf)
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, bool is_upper_bound)
+        : BaseTabularValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf, is_upper_bound)
     {
     }
+
+    template <class Hash, class KeyEqual>
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(const BaseTabularValueFunction& copy) :ValueFunction(copy), representation(copy.representation){}
+
 
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::initialize()
@@ -40,11 +46,9 @@ namespace sdm
             if ((this->representation[t].find(state) == this->representation[t].end()))
             {
                 double i_value = this->evaluate(state, t).second;
-                // this->updateValueAt(state, t, i_value);
                 return i_value;
             }
         }
-
         double value = this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
 
         this->updateTime(time_start,"GetValueAt");
@@ -76,8 +80,13 @@ namespace sdm
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
 
         auto value = this->template backup<double>(state, action, t);
-        this->updateValueAt(state, t, value);
 
+        if(this->is_upper_bound_ && value > this->getValueAt(state,t))
+        {
+            value = this->getValueAt(state,t);
+        }
+
+        this->updateValueAt(state, t, value);
         this->updateTime(time_start,"UpdateValue");
     }
 

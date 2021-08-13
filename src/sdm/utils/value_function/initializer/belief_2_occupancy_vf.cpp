@@ -11,7 +11,7 @@ namespace sdm
 
     double Belief2OccupancyValueFunction::operatorMPOMDP(const std::shared_ptr<State> &state, const number &tau)
     {
-        double value = 0;
+        double value = 0.0;
         auto ostate = state->toOccupancyState();
 
         // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
@@ -19,12 +19,34 @@ namespace sdm
         {
             auto belief = ostate->getBeliefAt(joint_history);
             value += ostate->getProbability(joint_history) * this->pomdp_vf_->getValueAt(belief, tau);
+
+            auto belief_not_exist = true;
+            for(const auto& element : this->pomdp_vf_->getSupport(tau))
+            {
+                if(element == belief)
+                {
+                    belief_not_exist = false;
+                    break;
+                }
+            }
+
+            if (belief_not_exist)
+            {
+                // std::cout<<"Problem !!!!!!!!!!!!!!!"<<std::endl;
+                // exit(-1);
+            }
+
         }
         return value;
     }
 
     double Belief2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
     {
+        if(state == nullptr)
+        {
+            return this->pomdp_vf_->operator()(state, tau);
+        }
+
         switch (state->getTypeState())
         {
         case TypeState::OCCUPANCY_STATE:
@@ -56,4 +78,11 @@ namespace sdm
     {
         return false;
     }
+
+    std::shared_ptr<ValueFunction> Belief2OccupancyValueFunction::getRelaxation()
+    {
+        return this->pomdp_vf_;
+    }
+
+
 } // namespace sdm

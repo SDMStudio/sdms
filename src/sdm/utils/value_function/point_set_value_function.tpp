@@ -7,7 +7,7 @@ namespace sdm
 {
     template <class Hash, class KeyEqual>
     BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning, TypeOfSawtoothPrunning type_of_sawtooth_prunning)
-        : BaseTabularValueFunction<Hash, KeyEqual>(horizon, initializer, backup, action_vf), freq_pruning_(freq_pruning), type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
+        : BaseTabularValueFunction<Hash, KeyEqual>(horizon, initializer, backup, action_vf, true), freq_pruning_(freq_pruning), type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
     {
     }
 

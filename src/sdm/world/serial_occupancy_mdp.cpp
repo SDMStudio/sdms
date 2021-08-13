@@ -69,7 +69,7 @@ namespace sdm
 
     bool SerialOccupancyMDP::do_compression(number t) const
     {
-        return (OccupancyMDP::do_compression(t) && this->isLastAgent(t));
+        return (OccupancyMDP::do_compression(t) /* && this->getAgentId(t) == 0*/);
     }
 
     double SerialOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)

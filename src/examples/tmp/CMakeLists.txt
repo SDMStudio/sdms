@@ -53,6 +53,7 @@ if(DAVID)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
+		${INCLUDE_DIR}/algorithms/value_iteration.cpp
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
@@ -123,6 +124,8 @@ if(JEROME)
 		${INCLUDE_DIR}/algorithms.cpp
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
+		${INCLUDE_DIR}/algorithms/value_iteration.cpp
+
 
 		${INCLUDE_DIR}/utils/value_function/**
 		${INCLUDE_DIR}/utils/linear_programming/**

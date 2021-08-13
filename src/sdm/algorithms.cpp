@@ -14,6 +14,7 @@
 #include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
 
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_vf/action_maxplan_lp_serial.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
 #include <sdm/utils/value_function/action_vf/action_maxplan_wcsp.hpp>
 
@@ -58,6 +59,7 @@ namespace sdm
             auto action_maxplan = std::make_shared<ActionVFMaxplan>(problem);
             auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(problem);
             auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
+            auto action_maxplan_lp_serial = std::make_shared<ActionVFMaxplanLPSerial>(problem);
             auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(problem);
 
             TypeOfResolution type_of_resolution;
@@ -102,13 +104,17 @@ namespace sdm
             {
                 lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
+            else if (lower_bound_name == "maxplan_lp_serial")
+            {
+                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
+            }
             else if (lower_bound_name == "maxplan_wcsp")
             {
                 lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_wcsp,freq_prunning_lower_bound,type_of_maxplan_prunning);
             }
             else
             {
-                lower_bound = std::make_shared<TabularValueFunction>(horizon, lb_init, tabular_backup, action_tabular);
+                lower_bound = std::make_shared<TabularValueFunction>(horizon, lb_init, tabular_backup, action_tabular, false);
             }
 
             // Upper Bound
@@ -126,7 +132,7 @@ namespace sdm
             }
             else
             {
-                upper_bound = std::make_shared<TabularValueFunction>(horizon, ub_init, tabular_backup, action_tabular);
+                upper_bound = std::make_shared<TabularValueFunction>(horizon, ub_init, tabular_backup, action_tabular, true);
             }
 
             return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, 1, 1, time_max);
@@ -211,5 +217,17 @@ namespace sdm
 
             return p_algo;
         }
+    }
+
+    std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
+                                                        double error,
+                                                        number horizon)
+    {
+        // Increase the horizon for the value function if the problem is serialized
+        if (problem->isSerialized())
+        {
+            horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
+        }
+        return std::make_shared<ValueIteration>(problem, error, horizon);
     }
 }

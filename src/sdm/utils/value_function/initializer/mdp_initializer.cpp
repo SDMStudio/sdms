@@ -7,6 +7,7 @@
 
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
+#include <sdm/algorithms/value_iteration.hpp>
 
 namespace sdm
 {
@@ -14,7 +15,7 @@ namespace sdm
     {
         // std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution , number BigM , std::string type_sawtooth_linear_programming );
 
-        // std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, double discount, double error, number horizon);
+        // std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, number horizon);
     }
 }
 namespace sdm
@@ -32,13 +33,13 @@ namespace sdm
 
         if (this->algo_name_ == "ValueIteration")
         {
-            // std::cout<<"Value Iteration";
-            // auto value_iteration = algo::makeValueIteration(hsvi_mdp, mdp->getDiscount(), this->error_, mdp->getPlanningHorizon());
+            std::cout<<"Value Iteration";
+            auto value_iteration = std::make_shared<sdm::ValueIteration>(hsvi_mdp, this->error_, mdp->getHorizon());
 
-            // value_iteration->do_initialize();
-            // value_iteration->do_solve();
+            value_iteration->do_initialize();
+            value_iteration->do_solve();
 
-            // vf->initialize(std::make_shared<State2OccupancyValueFunction<decltype(hsvi_mdp->getInitialState()), TState>>(value_iteration->getResult()));
+            vf->initialize(std::make_shared<State2OccupancyValueFunction>(value_iteration->getValueFunction()));
         }
         else
         {
@@ -50,8 +51,8 @@ namespace sdm
             auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
             auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-            auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-            auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+            auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
+            auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
 
             auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_, 100000, "MDP_Initialisation");
 

@@ -176,58 +176,57 @@ namespace sdm
         return std::make_pair(actions,indiv_histories);
     }
 
-
-    void DecentralizedLP::createDecentralizedVariables(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
-    {
-        //Specialisation for type of state
-        switch (state->getTypeState())
-        {
-        case TypeState::OCCUPANCY_STATE :
-            this->createDecentralizedVariablesOccupancy(vf,state,env,var,index,t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE :
-            this->createDecentralizedVariablesSerial(vf,state,env,var,index,t);
+    // void DecentralizedLP::createDecentralizedVariables(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    // {
+    //     //Specialisation for type of state
+    //     switch (state->getTypeState())
+    //     {
+    //     case TypeState::OCCUPANCY_STATE :
+    //         this->createDecentralizedVariablesOccupancy(vf,state,env,var,index,t);
+    //         break;
+    //     case TypeState::SERIAL_OCCUPANCY_STATE :
+    //         this->createDecentralizedVariablesSerial(vf,state,env,var,index,t);
         
-        default:
-            throw sdm::exception::Exception("DecentralizedLP::createDecentralizedVariables This state is not defined for this function");
-            break;
-        }
-    }
+    //     default:
+    //         throw sdm::exception::Exception("DecentralizedLP::createDecentralizedVariables This state is not defined for this function");
+    //         break;
+    //     }
+    // }
 
-    void DecentralizedLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
-    {
-        // std::cout << "DecentralizedLP::createDecentralizedConstraints"<<std::endl;
-        //Specialisation for type of state
-        switch (state->getTypeState())
-        {
-        case TypeState::OCCUPANCY_STATE :
-            this->createDecentralizedConstraintsOccupancy(vf,state,env,con,var,index,t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE :
-            this->createDecentralizedConstraintsSerial(vf,state,env,con,var,index,t);
+    // void DecentralizedLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    // {
+    //     // std::cout << "DecentralizedLP::createDecentralizedConstraints"<<std::endl;
+    //     //Specialisation for type of state
+    //     switch (state->getTypeState())
+    //     {
+    //     case TypeState::OCCUPANCY_STATE :
+    //         this->createDecentralizedConstraintsOccupancy(vf,state,env,con,var,index,t);
+    //         break;
+    //     case TypeState::SERIAL_OCCUPANCY_STATE :
+    //         this->createDecentralizedConstraintsSerial(vf,state,env,con,var,index,t);
         
-        default:
-            throw sdm::exception::Exception("DecentralizedLP::createDecentralizedConstraints This state is not defined for this function");
-            break;
-        }
-    }
+    //     default:
+    //         throw sdm::exception::Exception("DecentralizedLP::createDecentralizedConstraints This state is not defined for this function");
+    //         break;
+    //     }
+    // }
 
-    std::shared_ptr<Action> DecentralizedLP::getVariableResult(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
-    {
-        //Specialisation for type of state
-        switch (state->getTypeState())
-        {
-        case TypeState::OCCUPANCY_STATE :
-            return this->getVariableResultOccupancy(vf,state,cplex,var,t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE :
-            return this->getVariableResultSerial(vf,state,cplex,var,t);
+    // std::shared_ptr<Action> DecentralizedLP::getVariableResult(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
+    // {
+    //     //Specialisation for type of state
+    //     switch (state->getTypeState())
+    //     {
+    //     case TypeState::OCCUPANCY_STATE :
+    //         return this->getVariableResultOccupancy(vf,state,cplex,var,t);
+    //         break;
+    //     case TypeState::SERIAL_OCCUPANCY_STATE :
+    //         return this->getVariableResultSerial(vf,state,cplex,var,t);
 
-        default:
-            throw sdm::exception::Exception("DecentralizedLP::getVariableResult This state is not defined for this function");
-            break;
-        }
-    }
+    //     default:
+    //         throw sdm::exception::Exception("DecentralizedLP::getVariableResult This state is not defined for this function");
+    //         break;
+    //     }
+    // }
 
     void DecentralizedLP::createDecentralizedVariablesSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {

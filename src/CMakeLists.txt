@@ -87,6 +87,8 @@ if(GLOBAL)
 		GLOB_RECURSE
 		planning
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
+		${INCLUDE_DIR}/algorithms/value_iteration.cpp
+
 	)
 	add_library(planning SHARED ${planning})
 	target_link_libraries(planning world core fmt)

@@ -38,6 +38,7 @@ namespace sdm
         BaseValueFunction();
 
         BaseValueFunction(number horizon);
+        BaseValueFunction(const BaseValueFunction& copy);
 
         /**
          * @brief Destroy the value function

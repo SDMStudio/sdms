@@ -6,6 +6,7 @@ namespace sdm
     BaseValueFunction::BaseValueFunction() {}
 
     BaseValueFunction::BaseValueFunction(number horizon) : horizon_(horizon) {}
+    BaseValueFunction::BaseValueFunction(const BaseValueFunction& copy) : horizon_(copy.horizon_) {}
 
     number BaseValueFunction::getHorizon() const
     {

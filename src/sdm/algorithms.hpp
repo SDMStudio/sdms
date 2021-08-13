@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/algorithms/hsvi.hpp>
-// #include <sdm/algorithms/value_iteration.hpp>
+#include <sdm/algorithms/value_iteration.hpp>
 
 namespace sdm
 {
@@ -48,10 +48,9 @@ namespace sdm
          * @param horizon the planning horizon
          * @return pointer on HSVI instance
          */
-        // std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
-        //                                                         double discount,
-        //                                                         double error,
-        //                                                         number horizon);
+        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
+                                                                double error,
+                                                                number horizon);
 
         /**
          * @brief Build an algorithm given his name and the configurations required. 
@@ -112,117 +111,6 @@ namespace sdm
         }
     }
 }
-
-// #include <random>
-
-// #include <sdm/exception.hpp>
-// #include <sdm/tools.hpp>
-// #include <sdm/worlds.hpp>
-// #include <sdm/algorithms/hsvi.hpp>
-// #include <sdm/algorithms/q_learning.hpp>
-// #include <sdm/algorithms/value_iteration.hpp>
-
-// #include <sdm/public/algorithm.hpp>
-// #include <sdm/core/states.hpp>
-// #include <sdm/core/actions.hpp>
-
-// #include <sdm/utils/value_function/tabular_value_function.hpp>
-// #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
-
-// #include <sdm/utils/value_function/sawtooth_vf.hpp>
-// #include <sdm/utils/value_function/sawtooth_vf_with_lp.hpp>
-
-// #include <sdm/utils/value_function/initializer/initializers.hpp>
-// #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
-
-// #include <sdm/utils/value_function/max_plan_vf.hpp>
-// #include <sdm/utils/value_function/max_plan_vf_with_lp.hpp>
-// #include <sdm/utils/value_function/max_plane_vf_serialized.hpp>
-
-// #include <sdm/utils/rl/exploration.hpp>
-
-// namespace sdm
-// {
-//     namespace algo
-//     {
-//         /**
-//          * @brief Build the HSVI version that use TabularValueFunction Representation.
-//          *
-//          * @tparam TState Type of the state.
-//          * @tparam TAction Type of the action.
-//          * @param problem the problem to be solved
-//          * @param discount the discount factor
-//          * @param error the accuracy
-//          * @param horizon the planning horizon
-//          * @return pointer on HSVI instance
-//          */
-//         std::shared_ptr<sdm::HSV> makeHSVI(std::shared_ptr<SolvableByHSVI> problem, std::string upper_bound_name, std::string lower_bound_name, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming)
-//         {
-//             // assert(((discount < 1) || (horizon > 0)));
-
-//             // // Set params in the environment
-//             // problem->getUnderlyingProblem()->setDiscount(discount);
-//             // problem->getUnderlyingProblem()->setPlanningHorizon(horizon);
-
-//             // // Increase the horizon for the value function if the problem is serialized
-//             // if (problem->isSerialized())
-//             // {
-//             //     horizon = horizon * problem->getUnderlyingProblem()->getNumAgents();
-//             // }
-
-//             // // Instanciate initializers
-//             // // auto lb_init = sdm::makeInitializer(lb_init_name);
-//             // // auto ub_init = sdm::makeInitializer(ub_init_name);
-
-//             // // Instanciate bounds
-//             // std::shared_ptr<sdm::ValueFunction> lower_bound;
-//             // if (lower_bound_name == "maxplan")
-//             // {
-//             //     // lower_bound = std::make_shared<sdm::MaxPlanValueFunction>(problem, horizon, lb_init);
-//             // }
-//             // else if (lower_bound_name == "maxplan_serial")
-//             // {
-//             //     // lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized>(problem, horizon, lb_init);
-//             // }
-//             // else if (lower_bound_name == "maxplan_lp")
-//             // {
-//             //     // lower_bound = std::make_shared<sdm::MaxPlanValueFunctionLP>(problem, horizon, lb_init);
-//             // }
-//             // else
-//             // {
-//             //     // lower_bound = std::make_shared<sdm::MappedValueFunction>(problem, horizon, lb_init);
-//             // }
-
-//             // std::shared_ptr<sdm::ValueFunction> upper_bound;
-//             // if (upper_bound_name == "sawtooth")
-//             // {
-//             //     // upper_bound = std::make_shared<sdm::SawtoothValueFunction>(problem, horizon, ub_init);
-//             // }
-//             // else if (upper_bound_name == "sawtooth_lp")
-//             // {
-//             //     if (type_sawtooth_linear_programming == "Full")
-//             //     {
-//             //         if (current_type_of_resolution == "BigM")
-//             //         {
-//             //             // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
-//             //         }
-//             //         else
-//             //         {
-//             //             // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP>(problem, horizon, ub_init, TypeOfResolution::IloIfThenResolution, BigM, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
-//             //         }
-//             //     }
-//             //     else
-//             //     {
-//             //         // upper_bound = std::make_shared<sdm::SawtoothValueFunctionLP>(problem, horizon, ub_init, TypeOfResolution::BigM, BigM, TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING);
-//             //     }
-//             // }
-//             // else
-//             // {
-//             //     // upper_bound = std::make_shared<sdm::MappedValueFunction>(problem, horizon, ub_init);
-//             // }
-
-//             // return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name);
-//         }
 
 //         // /**
 //         //  * @brief Build the ValueIteration version.

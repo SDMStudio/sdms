@@ -51,9 +51,12 @@ namespace sdm
 
     };
 
+    class ValueFunction;
+
     class RelaxedValueFunction : public BaseRelaxedValueFunction
     {
     public :
+
         virtual ~RelaxedValueFunction() {}
 
         virtual double operator()(const std::shared_ptr<State> &ostate, const number &tau) = 0;
@@ -62,6 +65,8 @@ namespace sdm
 
         virtual bool isPomdpAvailable() = 0;
         virtual bool isMdpAvailable() = 0;
+
+        virtual std::shared_ptr<ValueFunction> getRelaxation() = 0;
 
     };
 } // namespace sdm

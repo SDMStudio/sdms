@@ -23,5 +23,6 @@ namespace sdm
         bool isPomdpAvailable();
         bool isMdpAvailable();
 
+        std::shared_ptr<ValueFunction> getRelaxation();
     };
 } // namespace sdm

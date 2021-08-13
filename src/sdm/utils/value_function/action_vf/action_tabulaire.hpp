@@ -21,10 +21,8 @@ namespace sdm
          * @return std::shared_ptr<Action> : Action
          */
         Pair<std::shared_ptr<Action>, double> selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> selectBestActionRelaxed(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
 
         void voidFunction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
-
-        static long MemoryUsed;
-
     };
 }

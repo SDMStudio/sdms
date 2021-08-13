@@ -101,4 +101,21 @@ namespace sdm
     {
         this->createDecentralizedConstraints(vf, state, env, con, var, index, t);
     }
+
+    void ActionVFMaxplanLP::createDecentralizedVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    {
+        return DecentralizedLP::createDecentralizedVariablesOccupancy(vf, state, env, var, index, t);
+    }
+
+    void ActionVFMaxplanLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    {
+        // std::cout << "ActionVFMaxplanLP::createDecentralizedConstraints"<<std::endl;
+        return DecentralizedLP::createDecentralizedConstraintsOccupancy(vf, state, env, con, var, index, t);
+    }
+
+    std::shared_ptr<Action> ActionVFMaxplanLP::getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
+    {
+        return DecentralizedLP::getVariableResultOccupancy(vf, state, cplex, var, t);
+    }
+
 }

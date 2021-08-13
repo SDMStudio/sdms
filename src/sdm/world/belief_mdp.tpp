@@ -289,6 +289,26 @@ namespace sdm
         return exp_next_v;
     }
 
+    template <class TBelief>
+    double BaseBeliefMDP<TBelief>::getExpectedNextValueRelaxed(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
+    {
+        double exp_next_v = 0;
+        // For all observations from the controller point of view
+        auto accessible_observation_space = this->getObservationSpace(t);
+        for (const auto &observation : *accessible_observation_space)
+        {
+            // Check if we can skip the computation of the next occupancy state.
+            // -> if the timestep is greater than the current horizon
+            bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) >= value_function->getHorizon()));
+            // Compute next state (if required)
+            // std::cout<<"Calcul ?"<<std::endl;
+            auto [next_state, state_transition_proba] = (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
+            // Update the next expected value at the next state
+            exp_next_v += state_transition_proba * value_function->getInitFunction()->operator()(next_state, t + 1);
+        }
+        return exp_next_v;
+    }
+
     // ------------------------------------------------------
     // FONCTIONS REQUIRED IN LEARNING ALGORITHMS
     // ------------------------------------------------------

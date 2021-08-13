@@ -105,6 +105,7 @@ namespace sdm
     {
       return false;
     }
+    
     for (const auto &state : this->getStates())
     {
       if (this->getProbability(state) != other->getProbability(state))

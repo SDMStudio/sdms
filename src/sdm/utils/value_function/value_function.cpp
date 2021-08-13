@@ -9,6 +9,9 @@ namespace sdm
     {
     }
 
+    ValueFunction::ValueFunction(const ValueFunction& copy) : BaseValueFunction(copy),init_function_(copy.init_function_),backup_(copy.backup_),action_(copy.action_),initializer_(copy.initializer_) 
+    {} 
+
     std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
     {
         return this->init_function_;

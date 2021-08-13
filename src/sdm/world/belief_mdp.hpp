@@ -98,6 +98,7 @@ namespace sdm
          * @return double 
          */
         virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
+        virtual double getExpectedNextValueRelaxed(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t);
 
         // *****************
         //    RL methods

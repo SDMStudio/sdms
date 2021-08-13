@@ -15,7 +15,7 @@ namespace sdm
 
     double State2OccupancyValueFunction::operatorBelief(const std::shared_ptr<State> &state, const number &tau)
     {
-        double value = 0;
+        double value = 0.0;
         auto ostate = state->toBelief();
 
         for (auto &ost : ostate->getStates())
@@ -27,7 +27,7 @@ namespace sdm
 
     double State2OccupancyValueFunction::operatorOccupancy(const std::shared_ptr<State> &state, const number &tau)
     {
-        double value = 0;
+        double value = 0.0;
         auto ostate = state->toOccupancyState();
 
         for (auto &jhistory : ostate->getJointHistories())
@@ -40,6 +40,11 @@ namespace sdm
 
     double State2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
     {
+        if(state == nullptr)
+        {
+            return this->mdp_vf_->operator()(state, tau);
+        }
+
         switch (state->getTypeState())
         {
         case TypeState::STATE:
@@ -110,6 +115,11 @@ namespace sdm
     bool State2OccupancyValueFunction::isMdpAvailable()
     {
         return true;
+    }
+
+    std::shared_ptr<ValueFunction> State2OccupancyValueFunction::getRelaxation()
+    {
+        return this->mdp_vf_;
     }
 
 } // namespace sdm

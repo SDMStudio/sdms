@@ -204,7 +204,6 @@ int main(int argc, char **argv)
 
         // Initialize and solve the problem
         algo->do_initialize();
-        ActionVFTabulaire::MemoryUsed = 0;
 
         OccupancyMDP::TIME_IN_NEXT_STATE = 0;
         OccupancyMDP::TIME_IN_COMPRESS = 0;
@@ -237,7 +236,6 @@ int main(int argc, char **argv)
         struct sysinfo memInfo;
 
         std::cout<<"Total Memory in this computer !!!  "<<std::Performance::totalMemory(memInfo)<<std::endl;
-        std::cout<<"Total MemoryUsed !!!  "<<ActionVFTabulaire::MemoryUsed<<std::endl;
 
         // Log execution times
         std::ofstream ofs;

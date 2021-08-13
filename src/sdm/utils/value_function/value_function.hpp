@@ -37,6 +37,7 @@ namespace sdm
          * @param default_value 
          */
         ValueFunction(number horizon = 0, const std::shared_ptr<Initializer> &intializer = nullptr, const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action = nullptr);
+        ValueFunction(const ValueFunction& copy);
 
         /**
          * @brief Destroy the value function
@@ -167,7 +168,10 @@ namespace sdm
 
         std::shared_ptr<ActionVFInterface> action_;
 
-
+        /**
+         * @brief The backup operator.
+         */
+        std::shared_ptr<BackupInterfaceForValueFunction> backup_;
     protected:
         /**
          * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
@@ -179,10 +183,6 @@ namespace sdm
          */
         // std::shared_ptr<EvaluateVFInterface> evaluate_;
 
-        /**
-         * @brief The backup operator.
-         */
-        std::shared_ptr<BackupInterfaceForValueFunction> backup_;
 
         /**
          * @brief The action operator.

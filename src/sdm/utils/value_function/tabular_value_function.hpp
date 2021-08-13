@@ -17,8 +17,9 @@ namespace sdm
     public:
         using Container = MappedVector<std::shared_ptr<State>, double, Hash, KeyEqual>;
 
-        BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf);
-        BaseTabularValueFunction(number horizon = 0, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr);
+        BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, bool is_upper_bound );
+        BaseTabularValueFunction(number horizon = 0, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, bool is_upper_bound = false);
+        BaseTabularValueFunction(const BaseTabularValueFunction& copy);
 
         /**
          * @brief Initialize the value function by using initializer.
@@ -104,6 +105,8 @@ namespace sdm
          * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          */
         std::vector<Container> representation;
+
+        bool is_upper_bound_;
 
     public:
         friend class boost::serialization::access;

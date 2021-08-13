@@ -87,10 +87,10 @@ namespace sdm
         this->lower_bound_->initialize();
         this->upper_bound_->initialize();
 
-        // for (size_t i = 0; i <= this->planning_horizon_; i++)
-        // {
-        //     this->last_value.push_back(std::unordered_map<std::shared_ptr<State>,double>());
-        // }
+        for (size_t i = 0; i <= this->planning_horizon_; i++)
+        {
+            this->last_value.push_back(std::unordered_map<std::shared_ptr<State>,double>());
+        }
     }
 
     void HSVI::do_solve()
@@ -105,7 +105,7 @@ namespace sdm
         this->duration = 0;
         this->start_time = std::chrono::high_resolution_clock::now();
 
-        // this->last_value[0][start_state] = this->upper_bound_->getValueAt(start_state,0);
+        this->last_value[0][start_state] = this->upper_bound_->getValueAt(start_state,0);
 
         do
         {
@@ -116,11 +116,11 @@ namespace sdm
             this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), this->lower_bound_->getSize(), this->upper_bound_->getSize(), this->duration- HSVI::TIME_TO_REMOVE);
             this->updateTime(current_time,"Time_to_remove");
 
-            // if(this->upper_bound_->getValueAt(start_state,0) > this->last_value[0][start_state] + 0.01)
-            // {
-            //     // exit(-1);
-            // }
-            // this->last_value[0][start_state] = this->upper_bound_->getValueAt(start_state,0);
+            if(this->upper_bound_->getValueAt(start_state,0) > this->last_value[0][start_state] + 0.01)
+            {
+                // exit(-1);
+            }
+            this->last_value[0][start_state] = this->upper_bound_->getValueAt(start_state,0);
 
             //---------------------------------//
 
@@ -157,10 +157,10 @@ namespace sdm
 
         try
         {
-            // if(this->last_value[h].find(state) == this->last_value[h].end())
-            // {
-            //     this->last_value[h][state] = this->upper_bound_->getValueAt(state,h);
-            // }
+            if(this->last_value[h].find(state) == this->last_value[h].end())
+            {
+                this->last_value[h][state] = this->upper_bound_->getValueAt(state,h);
+            }
 
             if (!this->do_stop(state, cost_so_far, h))
             {
@@ -236,6 +236,9 @@ namespace sdm
             //---------------DEBUG-----------------//
             if(!state->isBaseItem() && state->getTypeState() == TypeState::OCCUPANCY_STATE)
             {
+                // std::cout<<"State "<<state->toOccupancyState()->size()<<std::endl;
+                // std::cout<<"State Full"<<state->toOccupancyState()->getFullyUncompressedOccupancy()->size()<<std::endl;
+
                 this->current_time = std::chrono::high_resolution_clock::now();
                 int size_action_space = 0;
                 auto action_space = this->world_->getActionSpaceAt(state,h);
@@ -244,23 +247,153 @@ namespace sdm
                     size_action_space ++;
                 }
                 //state->toOccupancyState()->getIndividualHistories(std::dynamic_pointer_cast<SerialOccupancyMDP>(this->world_)->getAgentId(h)).size()
-                this->logger_precise_->log(this->trial,h, this->do_excess(state, cost_so_far, h) + this->error_, this->lower_bound_->getValueAt(state), this->upper_bound_->getValueAt(state), this->lower_bound_->getSize(h), this->upper_bound_->getSize(h), duration_select_action, duration_next_state,duration_update_lower,duration_update_upper,state->toOccupancyState()->getJointHistories().size(),state->toOccupancyState()->getIndividualHistories(std::dynamic_pointer_cast<SerialOccupancyMDP>(this->world_)->getAgentId(h)).size(),size_action_space);
+                // this->logger_precise_->log(this->trial,h, this->do_excess(state, cost_so_far, h) + this->error_, this->lower_bound_->getValueAt(state), this->upper_bound_->getValueAt(state), this->lower_bound_->getSize(h), this->upper_bound_->getSize(h), duration_select_action, duration_next_state,duration_update_lower,duration_update_upper,state->toOccupancyState()->getJointHistories().size(),state->toOccupancyState()->getIndividualHistories(std::dynamic_pointer_cast<SerialOccupancyMDP>(this->world_)->getAgentId(h)).size(),size_action_space);
                 this->updateTime(current_time, "Time_to_remove");
             }
 
-            // if(this->upper_bound_->getValueAt(state,h) > this->last_value[h][state] + 0.01)
-            // {
-            //     std::cout<<"Exit"<<std::endl;
-            //     std::cout<<"State "<<state->str()<<std::endl;
-            //     std::cout<<"Time  "<<h<<std::endl;
-            //     std::dynamic_pointer_cast<ActionVFTabulaire>(this->upper_bound_->action_)->voidFunction(this->upper_bound_, state, h); 
-            //     std::cout<<"Initialisation "<<this->upper_bound_->getInitFunction()->operator()(state,h)<<std::endl;
+            if(this->upper_bound_->getValueAt(state,h) > this->last_value[h][state] + 0.0001)
+            {
+                std::cout<<"Exit"<<std::endl;
+                std::cout<<"State Size"<<state->toOccupancyState()->size()<<std::endl;
+                std::cout<<"State Uncompressed"<<state->toOccupancyState()->getFullyUncompressedOccupancy()->str()<<std::endl;
+                std::cout<<"State Uncompressed Size"<<state->toOccupancyState()->getFullyUncompressedOccupancy()->size()<<std::endl;
 
-            //     std::cout<<"Current value  :"<<this->upper_bound_->getValueAt(state,h) <<", last value :"<<this->last_value[h][state]<<std::endl;
+                std::cout<<"Time  "<<h<<std::endl;
 
-            //     // exit(-1);
-            // }
-            // this->last_value[h][state] = this->upper_bound_->getValueAt(state,h);
+                // std::dynamic_pointer_cast<ActionVFTabulaire>(this->upper_bound_->action_)->voidFunction(this->upper_bound_, state, h); 
+
+                auto relaxation = std::dynamic_pointer_cast<RelaxedValueFunction>(this->upper_bound_->getInitFunction())->getRelaxation();
+                auto best_action = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, state, h).first;
+                auto next_occupanc_state = std::dynamic_pointer_cast<OccupancyMDP>(this->world_)->nextOccupancyState(state, best_action, sdm::NO_OBSERVATION, h)->toOccupancyState();
+
+                std::cout<<"\n \n \n \n  Next occupancy State"<<next_occupanc_state->str()<<std::endl;
+
+                for(const auto& element : relaxation->getSupport(h+1))
+                {
+                    // std::cout<<"Element at t+1 :"<<element->str()<<std::endl;
+                }
+
+                double total_value_compressed = 0.0;
+                for(const auto& next_joint_history : next_occupanc_state->getJointHistories())
+                {
+                    for(const auto& element : relaxation->getSupport(h+1))
+                    {
+                        if(element == next_occupanc_state->getBeliefAt(next_joint_history))
+                        {
+                            std::cout<<"J'existe !!!"<<std::endl;
+                            std::cout<<"value relaxation "<<relaxation->getValueAt(element,h+1)<<std::endl;
+                            total_value_compressed +=relaxation->getValueAt(element,h+1) * next_occupanc_state->getProbability(next_joint_history);
+                        }
+                    }
+                }
+                std::cout<<"New Initialisation t+1 : "<<std::dynamic_pointer_cast<ActionVFTabulaire>(this->upper_bound_->action_)->selectBestActionRelaxed(this->upper_bound_, next_occupanc_state, h+1).second<<std::endl;
+                std::cout<<"Initialisation t+1 : "<<this->upper_bound_->getInitFunction()->operator()(next_occupanc_state,h+1)<<std::endl;
+                std::cout<<"Initialisation t+1 Calculed : "<<total_value_compressed<<std::endl;
+
+                double total_value_uncompressed = 0.0;
+                for(const auto& next_joint_history : next_occupanc_state->getFullyUncompressedOccupancy()->getJointHistories())
+                {
+                    for(const auto& element : relaxation->getSupport(h+1))
+                    {
+                        if(element == next_occupanc_state->getFullyUncompressedOccupancy()->getBeliefAt(next_joint_history))
+                        {
+                            std::cout<<"J'existe !!!"<<std::endl;
+                            total_value_uncompressed += relaxation->getValueAt(element,h+1) * next_occupanc_state->getFullyUncompressedOccupancy()->getProbability(next_joint_history);
+                        }
+                    }
+                }
+                std::cout<<"Initialisation t+1 uncompressed "<<total_value_uncompressed<<std::endl;
+                std::cout<<"Value at t+1 : "<<this->upper_bound_->getValueAt(next_occupanc_state,h+1)<<std::endl;
+
+                // double value =0.0;
+                // double reward =0.0;
+
+                // auto mdp_relaxation = std::dynamic_pointer_cast<RelaxedValueFunction>(relaxation->getInitFunction())->getRelaxation();
+
+                // for (const auto &joint_history : next_occupanc_state->getJointHistories())
+                // {
+                //     auto belief = next_occupanc_state->getBeliefAt(joint_history);
+                    
+                //     double belief_value =0.0;
+                //     double belief_reward=0.0;
+
+                //     for(const auto& state : belief->getStates())
+                //     {
+                //         belief_value += belief->getProbability(state) * mdp_relaxation->getValueAt(state,h+1);
+                //     }
+                //     value += belief_value*next_occupanc_state->getProbability(joint_history);
+                // }
+                // std::cout<<"Initialisation MDP t+1 : "<<value<< std::endl;
+
+
+
+                std::cout<<"\n \n \n \n Info State at t "<<std::endl; 
+
+                auto occupancy_state =  state->toOccupancyState();
+
+                std::cout<<"Reward : "<< std::dynamic_pointer_cast<OccupancyMDP>(this->world_)->getReward(state,best_action,h)<<std::endl;;
+                std::cout<<"Reward Uncompressed : "<< std::dynamic_pointer_cast<OccupancyMDP>(this->world_)->getReward(occupancy_state->getFullyUncompressedOccupancy(),best_action,h)<<std::endl;;
+
+                for(const auto& element : relaxation->getSupport(h))
+                {
+                    // std::cout<<"Element at t"<<element->str()<<std::endl;
+                }
+
+                total_value_compressed = 0.0;
+                for(const auto& joint_history : occupancy_state->getJointHistories())
+                {
+                    for(const auto& element : relaxation->getSupport(h))
+                    {
+                        if(element == occupancy_state->getBeliefAt(joint_history))
+                        {
+                            std::cout<<"J'existe !!!"<<std::endl;
+                            // std::cout<<"element"<<element->str()<<std::endl;
+                            std::cout<<"value relaxation "<<relaxation->getValueAt(element,h)<<std::endl;
+                            total_value_compressed +=relaxation->getValueAt(element,h) * occupancy_state->getProbability(joint_history);
+
+                        }
+                    }
+                }
+                // std::dynamic_pointer_cast<ActionVFTabulaire>(this->upper_bound_->action_)->voidFunction(this->upper_bound_, occupancy_state, h);
+                std::cout<<"New Initialisation t+1 : "<<std::dynamic_pointer_cast<ActionVFTabulaire>(this->upper_bound_->action_)->selectBestActionRelaxed(this->upper_bound_, occupancy_state, h).second<<std::endl;
+                std::cout<<"Initialisation t : "<<this->upper_bound_->getInitFunction()->operator()(occupancy_state,h)<<std::endl;
+                std::cout<<"Initialisation t Calculed : "<<total_value_compressed<<std::endl;
+
+                total_value_uncompressed = 0.0;
+                for(const auto& joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
+                {
+                    for(const auto& element : relaxation->getSupport(h))
+                    {
+                        if(element == occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(joint_history))
+                        {
+                            std::cout<<"J'existe !!!"<<std::endl;
+                            total_value_uncompressed += relaxation->getValueAt(element,h) * occupancy_state->getFullyUncompressedOccupancy()->getProbability(joint_history);
+                        }
+                    }
+                }
+                std::cout<<"Initialisation t uncompressed "<<total_value_uncompressed<<std::endl;
+
+                // value =0.0;
+
+                // for (const auto &joint_history : occupancy_state->getJointHistories())
+                // {
+                //     auto belief = occupancy_state->getBeliefAt(joint_history);
+                //     auto joint_action = std::dynamic_pointer_cast<OccupancyMDP>(this->world_)->applyDecisionRule(occupancy_state, joint_history, best_action, h);
+                    
+                //     double belief_value =0.0;
+
+                //     for(const auto& state : belief->getStates())
+                //     {
+                //         belief_value += belief->getProbability(state) * mdp_relaxation->getValueAt(state,h);
+                //     }
+                //     value += belief_value*occupancy_state->getProbability(joint_history);
+                // }
+                // std::cout<<"Initialisation MDP at t : "<<value<< std::endl;
+                std::cout<<"Current value  :"<<this->upper_bound_->getValueAt(state,h) <<", last value :"<<this->last_value[h][state]<<std::endl;
+
+                exit(-1);
+            }
+            this->last_value[h][state] = this->upper_bound_->getValueAt(state,h);
 
             // std::cout << "\t\t#>s h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(state, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(state, h) << ")" << std::endl;
             //-----------------DEBUG----------------//
