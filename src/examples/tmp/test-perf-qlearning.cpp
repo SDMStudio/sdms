@@ -22,7 +22,6 @@
 #include <sdm/world/hierarchical_mpomdp.hpp>
 #include <sdm/world/hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/hierarchical_occupancy_mdp_with_history.hpp>
-// #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
@@ -36,7 +35,7 @@ int main(int argc, char **argv)
         std::string path, formalism, name, qvalue, q_init;
         unsigned long max_steps;
         number horizon, memory, batch_size;
-        double lr, discount, sf, belief_precision, ostate_precision, compress_precision;
+        double lr, discount, smooth, belief_precision, ostate_precision, compress_precision;
         int seed;
 
         po::options_description options("Options");
@@ -46,7 +45,7 @@ int main(int argc, char **argv)
         config.add_options()("path,p", po::value<string>(&path)->default_value("tiger"), "the path to the problem to be solved")
         ("formalism,f", po::value<string>(&formalism)->default_value("MDP"), "the formalism to use e.g. MDP, MMDP, POMDP, MPOMDP")
         ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
-        ("smooth,a", po::value<double>(&sf)->default_value(0.999), "the smoothing factor for the E[R]")
+        ("smooth,a", po::value<double>(&smooth)->default_value(0.99), "the smoothing factor for the E[R]")
         ("p_b", po::value<double>(&belief_precision)->default_value(0.001), "the precision of beliefs")
         ("p_o", po::value<double>(&ostate_precision)->default_value(0.1), "the precision of occupancy states")
         ("p_c", po::value<double>(&compress_precision)->default_value(0.1), "the precision of the compression")
@@ -136,7 +135,7 @@ int main(int argc, char **argv)
         }
 
         // Instanciate exploration process
-        std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
+        std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>(1.0, 0.0, 0.1, 0.8);
         // Instanciate the memory
         std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
@@ -146,16 +145,16 @@ int main(int argc, char **argv)
             std::shared_ptr<ZeroInitializer<>> initializer = std::make_shared<sdm::ZeroInitializer<>>();
             std::shared_ptr<QValueFunction<>> q_value_table = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
             std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
-            std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+            std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, smooth, max_steps, name);
             algorithm->do_initialize();
             algorithm->do_solve();
         }
         else if (qvalue == "extensive")
         {
             std::shared_ptr<ZeroInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer = std::make_shared<sdm::ZeroInitializer<Joint<std::shared_ptr<HistoryInterface>>>>();
-            std::shared_ptr<QValueFunction<OccupancyStateJointHistoryPair>> q_value_table = std::make_shared<ExtensiveQValueFunction>(horizon, lr, initializer, 1.0, true);
+            std::shared_ptr<QValueFunction<OccupancyStateJointHistoryPair>> q_value_table = std::make_shared<ExtensiveQValueFunction>(horizon, lr, initializer);
             std::shared_ptr<QValueBackupInterface> backup = std::make_shared<ExtensiveQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
-            std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<OccupancyStateJointHistoryPair>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+            std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<OccupancyStateJointHistoryPair>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, smooth, max_steps, name);
             algorithm->do_initialize();
             algorithm->do_solve();
         }

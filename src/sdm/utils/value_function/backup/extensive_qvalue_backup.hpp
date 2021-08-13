@@ -31,19 +31,12 @@ namespace sdm
         ~ExtensiveQValueBackup();
         
         /**
-         * @brief 
-         * 
-         * @param number t : time step
-         * @return 
+         * @brief Public interface for update() below
          */
         double update(number t);
 
-        /**
-         * @brief 
-         * 
-         * @param const std::shared_ptr<State>& state : current state
-         * @param number t : time step
-         * @return 
+         /**
+         * @brief Public interface for getGreedyAction() below
          */
         std::shared_ptr<Action> getGreedyAction(const std::shared_ptr<State> &state, number t);
 
@@ -63,14 +56,55 @@ namespace sdm
         double discount_;
         number num_agents_ = 2;
         std::shared_ptr<MultiDiscreteSpace> action_space_;
-        // functions
+
+        /**
+         * @brief Update Q-value with last collected experience
+         * 
+         * @param s occupancy state of agent 1
+         * @param o joint history
+         * @param u joint action
+         * @param r reward
+         * @param next_s next occupancy state of agent 1
+         * @param next_o next joint history
+         * @param next_u next joint action
+         * @param t time-step
+         * @return 
+         */
         double update(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o,  const std::shared_ptr<Action>& u, double r, 
                       const std::shared_ptr<OccupancyStateInterface> &next_s, const std::shared_ptr<JointHistoryInterface> &next_o, const std::shared_ptr<Action>& next_u, number t
         );
+
+        /**
+         * @brief Get greedy joint decision rule
+         * 
+         * @param s occupancy state of agent 1
+         * @param o1 history of agent 1
+         * @param t time-step
+         * @return 
+         */
         std::shared_ptr<Action> getGreedyAction(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<HistoryInterface>& o1, number t);
+
+         /**
+         * @brief Get greedy decision rule of agent 2 for every possible action of agent 1
+         * 
+         * @param s occupancy state of agent 1
+         * @param t time-step
+         * @return 
+         */
         std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>> get_a2s(const std::shared_ptr<OccupancyStateInterface>& s, number t);
+
+        /**
+         * @brief Get greedy decision rule of agent 1
+         * 
+         * @param s occupancy state of agent 1
+         * @param o1 history of agent 1
+         * @param a2s greedy decision rules of agent 2 for every possible action of agent 1
+         * @param t time-step
+         * @return 
+         */
         std::shared_ptr<DeterministicDecisionRule> get_a1(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<HistoryInterface>& o1, const std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>>& a2s, number t);
-        // auxiliary functions
+
+        // Auxiliary functions
         std::shared_ptr<Action> toJoint(const std::shared_ptr<Item> &u1, const std::shared_ptr<Item> &u2);
         std::shared_ptr<Action> toJoint(const std::shared_ptr<DeterministicDecisionRule> &a1, const std::shared_ptr<DeterministicDecisionRule> &a2);
         std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>> initialize_a2s();

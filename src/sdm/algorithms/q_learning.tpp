@@ -14,7 +14,7 @@ namespace sdm
                          number horizon,
                          double discount,
                          double lr,
-                         double batch_size,
+                         double smooth,
                          unsigned long num_episodes,
                          std::string name
                          ) : env_(env),
@@ -26,7 +26,7 @@ namespace sdm
                              horizon_(horizon),
                              discount_(discount),
                              lr_(lr),
-                             batch_size_(batch_size),
+                             smooth_(smooth),
                              num_episodes_(num_episodes),
                              target_update_(1),
                              name_(name)
@@ -36,11 +36,11 @@ namespace sdm
     template <class TInput>
     void QLearning<TInput>::initLogger()
     {
-        std::string format = "#> Episode : {}\tStep : {}/?\tValue : {}\tT(s) : {}\tN(S) : {}\n";
+        std::string format = "#> Episode : {}\tStep : {}/?\tEpsilon : {}\tValue : {}\tValue_p : {}\tT(s) : {}\tN(S) : {}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "Value", "Time", "N(S)"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "Epsilon", "Value", "Value_p", "Time", "N(S)"});
 
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
@@ -60,6 +60,7 @@ namespace sdm
     {
         this->global_step = 0;
         this->episode = 0;
+        this->E_R = 0.0;
         this->t_begin = clock();
 
         this->exploration_process->reset(this->num_episodes_);
@@ -67,7 +68,7 @@ namespace sdm
         while (this->episode < this->num_episodes_)
         {
             // Update exploration process
-            this->exploration_process->update(this->global_step);
+            this->exploration_process->update(this->episode);
 
             // Do one episode
             this->do_episode();
@@ -78,7 +79,9 @@ namespace sdm
                 this->logger_->log(
                     this->episode, 
                     this->global_step, 
+                    this->exploration_process->getEpsilon(),
                     this->backup_->getValueAt(this->env_->reset()->toState(), 0), 
+                    this->E_R,
                     (float)(clock() - this->t_begin) / CLOCKS_PER_SEC,
                     this->q_value_table_->getNumStates()
                 );
@@ -90,7 +93,10 @@ namespace sdm
                 this->do_test_ = false;
             }
         }
+
         // std::cout << *this->q_value_table_ << std::endl;
+
+
         // std::ofstream QValueStream(this->name_ + ".qvalue");
         // QValueStream << *this->q_value_table_ << std::endl;
         // QValueStream.close();
@@ -111,12 +117,8 @@ namespace sdm
     template <class TInput>
     void QLearning<TInput>::do_episode()
     {
-        // std::cout << "-------- do_episode() ---------" << std::endl;
-        // std::cout << *this->q_value_table_ << std::endl;
-        // Le update marche pas, du coup pour le moment j'utilise le meme QVF pour le target depuis le debut
-        // if (this->episode % target_update_ == 0)
-        //     this->update_target();
         this->step = 0;
+        this->R = 0.0;
         this->episode++;
         this->observation = this->env_->reset();
         this->action = this->select_action(this->observation, this->step);
@@ -135,35 +137,32 @@ namespace sdm
                 break;
             }
         }
+        this->E_R = this->smooth_ * this->E_R + (1 - this->smooth_) * this->R;
     }
 
     template <class TInput>
     void QLearning<TInput>::do_step()
     {   
-        // std::cout << "-------- QLearning<TInput>::do_step() --------- " << this->step << std::endl;
-        
-        // Action selection following policy and exploration process
-
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
-        // std::cout << "-------- do_step() --------- 2" << std::endl;
 
+        // Action selection following policy and exploration process
         this->next_action = this->select_action(this->next_observation, this->step + 1);
 
+        auto next_greedy_action = this->select_greedy_action(this->next_observation, this->step + 1);
+
         // Push experience to memory
-        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
-        // std::cout << "-------- do_step() --------- 3" << std::endl;
+        // this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
+        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, next_greedy_action, this->step);
 
         // Backup and get Q Value Error
         double delta = this->backup_->update(this->step);
 
-        // std::cout << "delta " << delta << std::endl;
-
         this->observation = this->next_observation;
         this->action = this->next_action;
+        this->R += this->rewards_[1];
         this->step++;
         this->global_step++;
-        // std::cout << "-------- do_step() --------- END" << std::endl;
     }
 
     template <class TInput>
@@ -210,8 +209,15 @@ namespace sdm
                 return this->env_->getRandomAction(observation, t);
             }
             return a;
+            // return this->env_->getRandomAction(observation, t);
         }
 
+    }
+
+    template <class TInput>
+    std::shared_ptr<Action> QLearning<TInput>::select_greedy_action(const std::shared_ptr<Observation> &observation, number t)
+    {
+        return this->backup_->getGreedyAction(observation->toState(), t);
     }
 
     // template <class TInput>

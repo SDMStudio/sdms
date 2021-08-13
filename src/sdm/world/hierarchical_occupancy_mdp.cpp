@@ -55,6 +55,6 @@ namespace sdm
 
         this->current_history_ = this->getNextHistory(observation);
         this->step_++;
-        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward}, is_done);
+        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward, rewards[0]}, is_done);
     }
 } // namespace sdm

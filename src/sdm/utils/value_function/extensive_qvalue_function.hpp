@@ -10,57 +10,68 @@ namespace sdm
 {
     class ExtensiveQValueFunction : public QValueFunction<OccupancyStateJointHistoryPair>
     {
-
+        
     public:
         using psi = std::unordered_map<std::shared_ptr<OccupancyStateInterface>, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>>;
 
         std::vector<psi> Psi;
 
-        ExtensiveQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer, double ball_r, bool keep_map);
+        ExtensiveQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer);
+        ExtensiveQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
 
-        ExtensiveQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0., double ball_r = 1.0, bool keep_map = true);
 
-        /**
-         * @brief Initialize the value function 
-         */
         void initialize();
-
-        /**
-         * @brief Initialize the value function with a default value
-         */
         void initialize(double v, number t = 0);
 
-        /**
-         * @brief Get the q-value at a state
-         * 
-         * @param state the state
-         * @return the action value vector 
-         */
+
         std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const OccupancyStateJointHistoryPair &state, number t);
 
         /**
-         * @brief Get the q-value given state and action
+         * @brief Get the q-value
          * 
-         * @param state the state
-         * @param action the action
+         * @param s private occupancy state of agent 1
+         * @param o joint history
+         * @param u joint action
+         * @param t time-step
          * @return the q-value
          */
         double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t);
+        /**
+         * @brief Helper function for the above function
+         * 
+         * @param s private occupancy state of agent 1
+         * @param o joint history
+         * @param u joint action
+         * @param t time-step
+         * @return the q-value
+         */
         double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t);
 
         double getQValueAt(const OccupancyStateJointHistoryPair &state, const std::shared_ptr<Action> &action, number t);
 
-        /**
-         * @brief Update the value at a given state
-         */
+        
         void updateQValueAt(const OccupancyStateJointHistoryPair &state, const std::shared_ptr<Action> &action, number t = 0);
-
-        /**
-         * @brief Update the value at a given state (given a delta)
-         */
         void updateQValueAt(const OccupancyStateJointHistoryPair &state, const std::shared_ptr<Action> &action, number t, double delta);
 
+        /**
+         * @brief Update the q-value
+         * 
+         * @param s private occupancy state of agent 1
+         * @param o joint history
+         * @param u joint action
+         * @param t time-step
+         * @return the q-value
+         */
         void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t, double delta);
+        /**
+         * @brief Helper function for the above function
+         * 
+         * @param s private occupancy state of agent 1
+         * @param o joint history
+         * @param u joint action
+         * @param t time-step
+         * @return the q-value
+         */
         void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t, double delta);
 
         bool isNotSeen(const OccupancyStateJointHistoryPair &state, number t);
@@ -81,41 +92,27 @@ namespace sdm
     protected:
 
         number num_agents_ = 2;
-
-        int num_key_states_ = 0;
+        
         int num_states_ = 0;
-
-        // std::vector<int> num_states_vector_;
 
         double learning_rate_;
 
-        double ball_r_;
-
         number horizon_;
 
-        bool keep_map_;
-
-        std::vector<std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>> closest_s_map_;
-
         /**
-         * @brief The value function represention.
-         * 
-         */
-
-        /**
-         * @brief The initializer to use for this value function. 
+         * @brief The initializer to use for the TabularQValueFunction in Psi
          * 
          */
         std::shared_ptr<QInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer_;
 
-        void initializeQValueFunctionAtWith(const std::shared_ptr<OccupancyStateInterface> &s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>> &q_, number t);
-
-        void initializeToZeroQValueFunctionAt(const std::shared_ptr<OccupancyStateInterface> &s, number t);
-
-        std::shared_ptr<OccupancyStateInterface> getHyperPlaneIndex(const std::shared_ptr<OccupancyStateInterface> &s, number t);
-
-        bool areInTheSameBall(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_, number t);
-
+        /**
+         * @brief Initialize a new Tabular Q Function associated to s if s was never seen before at t
+         * 
+         * @param s private occupancy state of agent 1
+         * @param t time-step
+         * @return the q-value
+         */
+        void initializeIfNeeded(const std::shared_ptr<OccupancyStateInterface> &s, number t);
     };
 
 } // namespace sdm

@@ -4,16 +4,14 @@
 
 namespace sdm
 {
-    ExtensiveQValueFunction::ExtensiveQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer, double ball_r, bool keep_map)
-        : QValueFunction(horizon), horizon_(horizon), learning_rate_(learning_rate), initializer_(initializer), ball_r_(ball_r), keep_map_(keep_map)
+    ExtensiveQValueFunction::ExtensiveQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer)
+        : QValueFunction(horizon), horizon_(horizon), learning_rate_(learning_rate), initializer_(initializer)
     {
         this->Psi = std::vector<psi>(this->horizon_ + 1, psi());
         this->num_states_ = 0;
-        this->num_key_states_ = 0;
-        this->closest_s_map_ = std::vector<std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>>(this->horizon_ + 1, std::unordered_map<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<OccupancyStateInterface>>());
     }
 
-    ExtensiveQValueFunction::ExtensiveQValueFunction(number horizon, double learning_rate, double default_value, double ball_r, bool keep_map) : ExtensiveQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer<Joint<std::shared_ptr<HistoryInterface>>>>(default_value), ball_r, keep_map)
+    ExtensiveQValueFunction::ExtensiveQValueFunction(number horizon, double learning_rate, double default_value) : ExtensiveQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer<Joint<std::shared_ptr<HistoryInterface>>>>(default_value))
     {
         
     }
@@ -38,12 +36,12 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
-    //
     double ExtensiveQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t)
     {
-        auto s_ = this->getHyperPlaneIndex(s, t);
-        return this->Psi[t].at(s_).getQValueAt(o, u, t);
+        this->initializeIfNeeded(s, t);
+        return this->Psi[t].at(s).getQValueAt(o, u, t);
     }
+
     double ExtensiveQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
         return this->getQValueAt(s, o->getIndividualHistories(), u, t);
@@ -57,9 +55,9 @@ namespace sdm
     //
     void ExtensiveQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const Joint<std::shared_ptr<HistoryInterface>> &o, const std::shared_ptr<Action> &u, number t, double delta)
     {
-        auto s_ = this->getHyperPlaneIndex(s, t);
-        this->Psi[t].at(s_).updateQValueAt(o, u, t, delta);
+        this->Psi[t].at(s).updateQValueAt(o, u, t, delta);
     }
+
     void ExtensiveQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t, double delta)
     {
         this->updateQValueAt(s, o->getIndividualHistories(), u, t, delta);
@@ -77,72 +75,20 @@ namespace sdm
 
     int ExtensiveQValueFunction::getNumStates() const
     {
-        // return this->num_states_;
-        return this->num_key_states_;
+        return this->num_states_;
     }
 
-    void ExtensiveQValueFunction::initializeQValueFunctionAtWith(const std::shared_ptr<OccupancyStateInterface> &s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>> &q_, number t)
-    {   
-        this->Psi[t].emplace(s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>(0, learning_rate_, initializer_));
-        this->Psi[t].at(s) = q_;
-        this->num_key_states_++;
-    }
-
-    void ExtensiveQValueFunction::initializeToZeroQValueFunctionAt(const std::shared_ptr<OccupancyStateInterface> &s, number t)
-    {   
-        this->Psi[t].emplace(s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>(0, learning_rate_, initializer_));
-        this->Psi[t].at(s).initialize(0);
-        this->num_key_states_++;
-        this->closest_s_map_[t].emplace(s, s);
-    }
-
-    std::shared_ptr<OccupancyStateInterface> ExtensiveQValueFunction::getHyperPlaneIndex(const std::shared_ptr<OccupancyStateInterface> &s, number t)
+    void ExtensiveQValueFunction::initializeIfNeeded(const std::shared_ptr<OccupancyStateInterface> &s, number t)
     {
-        // If s already has a label
-        if (this->closest_s_map_[t].find(s) != this->closest_s_map_[t].end())
+        if (this->Psi[t].find(s) == this->Psi[t].end())
         {
-            return this->closest_s_map_[t].find(s)->second;
-        }
-        
-        // If t=t is empty, s is the very first one to arrive.
-        else if (this->Psi[t].size() == 0)
-        {
-            this->num_states_++;
-            this->initializeToZeroQValueFunctionAt(s, t);
-            return s;
-        }
-
-        else
-        {
-            this->num_states_++;
-            double smallest_distance = 10000.0;
-            std::shared_ptr<OccupancyStateInterface> closest_s;
-            
-            for (auto const& [s_, q_] : this->Psi[t])
+            this->Psi[t].emplace(s, TabularQValueFunction<Joint<std::shared_ptr<HistoryInterface>>>(0, learning_rate_, initializer_));
+            this->Psi[t].at(s).initialize(0);
+            if (t < this->horizon_)
             {
-                double distance = s_->minus(s);
-                if (distance < smallest_distance)
-                {
-                    smallest_distance = distance;
-                    closest_s = s_;
-                }
-            }
-            if (this->areInTheSameBall(s, closest_s, t))
-            {
-                return closest_s;
-            }
-            else
-            {
-                this->initializeQValueFunctionAtWith(s, this->Psi[t][closest_s], t);
-                return s;
+                this->num_states_++;
             }
         }
-    }
-
-    bool ExtensiveQValueFunction::areInTheSameBall(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_, number t)
-    {
-        // std::cout << "ExtensiveQValueFunction::areInTheSameBall()" << std::endl;
-        return (s_->minus(s) < this->ball_r_);
     }
 
     std::string ExtensiveQValueFunction::str() const

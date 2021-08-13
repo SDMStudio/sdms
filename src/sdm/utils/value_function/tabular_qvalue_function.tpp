@@ -70,28 +70,6 @@ namespace sdm
         return 0;
     }
 
-    // void TabularQValueFunction<TInput>::printNumberOfActions()
-    // {
-    //     std::cout << "Printing number of actions" << std::endl;
-    //     for (sdm::size_t i = 0; i < this->representation.size(); i++)
-    //     {
-    //         std::cout << "\ttimestep=" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << std::endl;
-    //         for (auto state__actions_values : this->representation[i])
-    //         {
-    //             std::cout << "\t\tstate=" << state__actions_values.first << " number of actions = " << state__actions_values.second.size();
-    //             bool ok = true;
-    //             for (auto i = state__actions_values.second.begin(); i != state__actions_values.second.end(); i++)
-    //             {
-    //                 for (auto j = std::next(i); j != state__actions_values.second.end(); j++)
-    //                 {
-    //                     // ok = (!false);
-    //                 }
-    //             }
-    //             std::cout << std::endl;
-    //         }
-    //     }
-    // }
-
     template <class TInput>
     std::string TabularQValueFunction<TInput>::str() const
     {
@@ -102,6 +80,7 @@ namespace sdm
             res << "\t<timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
             for (auto state__actions_values : this->representation[i])
             {
+                res << "\t\t<state>" << std::endl;
                 if constexpr (std::is_same_v<TInput, std::shared_ptr<State>>)
                     tools::indentedOutput(res, state__actions_values.first->str().c_str(), 3);
                 else

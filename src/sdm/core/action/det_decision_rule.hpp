@@ -42,7 +42,13 @@ namespace sdm
      */
     virtual void setProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, double proba = 1);
 
-    void addCase(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a);
+    /**
+     * @brief Set action a as the action to select in state s.
+     * 
+     * @param s the state
+     * @param a the action
+     */
+    void set(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a);
 
     std::string str() const;
 

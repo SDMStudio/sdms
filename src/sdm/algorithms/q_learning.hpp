@@ -76,7 +76,7 @@ namespace sdm
      */
     number horizon_, step;
 
-    double discount_, lr_, batch_size_;
+    double discount_, lr_, smooth_, E_R, R;
 
     std::vector<double> rewards_;
 
@@ -94,7 +94,7 @@ namespace sdm
               number horizon,
               double discount = 0.9,
               double lr = 0.001,
-              double batch_size = 1,
+              double smooth = 0.99,
               unsigned long num_episodes = 10000,
               std::string name = "qlearning"
             );
@@ -144,6 +144,7 @@ namespace sdm
     void update_target();
 
     std::shared_ptr<Action> select_action(const std::shared_ptr<Observation> &observation, number t);
+    std::shared_ptr<Action> select_greedy_action(const std::shared_ptr<Observation> &observation, number t);
 
     void initLogger();
 

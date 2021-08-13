@@ -68,7 +68,6 @@ namespace sdm
         return this->getGreedyAction(s, o->getIndividualHistory(0), t);
     }
 
-    //
     std::shared_ptr<DeterministicDecisionRule> ExtensiveQValueBackup::get_a1(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<HistoryInterface>& o1, const std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>>& a2s, number t)
     {
         auto a1 = this->initializeDecisionRule();
@@ -86,11 +85,10 @@ namespace sdm
             }
         }
         auto greedy_u1 = q_values->argmax()->toAction();
-        a1->addCase(o1, greedy_u1);
+        a1->set(o1, greedy_u1);
         return a1;
     }
 
-    //
     std::unordered_map<std::shared_ptr<Item>, std::shared_ptr<DeterministicDecisionRule>> ExtensiveQValueBackup::get_a2s(const std::shared_ptr<OccupancyStateInterface>& s, number t)
     {
         auto a2s = this->initialize_a2s();
@@ -107,14 +105,13 @@ namespace sdm
                 }
                 auto greedy_u2 = q_values->argmax()->toAction();
                 auto possible_o2 = possible_o->getIndividualHistory(1);
-                a2->addCase(possible_o2, greedy_u2);
+                a2->set(possible_o2, greedy_u2);
             }
             a2s.emplace(u1, a2);
         }
         return a2s;
     }
 
-    //
     std::shared_ptr<Action> ExtensiveQValueBackup::getGreedyAction(const std::shared_ptr<OccupancyStateInterface>& s, const std::shared_ptr<HistoryInterface>& o1, number t)
     {
         auto a2s = this->get_a2s(s, t);
@@ -124,10 +121,8 @@ namespace sdm
         return this->toJoint(a1, a2);
     }
 
-    //
     double ExtensiveQValueBackup::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        // std::cout << "ExtensiveQValueBackup::getValueAt()" << std::endl;
         std::shared_ptr<OccupancyStateInterface> s = std::dynamic_pointer_cast<OccupancyStateJointHistoryPointerPair>(state)->first;
         std::shared_ptr<DecisionRule> a =  this->getGreedyAction(state, t)->toDecisionRule();
 
@@ -142,6 +137,9 @@ namespace sdm
         }
         return value;
     }
+
+
+    // ------------------------------------------------------------------------------------ Auxiliary functions -------------------------------------------------------------------------------- //
 
     std::shared_ptr<Action> ExtensiveQValueBackup::toJoint(const std::shared_ptr<Item> &u1, const std::shared_ptr<Item> &u2)
     {
