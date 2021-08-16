@@ -298,22 +298,12 @@ namespace sdm
                     std::getline(input_file, line);
                 }
 
-                for(number agent_id1 = 0; agent_id1 < this->getNumAgents(); agent_id1++)
-                {
-                    for(const auto& element : this->n[agent_id1].rewardFunction)
-                    {
-                        std::cout<<"State "<<element.first<<", value "<<element.second<<std::endl;
-                    }
-                }
-
                 auto reward_fct = std::make_shared<TabularReward>();
                 for (const auto &state : *this->getStateSpace())
                 {
-                    std::cout<<"State "<<state->str()<<std::endl;
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(state);
                     for (const auto &joint_action : *this->getActionSpace())
                     {
-                        std::cout<<"joint action "<<joint_action->str()<<std::endl;
                         double joint_reward = 0;
                         for (number agent_id1 = 0; agent_id1 < this->getNumAgents(); agent_id1++)
                         {
@@ -325,11 +315,8 @@ namespace sdm
                                 number idx_action_ag2 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id2)->toDiscreteSpace()->getItemIndex(action_ag2);
 
                                 joint_reward += this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2);
-                                std::cout<<"Agent : "<<agent_id1<<", Agent : "<<agent_id2<<", reward "<<this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2)<<std::endl;
-
                             }
                         }
-                        std::cout<<"Joint reward"<<joint_reward<<std::endl;
                         reward_fct->setReward(state->toState(), joint_action->toAction(), joint_reward);
                     }
                 }

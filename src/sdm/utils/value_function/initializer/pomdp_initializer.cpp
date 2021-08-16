@@ -44,42 +44,12 @@ namespace sdm
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp,"ValueIteration",0);
 
         auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
-        auto ub = std::make_shared<PointSetValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
+        auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
 
         auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_, 5000, "POMDP_Initialisation",1,1,1000);
 
         algorithm->do_initialize();
         algorithm->do_solve();
-
-        // double max;
-        // do
-        // {
-        //     max = -std::numeric_limits<double>::max();
-
-        //     std::cout<<"Est ce que je rentre ? "<<std::endl;
-        //     for (size_t time = 0; time < pomdp->getHorizon(); time++)
-        //     {
-        //         for(const auto& state : algorithm->getUpperBound()->getSupport(time))
-        //         {
-        //             max = std::max(max,algorithm->do_excess(state,0,time));
-
-        //             // std::cout<<"do_excess :"<<algorithm->do_excess(state,0,time)<<std::endl;
-        //             // std::cout<<"do_excess 2 :"<<algorithm->do_excess(state,0,time)<<std::endl;
-
-        //             if(algorithm->do_excess(state,0,time)>0)
-        //             {
-        //                 std::static_pointer_cast<TabularValueFunction>(algorithm->getUpperBound())->updateValueAt(state,time,true);
-        //                 std::static_pointer_cast<TabularValueFunction>(algorithm->getLowerBound())->updateValueAt(state,time,true);
-        //                 // std::cout<<"do_excess 2 :"<<algorithm->do_excess(state,0,time)<<std::endl;
-
-        //                 // std::cout<<"State "<<state->str()<<std::endl;
-        //                 // std::cout<<"Horizon "<<time<<std::endl;
-        //             }
-        //         }
-
-        //     }
-        // } while (false);
-         
         
         auto ubound = algorithm->getUpperBound();
         std::cout << "POMDP initializer " << std::endl;

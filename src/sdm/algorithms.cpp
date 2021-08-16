@@ -120,7 +120,7 @@ namespace sdm
             // Upper Bound
             if (upper_bound_name == "sawtooth")
             {
-                upper_bound = std::make_shared<PointSetValueFunction2>(horizon, ub_init, tabular_backup, action_tabular, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_tabular, freq_prunning_upper_bound, type_of_sawtooth_pruning);
             }
             else if (upper_bound_name == "sawtooth_lp")
             {

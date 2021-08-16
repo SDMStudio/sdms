@@ -77,7 +77,7 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    std::shared_ptr<Space> BaseOccupancyMDP<TOccupancyState>::getObservationSpace(number)
+    std::shared_ptr<Space> BaseOccupancyMDP<TOccupancyState>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number )
     {
         return std::make_shared<DiscreteSpace>(std::vector({sdm::NO_OBSERVATION}));
     }
@@ -215,10 +215,10 @@ namespace sdm
         }
         BaseOccupancyMDP<TOccupancyState>::TIME_IN_NEXT_STATE += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
 
+        t_begin = clock();
+
         if (this->do_compression(t))
         {
-            t_begin = clock();
-
             // The new compressed occupancy state
             std::shared_ptr<State> compressed_next_occupancy_state;
             // Compress the occupancy state
@@ -380,7 +380,7 @@ namespace sdm
         auto occupancy_state = ostate->toOccupancyState();
         auto decision_rule = action->toDecisionRule();
 
-        // BaseOccupancyMDP<TOccupancyState>::PASSAGE_IN_NEXT_STATE++;
+        BaseOccupancyMDP<TOccupancyState>::PASSAGE_IN_NEXT_STATE++;
         // BaseOccupancyMDP<TOccupancyState>::MEAN_SIZE_STATE += occupancy_state->getFullyUncompressedOccupancy()->getStates().size();
 
         // The new fully uncompressed occupancy state
@@ -406,7 +406,6 @@ namespace sdm
 
                 // Get the next belief
                 auto next_belief = this->getUnderlyingBeliefMDP()->nextBelief(belief, joint_action, joint_observation->toObservation(), t);
-
                 // Compute the probability of next history, i.e. p(o') = p(o) * p(z | b, u)
                 double next_joint_history_probability = occupancy_state->getFullyUncompressedOccupancy()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getObservationProbability(belief, joint_action, next_belief->toBelief(), joint_observation->toObservation(), t);
 

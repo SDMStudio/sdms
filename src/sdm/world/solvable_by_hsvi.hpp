@@ -58,6 +58,9 @@ namespace sdm
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
 
+        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t) = 0;
+
         /**
          * @brief Get the reward of executing a specific action in an specific state at timestep t. 
          * The time dependency can be required in non-stationnary problems.   

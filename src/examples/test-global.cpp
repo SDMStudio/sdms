@@ -256,6 +256,7 @@ int main(int argc, char **argv)
         ofs << "| OccMDP::TIME_IN_GET_ACTION \t|\t" << OccupancyMDP::TIME_IN_GET_ACTION << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| OccMDP::TIME_IN_NEXT_OSTATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_OSTATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_OSTATE / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| OccMDP::TIME_IN_COMP_NEXT_STATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_STATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
+        ofs << "| OccMDP::TIME_IN_COMP_NEXT_STATE_MEAN \t|\t" << OccupancyMDP::TIME_IN_NEXT_STATE/OccupancyMDP::PASSAGE_IN_NEXT_STATE << " s\t|\t" << 100 * ((OccupancyMDP::TIME_IN_NEXT_STATE/OccupancyMDP::PASSAGE_IN_NEXT_STATE) / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| OccMDP::TIME_IN_COMPRESS \t|\t" << OccupancyMDP::TIME_IN_COMPRESS << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| OccMDP::TIME_IN_GET_REWARD \t|\t" << OccupancyMDP::TIME_IN_GET_REWARD << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_REWARD / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| OccMDP::TIME_IN_APPLY_DR \t|\t" << OccupancyMDP::TIME_IN_APPLY_DR << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_APPLY_DR / TOTAL_TIME) << " %\t|" << std::endl;

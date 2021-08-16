@@ -204,48 +204,31 @@ namespace sdm
     //     for (const auto &point_value : this->getRepresentation(t))
     //     {
     //         auto [point, v_kappa] = point_value;
-    //         auto point_to_belief_interface = point->toBelief();
 
-    //         double v_ub_kappa = this->getInitFunction()->operator()(point->toOccupancyState()->getOneStepUncompressedOccupancy(), t);
+    //         double v_ub_kappa = this->getInitFunction()->operator()(point, t);
 
-    //         double phi;
-
-    //         switch (state->getTypeState())
-    //         {
-    //         case TypeState::BELIEF_STATE:
-    //             phi = this->ratioBelief(state, point_to_belief_interface);
-    //             break;
-    //         case TypeState::OCCUPANCY_STATE:
-    //             phi = this->ratioOccupancy(state, point_to_belief_interface,t);
-    //             break;
-    //         case TypeState::SERIAL_OCCUPANCY_STATE:
-    //             phi = this->ratioOccupancy(state, point_to_belief_interface,t);
-    //             break;
-    //         default:
-    //             throw sdm::exception::Exception("BasePointSetValueFunction::evaluate not defined for this state!");
-    //             break;
-    //         }
+    //         double phi = this->computeRatio(state,point,t);
 
     //         // determine the min ext
     //         double min_int = phi * (v_kappa - v_ub_kappa);
     //         if (min_int < min_value)
     //         {
     //             min_value = min_int;
-    //             argmin_ = point_to_belief_interface;
+    //             argmin_ = point;
     //         }
     //     }
     //     return std::make_pair(argmin_,v_ub_state+ min_value);
     // }
 
     // template <class Hash, class KeyEqual>
-    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<BeliefInterface> &point)
+    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<State> &state, const std::shared_ptr<State> &point)
     // {
     //     // Determine the ratio for the specific case when the state is a belief
     //     double phi = 1.0;
 
-    //     for (auto &support : point->getStates())
+    //     for (auto &support : point->toBelief()->getStates())
     //     {
-    //         double v_int = (state->getProbability(support) / point->getProbability(support));
+    //         double v_int = (state->toBelief()->getProbability(support) / point->toBelief()->getProbability(support));
     //         // determine the min int
     //         if (v_int < phi)
     //         {
@@ -256,7 +239,7 @@ namespace sdm
     // }
 
     // template <class Hash, class KeyEqual>
-    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<BeliefInterface> &state_tmp, const std::shared_ptr<BeliefInterface> &point_tmp, number t)
+    // double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<State> &point_tmp, number )
     // {
     //     // Determine the ratio for the specific case when the state is a Occupancy State
     //     // double phi = 1.0;

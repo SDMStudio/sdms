@@ -37,25 +37,7 @@ namespace sdm
                 }
             }
         }
-        auto a = this->createLP(vf,state, t);
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
-        auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
-
-        // std::cout<<"LP Value "<<a.second<<std::endl;
-        // std::cout<<"Evaluation LP"<<this->evaluate(vf,state,a.first,t)<<std::endl;
-        // std::cout<<"Q Value "<<occupancy_mdp->getReward(state,a.first,t) +vf->getValueAt(occupancy_mdp->nextOccupancyState(state, a.first, nullptr, t),t+1)<<std::endl;
-
-        if(t==0)
-        {
-            // std::cout<<"Action "<<a.first->str()<<std::endl;
-            // system("cat lb_bellman_op.lp");
-            // if(a.second<= -4)
-            // {
-            //     system("cat lb_bellman_op.lp");
-            // }
-        }
-
-        return a;
+        return this->createLP(vf,state, t);
     }
 
     Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionRelaxedV2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
@@ -124,16 +106,12 @@ namespace sdm
         {
 
             // For the Full version of Sawtooth, wo over all the Point Set  
-            std::cout<<"New Selection of action set"<<std::endl;
-
             for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
             {
                 const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
                 double max_value_support = -std::numeric_limits<double>::max();
                 std::shared_ptr<Action> best_action_support;
-
-                std::cout<<"New point set"<<std::endl;
 
                 // Go over all Joint History Next
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
@@ -148,8 +126,6 @@ namespace sdm
 
                         auto [action,value] = this->createLP(vf,state, t);
 
-                        std::cout<<"Value Found "<<value<<std::endl;
-
                         // We take the best action with the minimum value
                         if (max_value_support < value)
                         {
@@ -159,8 +135,6 @@ namespace sdm
                     }
                 }
 
-                std::cout<<"Best value for this point set "<<max_value_support<<std::endl;
-
                 if (min_value >max_value_support)
                 {
                     min_value = max_value_support;
@@ -168,26 +142,6 @@ namespace sdm
                 }
             }
         }
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
-        auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
-
-
-        std::cout<<"Action "<<best_action->str()<<std::endl;
-        // std::cout<<"Next occupancy "<<occupancy_mdp->nextOccupancyState(state, best_action, nullptr, t)->str()<<std::endl;
-
-        std::cout<<"Value LP "<<min_value<<std::endl;
-        std::cout<<"Q Value "<<occupancy_mdp->getReward(state,best_action,t) +vf->getValueAt(occupancy_mdp->nextOccupancyState(state, best_action, nullptr, t),t+1);
-        std::cout<<"Value Evaluation "<<vf->evaluate(state,t).second<<std::endl; 
-
-
-        // if(std::abs(min_value - resultat2)>0.01)
-        // {
-        //     std::cout<<"NExt occupancy "<<occupancy_mdp->nextOccupancyState(state, best_action, nullptr, t)->str()<<std::endl;
-        //     std::cout<<"Value LP "<<min_value<<std::endl;
-        //     std::cout<<"Value Backup "<<resultat2<<std::endl;
-        //     exit(-1);
-        // }
-
         return {best_action, min_value};
     }
 
@@ -239,7 +193,7 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLP::createObjectiveVariable(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    void ActionVFSawtoothLP::createObjectiveVariable(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloEnv &env, IloNumVarArray &var, number &index, number )
     {
         //<! 0.b Build variables v_0 = objective variable!
         std::string VarName = this->getVarNameWeight(0);
@@ -292,12 +246,9 @@ namespace sdm
         {
             auto compressed_occupancy_state = state->toOccupancyState();
 
-            // this->createGlobalConstraint(vf, state, env, con, var, index, t);
-
             if(vf->getSupport(t+1).empty())
             {
                 this->createInitialConstraints(vf, state,env, con, var,index, t);
-                // this->createInitialConstraints2(vf, state,env, con, var,index, t);
             }
             else
             {
@@ -353,11 +304,9 @@ namespace sdm
         {
         case TypeOfResolution::BigM:
             this->createSawtoothBigM(vf,state,nullptr,next_hidden_state,next_joint_observation,next_joint_history, next_state,denominator,difference,env,con,var,index, t);
-            // this->createSawtoothBigM2(vf,state,nullptr,next_hidden_state,next_joint_observation,next_joint_history, next_state,denominator,difference,env,con,var,index, t);
             break;
         case TypeOfResolution::IloIfThenResolution:
             this->createSawtoothIloIfThen(vf, state,nullptr, next_hidden_state, next_joint_observation, next_joint_history,  next_state, denominator, difference, env, model, var, t);
-            // this->createSawtoothIloIfThen2(vf, state,nullptr, next_hidden_state, next_joint_observation, next_joint_history,  next_state, denominator, difference, env, model, var, t);
             break;
         }
     }
@@ -407,30 +356,6 @@ namespace sdm
 
                 Qrelaxation = this->getQValueRelaxation(vf, state, joint_history, action->toAction(), t);
                 con[index].setLinearCoef(var[recover], -Qrelaxation);
-            }
-        }
-        index++;
-    }
-
-    void ActionVFSawtoothLP::createInitialConstraints2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,  IloEnv &env,IloRangeArray &con, IloNumVarArray &var,number &index, number t)
-    {
-        auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
-
-        number recover = 0;
-        double Qrelaxation;
-
-        con.add(IloRange(env, -IloInfinity, vf->getValueAt(state) - 0.001));
-
-        // Go over all actions
-        for (const auto &action : *under_pb->getActionSpace(t))
-        {
-            for(const auto& joint_history : state->toOccupancyState()->getJointHistories())
-            {
-                //<! 1.c.4 get variable a(u|o) and set constant
-                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
-
-                Qrelaxation = this->getQValueRelaxation(vf, state, joint_history, action->toAction(), t);
-                con[index].setLinearCoef(var[recover], Qrelaxation);
             }
         }
         index++;
@@ -501,79 +426,6 @@ namespace sdm
             // <! get variable \omega_k(x',o')
             recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state, next_hidden_state, next_joint_history));
             model.add(IloIfThen(env, var[recover] > 0, expr <= 0));
-        }
-        catch (const std::exception &exc)
-        {
-            // catch anything thrown within try block that derives from std::exception
-            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothIloIfThen(..) exception caught: " << exc.what() << std::endl;
-            exit(-1);
-        }
-    }
-
-
-    void ActionVFSawtoothLP::createSawtoothBigM2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator , double difference , IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
-    {
-        try
-        {
-            // v_ + espilon + K >= f() + K * omega_(x',o')
-
-
-            auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
-
-            number recover = 0;
-
-            con.add(IloRange(env, -IloInfinity, vf->getValueAt(state) + 0.01 + this->bigM_value_));
-
-            // Go over all actions
-            for (const auto &action : *under_pb->getActionSpace(t))
-            {
-                for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
-                {
-                    //<! 1.c.4 get variable a(u|o) and set constant
-                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
-
-                    //<! 1.c.4 get variable a(u|o) and set constant
-                    con[index].setLinearCoef(var[recover],this->computeSawtooth(vf,state, action->toAction(),joint_history,next_hidden_state,next_observation,next_joint_history,denominator,difference,t) );
-                }
-            }
-            // <! \omega_k(x',o') * BigM
-            recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state, next_hidden_state, next_joint_history));
-            con[index].setLinearCoef(var[recover], this->bigM_value_);
-
-            index++;
-        }
-        catch (const std::exception &exc)
-        {
-            // catch anything thrown within try block that derives from std::exception
-            std::cerr << "SawtoothValueFunctionLP<TState, TAction, TValue>::setGreedySawtoothBigM(..) exception caught: " << exc.what() << std::endl;
-            exit(-1);
-        }
-    }
-
-    void ActionVFSawtoothLP::createSawtoothIloIfThen2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
-    {
-        try
-        {
-            auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
-            number recover = 0;
-
-            IloExpr expr(env);
-
-            // Go over all actions
-            for (const auto &action : *under_pb->getActionSpace(t))
-            {
-                for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
-                {
-                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
-
-                    //<! 1.c.4 get variable a(u|o) and set constant
-                    expr +=  var[recover] * this->computeSawtooth(vf,state,action->toAction(),joint_history,next_hidden_state,next_observation,next_joint_history,denominator,difference,t);
-                }
-            }
-
-            // <! get variable \omega_k(x',o')
-            recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_state, next_hidden_state, next_joint_history));
-            model.add(IloIfThen(env, var[recover] > 0, expr <= vf->getValueAt(state) + 0.0001));
         }
         catch (const std::exception &exc)
         {

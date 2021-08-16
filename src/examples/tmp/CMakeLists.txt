@@ -125,6 +125,7 @@ if(JEROME)
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
 		${INCLUDE_DIR}/algorithms/value_iteration.cpp
+		${INCLUDE_DIR}/algorithms/backward_induction.cpp
 
 
 		${INCLUDE_DIR}/utils/value_function/**

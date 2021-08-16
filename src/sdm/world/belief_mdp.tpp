@@ -39,7 +39,7 @@ namespace sdm
     }
 
     template <class TBelief>
-    std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getObservationSpace(number t)
+    std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
     {
         return this->getUnderlyingPOMDP()->getObservationSpace(t);
     }
@@ -222,7 +222,7 @@ namespace sdm
         double max_o = -std::numeric_limits<double>::max(), tmp;
 
         std::shared_ptr<State> selected_next_belief;
-        auto observation_space = this->getObservationSpace(t);
+        auto observation_space = this->getObservationSpaceAt(belief,action,t);
         for (const auto &observation : *observation_space)
         {
             // Get the next state and probability
@@ -275,14 +275,11 @@ namespace sdm
     {
         double exp_next_v = 0;
         // For all observations from the controller point of view
-        auto accessible_observation_space = this->getObservationSpace(t);
+        auto accessible_observation_space = this->getObservationSpaceAt(belief,action,t);
         for (const auto &observation : *accessible_observation_space)
         {
-            // Check if we can skip the computation of the next occupancy state.
-            // -> if the timestep is greater than the current horizon
-            bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) >= value_function->getHorizon()));
-            // Compute next state (if required)
-            auto [next_state, state_transition_proba] = (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
+            // Compute next state
+            auto [next_state, state_transition_proba] = this->getNextState(value_function,belief,action,observation->toObservation(),t);
             // Update the next expected value at the next state
             exp_next_v += state_transition_proba * value_function->getValueAt(next_state, t + 1);
         }
@@ -290,23 +287,11 @@ namespace sdm
     }
 
     template <class TBelief>
-    double BaseBeliefMDP<TBelief>::getExpectedNextValueRelaxed(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t)
     {
-        double exp_next_v = 0;
-        // For all observations from the controller point of view
-        auto accessible_observation_space = this->getObservationSpace(t);
-        for (const auto &observation : *accessible_observation_space)
-        {
-            // Check if we can skip the computation of the next occupancy state.
-            // -> if the timestep is greater than the current horizon
-            bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) >= value_function->getHorizon()));
-            // Compute next state (if required)
-            // std::cout<<"Calcul ?"<<std::endl;
-            auto [next_state, state_transition_proba] = (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
-            // Update the next expected value at the next state
-            exp_next_v += state_transition_proba * value_function->getInitFunction()->operator()(next_state, t + 1);
-        }
-        return exp_next_v;
+        bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) >= value_function->getHorizon()));
+        // Compute next state (if required)
+        return (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
     }
 
     // ------------------------------------------------------

@@ -76,6 +76,7 @@ namespace sdm
          * @return the action space 
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
+        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
 
         /**
          * @brief Get the expected reward of executing a specific action in a specific belief at timestep t. 
@@ -98,7 +99,7 @@ namespace sdm
          * @return double 
          */
         virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
-        virtual double getExpectedNextValueRelaxed(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t);
+        Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
 
         // *****************
         //    RL methods
@@ -108,14 +109,6 @@ namespace sdm
         virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
         virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
-
-        /**
-         * @brief Get the controller observation space 
-         * 
-         * @param t the timestep
-         * @return the space of all possible observations
-         */
-        virtual std::shared_ptr<Space> getObservationSpace(number t);
 
         /**
          * @brief Get the graph of 

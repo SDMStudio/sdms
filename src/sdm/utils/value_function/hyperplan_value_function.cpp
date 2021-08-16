@@ -57,15 +57,15 @@ namespace sdm
         // If the hyperplan doesn't exit, we add it to representation at t
         if (!this->exist(new_hyperplan, t))
         {
-            std::cout<<"New pplan"<<std::endl;
+            // std::cout<<"New pplan"<<std::endl;
             this->representation[t].push_back(new_hyperplan);
 
             // Add state to all state update so far, only if the prunning used is Bounded
             if (this->type_of_maxplan_prunning_ == TypeOfMaxPlanPrunning::BOUNDED)
                 this->all_state_updated_so_far[t].insert(state);
         } 
-        std::cout<<"Time "<<t<<std::endl;
-        std::cout<<"Evaluate "<<this->evaluate(state,t)<<std::endl;
+        // std::cout<<"Time "<<t<<std::endl;
+        // std::cout<<"Evaluate "<<this->evaluate(state,t)<<std::endl;
 
         this->updateTime(time_start,"UpdateValue");
     }

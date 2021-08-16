@@ -28,95 +28,51 @@
 #include <sdm/algorithms.hpp>
 #include <sdm/types.hpp>
 
+#include <sdm/algorithms/backward_induction.hpp>
+
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // std::vector<std::string> all_formalism={"decpomdp"};
-    // std::vector<std::string> all_problem={"example5P_3-1","example7H_3-1"};
-    // std::vector<int> all_horizon={10};
-    // std::vector<double> all_discount={1};
-    // std::vector<std::string> upper_bound_name = {"sawtooth"};
-    // std::vector<std::string> lower_bound_name={"maxplan_serial"};
-    // std::vector<std::string> all_lower__init_name={"Min"};
-    // std::vector<std::string> all_upper_init_name= {"PomdpHsvi"};
 
-    // int mean = 1;
-    // std::string filepath = "../data/world/ndpomdp/";
-    // std::string save_path = "../run/Resultat/resultat";
+    std::string problem_path = "../data/world/dpomdp/recycling.dpomdp";
+    int horizon = 5;
+    double discount = 1;
+    int memory =1;
 
-    // std::vector<std::string> all_sawtooth_current_type_of_resolution = {"IloIfThen"};
-    // std::vector<sdm::number> all_sawtooth_BigM = {1000};
-    // std::vector<std::string> all_sawtooth_type_of_linear_program = {"Full"};
+    auto problem = sdm::parser::parse_file(problem_path);
 
-    // std::vector<int> all_truncation = {1};
-    // std::vector<int> all_freq_prunning_lower_bound = {5};
-    // std::vector<sdm::TypeOfMaxPlanPrunning> all_type_of_maxplan_prunning = {sdm::TypeOfMaxPlanPrunning::BOUNDED};
-    // std::vector<int> all_freq_prunning_upper_bound = {5};
-    // std::vector<sdm::TypeOfSawtoothPrunning> all_type_of_sawtooth_prunning = {sdm::TypeOfSawtoothPrunning::GLOBAL};
+    problem->setHorizon(horizon);
+    problem->setDiscount(discount);
 
-    // sdm::test(all_formalism,all_problem,all_horizon,all_discount,upper_bound_name,lower_bound_name,all_lower__init_name,all_upper_init_name,all_truncation,all_sawtooth_current_type_of_resolution,all_sawtooth_BigM,all_sawtooth_type_of_linear_program,all_type_of_maxplan_prunning,all_freq_prunning_lower_bound,all_type_of_sawtooth_prunning,all_freq_prunning_upper_bound,mean,filepath,save_path);
+    auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
+    std::shared_ptr<SolvableByHSVI> mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp,memory);
 
-    // std::string filename = "../data/world/dpomdp/mabc.dpomdp";
-    // int horizon = 10;
-    // int discount = 1;
-    // double error = 0.01;
-    // int trials = 1000;
-	// int truncation = 1;
+    auto algo_backward = std::make_shared<BackwardInduction>(mdp,serialized_mpomdp->getHorizon());
+    auto algo_hsvi = sdm::algo::makeHSVI(mdp,"Tabular","Tabular","Max","Min",discount,0,serialized_mpomdp->getHorizon());
 
-    // TypeOfResolution type_of_resolution = TypeOfResolution::IloIfThenResolution;
-    // TypeSawtoothLinearProgram type_of_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING ;
+    std::chrono::high_resolution_clock::time_point t_begin = std::chrono::high_resolution_clock::now();
 
-	// auto ValueBigM = 100;
+    algo_hsvi->do_initialize();
+    algo_hsvi->do_solve();
 
-    // auto problem = sdm::parser::parse_file(filename);
-    // problem->setHorizon(horizon);
-    // problem->setDiscount(discount);
+    std::chrono::high_resolution_clock::time_point t_end = std::chrono::high_resolution_clock::now();
+    double TOTAL_TIME_HSVI = std::chrono::duration_cast<std::chrono::duration<double>>(t_end-t_begin).count();
 
-    // std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, truncation, true, true, true);
-    
-    // // auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-    // // std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, truncation, true, true, true);
+    t_begin = std::chrono::high_resolution_clock::now();
 
-    // auto tabular_backup = std::make_shared<TabularBackup>(oMDP);
-    // auto maxplan_backup = std::make_shared<MaxPlanBackup>(oMDP);
+    algo_backward->do_initialize();
+    algo_backward->do_solve();
 
-    // auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(oMDP);
-    // auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(oMDP);
-    // auto action_maxplan = std::make_shared<ActionVFMaxplan>(oMDP);
-    // auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(oMDP);
+    t_end = std::chrono::high_resolution_clock::now();
+    double TOTAL_TIME_BACKWARD = std::chrono::duration_cast<std::chrono::duration<double>>(t_end-t_begin).count();
 
-    // auto action_tabular = std::make_shared<ActionVFTabulaire>(oMDP);
-    // auto action_sawtooth_lp =  std::make_shared<ActionVFSawtoothLP>(oMDP, type_of_resolution,ValueBigM,type_of_linear_program);
-    // auto action_sawtooth_lp_serial =  std::make_shared<ActionVFSawtoothLPSerial>(oMDP, type_of_resolution,ValueBigM,type_of_linear_program);
-    // auto action_sawtooth_wcsp=  std::make_shared<ActionVFSawtoothWCSP>(oMDP);
+    // std::cout<<"Bound Hsvi "<<algo_hsvi->getUpperBound()->str()<<std::endl;
+    // std::cout<<"Bound Backward"<<algo_backward->getBound()->str()<<std::endl;
 
-    // auto init_lb = std::make_shared<MinInitializer>(oMDP);
-    // auto init_ub = std::make_shared<MDPInitializer>(oMDP, "Pomdp Init",0.01);
+    std::cout<<"Total Time HSVI "<<TOTAL_TIME_HSVI<<std::endl;
+    std::cout<<"Total Time Backward "<<TOTAL_TIME_BACKWARD<<std::endl;
 
-    // // horizon = horizon * serialized_mpomdp->getNumAgents();
-    // // Instanciate bounds
-    // std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular);
-    // std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<TabularValueFunction>(horizon,init_ub,tabular_backup, action_tabular);
-
-    // auto algo = std::make_shared<HSVI>(oMDP, lower_bound, upper_bound, horizon, error, trials);
-
-    // algo->do_initialize();
-    // algo->do_solve();
-
-
-    
-
-
-    // auto mapped = MappedVector<std::shared_ptr<State>, double>();
-    // mapped[std::make_shared<DiscreteState>(0)] = 10;
-
-    // std::ofstream ofs("mabc__.txt");
-    // boost::archive::text_oarchive output_archive(ofs);
-    // mapped.serialize(output_archive,0);
-    // ofs.close();
-
-    // algo->getUpperBound()->save("test_mabc.txt");
 
     return 0;
 } // END main

@@ -1,5 +1,6 @@
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/mdp.hpp>
+#include <sdm/core/observation/default_observation.hpp>
 
 namespace sdm
 {
@@ -31,13 +32,16 @@ namespace sdm
     {
         double max = -std::numeric_limits<double>::max();
         std::shared_ptr<State> argmax = 0;
-        for (const auto &next_state : this->underlying_problem_->getReachableStates(state, action, t))
+
+        auto observation_space = this->getObservationSpaceAt(state,action,t);
+        for (const auto &next_state : *observation_space)
         {
-            double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
+            std::cout<<next_state<<std::endl;
+            double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
             if (tmp > max)
             {
                 max = tmp;
-                argmax = next_state;
+                argmax = next_state->toState();
             }
         }
 
@@ -66,9 +70,11 @@ namespace sdm
     double SolvableByMDP::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         double tmp = 0.0;
-        for (const auto &next_state : this->underlying_problem_->getReachableStates(state, action, t))
+
+        auto observation_space = this->getObservationSpaceAt(state,action,t);
+        for (const auto &next_state : *observation_space)
         {
-            tmp += this->underlying_problem_->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
+            tmp += this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * value_function->getValueAt(next_state->toState(), t + 1);
         }
         return tmp;
     }
@@ -107,5 +113,18 @@ namespace sdm
     {
         return ub->getBestActionAndValue(s, h);
     }
+
+    std::shared_ptr<Space> SolvableByMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    {
+        auto reachable_set = this->underlying_problem_->getReachableStates(state, action, t);
+        return std::make_shared<DiscreteSpace>( std::vector<std::shared_ptr<State>>(reachable_set.begin(), reachable_set.end()));
+    }
+
+    Pair<std::shared_ptr<State>, double> SolvableByMDP::getNextState(const std::shared_ptr<ValueFunction> & ,const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t)
+    {
+        return std::make_pair(observation->toState(),this->underlying_problem_->getTransitionProbability(state, action, observation->toState(), t));
+    }
+
+
 
 }
