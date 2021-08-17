@@ -38,10 +38,11 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
+    template <class TInput = std::shared_ptr<State>>
     class QInitializer
     {
     public:
-        virtual void init(std::shared_ptr<QValueFunction> vf) = 0;
+        virtual void init(std::shared_ptr<QValueFunction<TInput>> vf) = 0;
         virtual ~QInitializer() {}
     };
 
@@ -51,17 +52,41 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    class ValueInitializer : public Initializer, public QInitializer
+    template <class TInput = std::shared_ptr<State>>
+    class ValueInitializer : public Initializer, public QInitializer<TInput>
     {
     protected:
         double value;
 
     public:
-        ValueInitializer(double v);
+        ValueInitializer(double v) : value(v){};
 
-        void initBase(std::shared_ptr<BaseValueFunction> vf);
-        void init(std::shared_ptr<ValueFunction> vf);
-        void init(std::shared_ptr<QValueFunction> vf);
+        template <class TGlobalInput>
+        void initBase(std::shared_ptr<BaseValueFunction<TGlobalInput>> vf)
+        {
+            if (vf->getHorizon() < 1)
+            {
+                vf->initialize(this->value);
+            }
+            else
+            {
+                for (number t = 0; t < vf->getHorizon(); t++)
+                {
+                    vf->initialize(this->value, t);
+                }
+
+                vf->initialize(0, vf->getHorizon());
+            }
+        }
+
+        void init(std::shared_ptr<ValueFunction> vf)
+        {
+            this->template initBase<std::shared_ptr<State>>(vf);
+        }
+        void init(std::shared_ptr<QValueFunction<TInput>> vf)
+        {
+            this->template initBase<Pair<TInput,std::shared_ptr<Action>>>(vf);
+        }
     };
 
     /**
@@ -70,10 +95,11 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    class ZeroInitializer : public ValueInitializer
+    template <class TInput = std::shared_ptr<State>>
+    class ZeroInitializer : public ValueInitializer<TInput>
     {
     public:
-        ZeroInitializer(std::shared_ptr<SolvableByHSVI> world = nullptr);
+        ZeroInitializer(std::shared_ptr<SolvableByHSVI> = nullptr)  : ValueInitializer<TInput>(0){}
     };
 
     /**

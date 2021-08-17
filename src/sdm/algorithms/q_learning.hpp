@@ -22,6 +22,7 @@
 
 namespace sdm
 {
+  template <class TInput = std::shared_ptr<State>>
   class QLearning : public Algorithm
   {
   private:
@@ -44,12 +45,12 @@ namespace sdm
     /**
      * @brief Q-value function. 
      */
-    std::shared_ptr<QValueFunction> q_value_table_;
+    std::shared_ptr<QValueFunction<TInput>> q_value_table_;
 
     /**
      * @brief Q-value target function. 
      */
-    std::shared_ptr<QValueFunction> q_value_table_target_;
+    std::shared_ptr<QValueFunction<TInput>> q_value_table_target_;
 
     std::shared_ptr<QValueBackupInterface> backup_;
 
@@ -75,7 +76,7 @@ namespace sdm
      */
     number horizon_, step;
 
-    double discount_, lr_, batch_size_;
+    double discount_, lr_, smooth_, E_R, R;
 
     std::vector<double> rewards_;
 
@@ -86,14 +87,14 @@ namespace sdm
   public:
     QLearning(std::shared_ptr<GymInterface> &env,
               std::shared_ptr<ExperienceMemoryInterface> experience_memory,
-              std::shared_ptr<QValueFunction> q_value_table,
-              std::shared_ptr<QValueFunction> q_value_table_target,
+              std::shared_ptr<QValueFunction<TInput>> q_value_table,
+              std::shared_ptr<QValueFunction<TInput>> q_value_table_target,
               std::shared_ptr<QValueBackupInterface> backup,
               std::shared_ptr<EpsGreedy> exploration,
               number horizon,
               double discount = 0.9,
               double lr = 0.001,
-              double batch_size = 1,
+              double smooth = 0.99,
               unsigned long num_episodes = 10000,
               std::string name = "qlearning"
             );
@@ -143,6 +144,7 @@ namespace sdm
     void update_target();
 
     std::shared_ptr<Action> select_action(const std::shared_ptr<Observation> &observation, number t);
+    std::shared_ptr<Action> select_greedy_action(const std::shared_ptr<Observation> &observation, number t);
 
     void initLogger();
 
@@ -152,7 +154,8 @@ namespace sdm
 
     double getResult() { throw sdm::exception::NotImplementedException(); }
 
-    void saveResults(std::string filename, double other);
+    // void saveResults(std::string filename, double other);
 
   };
 } // namespace sdm
+#include <sdm/algorithms/q_learning.tpp>

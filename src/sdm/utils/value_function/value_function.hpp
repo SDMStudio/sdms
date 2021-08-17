@@ -23,7 +23,7 @@ namespace sdm
      * @tparam double Type of the value.
      */
     class ValueFunction
-        : public BaseValueFunction,
+        : public ValueFunctionBase,
           public BinaryFunction<std::shared_ptr<State>, number, double>
 
     {
@@ -166,8 +166,6 @@ namespace sdm
 
         virtual void do_pruning(number t) =0;
 
-        std::shared_ptr<ActionVFInterface> action_;
-
         /**
          * @brief The backup operator.
          */
@@ -183,11 +181,10 @@ namespace sdm
          */
         // std::shared_ptr<EvaluateVFInterface> evaluate_;
 
-
         /**
          * @brief The action operator.
          */
-        // std::shared_ptr<ActionVFInterface> action_;
+        std::shared_ptr<ActionVFInterface> action_;
 
         /**
          * @brief The initializer to use for this value function. 

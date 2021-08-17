@@ -58,7 +58,7 @@ namespace sdm
      */
     BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,
          number planning_horizon,
-         std::string name = "hsvi");
+         std::string name = "backward induction");
 
     std::shared_ptr<BackwardInduction> getptr();
 

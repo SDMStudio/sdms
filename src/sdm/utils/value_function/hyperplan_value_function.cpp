@@ -8,6 +8,8 @@
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/serial_occupancy_state.hpp>
 
+#include <sdm/utils/value_function/initializer/initializer.hpp>
+
 namespace sdm
 {
 
@@ -22,7 +24,7 @@ namespace sdm
     }
 
     HyperplanValueFunction::HyperplanValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning, TypeOfMaxPlanPrunning type_of_maxplan_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf, freq_pruning, type_of_maxplan_prunning) {}
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer<>>(default_value), backup, action_vf, freq_pruning, type_of_maxplan_prunning) {}
 
     HyperplanValueFunction::~HyperplanValueFunction() {}
 

@@ -290,7 +290,7 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionVFSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &,IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number )
     {
         con.add(IloRange(env, -IloInfinity, IloInfinity));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);

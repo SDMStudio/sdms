@@ -2,6 +2,7 @@
 #include <sdm/utils/value_function/backup/backup_base.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 namespace sdm
 {
@@ -13,7 +14,7 @@ namespace sdm
 
     template <class Hash, class KeyEqual>
     BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning, TypeOfSawtoothPrunning type_of_sawtooth_prunning)
-        : BasePointSetValueFunction<Hash, KeyEqual>(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf, freq_pruning, type_of_sawtooth_prunning)
+        : BasePointSetValueFunction<Hash, KeyEqual>(horizon, std::make_shared<ValueInitializer<>>(default_value), backup, action_vf, freq_pruning, type_of_sawtooth_prunning)
     {
     }
 

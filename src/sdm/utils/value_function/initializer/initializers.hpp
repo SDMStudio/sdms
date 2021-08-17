@@ -49,7 +49,7 @@ namespace sdm
             {"Min", &createInstance<MinInitializer>},
             {"Max", &createInstance<MaxInitializer>},
             {"Blind", &createInstance<BlindInitializer>},
-            {"Zero", &createInstance<ZeroInitializer>},
+            {"Zero", &createInstance<ZeroInitializer<>>},
             //{"PolicyEvaluationInitializer", &createInstance,PolicyEvaluationInitializer>},
             {"MdpHsvi", &createInstanceTabMDPInit},
             {"MdpValueIteration", &createInstanceMDPValueIterationInit},

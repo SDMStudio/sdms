@@ -30,6 +30,9 @@
 
 #include <sdm/algorithms/backward_induction.hpp>
 
+#include <sdm/utils/value_function/tabular_qvalue_function_conditioning.hpp>
+
+
 using namespace sdm;
 
 int main(int argc, char **argv)
@@ -72,6 +75,8 @@ int main(int argc, char **argv)
 
     std::cout<<"Total Time HSVI "<<TOTAL_TIME_HSVI<<std::endl;
     std::cout<<"Total Time Backward "<<TOTAL_TIME_BACKWARD<<std::endl;
+
+
 
 
     return 0;

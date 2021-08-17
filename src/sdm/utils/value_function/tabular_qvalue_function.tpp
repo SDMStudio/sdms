@@ -1,69 +1,81 @@
-#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 #include <iterator>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 namespace sdm
 {
-    TabularQValueFunction::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer)
-        : QValueFunction(horizon), learning_rate_(learning_rate), initializer_(initializer)
+    template <class TInput>
+    TabularQValueFunction<TInput>::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TInput>> initializer, bool active_learning)
+        : QValueFunction<TInput>(horizon), learning_rate_(learning_rate), active_learning_(active_learning), initializer_(initializer)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
-    TabularQValueFunction::TabularQValueFunction(number horizon, double learning_rate, double default_value) : TabularQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer>(default_value))
+    template <class TInput>
+    TabularQValueFunction<TInput>::TabularQValueFunction(number horizon, double learning_rate, double default_value, bool active_learning) : TabularQValueFunction<TInput>(horizon, learning_rate, std::make_shared<ValueInitializer<TInput>>(default_value),active_learning)
     {
     }
 
-    void TabularQValueFunction::initialize()
+    template <class TInput>
+    void TabularQValueFunction<TInput>::initialize()
     {
         this->initializer_->init(this->getptr());
     }
 
-    void TabularQValueFunction::initialize(double default_value, number t)
+    template <class TInput>
+    void TabularQValueFunction<TInput>::initialize(double default_value, number t)
     {
         this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
     }
 
-    std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValuesAt(const std::shared_ptr<State> &state, number t)
+    template <class TInput>
+    std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction<TInput>::getQValuesAt(const TInput &state, number t)
     {
-        using v_type = typename MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>::value_type::second_type;
+        using v_type = typename MappedMatrix<TInput, std::shared_ptr<Action>, double>::value_type::second_type;
         auto h = this->isInfiniteHorizon() ? 0 : t;
         return std::make_shared<v_type>(this->representation[h].at(state));
     }
 
-    double TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    template <class TInput>
+    double TabularQValueFunction<TInput>::getQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t)
     {
         // std::cout << "-------- TabularQValueFunction::getQValueAt() ---------" << std::endl;
         return this->getQValuesAt(state, t)->at(action);
     }
 
-    // double TabularQValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
+    // double TabularQValueFunction::getValueAt(const TInput &state, number t)
     // {
     //     return this->getQValuesAt(state, t)->max();
     // }
 
-    // std::shared_ptr<Action> TabularQValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
+    // std::shared_ptr<Action> TabularQValueFunction::getBestAction(const TInput &state, number t)
     // {
     //     return this->getQValuesAt(state, t)->argmax();
     // }
 
-    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta)
+    template <class TInput>
+    void TabularQValueFunction<TInput>::updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t, double delta)
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
-        this->representation[h][state][action] = this->representation[h].at(state).at(action) + this->learning_rate_ * delta;
+
+        double new_value = (this->active_learning_) ? this->representation[h].at(state).at(action) + this->learning_rate_ * delta : delta;
+        this->representation[h][state][action] = new_value;
     }
 
-    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number)
+    template <class TInput>
+    void TabularQValueFunction<TInput>::updateQValueAt(const TInput &, const std::shared_ptr<Action> &, number)
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    bool TabularQValueFunction::isNotSeen(const std::shared_ptr<State> &state, number t)
+    template <class TInput>
+    bool TabularQValueFunction<TInput>::isNotSeen(const TInput &state, number t)
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
         return (this->representation[h].find(state) == this->representation[h].end());
     }
 
-    int TabularQValueFunction::getNumStates() const
+    template <class TInput>
+    int TabularQValueFunction<TInput>::getNumStates() const
     {
         return 0;
     }
@@ -90,7 +102,8 @@ namespace sdm
     //     }
     // }
 
-    std::string TabularQValueFunction::str() const
+    template <class TInput>
+    std::string TabularQValueFunction<TInput>::str() const
     {
         std::ostringstream res;
         res << "<tabular_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;

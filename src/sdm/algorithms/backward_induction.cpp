@@ -147,7 +147,7 @@ namespace sdm
         }
     }
 
-    double BackwardInduction::do_excess(const std::shared_ptr<State> &s, double cost_so_far, number h)
+    double BackwardInduction::do_excess(const std::shared_ptr<State> &, double, number )
     {
         // try
         // {
@@ -196,7 +196,7 @@ namespace sdm
         return this->bound_;
     }
 
-    void BackwardInduction::saveResults(std::string filename, double other)
+    void BackwardInduction::saveResults(std::string , double )
     {
         // std::ofstream ofs;
         // ofs.open(filename+ "hsvi_profiling.md", std::ios::out | std::ios::app);

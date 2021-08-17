@@ -31,8 +31,9 @@ namespace sdm
      * @tparam std::shared<Action> Type of the action.
      * @tparam double Type of the value.
      */
+    template <class TInput>
     class BaseValueFunction
-        : public std::enable_shared_from_this<BaseValueFunction>
+        : public std::enable_shared_from_this<BaseValueFunction<TInput>>
     {
     public:
         BaseValueFunction();
@@ -59,7 +60,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        // virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+        virtual double getValueAt(const TInput &input, number t = 0) = 0;
 
         /**
          * @brief Get the q-value at a state
@@ -79,12 +80,17 @@ namespace sdm
         // virtual double getQValueAt(const std::shared_ptr<Observation> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
+         * @brief Update the value at a given state
+         */
+        virtual void updateValueAt(const TInput &input, number t = 0) = 0;
+
+        /**
          * @brief Get the best action to do at a state
          * 
          * @param state the state
          * @return the best action
          */
-        // virtual std::shared_ptr<Action> getBestAction(const std::shared_ptr<Observation> &state, number t) = 0;
+        virtual std::shared_ptr<Action> getBestAction(const TInput &input, number t) = 0;
         
         /**
          * @brief Save a value function into a file. 
@@ -112,7 +118,7 @@ namespace sdm
          * 
          * @return the corresponding shared pointer
          */
-        std::shared_ptr<BaseValueFunction> getptr();
+        std::shared_ptr<BaseValueFunction<TInput>> getptr();
 
         number getHorizon() const;
 
@@ -120,7 +126,7 @@ namespace sdm
 
         bool isInfiniteHorizon() const;
 
-        friend std::ostream &operator<<(std::ostream &os, const BaseValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, const BaseValueFunction<TInput> &vf)
         {
             os << vf.str();
             return os;
@@ -132,4 +138,9 @@ namespace sdm
          */
         number horizon_;
     };
+
+    using ValueFunctionBase = BaseValueFunction<std::shared_ptr<State>>;
+    using QValueFunctionBase = BaseValueFunction<Pair<std::shared_ptr<State>,std::shared_ptr<Action>>>;
+
 } // namespace sdm
+#include <sdm/utils/value_function/base_value_function.tpp>

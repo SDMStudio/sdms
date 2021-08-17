@@ -4,43 +4,6 @@
 namespace sdm
 {
     // ******************
-    // Value Initializer
-    // ****************** 
-    ValueInitializer::ValueInitializer(double v) : value(v){}
-
-    void ValueInitializer::initBase(std::shared_ptr<BaseValueFunction> vf)
-    {
-        if (vf->getHorizon() < 1)
-        {
-            vf->initialize(this->value);
-        }
-        else
-        {
-            for (number t = 0; t < vf->getHorizon(); t++)
-            {
-                vf->initialize(this->value, t);
-            }
-
-            vf->initialize(0, vf->getHorizon());
-        }
-    }
-
-    void ValueInitializer::init(std::shared_ptr<ValueFunction> vf)
-    {
-        this->initBase(vf);
-    }
-
-    void ValueInitializer::init(std::shared_ptr<QValueFunction> vf)
-    {
-        this->initBase(vf);
-    }
-
-    // ******************
-    // Zero Initializer
-    // ****************** 
-    ZeroInitializer::ZeroInitializer(std::shared_ptr<SolvableByHSVI>) : ValueInitializer(0){}
-
-    // ******************
     // Bound Initializer
     // ****************** 
     BoundInitializer::BoundInitializer() {}
