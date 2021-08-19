@@ -62,9 +62,7 @@ namespace sdm
         this->episode = 0;
         this->E_R = 0.0;
         this->t_begin = clock();
-
         this->exploration_process->reset(this->num_episodes_);
-
         while (this->episode < this->num_episodes_)
         {
             // Update exploration process
@@ -122,7 +120,6 @@ namespace sdm
         this->episode++;
         this->observation = this->env_->reset();
         this->action = this->select_action(this->observation, this->step);
-
         unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
         {
@@ -145,19 +142,14 @@ namespace sdm
     {   
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
-
         // Action selection following policy and exploration process
         this->next_action = this->select_action(this->next_observation, this->step + 1);
-
         auto next_greedy_action = this->select_greedy_action(this->next_observation, this->step + 1);
-
         // Push experience to memory
         // this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
         this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, next_greedy_action, this->step);
-
         // Backup and get Q Value Error
         double delta = this->backup_->update(this->step);
-
         this->observation = this->next_observation;
         this->action = this->next_action;
         this->R += this->rewards_[1];

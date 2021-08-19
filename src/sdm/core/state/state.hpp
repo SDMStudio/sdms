@@ -129,6 +129,8 @@ namespace sdm
 
     using OccupancyStateJointHistoryPair = StatePair<std::shared_ptr<OccupancyStateInterface>, Joint<std::shared_ptr<HistoryInterface>>>;
 
+    using HistoryJointHistoryPair = StatePair<std::shared_ptr<HistoryInterface>, Joint<std::shared_ptr<HistoryInterface>>>;
+
     // template <typename TItem, typename SuperClass = Item>
     // class JointItem : public SuperClass, public Joint<TItem>
     // {

@@ -266,11 +266,13 @@ if(QLEARNING)
 		${INCLUDE_DIR}/utils/value_function/value_function.cpp
 		${INCLUDE_DIR}/utils/value_function/tabular_qvalue_function.tpp
 		${INCLUDE_DIR}/utils/value_function/extensive_qvalue_function.cpp
+		${INCLUDE_DIR}/utils/value_function/light_extensive_qvalue_function.cpp
 		${INCLUDE_DIR}/utils/value_function/initializer/initializer.tpp
 		${INCLUDE_DIR}/utils/value_function/backup/tabular_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/simple_hierarchical_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/hierarchical_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/value_function/backup/extensive_qvalue_backup.cpp
+		${INCLUDE_DIR}/utils/value_function/backup/light_extensive_qvalue_backup.cpp
 		${INCLUDE_DIR}/utils/rl/experience_memory.cpp
 		${INCLUDE_DIR}/world/hierarchical_mpomdp.cpp
 		${INCLUDE_DIR}/world/transformed_mpomdp.cpp

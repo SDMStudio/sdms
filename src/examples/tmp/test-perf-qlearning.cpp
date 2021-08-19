@@ -13,9 +13,11 @@
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
 #include <sdm/utils/value_function/extensive_qvalue_function.hpp>
+#include <sdm/utils/value_function/light_extensive_qvalue_function.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 #include <sdm/utils/value_function/backup/extensive_qvalue_backup.hpp>
+#include <sdm/utils/value_function/backup/light_extensive_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
@@ -130,7 +132,7 @@ int main(int argc, char **argv)
             auto hierarchical_dpomdp = std::make_shared<HierarchicalMPOMDP>(dpomdp);
             if (qvalue == "tabular")
                 gym = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_dpomdp, memory, true, true, true, true, batch_size);
-            else if (qvalue == "extensive")
+            else if ((qvalue == "extensive") or (qvalue == "lightextensive"))
                 gym = std::make_shared<HierarchicalOccupancyMDPWithHistory>(hierarchical_dpomdp, memory, true, true, true, true, batch_size);
         }
 
@@ -155,6 +157,15 @@ int main(int argc, char **argv)
             std::shared_ptr<QValueFunction<OccupancyStateJointHistoryPair>> q_value_table = std::make_shared<ExtensiveQValueFunction>(horizon, lr, initializer);
             std::shared_ptr<QValueBackupInterface> backup = std::make_shared<ExtensiveQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
             std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<OccupancyStateJointHistoryPair>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, smooth, max_steps, name);
+            algorithm->do_initialize();
+            algorithm->do_solve();
+        }
+        else if (qvalue == "lightextensive")
+        {
+            std::shared_ptr<ZeroInitializer<Joint<std::shared_ptr<HistoryInterface>>>> initializer = std::make_shared<sdm::ZeroInitializer<Joint<std::shared_ptr<HistoryInterface>>>>();
+            std::shared_ptr<QValueFunction<HistoryJointHistoryPair>> q_value_table = std::make_shared<LightExtensiveQValueFunction>(horizon, lr, initializer);
+            std::shared_ptr<QValueBackupInterface> backup = std::make_shared<LightExtensiveQValueBackup>(experience_memory, q_value_table, q_value_table, discount, action_space);
+            std::shared_ptr<Algorithm> algorithm = std::make_shared<QLearning<HistoryJointHistoryPair>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, smooth, max_steps, name);
             algorithm->do_initialize();
             algorithm->do_solve();
         }
