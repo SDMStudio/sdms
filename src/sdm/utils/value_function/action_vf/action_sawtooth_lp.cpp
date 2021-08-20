@@ -18,18 +18,21 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionFull(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
     {
-        // For the Full version of Sawtooth, wo over all the Point Set  
+        // For the Full version of Sawtooth, the support is the element of the Point Set at t+1 and the support of each element
         this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
 
+        //GO over all point set at t+1
         for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
         {
             const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
             this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>());
+            
             // Go over all Joint History Next
             for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
             {
                 this->all_support[ostate_AND_value].emplace(next_joint_history,std::vector<std::shared_ptr<State>>());
+                
                 // Go over all Hidden State in the next one step uncomppresed occupancy state
                 for (const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                 {
@@ -42,6 +45,9 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionRelaxedV2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
     {
+        // For the Relaxed version 2 of Sawtooth, the support is only the support of each point set at t+1. 
+        //Consequently, we create a LP problem for each point set at t+1
+
         std::shared_ptr<Action> best_action;
         double min_value = std::numeric_limits<double>::max();
 
@@ -57,11 +63,12 @@ namespace sdm
         else
         {
 
-            // For the Full version of Sawtooth, wo over all the Point Set  
+            //GO over all point set at t+1
             for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
             {
                 const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
+                //Initialiaze the support 
                 this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
                 this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>());
 
@@ -76,6 +83,7 @@ namespace sdm
                     }
                 }
 
+                //Resolve a LP problem for a precise point set 
                 auto [action,value] = this->createLP(vf,state, t);
 
                 if (min_value >value)
@@ -90,6 +98,9 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionRelaxed(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
     {
+        // For the Relaxed version of Sawtooth, the support is only one support of each point set at t+1. 
+        //Consequently, we create a LP problem for each point set at t+1 and each support of this point.
+
         std::shared_ptr<Action> best_action;
         double min_value = std::numeric_limits<double>::max();
 
@@ -104,8 +115,7 @@ namespace sdm
         }
         else
         {
-
-            // For the Full version of Sawtooth, wo over all the Point Set  
+            //GO over all point set at t+1
             for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
             {
                 const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
@@ -119,7 +129,10 @@ namespace sdm
                     // Go over all Hidden State in the next one step uncomppresed occupancy state
                     for (const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                     {
+                        //Initialize the support for a precise point set and a precise support of this point.
                         this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
+                        
+                        //Emplace the information for the LP
                         this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>());
                         this->all_support[ostate_AND_value].emplace(next_joint_history,std::vector<std::shared_ptr<State>>());
                         this->all_support[ostate_AND_value][next_joint_history].push_back(next_hidden_state);
@@ -210,7 +223,7 @@ namespace sdm
         // Go over all Point Set in t+1
         for (const auto &next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state : this->all_support)
         {
-            const auto &ostate = next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first->toOccupancyState();
+            const auto &ostate = next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
             // Go over all Joint History Next
             for (const auto &next_history_AND_All_next_hidden_state : next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.second)
@@ -275,7 +288,7 @@ namespace sdm
                             // Determine the next Joint observation thanks to the next joint history
                             auto next_joint_observation = this->determineNextJointObservation(next_history, t);
 
-                            this->createConstraintsKnowingInformation(vf, state, nullptr, next_hidden_state, next_joint_observation, next_history, ostate, denominator, difference, env,model, con, var, index, t);
+                            this->createConstraintsKnowingInformation(vf, state, nullptr, next_hidden_state, next_joint_observation, next_history, next_one_step_uncompressed_occupancy_state, denominator, difference, env,model, con, var, index, t);
                         }
                     }
                     this->createOmegaConstraints(next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first,env,con,var,index);
@@ -313,7 +326,7 @@ namespace sdm
 
     void ActionVFSawtoothLP::createOmegaConstraints(const Pair<std::shared_ptr<State>,double> &state_AND_value, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index)
     {
-        const auto &ostate = state_AND_value.first->toOccupancyState();
+        const auto &ostate = state_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
         number recover = 0;
 
@@ -468,7 +481,7 @@ namespace sdm
         // Compute the difference v_kappa - V_kappa i.e. the value of point at t+1 minus the relaxation value of the point at t+1
 
         double current_upper_bound = state_AND_value.second; //Get Value for the state at t+1
-        double initial_upper_bound = vf->getInitFunction()->operator()(state_AND_value.first, t + 1); // Get relaxation value of the state at t+1
+        double initial_upper_bound = vf->getInitFunction()->operator()(state_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy(), t + 1); // Get relaxation value of the state at t+1
         
         return current_upper_bound - initial_upper_bound;
     }
@@ -482,7 +495,7 @@ namespace sdm
             SawtoothRatio = this->getSawtoothMinimumRatio(vf, state, joint_history, action, next_hidden_state, next_observation, denominator, t);
         }
 
-        return Qrelaxation + SawtoothRatio *difference;
+        return Qrelaxation + SawtoothRatio *difference ;
     }
 
     double ActionVFSawtoothLP::getSawtoothMinimumRatio(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, double denominator, number t)

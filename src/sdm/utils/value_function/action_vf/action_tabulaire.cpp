@@ -12,8 +12,10 @@ namespace sdm
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
 
+        //Go over all Action Space
         for (const auto& it = this->world_->getActionSpaceAt(state, t)->begin() ; it != this->world_->getActionSpaceAt(state, t)->end();++it)
         {
+            //Determine the value of the backup for a precise action
             auto casted_action = (*it)->toAction();
             if (max < (tmp = vf->template backup<double>(state, casted_action, t)))
             {
@@ -21,6 +23,7 @@ namespace sdm
                 max = tmp;
             }
         }
+        //Return the best action and the value associated
         return {best_action, max};
     }
 }

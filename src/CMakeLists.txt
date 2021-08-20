@@ -88,7 +88,8 @@ if(GLOBAL)
 		planning
 		${INCLUDE_DIR}/algorithms/hsvi.cpp
 		${INCLUDE_DIR}/algorithms/value_iteration.cpp
-
+		${INCLUDE_DIR}/algorithms/backward_induction.cpp
+		${INCLUDE_DIR}/algorithms/alpha_star.cpp
 	)
 	add_library(planning SHARED ${planning})
 	target_link_libraries(planning world core fmt)

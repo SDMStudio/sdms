@@ -9,7 +9,9 @@
  * 
  */
 #pragma once
-// #define LOGTIME
+#define LOGTIME
+
+
 #include <chrono>
 #include <string>
 
@@ -51,12 +53,6 @@ namespace sdm
     std::shared_ptr<ValueFunction> upper_bound_;
 
     /**
-     * @brief Logger.
-     * 
-     */
-    std::shared_ptr<MultiLogger> logger_, logger_precise_;
-
-    /**
      * @brief Some variables for the algorithm.
      * 
      */
@@ -68,12 +64,8 @@ namespace sdm
 
     std::shared_ptr<State> start_state;
 
-    void initLogger();
-
     std::chrono::high_resolution_clock::time_point start_time, current_time;
     double duration;
-
-    void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
 
   public:
     /**
@@ -167,10 +159,39 @@ namespace sdm
 
     void saveResults(std::string filename, double other);
 
-    static void cleanTIME();
+    static double TIME_TO_REMOVE;
+#ifdef LOGTIME
 
-    static double TIME_IN_SELECT_STATE, TIME_IN_SELECT_ACTION, TIME_INITIALIZATION, TIME_IN_UPDATE_LB, TIME_IN_UPDATE_UB, TIME_IN_PRUNING_LB, TIME_IN_PRUNING_UB, TIME_IN_DO_EXCESS, TIME_TO_REMOVE;
+    static double TIME_IN_SELECT_STATE, TIME_IN_SELECT_ACTION, TIME_INITIALIZATION, TIME_IN_UPDATE_LB, TIME_IN_UPDATE_UB, TIME_IN_PRUNING_LB, TIME_IN_PRUNING_UB, TIME_IN_DO_EXCESS;
     static double TIME_UPDATE_BACKUP_LB, TIME_BEST_ACTION_LB, TIME_EVALUATE_LB, TIME_GET_VALUE_AT_LB, TOTAL_TIME_LB;
     static double TIME_UPDATE_BACKUP_UB, TIME_BEST_ACTION_UB, TIME_EVALUATE_UB, TIME_GET_VALUE_AT_UB, TOTAL_TIME_UB;
+
+    /**
+     * @brief Logger.
+     * 
+     */
+    std::shared_ptr<MultiLogger> logger_, logger_precise_;
+
+    /**
+     * @brief Initialize the logger
+     * 
+     */
+    void initLogger();
+
+    /**
+     * @brief Clean all the data Time
+     * 
+     */
+    static void cleanTIME();
+
+    /**
+     * @brief Update the function associate with the time
+     * 
+     * @param start_time 
+     * @param information 
+     */
+    void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
+#endif
+
   };
 } // namespace sdm

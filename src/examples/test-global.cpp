@@ -47,6 +47,8 @@
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/algorithms.hpp>
 
+#define LOGTIME
+
 using namespace sdm;
 namespace po = boost::program_options;
 
@@ -204,7 +206,7 @@ int main(int argc, char **argv)
 
         // Initialize and solve the problem
         algo->do_initialize();
-
+#ifdef LOGTIME
         OccupancyMDP::TIME_IN_NEXT_STATE = 0;
         OccupancyMDP::TIME_IN_COMPRESS = 0;
         OccupancyMDP::TIME_IN_GET_ACTION = 0;
@@ -219,12 +221,14 @@ int main(int argc, char **argv)
 
         OccupancyState::cleanTIME();
         HSVI::cleanTIME();
-
+#endif
         std::chrono::high_resolution_clock::time_point t_begin = std::chrono::high_resolution_clock::now();
 
         algo->do_solve();
         std::chrono::high_resolution_clock::time_point t_end = std::chrono::high_resolution_clock::now();
 
+        // std::cout<<"Borne POMDP"<<std::static_pointer_cast<RelaxedValueFunction>(std::static_pointer_cast<HSVI>(algo)->getUpperBound()->getInitFunction())->getRelaxation()->str()<<std::endl;
+        // std::cout<<"Borne "<<std::static_pointer_cast<HSVI>(algo)->getUpperBound()->str()<<std::endl;
         double TOTAL_TIME = std::chrono::duration_cast<std::chrono::duration<double>>(t_end-t_begin).count();
         
         // Save results in a CSV file
@@ -247,6 +251,7 @@ int main(int argc, char **argv)
         ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
         ofs << "| TOTAL_TIME \t\t\t|\t" << TOTAL_TIME << " s\t|\t" << 100 * (TOTAL_TIME / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+#ifdef LOGTIME
         ofs << "| HSVI::TIME_INITIALIZATION \t|\t" << HSVI::TIME_INITIALIZATION << " s\t|\t" << 100 * (HSVI::TIME_INITIALIZATION / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| HSVI::TIME_IN_SELECT_ACTION \t|\t" << HSVI::TIME_IN_SELECT_ACTION << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| HSVI::TIME_IN_SELECT_STATE \t|\t" << HSVI::TIME_IN_SELECT_STATE << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
@@ -288,7 +293,7 @@ int main(int argc, char **argv)
         ofs << "| UB::TIME_IN_UPDATE \t|\t" << std::static_pointer_cast<HSVI>(algo)->getUpperBound()->time_update_value << " s\t|\t" << 100 * (std::static_pointer_cast<HSVI>(algo)->getUpperBound()->time_update_value / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| UB::TIME_IN_PRUNING\t|\t" << std::static_pointer_cast<HSVI>(algo)->getUpperBound()->time_pruning << " s\t|\t" << 100 * (std::static_pointer_cast<HSVI>(algo)->getUpperBound()->time_pruning / TOTAL_TIME) << " %\t|" << std::endl;
         ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
-
+#endif
         ofs.close();
     }
     catch (sdm::exception::Exception &e)

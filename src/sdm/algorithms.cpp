@@ -1,4 +1,6 @@
 #include <sdm/algorithms.hpp>
+#include <sdm/algorithms/alpha_star.hpp>
+#include <sdm/algorithms/backward_induction.hpp>
 
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
@@ -170,45 +172,56 @@ namespace sdm
             problem->setHorizon(horizon);
             problem->setDiscount(discount);
 
+            std::shared_ptr<SolvableByHSVI> formalism_problem;
+
+            if ((formalism == "mdp") || (formalism == "MDP"))
+            {
+                formalism_problem = std::make_shared<SolvableByMDP>(problem);
+            }
+            else if ((formalism == "pomdp") || (formalism == "POMDP"))
+            {
+                formalism_problem = std::make_shared<BeliefMDP>(problem);
+            }
+            else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
+            {
+                formalism_problem = std::make_shared<OccupancyMDP>(problem, truncation, compression, store_state, store_action);
+            }
+            else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
+            {
+                auto serialized_mmdp = std::make_shared<SerializedMMDP>(problem);
+                formalism_problem = std::make_shared<SolvableByMDP>(serialized_mmdp);
+            }
+            else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
+            {
+                auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
+                formalism_problem = std::make_shared<BeliefMDP>(serialized_mpomdp);
+            }
+            else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
+            {
+                auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
+                formalism_problem = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, truncation, compression, store_state, store_action);
+            }
+
             if ((algo_name == "hsvi") || (algo_name == "HSVI"))
             {
-                if ((formalism == "mdp") || (formalism == "MDP"))
-                {
-                    auto mdp = std::make_shared<SolvableByMDP>(problem);
-                    p_algo = makeHSVI(mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_mdphsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
-                }
-                else if ((formalism == "pomdp") || (formalism == "POMDP"))
-                {
-                    auto beliefMDP = std::make_shared<BeliefMDP>(problem);
-                    p_algo = makeHSVI(beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_hsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
-                }
-                else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
-                {
-                    auto oMDP = std::make_shared<OccupancyMDP>(problem, truncation, compression, store_state, store_action);
-                    p_algo = makeHSVI(oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, horizon, trials, (name == "") ? "tab_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
-                }
-                else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
-                {
-                    auto serialized_mmdp = std::make_shared<SerializedMMDP>(problem);
-                    auto s_mdp = std::make_shared<SolvableByMDP>(serialized_mmdp);
-                    p_algo = makeHSVI(s_mdp, upper_bound, lower_bound, ub_init, lb_init, discount, error, serialized_mmdp->getHorizon(), trials, (name == "") ? "tab_ext_mdphsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
-                }
-                else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
-                {
-                    auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                    auto s_beliefMDP = std::make_shared<BeliefMDP>(serialized_mpomdp);
-                    p_algo = makeHSVI(s_beliefMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, serialized_mpomdp->getHorizon(), trials, (name == "") ? "tab_hsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
-                }
-                else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
-                {
-                    auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                    std::shared_ptr<SolvableByHSVI> s_oMDP = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, truncation, compression, store_state, store_action);
-                    p_algo = makeHSVI(s_oMDP, upper_bound, lower_bound, ub_init, lb_init, discount, error, serialized_mpomdp->getHorizon(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
-                }
+                p_algo = makeHSVI(formalism_problem, upper_bound, lower_bound, ub_init, lb_init, discount, error, formalism_problem->getUnderlyingProblem()->getHorizon(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
             }
             else if ((algo_name == "qlearning") || (algo_name == "QLEARNING"))
             {
                 throw sdm::exception::Exception("QLearning not added in \"algorithms.hpp\" ");
+            }
+            else if ((algo_name == "Alpha*") || (algo_name == "A*"))
+            {
+                if ( ! ( (formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") ||
+                     (formalism == "Extensive-DPOMDP") || (formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP")) )
+                {
+                    throw sdm::exception::Exception("Formalism impossible for A* algorithm, the problem have to be a decpomdp or extensive-decpomdp");
+                }
+                p_algo = std::make_shared<AlphaStar>(formalism_problem);
+            }
+            else if ((algo_name == "Backward Induction*"))
+            {
+                p_algo = std::make_shared<BackwardInduction>(formalism_problem);
             }
             else
             {

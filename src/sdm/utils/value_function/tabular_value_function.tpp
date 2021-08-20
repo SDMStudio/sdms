@@ -40,8 +40,9 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BaseTabularValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
+#ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-
+#endif
         if (t < this->getHorizon() && this->init_function_ != nullptr)
         {
             if ((this->representation[t].find(state) == this->representation[t].end()))
@@ -52,7 +53,9 @@ namespace sdm
         }
         double value = this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
 
+#ifdef LOGTIME
         this->updateTime(time_start,"GetValueAt");
+#endif
         return value;
     }
 
@@ -78,17 +81,22 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, number t)
     {
+#ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-
+#endif
         auto value = this->template backup<double>(state, action, t);
 
+        // Because with use some 
         if(this->is_upper_bound_ && value > this->getValueAt(state,t))
         {
             value = this->getValueAt(state,t);
         }
 
         this->updateValueAt(state, t, value);
+
+#ifdef LOGTIME
         this->updateTime(time_start,"UpdateValue");
+#endif
     }
 
     template <class Hash, class KeyEqual>
@@ -151,5 +159,12 @@ namespace sdm
 
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::do_pruning(number ){}
+
+    template <class Hash, class KeyEqual>
+    double BaseTabularValueFunction<Hash, KeyEqual>::getDefaultAt(number t)
+    {
+        return this->representation.at(t).getDefault();
+    }
+
 
 } // namespace sdm

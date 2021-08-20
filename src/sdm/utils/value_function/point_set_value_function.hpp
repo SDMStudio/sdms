@@ -1,5 +1,5 @@
 #pragma once
-// #define LOGTIME
+#define LOGTIME
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
@@ -21,15 +21,6 @@ namespace sdm
 
         BasePointSetValueFunction(number horizon, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, int freq_prunning = -1, TypeOfSawtoothPrunning type_of_sawtooth_prunning = TypeOfSawtoothPrunning::NONE);
 
-        /**
-         * @brief Update the value at a specific state and timestep.
-         * 
-         * @param state the state
-         * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
-         */
-        void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
-        void updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, number t);
-
         std::string str() const;
 
         /**
@@ -47,6 +38,12 @@ namespace sdm
             return os;
         }
 
+        /**
+         * @brief Evaluate the value at a state.
+         * 
+         * @param state the state where we want to evaluate the function
+         * @return the value
+         */
         double getValueAt(const std::shared_ptr<State> &state, number t);
 
         void do_pruning(number t);
@@ -77,6 +74,14 @@ namespace sdm
          */
         void prune(number t = 0);
 
+        /**
+         * @brief COmpute the sawtooth ratio for the evaluate function 
+         * 
+         * @param state 
+         * @param point 
+         * @param t 
+         * @return double 
+         */
         double computeRatio(const std::shared_ptr<State> &state, const std::shared_ptr<State> &point, number t);
 
         /**

@@ -1,3 +1,14 @@
+/**
+ * @file serialized_mmdp.hpp
+ * @author Jérôme ARJONILLA 
+ * @brief Defines the Serialized MMDP.
+ * @version 0.1
+ * @date 17/08/2021
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #pragma once
 
 #include <sdm/types.hpp>
@@ -159,6 +170,11 @@ namespace sdm
         std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &, number t);
         
     protected:
+
+        /**
+         * @brief The mmpdp associated to the problem
+         * 
+         */
         std::shared_ptr<MMDPInterface> mmdp_;
 
         /**
@@ -174,11 +190,15 @@ namespace sdm
         std::shared_ptr<StateDynamicsInterface> state_dynamics_;
 
         /**
-         * @brief Map the joint_action to a precise pointeur
+         * @brief Map the joint_action to a precise pointeur of Action
          * 
          */
         std::unordered_map<Joint<std::shared_ptr<Action>>, std::shared_ptr<Action>> map_joint_action_to_pointeur;
 
+        /**
+         * @brief Map the serialState to a precise pointeur of State
+         * 
+         */
         std::unordered_map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> distribution_serial;
@@ -212,6 +232,15 @@ namespace sdm
         const std::shared_ptr<State> getPointeurState(SerializedState &) const;
 
         void createDistribution();
+
+        /**
+         * @brief A serial state is composed by a vector of action, in this function, we add a new action to the current vector of action/
+         * 
+         * @param const std::shared_ptr<State>& : current serial state
+         * @param const std::shared_ptr<Action>& : action to add
+         * @return Joint<std::shared_ptr<Action>> : vector of action of the current serial state + the action to add
+         */
+        Joint<std::shared_ptr<Action>> addNewAction(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& new_action) const;
     };
 
 } // namespace sdm

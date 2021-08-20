@@ -26,11 +26,10 @@ namespace sdm
 
     double SerializedMPOMDP::getObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
     {
-        std::shared_ptr<SerializedState> serialized_state = std::dynamic_pointer_cast<SerializedState>(state);
-        std::shared_ptr<SerializedState> next_serialized_state = std::dynamic_pointer_cast<SerializedState>(next_state);
+        auto serialized_state = state->toSerial();
+        auto next_serialized_state = next_state->toSerial();
 
-        auto all_action(serialized_state->getAction());
-        all_action.push_back(action);
+        auto all_action = this->addNewAction(serialized_state,action);
 
         std::shared_ptr<Item> item = observation;
         auto discrete_space = std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serialized_state->getCurrentAgentId()));
@@ -52,11 +51,10 @@ namespace sdm
 
     double SerializedMPOMDP::getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const
     {
-        std::shared_ptr<SerializedState> serialized_state = std::dynamic_pointer_cast<SerializedState>(state);
-        std::shared_ptr<SerializedState> next_serialized_state = std::dynamic_pointer_cast<SerializedState>(next_state);
+        auto serialized_state = state->toSerial();
+        auto next_serialized_state = next_state->toSerial();
 
-        auto all_action(serialized_state->getAction());
-        all_action.push_back(action);
+        auto all_action = this->addNewAction(serialized_state,action);
 
         std::shared_ptr<Item> item = observation;
         auto discrete_space = std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serialized_state->getCurrentAgentId()));
@@ -119,7 +117,7 @@ namespace sdm
         {
             for (const auto &state : *this->getStateSpace(agent_id))
             {
-                std::shared_ptr<SerializedState> serialized_state = std::dynamic_pointer_cast<SerializedState>(state);
+                auto serialized_state = state->toState()->toSerial();
 
                 // Go over serial action
                 for (const auto action_tmp : *this->getActionSpace(agent_id))
@@ -129,7 +127,7 @@ namespace sdm
                     // Go over joint_obs
                     for (const auto next_state : this->getReachableStates(state->toState(), serial_action, 0))
                     {
-                        std::shared_ptr<SerializedState> next_serialized_state = std::dynamic_pointer_cast<SerializedState>(next_state);
+                        auto next_serialized_state = next_state->toSerial();
 
                         //Update action
                         auto joint_action(serialized_state->getAction());

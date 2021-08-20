@@ -1,5 +1,5 @@
 #pragma once
-// #define LOGTIME
+#define LOGTIME
 
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/base_value_function.hpp>
@@ -102,6 +102,11 @@ namespace sdm
 
         double operator()(const std::shared_ptr<State> &state, const number &t = 0);
 
+        /**
+         * @brief Get the Init Function 
+         * 
+         * @return std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> 
+         */
         std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
 
         /**
@@ -123,15 +128,15 @@ namespace sdm
         template <typename TData>
         TData backup(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
         {
-            // #ifdef LOGTIME
+#ifdef LOGTIME
             std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-            // #endif
+#endif
 
             auto backup = std::static_pointer_cast<BackupInterface<TData>>(this->backup_)->backup(this->getptr(),state,action,t);
 
-            // #ifdef LOGTIME 
+#ifdef LOGTIME 
             this->updateTime(time_start,"backup");
-            // #endif
+#endif
 
             return backup;
         }
@@ -145,10 +150,17 @@ namespace sdm
          */
         std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t);
 
+        /**
+         * @brief Select the best Action and the value associated for a precise state and a time step
+         * 
+         * @param const std::shared_ptr<State> & : current state 
+         * @param number : time step 
+         * @return std::shared_ptr<Action> 
+         */
         Pair<std::shared_ptr<Action>, double> getBestActionAndValue(const std::shared_ptr<State> &state, number t);
 
 
-        // #ifdef LOGTIME
+#ifdef LOGTIME
         double total_time_update_backup =0;
         double total_time_update_best_action =0;
         double total_time_evaluate =0;
@@ -161,8 +173,7 @@ namespace sdm
         void StartTime();
         void updateTime(std::chrono::high_resolution_clock::time_point start_time,std::string information);
         double getTime(std::string information);
-
-        // #endif
+#endif
 
         virtual void do_pruning(number t) =0;
 

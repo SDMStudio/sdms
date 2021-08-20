@@ -85,6 +85,11 @@ namespace sdm
 
         std::string str() const;
 
+        /**
+         * @brief Return the possible indexes of the value function
+         * 
+         * @return std::string 
+         */
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
         size_t getSize(number t) const;
@@ -98,6 +103,8 @@ namespace sdm
         Container getRepresentation(number t);
 
         void do_pruning(number t);
+
+        double getDefaultAt(number t);
 
     protected:
         /**

@@ -36,7 +36,6 @@ namespace sdm
         auto observation_space = this->getObservationSpaceAt(state,action,t);
         for (const auto &next_state : *observation_space)
         {
-            std::cout<<next_state<<std::endl;
             double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
             if (tmp > max)
             {

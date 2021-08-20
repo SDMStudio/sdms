@@ -81,9 +81,6 @@ namespace sdm
             number agent_id = under_pb->getAgentId(t);
 
             number recover = 0;
-
-            double Qrelaxation,SawtoothRatio;
-
             IloExpr expr(env);
             //<! 1.c.1 get variable v and set coefficient of variable v
             expr = var[this->getNumber(this->getVarNameWeight(0))];
@@ -95,19 +92,13 @@ namespace sdm
                 {
                     recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
 
-                    Qrelaxation = 0.0;
-                    SawtoothRatio = 0.0;
+                    double compute_sawtooth =0.0;
                     for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
                     {
-                        Qrelaxation += this->getQValueRelaxation(vf, compressed_occupancy_state, joint_history, action->toAction(), t);
-
-                        if(joint_history->expand(next_observation) == next_joint_history)
-                        {
-                            SawtoothRatio += this->getSawtoothMinimumRatio(vf, state, joint_history, action->toAction(), next_hidden_state, next_observation, denominator, t);
-                        }
+                        compute_sawtooth += this->computeSawtooth(vf,state,action->toAction(),joint_history,next_hidden_state,next_observation,next_joint_history,denominator,difference,t);
                     }
                     //<! 1.c.4 get variable a(u|o) and set constant
-                    expr -=  (Qrelaxation + SawtoothRatio * difference) * var[recover];
+                    expr -=  compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history) * compute_sawtooth * var[recover];
                 }
             }
 

@@ -6,6 +6,9 @@
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
+#include <chrono>
+#include <string>
+
 namespace sdm
 {
 
@@ -15,9 +18,36 @@ namespace sdm
    * @tparam std::shared_ptr<State> 
    * @tparam std::shared_ptr<Action> 
    */
-  class BackwardInduction : public Algorithm, public std::enable_shared_from_this<BackwardInduction>
+  class AlphaStar : public Algorithm, public std::enable_shared_from_this<AlphaStar>
   {
   protected:
+
+    class AlphaStarItem : public State
+    {
+    public :
+        double value_f_, value_g_;
+        int horizon_;
+        std::shared_ptr<State> current_element;
+
+        AlphaStarItem(const std::shared_ptr<State>& element, double value_g,double value_f, int horizon) : current_element(element), value_g_(value_g), value_f_(value_f), horizon_(horizon)
+        {}
+        
+        bool operator<(std::shared_ptr<AlphaStarItem> const & b)
+        {
+          return (this->value_f_ == b->value_f_) ? this->value_g_ > b->value_g_ : this->value_f_ < b->value_f_;
+        }
+
+        std::string str() const
+        {
+          std::ostringstream res;
+          res << "AlphaStarState[" << this->current_element->str();
+          res <<", G_value "<<this->value_g_;
+          res <<", F_value "<<this->value_f_;
+          res <<", horizon "<<this->horizon_<<" ]";
+          return res.str();
+        }
+    };
+
     /**
      * @brief The problem to be solved.
      * 
@@ -39,9 +69,18 @@ namespace sdm
      * @brief Some variables for the algorithm.
      * 
      */
+    number planning_horizon_;
     std::string name_ = "backward_induction";
 
     std::shared_ptr<State> start_state;
+    std::vector<std::shared_ptr<AlphaStarItem>> openSet;
+    std::vector<std::shared_ptr<AlphaStarItem>> FSet;
+
+    std::vector<std::unordered_map<std::shared_ptr<State>,std::shared_ptr<AlphaStarItem>>> map_element_to_alpha_item;
+
+
+    std::chrono::high_resolution_clock::time_point start_time, current_time;
+    double duration;
 
   public:
     /**
@@ -55,10 +94,10 @@ namespace sdm
      * @param num_max_trials the maximum number of trials before stop
      * @param name the name of the algorithm (this name is used to save logs)
      */
-    BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,
-         std::string name = "backward induction");
+    AlphaStar(std::shared_ptr<SolvableByHSVI> &world,
+         std::string name = "A*");
 
-    std::shared_ptr<BackwardInduction> getptr();
+    std::shared_ptr<AlphaStar> getptr();
 
     /**
      * @brief 
@@ -99,7 +138,6 @@ namespace sdm
      * @param h the timestep of the exploration
      */
     void do_explore(const std::shared_ptr<State> &s, double /*cost_so_far*/, number h);
-    double backward_induction(const std::shared_ptr<State> &s, number h);
 
     /**
      * @brief Get the bound value function 
@@ -111,6 +149,17 @@ namespace sdm
     double getResult();
 
     void saveResults(std::string filename, double other);
+
+    void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
+
+    void initLogger();
     
+    static bool compare(const std::shared_ptr<AlphaStarItem>& item_1, const std::shared_ptr<AlphaStarItem>& item_2) 
+    {
+      return item_1->operator<(item_2);
+    }
+
+    static double TIME_TO_REMOVE;
+
   };
 } // namespace sdm

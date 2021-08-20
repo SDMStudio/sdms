@@ -1,5 +1,5 @@
 #pragma once
-// #define LOGTIME
+#define LOGTIME
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
@@ -50,40 +50,11 @@ namespace sdm
         std::vector<std::shared_ptr<State>> getSupport(number);
 
         /**
-         * @brief Get the maximum value and hyperplan at a specific state
-         * 
-         * @param state a specific state
-         * @return the maximum value and hyperplan at a specific state (std::pair<double, std::shared_ptr<State>>) 
-         */
-        std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<State> &, number);
-
-        /**
          * @brief Prune unecessary vectors
          * 
          */
         void prune(number = 0);
 
-        /*!
-         * @brief this method prunes dominated alpha-vectors, known as Lark's pruning.
-         * This approach goes other all vectors until all of them have been treated. For each arbitrary vector,
-         * it performs a linear programming providing a gap delta, and a frequency f. If the gap is over a certain
-         * threshold epsilon, that means one can preserve the selected vector, otherwise one should discard it.
-         */
-        void lark_prune(number = 0);
-
-        /*!
-         * @brief this method prunes dominated points, known as bounded pruning by Trey Smith.
-         * This approach stores the number of frequency states, among those already visited, that are maximal at a hyperplan.
-         * And prune hyperplan with a number of maximal frequency states zero.
-         */
-        void bounded_prune(number = 0);
-
-        /**
-         * @brief this method prunes dominated vectors, known as Pairwise pruning.
-         * 
-         * @param number : timestep 
-         */
-        void pairwise_prune(number t);
         
         size_t getSize(number t) const;
 
@@ -98,11 +69,14 @@ namespace sdm
          */
         double getDefaultValue(number);
 
-        bool exist(const std::shared_ptr<BeliefInterface>&,number t, double precision = PRECISION);
-
+        /**
+         * @brief Evaluate the element given
+         * 
+         * @param state : ELement to evaluate
+         * @param t 
+         * @return Pair<std::shared_ptr<State>, double> 
+         */
         Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
-
-        void createDefault(const std::shared_ptr<State> &state, number t);
 
         void do_pruning(number t);
 
@@ -136,6 +110,44 @@ namespace sdm
 
         TypeOfMaxPlanPrunning type_of_maxplan_prunning_;
         std::vector<std::unordered_set<std::shared_ptr<State>>> all_state_updated_so_far;
+
+        /**
+         * @brief Create a Default object
+         * 
+         * @param state 
+         * @param t 
+         */
+        void createDefault(const std::shared_ptr<State> &state, number t);
+
+        /**
+         * @brief Determine if the state is already stocked.
+         * 
+         * @param t 
+         * @param precision 
+         */
+        bool exist(const std::shared_ptr<BeliefInterface>&,number t, double precision = PRECISION);
+
+        /*!
+         * @brief this method prunes dominated points, known as bounded pruning by Trey Smith.
+         * This approach stores the number of frequency states, among those already visited, that are maximal at a hyperplan.
+         * And prune hyperplan with a number of maximal frequency states zero.
+         */
+        void bounded_prune(number = 0);
+
+        /**
+         * @brief this method prunes dominated vectors, known as Pairwise pruning.
+         * 
+         * @param number : timestep 
+         */
+        void pairwise_prune(number t);
+
+        /**
+         * @brief Get the maximum value and hyperplan at a specific state
+         * 
+         * @param state a specific state
+         * @return the maximum value and hyperplan at a specific state (std::pair<double, std::shared_ptr<State>>) 
+         */
+        std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<State> &, number);
 
     };
 

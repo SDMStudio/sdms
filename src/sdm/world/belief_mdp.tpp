@@ -88,24 +88,44 @@ namespace sdm
     {
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
-        // For each possible next state:
-        for (const auto &next_state : *this->getUnderlyingPOMDP()->getStateSpace(t + 1))
+
+        // for (const auto &next_state : *this->getUnderlyingPOMDP()->getStateSpace(t + 1))
+        // {
+        //     // Set its probability to 0.
+        //     double next_state_probability = 0;
+        //     // For each possible state:
+        //     for (const auto &state : *this->getUnderlyingPOMDP()->getStateSpace(t))
+        //     {
+        //         // Add to the the probability of transition * the probability of being in the state.
+        //         next_state_probability += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
+        //     }
+        //     // If the next state is possible:
+        //     if (next_state_probability > 0)
+        //     {
+        //         // Set its probability to the value found.
+        //         next_belief->toBelief()->setProbability(next_state->toState(), next_state_probability);
+        //     }
+        // }
+        
+        for(const auto&state : belief->toBelief()->getStates())
         {
-            // Set its probability to 0.
-            double next_state_probability = 0;
-            // For each possible state:
-            for (const auto &state : *this->getUnderlyingPOMDP()->getStateSpace(t))
+            for(const auto&next_state : this->getUnderlyingProblem()->getReachableStates(state,action,t))
             {
-                // Add to the the probability of transition * the probability of being in the state.
-                next_state_probability += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
-            }
-            // If the next state is possible:
-            if (next_state_probability > 0)
-            {
-                // Set its probability to the value found.
-                next_belief->toBelief()->setProbability(next_state->toState(), next_state_probability);
+                double proba =  this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
+                
+                if(proba >0)
+                {
+                    if(!next_belief->toBelief()->isStateExist(next_state))
+                    {
+                        next_belief->toBelief()->setProbability(next_state->toState(), proba);
+                    }else
+                    {
+                        next_belief->toBelief()->addProbability(next_state->toState(), proba);
+                    }
+                }
             }
         }
+
         next_belief->toBelief()->finalize();
         // Return next belief.
         return std::make_pair(next_belief, nullptr);
@@ -289,7 +309,7 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t)
     {
-        bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) >= value_function->getHorizon()));
+        bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) > value_function->getHorizon()));
         // Compute next state (if required)
         return (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
     }

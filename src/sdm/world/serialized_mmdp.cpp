@@ -18,8 +18,15 @@ namespace sdm
 {
     SerializedMMDP::SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp) : mmdp_(mmdp)
     {
+        //Initialize the Serial MMDP
+
+        //Create Serial State Space
         this->createInitSerializedStateSpace();
+
+        //Create distribution for the case Serial MMDP
         this->createDistribution();
+
+        //Create Reachable State
         this->createInitReachableStateSpace();
     }
 
@@ -42,11 +49,13 @@ namespace sdm
 
     double SerializedMMDP::getDiscount(number t) const
     {
-        return (((t + 1) % this->getNumAgents()) == 0) ? this->mmdp_->getDiscount(t / this->getNumAgents()) : 1.0;
+        //The discount has a value of 1 if it's not the last agent and the mmdp discount if it's.
+        return this->isLastAgent(t) ? this->mmdp_->getDiscount(this->getAgentId(t)) : 1.0;
     }
 
     number SerializedMMDP::getHorizon() const
     {
+        //In serial case, the number of horizon is the number of agent multiplie by the mmdp horizon
         return this->mmdp_->getHorizon() * this->getNumAgents();
     }
 
@@ -57,8 +66,13 @@ namespace sdm
 
     void SerializedMMDP::createDistribution()
     {
+        //Create the distribution of the serial State
+
         auto discrete_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         auto mmdp_distribution = this->mmdp_->getStartDistribution();
+
+        // The Serial state at 0 are the same state of the mmdp without the vector null of action
+        //Consequently, we just take the distrubution of the mmdp to the new serial state
         for (const auto &state : *this->getStateSpace(0))
         {
             discrete_distribution->setProbability(state->toState(), mmdp_distribution->getProbability(state->toState()->toSerial()->getHiddenState(), nullptr));
@@ -88,15 +102,15 @@ namespace sdm
 
     double SerializedMMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &serial_action, number t) const
     {
+        //If the agent t is not the last agent, the reward is 0 else this value is the same as the value of the mmdp.
         if (!this->isLastAgent(t))
         {
             return 0;
         }
         else
         {
-            std::shared_ptr<BaseSerialInterface> serialized_state = std::dynamic_pointer_cast<BaseSerialInterface>(state);
-            auto joint_action = serialized_state->getAction();
-            joint_action.push_back(serial_action);
+            auto serialized_state = state->toSerial();
+            auto joint_action = this->addNewAction(state,serial_action);
 
             return this->mmdp_->getReward(serialized_state->getHiddenState(), this->getPointeurJointAction(joint_action), t);
         }
@@ -104,11 +118,10 @@ namespace sdm
 
     double SerializedMMDP::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const
     {
-        std::shared_ptr<BaseSerialInterface> serialized_state = std::dynamic_pointer_cast<BaseSerialInterface>(state);
-        std::shared_ptr<BaseSerialInterface> next_serialized_state = std::dynamic_pointer_cast<BaseSerialInterface>(next_state);
+        auto serialized_state = state->toSerial();
+        auto next_serialized_state = next_state->toSerial();
 
-        auto all_action = serialized_state->getAction();
-        all_action.push_back(action);
+        auto all_action = this->addNewAction(state,action);
 
         if (!this->isLastAgent(t))
         {
@@ -189,6 +202,7 @@ namespace sdm
         }
         this->serialized_state_space_ = Joint<std::shared_ptr<DiscreteSpace>>(all_serialized_state);
 
+        //Create the vector of joint action and the pointer associated
         std::vector<Joint<std::shared_ptr<Action>>> vector_joint_action;
         for (const auto &element : *this->mmdp_->getActionSpace(0))
         {
@@ -202,24 +216,25 @@ namespace sdm
     {
         auto dynamics = std::make_shared<TabularStateDynamics>();
 
+        //Create the Reachable State
+        //FOr that, we go over all serial state, action and add the next state only if the probability is >0
         for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
         {
+            //GO over all state
             for (const auto &state : *this->getStateSpace(agent_id))
             {
                 auto serialized_state = state->toState()->toSerial();
-
                 auto hidden_state = serialized_state->getHiddenState();
                 auto action = serialized_state->getAction();
-
+                
+                //GO over all action
                 for (auto action_tmp : *this->getActionSpace(agent_id))
                 {
                     auto serial_action = action_tmp->toAction();
+                    auto next_action = this->addNewAction(serialized_state,serial_action);
 
-                    auto next_action = action;
-
-                    next_action.push_back(serial_action);
-
-                    if (agent_id + 1 == this->getNumAgents())
+                    // If the next agent is the last agent, the next serial state is (mmdp state , vector of add nul)
+                    if (this->isLastAgent(agent_id))
                     {
                         for (const auto next_hidden_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action), agent_id + 1))
                         {
@@ -269,6 +284,14 @@ namespace sdm
         }
     }
 
+    Joint<std::shared_ptr<Action>> SerializedMMDP::addNewAction(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& new_action) const
+    {
+        auto all_action = state->toSerial()->getAction();
+        all_action.push_back(new_action);
+
+        return all_action;
+    }
+
     std::shared_ptr<Space> SerializedMMDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number)
     {
         throw sdm::exception::NotImplementedException();
@@ -303,5 +326,4 @@ namespace sdm
     {
         return this->getActionSpace(t)->sample()->toAction();
     }
-
 } // namespace sdm

@@ -20,14 +20,17 @@ namespace sdm
         auto action_space = this->world_->getActionSpaceAt(state,t);
         for (const auto &action : *action_space)
         {
+            //Determine the hyperplan thanks to the action 
             auto hyperplan = vf->template backup<std::shared_ptr<State>>(state,action->toAction(),t);
-            // std::cout<<"Hyperplan "<<hyperplan->str()<<std::endl;
+
+            //Compute the dot product between the state and the hyperplan 
             if(argmax_global < (value = state->toBelief()->operator^(hyperplan->toBelief())) )
             {
                 argmax_global = value;
                 action_ = action->toAction();
             }
         }
+        //Return the best action and the value associated
         return {action_, argmax_global};
     }
 }

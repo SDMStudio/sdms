@@ -18,6 +18,8 @@ namespace sdm
     HyperplanValueFunction::HyperplanValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning, TypeOfMaxPlanPrunning type_of_maxplan_prunning)
         : ValueFunction(horizon, initializer, backup, action_vf), freq_pruning_(freq_pruning), type_of_maxplan_prunning_(type_of_maxplan_prunning)
     {
+        //Create all different structure in order to use the hyperplan value function.
+
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, HyperplanSet({}));
         this->all_state_updated_so_far = std::vector<std::unordered_set<std::shared_ptr<State>>>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, std::unordered_set<std::shared_ptr<State>>());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, 0);
@@ -40,19 +42,22 @@ namespace sdm
 
     double HyperplanValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
+#ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-
+#endif
         double value = this->evaluate(state, t).second;
 
+#ifdef LOGTIME
         this->updateTime(time_start,"GetValueAt");
-
+#endif
         return value;
     }
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t)
     {
+#ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-
+#endif
         //Determine the new hyperplan
         const auto &new_hyperplan = this->template backup<std::shared_ptr<State>>(state, action, t)->toBelief();
 
@@ -66,12 +71,11 @@ namespace sdm
             if (this->type_of_maxplan_prunning_ == TypeOfMaxPlanPrunning::BOUNDED)
                 this->all_state_updated_so_far[t].insert(state);
         } 
-        // std::cout<<"Time "<<t<<std::endl;
-        // std::cout<<"Evaluate "<<this->evaluate(state,t)<<std::endl;
 
+#ifdef LOGTIME
         this->updateTime(time_start,"UpdateValue");
+#endif
     }
-
 
     void HyperplanValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
@@ -90,8 +94,9 @@ namespace sdm
 
     void HyperplanValueFunction::do_pruning(number t)
     {
+#ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-
+#endif
         if (t % this->freq_pruning_ == 0)
         {
             for (number time = 0; time < this->getHorizon(); time++)
@@ -99,7 +104,9 @@ namespace sdm
                 this->prune(time);
             }
         }
+#ifdef LOGTIME
         this->updateTime(time_start,"Pruning");
+#endif
     }
 
     void HyperplanValueFunction::prune(number t)
@@ -176,6 +183,7 @@ namespace sdm
         std::unordered_map<std::shared_ptr<State>, number> refCount;
         auto all_plan = this->getSupport(t);
 
+        //Initialize the count 
         for (const auto &element : all_plan)
         {
             refCount[element] = 0;
@@ -197,6 +205,7 @@ namespace sdm
             refCount.at(max_alpha)++;
         }
 
+        //Delete element with a count of 0
         for (const auto &element : all_plan)
         {
             if (refCount.at(element) == 0)
@@ -208,9 +217,9 @@ namespace sdm
 
     bool HyperplanValueFunction::exist(const std::shared_ptr<BeliefInterface> &new_vector, number t, double)
     {
-// #ifdef LOGTIME
+#ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-// #endif
+#endif
 
         // Go over all element in the Support
         for (const auto &element : this->representation[t])
@@ -218,16 +227,16 @@ namespace sdm
             // Test if the new vector is equal to the element
             if (new_vector->operator==(element->toBelief()))
             {
-// #ifdef LOGTIME
+#ifdef LOGTIME
             this->updateTime(time_start,"Exist");
-// #endif
+#endif
                 return true;
             }
         }
 
-// #ifdef LOGTIME
+#ifdef LOGTIME
         this->updateTime(time_start,"Exist");
-// #endif
+#endif
 
         return false;
     }
@@ -236,9 +245,9 @@ namespace sdm
     {
         try
         {
-// #ifdef LOGTIME
+#ifdef LOGTIME
             std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-// #endif
+#endif
 
             double current, max = -std::numeric_limits<double>::max();
             std::shared_ptr<BeliefInterface> alpha_vector;
@@ -261,9 +270,9 @@ namespace sdm
                 }
             }
 
-// #ifdef LOGTIME
+#ifdef LOGTIME
             this->updateTime(time_start,"Evaluate");
-// #endif
+#endif
 
             return {alpha_vector, max};
         }

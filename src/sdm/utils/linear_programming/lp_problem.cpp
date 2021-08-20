@@ -46,13 +46,14 @@ namespace sdm
             IloCplex cplex(model);
             cplex.setOut(env.getNullStream());
             cplex.setWarning(env.getNullStream());
-            cplex.exportModel("lb_bellman_op.lp");
-            // system("cat lb_bellman_op.lp");
 
             // Optimize the problem and obtain solution
             if (!cplex.solve())
             {
                 env.error() << "Failed to optimize MILP" << std::endl;
+                cplex.exportModel("lb_bellman_op.lp");
+                system("cat lb_bellman_op.lp");
+
             }
             else
             {

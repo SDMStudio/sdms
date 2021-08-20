@@ -39,19 +39,20 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ValueFunction::getBestActionAndValue(const std::shared_ptr<State> &state, number t)
     {
-        // #ifdef LOGTIME
+#ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-        // #endif
+#endif
 
         auto pair_action_value = this->action_->selectBestAction(this->getptr(), state, t);
 
-        // #ifdef LOGTIME
+#ifdef LOGTIME
         this->updateTime(time_start, "Best Action");
-        // #endif
+#endif
 
         return pair_action_value;
     }
-
+    
+#ifdef LOGTIME
     void ValueFunction::updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information)
     {
         if(information == "backup")
@@ -115,7 +116,7 @@ namespace sdm
         }
     }
 
-    // #endif
+#endif
 
     size_t ValueFunction::getSize() const
     {
