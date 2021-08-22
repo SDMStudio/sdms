@@ -583,7 +583,7 @@ namespace sdm
 
         auto state_action = std::make_pair(occupancy_state, decision_rule);
         auto successor = this->reward_graph_->getNode(0.0)->getSuccessor(state_action);
-        double reward = 0;
+        double reward = 0.0;
         if (successor != nullptr)
         {
             // Return the successor node

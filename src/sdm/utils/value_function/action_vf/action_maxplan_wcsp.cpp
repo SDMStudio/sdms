@@ -85,7 +85,7 @@ namespace sdm
 
         if (wcsp_solver->solve())
         {
-            value = 0;
+            value = 0.0;
             std::vector<Value> sol;        // show optimal solution
             wcsp_solver->getSolution(sol); // cost optimum
 

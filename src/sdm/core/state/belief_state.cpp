@@ -118,7 +118,7 @@ namespace sdm
 
   double Belief::operator^(const std::shared_ptr<BeliefInterface> &other) const
   {
-    double product = 0;
+    double product = 0.0;
 
     for (const auto &item : *this)
     {

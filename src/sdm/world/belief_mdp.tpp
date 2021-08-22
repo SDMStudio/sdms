@@ -89,24 +89,6 @@ namespace sdm
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
 
-        // for (const auto &next_state : *this->getUnderlyingPOMDP()->getStateSpace(t + 1))
-        // {
-        //     // Set its probability to 0.
-        //     double next_state_probability = 0;
-        //     // For each possible state:
-        //     for (const auto &state : *this->getUnderlyingPOMDP()->getStateSpace(t))
-        //     {
-        //         // Add to the the probability of transition * the probability of being in the state.
-        //         next_state_probability += this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
-        //     }
-        //     // If the next state is possible:
-        //     if (next_state_probability > 0)
-        //     {
-        //         // Set its probability to the value found.
-        //         next_belief->toBelief()->setProbability(next_state->toState(), next_state_probability);
-        //     }
-        // }
-        
         for(const auto&state : belief->toBelief()->getStates())
         {
             for(const auto&next_state : this->getUnderlyingProblem()->getReachableStates(state,action,t))
@@ -272,7 +254,7 @@ namespace sdm
         else
         {
             // Compute reward : \sum_{s} b(s)r(s,a)
-            double reward = 0;
+            double reward = 0.0;
             for (const auto &state : belief->toBelief()->getStates())
             {
                 reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
@@ -293,7 +275,7 @@ namespace sdm
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
     {
-        double exp_next_v = 0;
+        double exp_next_v = 0.0;
         // For all observations from the controller point of view
         auto accessible_observation_space = this->getObservationSpaceAt(belief,action,t);
         for (const auto &observation : *accessible_observation_space)

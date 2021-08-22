@@ -47,7 +47,7 @@ namespace sdm
     template <class TIndex, class T, class Hash, class KeyEqual>
     T MappedVector<TIndex, T, Hash, KeyEqual>::norm_1() const
     {
-        T v = 0;
+        T v = 0.0;
         for (const auto &item : *this)
         {
             v += std::abs(item.second);
@@ -95,7 +95,7 @@ namespace sdm
     template <class TIndex, class T, class Hash, class KeyEqual>
     T MappedVector<TIndex, T, Hash, KeyEqual>::norm_2() const
     {
-        T v = 0;
+        T v = 0.0;
         for (const auto &item : *this)
         {
             v += std::pow(item.second, 2);
@@ -265,7 +265,7 @@ namespace sdm
     template <class TIndex, class T, class Hash, class KeyEqual>
     T MappedVector<TIndex, T, Hash, KeyEqual>::dot(const MappedVector &v2) const
     {
-        T product = 0;
+        T product = 0.0;
         for (const auto &item : *this)
         {
             product += item.second * v2.at(item.first);

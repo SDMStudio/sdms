@@ -1,8 +1,5 @@
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp_serial.hpp>
 
-// #include <sdm/core/state/interface/belief_interface.hpp>
-// #include <sdm/core/state/interface/occupancy_state_interface.hpp>
-
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/world/serialized_mpomdp.hpp>
@@ -61,7 +58,7 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history,agent_id));
 
                 //<! 1.c set coefficient of variable a(u|o) i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \hyperplan_i(x_,o_)  ]
-                obj.setLinearCoef(var[recover], weight);
+                obj.setLinearCoef(var[recover], weight * occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history));
             } // for all u
         }     // for all o
     }

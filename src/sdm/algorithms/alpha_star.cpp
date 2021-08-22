@@ -68,7 +68,7 @@ namespace sdm
         this->openSet.push_back(this->map_element_to_alpha_item.at(0).at(this->start_state));
 
         this->start_time = std::chrono::high_resolution_clock::now();
-        this->duration =0;
+        this->duration =0.0;
 
         while (this->openSet.size() != 0 && !this->do_stop(*this->openSet.begin(),0, this->openSet.begin()->get()->horizon_))
         {

@@ -304,7 +304,7 @@ namespace sdm
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(state);
                     for (const auto &joint_action : *this->getActionSpace())
                     {
-                        double joint_reward = 0;
+                        double joint_reward = 0.0;
                         for (number agent_id1 = 0; agent_id1 < this->getNumAgents(); agent_id1++)
                         {
                             auto action_ag1 = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action->toAction())->get(agent_id1);

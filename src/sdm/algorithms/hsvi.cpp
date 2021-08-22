@@ -103,7 +103,7 @@ namespace sdm
 
         this->trial = 0;
 
-        this->duration = 0;
+        this->duration = 0.0;
         this->start_time = std::chrono::high_resolution_clock::now();
 
         do
@@ -158,7 +158,7 @@ namespace sdm
     {
 #ifdef LOGTIME
         std::chrono::high_resolution_clock::time_point start_time_tmp;
-        double duration_select_action = 0,duration_next_state = 0,duration_update_lower = 0,duration_update_upper = 0;
+        double duration_select_action = 0.0,duration_next_state = 0.0,duration_update_lower = 0.0,duration_update_upper = 0.0;
 #endif
         try
         {
@@ -250,7 +250,7 @@ namespace sdm
                 }
 
                 //Add this information to the logger
-                // this->logger_precise_->log(this->trial,h, this->do_excess(state, cost_so_far, h) + this->error_, this->lower_bound_->getValueAt(state), this->upper_bound_->getValueAt(state), this->lower_bound_->getSize(h), this->upper_bound_->getSize(h), duration_select_action, duration_next_state,duration_update_lower,duration_update_upper,state->toOccupancyState()->getJointHistories().size(),state->toOccupancyState()->getIndividualHistories(std::dynamic_pointer_cast<SerialOccupancyMDP>(this->world_)->getAgentId(h)).size(),size_action_space);
+                this->logger_precise_->log(this->trial,h, this->do_excess(state, cost_so_far, h) + this->error_, this->lower_bound_->getValueAt(state), this->upper_bound_->getValueAt(state), this->lower_bound_->getSize(h), this->upper_bound_->getSize(h), duration_select_action, duration_next_state,duration_update_lower,duration_update_upper,state->toOccupancyState()->getJointHistories().size(),0,size_action_space);
                 this->updateTime(current_time, "Time_to_remove");
             }
 #endif

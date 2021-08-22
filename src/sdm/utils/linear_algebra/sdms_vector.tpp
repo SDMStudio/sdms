@@ -46,7 +46,7 @@ namespace sdm
     template <class I, class T, class TBaseVector>
     T sdmsVector<I, T,TBaseVector>::sum() const
     {
-        T sum = 0;
+        T sum = 0.0;
         for (auto pos = this->tbasevector_.begin(); pos != this->tbasevector_.end(); ++pos)
         {
             sum += this->tbasevector_(pos.index());
@@ -103,7 +103,7 @@ namespace sdm
     std::pair<I, T> sdmsVector<I, T,TBaseVector>::getMin() const
     {
         T min = this->tbasevector_(0);
-        I amin = 0;
+        I amin = 0.0;
         for (auto pos = this->tbasevector_.begin(); pos != this->tbasevector_.end(); ++pos)
         {
             if (min > this->tbasevector_(pos.index()))
@@ -131,7 +131,7 @@ namespace sdm
     std::pair<I, T> sdmsVector<I, T,TBaseVector>::getMax() const
     {
         T max = this->tbasevector_(0);
-        I amax = 0;
+        I amax = 0.0;
         for (auto pos = this->tbasevector_.begin(); pos != this->tbasevector_.end(); ++pos)
         {
             if (max < this->tbasevector_(pos.index()))

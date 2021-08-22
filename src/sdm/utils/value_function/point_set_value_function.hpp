@@ -49,6 +49,9 @@ namespace sdm
         void do_pruning(number t);
         
     protected:
+
+        bool is_sawtooth_lp = false;
+
         /**
          * @brief Frequency before prunning.
          */

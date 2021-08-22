@@ -18,7 +18,7 @@ namespace sdm
         }
         else
         {
-            double tot = 0;
+            double tot = 0.0;
             vf->initialize(tot, vf->getHorizon());
             for (number t = vf->getHorizon(); t > 0; t--)
             {

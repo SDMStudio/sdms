@@ -32,7 +32,7 @@ namespace sdm
     {
     }
 
-    OccupancyState::OccupancyState(number num_agents) : Belief(num_agents), num_agents_(num_agents), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
+    OccupancyState::OccupancyState(number num_agents) : Belief(), num_agents_(num_agents), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
@@ -226,7 +226,7 @@ namespace sdm
 
     double OccupancyState::operator-(const std::shared_ptr<BeliefInterface> &other) const
     {
-        double distance = 0;
+        double distance = 0.0;
         std::set<std::shared_ptr<JointHistoryInterface>> this_jhistories = this->getJointHistories();
         std::set<std::shared_ptr<JointHistoryInterface>> other_jhistories = other->toOccupancyState()->getJointHistories();
         std::set<std::shared_ptr<JointHistoryInterface>> all_jhistories;
@@ -249,7 +249,7 @@ namespace sdm
         // std::cout << "OccupancyState::minus()" << std::endl;
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
 
-        double distance = 0;
+        double distance = 0.0;
         // For all joint histories in this
         for (const auto &jhistory : this->getJointHistories())
         {   
@@ -278,7 +278,7 @@ namespace sdm
     {
         std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
 
-        double product = 0;
+        double product = 0.0;
 
         for (const auto &jhistory : this->getJointHistories())
         {
@@ -668,7 +668,7 @@ namespace sdm
             for (const auto &ihistory : this->getIndividualHistories(ag_id))
             {
                 // Compute the probability of the individual history of agent i
-                double prob = 0;
+                double prob = 0.0;
                 for (const auto &pair_hidden_state_history_proba : *this->getPrivateOccupancyState(ag_id, ihistory))
                 {
                     prob += this->getProbability(pair_hidden_state_history_proba.first);

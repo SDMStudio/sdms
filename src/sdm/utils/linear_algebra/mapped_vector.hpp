@@ -132,7 +132,7 @@ namespace sdm
         void serialize(Archive &archive, const unsigned int);
 
     protected:
-        T default_value_ = 0;
+        T default_value_ = 0.0;
         long size_ = -1;
 
         std::vector<TIndex> v_indexes = {};

@@ -135,13 +135,13 @@ namespace sdm
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
 
-                Qrelaxation = 0;
+                Qrelaxation = 0.0;
                 for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
                 {
                     Qrelaxation += this->getQValueRelaxation(vf, compressed_occupancy_state, joint_history, action->toAction(), t);
                 }
 
-                con[index].setLinearCoef(var[recover], -Qrelaxation);
+                con[index].setLinearCoef(var[recover], -Qrelaxation *compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history));
             }
         }
         index++;
