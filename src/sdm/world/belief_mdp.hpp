@@ -12,71 +12,154 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
-
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/world/discrete_mdp.hpp>
-#include <sdm/world/discrete_mmdp.hpp>
+#include <sdm/core/state/belief_state.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
+#include <sdm/utils/struct/graph.hpp>
+#include <sdm/world/solvable_by_mdp.hpp>
+#include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/world/gym_interface.hpp>
+#include <sdm/world/mdp.hpp>
 
 namespace sdm
 {
     /**
-     * @brief The BeliefMDP class is the interface that enables solving Discret POMDP using HSVI algorithm.
-     * 
-     * @tparam TBelief the belief type
-     * @tparam TAction the action type
+     * @brief The BaseBeliefMDP class is the interface contains the transformation of a the POMDP formalism in BaseBeliefMDP formalism.
      */
-    template <typename TBelief = BeliefState, typename TAction = number, typename TObservation = number>
-    class BeliefMDP : public SolvableByHSVI<TBelief, TAction>,
-                      public GymInterface<TBelief, TAction>
+    template <class TBelief>
+    class BaseBeliefMDP : public SolvableByMDP,
+                          public GymInterface
     {
-    protected:
-        std::shared_ptr<DiscretePOMDP> pomdp_;
-        TBelief istate_;
-        TBelief cstate_;
-
     public:
-        using state_type = TBelief;
-        using action_type = TAction;
-        using observation_type = TBelief;
-
-        BeliefMDP();
-        BeliefMDP(std::shared_ptr<DiscretePOMDP> underlying_pomdp);
-        BeliefMDP(std::string underlying_pomdp);
-
-        TBelief reset();
-        TBelief &getState();
-        std::tuple<TBelief, std::vector<double>, bool> step(TAction action);
-
-        bool isSerialized() const;
-        DiscretePOMDP *getUnderlyingProblem();
-
-        TBelief getInitialState();
-        TBelief nextState(const TBelief &belief, const TAction &action, const TObservation &obs) const;
-        TBelief nextState(const TBelief &belief, const TAction &action, number t, HSVI<TBelief, TAction> *hsvi) const;
-
-        std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TBelief &ostate = TBelief());
-
-        double getReward(const TBelief &belief, const TAction &action) const;
-        double getExpectedNextValue(ValueFunction<TBelief, TAction> *value_function, const TBelief &belief, const TAction &action, number t) const;
+        BaseBeliefMDP();
+        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
 
         /**
-         * @brief Get the Observation Probability p(o | b, a)
-         */
-        double getObservationProbability(const TAction &action, const TObservation &obs, const TBelief &belief) const;
-
-        /**
-         * @brief Get the corresponding Markov Decision Process. It corresponds to the reformulation of the Belief MDP in a MDP where the blief state space is the state space. 
+         * @brief Get the next belief.
+         * This function returns the next belief. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current belief. 
+         * If exists, we return the associated next belief. Otherwise, we compute the next belief using  "computeNextStateAndProba" function and add the edge from the current belief to the next belief in the graph.
          * 
-         * @return a belief MDP
+         * @param belief the belief
+         * @param action the action
+         * @param observation the observation
+         * @param t the timestep
+         * @return the next belief
          */
-        std::shared_ptr<DiscreteMDP> toMDP();
+        virtual Pair<std::shared_ptr<State>, double> nextBeliefAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        
+        virtual std::shared_ptr<State> nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+
+        /** @brief Get the Observation Probability p(o | b', a) */
+        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
+
+        /** @brief Get the address of the underlying POMDP */
+        virtual std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
 
         /**
-         * @brief Get the corresponding Belief Markov Decision Process. In this particular case, it will return the current MDP
+         * @brief Select the next belief.
          * 
-         * @return a belief MDP
+         * @param belief the current belief
+         * @param action the action
+         * @param t the timestep
+         * @param hsvi a pointer on the algorithm that makes the call
+         * @return the next state
          */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
+        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
+
+        /**
+         * @brief Get the action space at a specific belief and timestep.
+         * The time dependency is required in extensive-form games in which some agents have a different action space.   
+         * 
+         * @param belief the belief
+         * @param t the timestep
+         * @return the action space 
+         */
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
+        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
+
+        /**
+         * @brief Get the expected reward of executing a specific action in a specific belief at timestep t. 
+         * The time dependency can be required in non-stationnary problems.   
+         * 
+         * @param belief the belief
+         * @param action the action
+         * @param t the timestep
+         * @return the reward
+         */
+        virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
+
+        /**
+         * @brief Get the expected next value
+         * 
+         * @param value_function a pointer on the value function to use to perform the calculus.
+         * @param state the state on which to evaluate the next expected value *
+         * @param action 
+         * @param t 
+         * @return double 
+         */
+        virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
+        Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+
+        // *****************
+        //    RL methods
+        // *****************
+
+        virtual std::shared_ptr<Observation> reset();
+        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
+        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+
+        /**
+         * @brief Get the graph of 
+         * 
+         * @return std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> 
+         */
+        std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
+        std::vector<std::shared_ptr<State>> getStoredStates() const;
+
+        /** @brief A pointer on the bag containing all states. */
+        RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
+
+    protected:
+        // If 0, it means the exact transitions will be used and not sampled ones.
+        int batch_size_;
+
+        /** @brief The current state (used in RL). */
+        std::shared_ptr<State> current_state_;
+
+        /** @brief The current timestep (used in RL). */
+        int step_;
+
+        /** @brief Hyperparameters. */
+        bool store_states_ = true, store_actions_ = true;
+
+        /** @brief The probability transition. (i.e. p(o | b, a) */
+        RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Observation>, double> transition_probability;
+
+        /** @brief the MDP Graph (graph of state transition) */
+        std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
+
+        std::shared_ptr<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>> reward_graph_;
+
+        /**
+         * @brief Compute the state transition in order to return next state and associated probability.
+         * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
+         * (i.e. OccupancyMDP inherit from BaseBeliefMDP with TBelief = OccupancyState)
+         * 
+         * @param belief the belief
+         * @param action the action
+         * @param observation the observation
+         * @param t the timestep
+         * @return the couple (next state, transition probability in the next state)
+         */
+        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
     };
-} // namespace sdm
+
+    using BeliefMDP = BaseBeliefMDP<Belief>;
+
+}
 #include <sdm/world/belief_mdp.tpp>

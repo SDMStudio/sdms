@@ -6,6 +6,8 @@ namespace sdm
   class Algorithm
   {
   public:
+    virtual ~Algorithm() {}
+
     /**
      * @brief Initialize the algorithm.
      * 
@@ -23,5 +25,15 @@ namespace sdm
      * 
      */
     virtual void do_test() = 0;
+
+    /**
+     * @brief Save the policy in a file.
+     * 
+     */
+    virtual void do_save() = 0;
+
+    virtual int getTrial() = 0;
+
+    virtual double getResult() =0;
   };
 } // namespace sdm

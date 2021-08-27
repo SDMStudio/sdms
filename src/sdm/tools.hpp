@@ -15,6 +15,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <set>
+
+#include <sdm/utils/struct/vector.hpp>
 
 namespace sdm
 {
@@ -36,18 +39,19 @@ namespace sdm
         bool hasExtension(std::string filename, std::string extension);
 
         /**
+         * @brief Add indentation to an output stream
+         */
+        void indentedOutput(std::ostream &outStream, const char *message, int num_indent = 1);
+
+        /**
          * @brief Add indentation to input string
          * 
          * @param s input string
          * @param num_indents the number of indentations
          * @param indent the indentation format used
          */
-        std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
-
-        /**
-         * @brief Add indentation to an output stream
-         */
-        void indentedOutput(std::ostream &outStream, const char *message);
+        // std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
+        std::string addIndent(std::string input_string, int num_indents = 1, std::string indent = "\t");
 
         /**
          * @brief Repeat a string n times.
@@ -57,6 +61,34 @@ namespace sdm
          * @return the built string 
          */
         std::string repeatString(const std::string &str, size_t times);
+
+        template <typename T>
+        std::vector<T> set2vector(const std::set<T> &set)
+        {
+            return std::vector<T>(set.begin(), set.end());
+        }
+
+        template <typename TKey, typename TValue>
+        std::vector<TKey> extractKeys(const std::map<TKey, TValue> &input_map)
+        {
+            std::vector<TKey> retkey;
+            for (auto const &element : input_map)
+            {
+                retkey.push_back(element.first);
+            }
+            return retkey;
+        }
+
+        template <typename TKey, typename TValue>
+        std::vector<TValue> extractValues(const std::map<TKey, TValue> &input_map)
+        {
+            std::vector<TValue> retvalue;
+            for (auto const &element : input_map)
+            {
+                retvalue.push_back(element.second);
+            }
+            return retvalue;
+        }
 
     } // namespace tools
 } // namespace sdm

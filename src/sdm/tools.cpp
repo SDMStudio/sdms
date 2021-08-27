@@ -16,25 +16,17 @@ namespace sdm
             return regex_match(filename, std::regex(".*\\" + extension + "$"));
         }
 
-        std::string addIndent(std::string s, int num_indents, std::string indent)
+        void indentedOutput(std::ostream &outStream, const char *message, int num_indents)
         {
-            std::ostringstream res;
-            for (int i = 0; i < num_indents; i++)
-            {
-                res << indent;
-            }
-            res << s;
-            return res.str();
-        }
-
-        void indentedOutput(std::ostream &outStream, const char *message)
-        {
-            bool newline;
+            bool newline = true;
             while (char cur = *message)
             {
                 if (newline)
                 {
-                    outStream << "\t";
+                    for (int indent = 0; indent < num_indents; ++indent)
+                    {
+                        outStream << "\t";
+                    }
                     newline = false;
                 }
                 outStream << cur;
@@ -46,6 +38,13 @@ namespace sdm
             }
         }
 
+        std::string addIndent(std::string input_string, int num_indents, std::string)
+        {
+            std::ostringstream res;
+            indentedOutput(res, input_string.c_str(), num_indents);
+            return res.str();
+        }
+
         std::string repeatString(const std::string &str, size_t times)
         {
             std::stringstream stream;
@@ -55,5 +54,6 @@ namespace sdm
             }
             return stream.str();
         }
+
     } // namespace tools
 } // namespace sdm

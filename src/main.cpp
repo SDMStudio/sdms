@@ -6,8 +6,8 @@
 #include <sdm/types.hpp>
 #include <sdm/algorithms.hpp>
 #include <sdm/worlds.hpp>
-#include "examples/solve.cpp"
-#include "examples/learn.cpp"
+#include "programs/solve.cpp"
+#include "programs/learn.cpp"
 
 using namespace sdm;
 using namespace std;
@@ -78,7 +78,8 @@ int main_sdms(int argv, char **args)
     // LIST ALGORTIHMS
     else if (func.compare("algorithms") == 0)
     {
-      std::cout << "ALGORITHM\t"<< std::endl;
+      std::cout << "ALGORITHMS\t" << std::endl
+                << "---" << std::endl;
       for (auto algo : sdm::algo::available())
       {
         std::cout << algo << std::endl;
@@ -87,7 +88,8 @@ int main_sdms(int argv, char **args)
     // LIST WORLDS
     else if (func.compare("worlds") == 0)
     {
-      std::cout << "WORLDS\t"<< std::endl;
+      std::cout << "WORLDS\t" << std::endl
+                << "---" << std::endl;
       for (auto world : sdm::world::available())
       {
         std::cout << world << std::endl;

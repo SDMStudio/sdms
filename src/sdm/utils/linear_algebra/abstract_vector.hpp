@@ -1,5 +1,5 @@
 /**
- * @file vector_impl.hpp
+ * @file vector_interface.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
  * @brief File for VectorImpl interface.
  * @version 0.1

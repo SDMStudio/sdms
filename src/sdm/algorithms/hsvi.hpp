@@ -9,15 +9,19 @@
  * 
  */
 #pragma once
+#define LOGTIME
 
+
+#include <chrono>
 #include <string>
 
 #include <sdm/types.hpp>
 #include <sdm/public/algorithm.hpp>
-
 #include <sdm/core/state/state.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/core/action/action.hpp>
 #include <sdm/utils/logging/logger.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
 
 namespace sdm
 {
@@ -25,48 +29,45 @@ namespace sdm
   /**
    * @brief 
    * 
-   * @tparam TState 
-   * @tparam TAction 
+   * @tparam std::shared_ptr<State> 
+   * @tparam std::shared_ptr<Action> 
    */
-  template <typename TState, typename TAction>
-  class HSVI : public Algorithm
+  class HSVI : public Algorithm,
+               public std::enable_shared_from_this<HSVI>
   {
   protected:
     /**
      * @brief The problem to be solved.
      * 
      */
-    std::shared_ptr<SolvableByHSVI<TState, TAction>> world_;
+    std::shared_ptr<SolvableByHSVI> world_;
 
     /**
      * @brief Lower Bound representation. 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> lower_bound_;
+    std::shared_ptr<ValueFunction> lower_bound_;
 
     /**
      * @brief Upper Bound representation. 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> upper_bound_;
-
-    /**
-     * @brief Logger.
-     * 
-     */
-    std::shared_ptr<MultiLogger> logger_;
+    std::shared_ptr<ValueFunction> upper_bound_;
 
     /**
      * @brief Some variables for the algorithm.
      * 
      */
     int trial, MAX_TRIALS;
-    double error_;
-    number planning_horizon_;
+    double error_, time_max_;
+    number planning_horizon_, lb_update_frequency_, ub_update_frequency_;
     std::string name_ = "hsvi";
+    bool keep_same_action_forward_backward_;
 
-    void initLogger();
+    std::shared_ptr<State> start_state;
+
+    std::chrono::high_resolution_clock::time_point start_time, current_time;
+    double duration;
 
   public:
-
     /**
      * @brief Construct the HSVI object.
      * 
@@ -78,16 +79,23 @@ namespace sdm
      * @param num_max_trials the maximum number of trials before stop
      * @param name the name of the algorithm (this name is used to save logs)
      */
-    HSVI(std::shared_ptr<SolvableByHSVI<TState, TAction>> &world,
-         std::shared_ptr<ValueFunction<TState, TAction>> lower_bound,
-         std::shared_ptr<ValueFunction<TState, TAction>> upper_bound,
+    HSVI(std::shared_ptr<SolvableByHSVI> &world,
+         std::shared_ptr<ValueFunction> lower_bound,
+         std::shared_ptr<ValueFunction> upper_bound,
          number planning_horizon,
          double epsilon,
          number num_max_trials = 10000,
-         std::string name = "hsvi");
+         std::string name = "hsvi",
+         number lb_update_frequency = 1,
+         number ub_update_frequency = 1,
+         double time_max = 1000, 
+         bool keep_same_action_forward_backward = false);
+
+    std::shared_ptr<HSVI> getptr();
 
     /**
-     * @brief Initialize the algorithm
+     * @brief 
+     * 
      */
     void do_initialize();
 
@@ -102,13 +110,10 @@ namespace sdm
     void do_test();
 
     /**
-     * @brief Computes the error between bounds (or excess).
+     * @brief Save the lower bound under "name_lb.bin"
      * 
-     * @param s the state
-     * @param t the timestep
-     * @return the error
      */
-    double do_excess(const TState &s, number h);
+    void do_save();
 
     /**
      * @brief Check the end of HSVI algo
@@ -118,7 +123,7 @@ namespace sdm
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
      * @return false elsewhere
      */
-    bool do_stop(const TState &s, number h);
+    bool do_stop(const std::shared_ptr<State> &, double /*cost_so_far*/, number);
 
     /**
      * @brief Explore a state.
@@ -126,42 +131,67 @@ namespace sdm
      * @param s the state to explore
      * @param h the timestep of the exploration
      */
-    void do_explore(const TState &s, number h);
-
-    //Pour le moment, je supprime pas les autres pour tester avec le gt 
-    void do_explore(const TState &s, number h, double gt);
-    bool do_stop(const TState &s, number h,double gt);
-    double do_excess_2(const TState &s, number h,double gt);
-    /**
-     * @brief Select the next action
-     * 
-     * @param s the current state
-     * @param h the current timestep
-     * @return TAction 
-     */
-    TAction selectNextAction(const TState &s, number h);
+    void do_explore(const std::shared_ptr<State> &s, double /*cost_so_far*/, number h);
 
     /**
-     * @brief Select the next state to explore 
+     * @brief Computes the error between bounds (or excess).
      * 
-     * @param s the current state
-     * @param a the current action
-     * @param h the current timestep
-     * @return the next state
+     * @param const std::shared_ptr<State> & : the state
+     * @param double : cost so far
+     * @param number : the timestep
+     * @return the error
      */
-    TState selectNextState(const TState &s, const TAction &a, number h);
+    double do_excess(const std::shared_ptr<State> &, double /*cost_so_far*/, number);
 
     /**
      * @brief Get the lower bound value function 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> getLowerBound() const;
+    std::shared_ptr<ValueFunction> getLowerBound() const;
 
     /**
      * @brief Get the upper bound value function 
      */
-    std::shared_ptr<ValueFunction<TState, TAction>> getUpperBound() const;
+    std::shared_ptr<ValueFunction> getUpperBound() const;
 
-    int getTrial() const;
+    int getTrial();
+
+    double getResult();
+
+    void saveResults(std::string filename, double other);
+
+    static double TIME_TO_REMOVE;
+#ifdef LOGTIME
+
+    static double TIME_IN_SELECT_STATE, TIME_IN_SELECT_ACTION, TIME_INITIALIZATION, TIME_IN_UPDATE_LB, TIME_IN_UPDATE_UB, TIME_IN_PRUNING_LB, TIME_IN_PRUNING_UB, TIME_IN_DO_EXCESS;
+    static double TIME_UPDATE_BACKUP_LB, TIME_BEST_ACTION_LB, TIME_EVALUATE_LB, TIME_GET_VALUE_AT_LB, TOTAL_TIME_LB;
+    static double TIME_UPDATE_BACKUP_UB, TIME_BEST_ACTION_UB, TIME_EVALUATE_UB, TIME_GET_VALUE_AT_UB, TOTAL_TIME_UB;
+
+    /**
+     * @brief Logger.
+     * 
+     */
+    std::shared_ptr<MultiLogger> logger_, logger_precise_;
+
+    /**
+     * @brief Initialize the logger
+     * 
+     */
+    void initLogger();
+
+    /**
+     * @brief Clean all the data Time
+     * 
+     */
+    static void cleanTIME();
+
+    /**
+     * @brief Update the function associate with the time
+     * 
+     * @param start_time 
+     * @param information 
+     */
+    void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
+#endif
+
   };
 } // namespace sdm
-#include <sdm/algorithms/hsvi.tpp>

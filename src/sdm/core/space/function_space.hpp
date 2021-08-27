@@ -12,9 +12,9 @@
 
 #include <vector>
 
-#include <sdm/core/space/discrete_space.hpp>
-#include <sdm/utils/decision_rules/variations.hpp>
 #include <sdm/types.hpp>
+#include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/variations.hpp>
 
 namespace sdm
 {
@@ -24,87 +24,52 @@ namespace sdm
      * @tparam TFunction The type of function to generate.
      */
     template <typename TFunction>
-    class FunctionSpace : public DiscreteSpace<TFunction>
+    class FunctionSpace : public DiscreteSpace
     {
     protected:
-
-        typedef boost::bimaps::bimap<number, TFunction> funct_bimap;
-        typedef typename funct_bimap::value_type funct_bimap_value;
+        // typedef boost::bimaps::bimap<number, TFunction> funct_bimap;
+        // typedef typename funct_bimap::value_type funct_bimap_value;
 
         using value_type = TFunction;
         using input_type = typename TFunction::input_type;
         using output_type = typename TFunction::output_type;
 
-        using input_space = DiscreteSpace<input_type>;
-        using output_space = DiscreteSpace<output_type>;
-
         /**
          * @brief The input space 
          */
-        input_space input_space_;
+        std::shared_ptr<Space> input_space_;
 
         /**
          * @brief The vector of output spaces (possibly one output space for each input space). In case output space are similar for all input, use the adequate constructor.
          */
-        std::vector<output_space> output_space_;
+        std::vector<std::shared_ptr<Space>> output_space_;
 
     public:
-        FunctionSpace(input_space input_sp, output_space output_sp) : input_space_(input_sp), output_space_({output_sp})
-        {
-        }
+        using iterator_type = DiscreteSpace::iterator_type;
 
-        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs) : input_space_(possible_inputs)
-        {
-            this->output_space_.push_back(output_space(possible_outputs));
-        }
-
-        FunctionSpace(input_space input_sp, std::vector<output_space> output_sps) : input_space_(input_sp), output_space_(output_sps)
-        {
-            assert(input_sp.getNumElements() == output_sps.size());
-        }
-
-        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs) : input_space_(possible_inputs)
-        {
-            assert(possible_inputs.size() == possible_outputs.size());
-            for (const auto &v : possible_outputs)
-            {
-                this->output_space_.push_back(output_space(v));
-            }
-        }
+        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::shared_ptr<Space> &output_space, bool store_functions = false);
 
         /**
-         * @brief Get all the possible function in this space.
+         * @brief Construct a new Function Space object
          * 
-         * @return the list of all possible functions
+         * @param possible_inputs possible inputs
+         * @param possible_outputs possible ouputs 
          */
-        std::vector<TFunction> getAll()
-        {
-            assert(this->output_space_.size() > 0);
-            if (this->all_items_.empty())
-            {
-                std::vector<std::vector<output_type>> tmp;
-                for (std::size_t i = 0; i < input_space_.getAll().size(); i++)
-                {
-                    if (this->output_space_.size() == 1)
-                    {
-                        tmp.push_back(this->output_space_[0].getAll());
-                    }
-                    else
-                    {
-                        tmp.push_back(this->output_space_[i].getAll());
-                    }
-                }
-                Variations<TFunction> funct_generator(input_space_.getAll(), tmp);
-                number idx = 0;
-                for (auto it = funct_generator.begin(); it != funct_generator.end(); it = funct_generator.next())
-                {
-                    this->all_items_.insert(funct_bimap_value(idx, *it));
-                    idx++;
-                    // this->all_items_.push_back(*it);
-                }
-                this->num_items_ = this->all_items_.size();
-            }
-            return DiscreteSpace<TFunction>::getAll();
-        }
+        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs, bool store_functions = false);
+
+        /**
+         * @brief Construct a new Function Space object
+         * 
+         * @param input_space
+         * @param output_sps output spaces, one for each input value (requirements : input_space->size() == output_spaces.size() or output_spaces.size()==1). 
+         */
+        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::vector<std::shared_ptr<Space>> &output_spaces, bool store_functions = false);
+
+        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs, bool store_functions = false);
+
+        iterator_type begin();
+        iterator_type end();
+
     };
 } // namespace sdm
+#include <sdm/core/space/function_space.tpp>

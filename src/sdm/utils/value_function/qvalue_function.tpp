@@ -1,29 +1,40 @@
-#include <sdm/utils/value_function/qvalue_function.hpp>
-
 namespace sdm
 {
 
-    template <typename TState, typename TAction, typename TValue>
-    QValueFunction<TState, TAction, TValue>::QValueFunction()
+    template <class TInput>
+    QValueFunction<TInput>::QValueFunction()
     {
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    QValueFunction<TState, TAction, TValue>::QValueFunction(number horizon) : BaseValueFunction<TState, TAction, TValue>(horizon)
+    template <class TInput>
+    QValueFunction<TInput>::QValueFunction(number horizon) : BaseValueFunction<Pair<TInput,std::shared_ptr<Action>>>(horizon)
     {
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    TValue QValueFunction<TState, TAction, TValue>::getValueAt(const TState &, number)
+    template <class TInput>
+    std::shared_ptr<QValueFunction<TInput>> QValueFunction<TInput>::getptr()
     {
+        return std::static_pointer_cast<QValueFunction<TInput>>(this->shared_from_this());
+    }
+
+    template <class TInput>
+    double QValueFunction<TInput>::getValueAt(const Pair<TInput,std::shared_ptr<Action>> &input, number t)
+    {
+        return this->getQValueAt(input.first,input.second,t);
+    }
+
+    template <class TInput>
+    void QValueFunction<TInput>::updateValueAt(const Pair<TInput,std::shared_ptr<Action>> &input, number t)
+    {
+        this->updateQValueAt(input.first,input.second,t);
+    }
+
+    template <class TInput>
+    std::shared_ptr<Action> QValueFunction<TInput>::getBestAction(const Pair<TInput,std::shared_ptr<Action>> &, number )
+    {
+        //Pas de BestAction dans ton code Baris ? 
         throw sdm::exception::NotImplementedException();
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    TAction QValueFunction<TState, TAction, TValue>::getBestAction(const TState &state, number t)
-    {
-        auto qvalues = this->getQValueAt(state, t);
-        return qvalues->argmax();
-    }
 
 } // namespace sdm

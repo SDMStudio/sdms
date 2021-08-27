@@ -107,7 +107,7 @@ namespace sdm{
 
   template<typename type, typename value>
   value vector<type, value>::norm_2() const{
-    value v = 0;
+    value v = 0.0;
     for(size_t i=0; i<_size_; ++i){
       v += std::pow((*this)[i], 2);   //<! TODO should avoid explicit enumeration of all states.
     }
@@ -117,7 +117,7 @@ namespace sdm{
 
   template<typename type, typename value>
   value vector<type, value>::norm_1() const{
-    value v = 0;
+    value v = 0.0;
     for(size_t i=0; i<_size_; ++i){
       v += std::abs((*this)[i]);   //<! TODO should avoid explicit enumeration of all states.
     }

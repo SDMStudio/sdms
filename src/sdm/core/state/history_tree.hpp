@@ -11,7 +11,9 @@
  */
 #pragma once
 
+#include <sdm/core/state/state.hpp>
 #include <sdm/utils/struct/tree.hpp>
+#include <sdm/core/state/interface/history_interface.hpp>
 
 namespace sdm
 {
@@ -21,49 +23,72 @@ namespace sdm
      * 
      * @brief 
      * 
-     * @tparam T 
      */
-    template <typename T>
-    class HistoryTree : public Tree<T>
+    class HistoryTree : virtual public HistoryInterface, public Tree<std::shared_ptr<Observation>>
     {
     protected:
         /*!
-         *  @fn     HistoryTree<T> *truncatedExpand(const T &data, bool backup);
          *  @brief  Expands the tree using truncated expand method
          *  @param  data the data of the expanded node
          *  @param  backup wheter the node is marked or not
          *  @return the truncated expanded tree
          */
-        template <typename output = HistoryTree<T>>
-        std::shared_ptr<output> truncatedExpand(const T &data, bool backup);
+        template <typename output>
+        std::shared_ptr<output> truncatedExpand(const std::shared_ptr<Observation> &observation, bool backup)
+        {
+            std::list<std::shared_ptr<Observation>> items;
+
+            //<! fill in the vector of observation to simulate
+            items.push_front(observation);
+            auto parent = this->getptr();
+            while (items.size() < this->getMaxDepth())
+            {
+                items.push_front(parent->getData());
+                parent = parent->getParent();
+            }
+
+            //<! iteratively expands the base_graph
+            auto trace = parent->getOrigin();
+
+            for (auto it = items.begin(); it != items.end(); ++it)
+            {
+                trace = std::dynamic_pointer_cast<output>(trace->expand(*it, backup));
+            }
+
+            return std::dynamic_pointer_cast<output>(trace);
+        }
 
     public:
+        using value_type = typename Tree<std::shared_ptr<Observation>>::value_type;
         /*!
-         *  @fn     HistoryTree()
          *  @brief  Default constructor.
          *  This constructor builds a default and empty tree.
          */
         HistoryTree();
 
         /**
-         * @brief Construct a new Tree object (the origin)
+         * @brief Construct a new truncated tree object
          * 
          * @param data the value of the origin 
          */
         HistoryTree(number max_depth);
 
         /*!
-         *  @fn     HistoryTree(std::shared_ptr<HistoryTree>, const T&, bool = true)
          *  @brief  constructor
          *  @param  parent   the parent tree
          *  @param  item     the item
          *  @param  backup wheter the node is marked or not
          *  This constructor builds a tree with a given parent and item.
          */
-        HistoryTree(std::shared_ptr<HistoryTree<T>> parent, const T &item);
+        HistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item);
+
+        std::shared_ptr<HistoryInterface> getPreviousHistory();
+
+        std::shared_ptr<Observation> getLastObservation();
+
+        number getHorizon() const;
 
         /*!
-         *  @fn     HistoryTree<T> *expand(const T &data);
          *  @brief  Expands the tree
          *  @param  data the data of the expanded node
          *  @return the expanded tree
@@ -73,11 +98,56 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        template <typename output = HistoryTree<T>>
-        std::shared_ptr<output> expand(const T &data, bool backup = true);
+        template <typename output = HistoryTree>
+        std::shared_ptr<output> expand(const std::shared_ptr<Observation> &observation, bool backup = true)
+        {
+            if (backup && (this->children_.find(observation) != this->children_.end()))
+            {
+                return std::dynamic_pointer_cast<output>(this->getChild(observation));
+            }
+            if (backup && (this->getDepth() >= this->getMaxDepth()))
+            {
+                return this->truncatedExpand<output>(observation, backup);
+            }
+            if (backup)
+            {
+                this->children_.emplace(observation, std::make_shared<output>(this->getptr(), observation));
 
-        number getHorizon() const;
+                return std::dynamic_pointer_cast<output>(this->getChild(observation));
+            }
+            return std::make_shared<output>(this->getptr(), observation);
+        }
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, bool backup = true);
+
+        /**
+         * @brief Get the horizon
+         * 
+         * @return number 
+         */
+
+        std::string str() const;
+        std::string short_str() const;
+
+        std::shared_ptr<Item> getPointer();
+        std::shared_ptr<HistoryTree> getptr();
+
+        std::shared_ptr<HistoryTree> getParent() const;
+        std::shared_ptr<HistoryTree> getOrigin();
+        std::vector<std::shared_ptr<HistoryTree>> getChildren() const;
+        std::shared_ptr<HistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
+
+        const std::shared_ptr<Observation> &getData() const;
+
+
+        friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
+        {
+            os << i_hist.str();
+            return os;
+        }
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
     };
 
 } // namespace sdm
-#include <sdm/core/state/history_tree.tpp>
+// #include <sdm/core/state/history_tree.tpp>

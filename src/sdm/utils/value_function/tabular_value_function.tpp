@@ -1,135 +1,170 @@
+#include <iomanip>
+
+#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/backup/backup_base.hpp>
+
+#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 namespace sdm
 {
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer)
-        : ValueFunction<TState, TAction, TValue>(problem, horizon), initializer_(initializer)
+    template <class Hash, class KeyEqual>
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, bool is_upper_bound)
+        : ValueFunction(horizon, initializer, backup, action_vf), is_upper_bound_(is_upper_bound)
     {
-        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_, Container());
+        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, TValue default_value) : TabularValueFunction(problem, horizon, std::make_shared<ValueInitializer<TState, TAction>>(default_value))
+    template <class Hash, class KeyEqual>
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, bool is_upper_bound)
+        : BaseTabularValueFunction(horizon, std::make_shared<ValueInitializer<>>(default_value), backup, action_vf, is_upper_bound)
     {
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize()
+    template <class Hash, class KeyEqual>
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(const BaseTabularValueFunction& copy) :ValueFunction(copy), representation(copy.representation){}
+
+
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::initialize()
     {
-        this->initializer_->init(this);
+        this->initializer_->init(this->getptr());
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::initialize(TValue default_value, number t)
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::initialize(double default_value, number t)
     {
-        if (this->isInfiniteHorizon())
+        this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
+    }
+
+    template <class Hash, class KeyEqual>
+    double BaseTabularValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
+    {
+#ifdef LOGTIME
+        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
+#endif
+        if (t < this->getHorizon() && this->init_function_ != nullptr)
         {
-            this->representation[0] = Container(default_value);
-        }
-        else
-        {
-            assert(t < this->getHorizon());
-            this->representation[t] = Container(default_value);
-        }
-    }
-
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    TValue TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getValueAt(const TState &state, number t)
-    {
-        if (t < this->getHorizon())
-        {
-            bool found = false;
-            auto first = this->representation[t].begin();
-            auto last = this->representation[t].end();
-
-            while (first != last && !found)
+            if ((this->representation[t].find(state) == this->representation[t].end()))
             {
-                if (first->first == state)
-                {
-                    found = true;
-                }
-                ++first;
-            }
-            if (!found)
-            {
-                if (this->init_function_ != nullptr)
-                {
-                    TValue i_value = this->init_function_->operator()(state, t);
-                    this->updateValueAt(state, t, i_value);
-                    return i_value;
-                }
+                double i_value = this->evaluate(state, t).second;
+                return i_value;
             }
         }
+        double value = this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
 
-        if (this->isInfiniteHorizon())
-        {
-            return this->representation[0].at(state);
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? 0 : this->representation[t].at(state);
-        }
+#ifdef LOGTIME
+        this->updateTime(time_start,"GetValueAt");
+#endif
+        return value;
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t, TValue target)
+    template <class Hash, class KeyEqual>
+    Pair<std::shared_ptr<State>, double> BaseTabularValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state, number t)
     {
-        if (this->isInfiniteHorizon())
-        {
-            this->representation[0][state] = target;
-        }
-        else
-        {
-            assert(t < this->horizon_);
-            // std::cout << " / Found ?  "<< (this->representation[t].find(state) != this->representation[t].end()) << " -- V(" << state << "," << t << ") = " << this->representation[t][state] <<std::endl;
-            this->representation[t][state] = target;
-        }
+        return std::make_pair(state, this->getInitFunction()->operator()(state, t));
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    void TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::updateValueAt(const TState &state, number t)
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
     {
-        this->updateValueAt(state, t, this->getBackupOperator().backup(this, state, t));
+        this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    typename TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::backup_operator_type TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getBackupOperator()
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        return this->backup_op_;
+        auto [best_action, tmp] = this->getBestActionAndValue(state, t);
+        this->updateValueAt(state,best_action, t);
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    std::string TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::str()
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, number t)
+    {
+#ifdef LOGTIME
+        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
+#endif
+        auto value = this->template backup<double>(state, action, t);
+
+        // Because with use some 
+        if(this->is_upper_bound_ && value > this->getValueAt(state,t))
+        {
+            value = this->getValueAt(state,t);
+        }
+
+        this->updateValueAt(state, t, value);
+
+#ifdef LOGTIME
+        this->updateTime(time_start,"UpdateValue");
+#endif
+    }
+
+    template <class Hash, class KeyEqual>
+    size_t BaseTabularValueFunction<Hash, KeyEqual>::getSize(number t) const
+    {
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].size();
+    }
+
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::save(std::string )
+    {
+        // std::ofstream ofs("mabc.txt");
+        // boost::archive::binary_oarchive output_archive(ofs);
+        // // this->serialize(output_archive,0);
+        // this->representation[0].serialize(output_archive,0);
+        // ofs.close();
+    }
+
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::load(std::string )
+    {
+        // BoostSerializable<BaseTabularValueFunction>::load(filename);
+    }
+    
+    template <class Hash, class KeyEqual>
+    std::string BaseTabularValueFunction<Hash, KeyEqual>::str() const
     {
         std::ostringstream res;
+
         res << "<tabular_value_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
         for (std::size_t i = 0; i < this->representation.size(); i++)
         {
-            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
-            for (auto pair_st_val : this->representation[i])
+            res << "\t<value_function t=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
+            for (const auto &pair_state_val : this->representation[i])
             {
-                res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
-                res << "\t\t\t" << pair_st_val.second << std::endl;
-                res << "\t\t</state>" << std::endl;
+                res << "\t\t<value>\n";
+                tools::indentedOutput(res, pair_state_val.first->str().c_str(), 3);
+                res << std::endl
+                    << "\t\t\t" << std::setprecision(config::VALUE_DECIMAL_PRINT) << std::fixed << pair_state_val.second << std::endl;
+                res << "\t\t</value>" << std::endl;
             }
-            res << "\t</value>" << std::endl;
+            res << "\t</value_function>" << std::endl;
         }
 
         res << "</tabular_value_function>" << std::endl;
         return res.str();
     }
 
-    template <typename TState, typename TAction, typename TValue, template <typename TI, typename TV> class TBackupOperator, template <typename TI, typename TV> class TStruct>
-    std::vector<TState> TabularValueFunction<TState, TAction, TValue, TBackupOperator, TStruct>::getSupport(number t)
+    template <class Hash, class KeyEqual>
+    std::vector<std::shared_ptr<State>> BaseTabularValueFunction<Hash, KeyEqual>::getSupport(number t)
     {
-        if (this->isInfiniteHorizon())
-        {
-            return this->representation[0].getIndexes();
-        }
-        else
-        {
-            return (t >= this->getHorizon()) ? std::vector<TState>{} : this->representation[t].getIndexes();
-        }
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
     }
+
+    template <class Hash, class KeyEqual>
+    typename BaseTabularValueFunction<Hash, KeyEqual>::Container BaseTabularValueFunction<Hash, KeyEqual>::getRepresentation(number t)
+    {
+        return this->representation[this->isInfiniteHorizon() ? 0 : t];
+    }
+
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::do_pruning(number ){}
+
+    template <class Hash, class KeyEqual>
+    double BaseTabularValueFunction<Hash, KeyEqual>::getDefaultAt(number t)
+    {
+        return this->representation.at(t).getDefault();
+    }
+
 
 } // namespace sdm

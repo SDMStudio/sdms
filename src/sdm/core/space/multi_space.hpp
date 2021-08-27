@@ -22,24 +22,16 @@
 namespace sdm
 {
     /**
-     * @brief A multi-space is a set a spaces. Each space can be of any derived class of TSpace class. By default TSpace is set to Space, which means that any space can be used (can be composed of both discrete and continuous spaces). MultiSpace herites from Space so you can even build hierarchical spaces like MultiSpace of MultiSpace (MultiSpace<MultiSpace<Space>>>).  
+     * @brief A multi-space is a set a spaces. Each space can be of any derived class of Space class. By default Space is set to Space, which means that any space can be used (can be composed of both discrete and continuous spaces). MultiSpace herites from Space so you can even build hierarchical spaces like MultiSpace of MultiSpace (MultiSpace<MultiSpace<Space>>>).  
      * 
-     * @tparam TSpace 
+     * @tparam Space 
      */
-    template <typename TSpace = Space>
     class MultiSpace : public Space
     {
-    protected:
-        /**
-         * @brief The list of spaces.
-         */
-        std::vector<std::shared_ptr<TSpace>> spaces_;
-
     public:
-        using value_type = void;
-
         MultiSpace();
-        MultiSpace(const std::vector<std::shared_ptr<TSpace>> &);
+        
+        MultiSpace(const std::vector<std::shared_ptr<Space>> &);
 
         bool isDiscrete() const;
 
@@ -55,7 +47,7 @@ namespace sdm
          * 
          * @return the list of space pointers 
          */
-        std::vector<std::shared_ptr<TSpace>> getSpaces() const;
+        std::vector<std::shared_ptr<Space>> getSpaces() const;
 
         /**
          * @brief Get a specific subspace
@@ -63,13 +55,13 @@ namespace sdm
          * @param index the index of the space
          * @return a shared pointer on a specific space 
          */
-        std::shared_ptr<TSpace> getSpace(number index) const;
+        std::shared_ptr<Space> getSpace(number index) const;
 
         /**
          * @brief Change the list of spaces. You may prefer build a new MultiSpace instead of changing values of existing one.
          * 
          */
-        void setSpaces(const std::vector<std::shared_ptr<TSpace>> &);
+        void setSpaces(const std::vector<std::shared_ptr<Space>> &);
 
         std::string str() const;
 
@@ -81,6 +73,11 @@ namespace sdm
             os << sp.str();
             return os;
         }
+
+    protected:
+        /**
+         * @brief The list of spaces.
+         */
+        std::vector<std::shared_ptr<Space>> spaces_;
     };
 } // namespace sdm
-#include <sdm/core/space/multi_space.tpp>

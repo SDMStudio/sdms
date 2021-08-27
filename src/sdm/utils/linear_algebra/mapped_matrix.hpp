@@ -13,7 +13,8 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/utils/linear_algebra/matrix_impl.hpp>
+#include <sdm/utils/linear_algebra/matrix_interface.hpp>
+// #include <tuple>
 
 namespace sdm
 {
@@ -23,59 +24,43 @@ namespace sdm
      * @tparam TIndex the type of indexes 
      */
     template <typename TLig, typename TCol, typename TValue = double>
-    class MappedMatrix : public RecursiveMap<TLig, MappedVector<TCol, TValue>>, public MatrixImpl<TLig, TCol, TValue>
+    class MappedMatrix : public RecursiveMap<TLig, MappedVector<TCol, TValue>>, public MatrixInterface<TLig, TCol, TValue>
     {
     protected:
         std::vector<long> dim_ = {};
-        TValue default_value_;
+        MappedVector<TCol, TValue> default_value_;
 
     public:
         using type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::type;
         using value_type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::value_type;
         using value_list_type = typename RecursiveMap<TLig, MappedVector<TCol, TValue>>::value_list_type;
+        using vector_type = MappedVector<TCol, TValue>;
 
-        MappedMatrix() {}
-        MappedMatrix(TValue default_value) : default_value_(default_value) {}
-        MappedMatrix(std::vector<long> dim, TValue default_value) : dim_(dim), default_value_(default_value) {}
-        MappedMatrix(const MappedMatrix &copy) : RecursiveMap<TLig, MappedVector<TCol, TValue>>(copy), dim_(copy.dim()), default_value_(copy.getDefault()) {}
-        MappedMatrix(std::initializer_list<value_list_type> vals) : RecursiveMap<TLig, MappedVector<TCol, TValue>>(vals) {}
+        MappedMatrix();
+        MappedMatrix(TValue default_value);
+        MappedMatrix(std::vector<long> dim, TValue default_value);
+        MappedMatrix(const MappedMatrix &copy);
+        MappedMatrix(std::initializer_list<value_list_type> vals);
 
-        TValue getDefault() const
-        {
-            return this->default_value_;
-        }
-        std::vector<long> dim() const
-        {
-            return this->dim_;
-        }
+        TValue getDefault() const;
+        TValue getValueAt(const TLig &, const TCol &) const;
+        void setValueAt(const TLig &, const TCol &, const TValue &);
+        void setValuesAt(const TLig &lig, const MappedVector<TCol, TValue> &vector);
 
-        MappedMatrix dot(const MappedMatrix &) const
-        {
-            throw sdm::exception::NotImplementedException();
-        }
+        std::vector<long> dim() const;
+        MappedMatrix dot(const MappedMatrix &) const;
+        const MappedVector<TCol, TValue> &at(const TLig &i) const;
+        TValue at(const TLig &i, const TCol &j) const;
 
-        MappedVector<TCol, TValue> at(const TLig &i) const
-        {
-            if (this->find(i) != this->end())
-            {
-                return RecursiveMap<TLig, MappedVector<TCol, TValue>>::at(i);
-            }
-            else
-            {
-                return this->default_value_;
-            }
-        }
+        std::string str() const;
 
-        std::string str() const
-        {
-            std::ostringstream res;
-            res << "<MappedMatrix>" << std::endl;
+        std::vector<Pair<TLig,TCol>> getIndexes();
+        std::vector<std::tuple<TLig,TCol,TValue>> getAllElement();
 
-            res << "</MappedMatrix>" << std::endl;
-            return res.str();
-        }
+
     };
 } // namespace sdm
+#include <sdm/utils/linear_algebra/mapped_matrix.tpp>
 
 namespace std
 {

@@ -1,5 +1,5 @@
 /**
- * @file history_tree.hpp
+ * @file jhistory_tree.hpp
  * @author Jilles S. Dibangoye
  * @author David Albert
  * @brief History Tree data structure
@@ -13,6 +13,9 @@
 
 #include <sdm/core/state/history_tree.hpp>
 #include <sdm/core/joint.hpp>
+#include <sdm/types.hpp>
+#include <sdm/core/observation/default_observation.hpp>
+#include <sdm/core/state/interface/joint_history_interface.hpp>
 
 namespace sdm
 {
@@ -22,17 +25,17 @@ namespace sdm
      * 
      * @brief 
      * 
-     * @tparam T 
      */
-    template <typename T>
-    class JointHistoryTree : public HistoryTree<Joint<T>>
-    {
-    protected:
+    class JointHistoryTree : public JointHistoryInterface,
+                             public HistoryTree,
+                             public Joint<std::shared_ptr<HistoryInterface>>,
+                             public BoostSerializable<JointHistoryTree>
 
-        void addIndivHist(std::shared_ptr<HistoryTree<T>> ihist);
+    {
+
     public:
-        using ihistory_type = std::shared_ptr<HistoryTree<T>>;
-        Joint<std::shared_ptr<HistoryTree<T>>> indiv_hist;
+        using ihistory_type = std::shared_ptr<HistoryTree>;
+        using value_type = typename HistoryTree::value_type;
 
         /*!
          *  @fn     JointHistoryTree()
@@ -44,24 +47,34 @@ namespace sdm
         /**
          * @brief Construct a new joint history tree object (the origin)
          * 
-         * @param n_agents the number of agent
+         * @param n_agents the number of agents
          */
         JointHistoryTree(number n_agents);
 
+        /**
+         * @brief Construct a new truncated joint history tree object (the origin)
+         * 
+         * @param n_agents the number of agents
+         * @param max_depth the maximal depth of the truncated history  
+         */
         JointHistoryTree(number n_agents, number max_depth);
 
-        /*!
-         *  @fn     JointHistoryTree(std::shared_ptr<JointHistoryTree>, const T&, bool = true)
-         *  @brief  constructor
+        /**
+         *  @brief  This constructor build a child node given its parent's node and a new joint item.
          *  @param  parent   the parent tree
          *  @param  item     the item
-         *  @param  backup wheter the node is marked or not
-         *  This constructor builds a tree with a given parent and item.
          */
-        JointHistoryTree(std::shared_ptr<JointHistoryTree<T>> parent, const Joint<T> &item);
+        JointHistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item);
+
+        /**
+         * @brief Construct a new joint history based on individual histories
+         * @warning This will build a well defined Joint<std::shared_ptr<HistoryTree>> structure but wrong HistoryTree<std::shared_ptr<Joint<T>>> !!
+         * 
+         * @param ihistories the list of individual histories
+         */
+        JointHistoryTree(const Joint<std::shared_ptr<HistoryInterface>> &ihistories);
 
         /*!
-         *  @fn     HistoryTree<T> *expand(const T &data);
          *  @brief  Expands the tree
          *  @param  data the data of the expanded node
          *  @return the expanded tree
@@ -71,17 +84,51 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        std::shared_ptr<JointHistoryTree<T>> expand(const Joint<T> &data, bool backup = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, bool backup = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &joint_observation, bool backup = true);
 
-        std::shared_ptr<HistoryTree<T>> getIndividualHistory(number ag_id) const;
-        std::vector<std::shared_ptr<HistoryTree<T>>> getIndividualHistories() const;
+        /**
+         * @brief Get the address of the individual history of agent 'agent_id' 
+         * 
+         * @param agent_id the agent id  
+         * @return the address of the individual history of agent 'agent_id' 
+         */
+        std::shared_ptr<HistoryInterface> getIndividualHistory(number agent_id) const;
 
-        friend std::ostream &operator<<(std::ostream &os, const JointHistoryTree &j_hist)
+        /**
+         * @brief Get the address of the individual histories of all agents
+         * 
+         * @return a vector that contains all individual histories
+         */
+        Joint<std::shared_ptr<HistoryInterface>> getIndividualHistories() const;
+
+        std::string str() const;
+
+        std::shared_ptr<JointHistoryTree> getptr();
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
+
+        std::shared_ptr<Joint<std::shared_ptr<Observation>>> getDefaultObs();
+        void setDefaultObs(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &default_observation);
+
+        std::shared_ptr<JointHistoryTree> getParent() const;
+        std::shared_ptr<JointHistoryTree> getOrigin();
+        void isNotOrigin();
+        std::vector<std::shared_ptr<JointHistoryTree>> getChildren() const;
+        std::shared_ptr<JointHistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
+
+        friend std::ostream &operator<<(std::ostream &os, JointHistoryTree &j_hist)
         {
-            os << static_cast<HistoryTree<Joint<T>>>(j_hist);
+            os << j_hist.str();
             return os;
         }
+
+    protected:
+        void addIndividualHistory(std::shared_ptr<HistoryInterface> ihist);
+
+        void setupDefaultObs(number num_agents, const std::shared_ptr<Observation> &default_observation = sdm::NO_OBSERVATION);
+        std::shared_ptr<Joint<std::shared_ptr<Observation>>> default_observation_;
     };
 
 } // namespace sdm
-#include <sdm/core/state/jhistory_tree.tpp>

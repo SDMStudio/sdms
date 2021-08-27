@@ -1,145 +1,171 @@
 #include <sdm/algorithms/q_learning.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 namespace sdm
 {
 
-    template <typename TObservation, typename TAction>
-    QLearning<TObservation, TAction>::QLearning(std::shared_ptr<GymInterface<TObservation, TAction>> &env,
-                                                std::shared_ptr<QValueFunction<TObservation, TAction>> q_value,
-                                                std::shared_ptr<QValueFunction<TObservation, TAction>> q_target,
-                                                std::shared_ptr<EpsGreedy<TObservation, TAction>> exploration,
-                                                number planning_horizon,
-                                                double discount,
-                                                double lr,
-                                                double batch_size,
-                                                number num_max_steps,
-                                                std::string name) : env_(env),
-                                                                    q_value_(q_value),
-                                                                    q_target_(q_target),
-                                                                    exploration_process(exploration),
-                                                                    planning_horizon_(planning_horizon),
-                                                                    discount_(discount),
-                                                                    lr_(lr),
-                                                                    batch_size_(batch_size),
-                                                                    max_steps_(num_max_steps),
-                                                                    name_(name)
+    template <class TInput>
+    QLearning<TInput>::QLearning(std::shared_ptr<GymInterface> &env,
+                         std::shared_ptr<ExperienceMemoryInterface> experience_memory,
+                         std::shared_ptr<QValueFunction<TInput>> q_value_table,
+                         std::shared_ptr<QValueFunction<TInput>> q_value_table_target,
+                         std::shared_ptr<QValueBackupInterface> backup,
+                         std::shared_ptr<EpsGreedy> exploration,
+                         number horizon,
+                         double discount,
+                         double lr,
+                         double smooth,
+                         unsigned long num_episodes,
+                         std::string name
+                         ) : target_update_(1),
+                             env_(env),
+                             experience_memory_(experience_memory),
+                             q_value_table_(q_value_table),
+                             q_value_table_target_(q_value_table_target),
+                             backup_(backup),
+                             exploration_process(exploration),
+                             horizon_(horizon),
+                             discount_(discount),
+                             lr_(lr),
+                             smooth_(smooth),
+                             num_episodes_(num_episodes),
+                             name_(name)
     {
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::initLogger()
+    template <class TInput>
+    void QLearning<TInput>::initLogger()
     {
-        std::string format = "#> Episode : {}\tStep : {}/?\tQValue : {}\n";
+        std::string format = "#> Episode : {}\tStep : {}/?\tEpsilon : {}\tValue : {}\tValue_p : {}\tT(s) : {}\tN(S) : {}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(this->name_ + ".txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "QValue", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Episode", "Step", "Epsilon", "Value", "Value_p", "Time", "N(S)"});
 
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_initialize()
+    template <class TInput>
+    void QLearning<TInput>::do_initialize()
     {
         this->initLogger();
 
-        this->q_value_->initialize();
-        this->q_target_->initialize();
+        this->q_value_table_->initialize();
+        this->q_value_table_target_->initialize();
     }
 
-    // std::shared_ptr<GymInterface> env, long nb_timesteps, number planning_horizon, number test_freq, number save_freq, std::string save_folder, number verbose, long timestep_init, std::string log_file
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_solve()
+    template <class TInput>
+    void QLearning<TInput>::do_solve()
     {
         this->global_step = 0;
+        this->episode = 0;
+        this->E_R = 0.0;
+        this->t_begin = clock();
 
-        clock_t t_begin = clock();
+        this->exploration_process->reset(this->num_episodes_);
 
-        this->exploration_process->reset(this->max_steps_);
-
-        while (this->global_step < this->max_steps_)
+        while (this->episode < this->num_episodes_)
         {
             // Update exploration process
-            this->exploration_process->update(this->global_step);
+            this->exploration_process->update(this->episode);
 
             // Do one episode
             this->do_episode();
 
             // Test current policy and write logs
-            if (this->do_log)
+            if (this->do_log_)
             {
-                this->logger_->log(this->episode, this->global_step, this->q_value_->getQValueAt(this->env_->reset(), 0)->max(), (float)(clock() - t_begin) / CLOCKS_PER_SEC);
-                this->do_log = false;
+                this->logger_->log(
+                    this->episode, 
+                    this->global_step, 
+                    this->exploration_process->getEpsilon(),
+                    this->backup_->getValueAt(this->env_->reset()->toState(), 0), 
+                    this->E_R,
+                    (float)(clock() - this->t_begin) / CLOCKS_PER_SEC,
+                    this->q_value_table_->getNumStates()
+                );
+                this->do_log_ = false;
             }
             if (this->do_test_)
             {
-                std::cout << "--------- TESTING ---------" << std::endl;
                 this->do_test();
                 this->do_test_ = false;
             }
         }
-        std::cout << "Final QValue :" << *this->q_value_ << std::endl;
+
+        // std::cout << *this->q_value_table_ << std::endl;
+
+
+        // std::ofstream QValueStream(this->name_ + ".qvalue");
+        // QValueStream << *this->q_value_table_ << std::endl;
+        // QValueStream.close();
+
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_test()
+    template <class TInput>
+    void QLearning<TInput>::do_save()
+    {
+        this->q_value_table_->save(this->name_ + "_qvalue.bin");
+    }
+
+    template <class TInput>
+    void QLearning<TInput>::do_test()
     {
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_episode()
+    template <class TInput>
+    void QLearning<TInput>::do_episode()
     {
         this->step = 0;
-        this->episode += 1;
-        this->current_obs = this->env_->reset();
+        this->R = 0.0;
+        this->episode++;
+        this->observation = this->env_->reset();
+        this->action = this->select_action(this->observation, this->step);
 
-        unsigned long stop_cond = this->global_step + this->planning_horizon_;
+        unsigned long stop_cond = this->global_step + this->horizon_;
         while (this->global_step < stop_cond)
         {
             this->do_step();
 
             //Save the model
-            this->do_save = (this->global_step % this->save_freq == 0);
-            this->do_log = (this->global_step % this->log_freq == 0);
+            this->do_save_ = (this->global_step % this->save_freq == 0);
+            this->do_log_ = (this->global_step % this->log_freq == 0);
             this->do_test_ = (this->global_step % this->test_freq == 0);
-
             if (this->is_done)
             {
                 break;
             }
         }
+        this->E_R = this->smooth_ * this->E_R + (1 - this->smooth_) * this->R;
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::do_step()
-    {
-        // Action selection following policy and exploration process
-        auto current_action = this->select_action(this->current_obs);
-
+    template <class TInput>
+    void QLearning<TInput>::do_step()
+    {   
         // One step in env and get next observation and rewards
-        auto [next_obs, rewards, done] = this->env_->step(current_action);
+        std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
 
-        // Store experience in the associated buffer
-        // this->experience->store_experience(this->current_obs, action, rewards, next_obs, done);
+        // Action selection following policy and exploration process
+        this->next_action = this->select_action(this->next_observation, this->step + 1);
 
-        this->last_obs = this->current_obs;
-        this->current_obs = next_obs;
-        this->is_done = done;
+        auto next_greedy_action = this->select_greedy_action(this->next_observation, this->step + 1);
 
-        // Update the model
-        // this->update_model();
-        double cval = this->q_value_->getQValueAt(this->last_obs, current_action, this->step);
-        double expectval = this->discount_ * this->q_value_->getQValueAt(this->current_obs, this->step + 1)->max();
-        double targetval = rewards[0];
-        double target = targetval + expectval - cval;
-        this->q_value_->updateQValueAt(this->last_obs, current_action, this->step, target);
+        // Push experience to memory
+        // this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, this->next_action, this->step);
+        this->experience_memory_->push(this->observation, this->action, this->rewards_[0], this->next_observation, next_greedy_action, this->step);
 
+        // Backup and get Q Value Error
+        double delta = this->backup_->update(this->step);
+
+        this->observation = this->next_observation;
+        this->action = this->next_action;
+        this->R += this->rewards_[1];
         this->step++;
         this->global_step++;
     }
 
-    template <typename TObservation, typename TAction>
-    void QLearning<TObservation, TAction>::update_model()
+    template <class TInput>
+    void QLearning<TInput>::update_model()
     {
         // auto batch = this->experience_->sample(this->batch_size_);
 
@@ -147,7 +173,7 @@ namespace sdm
         // {
         //     auto [s, a, r, s_] = transition;
         //     target = r + this->discount_ * this->getQValueAt(s_, h + 1)->max() - this->getQValueAt(s, a, h);
-        //     this->q_value_->updateQValueAt(s, a, h, target);
+        //     this->q_value_table_->updateQValueAt(s, a, h, target);
         // }
 
         // if (this->off_policy && t % this->target_update_freq == 0)
@@ -156,19 +182,64 @@ namespace sdm
         // }
     }
 
-    template <typename TObservation, typename TAction>
-    TAction QLearning<TObservation, TAction>::select_action(const TObservation &obs)
+    template <class TInput>
+    void QLearning<TInput>::update_target()
     {
-        // Do epsilon-greedy (si possible générique = EpsGreedy --|> Exploration)
+        *this->q_value_table_target_ = *this->q_value_table_;
+    }
+
+    template <class TInput>
+    std::shared_ptr<Action> QLearning<TInput>::select_action(const std::shared_ptr<Observation> &observation, number t)
+    {
+        // std::cout << "-------- QLearning<TInput>::select_action ---------" << std::endl;
+        
+        // if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), t))
         if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
         {
-            return this->env_->getActionSpaceAt(obs)->sample();
+            // std::cout << "-------- RANDOM ---------" << std::endl;
+            return this->env_->getRandomAction(observation, t);
         }
         else
         {
-            return this->q_value_->getBestAction(obs, this->step);
+            // std::cout << "-------- GREEDY ---------" << std::endl;
+            auto a = this->backup_->getGreedyAction(observation->toState(), t);
+            if (a == nullptr)
+            {
+                return this->env_->getRandomAction(observation, t);
+            }
+            return a;
+            // return this->env_->getRandomAction(observation, t);
         }
-        // return this->exploration_->getAction(this->qvalue_, obs, this->step); // random is (tmp < epsilon) else qvalue(current_obs)
+
     }
+
+    template <class TInput>
+    std::shared_ptr<Action> QLearning<TInput>::select_greedy_action(const std::shared_ptr<Observation> &observation, number t)
+    {
+        return this->backup_->getGreedyAction(observation->toState(), t);
+    }
+
+    // template <class TInput>
+    // void QLearning<TInput>::saveResults(std::string filename, double other)
+    // {
+    //     std::ofstream ofs;
+    //     ofs.open(filename, std::ios::out | std::ios::app);
+    //     ofs << other << ",";
+    //     ofs << this->backup_->getValueAt(this->env_->reset()->toState(), 0) << ",";
+    //     ofs << std::static_pointer_cast<OccupancyMDP>(this->env_)->getMDPGraph()->getNumNodes() << ",";
+    //     // number num_max_jhist = 0, tmp;
+    //     // for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->env_)->getStoredStates())
+    //     // {
+    //     //     if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
+    //     //     {
+    //     //         num_max_jhist = tmp;
+    //     //     }
+    //     // }
+    //     // ofs << num_max_jhist << ",";
+    //     ofs << ((float)(clock() - this->t_begin) / CLOCKS_PER_SEC);
+
+    //     ofs << "\n";
+    //     ofs.close();
+    // }
 
 } // namespace sdm

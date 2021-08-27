@@ -1,29 +1,35 @@
-#include <sdm/utils/value_function/base_value_function.hpp>
-
 namespace sdm
 {
+    template <class TInput>
+    BaseValueFunction<TInput>::BaseValueFunction() {}
 
-    template <typename TState, typename TAction, typename TValue>
-    BaseValueFunction<TState, TAction, TValue>::BaseValueFunction() {}
+    template <class TInput>
+    BaseValueFunction<TInput>::BaseValueFunction(number horizon) : horizon_(horizon) {}
+    
+    template <class TInput>
+    BaseValueFunction<TInput>::BaseValueFunction(const BaseValueFunction& copy) : horizon_(copy.horizon_) {}
 
-    template <typename TState, typename TAction, typename TValue>
-    BaseValueFunction<TState, TAction, TValue>::BaseValueFunction(number horizon) : horizon_(horizon) {}
-
-    template <typename TState, typename TAction, typename TValue>
-    number BaseValueFunction<TState, TAction, TValue>::getHorizon() const
+    template <class TInput>
+    number BaseValueFunction<TInput>::getHorizon() const
     {
         return this->horizon_;
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    bool BaseValueFunction<TState, TAction, TValue>::isFiniteHorizon() const
+    template <class TInput>
+    bool BaseValueFunction<TInput>::isFiniteHorizon() const
     {
         return (this->horizon_ > 0);
     }
 
-    template <typename TState, typename TAction, typename TValue>
-    bool BaseValueFunction<TState, TAction, TValue>::isInfiniteHorizon() const
+    template <class TInput>
+    bool BaseValueFunction<TInput>::isInfiniteHorizon() const
     {
         return !(this->isFiniteHorizon());
+    }
+
+    template <class TInput>
+    std::shared_ptr<BaseValueFunction<TInput>> BaseValueFunction<TInput>::getptr()
+    {
+        return this->shared_from_this();
     }
 }

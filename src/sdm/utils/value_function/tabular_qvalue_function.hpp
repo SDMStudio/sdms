@@ -1,25 +1,9 @@
-/**
- * @file tabular_value_function.hpp
- * @author David Albert (david.albert@insa-lyon.fr)
- * @brief Tabular value function are functions of state and action that use a vector representation. 
- * @version 0.1
- * @date 16/12/2020
- * 
- * @copyright Copyright (c) 2020
- * 
- */
 #pragma once
 
-#include <iostream>
-#include <type_traits>
-
-#include <sdm/types.hpp>
-#include <sdm/core/function.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 
-#include <sdm/utils/value_function/initializer.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
-#include <sdm/utils/backup_operator/backup_operator.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -27,41 +11,16 @@
  */
 namespace sdm
 {
-    /**
-     * @brief Tabular value function are functions of state and action that use a vector representation to store the values. 
-     * 
-     * @tparam TState Type of the states 
-     * @tparam TAction Type of the states
-     * @tparam TValue Type of the values (must be primitive type)
-     * @tparam TStruct Type of vector container (MappedVector, DenseVector and SparseVector are common type) 
-     */
-    template <typename TState,
-              typename TAction,
-              typename TValue = double,
-              template <typename TS, typename TA, typename TV> class TMatrix = MappedMatrix>
-    class TabularQValueFunction : public QValueFunction<TState, TAction, TValue>
+    template <class TInput = std::shared_ptr<State>>
+    class TabularQValueFunction : public QValueFunction<TInput>
     {
-    protected:
-        using Container = TMatrix<TState, TAction, TValue>;
-
-        /**
-         * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
-         */
-        std::vector<Container> representation;
-
-        double learning_rate_;
-
-        /**
-         * @brief The initializer to use for this value function. 
-         * 
-         */
-        std::shared_ptr<QInitializer<TState, TAction>> initializer_;
 
     public:
-        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TState, TAction>> initializer);
+        using Container = MappedMatrix<TInput, std::shared_ptr<Action>, double>;
 
-        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, TValue default_value = 0.);
+        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TInput>> initializer, bool active_learning = true);
+
+        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0., bool active_learning = true);
 
         /**
          * @brief Initialize the value function 
@@ -71,7 +30,7 @@ namespace sdm
         /**
          * @brief Initialize the value function with a default value
          */
-        void initialize(TValue v, number t = 0);
+        void initialize(double v, number t = 0);
 
         /**
          * @brief Get the q-value at a state
@@ -79,7 +38,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorImpl<TAction, TValue>> getQValueAt(const TState &state, number t);
+        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const TInput &state, number t);
 
         /**
          * @brief Get the q-value given state and action
@@ -88,38 +47,66 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        TValue getQValueAt(const TState &state, const TAction &action, number t);
+        double getQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t);
+
+        // double getValueAt(const TInput &state, number t);
+
+        // std::shared_ptr<Action> getBestAction(const TInput &state, number t = 0);
 
         /**
          * @brief Update the value at a given state
          */
-        void updateQValueAt(const TState &state, const TAction &action, number t = 0);
+        void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
-         * @brief Update the value at a given state (given a target)
+         * @brief Update the value at a given state (given a delta)
          */
-        void updateQValueAt(const TState &state, const TAction &action, number t, TValue target);
+        void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t, double delta);
+
+        bool isNotSeen(const TInput &state, number t);
+
+        int getNumStates() const;
+
+        // void printNumberOfActions();
+        // size_t getSize() const
+        // {
+        //     size_t size_tot = 0;
+        //     for (const auto &repr : this->representation)
+        //     {
+        //         for (const auto &pair_action_value_funct : repr)
+        //         {
+        //             size_tot += pair_action_value_funct.second.size();
+        //         }
+        //     }
+        //     return size_tot;
+        // }
 
         /**
          * @brief Define this function in order to be able to display the value function
          */
-        std::string str();
+        virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction<TState, TAction> &vf)
+        friend std::ostream &operator<<(std::ostream &os, TabularQValueFunction &vf)
         {
             os << vf.str();
             return os;
         }
+
+    protected:
+        /**
+         * @brief The Q value function represention.
+         * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
+         */
+        std::vector<Container> representation;
+
+        double learning_rate_;
+        bool active_learning_;
+
+        /**
+         * @brief The initializer to use for this value function. 
+         * 
+         */
+        std::shared_ptr<QInitializer<TInput>> initializer_;
     };
-
-    template <typename TState, typename TAction, typename TValue = double>
-    using MappedQValueFunction = TabularQValueFunction<TState, TAction, TValue, MappedMatrix>;
-
-    // template <typename TState, typename TAction, typename TValue = double>
-    // using SparseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, SparseVector>;
-
-    // template <typename TState, typename TAction, typename TValue = double>
-    // using DenseValueFunction = TabularQValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, DenseVector>;
-
 } // namespace sdm
 #include <sdm/utils/value_function/tabular_qvalue_function.tpp>

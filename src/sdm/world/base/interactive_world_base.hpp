@@ -13,17 +13,12 @@
  */
 namespace sdm
 {
-    template <typename TState, typename TAction>
-    class InteractiveWorldBase
+    class InteractiveWorld : public GymInterface
     {
     protected:
-        std::unordered_map<TState, std::unordered_map<TAction, std::discrete_distribution<std::size_t>>> dynamics_generator;
-        std::unordered_map<number, std::pair<TState, TObservation>> encoding;
+        std::shared_ptr<MDPInterface> world;
 
     public:
-        void setupDynamicsGenerator();
-
-        TObservation getInitialObservation();
-        TObservation nextObservation();
+        InteractiveWorld(const std::shared_ptr<MDPInterface> &world);
     };
 } // namespace sdm
