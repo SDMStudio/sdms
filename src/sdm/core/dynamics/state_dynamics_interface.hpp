@@ -7,6 +7,11 @@
 
 namespace sdm
 {
+    /**
+     * @brief This class provides a common interface for every models of state dynamics.
+     * A model of state transition is well defined if it implements this interface. The state dynamics is required to define a MDP (see file MDP.hpp) and related problems.
+     * Usually state transitions depend on the time, the previous state and the action. However, in few situations the transition can only depend on one or two of these parameters.
+     */
     class StateDynamicsInterface
     {
     public:
@@ -32,7 +37,7 @@ namespace sdm
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const = 0;
 
         /**
-         * @brief Get the distribution over next states
+         * @brief Get the distribution over next states.
          * 
          * @param state the current state
          * @param action the current action

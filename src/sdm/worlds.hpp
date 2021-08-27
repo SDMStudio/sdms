@@ -19,28 +19,23 @@
 
 namespace sdm
 {
+    
+    /**
+     * @brief Namespace grouping functions to manipulate problems.
+     */
     namespace world
     {
-        
-        // template <typename TState, typename TAction>
-        // std::shared_ptr<SolvableByHSVI<TState, TAction>> makeSolvableByHSVI(std::string name, )
-
-
-        // template <typename TDecisionProcess>
-        // std::shared_ptr<TDecisionProcess> makeDecisionProcess(std::string name, ) {
-        //     auto process = std::make_shared<TDecisionProcess>(filename);
-
-        //     return process;
-        // }
-
         /**
-         * @brief Get all available algorithms.
+         * @brief Get the list of available worlds. 
+         * Usage:
          * 
-         * @return the list of available algorithms.
+         *          std::cout << sdm::world::available() << std::endl;
+         * 
+         * @return the list of available worlds.
          */
         std::vector<std::string> available()
         {
-            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-MDP","Extensive-POMDP", "Extensive-DecPOMDP"};
+            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-MDP", "Extensive-POMDP", "Extensive-DecPOMDP"};
         }
     } // namespace world
     

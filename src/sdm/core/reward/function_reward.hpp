@@ -1,6 +1,6 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/core/reward.hpp>
+#include <sdm/core/reward/reward_interface.hpp>
 
 namespace sdm
 {

@@ -25,7 +25,8 @@
 namespace sdm
 {
     /**
-     * @brief The discrete space class give a way to keep all possible values of a finite space. In order to instantiate an object of this class, you must provide the constructor method, a the list of all available values.
+     * @brief The discrete space class give a way to keep all possible values of a finite space. 
+     * In order to instantiate an object of this class, you must provide the constructor method a the list of all available values.
      * 
      * @tparam std::shared_ptr<Item> The type of each element in the space. 
      *  

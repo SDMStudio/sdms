@@ -12,9 +12,11 @@
 
 namespace sdm
 {
-    //!
-    //! \class  dynamics  dynamics.hpp
-    //!
+    /**
+     * @brief Tabular representation for the observation dynamics p(o' | s, a, s').
+     * The class is optimized to provide a constant time access to all transition probabilities and reachable observations.
+     * The representation used is an array containing probabilities p(o' | s, a, s').
+     */
     class TabularObservationDynamicsSAS : public TabularObservationDynamics
     {
     public:

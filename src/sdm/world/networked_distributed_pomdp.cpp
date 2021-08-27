@@ -4,7 +4,7 @@
 #include <sdm/core/dynamics/tabular_observation_dynamics_AS.hpp>
 #include <sdm/core/action/base_action.hpp>
 #include <sdm/core/state/base_state.hpp>
-#include <sdm/core/base_observation.hpp>
+#include <sdm/core/observation/base_observation.hpp>
 
 namespace sdm
 {

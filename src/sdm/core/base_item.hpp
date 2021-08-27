@@ -5,9 +5,20 @@
 
 namespace sdm
 {
-
-    template <class item_t>
-    struct BaseItem : public item_t, public Item
+   
+    /**
+     * @brief A base class inheriting from the Item interface.
+     * @tparam TItem the type of data used for the item.
+     * 
+     * This class can be used to instantiate an item represented by any type.
+     * Example:
+     * 
+     *      BaseItem<char> item('a'), item2('b'); // Instanciate an item stored as a character.   
+     *      BaseItem<float> float_item(0.0), float_item2(0.1); // Instanciate an item stored as a float.   
+     * 
+     */
+    template <class TItem>
+    struct BaseItem : public TItem, public Item
     {
     public:
         BaseItem()
@@ -18,14 +29,14 @@ namespace sdm
         {
         }
 
-        BaseItem(item_t item) : item_t(item)
+        BaseItem(TItem item) : TItem(item)
         {
         }
 
         std::string str() const
         {
             std::ostringstream res;
-            res << static_cast<item_t>(*this);
+            res << static_cast<TItem>(*this);
             return res.str();
         }
         friend class boost::serialization::access;
@@ -35,7 +46,7 @@ namespace sdm
         {
             using boost::serialization::make_nvp;
 
-            archive &boost::serialization::base_object<item_t>(*this);
+            archive &boost::serialization::base_object<TItem>(*this);
         }
 
         bool isBaseItem(){

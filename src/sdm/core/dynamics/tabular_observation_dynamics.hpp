@@ -11,9 +11,10 @@
 
 namespace sdm
 {
-  //!
-  //! \class  dynamics  dynamics.hpp
-  //!
+  /**
+   * @brief Tabular  observation dynamics. 
+   * The class is optimized to provide a constant time access to all transition probabilities and reachable observations.
+   */
   class TabularObservationDynamics : public ObservationDynamicsInterface
   {
   public:

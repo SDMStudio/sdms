@@ -8,7 +8,7 @@
 namespace sdm
 {
     /**
-     * @brief The joint deterministic decision rule class. This class is a function that maps joint generic states to joint generic actions. 
+     * @brief This class provide a way to manipulate a function that maps joint histories to joint actions. 
      */
     class JointDeterministicDecisionRule
         : public Joint<std::shared_ptr<DeterministicDecisionRule>>,

@@ -14,6 +14,9 @@
  */
 namespace sdm
 {
+    /**
+     * @brief A public interface for decision rules. Contains all the methods that must be implemented to well define a decision rule in SDMS.
+     */
     class DecisionRule : public Action, public Function<std::shared_ptr<State>, std::shared_ptr<Action>>
     {
     public:

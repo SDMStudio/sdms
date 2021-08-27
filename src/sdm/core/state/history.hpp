@@ -12,10 +12,6 @@
 
 #include <sdm/core/state/interface/history_interface.hpp>
 
-/**
- * @namespace sdms
- * @brief Namespace grouping all tools required for sequential decision making.
- */
 namespace sdm
 {
     // class History : public HistoryInterface

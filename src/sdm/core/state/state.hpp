@@ -13,17 +13,10 @@
 #include <sdm/types.hpp>
 #include <sdm/core/item.hpp>
 #include <sdm/utils/struct/pair.hpp>
+#include <sdm/core/observation/observation.hpp>
 
 namespace sdm
 {
-    // Observation from the P.O.V. of the central agent.
-    class Observation : public Item
-    {
-    public:
-        virtual ~Observation() {}
-        virtual std::string str() const = 0;
-    };
-
     class BeliefInterface;
     class OccupancyStateInterface;
     class HistoryInterface;
@@ -32,63 +25,48 @@ namespace sdm
     class SerialOccupancyInterface;
 
     /**
-     * @brief A generic state object.
+     * @brief A public interface for states. 
+     * Any class inheriting from this interface will be considered as generic state for algorithms.
+     * Consider sections [Theoritical Background](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/theory.html) and [Algorithms](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/algorithms/) for more information.   
      */
     class State : public Observation
     {
     public:
         virtual ~State() {}
 
+        /** @brief Cast the state into a belief */
+        virtual std::shared_ptr<BeliefInterface> toBelief();
+
+        /** @brief Cast the state into an occupancy state */
+        virtual std::shared_ptr<OccupancyStateInterface> toOccupancyState();
+
+        /** @brief Cast the state into a history */
+        virtual std::shared_ptr<HistoryInterface> toHistory();
+
+        /** @brief Cast the state into a serial interface */
+        virtual std::shared_ptr<BaseSerialInterface> toSerial();
+
+        /** @brief Cast the state into a serial occupancy state */
+        virtual std::shared_ptr<SerialOccupancyInterface> toSerialOccupancyState();
+
         /**
-         * @brief Get the hash of the state
+         * @brief Get the hash of the state. 
+         * The hash is used in tabular value functions in order to compare efficiently two states. 
+         * This function must be reimplemented in inherited classes. 
          * 
-         * @return size_t the hash
+         * @return size_t the hash code
          */
         virtual size_t hash() const;
 
         /**
-         * @brief Check equality between two states.
+         * @brief Check equality between two states. 
+         * This function must be implemented in inherited classes. 
          * 
          * @param other the state to be compared to current state
          * @return true if states are equal
          * @return false if they are different
          */
         virtual bool operator==(const std::shared_ptr<State> &other) const;
-
-        /**
-         * @brief Transform the State in a BeliefInterface
-         * 
-         * @return std::shared_ptr<BeliefInterface> 
-         */
-        virtual std::shared_ptr<BeliefInterface> toBelief();
-
-        /**
-         * @brief Transform the State in a OccupancyStateInterface
-         * 
-         * @return std::shared_ptr<OccupancyStateInterface> 
-         */
-        virtual std::shared_ptr<OccupancyStateInterface> toOccupancyState();
-
-        /**
-         * @brief Transform the State in a HistoryInterface
-         * 
-         * @return std::shared_ptr<HistoryInterface> 
-         */
-        virtual std::shared_ptr<HistoryInterface> toHistory();
-
-        /**
-         * @brief Transform the State in a Serial Interface
-         * 
-         * @return std::shared_ptr<SerialInterface> 
-         */
-        virtual std::shared_ptr<BaseSerialInterface> toSerial();
-
-        /**
-         * @brief Transform the State in a Serial Occupancy Interface
-         * 
-         * @return std::shared_ptr<SerialInterface> 
-         */
-        virtual std::shared_ptr<SerialOccupancyInterface> toSerialOccupancyState();
 
         virtual std::string str() const = 0;
 

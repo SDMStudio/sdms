@@ -37,6 +37,7 @@ if(GLOBAL)
 		lib_core
 		${INCLUDE_DIR}/tools.cpp
 		${INCLUDE_DIR}/common.cpp
+		${INCLUDE_DIR}/exception.cpp
 		${INCLUDE_DIR}/public/**
 		${INCLUDE_DIR}/utils/struct/**
 		${INCLUDE_DIR}/utils/linear_algebra/**

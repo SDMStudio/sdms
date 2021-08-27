@@ -26,8 +26,6 @@ namespace sdm
      */
     namespace tools
     {
-        std::string getPathTo(std::string base, std::string world_name, std::string formalism_name);
-
         /**
          * @brief Compare the extension of a file. 
          * 
@@ -44,9 +42,9 @@ namespace sdm
         void indentedOutput(std::ostream &outStream, const char *message, int num_indent = 1);
 
         /**
-         * @brief Add indentation to input string
+         * @brief Add indentation to an input string.
          * 
-         * @param s input string
+         * @param input_string the string 
          * @param num_indents the number of indentations
          * @param indent the indentation format used
          */
@@ -56,11 +54,32 @@ namespace sdm
         /**
          * @brief Repeat a string n times.
          * 
+         * Exemple:
+         * 
+         *          std::cout << repeatString("bla", 3) << std::endl;
+         *          // OUTPUT : blablabla
+         * 
          * @param str the substring to replicate.
          * @param times the number of replication
          * @return the built string 
          */
         std::string repeatString(const std::string &str, size_t times);
+
+        /**
+         * @brief Concatenate strings in order to create the path to a specific problem.
+         * 
+         * Exemple:
+         * 
+         *          std::cout << getPathTo("/usr/local/share/sdms/world", "tiger", "pomdp") << std::endl;
+         *          // OUTPUT : /usr/local/share/sdms/world/pomdp/tiger.pomdp
+         * 
+         * @param base 
+         * @param world_name 
+         * @param formalism_name 
+         * @return std::string 
+         */
+        std::string getPathTo(std::string base, std::string world_name, std::string formalism_name);
+
 
         template <typename T>
         std::vector<T> set2vector(const std::set<T> &set)
@@ -68,6 +87,14 @@ namespace sdm
             return std::vector<T>(set.begin(), set.end());
         }
 
+        /**
+         * @brief Extract the keys contained in a map.
+         * 
+         * @tparam TKey the type of keys
+         * @tparam TValue the type of values
+         * @param input_map the map
+         * @return the list of existing keys 
+         */
         template <typename TKey, typename TValue>
         std::vector<TKey> extractKeys(const std::map<TKey, TValue> &input_map)
         {
@@ -79,6 +106,14 @@ namespace sdm
             return retkey;
         }
 
+        /**
+         * @brief Extract the values contained in a map.
+         * 
+         * @tparam TKey the type of keys
+         * @tparam TValue the type of values
+         * @param input_map the map
+         * @return the list of existing values 
+         */
         template <typename TKey, typename TValue>
         std::vector<TValue> extractValues(const std::map<TKey, TValue> &input_map)
         {

@@ -6,18 +6,13 @@
 
 namespace sdm
 {
+    /**
+     * @brief Namespace grouping functions to manipulate algorithms.
+     */
     namespace algo
     {
         /**
-         * @brief Build the HSVI version that use TabularValueFunction Representation. 
-         * 
-         * @tparam TState Type of the state.
-         * @tparam TAction Type of the action.
-         * @param problem the problem to be solved
-         * @param discount the discount factor
-         * @param error the accuracy
-         * @param horizon the planning horizon
-         * @return pointer on HSVI instance
+         * @brief Build HSVI algorithm. 
          */
         std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem,
                                             std::string upper_bound_name,
@@ -39,20 +34,15 @@ namespace sdm
                                             int freq_prunning_upper_bound = -1);
 
         /**
-         * @brief Build the ValueIteration version. 
-         * 
-         * @tparam TState Type of the state.
-         * @tparam TAction Type of the action.
-         * @param problem the problem to be solved
-         * @param discount the discount factor
-         * @param error the accuracy
-         * @param horizon the planning horizon
-         * @return pointer on HSVI instance
+         * @brief Build the ValueIteration version that use TabularValueFunction Representation
          */
         std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
                                                                 double error,
                                                                 number horizon);
 
+        /**
+         * @brief Build QLearning algorithm.
+         */
         std::shared_ptr<sdm::QLearning<>> makeQLearning(std::shared_ptr<GymInterface> problem,
                                                         number horizon = 0,
                                                         double discount = 0.9,
@@ -61,6 +51,9 @@ namespace sdm
                                                         unsigned long num_episodes = 10000,
                                                         std::string name = "qlearning");
 
+        /**
+         * @brief Build a problem.
+         */
         std::shared_ptr<SolvableByHSVI> makeFormalism(std::string problem_path,
                                                       std::string formalism,
                                                       double discount,
@@ -68,9 +61,12 @@ namespace sdm
                                                       int truncation,
                                                       bool compression,
                                                       bool store_action,
-                                                      bool store_state, 
+                                                      bool store_state,
                                                       number batch_size);
 
+        /**
+         * @brief Build an algorithm.
+         */
         std::shared_ptr<Algorithm> makeAlgorithm(std::string algo_name,
                                                  std::shared_ptr<SolvableByHSVI> formalism_problem,
                                                  std::string formalism_name,
@@ -96,13 +92,20 @@ namespace sdm
          * 
          * @tparam TState Type of the state.
          * @tparam TAction Type of the action.
-         * @param algo_name the name of the algorithm to be built* 
-         * @param problem the problem to be solved
+         * @param algo_name the name of the algorithm to be built
+         * @param problem_path the path to the problem to be solved
+         * @param formalism the name of the formalism to consider to solve the problem
+         * @param upper_bound a string describing the upper bound
+         * @param upper_bound a string describing the lower bound
+         * @param ub_init a string describing the way to initialize the upper bound
+         * @param lb_init a string describing the way to initialize the lower bound
          * @param discount the discount factor
          * @param error the accuracy
          * @param horizon the planning horizon
          * @param trials the maximum number of trials 
-         * @return auto pointer on algorithm instance
+         * @param truncation if greater than 0, specify the max size of the history  
+         * @param batch_size for learning algorithms only  
+         * @return pointer on algorithm instance
          */
         std::shared_ptr<Algorithm> make(std::string algo_name,
                                         std::string problem_path,
@@ -128,11 +131,19 @@ namespace sdm
                                         bool compression = true,
                                         bool store_action = true,
                                         bool store_state = true,
-                                        number batch_size = 0
-                                        );
+                                        number batch_size = 0);
 
         /**
-         * @brief Get all available algorithms.
+         * @brief Get the list of available algorithms. 
+         * Usage:
+         * 
+         *          #include <sdm/algorithms.hpp>
+         *          
+         *          int main() 
+         *          {
+         *              std::cout << sdm::algo::available() << std::endl;
+         *              return 0;
+         *          }
          * 
          * @return the list of available algorithms.
          */

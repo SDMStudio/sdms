@@ -17,6 +17,18 @@
 namespace sdm
 {
 
+
+  /**
+   * @brief A base class inheriting from the State interface.
+   * @tparam TState the type of data used for the state.
+   * 
+   * This class can be used to instantiate a state represented by any type.
+   * Example:
+   * 
+   *      BaseState<char> state('a'), state2('b'); // Instanciate a state stored as a character.   
+   *      BaseState<float> float_state(0.0), float_state2(0.1); // Instanciate a state stored as a float.   
+   * 
+   */
   template <typename TState>
   class BaseState : virtual public State
   // public BaseItem<TState>
@@ -26,7 +38,18 @@ namespace sdm
     BaseState(const TState &item);
     virtual ~BaseState();
 
+    /**
+     * @brief Get the data corresponding to the stored state.
+     * 
+     * @return the data
+     */
     virtual TState getState() const;
+
+    /**
+     * @brief Set the data corresponding to the stored state.
+     * 
+     * @param state the data
+     */
     virtual void setState(const TState &state);
 
     virtual std::string str() const;
@@ -39,9 +62,12 @@ namespace sdm
     TState state_;
   };
 
-  using DiscreteState = BaseState<number>;
-  using DiscreteStateString = BaseState<std::string>;
-  using ContinuousState = BaseState<double>;
+    /** @brief BaseState class with type `number` */
+    using DiscreteState = BaseState<number>;
+    /** @brief BaseState class with type `std::string` */
+    using DiscreteStateString = BaseState<std::string>;
+    /** @brief BaseState class with type `double` */
+    using ContinuousState = BaseState<double>;
 
 } // namespace sdm
 

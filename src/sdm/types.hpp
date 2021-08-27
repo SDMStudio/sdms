@@ -1,6 +1,3 @@
-/*=============================================================================
-  Copyright (c) 2016 Jilles Steeve Dibangoye
-==============================================================================*/
 #pragma once
 
 #include <cstddef>
@@ -11,21 +8,6 @@
 #include "sys/sysinfo.h"
 
 #include <chrono>
-
-
-//!
-//! \file     types.hpp
-//! \author   Jilles S. Dibangoye
-//! \brief    defining several types
-//! \version  1.0
-//! \date     12 Avril 2016
-//!
-//! This class provides basic type alias for dpomdp.
-//!
-
-//! \namespace  sdm
-//!
-//! Namespace grouping all tools required for sequential decision making.
 namespace sdm
 {
 

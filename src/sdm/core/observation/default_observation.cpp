@@ -1,5 +1,5 @@
 #include <sdm/core/observation/default_observation.hpp>
-#include <sdm/core/base_observation.hpp>
+#include <sdm/core/observation/base_observation.hpp>
 
 namespace sdm
 {

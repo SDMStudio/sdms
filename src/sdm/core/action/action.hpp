@@ -12,24 +12,29 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/item.hpp>
-// #include <sdm/core/joint.hpp>
 
 namespace sdm
 {
     class DecisionRule;
     class JointDeterministicDecisionRule;
-    // class Joint;
 
-    // Action from the P.O.V. of the central agent.
+    /**
+     * @brief A public interface for actions. 
+     * Any class inheriting from this interface will be considered as generic action for algorithms.
+     * Consider sections [Theoritical Background](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/theory.html) and [Algorithms](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/algorithms/) for more information.   
+     */
     class Action : public Item
     {
     public:
         virtual ~Action() {}
-        virtual std::string str() const = 0;
         
-        // virtual std::shared_ptr<Joint<std::shared_ptr<Action>>> toJointAction();
+        /** @brief Cast the action into a decision rule. */
         virtual std::shared_ptr<DecisionRule> toDecisionRule();
+        
+        /** @brief Cast the action into a joint decision rule. */
         virtual std::shared_ptr<JointDeterministicDecisionRule> toJointDeterministicDecisionRule();
+        
+        virtual std::string str() const = 0;
         virtual TypeAction getTypeAction() const;
     };
 } // namespace sdm
