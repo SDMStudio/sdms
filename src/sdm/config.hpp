@@ -18,6 +18,9 @@ namespace sdm
         const unsigned short OCCUPANCY_DECIMAL_PRINT = 5;
         const unsigned short VALUE_DECIMAL_PRINT = 4;
 
+        /** Problem path */
+        const std::string PROBLEM_PATH = "/usr/local/share/sdms/world/";
+
     } // namespace config
 
 }

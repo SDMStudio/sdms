@@ -17,7 +17,8 @@ namespace sdm
                          double smooth,
                          unsigned long num_episodes,
                          std::string name
-                         ) : env_(env),
+                         ) : target_update_(1),
+                             env_(env),
                              experience_memory_(experience_memory),
                              q_value_table_(q_value_table),
                              q_value_table_target_(q_value_table_target),
@@ -28,7 +29,6 @@ namespace sdm
                              lr_(lr),
                              smooth_(smooth),
                              num_episodes_(num_episodes),
-                             target_update_(1),
                              name_(name)
     {
     }
@@ -55,7 +55,6 @@ namespace sdm
     }
 
     template <class TInput>
-    // std::shared_ptr<GymInterface> env, long nb_timesteps, number horizon, number test_freq, number save_freq, std::string save_folder, number verbose, long timestep_init, std::string log_file
     void QLearning<TInput>::do_solve()
     {
         this->global_step = 0;

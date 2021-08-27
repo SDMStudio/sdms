@@ -8,7 +8,6 @@
 
 #include <sdm/exception.hpp>
 #include <sdm/parser/parser.hpp>
-
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
@@ -128,15 +127,15 @@ int main(int argc, char **argv)
         std::cout << "OccupancyState::PRECISION=" << OccupancyState::PRECISION << std::endl;
         std::cout << "PrivateOccupancyState::PRECISION_COMPRESSION=" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
         // Instanciate the initializer
-        std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
+        std::shared_ptr<ZeroInitializer<>> initializer = std::make_shared<sdm::ZeroInitializer<>>();
 
-        std::shared_ptr<QValueFunction> q_value_table;
-        q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        std::shared_ptr<QValueFunction<>> q_value_table;
+        q_value_table = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
 
-        std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
+        std::shared_ptr<ZeroInitializer<>> target_initializer = std::make_shared<sdm::ZeroInitializer<>>();
 
-        std::shared_ptr<QValueFunction> target_q_value_table;
-        target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        std::shared_ptr<QValueFunction<>> target_q_value_table;
+        target_q_value_table = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
 
         // Instanciate exploration process
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -146,12 +145,12 @@ int main(int argc, char **argv)
         std::shared_ptr<QValueBackupInterface> backup;
         backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
 
-        auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
+        auto algorithm = std::make_shared<QLearning<>>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
         algorithm->do_initialize();
         algorithm->do_solve();
 
-        algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
+        // algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 
 
         std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;

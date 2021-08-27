@@ -2,10 +2,10 @@
 
 #include <memory>
 #include <sdm/exception.hpp>
-// #include <sdm/world/base/base_mdp.hpp>
-#include <sdm/core/reward/tabular_reward.hpp>
 #include <sdm/core/state/base_state.hpp>
 #include <sdm/core/action/base_action.hpp>
+#include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/reward/tabular_reward.hpp>
 
 using namespace sdm;
 
@@ -22,8 +22,8 @@ int main(int argc, char **argv)
     auto action_2 = std::make_shared<DiscreteAction>(2);
     auto action_3 = std::make_shared<DiscreteAction>(3);
 
-    auto state_space = std::make_shared<DiscreteSpace<std::shared_ptr<State>>>({state_0, state_1, state_2, state_3});
-    auto action_space = std::make_shared<DiscreteSpace<std::shared_ptr<Action>>>({action_0, action_1, action_2, action_3});
+    auto state_space = std::make_shared<DiscreteSpace>({state_0, state_1, state_2, state_3});
+    auto action_space = std::make_shared<DiscreteSpace>({action_0, action_1, action_2, action_3});
 
     std::shared_ptr<TabularReward> rew;
 

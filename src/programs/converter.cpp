@@ -1,8 +1,7 @@
 #include <iostream>
 #include <cassert>
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
+#include <sdm/parser/parser.hpp>
 
 int main(int argc, char **argv)
 {
@@ -15,7 +14,6 @@ int main(int argc, char **argv)
 		filename_out = argv[2];
 		std::cout << "#> Converting file " << filename_in << " into " << filename_out << "\n";
 	}
-
 	else
 	{
 		std::cerr << "Error: Require two input files." << std::endl;

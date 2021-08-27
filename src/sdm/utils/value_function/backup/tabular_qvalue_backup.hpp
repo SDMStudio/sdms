@@ -14,7 +14,7 @@ namespace sdm
         TabularQValueBackup();
         TabularQValueBackup(std::shared_ptr<ExperienceMemory> experience_memory, std::shared_ptr<QValueFunction<>> q_value_table, std::shared_ptr<QValueFunction<>> target_q_value_table, double discount);
         
-        ~TabularQValueBackup();
+        virtual ~TabularQValueBackup();
         
         /**
          * @brief 

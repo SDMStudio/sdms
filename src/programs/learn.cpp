@@ -15,9 +15,10 @@ int learn(int argv, char **args)
     try
     {
         std::string problem, algorithm, formalism, name, qvalue, q_init;
-        unsigned long nb_timesteps;
-        number horizon;
+        unsigned long num_episodes, memory;
+        number horizon, seed, batch_size;
         double lr, discount;
+        bool compress, store_actions, store_states;
 
         po::options_description options("Options");
         options.add_options()
@@ -32,7 +33,13 @@ int learn(int argv, char **args)
         ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
         ("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")
         ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
-        ("nb_timesteps,t", po::value<unsigned long>(&nb_timesteps)->default_value(100000), "the maximum number of timesteps")
+        ("num_episodes,t", po::value<unsigned long>(&num_episodes)->default_value(100000), "the maximum number of timesteps")
+        ("memory,m", po::value<unsigned long>(&memory)->default_value(0), "the memory for history")
+        ("seed,s", po::value<number>(&seed)->default_value(1), "the seed")
+        ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "the seed")
+        ("compress", po::value<bool>(&compress)->default_value(true), "If true, apply compression when required.")
+        ("store_actions", po::value<bool>(&store_actions)->default_value(true), "If true, store the macro actions when required.")
+        ("store_states", po::value<bool>(&store_states)->default_value(true), "If true, store the macro states when required.")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
@@ -64,29 +71,21 @@ int learn(int argv, char **args)
             return sdm::ERROR_IN_COMMAND_LINE;
         }
 
-        // std::vector<std::string> av_algos = sdm::algo::available();
-        // if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
-        // {
-        //     auto algo = sdm::algo::make(algorithm, problem, formalism, qvalue, q_init, horizon, discount, lr,  1, nb_timesteps, name);
-        //     algo->do_initialize();
-        //     algo->do_solve();
+        common::global_urng().seed(seed);
 
-        //     if (vm.count("test"))
-        //     {
-        //         algo->do_test();
-        //     }
-        // }
-        // else
-        // {
-        //     std::cout << "Error: " << algorithm << " is not a valid algorithm." << std::endl
-        //               << std::endl;
-        //     std::cout << "#> Available algorithms are : " << std::endl;
-        //     std::cout << "ALGORITHM\t" << std::endl;
-        //     for (auto algo : sdm::algo::available())
-        //     {
-        //         std::cout << algo << std::endl;
-        //     }
-        // }
+        auto algo = sdm::algo::make(algorithm, problem, formalism,
+                                    qvalue, qvalue, q_init, q_init,
+                                    discount, lr, horizon, num_episodes, memory, name,
+                                    5000, "", 0, "", PAIRWISE, -1, NONE, -1,
+                                    compress, store_actions, store_states, batch_size);
+
+        algo->do_initialize();
+        algo->do_solve();
+
+        if (vm.count("test"))
+        {
+            algo->do_test();
+        }
     }
     catch (std::exception &e)
     {

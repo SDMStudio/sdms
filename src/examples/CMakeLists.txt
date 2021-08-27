@@ -16,44 +16,16 @@ foreach(f ${usage_examples})
 endforeach(f)
 
 
-#### This section can be uncommented and rewrite in order to compile only a part of sdms (quicktest.cpp file)
-file(
-	GLOB_RECURSE
-	lib_world
-	${INCLUDE_DIR}/algorithms/hsvi.cpp
-	${INCLUDE_DIR}/algorithms/value_iteration.cpp
-
-	${INCLUDE_DIR}/world/solvable_by_mdp.cpp
-	${INCLUDE_DIR}/world/belief_mdp.cpp
-	${INCLUDE_DIR}/utils/value_function/**
-
-	${INCLUDE_DIR}/world/mdp.cpp
-	${INCLUDE_DIR}/world/mmdp.cpp
-	${INCLUDE_DIR}/world/serialized_mmdp.cpp
-	${INCLUDE_DIR}/world/mpomdp.cpp
-	${INCLUDE_DIR}/world/pomdp.cpp
-	${INCLUDE_DIR}/parser/**
-	${INCLUDE_DIR}/world/serialized_mpomdp.cpp
-	${INCLUDE_DIR}/world/occupancy_mdp.cpp
-
-
-	${INCLUDE_DIR}/core/*
-	${INCLUDE_DIR}/utils/struct/iterator/*
-	${INCLUDE_DIR}/utils/linear_programming/*
-	${INCLUDE_DIR}/common.cpp
-	${INCLUDE_DIR}/tools.cpp
-)
-add_library(lib_world SHARED ${lib_world})
-include_directories(${SDMS_INCLUDE_DIRS})
-
+### This section can be uncommented and rewrite in order to compile only a part of sdms (quicktest.cpp file)
 add_executable(quicktest tmp/quicktest.cpp)
 target_link_libraries(quicktest
 fmt
 dl
 ${Boost_LIBRARIES}
 ${TORCH_LIBRARIES}
+${SDMS_LIB_DIR}/libtb2.so
 ${CPLEX_LIBRARIES}
-lib_world
+${LIB_SDMS}
 )
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quicktest

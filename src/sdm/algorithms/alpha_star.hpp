@@ -29,7 +29,7 @@ namespace sdm
         int horizon_;
         std::shared_ptr<State> current_element;
 
-        AlphaStarItem(const std::shared_ptr<State>& element, double value_g,double value_f, int horizon) : current_element(element), value_g_(value_g), value_f_(value_f), horizon_(horizon)
+        AlphaStarItem(const std::shared_ptr<State>& element, double value_g,double value_f, int horizon) : value_f_(value_f), value_g_(value_g), horizon_(horizon), current_element(element)
         {}
         
         bool operator<(std::shared_ptr<AlphaStarItem> const & b)

@@ -15,9 +15,10 @@ int solve(int argv, char **args)
     try
     {
         std::string problem, algorithm, formalism, name, upper_bound, lower_bound, ub_init, lb_init,sawtooth_type_of_resolution,type_sawtooth_linear_programming;
-        int trials, truncation;
-        number horizon, seed;
+        int trials, memory;
+        number horizon, seed, batch_size;
         double error, discount;
+        bool compress, store_actions, store_states;
         number sawtooth_BigM_value;
 
         po::options_description options("Options");
@@ -32,11 +33,15 @@ int solve(int argv, char **args)
         ("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")
         ("formalism,f", po::value<string>(&formalism)->default_value("decpomdp"), "the formalism to use")
         ("error,e", po::value<double>(&error)->default_value(0.001), "the error")
-        ("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")
-        ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon")
+        ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
+        ("horizon,h", po::value<number>(&horizon)->default_value(5), "the planning horizon")
         ("trials,t", po::value<int>(&trials)->default_value(100000), "the maximum number of trials")
-        ("truncation", po::value<int>(&truncation)->default_value(-1), "the truncation parameter (for history)")
+        ("memory,m", po::value<int>(&memory)->default_value(-1), "the memory for history")
         ("seed,s", po::value<number>(&seed)->default_value(1), "the seed")
+        ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "the batch size used in learning algorithms")
+        ("compress", po::value<bool>(&compress)->default_value(true), "If true, apply compression when required.")
+        ("store_actions", po::value<bool>(&store_actions)->default_value(true), "If true, store the macro actions when required.")
+        ("store_states", po::value<bool>(&store_states)->default_value(true), "If true, store the macro states when required.")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
@@ -75,55 +80,40 @@ int solve(int argv, char **args)
 
         common::global_urng().seed(seed);
 
-        std::vector<std::string> av_algos = sdm::algo::available();
-        if (std::find(av_algos.begin(), av_algos.end(), algorithm) != av_algos.end())
+        auto algo = sdm::algo::make(algorithm,
+                                    problem,
+                                    formalism,
+                                    upper_bound,
+                                    lower_bound,
+                                    ub_init,
+                                    lb_init,
+                                    discount,
+                                    error,
+                                    horizon,
+                                    trials,
+                                    memory,
+                                    name,
+                                    10000,
+                                    sawtooth_type_of_resolution,
+                                    sawtooth_BigM_value,
+                                    type_sawtooth_linear_programming, PAIRWISE, -1, NONE, -1, 
+                                    compress, store_actions, store_states, batch_size);
+
+        algo->do_initialize();
+        algo->do_solve();
+
+        if (vm.count("test"))
         {
-            auto algo = sdm::algo::make(algorithm,
-                                        problem,
-                                        formalism,
-                                        upper_bound,
-                                        lower_bound,
-                                        ub_init,
-                                        lb_init,
-                                        discount,
-                                        error,
-                                        horizon,
-                                        trials,
-                                        truncation,
-                                        name,
-                                        10000,
-                                        sawtooth_type_of_resolution,
-                                        sawtooth_BigM_value,
-                                        type_sawtooth_linear_programming);
-
-            algo->do_initialize();
-            algo->do_solve();
-
-            if (vm.count("test"))
-            {
-                algo->do_test();
-            }
-
-            if (vm.count("save"))
-            {
-                algo->do_save();
-            }
+            algo->do_test();
         }
-        else
+        if (vm.count("save"))
         {
-            std::cout << "Error: " << algorithm << " is not a valid algorithm." << std::endl
-                      << std::endl;
-            std::cout << "#> Available algorithms are : " << std::endl;
-            std::cout << "ALGORITHM\t" << std::endl;
-            for (auto algo : sdm::algo::available())
-            {
-                std::cout << algo << std::endl;
-            }
+            algo->do_save();
         }
     }
     catch (std::exception &e)
     {
-        std::cerr << "Unhandled Exception reached the top of main: " << e.what() << ", application will now exit" << std::endl;
+        std::cerr << "Unhandled Exception reached the top of main: " << e.what() << std::endl;
         return sdm::ERROR_UNHANDLED_EXCEPTION;
     }
 

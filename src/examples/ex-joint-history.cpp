@@ -1,20 +1,21 @@
 #include <iostream>
-#include <sdm/core/joint.hpp>
-#include <sdm/core/state/history.hpp>
+
+#include <sdm/config.hpp>
+#include <sdm/parser/parser.hpp>
 #include <sdm/core/state/jhistory_tree.hpp>
 
 using namespace sdm;
 
-int main(int, char **)
+int main(int argc, char **argv)
 {
+    std::string filename = (argc > 1) ? argv[1] : config::PROBLEM_PATH + "dpomdp/tiger.dpomdp";
+    std::shared_ptr<MPOMDP> mpomdp = parser::parse_file(filename);
+
     std::cout << "----- Usage : class Joint ( sdm/core/state/jhistory_tree.hpp ) ---------" << std::endl
               << std::endl;
 
-    using TObservation = number;
-
-    number num_agents = 2, max_depth = 3;
-
-    JointHistoryTree_p<TObservation> jhistory(new JointHistoryTree<TObservation>(num_agents, max_depth));
+    // Instanciate a joint history tree of max depth 3
+    std::shared_ptr<JointHistoryTree> jhistory = std::make_shared<JointHistoryTree>(mpomdp->getNumAgents(), 3);
 
     // Get basic elements of joint histories
     std::cout << "\n--- 1) Basic access" << std::endl;
@@ -27,25 +28,23 @@ int main(int, char **)
     // How to expand a joint history
     std::cout << "\n--- 2) Instanciate and expand a joint history" << std::endl;
 
+    std::shared_ptr<JointHistoryInterface> joint_history = jhistory;
     // List of joint observation for the example
-    std::vector<Joint<TObservation>> list_joint_obs = {{1, 0}, {0, 0}, {2, 2}, {2, 1}};
-    for (const auto &joint_obs : list_joint_obs)
+    for (const auto &joint_obs : *mpomdp->getObservationSpace(0))
     {
-        std::cout << "\n#> Expand with observation " << joint_obs << std::endl;
-        jhistory = jhistory->expand(joint_obs);
-        std::cout << "#> Expanded joint history --> " << *jhistory << std::endl;
+        std::cout << "\n#> Expand with observation " << *joint_obs << std::endl;
+        joint_history = joint_history->expand(joint_obs->toObservation())->toJointHistory();
+        std::cout << "#> Expanded joint history --> " << *joint_history << std::endl;
     }
 
-    std::cout<<"\n get Last Observation "<<jhistory->getData()<<std::endl;
-
-    std::cout<<"\n Get Parent of Joint History "<<*jhistory->getOrigin()<<std::endl;
+    std::cout << "\n#> Get Last Observation " << *joint_history->getLastObservation() << std::endl;
 
     // How to access individual histories and expand them
     std::cout << "\n--- 3) Access individual histories" << std::endl;
 
-    std::cout << "\n#> List of pointer on individual histories = " << jhistory->getIndividualHistories() << std::endl;
+    std::cout << "\n#> List of pointer on individual histories = " << joint_history->getIndividualHistories() << std::endl;
 
-    for (number agent_id = 0; agent_id < jhistory->getNumAgents(); ++agent_id)
+    for (number agent_id = 0; agent_id < mpomdp->getNumAgents(); ++agent_id)
     {
         std::cout << "#> IndividualHistory(" << agent_id << ") = " << *jhistory->getIndividualHistory(agent_id) << std::endl; // equivalent to jhistory->get(agent_id)
     }

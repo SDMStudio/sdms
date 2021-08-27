@@ -9,16 +9,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    std::string filename;
-    if (argc > 1)
-    {
-        filename = argv[1];
-    }
-    else
-    {
-        std::cerr << "Error: Require 1 input file." << std::endl;
-        return 1;
-    }
+    std::string filename = (argc > 1) ? argv[1] : config::PROBLEM_PATH + "dpomdp/tiger.dpomdp";
 
     // Instanciate a standard Multi-agent POMDP
     std::cout << "----------------------------------------" << std::endl;

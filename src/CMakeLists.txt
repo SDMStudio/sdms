@@ -29,17 +29,6 @@ include_directories(${SDMS_INCLUDE_DIRS}
 					${Boost_INCLUDE_DIRS}
 					${TOULBAR_INCLUDE_DIR}
 					)
-					
-# -lboost_graph -lboost_iostreams -lgmp -lz -llzma -static
-	
-# Build libsdm (contains all sdms sources)
-# file(
-# 	GLOB_RECURSE
-# 	libsdm_srcs
-# 	${SOURCE_DIR}/*.cpp
-# )
-# add_library(${LIB_SDMS} SHARED ${libsdm_srcs})
-# install(TARGETS ${LIB_SDMS} DESTINATION lib)
 
 if(GLOBAL)
 	# LIB CORE
@@ -126,36 +115,14 @@ add_executable(${SDMS_PROGRAM_NAME} main.cpp)
 target_link_libraries(${SDMS_PROGRAM_NAME} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${SDMS_LIB_DIR}/libtb2.so ${LIB_SDMS})
 
 ########### INSTALL #################
+# Install programs
 install(DIRECTORY ${INCLUDE_DIR} DESTINATION include)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${SDMS_PROGRAM_NAME} DESTINATION bin)
 
+# Install documentation
 install(DIRECTORY ${SDMS_MAN_DIR} DESTINATION share)
+# Install data
+install(DIRECTORY ${SDMS_WORLD_DIR} DESTINATION share/sdms)
 
 add_subdirectory(examples)
-add_subdirectory(algos)
-
-## OLD
-###############################################
-########### BUILD SDMS LIBRARIES ############## 
-###############################################
-
-# # Build libsdm_core (contains all tools for construction and parsing)
-# file(
-# 	GLOB_RECURSE
-# 	libsdm_core_srcs
-# 	${SDM_SOURCE_DIR}/sdm/core/*.cpp
-# 	${SDM_SOURCE_DIR}/sdm/parsing/*.cpp
-# )
-# add_library(sdm_world SHARED ${libsdm_world_srcs})
-# install(TARGETS sdm_world DESTINATION lib)
-
-# # Build libsdm_world (contains all tools for world construction and parsing)
-# file(
-# 	GLOB_RECURSE
-# 	libsdm_world_srcs
-# 	${SDM_SOURCE_DIR}/sdm/world/*.cpp
-# 	${SDM_SOURCE_DIR}/sdm/parsing/*.cpp
-# )
-# add_library(sdm_world SHARED ${libsdm_world_srcs})
-# install(TARGETS sdm_world DESTINATION lib)<>
-
+add_subdirectory(programs)

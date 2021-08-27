@@ -2,23 +2,14 @@
 
 #include <memory>
 #include <sdm/exception.hpp>
+#include <sdm/config.hpp>
 #include <sdm/parser/parser.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    std::string ndpomdp_filename;
-
-    if (argc > 1)
-    {
-        ndpomdp_filename = argv[1];
-    }
-    else
-    {
-        std::cerr << "Error: Require 1 input file." << std::endl;
-        return 1;
-    }
+    std::string ndpomdp_filename = (argc > 1) ? argv[1] : config::PROBLEM_PATH + "dpomdp/tiger.dpomdp";
 
     // Instanciate a standard MPOMDP from a ".ndpomdp" file
     std::cout << "----------------------------------------" << std::endl;
