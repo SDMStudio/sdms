@@ -1,40 +1,33 @@
-
-#include <cstdlib>
 #include <iostream>
 
 #include <sdm/config.hpp>
-#include <sdm/exception.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/algorithms/alpha_star.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/algorithms/alpha_star.hpp>
 
 using namespace sdm;
 
-int main(int argc, char **argv)
+int main()
 {
-	std::string filename = (argc > 1) ? argv[1] : config::PROBLEM_PATH + "dpomdp/mabc.dpomdp";
-	int horizon = 10;
-	int discount = 1;
-	double error = 0.00001;
-	int truncation = 1;
-	try
-	{
-		auto problem = sdm::parser::parse_file(filename);
-		problem->setHorizon(horizon);
-		problem->setDiscount(discount);
+	std::string filename = sdm::config::PROBLEM_PATH + "dpomdp/mabc.dpomdp";
+	number horizon = 10, discount = 1, memory = 1;
 
-		std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, (truncation > 0) ? truncation : horizon, true, true, true);
+	// Parse the problem file 
+	auto problem = sdm::parser::parse_file(filename);
+	// Set parameters
+	problem->setHorizon(horizon);
+	problem->setDiscount(discount);
 
-		auto algo = std::make_shared<AlphaStar>(oMDP);
+	// Transform the problem in a solvable way 
+	std::shared_ptr<SolvableByHSVI> oMDP = std::make_shared<OccupancyMDP>(problem, memory);
 
-		algo->do_initialize();
-		algo->do_solve();
-	}
-	catch (exception::Exception &e)
-	{
-		std::cout << "!!! Exception: " << e.what() << std::endl;
-	}
+	// Instanciate the algorithm
+	auto algo = std::make_shared<AlphaStar>(oMDP);
+
+	// Intialize and solve
+	algo->do_initialize();
+	algo->do_solve();
 
 	return 0;
-} // END main
+} 

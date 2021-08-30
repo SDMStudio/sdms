@@ -19,10 +19,8 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string filename = (argc > 1) ? argv[1] : config::PROBLEM_PATH + "dpomdp/mabc.dpomdp";
-	int horizon = 10;
-	int discount = 1;
-	double error = 0.00001;
-	int truncation = 1;
+	number horizon = 10, truncation = 1;
+	double error = 0.00001, discount = 1.;
 	try
 	{
 		// Parse file into MPOMDP
@@ -32,7 +30,6 @@ int main(int argc, char **argv)
 
 		// Instanciate the problem
 		std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, (truncation > 0) ? truncation : horizon, true, true, true);
-
 
 		// Instanciate Initializer
 		auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
