@@ -19,7 +19,7 @@ namespace sdm
     {
     public:
         HierarchicalOccupancyMDP();
-        HierarchicalOccupancyMDP(const std::shared_ptr<HierarchicalMPOMDP> &hierarchical_mpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, bool generate_action_spaces = false, int batch_size = 0);
+        HierarchicalOccupancyMDP(const std::shared_ptr<HierarchicalMPOMDP> &hierarchical_mpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true,   int batch_size = 0);
 
         /**
          * @brief Get the identifier of the agent at the bottom of the hierarchy 

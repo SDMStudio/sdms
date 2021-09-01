@@ -28,6 +28,7 @@ namespace sdm
     class DiscreteDistribution : public Distribution<T>
     {
     public:
+        DiscreteDistribution();
         virtual ~DiscreteDistribution() {}
         virtual T sample() const;
 

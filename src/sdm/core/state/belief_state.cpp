@@ -13,6 +13,7 @@ namespace sdm
 
   Belief::Belief(std::size_t size) : MappedVector<std::shared_ptr<State>>(size, 0.)
   {
+
     // this->container = std::make_shared<SparseVector<std::shared_ptr<State>>>(size, default_value);
   }
 
@@ -42,6 +43,7 @@ namespace sdm
   Belief::~Belief()
   {
   }
+  
   std::vector<std::shared_ptr<State>> Belief::getStates() const
   {
     return this->getIndexes();
@@ -70,7 +72,8 @@ namespace sdm
 
   std::shared_ptr<State> Belief::sampleState()
   {
-    return this->distribution_->sample();
+    return this->distribution_.sample()
+    ;
   }
 
   void Belief::normalizeBelief(double norm_1)
@@ -170,10 +173,9 @@ namespace sdm
   void Belief::finalize()
   {
     MappedVector<std::shared_ptr<State>>::finalize();
-    this->distribution_ = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
     for (const auto &state : this->getStates())
     {
-      this->distribution_->setProbability(state, this->getProbability(state));
+      this->distribution_.setProbability(state, this->getProbability(state));
     }
   }
 

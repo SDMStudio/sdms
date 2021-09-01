@@ -56,7 +56,7 @@ namespace sdm
                                             TypeOfMaxPlanPrunning type_of_maxplan_prunning,
                                             int freq_prunning_lower_bound,
                                             TypeOfSawtoothPrunning type_of_sawtooth_pruning,
-                                            int freq_prunning_upper_bound)
+                                            int freq_prunning_upper_bound, bool store_action, bool store_state)
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -70,16 +70,7 @@ namespace sdm
             auto action_maxplan_lp_serial = std::make_shared<ActionVFMaxplanLPSerial>(problem);
             auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(problem);
 
-            TypeOfResolution type_of_resolution;
-
-            if (current_type_of_resolution == "BigM")
-            {
-                type_of_resolution = TypeOfResolution::BigM;
-            }
-            else
-            {
-                type_of_resolution = TypeOfResolution::IloIfThenResolution;
-            }
+            TypeOfResolution type_of_resolution = (current_type_of_resolution == "BigM") ? TypeOfResolution::BigM : TypeOfResolution::IloIfThenResolution;
 
             TypeSawtoothLinearProgram type_of_sawtooth_linear_program;
             if (type_sawtooth_linear_programming == "Full")
@@ -121,7 +112,10 @@ namespace sdm
             }
             else
             {
-                lower_bound = std::make_shared<TabularValueFunction>(horizon, lb_init, tabular_backup, action_tabular, false);
+                if (store_state)
+                    lower_bound = std::make_shared<TabularValueFunction>(horizon, lb_init, tabular_backup, action_tabular, false);
+                else
+                    lower_bound = std::make_shared<TabularValueFunction2>(horizon, lb_init, tabular_backup, action_tabular, false);
             }
 
             // Upper Bound
@@ -139,7 +133,10 @@ namespace sdm
             }
             else
             {
-                upper_bound = std::make_shared<TabularValueFunction>(horizon, ub_init, tabular_backup, action_tabular, true);
+                if (store_state)
+                    upper_bound = std::make_shared<TabularValueFunction>(horizon, ub_init, tabular_backup, action_tabular, true);
+                else
+                    upper_bound = std::make_shared<TabularValueFunction2>(horizon, ub_init, tabular_backup, action_tabular, true);
             }
 
             return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, 1, 1, time_max);
@@ -216,7 +213,7 @@ namespace sdm
             }
             else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
             {
-                formalism_problem = std::make_shared<OccupancyMDP>(problem, memory, compression, store_state, store_action, store_action, batch_size);
+                formalism_problem = std::make_shared<OccupancyMDP>(problem, memory, compression, store_state, store_action, batch_size);
             }
             else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
             {
@@ -231,7 +228,7 @@ namespace sdm
             else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
             {
                 auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                formalism_problem = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, compression, store_state, store_action, store_action, batch_size);
+                formalism_problem = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, compression, store_state, store_action, batch_size);
             }
             else
             {
@@ -268,17 +265,19 @@ namespace sdm
                                                  TypeOfMaxPlanPrunning type_of_maxplan_prunning,
                                                  int freq_prunning_lower_bound,
                                                  TypeOfSawtoothPrunning type_of_sawtooth_pruning,
-                                                 int freq_prunning_upper_bound)
+                                                 int freq_prunning_upper_bound,
+                                                 bool store_action,
+                                                 bool store_state)
         {
             //  Build the algorithm
             std::shared_ptr<Algorithm> p_algo;
             if ((algo_name == "hsvi") || (algo_name == "HSVI"))
             {
-                p_algo = makeHSVI(formalism_problem, upper_bound, lower_bound, ub_init, lb_init, discount, error, formalism_problem->getUnderlyingProblem()->getHorizon(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
+                p_algo = makeHSVI(formalism_problem, upper_bound, lower_bound, ub_init, lb_init, discount, error, formalism_problem->getUnderlyingProblem()->getHorizon(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound, store_action, store_state);
             }
             else if ((algo_name == "qlearning") || (algo_name == "QLearning") || (algo_name == "QLEARNING"))
             {
-                std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism_problem);                
+                std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism_problem);
                 p_algo = makeQLearning(gym, formalism_problem->getUnderlyingProblem()->getHorizon(), discount, error, 1, trials, name);
             }
             else if ((algo_name == "Alpha*") || (algo_name == "A*"))
@@ -351,7 +350,8 @@ namespace sdm
                                             upper_bound, lower_bound, ub_init, lb_init,
                                             discount, error, trials, name, time_max,
                                             current_type_of_resolution, BigM, type_sawtooth_linear_programming,
-                                            type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
+                                            type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound,
+                                            store_action, store_state);
             return algo;
         }
     }

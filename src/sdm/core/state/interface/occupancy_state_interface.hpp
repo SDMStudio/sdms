@@ -63,7 +63,7 @@ namespace sdm
         /**
          * @brief Get the fully uncompressed occupancy state.
          */
-        virtual std::shared_ptr<OccupancyStateInterface> getFullyUncompressedOccupancy() const = 0;
+        virtual std::shared_ptr<OccupancyStateInterface> getFullyUncompressedOccupancy() = 0;
 
         /**
          * @brief Set the fully uncompressed occupancy state.
@@ -73,7 +73,7 @@ namespace sdm
         /**
          * @brief Get the one step uncompressed occupancy state. 
          */
-        virtual std::shared_ptr<OccupancyStateInterface> getOneStepUncompressedOccupancy() const = 0;
+        virtual std::shared_ptr<OccupancyStateInterface> getOneStepUncompressedOccupancy() = 0;
 
         /**
          * @brief Set the one step uncompressed occupancy state

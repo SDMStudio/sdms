@@ -26,9 +26,6 @@ namespace sdm
          */
         SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp);
 
-        /** @brief Destructor */
-        ~SolvableByMDP();
-
         /** @brief Get the initial state */
         std::shared_ptr<State> getInitialState();
 

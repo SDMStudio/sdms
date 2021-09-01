@@ -9,6 +9,7 @@
 // #include <sdm/utils/struct/node.hpp>
 #include <sdm/types.hpp>
 #include <sdm/tools.hpp>
+#include <sdm/utils/struct/graph_node.hpp>
 #include <sdm/public/boost_serializable.hpp>
 
 namespace sdm
@@ -28,7 +29,7 @@ namespace sdm
      */
     template <typename TNode, typename TEdge>
     class Graph : public std::enable_shared_from_this<Graph<TNode, TEdge>>,
-                  public BoostSerializable<Graph<TNode, TEdge>>
+                   public BoostSerializable<Graph<TNode, TEdge>>
     {
     public:
         /**
@@ -36,22 +37,6 @@ namespace sdm
          * 
          */
         Graph();
-
-        /**
-         * @brief Construct a graph with an initial node*
-         * 
-         * @param data 
-         */
-        Graph(const TNode &data, const std::shared_ptr<std::unordered_map<TNode, std::shared_ptr<Graph>>> &node_space);
-
-        /**
-         * @brief Construct a new Graph object
-         * 
-         * @param parent the parent
-         * @param data the value of the node
-         * @param backup if true, save the new tree as a child for its parent
-         */
-        Graph(std::shared_ptr<Graph> predecessor, const TNode &data);
 
         /**
          *  @fn     ~Graph()
@@ -67,7 +52,7 @@ namespace sdm
          * @param node_value a specific node value
          * @return the address of the node 
          */
-        std::shared_ptr<Graph> getNode(const TNode &belief) const;
+        std::shared_ptr<GraphNode<TNode, TEdge>> getNode(const TNode &belief) const;
 
         /**
          * @brief Add a node in the graph.
@@ -76,62 +61,15 @@ namespace sdm
          */
         void addNode(const TNode &node_value);
 
-
         /**
          * @brief Get the number of node.
          */
         number getNumNodes() const;
 
-        /**
-         * @brief Get the value of the current node
-         * 
-         * @return the address of the value
-         */
-        TNode getData() const;
+        std::shared_ptr<GraphNode<TNode, TEdge>> getSuccessor(const TNode &node, const TEdge &edge) const;
+        std::shared_ptr<GraphNode<TNode, TEdge>> getPredecessor(const TNode &node, const TEdge &edge) const;
 
-        TNode &&data() const;
-
-        void setData(const TNode &data);
-
-        /**
-         * @brief Get the number of successors.
-         */
-        number getNumSuccessors() const;
-
-        /**
-         * @brief Get the number of predecessors
-         */
-        number getNumPredecessors() const;
-
-        /**
-         * @brief Get the successor following a given edge 
-         * 
-         * @param edge a specific edge
-         * @return the address of the successor's node
-         */
-        std::shared_ptr<Graph> getSuccessor(const TEdge &edge) const;
-
-        /**
-         * @brief Get the set of all predecessors
-         * 
-         * @return the set of predecessors 
-         */
-        std::set<std::shared_ptr<Graph>> getPredecessors() const;
-
-        /**
-         * @brief Add a successor node.
-         * 
-         * @param edge the edge
-         * @param node the successor node value
-         */
-        void addSuccessor(const TEdge &edge_value, const TNode &node_value);
-
-        /**
-         * @brief Add a predecessor to the current node.
-         * 
-         * @param node_value the predecessor node value
-         */
-        void addPredecessor(const TNode &node_value);
+        void addSuccessor(const TNode &node_value, const TEdge &edge_value, const TNode &succ_node_value);
 
         std::string str() const;
         std::string node_str() const;
@@ -149,24 +87,11 @@ namespace sdm
 
         bool contains(const TNode &node_value) const;
 
-    protected:
-        /** @brief data of the current node */
-        TNode data_;
-
-        /**
-         * @brief The map from edge value to successor
-         */
-        std::unordered_map<TEdge, std::shared_ptr<Graph>> successors;
-
-        /**
-         * @brief List of predecessors 
-         */
-        std::set<std::shared_ptr<Graph>> predecessors;
-
+    public:
         /**
          * @brief Space of nodes
          */
-        std::shared_ptr<std::unordered_map<TNode, std::shared_ptr<Graph>>> node_space_;
+        std::unordered_map<TNode, std::shared_ptr<GraphNode<TNode, TEdge>>> node_space_;
     };
 
 } // namespace sdm

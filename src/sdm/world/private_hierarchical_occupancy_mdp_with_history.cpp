@@ -7,8 +7,8 @@ namespace sdm
     {
     }
 
-    PrivateHierarchicalOccupancyMDPWithHistory::PrivateHierarchicalOccupancyMDPWithHistory(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, bool generate_action_spaces, int batch_size)
-        : PrivateHierarchicalOccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, generate_action_spaces, batch_size)
+    PrivateHierarchicalOccupancyMDPWithHistory::PrivateHierarchicalOccupancyMDPWithHistory(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
+        : PrivateHierarchicalOccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, batch_size)
     {
         
     }

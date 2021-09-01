@@ -31,7 +31,9 @@ namespace sdm
                                             TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE,
                                             int freq_prunning_lower_bound = -1,
                                             TypeOfSawtoothPrunning type_of_sawtooth_pruning = TypeOfSawtoothPrunning::NONE,
-                                            int freq_prunning_upper_bound = -1);
+                                            int freq_prunning_upper_bound = -1,
+                                            bool store_action = true,
+                                            bool store_state = true);
 
         /**
          * @brief Build the ValueIteration version that use TabularValueFunction Representation
@@ -85,7 +87,7 @@ namespace sdm
                                                  TypeOfMaxPlanPrunning type_of_maxplan_prunning,
                                                  int freq_prunning_lower_bound,
                                                  TypeOfSawtoothPrunning type_of_sawtooth_pruning,
-                                                 int freq_prunning_upper_bound);
+                                                 int freq_prunning_upper_bound, bool store_action, bool store_state);
 
         /**
          * @brief Build an algorithm given his name and the configurations required. 

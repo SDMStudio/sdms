@@ -97,7 +97,7 @@ namespace sdm
         }
         else
         {
-            return this->origin_;
+            return this->origin_.lock();
         }
     }
 

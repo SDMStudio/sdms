@@ -30,12 +30,19 @@ namespace sdm
 
         initial_state->finalize();
         this->initial_state_ = initial_state;
+
         this->mdp_graph_ = std::make_shared<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>>();
-        this->mdp_graph_->addNode(this->initial_state_);
+        this->getMDPGraph()->addNode(this->initial_state_);
+
         this->state_space_[*initial_state] = this->initial_state_;
 
         this->reward_graph_ = std::make_shared<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>>();
         this->reward_graph_->addNode(0.0);
+    }
+
+    template <class TBelief>
+    BaseBeliefMDP<TBelief>::~BaseBeliefMDP()
+    {
     }
 
     template <class TBelief>
@@ -89,18 +96,19 @@ namespace sdm
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
 
-        for(const auto&state : belief->toBelief()->getStates())
+        for (const auto &state : belief->toBelief()->getStates())
         {
-            for(const auto&next_state : this->getUnderlyingProblem()->getReachableStates(state,action,t))
+            for (const auto &next_state : this->getUnderlyingProblem()->getReachableStates(state, action, t))
             {
-                double proba =  this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
-                
-                if(proba >0)
+                double proba = this->getUnderlyingPOMDP()->getDynamics(state->toState(), action, next_state->toState(), observation, t) * belief->toBelief()->getProbability(state->toState());
+
+                if (proba > 0)
                 {
-                    if(!next_belief->toBelief()->isStateExist(next_state))
+                    if (!next_belief->toBelief()->isStateExist(next_state))
                     {
                         next_belief->toBelief()->setProbability(next_state->toState(), proba);
-                    }else
+                    }
+                    else
                     {
                         next_belief->toBelief()->addProbability(next_state->toState(), proba);
                     }
@@ -110,6 +118,7 @@ namespace sdm
 
         next_belief->toBelief()->finalize();
         // Return next belief.
+
         return std::make_pair(next_belief, nullptr);
     }
 
@@ -159,7 +168,8 @@ namespace sdm
         {
 
             // Get the successor
-            auto successor = this->mdp_graph_->getNode(belief)->getSuccessor(action_observation);
+            auto successor = this->getMDPGraph()->getSuccessor(belief, action_observation);
+            // auto successor = this->mdp_graph_->getSuccessor(belief, action_observation);
 
             // If already in the successor list
             if (successor != nullptr)
@@ -187,7 +197,7 @@ namespace sdm
                 auto next_belief = this->state_space_.at(b);
 
                 // Add the sucessor in the list of successors
-                this->mdp_graph_->getNode(belief)->addSuccessor(action_observation, next_belief);
+                this->getMDPGraph()->addSuccessor(belief, action_observation, next_belief);
 
                 return {next_belief, next_belief_probability};
             }
@@ -224,7 +234,7 @@ namespace sdm
         double max_o = -std::numeric_limits<double>::max(), tmp;
 
         std::shared_ptr<State> selected_next_belief;
-        auto observation_space = this->getObservationSpaceAt(belief,action,t);
+        auto observation_space = this->getObservationSpaceAt(belief, action, t);
         for (const auto &observation : *observation_space)
         {
             // Get the next state and probability
@@ -245,7 +255,7 @@ namespace sdm
     {
 
         auto state_action = std::make_pair(belief, action);
-        auto successor = this->reward_graph_->getNode(0.0)->getSuccessor(state_action);
+        auto successor = this->reward_graph_->getSuccessor(0.0, state_action);
         if (successor != nullptr)
         {
             // Return the successor node
@@ -260,7 +270,7 @@ namespace sdm
                 reward += belief->toBelief()->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
             }
             if (this->store_states_ && this->store_actions_)
-                this->reward_graph_->getNode(0.0)->addSuccessor(state_action, reward);
+                this->reward_graph_->addSuccessor(0.0, state_action, reward);
 
             return reward;
         }
@@ -277,11 +287,12 @@ namespace sdm
     {
         double exp_next_v = 0.0;
         // For all observations from the controller point of view
-        auto accessible_observation_space = this->getObservationSpaceAt(belief,action,t);
+        auto accessible_observation_space = this->getObservationSpaceAt(belief, action, t);
         for (const auto &observation : *accessible_observation_space)
         {
             // Compute next state
-            auto [next_state, state_transition_proba] = this->getNextState(value_function,belief,action,observation->toObservation(),t);
+            auto [next_state, state_transition_proba] = this->getNextState(value_function, belief, action, observation->toObservation(), t);
+
             // Update the next expected value at the next state
             exp_next_v += state_transition_proba * value_function->getValueAt(next_state, t + 1);
         }
@@ -289,7 +300,7 @@ namespace sdm
     }
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) > value_function->getHorizon()));
         // Compute next state (if required)

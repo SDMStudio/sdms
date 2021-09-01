@@ -25,10 +25,12 @@ namespace sdm
     {
     public:
         static double PRECISION;
+        static int NUM_CREATE, NUM_DESTROY;
 
         OccupancyState();
         OccupancyState(number num_agents);
         OccupancyState(const OccupancyState &copy);
+        ~OccupancyState();
 
         size_t hash() const;
 
@@ -91,7 +93,7 @@ namespace sdm
         /**
          * @brief Get the fully uncompressed occupancy state.
          */
-        std::shared_ptr<OccupancyStateInterface> getFullyUncompressedOccupancy() const;
+        std::shared_ptr<OccupancyStateInterface> getFullyUncompressedOccupancy();
 
         /**
          * @brief Set the fully uncompressed occupancy state.
@@ -101,14 +103,14 @@ namespace sdm
         /**
          * @brief Get the one step uncompressed occupancy state. 
          */
-        std::shared_ptr<OccupancyStateInterface> getOneStepUncompressedOccupancy() const;
+        std::shared_ptr<OccupancyStateInterface> getOneStepUncompressedOccupancy();
 
         /**
          * @brief Set the one step uncompressed occupancy state
          */
         void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &);
 
-        std::shared_ptr<OccupancyStateInterface> getCompressedOccupancy() const;
+        std::shared_ptr<OccupancyStateInterface> getCompressedOccupancy();
 
         /**
          * @brief Set the compressed occupancy state
@@ -189,12 +191,9 @@ namespace sdm
 
         double operator^(const std::shared_ptr<BeliefInterface> &other) const;
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
-
         double operator<(const OccupancyState &other) const;
         double operator<(const std::shared_ptr<BeliefInterface> &other) const;
-
         double operator-(const std::shared_ptr<BeliefInterface> &other) const;
-
         double minus(const std::shared_ptr<BeliefInterface> &other) const;
 
         std::shared_ptr<Space> getActionSpaceAt(number t);
@@ -219,6 +218,8 @@ namespace sdm
         static void cleanTIME();
         void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information) const;
 
+        /** @brief Keep relation between list of individual histories and joint histories */
+        static RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
     protected:
         /**
          * @brief the number of agents 
@@ -230,13 +231,12 @@ namespace sdm
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, double>> weight_of_private_occupancy_state_;
 
         /** @brief Keep in memory the uncompressed occupancy states */
-        std::shared_ptr<OccupancyStateInterface> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state, compressed_occupancy_state;
+        std::shared_ptr<OccupancyStateInterface> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state;
+        std::weak_ptr<OccupancyStateInterface> compressed_occupancy_state;
 
         /** @brief Keep relations between all private ihistories and labels */
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<HistoryInterface>>> private_ihistory_map_;
 
-        /** @brief Keep relation between list of individual histories and joint histories */
-        static RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
 
         /** @brief probability of a private history space for a precise agent */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, double>> probability_ihistories;
@@ -260,7 +260,7 @@ namespace sdm
         /**
          * @brief mapping from joint history to belief
          */
-        RecursiveMap<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> map_joint_history_to_belief_;
+        std::unordered_map<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> map_joint_history_to_belief_;
 
         /**
          * @brief 
@@ -273,6 +273,7 @@ namespace sdm
         void setupPrivateOccupancyStates();
 
         std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
+        
         // necessary for now for phoMDP
         std::vector<std::shared_ptr<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>> individual_hierarchical_history_vector_map_vector;
         //
