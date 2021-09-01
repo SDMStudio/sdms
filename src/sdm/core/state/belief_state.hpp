@@ -47,20 +47,20 @@ namespace sdm
 
     void normalizeBelief(double norm_1);
 
-    bool isStateExist(const std::shared_ptr<State>& state_tmp)const;
+    bool isStateExist(const std::shared_ptr<State> &state_tmp) const;
     static std::shared_ptr<State> getState(const std::shared_ptr<State> &);
     size_t size() const { return MappedVector<std::shared_ptr<State>>::size(); }
 
     std::string str() const;
 
     size_t hash() const;
-    
+
     bool operator==(const Belief &) const;
     bool operator==(const std::shared_ptr<State> &other) const;
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
 
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
-    
+
     double operator<(const std::shared_ptr<BeliefInterface> &other) const;
     double operator<(const Belief &other) const;
 
@@ -88,7 +88,7 @@ namespace sdm
     }
 
   protected:
-    std::shared_ptr<DiscreteDistribution<std::shared_ptr<State>>> distribution_;
+    DiscreteDistribution<std::shared_ptr<State>> distribution_;
   };
 } // namespace sdm
 

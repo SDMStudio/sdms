@@ -14,10 +14,6 @@ namespace sdm
         this->initial_state_ = (*this->getUnderlyingProblem()->getStateSpace(0)->begin())->toState();
     }
 
-    SolvableByMDP::~SolvableByMDP()
-    {
-    }
-
     void SolvableByMDP::setInitialState(const std::shared_ptr<State> &state)
     {
         this->initial_state_ = state;

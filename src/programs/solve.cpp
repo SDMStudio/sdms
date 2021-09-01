@@ -2,9 +2,11 @@
 #include <boost/program_options.hpp>
 
 #include <sdm/types.hpp>
+#include <sdm/config.hpp>
 #include <sdm/common.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/algorithms.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
 
 using namespace sdm;
 using namespace std;
@@ -18,6 +20,7 @@ int solve(int argv, char **args)
         int trials, memory;
         number horizon, seed, batch_size;
         double error, discount;
+        double p_b, p_o, p_c;
         bool compress, store_actions, store_states;
         number sawtooth_BigM_value;
 
@@ -42,6 +45,9 @@ int solve(int argv, char **args)
         ("compress", po::value<bool>(&compress)->default_value(true), "If true, apply compression when required.")
         ("store_actions", po::value<bool>(&store_actions)->default_value(true), "If true, store the macro actions when required.")
         ("store_states", po::value<bool>(&store_states)->default_value(true), "If true, store the macro states when required.")
+        ("p_c", po::value<double>(&p_c)->default_value(config::PRECISION_COMPRESSION), "The precision of the compression.")
+        ("p_b", po::value<double>(&p_b)->default_value(config::PRECISION_BELIEF), "The precision of beliefs.")
+        ("p_o", po::value<double>(&p_o)->default_value(config::PRECISION_OCCUPANCY_STATE), "The precision of occupancy states.")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
@@ -78,7 +84,13 @@ int solve(int argv, char **args)
             return sdm::ERROR_IN_COMMAND_LINE;
         }
 
+        // Set the seed
         common::global_urng().seed(seed);
+
+        // Set precisions
+        Belief::PRECISION = p_b;
+        OccupancyState::PRECISION = p_o;
+        PrivateOccupancyState::PRECISION_COMPRESSION = p_c;
 
         auto algo = sdm::algo::make(algorithm,
                                     problem,

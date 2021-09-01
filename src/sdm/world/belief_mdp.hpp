@@ -34,6 +34,7 @@ namespace sdm
     public:
         BaseBeliefMDP();
         BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
+        ~BaseBeliefMDP();
 
         /**
          * @brief Get the next belief.
@@ -120,8 +121,9 @@ namespace sdm
 
         /** @brief A pointer on the bag containing all states. */
         RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
+        std::shared_ptr<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>> reward_graph_;
 
-    protected:
+    public:
         // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;
 
@@ -140,7 +142,6 @@ namespace sdm
         /** @brief the MDP Graph (graph of state transition) */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
 
-        std::shared_ptr<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>> reward_graph_;
 
         /**
          * @brief Compute the state transition in order to return next state and associated probability.

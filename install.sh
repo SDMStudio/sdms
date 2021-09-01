@@ -40,14 +40,14 @@ then
     mkdir -p ./build && cd ./build
 
     # Build and install SDMS
-    cmake .. -DGLOBAL=ON && make install
+    cmake .. && make -j install
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
     if [ ${RESULT_INSTALL_SDMS} -eq 0 ];
     then
         echo -e "${LOG_SDMS}Installation completed. Use 'SDMStudio --help' to see how to use it."
     else
-        echo -e "${LOG_SDMS}Something went wrong (code ${RESULT_INSTALL_SDMS}) when executing \"cmake .. -DGLOBAL=ON && make install\""
+        echo -e "${LOG_SDMS}Something went wrong (code ${RESULT_INSTALL_SDMS}) when executing \"cmake .. && make -j install\""
         echo -e "${LOG_SDMS}Installation will stop" && exit $?
     fi
 
@@ -73,14 +73,14 @@ then
     mkdir -p ./build && cd ./build
 
     # Build and install SDMS
-    cmake .. -DGLOBAL=ON && make install
+    cmake .. && make -j install
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
     if [ ${RESULT_INSTALL_SDMS} -eq 0 ];
     then
         echo -e "${LOG_SDMS}Installation completed. Use 'SDMStudio --help' to see how to use it."
     else
-        echo -e "${LOG_SDMS}Something went wrong (code ${RESULT_INSTALL_SDMS}) when executing \"cmake .. -DGLOBAL=ON && make install\""
+        echo -e "${LOG_SDMS}Something went wrong (code ${RESULT_INSTALL_SDMS}) when executing \"cmake .. && make -j install\""
         echo -e "${LOG_SDMS}Installation will stop" && exit $?
     fi
 elif [ "${machine}" == "MINGW32_NT" ]; 

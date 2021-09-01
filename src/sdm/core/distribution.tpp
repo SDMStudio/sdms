@@ -13,6 +13,11 @@ namespace sdm
     // }
 
     template <typename T>
+    DiscreteDistribution<T>::DiscreteDistribution()
+    {
+    }
+
+    template <typename T>
     T DiscreteDistribution<T>::sample() const
     {
         // std::cout << "DiscreteDistribution<T>::sample()" << std::endl;

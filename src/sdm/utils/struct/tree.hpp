@@ -124,7 +124,7 @@ namespace sdm
         T data_;
 
         //! @brief the root of the tree
-        std::shared_ptr<Tree<T>> origin_;
+        std::weak_ptr<Tree<T>> origin_;
 
         //! @brief the parent node
         std::weak_ptr<Tree<T>> parent_;

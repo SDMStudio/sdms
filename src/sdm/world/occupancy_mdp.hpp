@@ -22,7 +22,8 @@ namespace sdm
         {
         public:
                 BaseOccupancyMDP();
-                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, bool generate_action_spaces = false, int batch_size = 0);
+                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                ~BaseOccupancyMDP();
 
                 void initialize(number memory);
 
@@ -97,7 +98,7 @@ namespace sdm
 
         protected:
                 /** @brief Hyperparameters. */
-                bool compression_ = true, generate_action_spaces_ = false;
+                bool compression_ = true;
 
                 /** @brief Keep a pointer on the associated belief mdp that is used to compute next beliefs. */
                 std::shared_ptr<BeliefMDP> belief_mdp_;
@@ -127,7 +128,7 @@ namespace sdm
 
                 virtual void update_occupancy_state_proba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
 
-                std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
+                // std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
 
                 // std::shared_ptr<Action> getActionPointer(std::shared_ptr<Action> action_tmp);
         };

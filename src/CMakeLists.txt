@@ -30,7 +30,7 @@ include_directories(${SDMS_INCLUDE_DIRS}
 					${TOULBAR_INCLUDE_DIR}
 					)
 
-if(GLOBAL)
+if(SDMS_GLOBAL)
 	# LIB CORE
 	file(
 		GLOB_RECURSE

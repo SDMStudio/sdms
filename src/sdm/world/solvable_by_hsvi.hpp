@@ -27,7 +27,8 @@ namespace sdm
     class SolvableByHSVI
     {
     public:
-        virtual ~SolvableByHSVI() {}
+        virtual ~SolvableByHSVI() {
+        }
 
         /**
          * @brief Get the initial state.

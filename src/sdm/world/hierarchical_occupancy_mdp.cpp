@@ -7,8 +7,8 @@ namespace sdm
     {
     }
 
-    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<HierarchicalMPOMDP> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, bool generate_action_spaces, int batch_size)
-        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, generate_action_spaces, batch_size)
+    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<HierarchicalMPOMDP> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
+        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, batch_size)
     {
         this->low_level_agent_id_ = 0;
     }

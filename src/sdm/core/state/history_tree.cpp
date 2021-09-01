@@ -94,7 +94,7 @@ namespace sdm
             list_items.push_front(this->getData());
 
             auto chistory = this->getParent();
-            while (chistory != this->origin_)
+            while (chistory != this->origin_.lock())
             {
                 list_items.push_front(chistory->getData());
                 chistory = chistory->getParent();
