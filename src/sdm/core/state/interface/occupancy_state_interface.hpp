@@ -9,6 +9,11 @@
 
 namespace sdm
 {
+
+    /**
+     * @brief A common interface for objects that represent an occupancy state.
+     * 
+     */
     class OccupancyStateInterface : virtual public BeliefInterface
     {
     public:

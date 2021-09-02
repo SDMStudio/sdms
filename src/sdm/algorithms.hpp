@@ -137,17 +137,20 @@ namespace sdm
 
         /**
          * @brief Get the list of available algorithms. 
-         * Usage:
-         * 
-         *          #include <sdm/algorithms.hpp>
-         *          
-         *          int main() 
-         *          {
-         *              std::cout << sdm::algo::available() << std::endl;
-         *              return 0;
-         *          }
          * 
          * @return the list of available algorithms.
+         * 
+         * Usage:
+         * ```cpp
+         * #include <sdm/algorithms.hpp>
+         * 
+         * int main() 
+         * {
+         *     std::cout << sdm::algo::available() << std::endl;
+         *     return 0;
+         * }
+         * ```
+         * 
          */
         std::vector<std::string> available()
         {

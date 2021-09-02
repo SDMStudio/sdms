@@ -27,49 +27,40 @@ namespace sdm
 {
 
   /**
-   * @brief 
+   * @brief [Heuristic Search Value Iteration (HSVI)](https://arxiv.org/abs/1207.4166) and its extensions (FB-HSVI, one-sided HSVI).
    * 
-   * @tparam std::shared_ptr<State> 
-   * @tparam std::shared_ptr<Action> 
    */
   class HSVI : public Algorithm,
                public std::enable_shared_from_this<HSVI>
   {
   protected:
-    /**
-     * @brief The problem to be solved.
-     * 
-     */
+    /** @brief The problem to be solved */
     std::shared_ptr<SolvableByHSVI> world_;
 
-    /**
-     * @brief Lower Bound representation. 
-     */
+    /** @brief Lower Bound representation. */
     std::shared_ptr<ValueFunction> lower_bound_;
 
-    /**
-     * @brief Upper Bound representation. 
-     */
+    /** @brief Upper Bound representation. */
     std::shared_ptr<ValueFunction> upper_bound_;
 
-    /**
-     * @brief Some variables for the algorithm.
-     * 
-     */
+    /** @brief Some variables for the algorithm. */
     int trial, MAX_TRIALS;
     double error_, time_max_;
     number planning_horizon_, lb_update_frequency_, ub_update_frequency_;
+
     std::string name_ = "hsvi";
+    
     bool keep_same_action_forward_backward_;
 
     std::shared_ptr<State> start_state;
 
     std::chrono::high_resolution_clock::time_point start_time, current_time;
+    
     double duration;
 
   public:
     /**
-     * @brief Construct the HSVI object.
+     * @brief Construct the HSVI algorithm.
      * 
      * @param world the problem to be solved by HSVI
      * @param lower_bound the lower bound 
@@ -94,13 +85,12 @@ namespace sdm
     std::shared_ptr<HSVI> getptr();
 
     /**
-     * @brief 
-     * 
+     * @brief Initialize the algorithm. It will initialize the lower bound and the upper bound.
      */
     void do_initialize();
 
     /**
-     * @brief Solve a problem solvable by HSVI. 
+     * @brief Solve a problem that is solvable by HSVI. 
      */
     void do_solve();
 
@@ -111,12 +101,11 @@ namespace sdm
 
     /**
      * @brief Save the lower bound under "name_lb.bin"
-     * 
      */
     void do_save();
 
     /**
-     * @brief Check the end of HSVI algo
+     * @brief Check the end of HSVI algo.
      * 
      * @param s the current state
      * @param h the current timestep
@@ -137,8 +126,8 @@ namespace sdm
      * @brief Computes the error between bounds (or excess).
      * 
      * @param const std::shared_ptr<State> & : the state
-     * @param double : cost so far
-     * @param number : the timestep
+     * @param double cost so far
+     * @param number the timestep
      * @return the error
      */
     double do_excess(const std::shared_ptr<State> &, double /*cost_so_far*/, number);

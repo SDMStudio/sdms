@@ -15,10 +15,13 @@ namespace sdm
     class PrivateOccupancyState;
 
     /**
-     * @brief An occupancy state refers to the whole knowledge that a central planner can have access to take decisions.
+     * @brief An occupancy state refers to the complete knowledge the central planner have access to take decisions.
      * 
-     * @tparam TState refers to a number
-     * @tparam TJointHistory_p refers to a joint histories
+     * Occupancy states are firstly defined by Dibangoye, Amato, Buffet and Charpillet 
+     * in [Optimally Solving Dec-POMDPs as Continuous-State MDPs](https://hal.inria.fr/hal-01279444/document).
+     * An occupancy state is defined as a posterior distribution over states and histories, given a complete information state 
+     * (i.e. $\xi_t(s_t, \theta_t) = p(s_t, \theta_t \mid \iota_t)$ ).
+     * 
      */
     class OccupancyState : virtual public OccupancyStateInterface,
                            virtual public Belief
@@ -153,8 +156,8 @@ namespace sdm
         /**
          * @brief Check probabilistic equivalence
          * 
-         * @return true 
-         * @return false 
+         * @return true if histories are equivalent
+         * @return false else
          */
         bool areIndividualHistoryLPE(const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<HistoryInterface> &, number);
 

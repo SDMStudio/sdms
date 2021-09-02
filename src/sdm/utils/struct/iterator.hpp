@@ -5,11 +5,15 @@
 namespace sdm
 {
     /**
-     * @brief The interface for Iterators.
+     * @brief Common interface to all SDMS Iterators.
+     * 
      * Iterators in SDMS are different to std iterators. The usage is similar but SDMS iterators can be seen as super iterators. Indeed, they usually are kind of iterator over iterator.
      * The advantage of this hierarchy in SDMS iterators is that we can use super iterators over other super iterators and without care about the type of sub-iterators.
      * 
      * @tparam TItem the type of value we iterate over.
+     *
+     * @example examples/ex-iterator.cpp
+     * 
      */
     template <typename TItem>
     class Iterator

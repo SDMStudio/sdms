@@ -25,7 +25,11 @@
 namespace sdm
 {
     /**
-     * @brief The BaseBeliefMDP class is the interface contains the transformation of a the POMDP formalism in BaseBeliefMDP formalism.
+     * @brief This class provides a way to transform a POMDP into belief MDP formalism.
+     *
+     * This problem reformulation can be used to solve the underlying POMDP thanks to 
+     * standard dynamic programming algorithms. 
+     *  
      */
     template <class TBelief>
     class BaseBeliefMDP : public SolvableByMDP,
@@ -38,14 +42,16 @@ namespace sdm
 
         /**
          * @brief Get the next belief.
-         * This function returns the next belief. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current belief. 
-         * If exists, we return the associated next belief. Otherwise, we compute the next belief using  "computeNextStateAndProba" function and add the edge from the current belief to the next belief in the graph.
          * 
          * @param belief the belief
          * @param action the action
          * @param observation the observation
          * @param t the timestep
          * @return the next belief
+         * 
+         * This function returns the next belief. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current belief. 
+         * If exists, we return the associated next belief. Otherwise, we compute the next belief using  "computeNextStateAndProba" function and add the edge from the current belief to the next belief in the graph.
+         *
          */
         virtual Pair<std::shared_ptr<State>, double> nextBeliefAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
         
@@ -70,23 +76,27 @@ namespace sdm
 
         /**
          * @brief Get the action space at a specific belief and timestep.
-         * The time dependency is required in extensive-form games in which some agents have a different action space.   
          * 
          * @param belief the belief
          * @param t the timestep
          * @return the action space 
+         * 
+         * The time dependency is required in extensive-form games in which some agents have a different action space.   
+         * 
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
         virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
 
         /**
          * @brief Get the expected reward of executing a specific action in a specific belief at timestep t. 
-         * The time dependency can be required in non-stationnary problems.   
          * 
          * @param belief the belief
          * @param action the action
          * @param t the timestep
          * @return the reward
+         * 
+         * The time dependency can be required in non-stationnary problems.   
+         * 
          */
         virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
 
@@ -145,14 +155,16 @@ namespace sdm
 
         /**
          * @brief Compute the state transition in order to return next state and associated probability.
-         * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
-         * (i.e. OccupancyMDP inherit from BaseBeliefMDP with TBelief = OccupancyState)
          * 
          * @param belief the belief
          * @param action the action
          * @param observation the observation
          * @param t the timestep
          * @return the couple (next state, transition probability in the next state)
+         * 
+         * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
+         * (i.e. OccupancyMDP inherit from BaseBeliefMDP with TBelief = OccupancyState)
+         * 
          */
         virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
         virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);

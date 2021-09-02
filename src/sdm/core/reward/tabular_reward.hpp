@@ -7,7 +7,10 @@
 
 namespace sdm
 {
-
+    /**
+     * @brief This class provide a way to represent the reward model with a tabular representation.
+     * 
+     */
     class TabularReward : public RewardInterface
     {
     public:

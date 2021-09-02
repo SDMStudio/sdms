@@ -16,6 +16,7 @@ namespace sdm
 {
     /**
      * @brief This class provides a common interface for every models of reward.
+     * 
      * A model of reward is well defined if it implements this interface. A reward model is required to define a MDP (see file MDP.hpp) and related problems.
      * Basically, there is two types of reward models : the tabular model (tabular_reward.hpp) and the function based model (function_reward.hpp).
      */

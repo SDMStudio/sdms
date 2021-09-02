@@ -5,14 +5,14 @@ set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_C_COMPILER "clang")
 
 
-# Set compilation options
-
+# Set the build type
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
-      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
+        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+    FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+# Set compilation options
 SET(CMAKE_CXX_FLAGS "-Wall" )
 SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -Wall -pedantic") 
 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -Wall -pedantic")
@@ -29,7 +29,6 @@ set(CMAKE_C_STANDARD 11)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
 
 # Project infos
 project(sdms
@@ -76,6 +75,7 @@ set(ALGOS_DIR ${SDMS_SOURCE_DIRS}/algos)
 # Set names of libraries
 set(LIB_SDMS ${CMAKE_PROJECT_NAME})
 
+# Build SDMS sources
 if(SDMS_BUILD_SDMS)
     message(STATUS "Building SDMS sources.")
     add_subdirectory(src)
@@ -92,12 +92,6 @@ if(SDMS_BUILD_TESTS)
     message(STATUS "Building SDMS tests.")
     enable_testing ()
     add_subdirectory(tests)
-    # add_test(   NAME TestParser 
-    #             COMMAND test_world
-    #         )
-    # add_test(   NAME TestSpace 
-    #             COMMAND test_space
-    #         )
 endif()
 
 # Configure sdms.pc file and install it

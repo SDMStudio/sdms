@@ -7,13 +7,18 @@
 
 namespace sdm
 {
+
+    /**
+     * @brief A common interface for objects that are serialized.
+     * 
+     */
     class SerialInterface
     {
     public:
         /**
          * @brief Get the current Agent Id of the object
          * 
-         * @return number 
+         * @return number the current agent id
          */
         virtual number getCurrentAgentId() const = 0;
     };

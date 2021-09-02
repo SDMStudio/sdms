@@ -19,9 +19,11 @@
 namespace sdm
 {
     /**
-     * @brief Mapped tensors are tensors that use map to store values. 
+     * @brief Mapped matrices are matrices that use map to store values. Can be view as a sparse matrix with templated indexes. 
      * 
-     * @tparam TIndex the type of indexes 
+     * @tparam TLig the type of index for the lines
+     * @tparam TCol the type of index for the colums
+     * @tparam TValue the type of value (default : `double`) 
      */
     template <typename TLig, typename TCol, typename TValue = double>
     class MappedMatrix : public RecursiveMap<TLig, MappedVector<TCol, TValue>>, public MatrixInterface<TLig, TCol, TValue>

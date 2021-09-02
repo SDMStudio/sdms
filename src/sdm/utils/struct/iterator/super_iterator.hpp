@@ -4,6 +4,10 @@
 
 namespace sdm
 {
+    /**
+     * @brief Namespace grouping all SDMS iterators.
+     * 
+     */
     namespace iterator
     {
         /**
@@ -11,6 +15,9 @@ namespace sdm
          * 
          * @tparam TItem the type of value we iterate over.
          * @tparam STDIterator the type of standard iterator.
+         * 
+         * @example examples/ex-iterator.cpp
+         * 
          */
         template <typename TItem, typename STDIterator>
         class SuperIterator : public Iterator<TItem>,

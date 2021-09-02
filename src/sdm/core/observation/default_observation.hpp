@@ -5,5 +5,6 @@
 
 namespace sdm
 {
+  /** @brief Default observation. */
   extern const std::shared_ptr<Observation> NO_OBSERVATION;
 } // namespace sdm

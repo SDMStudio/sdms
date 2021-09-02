@@ -12,7 +12,10 @@ namespace sdm
         /**
          * @brief The function iterator is an SDMS iterator generating functions from iterable possible inputs and outputs.
          * 
-         * @tparam TFunction the function type. This type of function needs to accept a constructor of the form  
+         * @tparam TFunction the function type. This type of function needs to accept a constructor of the form `MyFunction(const std::vector<std::shared_ptr<Item>> &inputs, const std::vector<std::shared_ptr<Item>> &outputs);`
+         * 
+         * Given an list of possible inputs and a list of iterators over possible outputs, the function iterator will generate all possible functions. 
+         * 
          */
         template <typename TFunction>
         class FunctionIterator : public ItemIterator,

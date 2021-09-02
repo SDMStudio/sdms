@@ -22,12 +22,12 @@
 namespace sdm
 {
     /**
-     * @brief Namespace grouping other tools.
+     * @brief Namespace grouping different kind of tools.
      */
     namespace tools
     {
         /**
-         * @brief Compare the extension of a file. 
+         * @brief Compare the extension of a file with a given extension. 
          * 
          * @param filename the filename
          * @param extension the extension
@@ -48,39 +48,49 @@ namespace sdm
          * @param num_indents the number of indentations
          * @param indent the indentation format used
          */
-        // std::string addIndent(std::string s, int num_indents, std::string indent = "\t");
         std::string addIndent(std::string input_string, int num_indents = 1, std::string indent = "\t");
 
         /**
          * @brief Repeat a string n times.
          * 
-         * Exemple:
-         * 
-         *          std::cout << repeatString("bla", 3) << std::endl;
-         *          // OUTPUT : blablabla
-         * 
          * @param str the substring to replicate.
          * @param times the number of replication
          * @return the built string 
+         * 
+         * Example:
+         * 
+         * ```cpp
+         * std::cout << repeatString("bla", 3) << std::endl;
+         * // OUTPUT : blablabla
+         * ```
          */
         std::string repeatString(const std::string &str, size_t times);
 
         /**
          * @brief Concatenate strings in order to create the path to a specific problem.
          * 
+         * @param base the repository that contains problems definitions
+         * @param world_name the name of the problem
+         * @param formalism_name the formalism
+         * @return std::string the complete path to the problem file
+         * 
          * Exemple:
          * 
-         *          std::cout << getPathTo("/usr/local/share/sdms/world", "tiger", "pomdp") << std::endl;
-         *          // OUTPUT : /usr/local/share/sdms/world/pomdp/tiger.pomdp
+         * ```cpp
+         * std::cout << getPathTo("/usr/local/share/sdms/world", "tiger", "pomdp") << std::endl;
+         * // OUTPUT : /usr/local/share/sdms/world/pomdp/tiger.pomdp
+         * ```
          * 
-         * @param base 
-         * @param world_name 
-         * @param formalism_name 
-         * @return std::string 
          */
         std::string getPathTo(std::string base, std::string world_name, std::string formalism_name);
 
-
+        /**
+         * @brief Copy values contained in a std::set into a std::vector.
+         * 
+         * @tparam T the type of items
+         * @param set the set
+         * @return the vector that contains items in the set
+         */
         template <typename T>
         std::vector<T> set2vector(const std::set<T> &set)
         {
@@ -94,6 +104,7 @@ namespace sdm
          * @tparam TValue the type of values
          * @param input_map the map
          * @return the list of existing keys 
+         * 
          */
         template <typename TKey, typename TValue>
         std::vector<TKey> extractKeys(const std::map<TKey, TValue> &input_map)
@@ -113,6 +124,7 @@ namespace sdm
          * @tparam TValue the type of values
          * @param input_map the map
          * @return the list of existing values 
+         * 
          */
         template <typename TKey, typename TValue>
         std::vector<TValue> extractValues(const std::map<TKey, TValue> &input_map)

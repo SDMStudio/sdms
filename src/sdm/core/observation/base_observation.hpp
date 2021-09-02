@@ -9,13 +9,14 @@ namespace sdm
 
   /**
    * @brief A base class inheriting from the Observation interface.
+   * 
    * @tparam TObservation the type of data used for the observation.
    * 
    * This class can be used to instantiate an observation represented by any type.
-   * Example:
-   * 
-   *      BaseObservation<char> obs('a'), obs2('b'); // Instanciate an observation stored as a character.   
-   *      BaseObservation<float> float_obs(0.0), float_obs2(0.1); // Instanciate an observation stored as a float.   
+   * ```cpp
+   * BaseObservation<char> obs('a'), obs2('b'); // Instanciate an observation stored as a character.   
+   * BaseObservation<float> float_obs(0.0), float_obs2(0.1); // Instanciate an observation stored as a float.   
+   * ```
    * 
    */
   template <typename TObservation>

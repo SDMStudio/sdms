@@ -11,7 +11,9 @@ namespace sdm
 {
   /**
    * @brief This class provide a way to manipulate data relative to a deterministic decision rule.
+   * 
    * To represent a deterministic decision rule, we simply use a structure that map histories to actions.
+   * 
    */
   class DeterministicDecisionRule : public DecisionRule
   {

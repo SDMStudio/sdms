@@ -27,9 +27,12 @@ namespace sdm
     {
         /**
          * @brief Get the list of available worlds. 
-         * Usage:
          * 
-         *          std::cout << sdm::world::available() << std::endl;
+         * Usage :
+         * 
+         * ```cpp
+         * std::cout << sdm::world::available() << std::endl;
+         * ```
          * 
          * @return the list of available worlds.
          */

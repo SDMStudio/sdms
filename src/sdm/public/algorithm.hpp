@@ -3,6 +3,18 @@
 
 namespace sdm
 {
+  /**
+   * @brief The public interface common to all algorithms in **SDM'Studio**.
+   * 
+   * Basic usage:
+   * 
+   * ```cpp
+   * std::shared_ptr<Algorithm> algo = std::make_shared<AlgoName>(params...);
+   * algo->do_initialize();
+   * algo->do_solve();
+   * ```
+   * 
+   */
   class Algorithm
   {
   public:

@@ -32,12 +32,16 @@ namespace sdm
      * 
      * @tparam T the type of the data contains in each node
      * 
+     * @example examples/ex-tree.cpp
      * 
-     * Usage
-     *         Tree<int> tree();
-     *         tree.addChildren({3, 4, 5});
-     *         tree.getChild(3).addChildren({9, 8, 7, 6});
-     *         tree.getChild(5).addChildren({1, 3});
+     * Basic Usage
+     * 
+     * ```cpp
+     * std::shared_ptr<Tree<int>> tree = std::make_shared<Tree<int>>(4);
+     * tree->addChildren({3, 4, 5});
+     * tree->getChild(3)->addChildren({9, 8, 7, 6});
+     * tree->getChild(5)->addChildren({1, 3});
+     * ```
      * 
      */
     template <typename T>

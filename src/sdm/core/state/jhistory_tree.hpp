@@ -23,7 +23,9 @@ namespace sdm
     /**
      * @class JointHistoryTree
      * 
-     * @brief 
+     * @brief Joint history class that use a representation by tree. 
+     * 
+     * It can be viewed as a history over joint observations and as a list of individual histories. 
      * 
      */
     class JointHistoryTree : public JointHistoryInterface,

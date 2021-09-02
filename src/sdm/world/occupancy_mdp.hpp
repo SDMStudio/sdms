@@ -17,6 +17,13 @@
  */
 namespace sdm
 {
+
+        /**
+         * @brief This class provides a way to transform a Dec-POMDP into an occupancy MDP formalism.
+         *
+         * This problem reformulation can be used to solve the underlying Dec-POMDP with standard dynamic programming algorithms. 
+         *  
+         */
         template <class TOccupancyState = OccupancyState>
         class BaseOccupancyMDP : public BaseBeliefMDP<TOccupancyState>
         {
@@ -29,14 +36,16 @@ namespace sdm
 
                 /**
                  * @brief Get the next occupancy state.
-                 * This function returns the next occupancy state. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current occupancy state. 
-                 * If it exists, we return the associated next occupancy state. Otherwise, we compute the next occupancy state using  "computeNextStateAndProbability" function and add the edge from the current occupancy state to the next occupancy state in the graph.
                  * 
                  * @param occupancy state the occupancy state
                  * @param action the action
                  * @param observation the observation
                  * @param t the timestep
                  * @return the next occupancy state
+                 * 
+                 * This function returns the next occupancy state. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current occupancy state. 
+                 * If it exists, we return the associated next occupancy state. Otherwise, we compute the next occupancy state using  "computeNextStateAndProbability" function and add the edge from the current occupancy state to the next occupancy state in the graph.
+                 *
                  */
                 virtual std::shared_ptr<State> nextOccupancyState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, const std::shared_ptr<Observation> &observation, number t = 0);
 
@@ -48,10 +57,12 @@ namespace sdm
 
                 /**
                  * @brief Get the observation space of the central planner. 
-                 * Depending of the case, the central planner may observe or not what agents observe.
                  * 
                  * @param t the timestep
                  * @return the space of observation of the central planner. 
+                 * 
+                 * Depending of the case, the central planner may observe or not what agents observe.
+                 * 
                  */
                 std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
                 virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
@@ -105,14 +116,16 @@ namespace sdm
 
                 /**
                  * @brief Compute the state transition in order to return next state and associated probability.
-                 * This function can be modified in an inherited class to define a belief MDP with a different representation of the belief state. 
-                 * (i.e. BaseOccupancyMDP inherits from BaseBeliefMDP with TBelief = OccupancyState)
                  * 
                  * @param belief the belief
                  * @param action the action
                  * @param observation the observation
                  * @param t the timestep
                  * @return the couple (next state, transition probability in the next state)
+                 * 
+                 * This function can be modified in an inherited class to define a belief MDP with a different representation of the belief state. 
+                 * (i.e. BaseOccupancyMDP inherits from BaseBeliefMDP with TBelief = OccupancyState)
+                 * 
                  */
                 virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);

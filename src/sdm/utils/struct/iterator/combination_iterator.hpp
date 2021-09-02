@@ -9,7 +9,12 @@ namespace sdm
     namespace iterator
     {
         /**
-         * @brief The combination iterator go simultaneously over multiple iterators in order to generate all item combinations.
+         * @brief The combination iterator provides a way to go simultaneously over multiple iterators in order to generate all combinations of items.
+         * 
+         * @example examples/ex-iterator.cpp
+         * 
+         * The combination iterator is a classic SDMS iterator that will efficiently generate all combination of items included in subiterators. 
+         * Acceptable subiterators are all SDMS iterators. Thus, it is possible to instanciate a combination iterator over combination iterators.
          * 
          */
         class CombinationIterator : public ItemIterator,
@@ -40,6 +45,7 @@ namespace sdm
             std::shared_ptr<ItemIterator> copy() const;
 
         protected:
+            /** */
             std::vector<single_iterator_type> begin_iterators_, current_iterators_, end_iterators_;
             std::shared_ptr<Item> temporary_item;
             

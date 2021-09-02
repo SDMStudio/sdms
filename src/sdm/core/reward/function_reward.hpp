@@ -5,7 +5,7 @@
 namespace sdm
 {
     /**
-     * @brief This class provides getter and setter methods for the reward model.
+     * @brief This class provides getters and setters for the reward model.
      */
     class FunctionReward : public RewardInterface
     {

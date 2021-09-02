@@ -16,13 +16,13 @@ namespace sdm
     /**
      * @class GraphNode
      * 
-     * @brief Generic GraphNode class 
+     * @brief Node of graphs.
      * 
-     * @tparam T the type of the data contains in each node
+     * GraphNode class is provide to give the user the possibility to transit directly on them. 
+     * In fact, the class keep all the successors of a node in its attribute. 
      * 
-     * 
-     * Usage
-     *         GraphNode<int> tree();
+     * @tparam TNode the type of the data contains in each node
+     * @tparam TEdge the type of the edges between two nodes
      * 
      */
     template <typename TNode, typename TEdge>
@@ -44,19 +44,9 @@ namespace sdm
         GraphNode(const TNode &data);
 
         /**
-         * @brief Construct a new GraphNode object
-         * 
-         * @param parent the parent
-         * @param data the value of the node
-         * @param backup if true, save the new tree as a child for its parent
-         */
-        // GraphNode(std::shared_ptr<GraphNode> predecessor, const TNode &data);
-
-        /**
          *  @fn     ~GraphNode()
-         *  @brief  Destructor of GraphNode (that's bad). 
-         *
-         *  This destructor recursively all, children and the item from the tree, bottom up.
+         *  @brief  Destructor of GraphNode.
+         *  
          */
         virtual ~GraphNode();
 
@@ -128,14 +118,10 @@ namespace sdm
         /** @brief data of the current node */
         TNode data_;
 
-        /**
-         * @brief The map from edge value to successor
-         */
+        /** @brief The map from edge value to successor */
         std::unordered_map<TEdge, std::weak_ptr<GraphNode>> successors;
 
-        /**
-         * @brief List of predecessors 
-         */
+        /** @brief List of predecessors */
         std::unordered_map<TEdge, std::weak_ptr<GraphNode>> predecessors;
     };
 

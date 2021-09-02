@@ -36,9 +36,7 @@ namespace sdm
     /**
      * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 
      * Some of the available initializers are : MinInitializer, MaxInitializer, BlindInitializer, ZeroInitializer. For a complete list of initializer, you can use :
-     * ```cpp
-     * std::cout << InitializerFactory::available() << std::endl;
-     * ``` 
+     *      std::cout << InitializerFactory::available() << std::endl;
      * 
      */
     class InitializerFactory

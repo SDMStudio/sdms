@@ -10,10 +10,7 @@ namespace sdm
 {
 
   /**
-   * @brief 
-   * 
-   * @tparam std::shared_ptr<State> 
-   * @tparam std::shared_ptr<Action> 
+   * @brief The algorithm [Backward Induction](https://en.wikipedia.org/wiki/Backward_induction). 
    */
   class BackwardInduction : public Algorithm, public std::enable_shared_from_this<BackwardInduction>
   {
@@ -45,14 +42,9 @@ namespace sdm
 
   public:
     /**
-     * @brief Construct the HSVI object.
+     * @brief Construct the Backward Induction algorithm.
      * 
-     * @param world the problem to be solved by HSVI
-     * @param lower_bound the lower bound 
-     * @param upper_bound the upperbound
-     * @param planning_horizon the planning horizon
-     * @param epsilon the error
-     * @param num_max_trials the maximum number of trials before stop
+     * @param world the problem to be solved by Backward induction
      * @param name the name of the algorithm (this name is used to save logs)
      */
     BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,
@@ -61,13 +53,13 @@ namespace sdm
     std::shared_ptr<BackwardInduction> getptr();
 
     /**
-     * @brief 
+     * @brief Initialize the algorithm.
      * 
      */
     void do_initialize();
 
     /**
-     * @brief Solve a problem solvable by HSVI. 
+     * @brief Solve a problem with backward induction algorithm. 
      */
     void do_solve();
 
@@ -99,7 +91,8 @@ namespace sdm
      * @param h the timestep of the exploration
      */
     void do_explore(const std::shared_ptr<State> &s, double /*cost_so_far*/, number h);
-    double backward_induction(const std::shared_ptr<State> &s, number h);
+
+    // double backward_induction(const std::shared_ptr<State> &s, number h);
 
     /**
      * @brief Get the bound value function 

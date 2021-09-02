@@ -31,7 +31,11 @@ namespace sdm
 
   /**
    * @class Space
-   * @brief This class is an abstract interface that all spaces should inherite. It gives some useful general methods to use generic spaces in your algorithms. 
+   * 
+   * @brief This class is an abstract interface that all spaces should inherite. 
+   * 
+   * It gives some useful general methods to use generic spaces in your algorithms. 
+   
    */
   class Space : public std::enable_shared_from_this<Space>
   {

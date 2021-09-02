@@ -20,9 +20,11 @@ namespace sdm
 
     /**
      * @brief A public interface for actions. 
+     * 
      * Any class inheriting from this interface will be considered as generic action for algorithms.
      * Consider sections [Theoritical Background](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/theory.html) and [Algorithms](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/algorithms/) for more information.   
-     */
+     *
+     * /
     class Action : public Item
     {
     public:

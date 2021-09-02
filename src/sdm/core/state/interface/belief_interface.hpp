@@ -6,6 +6,11 @@
 
 namespace sdm
 {
+    
+    /**
+     * @brief A common interface for objects that represent a belief.
+     * 
+     */
     class BeliefInterface : public State
     {
     public:

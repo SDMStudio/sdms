@@ -13,15 +13,16 @@ namespace sdm
 {
 
   /**
-   * @brief 
-   * 
-   * @tparam std::shared_ptr<State> 
-   * @tparam std::shared_ptr<Action> 
+   * @brief The class for the algorithm [A*](http://ai.stanford.edu/users/nilsson/OnlinePubs-Nils/PublishedPapers/astar.pdf).
    */
   class AlphaStar : public Algorithm, public std::enable_shared_from_this<AlphaStar>
   {
   protected:
 
+    /**
+     * @brief The state in terms of A* algorithm.
+     * 
+     */
     class AlphaStarItem : public State
     {
     public :
@@ -48,27 +49,16 @@ namespace sdm
         }
     };
 
-    /**
-     * @brief The problem to be solved.
-     * 
-     */
+    /** @brief The problem to be solved */
     std::shared_ptr<SolvableByHSVI> world_;
 
-    /**
-     * @brief representation. 
-     */
+    /** @brief The representation. */
     std::shared_ptr<TabularValueFunction> bound_;
 
-    /**
-     * @brief Logger.
-     * 
-     */
+    /** @brief The logger */
     std::shared_ptr<MultiLogger> logger_;
 
-    /**
-     * @brief Some variables for the algorithm.
-     * 
-     */
+    /** @brief Some hyperparameters for the algorithm */
     number planning_horizon_;
     std::string name_ = "backward_induction";
 
@@ -84,29 +74,24 @@ namespace sdm
 
   public:
     /**
-     * @brief Construct the HSVI object.
+     * @brief Construct the AlphaStar algorithm with custom paramters.
      * 
-     * @param world the problem to be solved by HSVI
-     * @param lower_bound the lower bound 
-     * @param upper_bound the upperbound
-     * @param planning_horizon the planning horizon
-     * @param epsilon the error
-     * @param num_max_trials the maximum number of trials before stop
+     * @param world the problem to be solved by A*
      * @param name the name of the algorithm (this name is used to save logs)
      */
     AlphaStar(std::shared_ptr<SolvableByHSVI> &world,
-         std::string name = "A*");
+              std::string name = "A*");
 
     std::shared_ptr<AlphaStar> getptr();
 
     /**
-     * @brief 
+     * @brief Initialize the algorithm.
      * 
      */
     void do_initialize();
 
     /**
-     * @brief Solve a problem solvable by HSVI. 
+     * @brief Solve a problem with A* algorithm. 
      */
     void do_solve();
 
@@ -154,6 +139,12 @@ namespace sdm
 
     void initLogger();
     
+    /**
+     * @brief Compare two A* items.
+     * 
+     * @param item_1 the first item
+     * @param item_2 the second item
+     */
     static bool compare(const std::shared_ptr<AlphaStarItem>& item_1, const std::shared_ptr<AlphaStarItem>& item_2) 
     {
       return item_1->operator<(item_2);

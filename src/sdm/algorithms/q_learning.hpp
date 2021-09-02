@@ -22,6 +22,9 @@
 
 namespace sdm
 {
+  /**
+   * @brief Q-Learning and its extensions (DQN, etc).
+   */
   template <class TInput = std::shared_ptr<State>>
   class QLearning : public Algorithm
   {
@@ -34,45 +37,28 @@ namespace sdm
     clock_t t_begin;
 
   protected:
-    /**
-     * @brief The problem to be solved.
-     * 
-     */
+    /** @brief The problem to be solved */
     std::shared_ptr<GymInterface> env_;
 
+    /** @brief The experience memory */
     std::shared_ptr<ExperienceMemoryInterface> experience_memory_;
 
-    /**
-     * @brief Q-value function. 
-     */
+    /** @brief Q-value function. */
     std::shared_ptr<QValueFunction<TInput>> q_value_table_;
 
-    /**
-     * @brief Q-value target function. 
-     */
+    /** @brief Q-value target function. */
     std::shared_ptr<QValueFunction<TInput>> q_value_table_target_;
 
     std::shared_ptr<QValueBackupInterface> backup_;
 
-    /**
-     * @brief Experience Memory. 
-     */
-    // std::shared_ptr<ReplayMemory> experience_;
-
-    /**
-     * @brief Exploration process. 
-     */
+    /** @brief The exploration process. */
     std::shared_ptr<EpsGreedy> exploration_process;
 
-    /**
-     * @brief Logger.
-     * 
-     */
+    /** @brief The logger */
     std::shared_ptr<MultiLogger> logger_;
 
     /**
-     * @brief Some variables for the algorithm.
-     * 
+     * @brief Some hyperparameters for the algorithm.
      */
     number horizon_, step;
 
@@ -100,38 +86,33 @@ namespace sdm
             );
 
     /**
-     * @brief Initialize the algorithm
+     * @brief Initialize the algorithm. Initialize the Q-Value function.
      * 
      */
     void do_initialize();
 
     /**
      * @brief Learning procedure. Will attempt to solve the problem.
-     * 
      */
     void do_solve();
 
     /**
      * @brief Test the result of a problem.
-     * 
      */
     void do_test();
 
     /**
-     * @brief 
-     * 
+     * @brief Execute an episode.
      */
     void do_episode();
 
     /**
-     * @brief 
-     * 
+     * @brief Execute a step.
      */
     void do_step();
 
     /**
-     * @brief 
-     * 
+     * @brief Save the value function
      */
     void do_save();
 
@@ -141,17 +122,17 @@ namespace sdm
      */
     void update_model();
 
+    /**
+     * @brief Update the target model.
+     */
     void update_target();
 
     std::shared_ptr<Action> select_action(const std::shared_ptr<Observation> &observation, number t);
     std::shared_ptr<Action> select_greedy_action(const std::shared_ptr<Observation> &observation, number t);
 
     void initLogger();
-
     double getResultOpti() { throw sdm::exception::NotImplementedException(); }
-
     int getTrial() { throw sdm::exception::NotImplementedException(); }
-
     double getResult() { throw sdm::exception::NotImplementedException(); }
 
     // void saveResults(std::string filename, double other);

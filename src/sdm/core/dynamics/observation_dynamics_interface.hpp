@@ -9,6 +9,7 @@ namespace sdm
 {
     /**
      * @brief This class provides a common interface for every models of observation dynamics.
+     * 
      * An model of observation dynamics is well defined if it implements this interface. The observation dynamics is required to define a POMDP (see file POMDP.hpp) and related problems.
      * Usually observation probabilities depend on the time, the state, the previous action and the previous state. However, in few situations the transition can only depend on some of these parameters.
      */

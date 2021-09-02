@@ -21,7 +21,7 @@
 namespace sdm
 {
   /**
-   * @brief The vector interface. To be considered as a vector in SDM'Studio, a class must implement all the following functions. 
+   * @brief The vector interface. To be considered as a vector in SDM'Studio, a class must implement all the functions of the interface. 
    * 
    * @tparam I Type of the index.
    * @tparam T Type of the values.

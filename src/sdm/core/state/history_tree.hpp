@@ -21,16 +21,22 @@ namespace sdm
     /**
      * @class HistoryTree
      * 
-     * @brief 
+     * @brief History class that use a representation by tree.
+     * 
+     * Each node in the tree represent an action-observation pair. 
+     * Let consider nodes above a given node as the list of actions 
+     * and observations at previous timesteps. 
      * 
      */
     class HistoryTree : virtual public HistoryInterface, public Tree<std::shared_ptr<Observation>>
     {
     protected:
-        /*!
+        /**
          *  @brief  Expands the tree using truncated expand method
+         * 
          *  @param  data the data of the expanded node
          *  @param  backup wheter the node is marked or not
+         * 
          *  @return the truncated expanded tree
          */
         template <typename output>
@@ -60,7 +66,8 @@ namespace sdm
 
     public:
         using value_type = typename Tree<std::shared_ptr<Observation>>::value_type;
-        /*!
+        
+        /**
          *  @brief  Default constructor.
          *  This constructor builds a default and empty tree.
          */
@@ -73,11 +80,13 @@ namespace sdm
          */
         HistoryTree(number max_depth);
 
-        /*!
-         *  @brief  constructor
+        /**
+         *  @brief Construct a history tree iteratively.
+         * 
          *  @param  parent   the parent tree
          *  @param  item     the item
          *  @param  backup wheter the node is marked or not
+         * 
          *  This constructor builds a tree with a given parent and item.
          */
         HistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item);
@@ -88,10 +97,10 @@ namespace sdm
 
         number getHorizon() const;
 
-        /*!
-         *  @brief  Expands the tree
+        /**
+         *  @brief  Expands the history
          *  @param  data the data of the expanded node
-         *  @return the expanded tree
+         *  @return the expanded history
          *
          *  If child leading from the item previously exists, the method return
          *  that child. Otherwise, it expands the tree by adding an item at the
@@ -117,13 +126,13 @@ namespace sdm
             }
             return std::make_shared<output>(this->getptr(), observation);
         }
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, bool backup = true);
-
         /**
-         * @brief Get the horizon
+         * @brief Expands the history
          * 
-         * @return number 
+         * @param observation the observation of the expanded node
+         * @return the expanded history
          */
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, bool backup = true);
 
         std::string str() const;
         std::string short_str() const;

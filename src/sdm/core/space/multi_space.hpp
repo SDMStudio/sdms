@@ -22,7 +22,11 @@
 namespace sdm
 {
     /**
-     * @brief A multi-space is a set a spaces. Each space can be of any derived class of Space class. By default Space is set to Space, which means that any space can be used (can be composed of both discrete and continuous spaces). MultiSpace herites from Space so you can even build hierarchical spaces like MultiSpace of MultiSpace (MultiSpace<MultiSpace<Space>>>).  
+     * @brief A multi-space is a set a spaces. 
+     * 
+     * Each space can be of any derived class of Space class.
+     * By default Space is set to Space, which means that any space can be used (can be composed of both discrete and continuous spaces). 
+     * MultiSpace herites from Space so you can even build hierarchical spaces like MultiSpace of MultiSpace (MultiSpace<MultiSpace<Space>>>).  
      * 
      * @tparam Space 
      */

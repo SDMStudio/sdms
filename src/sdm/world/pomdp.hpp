@@ -22,6 +22,7 @@ namespace sdm
 {
     /**
      * @brief The class for Discrete Partially Observable Markov Decision Processes. 
+     * 
      */
     class POMDP : virtual public MDP, virtual public POMDPInterface
     {

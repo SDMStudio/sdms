@@ -20,7 +20,9 @@ namespace sdm
 {
   /**
    * @brief Tabular representation for the state dynamics. 
+   * 
    * The class is optimized to provide a constant time access to all transition probabilities and reachable states.
+   * 
    */
   class TabularStateDynamics : public StateDynamicsInterface
   {

@@ -3,10 +3,9 @@
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 // #include <sdm/world/belief_mdp.hpp>
 
-
 namespace sdm
 {
-    ValueIteration::ValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, int horizon) : problem_(problem), error_(error), horizon_(horizon)   
+    ValueIteration::ValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, int horizon) : problem_(problem), error_(error), horizon_(horizon)
     {
     }
 
@@ -25,7 +24,7 @@ namespace sdm
         this->policy_evaluation_1_ = std::make_shared<TabularValueFunction>(under_pb->getHorizon(), init_ub, tabular_backup, action_tabular, false);
         this->policy_evaluation_2_ = std::make_shared<TabularValueFunction>(under_pb->getHorizon(), init_ub, tabular_backup, action_tabular, false);
 
-        policy_evaluation_1_->initialize(); 
+        policy_evaluation_1_->initialize();
         policy_evaluation_2_->initialize();
     }
 
@@ -38,19 +37,19 @@ namespace sdm
         double max_value;
         do
         {
-            this->policy_evaluation_1_= std::make_shared<TabularValueFunction>(*this->policy_evaluation_2_);
+            this->policy_evaluation_1_ = std::make_shared<TabularValueFunction>(*this->policy_evaluation_2_);
 
             max_value = -std::numeric_limits<double>::max();
 
-            for(int t = this->horizon_ -1; t>=0;t--)
+            for (int t = this->horizon_ - 1; t >= 0; t--)
             {
-                for(const auto &state : *under_pb->getStateSpace(t) )
+                for (const auto &state : *under_pb->getStateSpace(t))
                 {
-                    this->policy_evaluation_2_->updateValueAt(state->toState(),t);
-                    max_value = std::max(std::abs(policy_evaluation_1_->getValueAt(state->toState(),t) - policy_evaluation_2_->getValueAt(state->toState(),t)),max_value);
+                    this->policy_evaluation_2_->updateValueAt(state->toState(), t);
+                    max_value = std::max(std::abs(policy_evaluation_1_->getValueAt(state->toState(), t) - policy_evaluation_2_->getValueAt(state->toState(), t)), max_value);
                 }
             }
-        } while (max_value> this->error_);
+        } while (max_value > this->error_);
     }
 
     void ValueIteration::determinedAllNextState()
@@ -63,11 +62,10 @@ namespace sdm
         auto initial_state = this->problem_->getInitialState();
         this->all_state[0].push_back(initial_state);
 
-        this->determinedAllNextStateRecursive(initial_state,0);
-
+        this->determinedAllNextStateRecursive(initial_state, 0);
     }
 
-    void ValueIteration::determinedAllNextStateRecursive(const std::shared_ptr<State>& , number )
+    void ValueIteration::determinedAllNextStateRecursive(const std::shared_ptr<State> &, number)
     {
         // for (const auto& it = this->problem_->getActionSpaceAt(state, t)->begin() ; it != this->problem_->getActionSpaceAt(state, t)->end();++it)
         // {
@@ -77,7 +75,7 @@ namespace sdm
         //         bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) >= value_function->getHorizon()));
         //         // Compute next state (if required)
         //         // std::cout<<"Calcul ?"<<std::endl;
-        //         auto [next_state, state_transition_proba] = (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);   
+        //         auto [next_state, state_transition_proba] = (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
         //     }
         // }
     }
@@ -87,22 +85,22 @@ namespace sdm
      */
     void ValueIteration::do_test()
     {
-        
     }
-    
+
     bool ValueIteration::borne()
     {
         double max_value = -std::numeric_limits<double>::max();
-        for(auto &state :  *this->problem_->getUnderlyingProblem()->getStateSpace(0))
+        for (auto &state : *this->problem_->getUnderlyingProblem()->getStateSpace(0))
         {
-            max_value = std::max(std::abs(policy_evaluation_1_->getValueAt(state->toState(),0) - policy_evaluation_2_->getValueAt(state->toState(),0)),max_value);
+            max_value = std::max(std::abs(policy_evaluation_1_->getValueAt(state->toState(), 0) - policy_evaluation_2_->getValueAt(state->toState(), 0)), max_value);
         }
-        std::cout<<"\n Error : "<<max_value<<std::endl;
+        std::cout << "\n Error : " << max_value << std::endl;
 
-        if (max_value<= this->error_)
+        if (max_value <= this->error_)
         {
             return false;
-        }else
+        }
+        else
         {
             return true;
         }
@@ -113,7 +111,7 @@ namespace sdm
         return this->policy_evaluation_2_;
     }
 
-    double ValueIteration::getResult() 
+    double ValueIteration::getResult()
     {
         return this->policy_evaluation_2_->getValueAt(this->problem_->getInitialState());
     }

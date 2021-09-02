@@ -20,13 +20,15 @@ namespace sdm
 
   /**
    * @brief A base class inheriting from the State interface.
+   * 
    * @tparam TState the type of data used for the state.
    * 
    * This class can be used to instantiate a state represented by any type.
-   * Example:
    * 
-   *      BaseState<char> state('a'), state2('b'); // Instanciate a state stored as a character.   
-   *      BaseState<float> float_state(0.0), float_state2(0.1); // Instanciate a state stored as a float.   
+   * ```cpp
+   * BaseState<char> state('a'), state2('b'); // Instanciate a state stored as a character.   
+   * BaseState<float> float_state(0.0), float_state2(0.1); // Instanciate a state stored as a float.   
+   * ```
    * 
    */
   template <typename TState>

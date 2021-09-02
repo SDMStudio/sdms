@@ -20,11 +20,17 @@ namespace sdm
 {
     /**
      * @brief The Hierarchical MPOMDP is a transformation of a standard MPOMDP assuming there exists a hierarchy among agents. 
+     * 
      * More precisely, each agent receive observations of its surbordinates in addition to its own observation.
+     * 
      * Example - tiger problem : 
+     * 
      * (hear-left, hear-left) --> ((hear-left), (hear-left, hear-left))
+     * 
      * (hear-left, hear-right) --> ((hear-left), (hear-left, hear-right))
+     * 
      * (hear-right, hear-left) --> ((hear-right), (hear-right, hear-left))
+     * 
      * (hear-right, hear-right) --> ((hear-right), (hear-right, hear-right))
      * 
      */

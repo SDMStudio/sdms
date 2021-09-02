@@ -6,6 +6,14 @@
 
 namespace sdm
 {
+    
+    /**
+     * @brief sdm::Tuple is an alias to [std::tuple](https://en.cppreference.com/w/cpp/utility/tuple) class with added functionnalities. 
+     * It is a generalization of sdm::Pair.
+     * 
+     * @tparam T... the types of the elements that the tuple stores. Empty list is supported.
+     * 
+     */
     template <class... T>
     using Tuple = std::tuple<T...>;
 

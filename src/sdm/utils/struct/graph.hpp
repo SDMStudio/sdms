@@ -18,13 +18,25 @@ namespace sdm
     /**
      * @class Graph
      * 
-     * @brief Generic Graph class 
+     * @brief A structure to manipulate graphs.
      * 
-     * @tparam T the type of the data contains in each node
+     * @tparam TNode the type of the data contains in each node
+     * @tparam TEdge the type of the edges between two nodes
      * 
+     * @example examples/ex-graph.cpp
      * 
-     * Usage
-     *         Graph<int> tree();
+     * Basic Usage
+     * 
+     * ```cpp
+     * Graph<int, double> graph;
+     * graph.addNode(1);
+     * graph.addNode(2);
+     * graph.addNode(3);
+     * graph.addSuccessor(1, 0.3, 2);
+     * graph.addSuccessor(1, 0.7, 3);
+     * graph.addSuccessor(3, 1.0, 2);
+     * std::cout << graph.getSuccessor(1, 0.7) << std::endl; // OUTPUT : 3
+     * ```
      * 
      */
     template <typename TNode, typename TEdge>
@@ -41,8 +53,7 @@ namespace sdm
         /**
          *  @fn     ~Graph()
          *  @brief  Destructor of Graph (that's bad). 
-         *
-         *  This destructor recursively all, children and the item from the tree, bottom up.
+         * 
          */
         virtual ~Graph();
 

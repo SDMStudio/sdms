@@ -28,12 +28,14 @@
 namespace sdm
 {
     /**
-     * @brief Mapped vectors are vectors that use map to store values of a vector. 
+     * @brief Mapped vectors are vectors with specific type of indexes. They are represented by a map. 
      * 
-     * Using map structure allow to store only necessary values. Moreover, it allows to see vector in another way that is not more only a mapping from integer to value but can map any type of index to values.   
+     * @tparam TIndex the type of index
+     * @tparam T the type of value (default : `double`)
      * 
-     * @tparam TIndex Type of index
-     * @tparam T Type of value
+     * Using map structure allows to keep only necessary values. 
+     * Moreover, it allows to see vectors not only as a mapping from integer to value but also as a mapping from any type of index to values.   
+     *
      */
     template <class TIndex, class T = double, class Hash = std::hash<TIndex>, class KeyEqual = std::equal_to<TIndex>>
     class MappedVector : public std::unordered_map<TIndex, T, Hash, KeyEqual>, public VectorInterface<TIndex, T>
