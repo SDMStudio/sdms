@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 
 namespace sdm
 {
@@ -20,7 +21,7 @@ namespace sdm
   class Algorithm
   {
   public:
-    virtual ~Algorithm() {}
+    virtual ~Algorithm() {std::cout << "Delete Algorithm"<< std::endl;}
 
     /**
      * @brief Initialize the algorithm.

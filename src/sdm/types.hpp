@@ -291,7 +291,7 @@ namespace std
         //Multiply in next statement to avoid int overflow on right hand side...
         physMemUsed *= memInfo.mem_unit;
 
-        return physMemUsed;
+        return physMemUsed / 1024 / 1024;
     }
 
     static long long totalMemory(struct sysinfo memInfo)
@@ -302,7 +302,7 @@ namespace std
         //Multiply in next statement to avoid int overflow on right hand side...
         totalPhysMem *= memInfo.mem_unit;
 
-        return totalPhysMem;
+        return totalPhysMem / 1024 / 1024;
     }
 
     // static void StartTime()

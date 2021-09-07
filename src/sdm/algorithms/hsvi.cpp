@@ -2,7 +2,7 @@
 #include <sdm/exception.hpp>
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-// #include <sdm/core/state/private_occupancy_state.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
@@ -370,7 +370,7 @@ namespace sdm
             ofs << " | " << this->planning_horizon_;
             ofs << " | " << OccupancyState::PRECISION;
             ofs << " | " << Belief::PRECISION;
-            ofs << " | " << 0;
+            ofs << " | " << PrivateOccupancyState::PRECISION_COMPRESSION;
             ofs << " | " << std::endl
                 << std::endl;
         }
@@ -380,19 +380,22 @@ namespace sdm
     void HSVI::saveResults(std::string filename, std::string format)
     {
         std::ofstream ofs;
-        ofs.open(filename + format, std::ios::out | std::ios::app);
+        struct sysinfo memInfo;
 
         if ((format == ".md"))
         {
             // Compute duration
             this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->start_time).count();
 
-            // this->saveParams(filename, format);
+            auto memory = std::Performance::RanMemoryUsed(memInfo);
 
+            this->saveParams(filename, format);
+
+            ofs.open(filename + format, std::ios::out | std::ios::app);
             ofs << "## " << filename << "(RESULTS)" << std::endl;
 
-            ofs << " | Time | Trials | Error | LB Value  | UB Value  | Total Size LB | Total Size UB | Num Nodes (oState graph) | Num Nodes (belief graph) | Num Max of JHistory | " << std::endl;
-            ofs << " | ---- | ------ | ----- | --------  | --------  | ------------- | ------------- | ------------------------ | ------------------------ | ------------------- | " << std::endl;
+            ofs << " | Time | Trials | Error | LB Value  | UB Value  | Total Size LB | Total Size UB | Num Nodes (oState graph) | Num Nodes (belief graph) | Num Max of JHistory | Memory |" << std::endl;
+            ofs << " | ---- | ------ | ----- | --------  | --------  | ------------- | ------------- | ------------------------ | ------------------------ | ------------------- | ------ |" << std::endl;
             ofs << " | " << this->duration;
             ofs << " | " << this->trial;
             ofs << " | " << this->do_excess(this->start_state, 0, 0) + this->error_;
@@ -412,10 +415,11 @@ namespace sdm
                 }
             }
             ofs << " | " << num_max_jhist;
+            ofs << " | " << memory;
             ofs << " | " << std::endl
                 << std::endl;
+            ofs.close();
         }
-        ofs.close();
     }
 
     double HSVI::getResult()
