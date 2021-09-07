@@ -23,9 +23,7 @@ namespace sdm
      * @tparam TNode the type of the data contains in each node
      * @tparam TEdge the type of the edges between two nodes
      * 
-     * @example examples/ex-graph.cpp
-     * 
-     * Basic Usage
+     * Basic Usage:
      * 
      * ```cpp
      * Graph<int, double> graph;

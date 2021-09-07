@@ -47,8 +47,6 @@
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/algorithms.hpp>
 
-#define LOGTIME
-
 using namespace sdm;
 namespace po = boost::program_options;
 
@@ -232,7 +230,7 @@ int main(int argc, char **argv)
         double TOTAL_TIME = std::chrono::duration_cast<std::chrono::duration<double>>(t_end-t_begin).count();
         
         // Save results in a CSV file
-        std::static_pointer_cast<HSVI>(algo)->saveResults(save_path+name + "_test.csv", horizon);
+        std::static_pointer_cast<HSVI>(algo)->saveResults(save_path+name + "_test.csv");
         // -----------------------------------------------------------------------------
 
         // std::cout<<"Upper bound "<<std::static_pointer_cast<HSVI>(algo)->getUpperBound()->str()<<std::endl;

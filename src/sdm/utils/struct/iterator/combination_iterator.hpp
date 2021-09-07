@@ -11,8 +11,6 @@ namespace sdm
         /**
          * @brief The combination iterator provides a way to go simultaneously over multiple iterators in order to generate all combinations of items.
          * 
-         * @example examples/ex-iterator.cpp
-         * 
          * The combination iterator is a classic SDMS iterator that will efficiently generate all combination of items included in subiterators. 
          * Acceptable subiterators are all SDMS iterators. Thus, it is possible to instanciate a combination iterator over combination iterators.
          * 

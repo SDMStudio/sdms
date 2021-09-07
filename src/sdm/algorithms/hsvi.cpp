@@ -2,6 +2,7 @@
 #include <sdm/exception.hpp>
 #include <sdm/algorithms/hsvi.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+// #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
@@ -51,7 +52,6 @@ namespace sdm
     {
         return this->shared_from_this();
     }
-#ifdef LOGTIME
 
     void HSVI::initLogger()
     {
@@ -71,6 +71,7 @@ namespace sdm
         // Build a multi logger that combines previous loggers
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, csv_logger});
 
+#ifdef LOGTIME
         // ************* Precise Logger ****************
         format = "#> Trial :\t{}Horizon :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\t Size_lb({}) \t Size_ub({}) \t Action_Time({}) \t State_Time({}) \t Update_LB_Time({}) \t Update_UB_Time({}) \t Size_JHistories({}) \t Size_IHistory({}) \t Size_ActionSpace ({})  \n";
 
@@ -82,13 +83,12 @@ namespace sdm
 
         // Build a multi logger that combines previous loggers
         this->logger_precise_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{csv_logger});
-    }
 #endif
+    }
+
     void HSVI::do_initialize()
     {
-#ifdef LOGTIME
         this->initLogger();
-#endif
         this->lower_bound_->initialize();
         this->upper_bound_->initialize();
     }
@@ -108,10 +108,10 @@ namespace sdm
 
         do
         {
-#ifdef LOGTIME
-
             this->current_time = std::chrono::high_resolution_clock::now();
+            this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(this->current_time - this->start_time).count();
             this->logger_->log(this->trial, this->do_excess(start_state, 0, 0) + this->error_, this->lower_bound_->getValueAt(start_state), this->upper_bound_->getValueAt(start_state), this->lower_bound_->getSize(), this->upper_bound_->getSize(), this->duration - HSVI::TIME_TO_REMOVE);
+#ifdef LOGTIME
             this->updateTime(current_time, "Time_to_remove");
 #endif
 
@@ -353,35 +353,68 @@ namespace sdm
         return this->trial;
     }
 
-    void HSVI::saveResults(std::string filename, double other)
+    void HSVI::saveParams(std::string filename, std::string format)
     {
         std::ofstream ofs;
-        ofs.open(filename + "hsvi_profiling.md", std::ios::out | std::ios::app);
-        ofs << "## " << filename << std::endl;
-        ofs << "| Trials \t" << this->trial << std::endl;
-        ofs << "| Error \t" << this->do_excess(this->start_state, 0, 0) + this->error_ << std::endl;
-        ofs << "| Time \t " << this->duration << std::endl;
-        ofs << "| Lower Bound Value \t" << this->lower_bound_->getValueAt(this->start_state) << std::endl;
-        ofs << "| Upper Bound Value \t" << this->upper_bound_->getValueAt(this->start_state) << std::endl;
-        ofs << "| Total Size Lower Bound \t" << this->lower_bound_->getSize() << std::endl;
-        ofs << "| Total Size Upper Bound \t" << this->upper_bound_->getSize() << std::endl;
+        ofs.open(filename + format, std::ios::out | std::ios::app);
 
-        ofs << "| Horizon \t \t \t| Size Lower Bound \t \t \t| Size Upper Bound \t \t \t " << std::endl;
-        for (size_t i = 0; i < this->planning_horizon_; i++)
+        if ((format == ".md"))
         {
-            ofs << "| Horizon \t" << i << "|" << this->lower_bound_->getSize(i) << "|" << this->upper_bound_->getSize(i) << std::endl;
+            ofs << "## " << filename << "(PARAMS)" << std::endl;
+
+            ofs << " | MAX_TRIAL | MAX_TIME | Error | Discount  | Horizon | p_o  | p_b | p_c | " << std::endl;
+            ofs << " | --------- | -------- | ----- | --------  | ------- | ---  | --- | --- | " << std::endl;
+            ofs << " | " << this->MAX_TRIALS;
+            ofs << " | " << this->time_max_;
+            ofs << " | " << this->error_;
+            ofs << " | " << this->planning_horizon_;
+            ofs << " | " << OccupancyState::PRECISION;
+            ofs << " | " << Belief::PRECISION;
+            ofs << " | " << 0;
+            ofs << " | " << std::endl
+                << std::endl;
         }
+        ofs.close();
+    }
 
-        ofs << "| Number of Node \t" << std::static_pointer_cast<OccupancyMDP>(this->world_)->getMDPGraph()->getNumNodes() << std::endl;
-        number num_max_jhist = 0, tmp;
-        for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->world_)->getStoredStates())
+    void HSVI::saveResults(std::string filename, std::string format)
+    {
+        std::ofstream ofs;
+        ofs.open(filename + format, std::ios::out | std::ios::app);
+
+        if ((format == ".md"))
         {
-            if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
+            // Compute duration
+            this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->start_time).count();
+
+            // this->saveParams(filename, format);
+
+            ofs << "## " << filename << "(RESULTS)" << std::endl;
+
+            ofs << " | Time | Trials | Error | LB Value  | UB Value  | Total Size LB | Total Size UB | Num Nodes (oState graph) | Num Nodes (belief graph) | Num Max of JHistory | " << std::endl;
+            ofs << " | ---- | ------ | ----- | --------  | --------  | ------------- | ------------- | ------------------------ | ------------------------ | ------------------- | " << std::endl;
+            ofs << " | " << this->duration;
+            ofs << " | " << this->trial;
+            ofs << " | " << this->do_excess(this->start_state, 0, 0) + this->error_;
+            ofs << " | " << this->lower_bound_->getValueAt(this->start_state);
+            ofs << " | " << this->upper_bound_->getValueAt(this->start_state);
+            ofs << " | " << this->lower_bound_->getSize();
+            ofs << " | " << this->upper_bound_->getSize();
+            ofs << " | " << std::static_pointer_cast<OccupancyMDP>(this->world_)->getMDPGraph()->getNumNodes();
+            ofs << " | " << std::static_pointer_cast<OccupancyMDP>(this->world_)->getUnderlyingBeliefMDP()->getMDPGraph()->getNumNodes();
+
+            number num_max_jhist = 0, tmp;
+            for (const auto &state : std::static_pointer_cast<OccupancyMDP>(this->world_)->getStoredStates())
             {
-                num_max_jhist = tmp;
+                if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
+                {
+                    num_max_jhist = tmp;
+                }
             }
+            ofs << " | " << num_max_jhist;
+            ofs << " | " << std::endl
+                << std::endl;
         }
-        ofs << "| Max number of JHistory \t " << num_max_jhist << std::endl;
         ofs.close();
     }
 

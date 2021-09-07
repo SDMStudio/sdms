@@ -25,7 +25,6 @@ namespace sdm
 {
     POMDPInitializer::POMDPInitializer(std::shared_ptr<SolvableByHSVI> world, std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials), world_(world)
     {
-        std::cout << "In POMDPInitializer" << std::endl;
     }
 
     void POMDPInitializer::init(std::shared_ptr<ValueFunction> vf)
@@ -46,13 +45,12 @@ namespace sdm
         auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
         auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
 
-        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_, 5000, "POMDP_Initialisation",1,1,1000);
+        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_, 5000, "pomdp_"+ this->algo_name_+ "_init",1,1,1000);
 
         algorithm->do_initialize();
         algorithm->do_solve();
         
         auto ubound = algorithm->getUpperBound();
-        std::cout << "POMDP initializer " << std::endl;
 
         vf->initialize(std::make_shared<Belief2OccupancyValueFunction>(ubound));
     }

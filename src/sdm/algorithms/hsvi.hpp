@@ -146,7 +146,8 @@ namespace sdm
 
     double getResult();
 
-    void saveResults(std::string filename, double other);
+    void saveParams(std::string filename, std::string format = ".md");
+    void saveResults(std::string filename, std::string format = ".md");
 
     static double TIME_TO_REMOVE;
 #ifdef LOGTIME

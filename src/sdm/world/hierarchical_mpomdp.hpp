@@ -26,11 +26,8 @@ namespace sdm
      * Example - tiger problem : 
      * 
      * (hear-left, hear-left) --> ((hear-left), (hear-left, hear-left))
-     * 
      * (hear-left, hear-right) --> ((hear-left), (hear-left, hear-right))
-     * 
      * (hear-right, hear-left) --> ((hear-right), (hear-right, hear-left))
-     * 
      * (hear-right, hear-right) --> ((hear-right), (hear-right, hear-right))
      * 
      */

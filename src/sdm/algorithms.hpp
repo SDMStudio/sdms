@@ -138,8 +138,6 @@ namespace sdm
         /**
          * @brief Get the list of available algorithms. 
          * 
-         * @return the list of available algorithms.
-         * 
          * Usage:
          * ```cpp
          * #include <sdm/algorithms.hpp>
@@ -150,6 +148,8 @@ namespace sdm
          *     return 0;
          * }
          * ```
+         * 
+         * @return the list of available algorithms.
          * 
          */
         std::vector<std::string> available()

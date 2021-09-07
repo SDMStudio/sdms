@@ -20,7 +20,7 @@ namespace sdm
      * Occupancy states are firstly defined by Dibangoye, Amato, Buffet and Charpillet 
      * in [Optimally Solving Dec-POMDPs as Continuous-State MDPs](https://hal.inria.fr/hal-01279444/document).
      * An occupancy state is defined as a posterior distribution over states and histories, given a complete information state 
-     * (i.e. $\xi_t(s_t, \theta_t) = p(s_t, \theta_t \mid \iota_t)$ ).
+     * (i.e. \$\\xi_t (x_{t}, o_{t} ) = p(x_{t}, o_t \\mid i_{t})\$ ) .
      * 
      */
     class OccupancyState : virtual public OccupancyStateInterface,

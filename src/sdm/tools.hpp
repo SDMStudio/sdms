@@ -31,8 +31,8 @@ namespace sdm
          * 
          * @param filename the filename
          * @param extension the extension
-         * @return true if the filaname has the extension 'extension'
-         * @return false if the filaname does not have the extension 'extension'
+         * @return true if the filename has the extension 'extension'
+         * @return false if the filename does not have the extension 'extension'
          */
         bool hasExtension(std::string filename, std::string extension);
 
@@ -53,26 +53,21 @@ namespace sdm
         /**
          * @brief Repeat a string n times.
          * 
-         * @param str the substring to replicate.
-         * @param times the number of replication
-         * @return the built string 
-         * 
          * Example:
          * 
          * ```cpp
          * std::cout << repeatString("bla", 3) << std::endl;
          * // OUTPUT : blablabla
          * ```
+         * 
+         * @param str the substring to replicate.
+         * @param times the number of replication
+         * @return the built string 
          */
         std::string repeatString(const std::string &str, size_t times);
 
         /**
          * @brief Concatenate strings in order to create the path to a specific problem.
-         * 
-         * @param base the repository that contains problems definitions
-         * @param world_name the name of the problem
-         * @param formalism_name the formalism
-         * @return std::string the complete path to the problem file
          * 
          * Exemple:
          * 
@@ -80,6 +75,12 @@ namespace sdm
          * std::cout << getPathTo("/usr/local/share/sdms/world", "tiger", "pomdp") << std::endl;
          * // OUTPUT : /usr/local/share/sdms/world/pomdp/tiger.pomdp
          * ```
+         * 
+         * @param base the repository that contains problems definitions
+         * @param world_name the name of the problem
+         * @param formalism_name the formalism
+         * @return std::string the complete path to the problem file
+         * 
          * 
          */
         std::string getPathTo(std::string base, std::string world_name, std::string formalism_name);

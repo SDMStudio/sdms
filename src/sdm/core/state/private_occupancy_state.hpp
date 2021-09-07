@@ -6,7 +6,7 @@ namespace sdm
 {
     
     /**
-     * @brief An private occupancy state is an occupancy state (i.e. $p(s_t, \theta_t^{-i} \mid \iota_t, \theta_t^i)$ ).
+     * @brief A private occupancy state is an occupancy state (i.e. \$p(s_t, \\theta^{-i}_{t} \\mid \\iota_t, \\theta_t^i)\$ ).
      * 
      */
     class PrivateOccupancyState : public OccupancyState

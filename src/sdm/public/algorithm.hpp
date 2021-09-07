@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace sdm
 {
   /**
@@ -45,6 +47,16 @@ namespace sdm
     virtual void do_save() = 0;
 
     virtual int getTrial() = 0;
+    
+    /**
+     * @brief Save results of the algorithm in a file.
+     * 
+     * This function must be called after the function `do_solve()`. A format can be specified (default : ".md").
+     * 
+     * @param filename the path to the saved file
+     * @param format the format
+     */
+    virtual void saveResults(std::string filename, std::string format = ".md") {}
 
     virtual double getResult() =0;
   };

@@ -32,8 +32,6 @@ namespace sdm
      * 
      * @tparam T the type of the data contains in each node
      * 
-     * @example examples/ex-tree.cpp
-     * 
      * Basic Usage
      * 
      * ```cpp

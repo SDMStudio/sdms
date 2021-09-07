@@ -12,8 +12,6 @@ namespace sdm
      * 
      * @tparam TItem the type of value we iterate over.
      *
-     * @example examples/ex-iterator.cpp
-     * 
      */
     template <typename TItem>
     class Iterator

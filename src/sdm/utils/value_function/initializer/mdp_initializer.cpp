@@ -22,7 +22,6 @@ namespace sdm
 {
     MDPInitializer::MDPInitializer(std::shared_ptr<SolvableByHSVI> world, std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials), world_(world)
     {
-        std::cout << "In MDPInitializer" << std::endl;
     }
 
     void MDPInitializer::init(std::shared_ptr<ValueFunction> vf)
@@ -33,7 +32,6 @@ namespace sdm
 
         if (this->algo_name_ == "ValueIteration")
         {
-            std::cout<<"Value Iteration";
             auto value_iteration = std::make_shared<sdm::ValueIteration>(hsvi_mdp, this->error_, mdp->getHorizon());
 
             value_iteration->do_initialize();
@@ -43,8 +41,6 @@ namespace sdm
         }
         else
         {
-            std::cout << "MDP Iteration";
-
             auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
             auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
