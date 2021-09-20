@@ -35,7 +35,7 @@ namespace sdm
             this->coord_robot_ = this->coord_space_->getItem(0)->to<CoordState>();
 
             // Reset the coordinates of the waste
-            this->coord_waste_ = this->coord_space_->getItem(this->getSizeX()*this->getSizeY()-1)->to<CoordState>();
+            this->coord_garbage_ = this->coord_space_->getItem(this->getSizeX()*this->getSizeY()-1)->to<CoordState>();
 
             std::vector<std::shared_ptr<Action>> list_actions{
                 std::make_shared<DiscreteActionString>("left"),
@@ -60,7 +60,7 @@ namespace sdm
             // Reset the coordinates of the robot
             this->coord_robot_ = this->coord_space_->getItem(0)->to<CoordState>();
 
-            return this->getJointCoordinateState(this->coord_robot_, this->coord_waste_);
+            return this->getJointCoordinateState(this->coord_robot_, this->coord_garbage_);
         }
 
         int RobotBin::getSizeX() const
@@ -79,10 +79,10 @@ namespace sdm
             return this->coord_space_->getItem(index_new_coord)->to<CoordState>();
         }
 
-        std::shared_ptr<State> RobotBin::getJointCoordinateState(const std::shared_ptr<CoordState> &coord_robot, const std::shared_ptr<CoordState> &coord_waste)
+        std::shared_ptr<State> RobotBin::getJointCoordinateState(const std::shared_ptr<CoordState> &coord_robot, const std::shared_ptr<CoordState> &coord_garbage)
         {
             number N = this->coord_space_->getNumItems(),
-                   INDEX_JOINT_COORD = N * this->coord_space_->getItemIndex(coord_robot) + this->coord_space_->getItemIndex(coord_waste);
+                   INDEX_JOINT_COORD = N * this->coord_space_->getItemIndex(coord_robot) + this->coord_space_->getItemIndex(coord_garbage);
             auto state = this->state_space_->getItem(INDEX_JOINT_COORD);
             return state->toState();
         }
@@ -115,13 +115,13 @@ namespace sdm
             }
 
             // Check if robot found the waste
-            if (this->coord_robot_ != this->coord_waste_)
+            if (this->coord_robot_ != this->coord_garbage_)
             {
                 reward = -1;
                 is_done = false;
             }
 
-            return {this->getJointCoordinateState(this->coord_robot_, this->coord_waste_), {reward}, is_done};
+            return {this->getJointCoordinateState(this->coord_robot_, this->coord_garbage_), {reward}, is_done};
         }
 
     } // namespace sdm

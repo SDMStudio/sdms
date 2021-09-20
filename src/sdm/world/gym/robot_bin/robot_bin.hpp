@@ -29,7 +29,19 @@ namespace sdm
     {
 
         /**
-         * @brief This problem 
+         * @brief This environment simulates a robot moving in a grid area to collect garbages.
+         * 
+         * Assume we instanciate a 3x3 grid environment. 
+         * The initial configuration is:
+         * 
+         * |       | **0** | **1** | **2** |
+         * | ----- | ----- | ----- | ----- |
+         * | **0** | R     | X     | X     |
+         * | **1** | X     | X     | X     |
+         * | **2** | X     | X     | G     |
+         * 
+         * where R is the location of the robot and G the location of the garbage.
+         * The goal for the robot is to reach the G point.
          * 
          */
         class RobotBin : public GymInterface
@@ -38,12 +50,20 @@ namespace sdm
             using CoordState = BaseState<Coordinate>;
             using JointCoordState = BaseState<std::vector<CoordState>>;
 
+            /**
+             * @brief Construct a RobotBin environment.
+             * 
+             * This environment is conform to Gym interface and thus can be used by learning algorithms.
+             * 
+             * @param size_x the number of lines that contains the grid
+             * @param size_y the number of columns that contains the grid
+             */
             RobotBin(int size_x, int size_y);
 
             /**
              * @brief Get the action space.
              * @param observation the observation in consideration
-             * @param t time step
+             * @param t the time step
              * @return the action space. 
              */
             std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
@@ -88,17 +108,21 @@ namespace sdm
             /**
              * @brief  Coordinates of the robot and the waste.
              */
-            std::shared_ptr<CoordState> coord_robot_, coord_waste_;
+            std::shared_ptr<CoordState> coord_robot_, coord_garbage_;
 
             /**
              * @brief Space of possible coordinates for the robot and the waste.
              */
             std::shared_ptr<MultiDiscreteSpace> state_space_;
 
+            /** @brief Get the number of lines */
             int getSizeX() const;
+            /** @brief Get the number of columns */
             int getSizeY() const;
+            /** @brief Get coordinate state relative to a point */
             std::shared_ptr<CoordState> getCoordinate(int x, int y, int add_to_x, int add_to_y);
-            std::shared_ptr<State> getJointCoordinateState(const std::shared_ptr<CoordState> &coord_robot, const std::shared_ptr<CoordState> &coord_waste);
+            /** @brief Get the joint coordinate state relative robot coordinates and garbage coordinates */
+            std::shared_ptr<State> getJointCoordinateState(const std::shared_ptr<CoordState> &coord_robot, const std::shared_ptr<CoordState> &coord_garbage);
         };
     }
 } // namespace sdm
