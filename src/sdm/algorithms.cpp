@@ -48,15 +48,19 @@ namespace sdm
                                             double error,
                                             number horizon,
                                             int trials,
+                                            bool store_state,
+                                            bool store_action,
                                             std::string name,
                                             double time_max,
+                                            number freq_update_lb,
+                                            number freq_update_ub,
                                             std::string current_type_of_resolution,
                                             number BigM,
                                             std::string type_sawtooth_linear_programming,
                                             TypeOfMaxPlanPrunning type_of_maxplan_prunning,
                                             int freq_prunning_lower_bound,
                                             TypeOfSawtoothPrunning type_of_sawtooth_pruning,
-                                            int freq_prunning_upper_bound, bool store_action, bool store_state)
+                                            int freq_prunning_upper_bound)
         {
             assert(((discount < 1) || (horizon > 0)));
 
@@ -139,7 +143,7 @@ namespace sdm
                     upper_bound = std::make_shared<TabularValueFunction2>(horizon, ub_init, tabular_backup, action_tabular, true);
             }
 
-            return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, 1, 1, time_max);
+            return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, freq_update_lb, freq_update_ub, time_max);
         }
 
         std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, number horizon)
@@ -190,8 +194,8 @@ namespace sdm
                                                       number horizon,
                                                       int memory,
                                                       bool compression,
-                                                      bool store_action,
                                                       bool store_state,
+                                                      bool store_action,
                                                       number batch_size)
         {
             // Parse the problem
@@ -257,23 +261,28 @@ namespace sdm
                                                  double discount,
                                                  double error,
                                                  int trials,
+                                                 bool store_state,
+                                                 bool store_action,
                                                  std::string name,
                                                  double time_max,
+                                                 number freq_update_lb,
+                                                 number freq_update_ub,
                                                  std::string current_type_of_resolution,
                                                  number BigM,
                                                  std::string type_sawtooth_linear_programming,
                                                  TypeOfMaxPlanPrunning type_of_maxplan_prunning,
                                                  int freq_prunning_lower_bound,
                                                  TypeOfSawtoothPrunning type_of_sawtooth_pruning,
-                                                 int freq_prunning_upper_bound,
-                                                 bool store_action,
-                                                 bool store_state)
+                                                 int freq_prunning_upper_bound)
         {
             //  Build the algorithm
             std::shared_ptr<Algorithm> p_algo;
             if ((algo_name == "hsvi") || (algo_name == "HSVI"))
             {
-                p_algo = makeHSVI(formalism_problem, upper_bound, lower_bound, ub_init, lb_init, discount, error, formalism_problem->getUnderlyingProblem()->getHorizon(), trials, (name == "") ? "tab_ext_ohsvi" : name, time_max, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound, store_action, store_state);
+                p_algo = makeHSVI(formalism_problem, upper_bound, lower_bound, ub_init, lb_init,
+                                  discount, error, formalism_problem->getUnderlyingProblem()->getHorizon(), trials,
+                                  store_state, store_action, (name == "") ? "tab_ext_ohsvi" : name, time_max,
+                                  freq_update_lb, freq_update_ub, current_type_of_resolution, BigM, type_sawtooth_linear_programming, type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
             }
             else if ((algo_name == "qlearning") || (algo_name == "QLearning") || (algo_name == "QLEARNING"))
             {
@@ -327,8 +336,13 @@ namespace sdm
                                         number horizon,
                                         int trials,
                                         int memory,
+                                        bool compression,
+                                        bool store_state,
+                                        bool store_action,
                                         std::string name,
                                         double time_max,
+                                        number freq_update_lb,
+                                        number freq_update_ub,
                                         std::string current_type_of_resolution,
                                         number BigM,
                                         std::string type_sawtooth_linear_programming,
@@ -336,22 +350,19 @@ namespace sdm
                                         int freq_prunning_lower_bound,
                                         TypeOfSawtoothPrunning type_of_sawtooth_pruning,
                                         int freq_prunning_upper_bound,
-                                        bool compression,
-                                        bool store_action,
-                                        bool store_state,
                                         number batch_size)
         {
 
             // Build the formalism
-            auto formalism_problem = algo::makeFormalism(problem_path, formalism, discount, horizon, memory, compression, store_action, store_state, batch_size);
+            auto formalism_problem = algo::makeFormalism(problem_path, formalism, discount, horizon, memory, compression, store_state, store_action, batch_size);
 
             // Build the algorithm
             auto algo = algo::makeAlgorithm(algo_name, formalism_problem, formalism,
                                             upper_bound, lower_bound, ub_init, lb_init,
-                                            discount, error, trials, name, time_max,
+                                            discount, error, trials, store_state, store_action, name, time_max,
+                                            freq_update_lb, freq_update_ub,
                                             current_type_of_resolution, BigM, type_sawtooth_linear_programming,
-                                            type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound,
-                                            store_action, store_state);
+                                            type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
             return algo;
         }
     }

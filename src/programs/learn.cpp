@@ -21,31 +21,13 @@ int learn(int argv, char **args)
         bool compress, store_actions, store_states;
 
         po::options_description options("Options");
-        options.add_options()
-        ("help", "produce help message")
-        ("test", "test the policy found");
+        options.add_options()("help", "produce help message")("test", "test the policy found");
 
         po::options_description config("Configuration");
-        config.add_options()
-        ("algorithm,a", po::value<string>(&algorithm)->default_value("qlearning"), "the learning algorithm to use")
-        ("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")
-        ("formalism,f", po::value<string>(&formalism)->default_value("decpomdp"), "the formalism to use")
-        ("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")
-        ("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")
-        ("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")
-        ("num_episodes,t", po::value<unsigned long>(&num_episodes)->default_value(100000), "the maximum number of timesteps")
-        ("memory,m", po::value<unsigned long>(&memory)->default_value(0), "the memory for history")
-        ("seed,s", po::value<number>(&seed)->default_value(1), "the seed")
-        ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "the seed")
-        ("compress", po::value<bool>(&compress)->default_value(true), "If true, apply compression when required.")
-        ("store_actions", po::value<bool>(&store_actions)->default_value(true), "If true, store the macro actions when required.")
-        ("store_states", po::value<bool>(&store_states)->default_value(true), "If true, store the macro states when required.")
-        ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
+        config.add_options()("algorithm,a", po::value<string>(&algorithm)->default_value("qlearning"), "the learning algorithm to use")("problem,p", po::value<string>(&problem)->default_value("tiger"), "the problem to be solved")("formalism,f", po::value<string>(&formalism)->default_value("decpomdp"), "the formalism to use")("lr,l", po::value<double>(&lr)->default_value(0.01), "the learning rate")("discount,d", po::value<double>(&discount)->default_value(0.9), "the discount factor")("horizon,h", po::value<number>(&horizon)->default_value(0), "the planning horizon. If 0 then infinite horizon.")("num_episodes,t", po::value<unsigned long>(&num_episodes)->default_value(100000), "the maximum number of timesteps")("memory,m", po::value<unsigned long>(&memory)->default_value(0), "the memory for history")("seed,s", po::value<number>(&seed)->default_value(1), "the seed")("batch_size,b", po::value<number>(&batch_size)->default_value(0), "the seed")("compress", po::value<bool>(&compress)->default_value(true), "If true, apply compression when required.")("store_actions", po::value<bool>(&store_actions)->default_value(true), "If true, store the macro actions when required.")("store_states", po::value<bool>(&store_states)->default_value(true), "If true, store the macro states when required.")("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment");
 
         po::options_description algo_config("Algorithms configuration");
-        algo_config.add_options()
-        ("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")
-        ("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
+        algo_config.add_options()("qvalue,q", po::value<string>(&qvalue)->default_value("tabular"), "the representation of the Q-Value")("init,i", po::value<string>(&q_init)->default_value("ZeroInitializer"), "the Q-Value initialization method");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -75,9 +57,10 @@ int learn(int argv, char **args)
 
         auto algo = sdm::algo::make(algorithm, problem, formalism,
                                     qvalue, qvalue, q_init, q_init,
-                                    discount, lr, horizon, num_episodes, memory, name,
-                                    5000, "", 0, "", PAIRWISE, -1, NONE, -1,
-                                    compress, store_actions, store_states, batch_size);
+                                    discount, lr, horizon, num_episodes, memory,
+                                    compress, store_states, store_actions, name, 5000, 
+                                    1, 1, "", 0, "", PAIRWISE, -1, NONE, -1, 
+                                    batch_size);
 
         algo->do_initialize();
         algo->do_solve();

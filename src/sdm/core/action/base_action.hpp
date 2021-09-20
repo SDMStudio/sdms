@@ -65,6 +65,8 @@ namespace sdm
 
   /** @brief BaseAction class with type `number` */
   using DiscreteAction = BaseAction<number>;
+  /** @brief BaseAction class with type `number` */
+  using DiscreteActionString = BaseAction<std::string>;
   /** @brief BaseAction class with type `Joint<std::shared_ptr<Action>>`.  */
   using JointAction = BaseAction<Joint<std::shared_ptr<Action>>>;
 

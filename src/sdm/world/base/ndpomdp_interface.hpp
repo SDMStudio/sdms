@@ -4,7 +4,6 @@
 
 namespace sdm
 {
-
     class NetworkedDistributedPOMDPInterface : public MPOMDPInterface
     {
         virtual number getNumGroups() const = 0;

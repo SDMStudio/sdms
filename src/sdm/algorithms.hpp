@@ -23,17 +23,19 @@ namespace sdm
                                             double error = 0.01,
                                             number horizon = 0,
                                             int trials = 1000,
+                                            bool store_state = true,
+                                            bool store_action = true,
                                             std::string name = "",
                                             double time_max = 5000,
+                                            number freq_update_lb = 1,
+                                            number freq_update_ub = 1,
                                             std::string current_type_of_resolution = "BigM",
                                             number BigM = 100,
                                             std::string type_sawtooth_linear_programming = "Full",
                                             TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE,
                                             int freq_prunning_lower_bound = -1,
                                             TypeOfSawtoothPrunning type_of_sawtooth_pruning = TypeOfSawtoothPrunning::NONE,
-                                            int freq_prunning_upper_bound = -1,
-                                            bool store_action = true,
-                                            bool store_state = true);
+                                            int freq_prunning_upper_bound = -1);
 
         /**
          * @brief Build the ValueIteration version that use TabularValueFunction Representation
@@ -62,8 +64,8 @@ namespace sdm
                                                       number horizon,
                                                       int truncation,
                                                       bool compression,
-                                                      bool store_action,
                                                       bool store_state,
+                                                      bool store_action,
                                                       number batch_size);
 
         /**
@@ -79,15 +81,19 @@ namespace sdm
                                                  double discount,
                                                  double error,
                                                  int trials,
+                                                 bool store_state,
+                                                 bool store_action,
                                                  std::string name,
                                                  double time_max,
+                                                 number freq_update_lb,
+                                                 number freq_update_ub,
                                                  std::string current_type_of_resolution,
                                                  number BigM,
                                                  std::string type_sawtooth_linear_programming,
                                                  TypeOfMaxPlanPrunning type_of_maxplan_prunning,
                                                  int freq_prunning_lower_bound,
                                                  TypeOfSawtoothPrunning type_of_sawtooth_pruning,
-                                                 int freq_prunning_upper_bound, bool store_action, bool store_state);
+                                                 int freq_prunning_upper_bound);
 
         /**
          * @brief Build an algorithm given his name and the configurations required. 
@@ -121,8 +127,13 @@ namespace sdm
                                         number horizon = 0,
                                         int trials = 1000,
                                         int truncation = -1,
+                                        bool compression = true,
+                                        bool store_state = true,
+                                        bool store_action = true,
                                         std::string name = "",
                                         double time_max = 5000,
+                                        number freq_update_lb = 1,
+                                        number freq_update_ub = 1,
                                         std::string current_type_of_resolution = "BigM",
                                         number BigM = 100,
                                         std::string type_sawtooth_linear_programming = "Full",
@@ -130,9 +141,6 @@ namespace sdm
                                         int freq_prunning_lower_bound = -1,
                                         TypeOfSawtoothPrunning type_of_sawtooth_pruning = TypeOfSawtoothPrunning::NONE,
                                         int freq_prunning_upper_bound = -1,
-                                        bool compression = true,
-                                        bool store_action = true,
-                                        bool store_state = true,
                                         number batch_size = 0);
 
         /**

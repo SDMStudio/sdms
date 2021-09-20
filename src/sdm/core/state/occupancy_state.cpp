@@ -23,7 +23,8 @@ namespace sdm
            OccupancyState::TIME_IN_MINUS_OPERATOR = 0,
            OccupancyState::TIME_IN_COMPRESS = 0,
            OccupancyState::TIME_IN_DOT_OPERATOR = 0,
-           OccupancyState::TIME_IN_INFERIOR_OPERATOR = 0;
+           OccupancyState::TIME_IN_INFERIOR_OPERATOR = 0,
+           OccupancyState::TIME_IN_FINALIZE_PRIVATE = 0;
 
     unsigned long OccupancyState::PASSAGE_GET_PROBA = 0,
                   OccupancyState::PASSAGE_FINALIZE = 0;
@@ -98,7 +99,7 @@ namespace sdm
         auto belief = this->getBeliefAt(joint_history);
         auto output = (belief == nullptr or !belief->isStateExist(state)) ? this->getDefault() : this->getProbability(joint_history) * belief->getProbability(state);
 
-        this->updateTime(time_start, "Time Get Proba");
+        this->updateTime(time_start, "TIME_IN_GET_PROBA");
         OccupancyState::PASSAGE_GET_PROBA++;
 
         return output;
@@ -119,7 +120,7 @@ namespace sdm
         Belief::setProbability(joint_history, proba);
         // this->setProbability(joint_history, proba);
 
-        this->updateTime(time_start, "Time Set Proba");
+        this->updateTime(time_start, "TIME_IN_SET_PROBA");
     }
 
     void OccupancyState::addProbability(const std::shared_ptr<State> &joint_history, double proba)
@@ -130,8 +131,6 @@ namespace sdm
 
     void OccupancyState::addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba)
     {
-        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-
         // Get the corresponding belief of an history. This will return nullptr if no such history exists
         auto corresponding_belief = this->getBeliefAt(joint_history);
 
@@ -140,8 +139,6 @@ namespace sdm
 
         // Add input probability to the current probability
         this->setProbability(joint_history, belief_label, this->getProbability(joint_history) + proba);
-
-        this->updateTime(time_start, "Time Add Proba");
     }
 
     Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> OccupancyState::sampleJointHistoryBelief()
@@ -370,7 +367,7 @@ namespace sdm
         // this->list_beliefs_.clear();
         for (const auto &joint_history_tmp : this->getStates())
         {
-            auto joint_history = joint_history_tmp->toHistory()->toJointHistory();
+            auto joint_history = std::dynamic_pointer_cast<JointHistoryInterface>(joint_history_tmp);
             this->list_joint_histories_.insert(joint_history);
             this->list_beliefs_.insert(this->getBeliefAt(joint_history));
         }
@@ -579,6 +576,7 @@ namespace sdm
 
     void OccupancyState::setupPrivateOccupancyStates()
     {
+        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
         // For all joint histories in the support of the occupancy state
         for (const auto &jhist : this->getJointHistories())
         {
@@ -620,7 +618,8 @@ namespace sdm
                 // Normalize the private occupancy state
                 pair_ihist_private_occupancy_state.second->normalize();
             }
-        }
+        }        
+        this->updateTime(time_start, "Time Setup Private");
     }
 
     void OccupancyState::finalize()
@@ -820,7 +819,7 @@ namespace sdm
         {
             OccupancyState::TIME_IN_GET_PROBA += time;
         }
-        else if (information == "Time Set Proba")
+        else if (information == "TIME_IN_SET_PROBA")
         {
             OccupancyState::TIME_IN_SET_PROBA += time;
         }
@@ -831,6 +830,10 @@ namespace sdm
         else if (information == "Time finalise")
         {
             OccupancyState::TIME_IN_FINALIZE += time;
+        }
+        else if (information == "Time Setup Private")
+        {
+            OccupancyState::TIME_IN_FINALIZE_PRIVATE += time;
         }
         else if (information == "Operator ==")
         {

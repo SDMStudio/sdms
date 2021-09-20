@@ -189,18 +189,20 @@ int main(int argc, char **argv)
                                     horizon,
                                     trials,
                                     memory,
+                                    compression,
+                                    store_states,
+                                    store_actions,
                                     save_path+name,
                                     time_max,
+                                    1, 
+                                    1,
                                     sawtooth_type_of_resolution,
                                     sawtooth_BigM,
                                     sawtooth_type_of_linear_program,
                                     type_lb_pruning_,
                                     freq_lb_pruning,
                                     type_ub_pruning_,
-                                    freq_ub_pruning,
-                                    compression,
-                                    store_actions,
-                                    store_states);
+                                    freq_ub_pruning);
 
         // Initialize and solve the problem
         algo->do_initialize();

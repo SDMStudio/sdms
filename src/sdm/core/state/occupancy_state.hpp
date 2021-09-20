@@ -169,7 +169,6 @@ namespace sdm
          */
         std::shared_ptr<OccupancyStateInterface> compress();
 
-
         /**
          * @brief Get the Private Occupancy States object
          * 
@@ -204,7 +203,7 @@ namespace sdm
         void setup();
         void normalize();
 
-        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_EQUAL_OPERATOR, TIME_IN_MINUS_OPERATOR, TIME_IN_HASH, TIME_IN_COMPRESS, TIME_IN_DOT_OPERATOR, TIME_IN_INFERIOR_OPERATOR;
+        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_FINALIZE_PRIVATE, TIME_IN_EQUAL_OPERATOR, TIME_IN_MINUS_OPERATOR, TIME_IN_HASH, TIME_IN_COMPRESS, TIME_IN_DOT_OPERATOR, TIME_IN_INFERIOR_OPERATOR;
         static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
 
         std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory);
@@ -213,7 +212,7 @@ namespace sdm
         std::shared_ptr<JointHistoryInterface> getIndividualHierarchicalHistory(number t, number agent, std::shared_ptr<JointHistoryInterface> candidate_ihhistory);
         std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoriesOf(number t, number agent);
         bool individualHierarchicalHistoryVectorForIsDone(number t, number agent);
-        void pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history);
+        void pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
 
         std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t);
         void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
@@ -223,6 +222,7 @@ namespace sdm
 
         /** @brief Keep relation between list of individual histories and joint histories */
         static RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
+
     protected:
         /**
          * @brief the number of agents 
@@ -239,7 +239,6 @@ namespace sdm
 
         /** @brief Keep relations between all private ihistories and labels */
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<HistoryInterface>>> private_ihistory_map_;
-
 
         /** @brief probability of a private history space for a precise agent */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, double>> probability_ihistories;
@@ -276,7 +275,7 @@ namespace sdm
         void setupPrivateOccupancyStates();
 
         std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
-        
+
         // necessary for now for phoMDP
         std::vector<std::shared_ptr<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>> individual_hierarchical_history_vector_map_vector;
         //
@@ -294,7 +293,7 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
+            std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
 
             size_t seed = 0;
             double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
@@ -311,7 +310,7 @@ namespace std
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
-            sdm::OccupancyState::TIME_IN_HASH += std::Performance::computeTime(time_start);
+            in.updateTime(time_start, "Time Hash");
             return seed;
             // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }

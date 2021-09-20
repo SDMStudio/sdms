@@ -45,7 +45,7 @@ namespace sdm
         template <typename T>
         std::shared_ptr<T> to()
         {
-            return std::static_pointer_cast<T>(this->shared_from_this());
+            return std::dynamic_pointer_cast<T>(this->shared_from_this());
         }
 
         friend std::ostream &

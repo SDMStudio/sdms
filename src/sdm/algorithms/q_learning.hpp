@@ -31,7 +31,7 @@ namespace sdm
   private:
     std::shared_ptr<Observation> observation, next_observation;
     std::shared_ptr<Action> action, next_action;
-    number log_freq = 1, test_freq = 1000, save_freq = 10000;
+    number log_freq = 1, test_freq = 1000, save_freq = 10000, max_num_steps_by_ep_ = 200;
     bool do_log_ = false, do_test_ = false, do_save_ = false, is_done = false;
     unsigned long target_update_;
     clock_t t_begin;

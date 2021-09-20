@@ -6,30 +6,29 @@ namespace sdm
 
     template <class TInput>
     QLearning<TInput>::QLearning(std::shared_ptr<GymInterface> &env,
-                         std::shared_ptr<ExperienceMemoryInterface> experience_memory,
-                         std::shared_ptr<QValueFunction<TInput>> q_value_table,
-                         std::shared_ptr<QValueFunction<TInput>> q_value_table_target,
-                         std::shared_ptr<QValueBackupInterface> backup,
-                         std::shared_ptr<EpsGreedy> exploration,
-                         number horizon,
-                         double discount,
-                         double lr,
-                         double smooth,
-                         unsigned long num_episodes,
-                         std::string name
-                         ) : target_update_(1),
-                             env_(env),
-                             experience_memory_(experience_memory),
-                             q_value_table_(q_value_table),
-                             q_value_table_target_(q_value_table_target),
-                             backup_(backup),
-                             exploration_process(exploration),
-                             horizon_(horizon),
-                             discount_(discount),
-                             lr_(lr),
-                             smooth_(smooth),
-                             num_episodes_(num_episodes),
-                             name_(name)
+                                 std::shared_ptr<ExperienceMemoryInterface> experience_memory,
+                                 std::shared_ptr<QValueFunction<TInput>> q_value_table,
+                                 std::shared_ptr<QValueFunction<TInput>> q_value_table_target,
+                                 std::shared_ptr<QValueBackupInterface> backup,
+                                 std::shared_ptr<EpsGreedy> exploration,
+                                 number horizon,
+                                 double discount,
+                                 double lr,
+                                 double smooth,
+                                 unsigned long num_episodes,
+                                 std::string name) : target_update_(1),
+                                                     env_(env),
+                                                     experience_memory_(experience_memory),
+                                                     q_value_table_(q_value_table),
+                                                     q_value_table_target_(q_value_table_target),
+                                                     backup_(backup),
+                                                     exploration_process(exploration),
+                                                     horizon_(horizon),
+                                                     discount_(discount),
+                                                     lr_(lr),
+                                                     smooth_(smooth),
+                                                     num_episodes_(num_episodes),
+                                                     name_(name)
     {
     }
 
@@ -76,14 +75,13 @@ namespace sdm
             if (this->do_log_)
             {
                 this->logger_->log(
-                    this->episode, 
-                    this->global_step, 
+                    this->episode,
+                    this->global_step,
                     this->exploration_process->getEpsilon(),
-                    this->backup_->getValueAt(this->env_->reset()->toState(), 0), 
+                    this->backup_->getValueAt(this->env_->reset()->toState(), 0),
                     this->E_R,
                     (float)(clock() - this->t_begin) / CLOCKS_PER_SEC,
-                    this->q_value_table_->getNumStates()
-                );
+                    this->q_value_table_->getNumStates());
                 this->do_log_ = false;
             }
             if (this->do_test_)
@@ -93,13 +91,11 @@ namespace sdm
             }
         }
 
-        // std::cout << *this->q_value_table_ << std::endl;
-
+        std::cout << *this->q_value_table_ << std::endl;
 
         // std::ofstream QValueStream(this->name_ + ".qvalue");
         // QValueStream << *this->q_value_table_ << std::endl;
         // QValueStream.close();
-
     }
 
     template <class TInput>
@@ -122,7 +118,8 @@ namespace sdm
         this->observation = this->env_->reset();
         this->action = this->select_action(this->observation, this->step);
 
-        unsigned long stop_cond = this->global_step + this->horizon_;
+        number max_num_steps_by_ep = (this->horizon_ > 0) ? this->horizon_ : this->max_num_steps_by_ep_;
+        unsigned long stop_cond = this->global_step + max_num_steps_by_ep;
         while (this->global_step < stop_cond)
         {
             this->do_step();
@@ -141,7 +138,7 @@ namespace sdm
 
     template <class TInput>
     void QLearning<TInput>::do_step()
-    {   
+    {
         // One step in env and get next observation and rewards
         std::tie(this->next_observation, this->rewards_, this->is_done) = this->env_->step(this->action);
 
@@ -191,26 +188,20 @@ namespace sdm
     template <class TInput>
     std::shared_ptr<Action> QLearning<TInput>::select_action(const std::shared_ptr<Observation> &observation, number t)
     {
-        // std::cout << "-------- QLearning<TInput>::select_action ---------" << std::endl;
-        
+
         // if (((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon()) || this->q_value_table_->isNotSeen(observation->toState(), t))
+        // If sampled value is lower than epsilon
         if ((rand() / double(RAND_MAX)) < this->exploration_process->getEpsilon())
         {
-            // std::cout << "-------- RANDOM ---------" << std::endl;
+            // Get random action
             return this->env_->getRandomAction(observation, t);
         }
         else
         {
-            // std::cout << "-------- GREEDY ---------" << std::endl;
+            // Get greedy action 
             auto a = this->backup_->getGreedyAction(observation->toState(), t);
-            if (a == nullptr)
-            {
-                return this->env_->getRandomAction(observation, t);
-            }
-            return a;
-            // return this->env_->getRandomAction(observation, t);
+            return (a) ? a : this->env_->getRandomAction(observation, t);
         }
-
     }
 
     template <class TInput>

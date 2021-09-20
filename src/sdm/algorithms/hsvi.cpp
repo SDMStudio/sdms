@@ -55,7 +55,6 @@ namespace sdm
 
     void HSVI::initLogger()
     {
-
         // ************* Global Logger ****************
         std::string format = "#> Trial :\t{}\tError :\t{}\t->\tV_lb({})\tV_ub({})\t Size_lower_bound({}) \t Size_upper_bound({}) \t Time({})  \n";
 
@@ -88,9 +87,18 @@ namespace sdm
 
     void HSVI::do_initialize()
     {
+
+#ifdef LOGTIME
+        this->current_time = std::chrono::high_resolution_clock::now();
+#endif
+
         this->initLogger();
         this->lower_bound_->initialize();
         this->upper_bound_->initialize();
+#ifdef LOGTIME
+        this->cleanTIME();
+        this->updateTime(this->current_time, "Initialization");
+#endif
     }
 
     void HSVI::do_solve()
@@ -177,14 +185,8 @@ namespace sdm
                 start_time_tmp = std::chrono::high_resolution_clock::now();
 #endif
 
-                long long current_mem_used = std::Performance::RanMemoryUsed(memInfo);
-
                 // Select next action and state following search process
                 auto [selected_action, value] = this->world_->selectNextAction(this->lower_bound_, this->upper_bound_, state, h);
-
-                long long new_mem_used = std::Performance::RanMemoryUsed(memInfo), total_mem = std::Performance::totalMemory(memInfo);
-                // std::cout << "Memory (selectAction) : " << 100*((new_mem_used / 1.e6) / (total_mem / 1.e6)) << "% | diff(" << (new_mem_used/1.e6 - current_mem_used/1.e6) << ")" << std::endl;
-                current_mem_used = new_mem_used;
 
 #ifdef LOGTIME
                 this->updateTime(current_time, "Action");
@@ -194,10 +196,6 @@ namespace sdm
 #endif
                 //Determine the state thanks to the action
                 std::shared_ptr<State> s_ = this->world_->nextState(state, selected_action, h, this->getptr());
-
-                new_mem_used = std::Performance::RanMemoryUsed(memInfo), total_mem = std::Performance::totalMemory(memInfo);
-                // std::cout << "Memory (nextState) : " << 100*((new_mem_used / 1.e6) / (total_mem / 1.e6)) << "% | diff(" << (new_mem_used/1.e6 - current_mem_used/1.e6) << ")" << std::endl;
-                current_mem_used = new_mem_used;
 
 #ifdef LOGTIME
                 this->updateTime(current_time, "Next State");
@@ -224,10 +222,6 @@ namespace sdm
                         this->lower_bound_->updateValueAt(state, h);
                     }
                 }
-
-                new_mem_used = std::Performance::RanMemoryUsed(memInfo), total_mem = std::Performance::totalMemory(memInfo);
-                // std::cout << "Memory (updateLB) : " << 100*((new_mem_used / 1.e6) / (total_mem / 1.e6)) << "% | diff(" << (new_mem_used/1.e6 - current_mem_used/1.e6) << ")" << std::endl;
-                current_mem_used = new_mem_used;
 #ifdef LOGTIME
                 this->updateTime(current_time, "Update Lower");
                 duration_update_lower = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - start_time_tmp).count();
@@ -248,9 +242,6 @@ namespace sdm
                     }
                 }
 
-                new_mem_used = std::Performance::RanMemoryUsed(memInfo), total_mem = std::Performance::totalMemory(memInfo);
-                // std::cout << "Memory (updateUB) : " << 100*((new_mem_used / 1.e6) / (total_mem / 1.e6)) << "% | diff(" << (new_mem_used/1.e6 - current_mem_used/1.e6) << ")" << std::endl;
-                current_mem_used = new_mem_used;
 #ifdef LOGTIME
                 this->updateTime(current_time, "Update Upper");
                 duration_update_upper = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - start_time_tmp).count();
@@ -259,24 +250,24 @@ namespace sdm
             this->duration = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - this->start_time).count();
 
             //---------------DEBUG-----------------//
-#ifdef LOGTIME
-            if (!state->isBaseItem() && state->getTypeState() == TypeState::OCCUPANCY_STATE)
-            {
-                this->current_time = std::chrono::high_resolution_clock::now();
+// #ifdef LOGTIME
+//             if (!state->isBaseItem() && state->getTypeState() == TypeState::OCCUPANCY_STATE)
+//             {
+//                 this->current_time = std::chrono::high_resolution_clock::now();
 
-                //Determine the number of decision rule
-                int size_action_space = 0;
-                auto action_space = this->world_->getActionSpaceAt(state, h);
-                for (const auto &a : *action_space)
-                {
-                    size_action_space++;
-                }
+//                 //Determine the number of decision rule
+//                 int size_action_space = 0;
+//                 auto action_space = this->world_->getActionSpaceAt(state, h);
+//                 for (const auto &a : *action_space)
+//                 {
+//                     size_action_space++;
+//                 }
 
-                //Add this information to the logger
-                this->logger_precise_->log(this->trial, h, this->do_excess(state, cost_so_far, h) + this->error_, this->lower_bound_->getValueAt(state), this->upper_bound_->getValueAt(state), this->lower_bound_->getSize(h), this->upper_bound_->getSize(h), duration_select_action, duration_next_state, duration_update_lower, duration_update_upper, state->toOccupancyState()->getJointHistories().size(), 0, size_action_space);
-                this->updateTime(current_time, "Time_to_remove");
-            }
-#endif
+//                 //Add this information to the logger
+//                 this->logger_precise_->log(this->trial, h, this->do_excess(state, cost_so_far, h) + this->error_, this->lower_bound_->getValueAt(state), this->upper_bound_->getValueAt(state), this->lower_bound_->getSize(h), this->upper_bound_->getSize(h), duration_select_action, duration_next_state, duration_update_lower, duration_update_upper, state->toOccupancyState()->getJointHistories().size(), 0, size_action_space);
+//                 this->updateTime(current_time, "Time_to_remove");
+//             }
+// #endif
             // std::cout << "\t\t#>s h:" << h << "\t V_lb(" << this->lower_bound_->getValueAt(state, h) << ")\tV_ub(" << this->upper_bound_->getValueAt(state, h) << ")" << std::endl;
             //-----------------DEBUG----------------//
 
@@ -292,19 +283,21 @@ namespace sdm
 
     double HSVI::do_excess(const std::shared_ptr<State> &s, double cost_so_far, number h)
     {
+        double value_do_excess;
         try
         {
+#ifdef LOGTIME
             this->current_time = std::chrono::high_resolution_clock::now();
+#endif
 
             const auto &lb = this->lower_bound_->getValueAt(s, h);
             const auto &ub = this->upper_bound_->getValueAt(s, h);
             const auto &incumbent = this->lower_bound_->getValueAt(this->world_->getInitialState());
-            double value_do_excess = this->world_->do_excess(incumbent, lb, ub, cost_so_far, this->error_, h);
+            value_do_excess = this->world_->do_excess(incumbent, lb, ub, cost_so_far, this->error_, h);
 
 #ifdef LOGTIME
             this->updateTime(current_time, "Do_excess");
 #endif
-            return value_do_excess;
         }
         catch (const std::exception &exc)
         {
@@ -312,6 +305,7 @@ namespace sdm
             std::cerr << "HSVI::do_excess(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
+        return value_do_excess;
     }
 
     void HSVI::do_test()
@@ -448,8 +442,9 @@ namespace sdm
         {
             HSVI::TIME_IN_SELECT_STATE += time;
         }
-        else if (information == "Intialisation")
+        else if (information == "Initialization")
         {
+            HSVI::TIME_INITIALIZATION += time;
             // HSVI::TIME_IN_SELECT_STATE += time;
         }
         else if (information == "Time_to_remove")

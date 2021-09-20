@@ -124,13 +124,6 @@ namespace sdm
          */
         std::shared_ptr<Item> getJointItem(number) const;
 
-        /**
-         * @brief Get all the joint values
-         * 
-         * @return the list of all possible joint items
-         */
-        std::vector<std::shared_ptr<Item>> getAll();
-
         std::string str() const;
 
         virtual iterator_type begin();
