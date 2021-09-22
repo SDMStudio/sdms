@@ -1,3 +1,6 @@
+#ifdef WITH_CPLEX
+
+#include <ilcplex/ilocplex.h>
 #include <sdm/utils/linear_programming/lp_problem.hpp>
 
 namespace sdm
@@ -76,3 +79,5 @@ namespace sdm
         return std::make_pair(action, value);
     }
 }
+
+#endif

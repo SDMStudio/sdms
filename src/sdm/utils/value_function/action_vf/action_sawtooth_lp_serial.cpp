@@ -1,3 +1,4 @@
+#ifdef WITH_CPLEX
 #include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
@@ -180,3 +181,5 @@ namespace sdm
         return std::make_shared<DeterministicDecisionRule>(action_and_history_individual.second, action_and_history_individual.first);
     }
 }
+
+#endif

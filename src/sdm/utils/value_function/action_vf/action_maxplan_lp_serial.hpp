@@ -1,3 +1,5 @@
+#ifdef WITH_CPLEX
+
 #pragma once
 
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
@@ -56,3 +58,5 @@ namespace sdm
         std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t);
     };
 }
+
+#endif

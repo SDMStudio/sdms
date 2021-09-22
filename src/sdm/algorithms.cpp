@@ -64,26 +64,32 @@ namespace sdm
         {
             assert(((discount < 1) || (horizon > 0)));
 
+            // Instanciate possible backup
             auto tabular_backup = std::make_shared<TabularBackup>(problem);
             auto maxplan_backup = std::make_shared<MaxPlanBackup>(problem);
 
-            auto action_tabular = std::make_shared<ActionVFTabulaire>(problem);
-            auto action_maxplan = std::make_shared<ActionVFMaxplan>(problem);
-            auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(problem);
-            auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
-            auto action_maxplan_lp_serial = std::make_shared<ActionVFMaxplanLPSerial>(problem);
-            auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(problem);
+            // Type of resolution to use (for CPLEX)
+            TypeOfResolution type_of_resolution = (current_type_of_resolution == "BigM") ? TypeOfResolution::BigM
+                                                                                         : TypeOfResolution::IloIfThenResolution;
 
-            TypeOfResolution type_of_resolution = (current_type_of_resolution == "BigM") ? TypeOfResolution::BigM : TypeOfResolution::IloIfThenResolution;
-
+            // Type of sawtooth linear program
             TypeSawtoothLinearProgram type_of_sawtooth_linear_program;
             if (type_sawtooth_linear_programming == "Full")
             {
                 type_of_sawtooth_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING;
             }
 
+            // Instanciate possible action selection
+            auto action_tabular = std::make_shared<ActionVFTabulaire>(problem);
+            auto action_maxplan = std::make_shared<ActionVFMaxplan>(problem);
+            auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(problem);
+#ifdef WITH_CPLEX
+            auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(problem);
+            auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
+            auto action_maxplan_lp_serial = std::make_shared<ActionVFMaxplanLPSerial>(problem);
             auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
             auto action_sawtooth_lp_serial = std::make_shared<ActionVFSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
+#endif
 
             // Instanciate initializers
             auto lb_init = sdm::makeInitializer(lb_init_name, problem);
@@ -98,6 +104,11 @@ namespace sdm
             {
                 lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
+            else if (lower_bound_name == "maxplan_wcsp")
+            {
+                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_wcsp, freq_prunning_lower_bound, type_of_maxplan_prunning);
+            }
+#ifdef WITH_CPLEX
             else if (lower_bound_name == "maxplan_serial")
             {
                 lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
@@ -110,10 +121,7 @@ namespace sdm
             {
                 lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
-            else if (lower_bound_name == "maxplan_wcsp")
-            {
-                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_wcsp, freq_prunning_lower_bound, type_of_maxplan_prunning);
-            }
+#endif
             else
             {
                 if (store_state)
@@ -127,6 +135,7 @@ namespace sdm
             {
                 upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_tabular, freq_prunning_upper_bound, type_of_sawtooth_pruning);
             }
+#ifdef WITH_CPLEX
             else if (upper_bound_name == "sawtooth_lp")
             {
                 upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_sawtooth_lp, freq_prunning_upper_bound, type_of_sawtooth_pruning);
@@ -135,6 +144,7 @@ namespace sdm
             {
                 upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_sawtooth_lp_serial, freq_prunning_upper_bound, type_of_sawtooth_pruning);
             }
+#endif
             else
             {
                 if (store_state)

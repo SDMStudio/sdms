@@ -1,3 +1,5 @@
+#ifdef WITH_CPLEX
+
 #pragma once
 
 #include <sdm/utils/value_function/action_vf/action_vf_base.hpp>
@@ -206,3 +208,5 @@ namespace sdm
         void createGlobalConstraint(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
     };
 }
+
+#endif

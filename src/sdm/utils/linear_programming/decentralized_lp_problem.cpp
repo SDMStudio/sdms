@@ -1,3 +1,4 @@
+#ifdef WITH_CPLEX
 #include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
 
 #include <sdm/world/base/mmdp_interface.hpp>
@@ -309,3 +310,5 @@ namespace sdm
         return std::make_shared<JointDeterministicDecisionRule>(joint_histories,actions);
     }
 }
+
+#endif

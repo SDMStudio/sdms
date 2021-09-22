@@ -1,3 +1,4 @@
+#ifdef WITH_CPLEX
 #pragma once
 
 #include <sdm/world/solvable_by_hsvi.hpp>
@@ -66,3 +67,5 @@ namespace sdm
 
     };
 }
+
+#endif

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <sdm/core/action/action.hpp>
-#include <ilcplex/ilocplex.h>
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 

@@ -1,3 +1,5 @@
+#ifdef WITH_CPLEX
+
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp_serial.hpp>
 
 #include <sdm/world/serial_occupancy_mdp.hpp>
@@ -96,3 +98,5 @@ namespace sdm
         return std::make_shared<DeterministicDecisionRule>(action_and_history_individual.second, action_and_history_individual.first);
     }
 }
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef WITH_CPLEX
+
 #pragma once
 
 #include <sdm/utils/value_function/action_vf/action_vf_base.hpp>
@@ -39,3 +41,5 @@ namespace sdm
         double evaluateNextExpectedValueAt(const std::shared_ptr<State> &hyperplan, const std::shared_ptr<HistoryInterface> &joint_history, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
     };
 }
+
+#endif

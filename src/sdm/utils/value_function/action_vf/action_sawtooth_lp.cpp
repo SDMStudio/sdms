@@ -1,3 +1,4 @@
+#ifdef WITH_CPLEX
 #include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
@@ -10,29 +11,28 @@
 namespace sdm
 {
     ActionVFSawtoothLP::ActionVFSawtoothLP() {}
-    ActionVFSawtoothLP::ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI>& world,TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program) : 
-        ActionVFBase(world),DecentralizedLP(world) , current_type_of_resolution_(current_type_of_resolution), type_of_linear_program_(type_of_linear_program)
+    ActionVFSawtoothLP::ActionVFSawtoothLP(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program) : ActionVFBase(world), DecentralizedLP(world), current_type_of_resolution_(current_type_of_resolution), type_of_linear_program_(type_of_linear_program)
     {
         this->bigM_value_ = bigM_value;
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionFull(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionFull(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         // For the Full version of Sawtooth, the support is the element of the Point Set at t+1 and the support of each element
-        this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
+        this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
 
         //GO over all point set at t+1
-        for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
+        for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
         {
             const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
-            this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>());
-            
+            this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>());
+
             // Go over all Joint History Next
             for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
             {
-                this->all_support[ostate_AND_value].emplace(next_joint_history,std::vector<std::shared_ptr<State>>());
-                
+                this->all_support[ostate_AND_value].emplace(next_joint_history, std::vector<std::shared_ptr<State>>());
+
                 // Go over all Hidden State in the next one step uncomppresed occupancy state
                 for (const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                 {
@@ -40,12 +40,12 @@ namespace sdm
                 }
             }
         }
-        return this->createLP(vf,state, t);
+        return this->createLP(vf, state, t);
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionRelaxedV2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionRelaxedV2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
-        // For the Relaxed version 2 of Sawtooth, the support is only the support of each point set at t+1. 
+        // For the Relaxed version 2 of Sawtooth, the support is only the support of each point set at t+1.
         //Consequently, we create a LP problem for each point set at t+1
 
         std::shared_ptr<Action> best_action;
@@ -54,7 +54,7 @@ namespace sdm
         if (vf->getSupport(t + 1).empty())
         {
             // Resolution of the problem when the support of Point Set is empty
-            this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
+            this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
             auto best_action_AND_value = this->createLP(vf, state, t);
 
             best_action = best_action_AND_value.first;
@@ -64,18 +64,18 @@ namespace sdm
         {
 
             //GO over all point set at t+1
-            for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
+            for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
             {
                 const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
-                //Initialiaze the support 
-                this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
-                this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>());
+                //Initialiaze the support
+                this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
+                this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>());
 
                 // Go over all Joint History Next
                 for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
                 {
-                    this->all_support[ostate_AND_value].emplace(next_joint_history,std::vector<std::shared_ptr<State>>());
+                    this->all_support[ostate_AND_value].emplace(next_joint_history, std::vector<std::shared_ptr<State>>());
                     // Go over all Hidden State in the next one step uncomppresed occupancy state
                     for (const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                     {
@@ -83,10 +83,10 @@ namespace sdm
                     }
                 }
 
-                //Resolve a LP problem for a precise point set 
-                auto [action,value] = this->createLP(vf,state, t);
+                //Resolve a LP problem for a precise point set
+                auto [action, value] = this->createLP(vf, state, t);
 
-                if (min_value >value)
+                if (min_value > value)
                 {
                     min_value = value;
                     best_action = action;
@@ -96,9 +96,9 @@ namespace sdm
         return {best_action, min_value};
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionRelaxed(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,number t)
+    Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestActionRelaxed(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
-        // For the Relaxed version of Sawtooth, the support is only one support of each point set at t+1. 
+        // For the Relaxed version of Sawtooth, the support is only one support of each point set at t+1.
         //Consequently, we create a LP problem for each point set at t+1 and each support of this point.
 
         std::shared_ptr<Action> best_action;
@@ -107,7 +107,7 @@ namespace sdm
         if (vf->getSupport(t + 1).empty())
         {
             // Resolution of the problem when the support of Point Set is empty
-            this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
+            this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
             auto best_action_AND_value = this->createLP(vf, state, t);
 
             best_action = best_action_AND_value.first;
@@ -116,7 +116,7 @@ namespace sdm
         else
         {
             //GO over all point set at t+1
-            for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
+            for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
             {
                 const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
@@ -130,14 +130,14 @@ namespace sdm
                     for (const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
                     {
                         //Initialize the support for a precise point set and a precise support of this point.
-                        this->all_support = std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>>();
-                        
+                        this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
+
                         //Emplace the information for the LP
-                        this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>());
-                        this->all_support[ostate_AND_value].emplace(next_joint_history,std::vector<std::shared_ptr<State>>());
+                        this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>());
+                        this->all_support[ostate_AND_value].emplace(next_joint_history, std::vector<std::shared_ptr<State>>());
                         this->all_support[ostate_AND_value][next_joint_history].push_back(next_hidden_state);
 
-                        auto [action,value] = this->createLP(vf,state, t);
+                        auto [action, value] = this->createLP(vf, state, t);
 
                         // We take the best action with the minimum value
                         if (max_value_support < value)
@@ -148,7 +148,7 @@ namespace sdm
                     }
                 }
 
-                if (min_value >max_value_support)
+                if (min_value > max_value_support)
                 {
                     min_value = max_value_support;
                     best_action = best_action_support;
@@ -158,19 +158,18 @@ namespace sdm
         return {best_action, min_value};
     }
 
-
     Pair<std::shared_ptr<Action>, double> ActionVFSawtoothLP::selectBestAction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         switch (this->type_of_linear_program_)
         {
-        case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING :
-            return this->selectBestActionFull(vf,state,t);
+        case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
+            return this->selectBestActionFull(vf, state, t);
             break;
-        case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING :
-            return this->selectBestActionRelaxed(vf,state,t);
+        case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING:
+            return this->selectBestActionRelaxed(vf, state, t);
             break;
-        case TypeSawtoothLinearProgram::RELAXED_V2_SAWTOOTH_LINER_PROGRAMMING :
-            return this->selectBestActionRelaxedV2(vf,state,t);
+        case TypeSawtoothLinearProgram::RELAXED_V2_SAWTOOTH_LINER_PROGRAMMING:
+            return this->selectBestActionRelaxedV2(vf, state, t);
             break;
 
         default:
@@ -190,11 +189,11 @@ namespace sdm
         {
             this->variables.clear();
 
-            //<! 0.b Build variables v_0 = objective variable! 
-            this->createObjectiveVariable(vf,state,env,var,index,t);
+            //<! 0.b Build variables v_0 = objective variable!
+            this->createObjectiveVariable(vf, state, env, var, index, t);
 
             //<! Define variables \omega_k(x',o')
-            this->createOmegaVariable(env,var,index);
+            this->createOmegaVariable(env, var, index);
 
             // Create Decentralized Variables
             this->createDecentralizedVariables(vf, state, env, var, index, t);
@@ -206,7 +205,7 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLP::createObjectiveVariable(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloEnv &env, IloNumVarArray &var, number &index, number )
+    void ActionVFSawtoothLP::createObjectiveVariable(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloEnv &env, IloNumVarArray &var, number &index, number)
     {
         //<! 0.b Build variables v_0 = objective variable!
         std::string VarName = this->getVarNameWeight(0);
@@ -259,9 +258,9 @@ namespace sdm
         {
             auto compressed_occupancy_state = state->toOccupancyState();
 
-            if(vf->getSupport(t+1).empty())
+            if (vf->getSupport(t + 1).empty())
             {
-                this->createInitialConstraints(vf, state,env, con, var,index, t);
+                this->createInitialConstraints(vf, state, env, con, var, index, t);
             }
             else
             {
@@ -272,7 +271,7 @@ namespace sdm
                     const auto &next_one_step_uncompressed_occupancy_state = ostate->toOccupancyState()->getOneStepUncompressedOccupancy();
 
                     // Compute the difference i.e. (v_k - V_k)
-                    double difference = this->computeDifference(vf,next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first,t);
+                    double difference = this->computeDifference(vf, next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first, t);
 
                     // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                     for (const auto &next_history_AND_All_next_hidden_state : next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.second)
@@ -288,10 +287,10 @@ namespace sdm
                             // Determine the next Joint observation thanks to the next joint history
                             auto next_joint_observation = this->determineNextJointObservation(next_history, t);
 
-                            this->createConstraintsKnowingInformation(vf, state, nullptr, next_hidden_state, next_joint_observation, next_history, next_one_step_uncompressed_occupancy_state, denominator, difference, env,model, con, var, index, t);
+                            this->createConstraintsKnowingInformation(vf, state, nullptr, next_hidden_state, next_joint_observation, next_history, next_one_step_uncompressed_occupancy_state, denominator, difference, env, model, con, var, index, t);
                         }
                     }
-                    this->createOmegaConstraints(next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first,env,con,var,index);
+                    this->createOmegaConstraints(next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first, env, con, var, index);
                 }
             }
             this->createDecentralizedConstraints(vf, state, env, con, var, index, t);
@@ -303,28 +302,28 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &,IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number )
+    void ActionVFSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number)
     {
         con.add(IloRange(env, -IloInfinity, IloInfinity));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
-        index ++;
+        index++;
     }
 
-    void ActionVFSawtoothLP::createConstraintsKnowingInformation(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_joint_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator , double difference , IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionVFSawtoothLP::createConstraintsKnowingInformation(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_joint_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         // We search for the joint_history which allow us to obtain the current next_history conditionning to the next joint observation
         switch (this->current_type_of_resolution_)
         {
         case TypeOfResolution::BigM:
-            this->createSawtoothBigM(vf,state,nullptr,next_hidden_state,next_joint_observation,next_joint_history, next_state,denominator,difference,env,con,var,index, t);
+            this->createSawtoothBigM(vf, state, nullptr, next_hidden_state, next_joint_observation, next_joint_history, next_state, denominator, difference, env, con, var, index, t);
             break;
         case TypeOfResolution::IloIfThenResolution:
-            this->createSawtoothIloIfThen(vf, state,nullptr, next_hidden_state, next_joint_observation, next_joint_history,  next_state, denominator, difference, env, model, var, t);
+            this->createSawtoothIloIfThen(vf, state, nullptr, next_hidden_state, next_joint_observation, next_joint_history, next_state, denominator, difference, env, model, var, t);
             break;
         }
     }
 
-    void ActionVFSawtoothLP::createOmegaConstraints(const Pair<std::shared_ptr<State>,double> &state_AND_value, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index)
+    void ActionVFSawtoothLP::createOmegaConstraints(const Pair<std::shared_ptr<State>, double> &state_AND_value, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index)
     {
         const auto &ostate = state_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
 
@@ -334,7 +333,7 @@ namespace sdm
         con.add(IloRange(env, 1.0, 1.0));
 
         // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
-        for (const auto &next_history_AND_All_next_hidden_state :  this->all_support[state_AND_value])
+        for (const auto &next_history_AND_All_next_hidden_state : this->all_support[state_AND_value])
         {
             const auto &next_history = next_history_AND_All_next_hidden_state.first->toJointHistory();
 
@@ -348,8 +347,8 @@ namespace sdm
         }
         index++;
     }
-    
-    void ActionVFSawtoothLP::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,  IloEnv &env,IloRangeArray &con, IloNumVarArray &var,number &index, number t)
+
+    void ActionVFSawtoothLP::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = ActionVFBase::world_->getUnderlyingProblem();
 
@@ -362,7 +361,7 @@ namespace sdm
         // Go over all actions
         for (const auto &action : *under_pb->getActionSpace(t))
         {
-            for(const auto& joint_history : state->toOccupancyState()->getJointHistories())
+            for (const auto &joint_history : state->toOccupancyState()->getJointHistories())
             {
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
@@ -374,7 +373,7 @@ namespace sdm
         index++;
     }
 
-    void ActionVFSawtoothLP::createSawtoothBigM(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator , double difference , IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionVFSawtoothLP::createSawtoothBigM(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         try
         {
@@ -388,13 +387,13 @@ namespace sdm
             // Go over all actions
             for (const auto &action : *under_pb->getActionSpace(t))
             {
-                for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
+                for (const auto &joint_history : state->toOccupancyState()->getJointHistories())
                 {
                     //<! 1.c.4 get variable a(u|o) and set constant
                     recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
 
                     //<! 1.c.4 get variable a(u|o) and set constant
-                    con[index].setLinearCoef(var[recover],-this->computeSawtooth(vf,state, action->toAction(),joint_history,next_hidden_state,next_observation,next_joint_history,denominator,difference,t) );
+                    con[index].setLinearCoef(var[recover], -this->computeSawtooth(vf, state, action->toAction(), joint_history, next_hidden_state, next_observation, next_joint_history, denominator, difference, t));
                 }
             }
             // <! \omega_k(x',o') * BigM
@@ -411,8 +410,6 @@ namespace sdm
         }
     }
 
-
-
     void ActionVFSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
     {
         try
@@ -427,12 +424,12 @@ namespace sdm
             // Go over all actions
             for (const auto &action : *under_pb->getActionSpace(t))
             {
-                for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
+                for (const auto &joint_history : state->toOccupancyState()->getJointHistories())
                 {
                     recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
 
                     //<! 1.c.4 get variable a(u|o) and set constant
-                    expr -=  var[recover] * this->computeSawtooth(vf,state,action->toAction(),joint_history,next_hidden_state,next_observation,next_joint_history,denominator,difference,t);
+                    expr -= var[recover] * this->computeSawtooth(vf, state, action->toAction(), joint_history, next_hidden_state, next_observation, next_joint_history, denominator, difference, t);
                 }
             }
 
@@ -448,7 +445,7 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLP::createObjectiveFunction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloNumVarArray &var, IloObjective &obj, number )
+    void ActionVFSawtoothLP::createObjectiveFunction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloNumVarArray &var, IloObjective &obj, number)
     {
         // <! 1.a get variable v
         auto recover = this->getNumber(this->getVarNameWeight(0));
@@ -476,26 +473,26 @@ namespace sdm
         return weight;
     }
 
-    double ActionVFSawtoothLP::computeDifference(const std::shared_ptr<ValueFunction> &vf,const Pair<std::shared_ptr<State>,double>& state_AND_value, number t)
+    double ActionVFSawtoothLP::computeDifference(const std::shared_ptr<ValueFunction> &vf, const Pair<std::shared_ptr<State>, double> &state_AND_value, number t)
     {
         // Compute the difference v_kappa - V_kappa i.e. the value of point at t+1 minus the relaxation value of the point at t+1
 
-        double current_upper_bound = state_AND_value.second; //Get Value for the state at t+1
+        double current_upper_bound = state_AND_value.second;                                                                                                 //Get Value for the state at t+1
         double initial_upper_bound = vf->getInitFunction()->operator()(state_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy(), t + 1); // Get relaxation value of the state at t+1
-        
+
         return current_upper_bound - initial_upper_bound;
     }
 
-    double ActionVFSawtoothLP::computeSawtooth( const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator , double difference, number t)
+    double ActionVFSawtoothLP::computeSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator, double difference, number t)
     {
         double Qrelaxation = this->getQValueRelaxation(vf, state, joint_history, action, t);
         double SawtoothRatio = 0.0;
-        if(joint_history->expand(next_observation) == next_joint_history)
+        if (joint_history->expand(next_observation) == next_joint_history)
         {
             SawtoothRatio = this->getSawtoothMinimumRatio(vf, state, joint_history, action, next_hidden_state, next_observation, denominator, t);
         }
 
-        return Qrelaxation + SawtoothRatio *difference ;
+        return Qrelaxation + SawtoothRatio * difference;
     }
 
     double ActionVFSawtoothLP::getSawtoothMinimumRatio(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, double denominator, number t)
@@ -547,49 +544,49 @@ namespace sdm
         return DecentralizedLP::getVariableResultOccupancy(vf, state, cplex, var, t);
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLP::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number )
+    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLP::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number)
     {
         return next_joint_history->getLastObservation()->to<Joint<std::shared_ptr<Observation>>>();
     }
 
-    Pair<std::shared_ptr<State>, double> ActionVFSawtoothLP::evaluate(const std::shared_ptr<ValueFunction> &vf,const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action>& decision_rule,  number t)
+    Pair<std::shared_ptr<State>, double> ActionVFSawtoothLP::evaluate(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &decision_rule, number t)
     {
         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionVFBase::world_);
         auto occupancy_state = state_tmp->toOccupancyState();
 
         std::shared_ptr<State> argmin_;
-        double min_ext =0.0;
+        double min_ext = 0.0;
 
-        for(const auto &joint_history : occupancy_state->getJointHistories())
+        for (const auto &joint_history : occupancy_state->getJointHistories())
         {
-            auto action =  occupancy_mdp->applyDecisionRule(occupancy_state,joint_history,decision_rule,t);
+            auto action = occupancy_mdp->applyDecisionRule(occupancy_state, joint_history, decision_rule, t);
             min_ext += this->getQValueRelaxation(vf, occupancy_state, joint_history, action->toAction(), t);
         }
 
         // Go over all element in the support
-        for (const auto &point_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t+1))
+        for (const auto &point_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
         {
             auto point = point_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
-            double difference = this->computeDifference(vf,point_value,t);
+            double difference = this->computeDifference(vf, point_value, t);
 
             double max_value = -std::numeric_limits<double>::max();
 
             // Go over all joint history
             for (const auto &next_joint_history : point->getJointHistories())
             {
-                auto next_observation =this->determineNextJointObservation(next_joint_history,t);
+                auto next_observation = this->determineNextJointObservation(next_joint_history, t);
 
                 // Go over all hidden state in the belief conditionning to the joitn history
                 for (const auto &next_hidden_state : point->getBeliefAt(next_joint_history)->getStates())
                 {
-                    double denominator =  point->getProbability(next_joint_history, next_hidden_state);
+                    double denominator = point->getProbability(next_joint_history, next_hidden_state);
 
-                    double total =0.0;
+                    double total = 0.0;
 
-                    for(const auto &joint_history : occupancy_state->getJointHistories())
+                    for (const auto &joint_history : occupancy_state->getJointHistories())
                     {
-                        auto action =  occupancy_mdp->applyDecisionRule(occupancy_state,joint_history,decision_rule,t);
-                        total += this->computeSawtooth(vf,occupancy_state, action,joint_history,next_hidden_state,next_observation,next_joint_history,denominator,difference,t);
+                        auto action = occupancy_mdp->applyDecisionRule(occupancy_state, joint_history, decision_rule, t);
+                        total += this->computeSawtooth(vf, occupancy_state, action, joint_history, next_hidden_state, next_observation, next_joint_history, denominator, difference, t);
                     }
 
                     // determine the max for the support
@@ -610,3 +607,5 @@ namespace sdm
         return std::make_pair(argmin_, min_ext);
     }
 }
+
+#endif

@@ -1,8 +1,13 @@
+#include <iostream>
+
+#ifdef WITH_CPLEX
 #include <ilcplex/ilocplex.h>
 ILOSTLBEGIN
+#endif
 
 int main(int, char **)
 {
+#ifdef WITH_CPLEX
     IloEnv env;
     try
     {
@@ -35,5 +40,9 @@ int main(int, char **)
         cerr << "Unknown exception caught" << endl;
     }
     env.end();
+#else
+    std::cout << "CPLEX is not installed." << std::endl;
+#endif
+
     return 0;
 } // END main

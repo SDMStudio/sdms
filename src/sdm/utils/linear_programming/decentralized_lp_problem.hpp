@@ -1,3 +1,5 @@
+#ifdef WITH_CPLEX
+
 #pragma once
 
 #include <sdm/utils/linear_programming/lp_problem.hpp>
@@ -133,3 +135,5 @@ namespace sdm
 
     };
 }
+
+#endif

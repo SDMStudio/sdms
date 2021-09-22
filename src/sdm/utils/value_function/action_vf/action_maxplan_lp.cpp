@@ -1,3 +1,4 @@
+#ifdef WITH_CPLEX
 #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
 
 #include <sdm/core/state/interface/belief_interface.hpp>
@@ -119,3 +120,5 @@ namespace sdm
     }
 
 }
+
+#endif

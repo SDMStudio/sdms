@@ -1,5 +1,5 @@
+#ifdef WITH_CPLEX
 #pragma once
-
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/utils/linear_programming/lp_problem_interface.hpp>
@@ -34,3 +34,4 @@ namespace sdm
         std::shared_ptr<BeliefInterface> tmp_representation;
     };
 }
+#endif
