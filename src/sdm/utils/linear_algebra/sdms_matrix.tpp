@@ -1,5 +1,4 @@
 #include <sdm/utils/linear_algebra/sdms_matrix.hpp>
-#include <sdm/utils/linear_algebra/matrix.hpp>
 
 namespace sdm
 {

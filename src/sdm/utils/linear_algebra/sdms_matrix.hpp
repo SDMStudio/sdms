@@ -19,7 +19,6 @@
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
-#include <sdm/utils/linear_algebra/matrix.hpp>
 #include <sdm/utils/linear_algebra/vector_impl.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 

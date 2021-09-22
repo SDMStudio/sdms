@@ -18,8 +18,6 @@
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/world/mpomdp.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/utils/linear_algebra/matrix.hpp>
 
 namespace sdm
 {

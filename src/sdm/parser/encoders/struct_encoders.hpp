@@ -6,8 +6,6 @@
 #include <sdm/utils/linear_algebra/matrix_interface.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/utils/linear_algebra/matrix.hpp>
 
 namespace sdm
 {

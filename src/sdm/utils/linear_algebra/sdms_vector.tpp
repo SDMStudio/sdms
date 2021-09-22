@@ -1,6 +1,5 @@
 #include <sdm/config.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
 
 namespace sdm
 {

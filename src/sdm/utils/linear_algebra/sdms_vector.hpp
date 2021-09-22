@@ -18,7 +18,6 @@
 #include <assert.h>
 
 #include <sdm/utils/linear_algebra/vector_interface.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
 
 namespace sdm
 {
