@@ -16,7 +16,6 @@
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
-#include <sdm/utils/linear_algebra/vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/sdms_vector.hpp>
 #include <sdm/core/distribution.hpp>
