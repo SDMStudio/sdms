@@ -9,8 +9,9 @@ namespace sdm
     {
     }
 
-    ValueFunction::ValueFunction(const ValueFunction& copy) : BaseValueFunction(copy),init_function_(copy.init_function_),backup_(copy.backup_),action_(copy.action_),initializer_(copy.initializer_) 
-    {} 
+    ValueFunction::ValueFunction(const ValueFunction &copy) : BaseValueFunction(copy), init_function_(copy.init_function_), backup_(copy.backup_), action_(copy.action_), initializer_(copy.initializer_)
+    {
+    }
 
     std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
     {
@@ -34,13 +35,13 @@ namespace sdm
 
     std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
     {
-        return this->getBestActionAndValue(state,t).first;
+        return this->getBestActionAndValue(state, t).first;
     }
 
     Pair<std::shared_ptr<Action>, double> ValueFunction::getBestActionAndValue(const std::shared_ptr<State> &state, number t)
     {
 #ifdef LOGTIME
-        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
+        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
 #endif
 
         auto pair_action_value = this->action_->selectBestAction(this->getptr(), state, t);
@@ -51,34 +52,35 @@ namespace sdm
 
         return pair_action_value;
     }
-    
+
 #ifdef LOGTIME
     void ValueFunction::updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information)
     {
-        if(information == "backup")
+        if (information == "backup")
         {
             this->total_time_update_backup += std::Performance::computeTime(start_time);
         }
-        else if(information == "Best Action")
+        else if (information == "Best Action")
         {
             this->total_time_update_best_action += std::Performance::computeTime(start_time);
         }
-        else if(information == "Exist")
+        else if (information == "Exist")
         {
             this->total_time_exist += std::Performance::computeTime(start_time);
-        }            
-        else if(information == "Evaluate")
+        }
+        else if (information == "Evaluate")
         {
             this->total_time_evaluate += std::Performance::computeTime(start_time);
-        }else if(information == "GetValueAt")
+        }
+        else if (information == "GetValueAt")
         {
             this->time_get_value_at += std::Performance::computeTime(start_time);
         }
-        else if(information == "UpdateValue")
+        else if (information == "UpdateValue")
         {
             this->time_update_value += std::Performance::computeTime(start_time);
         }
-        else if(information == "Pruning")
+        else if (information == "Pruning")
         {
             this->time_pruning += std::Performance::computeTime(start_time);
         }
@@ -86,33 +88,37 @@ namespace sdm
 
     double ValueFunction::getTime(std::string information)
     {
-        if(information == "backup")
+        if (information == "backup")
         {
             return this->total_time_update_backup;
         }
-        else if(information == "Best Action")
+        else if (information == "Best Action")
         {
             return this->total_time_update_best_action;
         }
-        else if(information == "Exist")
+        else if (information == "Exist")
         {
             return this->total_time_exist;
-        }            
-        else if(information == "Evaluate")
+        }
+        else if (information == "Evaluate")
         {
             return this->total_time_evaluate;
         }
-        else if(information == "GetValueAt")
+        else if (information == "GetValueAt")
         {
             return this->time_get_value_at;
         }
-        else if(information == "UpdateValue")
+        else if (information == "UpdateValue")
         {
             return this->time_update_value;
         }
-        else if(information == "Pruning")
+        else if (information == "Pruning")
         {
             return this->time_pruning;
+        }
+        else
+        {
+            return -1;
         }
     }
 
@@ -127,5 +133,5 @@ namespace sdm
         }
         return size_total;
     }
-    
+
 } // namespace sdm

@@ -17,11 +17,9 @@ namespace sdm
 
     /**
      * @class ValueFunction
-     * @brief This class is the abstract class of value function. All value function must derived this class.
+     * @brief This class contains attributes and methods common to all value functions. 
      * 
-     * @tparam std::shared_ptr<State> Type of the state.
-     * @tparam std::shared_ptr<Action> Type of the action.
-     * @tparam double Type of the value.
+     * Some attributes are callable. They will be called to update the value function (i.e. the initializer, the backup).  
      */
     class ValueFunction
         : public ValueFunctionBase,
@@ -32,12 +30,20 @@ namespace sdm
         ValueFunction() {}
 
         /**
-         * @brief Construct a new Incremental Value Function object
+         * @brief Construct an incremental value function object.
          * 
-         * @param backup 
-         * @param default_value 
+         * @param horizon the horizon
+         * @param intializer the initializer function
+         * @param backup the backup function
+         * @param action the action selection function
          */
         ValueFunction(number horizon = 0, const std::shared_ptr<Initializer> &intializer = nullptr, const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action = nullptr);
+        
+        /**
+         * @brief Copy constructor
+         * 
+         * @param copy the value function to be copied
+         */
         ValueFunction(const ValueFunction& copy);
 
         /**

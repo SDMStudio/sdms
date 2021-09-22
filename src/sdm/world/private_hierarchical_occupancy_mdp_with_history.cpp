@@ -61,6 +61,7 @@ namespace sdm
             if (*std::dynamic_pointer_cast<JointHistoryTree>(joint_history) == *std::dynamic_pointer_cast<JointHistoryTree>(joint_label))
                 return joint_history;
         }
+        return nullptr;
     }
 
 } // namespace sdm
