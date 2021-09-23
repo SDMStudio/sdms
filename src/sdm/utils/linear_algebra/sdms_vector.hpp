@@ -9,55 +9,121 @@
  * 
  */
 #pragma once
+
+#include <vector>
 #include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/vector_sparse.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
 #include <assert.h>
 
-#include <sdm/utils/linear_algebra/vector_impl.hpp>
+#include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
   /**
-   * @brief Vector that implement the sdm::VectorImpl interface. 
+   * @brief Create a SDMS Vector. A SMDS Vector is used to optimize the calculation, however, you have to be careful when using it because it's not possible to add element after the initialization
    * 
    * @tparam I Type of index
    * @tparam T Type of value
-   * @tparam TBaseVector Type of the base structure
    */
   template <class I, class T, class TBaseVector>
-  class sdmsVector : public TBaseVector, public VectorImpl<I, T>
+  class sdmsVector : public VectorInterface<I, T>
   {
-  protected:
-    std::pair<I, T> getMin() const;
-    std::pair<I, T> getMax() const;
-
   public:
+    // using array_type = typename TBaseVector::array_type;
+    // using value_type = typename array_type::value_type;
+
+    static double PRECISION;
+
     sdmsVector();
-    sdmsVector(I);
-    sdmsVector(I, T);
-    sdmsVector(const sdmsVector &);
 
-    void init(T);
+    /**
+     * @brief Create a SDMS Vector. In order to create a vector, it's necessary to provide a map that associated the I element with a specific index and a specific Value.
+     * 
+     * @param std::shared_ptr<std::unordered_map<I, size_t>> : A map that associate the element I with a specific index
+     * @param std::shared_ptr<std::unordered_map<I, T>> : A map that associate the element I with a specific value
+     * @param double : the default value
+     * 
+     */
+    sdmsVector(std::shared_ptr<std::unordered_map<I, size_t>>, std::shared_ptr<std::unordered_map<I, T>>, double = 0);
+
+    /**
+     * @brief Create a SDMS Vector. 
+     * 
+     * @param std::vector<I>> : A vector for each element I
+     * @param std::vector<T> : A vector for each value associate at the same position of the element I in vector
+     * @param double : the default value
+     * 
+     */
+    sdmsVector(std::vector<I>, std::vector<T>, double = 0);
+
+    virtual ~sdmsVector() {}
+
     T at(const I &) const;
+    T getValueAt(const I &) const;
+    void setValueAt(const I &, const T &value);
+    void addValueAt(const I &, const T &value); // ps: added by baris, not tested.
 
-    T sum();
+    T sum() const;
     T norm_1() const;
     T norm_2() const;
 
-    T min() const;
-    I argmin() const;
-    T max() const;
-    I argmax() const;
+    T min();
+    I argmin();
+    T max();
+    I argmax();
 
-    bool operator<(const sdmsVector &) const;
-    T operator^(const sdmsVector &) const;
-    T dot(const sdmsVector &) const;
+    // sdmsVector transpose() const;
 
+    const std::vector<I> &getIndexes() const;
+
+    /**
+     * @brief Compare two vectors. Return true if all values are lower or equal to the second vector.
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool operator<=(const sdmsVector &) const;
     bool operator==(const sdmsVector &) const;
     bool operator!=(const sdmsVector &) const;
+    bool is_equal(const sdmsVector &other, double precision) const;
+
+    // template <class AE>
+    T dot(const sdmsVector &v2) const;
+
+    // template <class AE>
+    T operator^(const sdmsVector &v2) const;
 
     std::string str() const;
+
+    auto begin() const { return this->iterator_.begin(); }
+    auto end() const { return this->iterator_.end(); }
+
+    template <class Archive>
+    void serialize(Archive &archive, const unsigned int);
+
+    size_t size() const;
+    std::shared_ptr<std::unordered_map<I, size_t>> getMapElementToIndex() const;
+
+  protected:
+    std::vector<I> vector_element_;
+    // std::shared_ptr<std::unordered_map<I, size_t>> map_index_to_value_;
+    std::shared_ptr<std::unordered_map<I, size_t>> map_element_to_index_;
+
+    // std::map<I, T> iterator_;
+
+    TBaseVector tbasevector_;
+
+    std::pair<I, T> getMin() const;
+    std::pair<I, T> getMax() const;
+
+    // friend sdmsVector operator*(const T &arg1, const sdmsVector &arg2)
+    // {
+    //   sdmsVector vnew = arg1 * static_cast<TBaseVector>(arg2);
+    //   vnew.setIndexes(arg2.getIndexes());
+    //   return vnew;
+    // }
   };
 
   /**
@@ -66,7 +132,7 @@ namespace sdm
    * @tparam I Type of index
    * @tparam T Type of value
    */
-  template <typename I, typename T>
+  template <typename I = size_t, typename T = double>
   using SparseVector = sdmsVector<I, T, boost::numeric::ublas::mapped_vector<T>>;
 
   /**
@@ -75,7 +141,7 @@ namespace sdm
    * @tparam I Type of index
    * @tparam T Type of value
    */
-  template <typename I, typename T>
+  template <typename I = size_t, typename T = double>
   using DenseVector = sdmsVector<I, T, boost::numeric::ublas::vector<T>>;
 
 } // namespace sdm

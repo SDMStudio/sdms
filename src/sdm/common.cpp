@@ -21,17 +21,17 @@ namespace sdm
             return u;
         }
         
-        std::string getState(state x)
+        std::string getState(number state)
         {
             std::ostringstream oss;
-            oss << "state" << x;
+            oss << "state" << state;
             return oss.str();
         }
 
-        std::string getAgentActionState(agent i, action ui, state x)
+        std::string getAgentActionState(number agent_id, number action_i, number state)
         {
             std::ostringstream oss;
-            oss << "agent" << i << "." << ui << "." << x;
+            oss << "agent" << agent_id << "." << action_i << "." << state;
             return oss.str();
         }
 

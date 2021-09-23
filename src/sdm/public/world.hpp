@@ -4,7 +4,6 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/public/feedback.hpp>
 
 //!
 //! \file     state.hpp
@@ -25,7 +24,7 @@ namespace sdm
   class World
   {
   protected:
-    state internal = 0;
+    // std::shared_ptr<State> internal = 0;
 
   public:
     // virtual ~World();

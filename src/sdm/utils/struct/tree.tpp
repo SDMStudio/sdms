@@ -1,3 +1,4 @@
+#include <sdm/exception.hpp>
 #include <sdm/utils/struct/tree.hpp>
 
 namespace sdm
@@ -15,14 +16,15 @@ namespace sdm
     }
 
     template <typename T>
-    Tree<T>::Tree(std::shared_ptr<Tree<T>> parent, const T &data) : max_depth_(parent->getMaxDepth()), depth_(parent->getDepth() + 1), data_(data)
+    Tree<T>::Tree(std::shared_ptr<Tree<T>> parent, const T &data) : depth_(parent->getDepth() + 1), max_depth_(parent->getMaxDepth()), data_(data)
     {
         this->parent_ = parent;
         if (parent->isOrigin())
         {
             this->origin_ = parent;
         }
-        else {
+        else
+        {
             this->origin_ = parent->getOrigin();
         }
     }
@@ -73,7 +75,7 @@ namespace sdm
         assert(this->getDepth() < this->getMaxDepth());
         if (this->children_.find(child_item) == this->children_.end())
         {
-            this->children_.emplace(child_item, std::make_shared<Tree<T>>(this->shared_from_this(), child_item));
+            this->children_.emplace(child_item, std::make_shared<Tree<T>>(this->getptr(), child_item));
         }
     }
 
@@ -91,11 +93,11 @@ namespace sdm
     {
         if (this->isOrigin())
         {
-            return this->shared_from_this();
+            return this->getptr();
         }
         else
         {
-            return this->origin_;
+            return this->origin_.lock();
         }
     }
 
@@ -115,5 +117,52 @@ namespace sdm
     number Tree<T>::getMaxDepth() const
     {
         return this->max_depth_;
+    }
+
+    template <typename T>
+    std::string Tree<T>::str() const
+    {
+        std::ostringstream res;
+        res << sdm::tools::addIndent("", this->getDepth());
+        res << "<tree address=\"" << this << "\" size=\"" << this->getNumChildren() << "\"  horizon=\"" << this->getDepth() << "\">" << std::endl;
+        if (!this->is_origin)
+        {
+            std::ostringstream tmp;
+            tmp << "<data>" << std::endl;
+            tmp << "\t"<< this->getData()->str() << std::endl;
+            tmp << "</data>"<< std::endl;
+            sdm::tools::indentedOutput(res, tmp.str().c_str(), this->getDepth() + 1);
+        }
+        for (auto child : this->getChildren())
+        {
+            sdm::tools::indentedOutput(res, child->str().c_str(), this->getDepth() + 1);
+            res << std::endl;
+        }
+        res << sdm::tools::addIndent("", this->getDepth());
+        res << "</tree>" << std::endl;
+        return res.str();
+    }
+
+    template <typename T>
+    std::shared_ptr<Tree<T>> Tree<T>::getptr()
+    {
+        return this->shared_from_this();
+    }
+
+    template <typename T>
+    template <class Archive>
+    void Tree<T>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+        archive &make_nvp("depth", depth_);
+        archive &make_nvp("max_depth", max_depth_);
+        archive &make_nvp("data", data_);
+        archive &make_nvp("is_origin", is_origin);
+        if (!this->isOrigin())
+        {
+            archive &make_nvp("origin", origin_);
+            archive &make_nvp("parent", parent_);
+        }
+        archive &make_nvp("children", children_);
     }
 } // namespace sdm

@@ -1,29 +1,29 @@
 #pragma once
 
+#include <sdm/types.hpp>
+
 #include <iostream>
-#include <vector>
+#include <boost/serialization/vector.hpp>
 
 namespace sdm
 {
-    // template <typename T>
-    // using Vector = std::vector<T>;
+  // template <typename T>
+  // using Vector = std::vector<T>;
 
-    template <typename T>
-    std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
+  template <typename T>
+  std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
+  {
+    os << "[";
+    for (std::size_t i = 0; i < v.size(); ++i)
     {
-        os << "[";
-        for (std::size_t i = 0; i < v.size(); ++i)
-        {
-            os << v[i];
-            if (i != v.size() - 1)
-                os << ", ";
-        }
-        os << "]";
-        return os;
+      os << v[i];
+      if (i != v.size() - 1)
+        os << ", ";
     }
+    os << "]";
+    return os;
+  }
 }
-
-
 
 namespace std
 {
@@ -36,11 +36,12 @@ namespace std
     {
       size_t size = in.size();
       size_t seed = 0;
+      //Combine the hash of the current vector with the hashes of the previous ones
       for (size_t i = 0; i < size; i++)
-        //Combine the hash of the current vector with the hashes of the previous ones
+      {
         sdm::hash_combine(seed, in[i]);
+      }
       return seed;
     }
   };
 }
-

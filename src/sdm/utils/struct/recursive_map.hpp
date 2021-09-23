@@ -10,12 +10,15 @@
  */
 #pragma once
 
-#include <map>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include <unordered_map>
+// #include <map>
 #include <vector>
 
 // To be modified to change the map representation to store data.
 template <typename K, typename V>
-using map_t = std::map<K, V>;
+using map_t = std::unordered_map<K, V>;
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -57,7 +60,7 @@ namespace sdm
 
         RecursiveMap() : map_t<T0, T1>() {}
         RecursiveMap(const map_t<T0, T1> &x) : map_t<T0, T1>(x) {}
-        RecursiveMap(const RecursiveMap&rmap) : map_t<T0, T1>(rmap) {}
+        RecursiveMap(const RecursiveMap &rmap) : map_t<T0, T1>(rmap) {}
         RecursiveMap(std::initializer_list<value_type> vals) : map_t<T0, T1>(vals) {}
 
         /**
@@ -73,7 +76,8 @@ namespace sdm
          */
         T1 operator()(T0 v0);
 
-        friend std::ostream &operator<<(std::ostream &os, RecursiveMap<T0, T1> rmap)
+        friend std::ostream &
+        operator<<(std::ostream &os, RecursiveMap<T0, T1> rmap)
         {
             os << "{ ";
             for (auto it = rmap.begin(); it != rmap.end(); ++it)
@@ -83,6 +87,15 @@ namespace sdm
             }
             os << " }";
             return os;
+        }
+
+    protected:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            archive &boost::serialization::base_object<map_t<T0, T1>>(*this);
         }
     };
 
@@ -96,7 +109,7 @@ namespace sdm
 
         RecursiveMap() : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>() {}
         RecursiveMap(const map_t<T0, RecursiveMap_t<T1, T2, Ts...>> &x) : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>(x) {}
-        RecursiveMap(const RecursiveMap&rmap) : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>(rmap) {}
+        RecursiveMap(const RecursiveMap &rmap) : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>(rmap) {}
         RecursiveMap(std::initializer_list<value_list_type> vals) : map_t<T0, RecursiveMap_t<T1, T2, Ts...>>()
         {
             for (const auto &v : vals)
@@ -136,6 +149,15 @@ namespace sdm
             }
             os << " }";
             return os;
+        }
+
+    protected:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int)
+        {
+            archive &boost::serialization::base_object<map_t<T0, RecursiveMap_t<T1, T2, Ts...>>>(*this);
         }
     };
 

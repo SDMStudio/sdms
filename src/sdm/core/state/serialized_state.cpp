@@ -3,35 +3,47 @@
 namespace sdm
 {
 
-    SerializedState::SerializedState(): Pair<number, std::vector<number>>(0, {})
-    {
-    }
-
-    SerializedState::SerializedState(number state) : Pair<number, std::vector<number>>(state, {})
+    SerializedState::SerializedState(): BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>()
     {
     }
     
-    SerializedState::SerializedState(number state, std::vector<number> actions) : Pair<number, std::vector<number>>(state, actions)
+    SerializedState::SerializedState(std::shared_ptr<State> state, Joint<std::shared_ptr<Action>> actions) : BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>(std::make_pair(state, actions))
     {
+        this->setAgentId(actions.size());
     }
 
-    SerializedState::SerializedState(const SerializedState &copy) : SerializedState(copy.first, copy.second)
+    SerializedState::SerializedState(const SerializedState &copy) : BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>(copy)
     {
+        this->setAgentId(copy.getCurrentAgentId());
     }
 
-    number SerializedState::getState() const 
+    SerializedState::~SerializedState() {}
+
+    std::shared_ptr<State> SerializedState::getHiddenState() const 
     {
-        return this->first;
+        return this->state_.first;
     }
 
-    std::vector<number> SerializedState::getAction()const 
+    Joint<std::shared_ptr<Action>> SerializedState::getAction()const 
     {
-        return this->second;
+        return this->state_.second;
     }
 
     number SerializedState::getCurrentAgentId() const
     {
-        return (this->second).size();
+        return this->agentID_;
+    }
+
+    void SerializedState::setAgentId(number agentID)
+    {
+        this->agentID_ = agentID;
+    }
+
+    std::string SerializedState::str() const
+    {
+        std::ostringstream res;
+        res << "SerialState(" << *this->getHiddenState()<<", "<<this->getAction() << ")";
+        return res.str();
     }
 
 } // namespace sdm

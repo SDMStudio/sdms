@@ -6,6 +6,14 @@
 
 namespace sdm
 {
+    
+    /**
+     * @brief sdm::Tuple is an alias to [std::tuple](https://en.cppreference.com/w/cpp/utility/tuple) class with added functionnalities. 
+     * It is a generalization of sdm::Pair.
+     * 
+     * @tparam T... the types of the elements that the tuple stores. Empty list is supported.
+     * 
+     */
     template <class... T>
     using Tuple = std::tuple<T...>;
 
@@ -28,18 +36,6 @@ namespace std
 {
     namespace
     {
-
-        // Code from boost
-        // Reciprocal of the golden ratio helps spread entropy
-        //     and handles duplicates.
-        // See Mike Seymour in magic-numbers-in-boosthash-combine:
-        //     http://stackoverflow.com/questions/4948780
-
-        template <class T>
-        inline void hash_combine(std::size_t &seed, T const &v)
-        {
-            seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        }
 
         // Recursive template code derived from Matthieu M.
         template <class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>

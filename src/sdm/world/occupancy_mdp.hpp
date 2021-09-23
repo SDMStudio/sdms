@@ -1,28 +1,15 @@
-/**
- * @file occupancy_mdp.hpp
- * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
- * @version 1.0
- * @date 03/02/2021
- * 
- * @copyright Copyright (c) 2021
- * 
- */
 #pragma once
 
-#include <sdm/types.hpp>
-#include <sdm/core/joint.hpp>
-#include <sdm/core/space/discrete_space.hpp>
-#include <sdm/core/state/state.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
-
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/world/discrete_mdp.hpp>
-#include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
-
-#include <sdm/utils/linear_algebra/vector.hpp>
-#include <sdm/utils/decision_rules/det_decision_rule.hpp>
+#include <sdm/world/base/mpomdp_interface.hpp>
+#include <sdm/core/state/interface/history_interface.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
+#include <sdm/core/state/jhistory_tree.hpp>
+#include <sdm/core/space/function_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/action/joint_det_decision_rule.hpp>
 
 /**
  * @namespace  sdm
@@ -31,68 +18,135 @@
 namespace sdm
 {
 
-    /**
-     * @brief An occupancy MDP is a subclass of continuous state MDP where states are occupancy states. 
-     * In the general case, an occupancy state refers to the whole knowledge that a central planner can have access to take decisions. But in this implementation we call occupancy state are distribution over state and joint histories .
-     * 
-     * @tparam oState the occupancy state type 
-     * @tparam oAction the occupancy action type 
-     */
-    template <typename oState = OccupancyState<number, JointHistoryTree_p<number>>, typename oAction = Joint<DeterministicDecisionRule<HistoryTree_p<number>, number>>>
-    class OccupancyMDP : public SolvableByHSVI<oState, oAction>,
-                         public GymInterface<oState, oAction>
-    {
-    protected:
-        std::shared_ptr<DiscreteDecPOMDP> dpomdp_;
-        oState istate_, cstate_;
-        typename oState::jhistory_type ihistory_ = nullptr, chistory_ = nullptr;
-
-    public:
-        using state_type = oState;
-        using action_type = oAction;
-        // using observation_type = oObservation;
-
-        OccupancyMDP();
-
         /**
-         * @brief Construct a new Occupancy MDP  
-         * 
-         * @param underlying_dpomdp the underlying DecPOMDP 
-         * @param hist_length the maximum length of the history
+         * @brief This class provides a way to transform a Dec-POMDP into an occupancy MDP formalism.
+         *
+         * This problem reformulation can be used to solve the underlying Dec-POMDP with standard dynamic programming algorithms. 
+         *  
          */
-        OccupancyMDP(std::shared_ptr<DiscreteDecPOMDP> underlying_dpomdp, number hist_length = -1);
+        template <class TOccupancyState = OccupancyState>
+        class BaseOccupancyMDP : public BaseBeliefMDP<TOccupancyState>
+        {
+        public:
+                BaseOccupancyMDP();
+                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                ~BaseOccupancyMDP();
 
-        /**
-         * @brief Construct a new Occupancy MDP  
-         * 
-         * @param underlying_dpomdp the underlying DecPOMDP (as a filename)
-         * @param hist_length the maximum length of the history
-         */
-        OccupancyMDP(std::string underlying_dpomdp, number hist_length = -1);
+                void initialize(number memory);
 
-        oState reset();
-        oState &getState();
-        std::tuple<oState, std::vector<double>, bool> step(oAction action);
+                /**
+                 * @brief Get the next occupancy state.
+                 * 
+                 * @param occupancy state the occupancy state
+                 * @param action the action
+                 * @param observation the observation
+                 * @param t the timestep
+                 * @return the next occupancy state
+                 * 
+                 * This function returns the next occupancy state. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current occupancy state. 
+                 * If it exists, we return the associated next occupancy state. Otherwise, we compute the next occupancy state using  "computeNextStateAndProbability" function and add the edge from the current occupancy state to the next occupancy state in the graph.
+                 *
+                 */
+                virtual std::shared_ptr<State> nextOccupancyState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, const std::shared_ptr<Observation> &observation, number t = 0);
 
-        bool isSerialized() const;
-        DiscreteDecPOMDP *getUnderlyingProblem();
+                /** @brief Get the address of the underlying MPOMDP */
+                virtual std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 
-        oState getInitialState();
-        oState nextState(const oState &ostate, const oAction &oaction, number t = 0, HSVI<oState, oAction> *hsvi = nullptr) const;
+                /** @brief Get the address of the underlying BeliefMDP */
+                virtual std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
 
-        std::shared_ptr<DiscreteSpace<oAction>> getActionSpaceAt(const oState &);
+                /**
+                 * @brief Get the observation space of the central planner. 
+                 * 
+                 * @param t the timestep
+                 * @return the space of observation of the central planner. 
+                 * 
+                 * Depending of the case, the central planner may observe or not what agents observe.
+                 * 
+                 */
+                std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
+                virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &occupancy_state, number t = 0);
+                virtual double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);
+                virtual bool checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation);
 
-        double getReward(const oState &ostate, const oAction &oaction) const;
-        double getExpectedNextValue(ValueFunction<oState, oAction> *value_function, const oState &ostate, const oAction &oaction, number t = 0) const;
+                // **********************
+                // SolvableByHSVI methods
+                // **********************
 
-        std::shared_ptr<DiscreteMDP> toMDP();
+                // std::shared_ptr<State> nextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
+                // double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &joint_decision_rule, number t);
+                virtual double do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon);
 
-        /**
-         * @brief Get the corresponding Belief Markov Decision Process. Unfortunately, in this situation it isn't possible to transform a MMDP to a belief MDP  
-         * 
-         * @return a belief MDP
-         */
-        std::shared_ptr<BeliefMDP<BeliefState, number, number>> toBeliefMDP();
-    };
+                // *****************
+                //    RL methods
+                // *****************
+
+                virtual std::shared_ptr<Observation> reset();
+                virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+                virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+                virtual std::shared_ptr<Action> computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t);
+
+                // *****************
+                // Temporary methods
+                // *****************
+
+                // void setInitialState(const std::shared_ptr<State> &state);
+                double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
+                virtual std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
+
+                // *****************
+                //    PROFILING
+                // *****************
+
+                static double TIME_IN_NEXT_STATE, TIME_IN_COMPRESS, TIME_IN_GET_ACTION, TIME_IN_STEP, TIME_IN_GET_REWARD, TIME_IN_NEXT_OSTATE, TIME_IN_EXP_NEXT;
+                static double TIME_IN_UNDER_STEP, TIME_IN_APPLY_DR;
+                static number PASSAGE_IN_NEXT_STATE;
+                static unsigned long MEAN_SIZE_STATE;
+
+                /** @brief Initial and current histories. */
+                std::shared_ptr<HistoryInterface> initial_history_, current_history_;
+
+        protected:
+                /** @brief Hyperparameters. */
+                bool compression_ = true;
+
+                /** @brief Keep a pointer on the associated belief mdp that is used to compute next beliefs. */
+                std::shared_ptr<BeliefMDP> belief_mdp_;
+
+                /**
+                 * @brief Compute the state transition in order to return next state and associated probability.
+                 * 
+                 * @param belief the belief
+                 * @param action the action
+                 * @param observation the observation
+                 * @param t the timestep
+                 * @return the couple (next state, transition probability in the next state)
+                 * 
+                 * This function can be modified in an inherited class to define a belief MDP with a different representation of the belief state. 
+                 * (i.e. BaseOccupancyMDP inherits from BaseBeliefMDP with TBelief = OccupancyState)
+                 * 
+                 */
+                virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+
+                std::shared_ptr<HistoryInterface> getNextHistory(const std::shared_ptr<Observation> &observation);
+
+                virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+
+                /** @brief Return true if compression must be done */
+                virtual bool do_compression(number t) const;
+
+                virtual void update_occupancy_state_proba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
+
+                // std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
+
+                // std::shared_ptr<Action> getActionPointer(std::shared_ptr<Action> action_tmp);
+        };
+
+        using OccupancyMDP = BaseOccupancyMDP<OccupancyState>;
 } // namespace sdm
+
 #include <sdm/world/occupancy_mdp.tpp>

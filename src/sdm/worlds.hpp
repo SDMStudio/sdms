@@ -1,41 +1,44 @@
 #pragma once
 
-#include <sdm/world/discrete_mdp.hpp>
-#include <sdm/world/discrete_mmdp.hpp>
-#include <sdm/world/discrete_pomdp.hpp>
-#include <sdm/world/discrete_decpomdp.hpp>
-#include <sdm/world/ndpomdp.hpp>
-
-#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/mdp.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/serialized_mdp.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+
+
+// #include <sdm/world/discrete_mmdp.hpp>
+// #include <sdm/world/discrete_pomdp.hpp>
+// #include <sdm/world/discrete_decpomdp.hpp>
+// #include <sdm/world/networked_distributed_pomdp.hpp>
+
+// #include <sdm/world/solvable_by_hsvi.hpp>
+// #include <sdm/world/belief_mdp.hpp>
+// #include <sdm/world/occupancy_mdp.hpp>
+// #include <sdm/world/serialized_mmdp.hpp>
+// #include <sdm/world/serialized_occupancy_mdp.hpp>
+// #include <sdm/world/serialized_belief_mdp.hpp>
 
 namespace sdm
 {
+    
+    /**
+     * @brief Namespace grouping functions to manipulate problems.
+     */
     namespace world
     {
-        
-        // template <typename TState, typename TAction>
-        // std::shared_ptr<SolvableByHSVI<TState, TAction>> makeSolvableByHSVI(std::string name, )
-
-
-        // template <typename TDecisionProcess>
-        // std::shared_ptr<TDecisionProcess> makeDecisionProcess(std::string name, ) {
-        //     auto process = std::make_shared<TDecisionProcess>(filename);
-
-        //     return process;
-        // }
-
         /**
-         * @brief Get all available algorithms.
+         * @brief Get the list of available worlds. 
          * 
-         * @return the list of available algorithms.
+         * Usage :
+         * 
+         * ```cpp
+         * std::cout << sdm::world::available() << std::endl;
+         * ```
+         * 
+         * @return the list of available worlds.
          */
         std::vector<std::string> available()
         {
-            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-MDP", "Extensive-DecPOMDP"};
+            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-MDP", "Extensive-POMDP", "Extensive-DecPOMDP"};
         }
     } // namespace world
     

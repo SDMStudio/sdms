@@ -10,42 +10,52 @@
  */
 #pragma once
 
-#include <vector>
-#include <sdm/core/state/state.hpp>
-#include <sdm/core/state/history_tree.hpp>
-#include <sdm/core/state/jhistory_tree.hpp>
+#include <sdm/core/state/interface/history_interface.hpp>
 
-/**
- * @namespace sdms
- * @brief Namespace grouping all tools required for sequential decision making.
- */
 namespace sdm
 {
-    /**
-     * @brief History seq alias
-     * 
-     * @tparam T 
-     */
-    template <typename T>
-    using History = std::vector<T>;
+    // class History : public HistoryInterface
+    // {
+    // public:
+    //     History(const History &copy);
+    //     History(const std::vector<std::shared_ptr<Item>> &history = {});
 
-    using int_history = History<int>;
-    using char_history = History<char>;
-    // using tensor_history = History<Tensor>;
+    //     std::shared_ptr<HistoryInterface> next(const std::shared_ptr<Item> &item, bool backup = false);
+    //     std::shared_ptr<HistoryInterface> getPreviousHistory();
 
-    template <typename T>
-    using HistoryTree_p = std::shared_ptr<HistoryTree<T>>;
+    //     std::shared_ptr<Item> get(number t) const;
+    //     number getHorizon() const;
 
-    template <typename T>
-    using JointHistoryTree_p = std::shared_ptr<JointHistoryTree<T>>;
+    //     std::string str() const;
 
-    template <typename obs_t>
-    using ObsHistoryTree_p = HistoryTree_p<obs_t>;
+    //     TypeState getTypeState() const;
 
-    template <typename action_t, typename obs_t>
-    using ActObsHistoryTree_p = HistoryTree_p<std::pair<action_t, obs_t>>;
+    // protected:
+    //     std::vector<std::shared_ptr<Item>> history_;
+    // };
 
-    // using tensor_jhistory_tree = JointHistoryTree<Tensor>;
-    
+    // class History : public History
+    // {
+    // public:
+    //     History(const std::vector<std::shared_ptr<Observation>> &);
+    //     History(const History &copy);
+
+    //     std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action = nullptr, bool backup = true);
+
+    //     std::shared_ptr<HistoryInterface> getPreviousHistory();
+
+    //     std::shared_ptr<Action> getLastAction();
+    //     std::shared_ptr<Observation> getLastObservation();
+
+    //     std::shared_ptr<Action> getActionAt(number t);
+    //     std::shared_ptr<Observation> getObservationAt(number t);
+
+    //     std::string str() const;
+
+    //     TypeState getTypeState() const;
+
+    // protected:
+    //     std::vector<std::shared_ptr<Observation>> history_;
+    // };
 
 } // namespace sdm

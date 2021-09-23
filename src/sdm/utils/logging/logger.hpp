@@ -8,14 +8,27 @@
 
 namespace sdm
 {
-
+    /**
+     * @brief This class provide a common interface for all loggers.
+     * 
+     */
     class BaseLogger
     {
     public:
+        /**
+         * @brief Record values.
+         * 
+         * @tparam TData... the types of input values
+         * @param vals the values to log
+         */
         template <class... TData>
         void log(TData... vals);
     };
 
+    /**
+     * @brief The main logger. This logger will print logs with a given format on the output stream.
+     * 
+     */
     class Logger : public BaseLogger
     {
     public:
@@ -31,11 +44,31 @@ namespace sdm
         {
         }
 
+        /**
+         * @brief Set the format of logs.
+         * 
+         * Use `{}` each time a value must be added. 
+         * 
+         * Example:
+         * 
+         * ```cpp
+         * Logger logger;
+         * logger.setFormat("#> Here, I print my results : result1={}, result2={}");
+         * ``` 
+         * 
+         * @param format the format as a string. 
+         */
         void setFormat(const std::string &format)
         {
             this->format_ = format;
         }
 
+        /**
+         * @brief Record values.
+         * 
+         * @tparam TData... the types of input values
+         * @param vals the values to log
+         */
         template <class... TData>
         void log(TData... vals)
         {
@@ -44,7 +77,10 @@ namespace sdm
         }
 
     protected:
+        /** @brief the output stream for logs. */
         std::shared_ptr<std::ostream> output_stream_;
+
+        /** @brief the output format */
         std::string format_;
     };
 
@@ -76,6 +112,10 @@ namespace sdm
             std::static_pointer_cast<std::ofstream>(this->output_stream_)->open(filename);
         }
 
+        /**
+         * @brief Close the output file stream.
+         * 
+         */
         void close()
         {
             std::static_pointer_cast<std::ofstream>(this->output_stream_)->close();
@@ -112,7 +152,7 @@ namespace sdm
     };
 
     /**
-     * @brief The multi logger will print logs from several loggers.
+     * @brief The multi logger will print logs in several loggers.
      * 
      */
     class MultiLogger : public BaseLogger, public std::vector<std::shared_ptr<Logger>>
@@ -121,6 +161,15 @@ namespace sdm
         MultiLogger(const std::vector<std::shared_ptr<Logger>> &loggers) : std::vector<std::shared_ptr<Logger>>(loggers) {}
         MultiLogger(const std::initializer_list<std::shared_ptr<Logger>> &loggers) : std::vector<std::shared_ptr<Logger>>(loggers) {}
 
+
+        /**
+         * @brief Record values in each loggers.
+         * 
+         * Go over all sub-loggers and record input values in each of them.
+         * 
+         * @tparam TData... the types of input values
+         * @param vals the values to log
+         */
         template <class... TData>
         void log(TData... vals)
         {

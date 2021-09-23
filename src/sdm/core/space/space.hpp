@@ -13,8 +13,11 @@
 #pragma once
 
 #include <vector>
-#include <boost/bimap.hpp>
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
+#include <sdm/core/item.hpp>
+#include <sdm/utils/struct/iterator.hpp>
+
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -22,13 +25,23 @@
  */
 namespace sdm
 {
+
+  class DiscreteSpace;
+  class MultiDiscreteSpace;
+
   /**
    * @class Space
-   * @brief This class is an abstract interface that all spaces should inherite. It gives some useful general methods to use generic spaces in your algorithms. 
+   * 
+   * @brief This class is an abstract interface that all spaces should inherite. 
+   * 
+   * It gives some useful general methods to use generic spaces in your algorithms. 
+   
    */
-  class Space
+  class Space : public std::enable_shared_from_this<Space>
   {
   public:
+    using iterator_type = std::shared_ptr<ItemIterator>;
+
     virtual ~Space() {}
 
     /**
@@ -39,35 +52,37 @@ namespace sdm
     /**
      * @brief Check if the space is continous.
      */
-    bool isContinuous() const
-    {
-      return !(this->isDiscrete());
-    }
+    bool isContinuous() const;
 
     /**
      * @brief Get the dimension of the space.
      */
     virtual std::vector<number> getDim() const = 0;
 
+    std::shared_ptr<DiscreteSpace> toDiscreteSpace();
+    std::shared_ptr<MultiDiscreteSpace> toMultiDiscreteSpace();
+
+    /**
+     * @brief Sample a random item from the space
+     */
+    virtual std::shared_ptr<Item> sample() const { throw sdm::exception::Exception("Cannot sample Abstract space !!!"); }
+
+    virtual iterator_type begin() = 0;
+    virtual iterator_type end() = 0;
+
     /**
      * @brief Space as a string
      */
     virtual std::string str() const = 0;
 
-    bool operator==(const Space &sp) const
+    bool operator==(const Space &sp) const;
+    bool operator!=(const Space &sp) const;
+
+    friend std::ostream &
+    operator<<(std::ostream &os, const Space &sp)
     {
-      if (this->str() == sp.str())
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-    bool operator!=(const Space &sp) const
-    {
-      return !(this->operator==(sp));
+      os << sp.str();
+      return os;
     }
   };
 } // namespace sdm

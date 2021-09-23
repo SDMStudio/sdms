@@ -1,26 +1,9 @@
-/**
- * @file tabular_value_function.hpp
- * @author David Albert (david.albert@insa-lyon.fr)
- * @brief Tabular value function are functions of state and action that use a vector representation. 
- * @version 0.1
- * @date 16/12/2020
- * 
- * @copyright Copyright (c) 2020
- * 
- */
 #pragma once
 
-#include <map>
-#include <iostream>
-#include <type_traits>
-
-#include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/utils/linear_algebra/sdms_vector.hpp>
-#include <sdm/utils/backup_operator/backup_operator.hpp>
-#include <sdm/core/state/state.hpp>
-#include <sdm/core/function.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/backup/backup_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -28,51 +11,18 @@
  */
 namespace sdm
 {
-    /**
-     * @brief Tabular value function are functions of state and action that use a vector representation to store the values. 
-     * 
-     * @tparam TState Type of the states 
-     * @tparam TAction Type of the states
-     * @tparam TValue Type of the values (must be primitive type)
-     * @tparam TStruct Type of vector container (MappedVector, DenseVector and SparseVector are common type) 
-     */
-    template <typename TState,
-              typename TAction,
-              typename TValue = double,
-              template <typename TI, typename TV> class TBackupOperator = ClassicBellmanBackupOperator,
-              template <typename TI, typename TV> class TStruct = MappedVector>
-    class TabularValueFunction : public ValueFunction<TState, TAction, TValue>
+    template <class Hash = std::hash<std::shared_ptr<State>>, class KeyEqual = std::equal_to<std::shared_ptr<State>>>
+    class BaseTabularValueFunction : public ValueFunction
     {
-    protected:
-        using Container = TStruct<TState, TValue>;
-        using backup_operator_type = TBackupOperator<TState, TAction>;
-
-        /**
-         * @brief The value function represention.
-         * The default representation is a MappedVector but every class implementing VectorImpl interface can be used.
-         */
-        std::vector<Container> representation;
-
-        /**
-         * @brief The backup operator used in order to update this value function. 
-         * 
-         */
-        backup_operator_type backup_op_;
-
-        /**
-         * @brief The initializer to use for this value function. 
-         * 
-         */
-        std::shared_ptr<Initializer<TState, TAction>> initializer_;
-
     public:
-        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon, std::shared_ptr<Initializer<TState, TAction>> initializer);
+        using Container = MappedVector<std::shared_ptr<State>, double, Hash, KeyEqual>;
 
-        TabularValueFunction(std::shared_ptr<SolvableByHSVI<TState, TAction>> problem, number horizon = 0, TValue default_value = 0.);
+        BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, bool is_upper_bound );
+        BaseTabularValueFunction(number horizon = 0, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionVFInterface> &action_vf = nullptr, bool is_upper_bound = false);
+        BaseTabularValueFunction(const BaseTabularValueFunction& copy);
 
         /**
-         * @brief Initialize the value function according using initializer.
-         * 
+         * @brief Initialize the value function by using initializer.
          */
         void initialize();
 
@@ -81,7 +31,7 @@ namespace sdm
          * 
          * @param default_value the default value 
          */
-        void initialize(TValue default_value, number t = 0);
+        void initialize(double default_value, number t = 0);
 
         /**
          * @brief Evaluate the value at a state.
@@ -89,7 +39,9 @@ namespace sdm
          * @param state the state where we want to evaluate the function
          * @return the value
          */
-        TValue getValueAt(const TState &state, number t = 0);
+        double getValueAt(const std::shared_ptr<State> &state, number t = 0);
+
+        virtual Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Update the value at a specific state and timestep.
@@ -97,30 +49,89 @@ namespace sdm
          * @param state the state
          * @param t the timestep. Must be less than the horizon, $t < h$. Except in serialized problem solving where real timesteps are serialized and thus we need $t < h \times n$. 
          */
-        void updateValueAt(const TState &state, number t = 0);
-        void updateValueAt(const TState &state, number t, TValue target);
+        virtual void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
+        virtual void updateValueAt(const std::shared_ptr<State> &state,const std::shared_ptr<Action>& action, number t = 0);
 
-        std::string str();
+        /**
+         * @brief Update the value function at state s and timestep t to the target value.
+         * 
+         * @param state the state
+         * @param t the timestep
+         * @param target the target
+         */
+        void updateValueAt(const std::shared_ptr<State> &state, number t, double target);
 
-        std::vector<TState> getSupport(number t);
+        /**
+         * @brief Save a value function into a file.
+         * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
+        /**
+         * @brief Save a value function into a file.
+         * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
+        void save(std::string filename);
 
-        backup_operator_type getBackupOperator();
+        /**
+         * @brief Load a value function from a file.
+         * The extension of the file will indicate the type of formatage for reading (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
+        void load(std::string filename);
 
-        friend std::ostream &operator<<(std::ostream &os, TabularValueFunction<TState, TAction> &vf)
+        std::string str() const;
+
+        /**
+         * @brief Return the possible indexes of the value function
+         * 
+         * @return std::string 
+         */
+        std::vector<std::shared_ptr<State>> getSupport(number t);
+
+        size_t getSize(number t) const;
+
+        friend std::ostream &operator<<(std::ostream &os, BaseTabularValueFunction &vf)
         {
             os << vf.str();
             return os;
         }
+
+        Container getRepresentation(number t);
+
+        void do_pruning(number t);
+
+        double getDefaultAt(number t);
+
+    protected:
+        /**
+         * @brief The value function represention.
+         * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
+         */
+        std::vector<Container> representation;
+
+        bool is_upper_bound_;
+
+    public:
+        friend class boost::serialization::access;
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int& )
+        {
+
+            using boost::serialization::make_nvp;
+
+            archive &make_nvp("horizon", this->horizon_);
+            archive &make_nvp("representation", representation);
+        }
     };
 
-    template <typename TState, typename TAction, typename TValue = double>
-    using MappedValueFunction = TabularValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, MappedVector>;
-
-    template <typename TState, typename TAction, typename TValue = double>
-    using SparseValueFunction = TabularValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, SparseVector>;
-
-    template <typename TState, typename TAction, typename TValue = double>
-    using DenseValueFunction = TabularValueFunction<TState, TAction, TValue, ClassicBellmanBackupOperator, DenseVector>;
+    using TabularValueFunction = BaseTabularValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
+    using TabularValueFunction2 = BaseTabularValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
 
 } // namespace sdm
+
 #include <sdm/utils/value_function/tabular_value_function.tpp>

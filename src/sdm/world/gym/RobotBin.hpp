@@ -1,0 +1,1 @@
+#include <sdm/world/gym/robot_bin/robot_bin.hpp>

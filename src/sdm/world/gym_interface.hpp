@@ -17,20 +17,36 @@
 
 namespace sdm
 {
-    template <typename TObservation, typename TAction, bool is_multi_agent = false>
     class GymInterface
     {
     public:
-        using observation_type = TObservation;
-        using action_type = TAction;
+        /**
+         * @brief Get the action space.
+         * @param observation the observation in consideration
+         * @param t time step
+         * @return the action space. 
+         */
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
 
-        GymInterface();
+        /**
+         * @brief Get random action.
+         * @param observation the observation in consideration.
+         * @param t time step.
+         * @return the random action. 
+         */
+        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t) = 0;
 
-        virtual std::shared_ptr<DiscreteSpace<TAction>> getActionSpaceAt(const TObservation &) = 0;
+        /**
+         * @brief Reset the environment and return initial observation.
+         * @return the initial observation
+         */
+        virtual std::shared_ptr<Observation> reset() = 0;
 
-        virtual TObservation reset() = 0;
-        virtual std::tuple<TObservation, std::vector<double>, bool> step(TAction a) = 0;
+        /**
+         * @brief Do a step on the environment.
+         * @param action the action to execute
+         * @return the information produced. Include : next observation, rewards, episode done  
+         */
+        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
     };
 } // namespace sdm
-
-#include <sdm/world/gym_interface.tpp>
