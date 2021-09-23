@@ -24,18 +24,21 @@ then
     echo -e "${LOG_SDMS}Starting installation on Mac OS X platform"
     # Install dependencies
     echo -e "${LOG_SDMS}Install dependencies"
-    brew install eigen boost fmt unzip wget
+    brew install eigen boost fmt gmp zlib zma unzip wget cmake clang
     # port install eigen boost libfmt unzip wget
 
     # Download pytorch and install it in /opt/
     url_libtorch='https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.9.0.zip'
-    if test $# -gt 0
-    then
-        echo -e "${LOG_SDMS}Download pytorch - custom path = $1"
-        wget "$1" -O /tmp/tmp_libtorch.zip && unzip /tmp/tmp_libtorch.zip -d /opt && rm /tmp/tmp_libtorch.zip
-    else
-        echo -e "${LOG_SDMS}Download pytorch - default path = $url_libtorch"
+    
+    # If Pytorch is not installed, we install it.
+    if [ ! -d /opt/libtorch ]; then
+        # If the user provide a custom argument
+        [ $# -gt 0 ] && url_libtorch=$1
+
+        echo -e "${LOG_SDMS}Download PyTorch from $1"
         wget "$url_libtorch" -O /tmp/tmp_libtorch.zip && unzip /tmp/tmp_libtorch.zip -d /opt && rm /tmp/tmp_libtorch.zip
+    else
+        echo -e "${LOG_SDMS}PyTorch already installed"
     fi
     mkdir -p ./build && cd ./build
 
@@ -58,22 +61,27 @@ then
     echo -e "${LOG_SDMS}Starting installation on Linux platform"
     # Install dependencies
     echo -e "${LOG_SDMS}Install dependencies"
-    apt-get -y update && apt-get install -y libeigen3-dev libboost-all-dev libfmt-dev unzip wget 
-
-    # Download pytorch and install it in /opt/
+    apt-get -y update && apt-get install -y libeigen3-dev libboost-all-dev libfmt-dev libgmp-dev zlib1g-dev liblzma-dev wget unzip cmake clang
+    # Default URL for libtorch on LINUX
     url_libtorch='https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip'
-    if test $# -gt 0
-    then
-        echo -e "${LOG_SDMS}Download pytorch - custom path = $1"
-        wget "$1" -O /tmp/tmp_libtorch.zip && unzip /tmp/tmp_libtorch.zip -d /opt && rm /tmp/tmp_libtorch.zip
-    else
-        echo -e "${LOG_SDMS}Download pytorch - default path = $url_libtorch"
+   
+    # If Pytorch is not installed, we install it.
+    if [ ! -d /opt/libtorch ]; then
+        # If the user provide a custom argument
+        [ $# -gt 0 ] && url_libtorch=$1
+
+        echo -e "${LOG_SDMS}Download PyTorch from $1"
         wget "$url_libtorch" -O /tmp/tmp_libtorch.zip && unzip /tmp/tmp_libtorch.zip -d /opt && rm /tmp/tmp_libtorch.zip
+    else
+        echo -e "${LOG_SDMS}PyTorch already installed"
     fi
+
+    echo -e "${LOG_SDMS}Create build directory."
     mkdir -p ./build && cd ./build
 
-    # Build and install SDMS
+    echo -e "${LOG_SDMS}Build and install SDM'Studio."
     cmake .. && make -j install
+
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
     if [ ${RESULT_INSTALL_SDMS} -eq 0 ];

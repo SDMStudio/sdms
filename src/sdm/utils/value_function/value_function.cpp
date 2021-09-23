@@ -9,7 +9,7 @@ namespace sdm
     {
     }
 
-    ValueFunction::ValueFunction(const ValueFunction &copy) : BaseValueFunction(copy), init_function_(copy.init_function_), backup_(copy.backup_), action_(copy.action_), initializer_(copy.initializer_)
+    ValueFunction::ValueFunction(const ValueFunction &copy) : BaseValueFunction(copy), backup_(copy.backup_), init_function_(copy.init_function_), action_(copy.action_), initializer_(copy.initializer_)
     {
     }
 

@@ -106,6 +106,9 @@ if(SDMS_GLOBAL)
 
 	install(TARGETS ${LIB_SDMS} DESTINATION lib)
 endif()
+# file(COPY ${SDMS_LIB_DIR}/libtb2.so DESTINATION /usr/lib)
+install(FILES ${SDMS_LIB_DIR}/libtb2.so DESTINATION /usr/lib)
+set(TB2_LIBRARIES libtb2.so)
 
 ########### BUILD PROGRAMS ###########
 
@@ -113,7 +116,7 @@ endif()
 set(SDMS_PROGRAM_NAME "SDMStudio")
 
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
-target_link_libraries(${SDMS_PROGRAM_NAME} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${SDMS_LIB_DIR}/libtb2.so ${LIB_SDMS})
+target_link_libraries(${SDMS_PROGRAM_NAME} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${TB2_LIBRARIES} ${LIB_SDMS})
 
 ########### INSTALL #################
 # Install programs

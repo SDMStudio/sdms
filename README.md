@@ -38,9 +38,9 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 ## 1.1. Formalisms
 
 ### Multi-agent
-|        POSG        |     Dec-POMDP      |       ZSPOSG       |      NDPODMP       |         SG         | Dec-MDP |
-| :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :-----: |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |   :x:   |
+| POSG  |     Dec-POMDP      | ZSPOSG |      NDPODMP       |  SG   | Dec-MDP |
+| :---: | :----------------: | :----: | :----------------: | :---: | :-----: |
+|  :x:  | :heavy_check_mark: |  :x:   | :heavy_check_mark: |  :x:  |   :x:   |
 
 
 ### Single-agent
@@ -50,9 +50,9 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 
 ## 1.2. Algorithms
 
-|        HSVI        | Q-Learning | Value Iteration | Policy Iteration | JESP  |
-| :----------------: | :--------: | :-------------: | :--------------: | :---: |
-| :heavy_check_mark: |    :x:     |       :x:       |       :x:        |  :x:  |
+|        HSVI        |     Q-Learning     |  Value Iteration   | Policy Iteration | JESP  |
+| :----------------: | :----------------: | :----------------: | :--------------: | :---: |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |       :x:        |  :x:  |
 
 
 # 2. Installation

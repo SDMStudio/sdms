@@ -9,7 +9,7 @@ file(
 foreach(f ${main_programs})
   get_filename_component(programName ${f} NAME_WE) 
   add_executable (${programName} ${f}) 
-  target_link_libraries(${programName} -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${SDMS_LIB_DIR}/libtb2.so ${LIB_SDMS})
+  target_link_libraries(${programName} -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${LIB_SDMS})
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${programName}
     DESTINATION bin/
     RENAME "sdms-${programName}")

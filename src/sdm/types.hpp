@@ -272,13 +272,13 @@ namespace std
     }
   };
 
-  struct Compare
-  {
-    bool operator()(const std::string &a, const std::string &b) const
-    {
-      return a.length() < b.length();
-    }
-  };
+  // struct Compare
+  // {
+  //   bool operator()(const std::string &a, const std::string &b) const
+  //   {
+  //     return a.length() < b.length();
+  //   }
+  // };
 
   struct Performance
   {
