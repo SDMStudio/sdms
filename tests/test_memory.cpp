@@ -1,9 +1,8 @@
-using namespace sdm;
-
 #include "sys/types.h"
 #include "sys/sysinfo.h"
 #include <sdm/parser/parser.hpp>
 
+using namespace sdm;
 
 long RanMemoryUsed(struct sysinfo memInfo)
 {

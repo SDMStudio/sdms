@@ -10,5 +10,5 @@ Guide.png
 info
 *.out
 *.csv
-*.txt
 *.qvalue
+run/expe_vrac
