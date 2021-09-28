@@ -58,6 +58,7 @@ if(SDMS_SHARED_LIB)
 	file(
 		GLOB_RECURSE
 		lib_world
+		${INCLUDE_DIR}/worlds.cpp
 		${INCLUDE_DIR}/world/**
 	)
 	add_library(world SHARED ${lib_world})

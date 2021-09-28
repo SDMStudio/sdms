@@ -38,7 +38,7 @@ project(sdms
 set(PROJECT_DESCRIPTION "Sequential Decision Making Problem Solver.")
 
 # options for compilation
-option(SDMS_SHARED_LIB "If ON, build a shared libraries else build a static one" OFF)
+option(SDMS_SHARED_LIB "If ON, build a shared libraries else build a static one" ON)
 option(SDMS_BUILD_SDMS "Build SDM'Studio" ON)
 option(SDMS_BUILD_DOCS "Build SDMS documentation" OFF)
 option(SDMS_BUILD_TESTS "Build tests for SDMS" OFF)

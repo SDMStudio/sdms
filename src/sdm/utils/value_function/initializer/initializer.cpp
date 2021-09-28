@@ -57,7 +57,6 @@ namespace sdm
     MinInitializer::MinInitializer(std::shared_ptr<SolvableByHSVI> world)
     {
         this->world_ = world;
-        std::cout << "In MinInitalizer" << std::endl; 
     }
 
     void MinInitializer::init(std::shared_ptr<ValueFunction> vf)
@@ -73,7 +72,6 @@ namespace sdm
     MaxInitializer::MaxInitializer(std::shared_ptr<SolvableByHSVI> world)
     {
         this->world_= world;
-        std::cout << "In MaxInitalizer" << std::endl;
     }
 
     void MaxInitializer::init(std::shared_ptr<ValueFunction> vf)
@@ -89,7 +87,6 @@ namespace sdm
     BlindInitializer::BlindInitializer(std::shared_ptr<SolvableByHSVI> world) 
     {
         this->world_ = world;
-        std::cout << "In BlindInitalizer" << std::endl;
     }
 
     void BlindInitializer::init(std::shared_ptr<ValueFunction> vf)
