@@ -1,4 +1,4 @@
-![SDMS Logo](https://gitlab.inria.fr/chroma1/plasma/sdms/raw/develop/docs/theme/sdms_theme/static/img/sdms-icon-sm.png)
+![SDMS Logo](https://raw.githubusercontent.com/SDMStudio/sdms/main/docs/sdms-logo-black.png)
 ---------------------------------------------------------------------------------------------------------------------------------
 
 <!-- [![Build Status](https://travis-ci.com/hill-a/stable-baselines.svg?branch=master)](https://travis-ci.com/hill-a/stable-baselines) 
