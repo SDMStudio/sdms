@@ -12,6 +12,7 @@
 #include <sdm/parser/parser.hpp>
 #include <sdm/public/algorithm.hpp>
 #include <sdm/algorithms.hpp>
+#include <sdm/worlds.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 
 using namespace sdm;

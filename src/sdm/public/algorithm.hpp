@@ -21,7 +21,7 @@ namespace sdm
   class Algorithm
   {
   public:
-    virtual ~Algorithm() {std::cout << "Delete Algorithm"<< std::endl;}
+    virtual ~Algorithm() {}
 
     /**
      * @brief Initialize the algorithm.

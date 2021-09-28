@@ -1,8 +1,9 @@
 #pragma once
 
-#include <sdm/world/mdp.hpp>
-#include <sdm/world/belief_mdp.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/types.hpp>
+// #include <sdm/world/mdp.hpp>
+// #include <sdm/world/belief_mdp.hpp>
+// #include <sdm/world/occupancy_mdp.hpp>
 
 
 // #include <sdm/world/discrete_mmdp.hpp>
@@ -36,10 +37,7 @@ namespace sdm
          * 
          * @return the list of available worlds.
          */
-        std::vector<std::string> available()
-        {
-            return {"MDP", "POMDP", "MMDP", "DecPOMDP", "Extensive-MDP", "Extensive-POMDP", "Extensive-DecPOMDP"};
-        }
+        std::vector<std::string> available();
     } // namespace world
     
 } // namespace sdm

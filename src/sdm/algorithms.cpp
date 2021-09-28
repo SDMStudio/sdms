@@ -375,6 +375,11 @@ namespace sdm
                                             type_of_maxplan_prunning, freq_prunning_lower_bound, type_of_sawtooth_pruning, freq_prunning_upper_bound);
             return algo;
         }
-    }
 
+        std::vector<std::string> available()
+        {
+            return {"A*", "BackwardInduction", "HSVI", "QLearning", "ValueIteration"};
+        }
+
+    }
 }

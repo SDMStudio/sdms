@@ -32,16 +32,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Project infos
 project(sdms
-VERSION 1.0
-LANGUAGES C CXX)
+        VERSION 1.0
+        LANGUAGES C CXX)
 
 set(PROJECT_DESCRIPTION "Sequential Decision Making Problem Solver.")
 
 # options for compilation
+option(SDMS_SHARED_LIB "If ON, build a shared libraries else build a static one" OFF)
 option(SDMS_BUILD_SDMS "Build SDM'Studio" ON)
 option(SDMS_BUILD_DOCS "Build SDMS documentation" OFF)
 option(SDMS_BUILD_TESTS "Build tests for SDMS" OFF)
-option(SDMS_GLOBAL "Build SDM'Studio globally" ON)
 
 # Path to third party (can be defined if different from default) 
 # --> Pytorch

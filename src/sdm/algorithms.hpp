@@ -160,9 +160,6 @@ namespace sdm
          * @return the list of available algorithms.
          * 
          */
-        std::vector<std::string> available()
-        {
-            return {"A*", "BackwardInduction", "HSVI", "QLearning", "ValueIteration"};
-        }
+        std::vector<std::string> available();
     } // namespace algo
 } // namespace sdm

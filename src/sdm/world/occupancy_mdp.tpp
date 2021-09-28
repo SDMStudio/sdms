@@ -44,7 +44,7 @@ namespace sdm
     template <class TOccupancyState>
     BaseOccupancyMDP<TOccupancyState>::~BaseOccupancyMDP()
     {
-        std::cout << "Destroy OccupancyMDP"<< std::endl;
+        // std::cout << "Destroy OccupancyMDP"<< std::endl;
     }
 
     template <class TOccupancyState>

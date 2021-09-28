@@ -6,6 +6,7 @@
 #include <sdm/types.hpp>
 #include <sdm/algorithms.hpp>
 #include <sdm/worlds.hpp>
+
 #include "programs/solve.cpp"
 #include "programs/learn.cpp"
 
@@ -100,16 +101,16 @@ int main_sdms(int argv, char **args)
     {
       cout << "Error: unrecognised command '" << func << "'" << endl;
       print_help();
-      return sdm::ERROR_IN_COMMAND_LINE;
+      return ERROR_IN_COMMAND_LINE;
     }
   }
   else
   {
     cout << "Error: must specify a command" << endl;
     print_help();
-    return sdm::ERROR_IN_COMMAND_LINE;
+    return ERROR_IN_COMMAND_LINE;
   }
-  return sdm::SUCCESS;
+  return SUCCESS;
 }
 
 int main(int argv, char **args)
