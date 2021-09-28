@@ -51,7 +51,7 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 
 # 2. Installation
 
-Follow installation instructions on https://aldavid.gitlabpages.inria.fr/sdms/tutorials/install .
+Follow installation instructions on https://sdmstudio.github.io/tutorials/install .
 
 # 3. Basic Usage
 
