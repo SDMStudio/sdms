@@ -96,13 +96,13 @@ int solve(int argv, char **args)
 
         po::options_description algo_config("Algorithms configuration");
         algo_config.add_options()
-        ("lower_bound", po::value<string>(&lower_bound)->default_value("tabular"), "the lower bound representation (HSVI, ValurIteration)")
+        ("lower_bound", po::value<string>(&lower_bound)->default_value("tabular"), "the lower bound representation (HSVI, ValueIteration)")
         ("upper_bound", po::value<string>(&upper_bound)->default_value("tabular"), "the upper bound representation (HSVI)")
-        ("lb_init", po::value<string>(&lb_init)->default_value("Min"), "the lower bound initialization method (HSVI, ValurIteration)")
+        ("lb_init", po::value<string>(&lb_init)->default_value("Min"), "the lower bound initialization method (HSVI, ValueIteration)")
         ("ub_init", po::value<string>(&ub_init)->default_value("Max"), "the upper bound initialization method (HSVI)")
         ("freq_update_lb", po::value<number>(&freq_update_lb)->default_value(1), "the batch size used in learning algorithms")
         ("freq_update_ub", po::value<number>(&freq_update_ub)->default_value(1), "the batch size used in learning algorithms")
-        ("sawtooth_type_of_resolution", po::value<string>(&sawtooth_type_of_resolution)->default_value("BigM"), "the type of resolution used for sawtooth (BigM, IloIfThen)")
+        ("sawtooth_type_of_resolution", po::value<string>(&sawtooth_type_of_resolution)->default_value("IloIfThen"), "the type of resolution used for sawtooth (BigM, IloIfThen)")
         ("sawtooth_BigM_value", po::value<number>(&sawtooth_BigM_value)->default_value(100), "the upper bound initialization method (HSVI)")
         ("type_sawtooth_linear_programming", po::value<string>(&type_sawtooth_linear_programming)->default_value("Full"), "the type of linear program used for sawtooth (Relaxed, Full)");
 

@@ -12,8 +12,7 @@
 namespace sdm
 {
     ActionVFSawtoothLPSerial::ActionVFSawtoothLPSerial() {}
-    ActionVFSawtoothLPSerial::ActionVFSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world,
-                                                       TypeOfResolution current_type_of_resolution,
+    ActionVFSawtoothLPSerial::ActionVFSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution,
                                                        number bigM_value, TypeSawtoothLinearProgram type_of_linear_programm)
         : ActionVFSawtoothLP(world, current_type_of_resolution, bigM_value, type_of_linear_programm)
     {
@@ -22,17 +21,17 @@ namespace sdm
     std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(ActionVFBase::world_->getUnderlyingProblem());
-        
+
         // Check if last agent
         bool last_agent = std::dynamic_pointer_cast<SerialProblemInterface>(ActionVFBase::world_)->isLastAgent(t);
 
         // Get next observation
-        auto next_joint_observation = (last_agent) ? next_joint_history->getLastObservation()->to<Joint<std::shared_ptr<Observation>>>() : under_pb->getDefaultObservation();
+        auto next_joint_observation = (last_agent) ? std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation()) : under_pb->getDefaultObservation();
 
         return next_joint_observation;
     }
 
-    void ActionVFSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double , double , IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number )
+    void ActionVFSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number)
     {
         throw sdm::exception::NotImplementedException();
         // try
@@ -89,17 +88,17 @@ namespace sdm
             // Go over all actions
             for (const auto &action : *under_pb->getActionSpace(t))
             {
-                for(const auto& indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
+                for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
                 {
                     recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
 
-                    double compute_sawtooth =0.0;
+                    double compute_sawtooth = 0.0;
                     for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
                     {
-                        compute_sawtooth += this->computeSawtooth(vf,state,action->toAction(),joint_history,next_hidden_state,next_observation,next_joint_history,denominator,difference,t);
+                        compute_sawtooth += this->computeSawtooth(vf, state, action->toAction(), joint_history, next_hidden_state, next_observation, next_joint_history, denominator, difference, t);
                     }
                     //<! 1.c.4 get variable a(u|o) and set constant
-                    expr -=  compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history) * compute_sawtooth * var[recover];
+                    expr -= compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history) * compute_sawtooth * var[recover];
                 }
             }
 
@@ -115,7 +114,7 @@ namespace sdm
         }
     }
 
-    void ActionVFSawtoothLPSerial::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,  IloEnv &env,IloRangeArray &con, IloNumVarArray &var,number &index, number t)
+    void ActionVFSawtoothLPSerial::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
@@ -131,7 +130,7 @@ namespace sdm
         // Go over all actions
         for (const auto &action : *under_pb->getActionSpace(t))
         {
-            for(const auto& indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
+            for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
             {
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
@@ -142,7 +141,7 @@ namespace sdm
                     Qrelaxation += this->getQValueRelaxation(vf, compressed_occupancy_state, joint_history, action->toAction(), t);
                 }
 
-                con[index].setLinearCoef(var[recover], -Qrelaxation *compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history));
+                con[index].setLinearCoef(var[recover], -Qrelaxation * compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history));
             }
         }
         index++;

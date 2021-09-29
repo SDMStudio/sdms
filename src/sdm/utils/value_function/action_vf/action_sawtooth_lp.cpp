@@ -535,7 +535,6 @@ namespace sdm
 
     void ActionVFSawtoothLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        // std::cout << "ActionVFSawtoothLP::createDecentralizedConstraints"<<std::endl;
         return DecentralizedLP::createDecentralizedConstraintsOccupancy(vf, state, env, con, var, index, t);
     }
 
@@ -546,7 +545,7 @@ namespace sdm
 
     std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionVFSawtoothLP::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number)
     {
-        return next_joint_history->getLastObservation()->to<Joint<std::shared_ptr<Observation>>>();
+        return std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation());
     }
 
     Pair<std::shared_ptr<State>, double> ActionVFSawtoothLP::evaluate(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &decision_rule, number t)
