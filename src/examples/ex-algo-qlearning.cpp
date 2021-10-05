@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
     auto algorithm = std::make_shared<QLearning<>>(env, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, "RobotBin");
 
-    algorithm->do_initialize();
-    algorithm->do_solve();
+    algorithm->initialize();
+    algorithm->solve();
 
 } // END main

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sdm/algorithms/hsvi.hpp>
-#include <sdm/algorithms/value_iteration.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
+#include <sdm/algorithms/planning/vi.hpp>
 #include <sdm/algorithms/q_learning.hpp>
 
 namespace sdm

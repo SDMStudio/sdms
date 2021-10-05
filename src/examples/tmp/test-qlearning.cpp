@@ -129,8 +129,8 @@ int main(int argc, char **argv)
 
         auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
-        algorithm->do_initialize();
-        algorithm->do_solve();
+        algorithm->initialize();
+        algorithm->solve();
 
         algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 

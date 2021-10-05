@@ -7,7 +7,7 @@
 #include <sdm/config.hpp>
 #include <sdm/exception.hpp>
 
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/utils/struct/graph.hpp>
 
@@ -146,8 +146,8 @@ int main(int argc, char **argv)
         // auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, trial);
 
         // std::cout << "# Initialize Algo" << std::endl;
-        algo->do_initialize();
-        algo->do_solve();
+        algo->initialize();
+        algo->solve();
 
         // algo->saveResults(name + "_test.csv", compress_precision);
 

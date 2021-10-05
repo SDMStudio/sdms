@@ -227,28 +227,28 @@ namespace sdm
         return this->nextBeliefAndProba(belief, action, observation, t).first;
     }
 
-    template <class TBelief>
-    std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
-    {
-        // Select o* as in the paper
-        double max_o = -std::numeric_limits<double>::max(), tmp;
+    // template <class TBelief>
+    // std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
+    // {
+    //     // Select o* as in the paper
+    //     double max_o = -std::numeric_limits<double>::max(), tmp;
 
-        std::shared_ptr<State> selected_next_belief;
-        auto observation_space = this->getObservationSpaceAt(belief, action, t);
-        for (const auto &observation : *observation_space)
-        {
-            // Get the next state and probability
-            auto [next_belief, belief_transition_proba] = this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
-            // Compute error correlated to this next belief
-            tmp = belief_transition_proba * hsvi->do_excess(next_belief, 0, t + 1);
-            if (tmp > max_o)
-            {
-                max_o = tmp;
-                selected_next_belief = next_belief;
-            }
-        }
-        return selected_next_belief;
-    }
+    //     std::shared_ptr<State> selected_next_belief;
+    //     auto observation_space = this->getObservationSpaceAt(belief, action, t);
+    //     for (const auto &observation : *observation_space)
+    //     {
+    //         // Get the next state and probability
+    //         auto [next_belief, belief_transition_proba] = this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
+    //         // Compute error correlated to this next belief
+    //         tmp = belief_transition_proba * hsvi->do_excess(next_belief, 0, t + 1);
+    //         if (tmp > max_o)
+    //         {
+    //             max_o = tmp;
+    //             selected_next_belief = next_belief;
+    //         }
+    //     }
+    //     return selected_next_belief;
+    // }
 
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)

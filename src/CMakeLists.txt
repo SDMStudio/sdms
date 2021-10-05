@@ -77,8 +77,7 @@ if(SDMS_SHARED_LIB)
 	file(
 		GLOB_RECURSE
 		planning
-		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/algorithms/value_iteration.cpp
+		${INCLUDE_DIR}/algorithms/planning/**
 		${INCLUDE_DIR}/algorithms/backward_induction.cpp
 		${INCLUDE_DIR}/algorithms/alpha_star.cpp
 	)
@@ -153,10 +152,9 @@ else()
 	file(
 		GLOB_RECURSE
 		planning
-		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/algorithms/value_iteration.cpp
-		${INCLUDE_DIR}/algorithms/backward_induction.cpp
+		${INCLUDE_DIR}/algorithms/planning/**
 		${INCLUDE_DIR}/algorithms/alpha_star.cpp
+		${INCLUDE_DIR}/algorithms/backward_induction.cpp
 	)
 	add_library(planning STATIC ${planning})
 	target_link_libraries(planning world core fmt)

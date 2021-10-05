@@ -7,7 +7,8 @@ namespace sdm
     // Bound Initializer
     // ****************** 
     BoundInitializer::BoundInitializer() {}
-    BoundInitializer::BoundInitializer(std::shared_ptr<SolvableByHSVI> world,double value) : value_(value), world_(world) {}
+
+    BoundInitializer::BoundInitializer(std::shared_ptr<SolvableByHSVI> world, double value) : value_(value), world_(world) {}
 
     void BoundInitializer::init(std::shared_ptr<ValueFunction> vf)
     {
@@ -33,22 +34,22 @@ namespace sdm
         return (this->callback_value == nullptr) ? this->value_ : ((*world_->getUnderlyingProblem()).*callback_value)(t);
     }
 
-    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> )
+    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf)
     {
-        // auto under_pb = this->world_->getUnderlyingProblem();
+        auto under_pb = world_->getUnderlyingProblem();
 
-        // long l = log(1 - this->discount_) * this->error_ / this->reward_->getMaxReward();
-        // number t = 0;
-        // double value = this->getValue(vf, t), factor = 1.;
-        // do
-        // {
-        //     factor *= under_pb->getDiscount(t);
-        //     value += factor * this->getValue(vf, t + 1);
-        //     t++;
-        // } while (factor < 1.e-10);
-        // value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
-        // return value;
-        throw exception::NotImplementedException();
+        // long l = log(1 - world_->getDiscount()) * this->error_ / this->reward_->getMaxReward();
+        number t = 0;
+        double value = this->getValue(vf, t), factor = 1.;
+        do
+        {
+            factor *= under_pb->getDiscount(t);
+            value += factor * this->getValue(vf, t + 1);
+            t++;
+        } while (factor > 1.e-10);
+        value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
+        return value;
+        // throw exception::NotImplementedException();
     }
 
     // ******************

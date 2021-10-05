@@ -26,8 +26,8 @@ int main()
 	auto algo = std::make_shared<AlphaStar>(oMDP);
 
 	// Intialize and solve
-	algo->do_initialize();
-	algo->do_solve();
+	algo->initialize();
+	algo->solve();
 
 	return 0;
 } 

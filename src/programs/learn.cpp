@@ -62,8 +62,8 @@ int learn(int argv, char **args)
                                     1, 1, "", 0, "", PAIRWISE, -1, NONE, -1, 
                                     batch_size);
 
-        algo->do_initialize();
-        algo->do_solve();
+        algo->initialize();
+        algo->solve();
 
         if (vm.count("test"))
         {

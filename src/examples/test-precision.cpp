@@ -9,7 +9,7 @@
 #include <sdm/exception.hpp>
 
 #include <sdm/algorithms.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/base_item.hpp>
@@ -190,9 +190,9 @@ int main(int argc, char **argv)
                                    freq_update_lb, freq_update_ub, "", 1000, "", PAIRWISE, -1, NONE, -1);
 
         // Initialize and solve the problem
-        hsvi->do_initialize();
+        hsvi->initialize();
 
-        hsvi->do_solve();
+        hsvi->solve();
         std::chrono::high_resolution_clock::time_point t_end = std::chrono::high_resolution_clock::now();
 
         double TOTAL_TIME = std::chrono::duration_cast<std::chrono::duration<double>>(t_end - t_begin).count();

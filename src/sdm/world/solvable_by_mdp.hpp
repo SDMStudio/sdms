@@ -6,7 +6,7 @@
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 namespace sdm
 {

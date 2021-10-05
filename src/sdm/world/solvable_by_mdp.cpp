@@ -24,33 +24,23 @@ namespace sdm
         return this->initial_state_;
     }
 
-    std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
-    {
-        double max = -std::numeric_limits<double>::max();
-        std::shared_ptr<State> argmax = 0;
+    // std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
+    // {
+    //     double max = -std::numeric_limits<double>::max();
+    //     std::shared_ptr<State> argmax = 0;
 
-        auto observation_space = this->getObservationSpaceAt(state,action,t);
-        for (const auto &next_state : *observation_space)
-        {
-            double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
-            if (tmp > max)
-            {
-                max = tmp;
-                argmax = next_state->toState();
-            }
-        }
-
-        // for (const auto &pair_state_proba : state->expand(action))
-        // {
-        //     double tmp = pair_state_proba.second * hsvi->do_excess(pair_state_proba.first, 0, t + 1);
-        //     if (tmp > max)
-        //     {
-        //         max = tmp;
-        //         argmax = state_;
-        //     }
-        // }
-        return argmax;
-    }
+    //     auto observation_space = this->getObservationSpaceAt(state,action,t);
+    //     for (const auto &next_state : *observation_space)
+    //     {
+    //         double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
+    //         if (tmp > max)
+    //         {
+    //             max = tmp;
+    //             argmax = next_state->toState();
+    //         }
+    //     }
+    //     return argmax;
+    // }
 
     std::shared_ptr<Space> SolvableByMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
@@ -119,7 +109,5 @@ namespace sdm
     {
         return std::make_pair(observation->toState(),this->underlying_problem_->getTransitionProbability(state, action, observation->toState(), t));
     }
-
-
 
 }

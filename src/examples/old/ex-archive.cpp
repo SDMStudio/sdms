@@ -20,7 +20,7 @@
 #include <sdm/core/state/history.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 
 using namespace sdm;
@@ -75,8 +75,8 @@ int main(int argc, char **argv)
 
         auto algo = std::make_shared<HSVI<TState, TAction>>(omdp_world, lower_bound, upper_bound, horizon, error, trial, "");
 
-        algo->do_initialize();
-        algo->do_solve();
+        algo->initialize();
+        algo->solve();
 
         auto to_be_saved = std::static_pointer_cast<MappedValueFunction<TState, TAction>>(algo->getLowerBound());
 
