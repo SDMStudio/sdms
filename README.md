@@ -59,7 +59,9 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 
 # 2. Installation
 
-Follow installation instructions on https://sdmstudio.github.io/tutorials/install .
+Follow installation instructions on https://sdmstudio.github.io/tutorials/install 
+
+(aurelien : ) if u have issues with toulbar2 (error : cannot link -ltb2), then just put the .so of ltb2 that is in lib/ in /usr/lib.
 
 # 3. Basic Usage
 
