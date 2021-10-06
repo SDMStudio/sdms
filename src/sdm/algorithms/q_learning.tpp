@@ -120,22 +120,22 @@ namespace sdm
     void QLearning<TInput>::doStep()
     {
         // Action selection following policy and exploration process
-        auto action = selectAction(observation, step);
+        auto action = this->selectAction(this->observation, this->step);
 
         // Execute one step in env and get next observation and rewards
-        auto [next_observation, rewards_, done] = getEnv()->step(action);
-        this->is_done = done;
+        auto [next_observation, rewards_, is_done] = this->getEnv()->step(action);
+        this->is_done = is_done;
 
         // Compute next greedy action
-        auto next_greedy_action = selectGreedyAction(next_observation, step + 1);
+        auto next_greedy_action = backup_->getGreedyAction(next_observation->toState(), this->step + 1); 
 
         // Push experience to memory
-        experience_memory_->push(observation, action, rewards_[0], next_observation, next_greedy_action, step);
+        this->experience_memory_->push(this->observation, action, rewards_[0], next_observation, next_greedy_action, this->step);
 
-        observation = next_observation;
+        this->observation = next_observation;
 
         // Backup and get Q Value Error
-        double delta = backup_->update(step);
+        double delta = this->backup_->update(this->step);
     }
 
     template <class TInput>
@@ -145,55 +145,23 @@ namespace sdm
     }
 
     template <class TInput>
-    std::shared_ptr<Action> QLearning<TInput>::selectAction(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<Action> QLearning<TInput>::selectAction(const std::shared_ptr<Observation> &observation)
     {
         // If sampled value is lower than epsilon
         if ((rand() / double(RAND_MAX)) < exploration_process->getEpsilon())
         {
             // Get random action
-            return getEnv()->getRandomAction(observation, t);
+            return getEnv()->getRandomAction(observation, this->step);
         }
-        else
-        {
-            // Get greedy action
-            auto a = selectGreedyAction(observation->toState(), t);
-            return (a) ? a : getEnv()->getRandomAction(observation, t);
-        }
-    }
-
-    template <class TInput>
-    std::shared_ptr<Action> QLearning<TInput>::selectGreedyAction(const std::shared_ptr<Observation> &observation, number t)
-    {
-        return backup_->getGreedyAction(observation->toState(), t);
-    }
+        
+        // Get greedy action
+        return backup_->getGreedyAction(observation->toState(), this->step);
+     }
 
     template <class TInput>
     std::shared_ptr<GymInterface> QLearning<TInput>::getEnv() const
     {
         return this->env_;
     }
-
-    // template <class TInput>
-    // void QLearning<TInput>::saveResults(std::string filename, double other)
-    // {
-    //     std::ofstream ofs;
-    //     ofs.open(filename, std::ios::out | std::ios::app);
-    //     ofs << other << ",";
-    //     ofs << backup_->getValueAt(getEnv()->reset()->toState(), 0) << ",";
-    //     ofs << std::static_pointer_cast<OccupancyMDP>(getEnv())->getMDPGraph()->getNumNodes() << ",";
-    //     // number num_max_jhist = 0, tmp;
-    //     // for (const auto &state : std::static_pointer_cast<OccupancyMDP>(getEnv())->getStoredStates())
-    //     // {
-    //     //     if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
-    //     //     {
-    //     //         num_max_jhist = tmp;
-    //     //     }
-    //     // }
-    //     // ofs << num_max_jhist << ",";
-    //     ofs << ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
-
-    //     ofs << "\n";
-    //     ofs.close();
-    // }
-
+ 
 } // namespace sdm
