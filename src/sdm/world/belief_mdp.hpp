@@ -72,7 +72,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next state
          */
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
+        // virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
 
         /**
          * @brief Get the action space at a specific belief and timestep.
@@ -111,6 +111,7 @@ namespace sdm
          */
         virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
         Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+        Pair<std::shared_ptr<State>, double> getNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
 
         // *****************
         //    RL methods
@@ -156,14 +157,15 @@ namespace sdm
         /**
          * @brief Compute the state transition in order to return next state and associated probability.
          * 
+         * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
+         * (i.e. OccupancyMDP inherit from BaseBeliefMDP with TBelief = OccupancyState)
+         * 
          * @param belief the belief
          * @param action the action
          * @param observation the observation
          * @param t the timestep
          * @return the couple (next state, transition probability in the next state)
          * 
-         * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
-         * (i.e. OccupancyMDP inherit from BaseBeliefMDP with TBelief = OccupancyState)
          * 
          */
         virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);

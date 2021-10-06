@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/public/algorithm.hpp>
+#include <sdm/algorithms/planning/dp.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/tabular_value_function.hpp>
@@ -15,7 +15,7 @@ namespace sdm
   /**
    * @brief The class for the algorithm [A*](http://ai.stanford.edu/users/nilsson/OnlinePubs-Nils/PublishedPapers/astar.pdf).
    */
-  class AlphaStar : public Algorithm, public std::enable_shared_from_this<AlphaStar>
+  class AlphaStar : public DynamicProgramming, public std::enable_shared_from_this<AlphaStar>
   {
   protected:
 
@@ -88,23 +88,23 @@ namespace sdm
      * @brief Initialize the algorithm.
      * 
      */
-    void do_initialize();
+    void initialize();
 
     /**
      * @brief Solve a problem with A* algorithm. 
      */
-    void do_solve();
+    void solve();
 
     /**
      * @brief Test the learnt value function on one episode
      */
-    void do_test();
+    void test();
 
     /**
      * @brief Save the lower bound under "name_lb.bin"
      * 
      */
-    void do_save();
+    void save();
 
     /**
      * @brief Check the end of HSVI algo
@@ -114,7 +114,7 @@ namespace sdm
      * @return true if optimal is reached or number of trials is bigger than maximal number of trials
      * @return false elsewhere
      */
-    bool do_stop(const std::shared_ptr<State> &, double /*cost_so_far*/, number);
+    bool stop(const std::shared_ptr<State> &, double /*cost_so_far*/, number);
 
     /**
      * @brief Explore a state.
@@ -122,18 +122,12 @@ namespace sdm
      * @param s the state to explore
      * @param h the timestep of the exploration
      */
-    void do_explore(const std::shared_ptr<State> &s, double /*cost_so_far*/, number h);
+    void explore(const std::shared_ptr<State> &s, double /*cost_so_far*/, number h);
 
     /**
      * @brief Get the bound value function 
      */
     std::shared_ptr<ValueFunction> getBound() const;
-
-    int getTrial(){return 0;}
-
-    double getResult();
-
-    void saveResults(std::string filename, double other);
 
     void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
 

@@ -672,12 +672,12 @@ namespace sdm
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseOccupancyMDP<TOccupancyState>::step(std::shared_ptr<Action> action)
     {
         clock_t t_begin = clock(), t_tmp = clock();
-        auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
-        OccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
+        // auto joint_action = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
+        // OccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
-        t_tmp = clock();
-        auto [observation, mpomdp_reward, __] = this->getUnderlyingProblem()->step(joint_action);
-        OccupancyMDP::TIME_IN_UNDER_STEP += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
+        // t_tmp = clock();
+        // auto [observation, mpomdp_reward, __] = this->getUnderlyingProblem()->step(joint_action);
+        // OccupancyMDP::TIME_IN_UNDER_STEP += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
 
@@ -685,11 +685,11 @@ namespace sdm
         this->current_state_ = this->nextBelief(this->current_state_, action, sdm::NO_OBSERVATION, this->step_);
         BaseOccupancyMDP<TOccupancyState>::TIME_IN_NEXT_OSTATE += ((float)(clock() - t_tmp) / CLOCKS_PER_SEC);
 
-        this->current_history_ = this->getNextHistory(observation);
+        // this->current_history_ = this->getNextHistory(observation);
         this->step_++;
 
         BaseOccupancyMDP<TOccupancyState>::TIME_IN_STEP += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
-        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward, mpomdp_reward[0]}, (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
+        return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
     }
 
     // template <class TOccupancyState>

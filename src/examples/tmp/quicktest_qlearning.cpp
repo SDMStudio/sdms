@@ -181,10 +181,10 @@ int main(int argc, char **argv)
 
         std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, name);
 
-        algorithm->do_initialize();
+        algorithm->initialize();
         std::cout << "store_actions " << store_actions << std::endl;
         std::cout << "store_action_spaces " << store_action_spaces << std::endl;
-        algorithm->do_solve();
+        algorithm->solve();
 
         algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 

@@ -26,7 +26,7 @@
 
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
 		// Instanciate HSVI
 		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, 10000, "", 1, 1);
-		algo->do_initialize();
+		algo->initialize();
 
 		// auto state = hsvi_mdp->getInitialState();
 		// 	std::cout << "------Initial State-----------" << std::endl;
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 		// }
 
 		// Initialize and solve the problem
-		algo->do_solve();
+		algo->solve();
 
 		// std::cout << "Belief Graph" << std::endl;
 		// std::cout << std::static_pointer_cast<OccupancyMDP>(hsvi_mdp)->getUnderlyingBeliefMDP()->getMDPGraph()->getNumNodes() << std::endl;

@@ -8,7 +8,7 @@
 
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
@@ -48,8 +48,8 @@ int main(int argc, char **argv)
 		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, 10000, "", 1, 1);
 
 		// Initialize and solve the problem
-		algo->do_initialize();
-		algo->do_solve();
+		algo->initialize();
+		algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

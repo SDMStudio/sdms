@@ -68,11 +68,13 @@ namespace sdm
     {
         // Compute next state
         std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
+
         // Compute the coefficient of normalization (eta)
         double eta = next_belief->toBelief()->norm_1();
 
         // Normalize to belief
         next_belief->toBelief()->normalizeBelief(eta);
+
         // Return the pair next belief / proba of the transition in this belief
         return {next_belief->toBelief(), eta};
     }
@@ -227,28 +229,28 @@ namespace sdm
         return this->nextBeliefAndProba(belief, action, observation, t).first;
     }
 
-    template <class TBelief>
-    std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
-    {
-        // Select o* as in the paper
-        double max_o = -std::numeric_limits<double>::max(), tmp;
+    // template <class TBelief>
+    // std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
+    // {
+    //     // Select o* as in the paper
+    //     double max_o = -std::numeric_limits<double>::max(), tmp;
 
-        std::shared_ptr<State> selected_next_belief;
-        auto observation_space = this->getObservationSpaceAt(belief, action, t);
-        for (const auto &observation : *observation_space)
-        {
-            // Get the next state and probability
-            auto [next_belief, belief_transition_proba] = this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
-            // Compute error correlated to this next belief
-            tmp = belief_transition_proba * hsvi->do_excess(next_belief, 0, t + 1);
-            if (tmp > max_o)
-            {
-                max_o = tmp;
-                selected_next_belief = next_belief;
-            }
-        }
-        return selected_next_belief;
-    }
+    //     std::shared_ptr<State> selected_next_belief;
+    //     auto observation_space = this->getObservationSpaceAt(belief, action, t);
+    //     for (const auto &observation : *observation_space)
+    //     {
+    //         // Get the next state and probability
+    //         auto [next_belief, belief_transition_proba] = this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
+    //         // Compute error correlated to this next belief
+    //         tmp = belief_transition_proba * hsvi->do_excess(next_belief, 0, t + 1);
+    //         if (tmp > max_o)
+    //         {
+    //             max_o = tmp;
+    //             selected_next_belief = next_belief;
+    //         }
+    //     }
+    //     return selected_next_belief;
+    // }
 
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
@@ -305,6 +307,13 @@ namespace sdm
         bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) > value_function->getHorizon()));
         // Compute next state (if required)
         return (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
+    }
+
+
+    template <class TBelief>
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        return this->nextBeliefAndProba(state, action, observation->toObservation(), t);
     }
 
     // ------------------------------------------------------

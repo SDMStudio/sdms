@@ -44,8 +44,8 @@ int main(int argc, char **argv)
         // //HSVI with default parameter
         // auto p_algo = sdm::algo::makeHSVI<TState, TAction>(somdp_world, "", "", "MaxInitializer", "MinInitializer", discount, error, horizon, trials, "Exemple_SerialOccupancyMDP_HSVI");
 
-        // p_algo->do_initialize();
-        // p_algo->do_solve();
+        // p_algo->initialize();
+        // p_algo->solve();
 
 	}
 	catch (exception::Exception &e)

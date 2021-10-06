@@ -67,10 +67,10 @@ int main(int argc, char **argv)
 		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(soMDP, lower_bound, upper_bound, horizon, error, trials, "Example-SawtoothLP-SerialOccupancyMDP");
 
 		//Initialization of HSVI
-		p_algo->do_initialize();
+		p_algo->initialize();
 
 		//Resolution of HSVI
-		p_algo->do_solve();
+		p_algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

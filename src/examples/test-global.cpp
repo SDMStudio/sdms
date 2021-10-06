@@ -8,7 +8,7 @@
 #include <sdm/config.hpp>
 #include <sdm/exception.hpp>
 
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/base_item.hpp>
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
                                     freq_ub_pruning);
 
         // Initialize and solve the problem
-        algo->do_initialize();
+        algo->initialize();
 #ifdef LOGTIME
         OccupancyMDP::TIME_IN_NEXT_STATE = 0;
         OccupancyMDP::TIME_IN_COMPRESS = 0;
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 #endif
         std::chrono::high_resolution_clock::time_point t_begin = std::chrono::high_resolution_clock::now();
 
-        algo->do_solve();
+        algo->solve();
         std::chrono::high_resolution_clock::time_point t_end = std::chrono::high_resolution_clock::now();
 
         // std::cout<<"Borne POMDP"<<std::static_pointer_cast<RelaxedValueFunction>(std::static_pointer_cast<HSVI>(algo)->getUpperBound()->getInitFunction())->getRelaxation()->str()<<std::endl;
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
         // -----------------------------------------------------------------------------
 
         // std::cout<<"Upper bound "<<std::static_pointer_cast<HSVI>(algo)->getUpperBound()->str()<<std::endl;
-        // algo->do_test();
+        // algo->test();
         struct sysinfo memInfo;
 
         std::cout<<"Total Memory in this computer !!!  "<<std::Performance::totalMemory(memInfo)<<std::endl;

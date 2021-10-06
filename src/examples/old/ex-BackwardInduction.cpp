@@ -37,8 +37,8 @@ int main(int argc, char **argv)
 
         auto algo = std::make_shared<BackwardInduction>(oMDP);
 
-        algo->do_initialize();
-        algo->do_solve();
+        algo->initialize();
+        algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

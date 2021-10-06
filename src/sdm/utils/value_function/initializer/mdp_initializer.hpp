@@ -10,7 +10,6 @@
  */
 #pragma once
 
-#include <sdm/algorithms/hsvi.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 
 namespace sdm

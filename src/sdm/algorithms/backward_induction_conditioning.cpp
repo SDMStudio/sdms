@@ -55,12 +55,12 @@
 //     //     this->logger_precise_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{csv_logger});
 //     // }
 
-//     void BackwardInduction::do_initialize()
+//     void BackwardInduction::initialize()
 //     {
 //         this->bound_->initialize();
 //     }
 
-//     void BackwardInduction::do_solve()
+//     void BackwardInduction::solve()
 //     {
 //         std::cout << "\n\n###############################################################\n";
 //         std::cout << "#############    Start BackwardInduction \"" << this->name_ << "\"    ####################\n";

@@ -9,7 +9,7 @@
 #include <sdm/exception.hpp>
 
 #include <sdm/algorithms.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/base_item.hpp>

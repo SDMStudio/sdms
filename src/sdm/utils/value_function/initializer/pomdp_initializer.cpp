@@ -45,10 +45,10 @@ namespace sdm
         auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
         auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
 
-        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_, 5000, "pomdp_"+ this->algo_name_+ "_init",1,1,1000);
+        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, this->error_, 5000, "pomdp_"+ this->algo_name_+ "_init", 1, 1, 1000);
 
-        algorithm->do_initialize();
-        algorithm->do_solve();
+        algorithm->initialize();
+        algorithm->solve();
         
         auto ubound = algorithm->getUpperBound();
 
