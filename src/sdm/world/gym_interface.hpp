@@ -20,6 +20,8 @@ namespace sdm
     class GymInterface
     {
     public:
+        virtual ~GymInterface() {}
+
         /**
          * @brief Get the action space.
          * @param observation the observation in consideration

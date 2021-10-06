@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 		ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
 
 		// Instanciate HSVI
-		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, 10000, "", 1, 1);
+		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, error, 10000, "", 1, 1);
 
 		// Initialize and solve the problem
 		algo->initialize();

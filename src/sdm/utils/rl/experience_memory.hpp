@@ -25,5 +25,7 @@ namespace sdm
 
         int size();
 
+        int getCapacity() const;
+
     };
 } // namespace sdm

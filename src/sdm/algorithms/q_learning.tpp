@@ -123,19 +123,19 @@ namespace sdm
         auto action = this->selectAction(this->observation, this->step);
 
         // Execute one step in env and get next observation and rewards
-        auto [next_observation, rewards_, is_done] = this->getEnv()->step(action);
+        auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
         this->is_done = is_done;
 
         // Compute next greedy action
-        auto next_greedy_action = backup_->getGreedyAction(next_observation->toState(), this->step + 1); 
+        auto next_greedy_action = backup_->getGreedyAction(next_observation->toState(), this->step + 1);
 
         // Push experience to memory
-        this->experience_memory_->push(this->observation, action, rewards_[0], next_observation, next_greedy_action, this->step);
+        this->experience_memory_->push(this->observation, action, rewards[0], next_observation, next_greedy_action, this->step);
 
         this->observation = next_observation;
 
         // Backup and get Q Value Error
-        double delta = this->backup_->update(this->step);
+        this->backup_->update(this->step);
     }
 
     template <class TInput>
@@ -153,15 +153,15 @@ namespace sdm
             // Get random action
             return getEnv()->getRandomAction(observation, t);
         }
-        
+
         // Get greedy action
         return backup_->getGreedyAction(observation->toState(), t);
-     }
+    }
 
     template <class TInput>
     std::shared_ptr<GymInterface> QLearning<TInput>::getEnv() const
     {
         return this->env_;
     }
- 
+
 } // namespace sdm

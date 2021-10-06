@@ -237,41 +237,41 @@ int main(int argc, char **argv)
 
         // -----------------------------------------------------------------------------
         // Log execution times
-        std::ofstream ofs;
-        ofs.open(name + "_profiling.md", std::ios::out | std::ios::app);
+        // std::ofstream ofs;
+        // ofs.open(name + "_profiling.md", std::ios::out | std::ios::app);
 
-        ofs << std::setprecision(4) << std::fixed;
-        ofs << "## " << name << " - precision_compress=" << p_c << std::endl;
-        ofs << "| NAME\t\t\t\t|\tTIME\t\t|\tPERCENT\t\t|" << std::endl;
-        ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
-        ofs << "| TOTAL_TIME \t\t\t|\t" << TOTAL_TIME << " s\t|\t" << 100 * (TOTAL_TIME / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
-        ofs << "| HSVI::INITIALIZATION \t|\t" << HSVI::TIME_INITIALIZATION << " s\t|\t" << 100 * (HSVI::TIME_INITIALIZATION / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| HSVI::SELECT_ACTION \t|\t" << HSVI::TIME_IN_SELECT_ACTION << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| HSVI::SELECT_STATE \t|\t" << HSVI::TIME_IN_SELECT_STATE << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| HSVI::UPDATE_LB \t|\t" << HSVI::TIME_IN_UPDATE_LB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_LB / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| HSVI::PRUNING_LB \t|\t" << HSVI::TIME_IN_PRUNING_LB << " s\t|\t" << 100 * (HSVI::TIME_IN_PRUNING_LB / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| HSVI::UPDATE_UB \t|\t" << HSVI::TIME_IN_UPDATE_UB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_UB / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| HSVI::PRUNING_UB \t|\t" << HSVI::TIME_IN_PRUNING_UB << " s\t|\t" << 100 * (HSVI::TIME_IN_PRUNING_UB / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| HSVI::DO_EXCESS \t|\t" << HSVI::TIME_IN_DO_EXCESS << " s\t|\t" << 100 * (HSVI::TIME_IN_DO_EXCESS / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
-        ofs << "| OccMDP::GET_ACTION \t|\t" << OccupancyMDP::TIME_IN_GET_ACTION << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccMDP::NEXT_OSTATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_OSTATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_OSTATE / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccMDP::COMP_NEXT_STATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_STATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccMDP::COMPRESS \t|\t" << OccupancyMDP::TIME_IN_COMPRESS << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccMDP::GET_REWARD \t|\t" << OccupancyMDP::TIME_IN_GET_REWARD << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_REWARD / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccMDP::APPLY_DR \t|\t" << OccupancyMDP::TIME_IN_APPLY_DR << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_APPLY_DR / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
-        ofs << "| OccState::GET_PROBA \t|\t" << OccupancyState::TIME_IN_GET_PROBA << " s\t|\t" << 100 * (OccupancyState::TIME_IN_GET_PROBA / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccState::SET_PROBA \t|\t" << OccupancyState::TIME_IN_SET_PROBA << " s\t|\t" << 100 * (OccupancyState::TIME_IN_SET_PROBA / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccState::HASH \t|\t" << OccupancyState::TIME_IN_HASH << " s\t|\t" << 100 * (OccupancyState::TIME_IN_HASH / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccState::EQUAL \t|\t" << OccupancyState::TIME_IN_EQUAL_OPERATOR << " s\t|\t" << 100 * (OccupancyState::TIME_IN_EQUAL_OPERATOR / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccState::COMPRESS \t|\t" << OccupancyState::TIME_IN_COMPRESS << " s\t|\t" << 100 * (OccupancyState::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccState::FINALIZE \t|\t" << OccupancyState::TIME_IN_FINALIZE << " s\t|\t" << 100 * (OccupancyState::TIME_IN_FINALIZE / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| OccState::FINALIZE_PRI \t|\t" << OccupancyState::TIME_IN_FINALIZE_PRIVATE << " s\t|\t" << 100 * (OccupancyState::TIME_IN_FINALIZE_PRIVATE / TOTAL_TIME) << " %\t|" << std::endl;
-        ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        // ofs << std::setprecision(4) << std::fixed;
+        // ofs << "## " << name << " - precision_compress=" << p_c << std::endl;
+        // ofs << "| NAME\t\t\t\t|\tTIME\t\t|\tPERCENT\t\t|" << std::endl;
+        // ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        // ofs << "| TOTAL_TIME \t\t\t|\t" << TOTAL_TIME << " s\t|\t" << 100 * (TOTAL_TIME / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        // ofs << "| HSVI::INITIALIZATION \t|\t" << HSVI::TIME_INITIALIZATION << " s\t|\t" << 100 * (HSVI::TIME_INITIALIZATION / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| HSVI::SELECT_ACTION \t|\t" << HSVI::TIME_IN_SELECT_ACTION << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| HSVI::SELECT_STATE \t|\t" << HSVI::TIME_IN_SELECT_STATE << " s\t|\t" << 100 * (HSVI::TIME_IN_SELECT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| HSVI::UPDATE_LB \t|\t" << HSVI::TIME_IN_UPDATE_LB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_LB / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| HSVI::PRUNING_LB \t|\t" << HSVI::TIME_IN_PRUNING_LB << " s\t|\t" << 100 * (HSVI::TIME_IN_PRUNING_LB / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| HSVI::UPDATE_UB \t|\t" << HSVI::TIME_IN_UPDATE_UB << " s\t|\t" << 100 * (HSVI::TIME_IN_UPDATE_UB / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| HSVI::PRUNING_UB \t|\t" << HSVI::TIME_IN_PRUNING_UB << " s\t|\t" << 100 * (HSVI::TIME_IN_PRUNING_UB / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| HSVI::DO_EXCESS \t|\t" << HSVI::TIME_IN_DO_EXCESS << " s\t|\t" << 100 * (HSVI::TIME_IN_DO_EXCESS / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        // ofs << "| OccMDP::GET_ACTION \t|\t" << OccupancyMDP::TIME_IN_GET_ACTION << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_ACTION / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccMDP::NEXT_OSTATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_OSTATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_OSTATE / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccMDP::COMP_NEXT_STATE \t|\t" << OccupancyMDP::TIME_IN_NEXT_STATE << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_NEXT_STATE / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccMDP::COMPRESS \t|\t" << OccupancyMDP::TIME_IN_COMPRESS << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccMDP::GET_REWARD \t|\t" << OccupancyMDP::TIME_IN_GET_REWARD << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_GET_REWARD / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccMDP::APPLY_DR \t|\t" << OccupancyMDP::TIME_IN_APPLY_DR << " s\t|\t" << 100 * (OccupancyMDP::TIME_IN_APPLY_DR / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
+        // ofs << "| OccState::GET_PROBA \t|\t" << OccupancyState::TIME_IN_GET_PROBA << " s\t|\t" << 100 * (OccupancyState::TIME_IN_GET_PROBA / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccState::SET_PROBA \t|\t" << OccupancyState::TIME_IN_SET_PROBA << " s\t|\t" << 100 * (OccupancyState::TIME_IN_SET_PROBA / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccState::HASH \t|\t" << OccupancyState::TIME_IN_HASH << " s\t|\t" << 100 * (OccupancyState::TIME_IN_HASH / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccState::EQUAL \t|\t" << OccupancyState::TIME_IN_EQUAL_OPERATOR << " s\t|\t" << 100 * (OccupancyState::TIME_IN_EQUAL_OPERATOR / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccState::COMPRESS \t|\t" << OccupancyState::TIME_IN_COMPRESS << " s\t|\t" << 100 * (OccupancyState::TIME_IN_COMPRESS / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccState::FINALIZE \t|\t" << OccupancyState::TIME_IN_FINALIZE << " s\t|\t" << 100 * (OccupancyState::TIME_IN_FINALIZE / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| OccState::FINALIZE_PRI \t|\t" << OccupancyState::TIME_IN_FINALIZE_PRIVATE << " s\t|\t" << 100 * (OccupancyState::TIME_IN_FINALIZE_PRIVATE / TOTAL_TIME) << " %\t|" << std::endl;
+        // ofs << "| ------------------------------|-----------------------|-----------------------|" << std::endl;
 
-        ofs.close();
+        // ofs.close();
     }
     catch (sdm::exception::Exception &e)
     {

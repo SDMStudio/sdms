@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 
 
 		// Instanciate HSVI
-		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), error, 10000, "", 1, 1);
+		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, error, 10000, "", 1, 1);
 		algo->initialize();
 
 		// auto state = hsvi_mdp->getInitialState();
