@@ -40,7 +40,7 @@ namespace sdm
          * by the algorithm. 
          * 
          */
-        void initialize();
+        virtual void initialize();
 
         /**
          * @brief Planning procedure. Will attempt to solve the problem.
@@ -50,7 +50,7 @@ namespace sdm
          * `initialize()` function.
          * 
          */
-        void solve();
+        virtual void solve();
 
         /**
          * @brief Explore a state.
@@ -59,7 +59,7 @@ namespace sdm
          * @param cost_so_far the cost so far
          * @param t the time step of the exploration
          */
-        void explore(const std::shared_ptr<State> &state, double cost_so_far, number t);
+        virtual void explore(const std::shared_ptr<State> &state, double cost_so_far, number t);
 
         /**
          * @brief Check if the stop criterion is reached or not.
@@ -70,27 +70,27 @@ namespace sdm
          * @return true the stop criterion is reached 
          * @return false the stop criterion is not reached yet
          */
-        bool stop(const std::shared_ptr<State> &state, double cost_so_far, number t);
+        virtual bool stop(const std::shared_ptr<State> &state, double cost_so_far, number t) = 0;
 
-		/**
+        /**
 		 * @brief Log execution variables in output streams.
 		 */
-        void logging();
+        virtual void logging() = 0;
 
         /**
          * @brief Test the current policy and display the reward obtained.
          */
-        void test();
+        virtual void test();
 
         /**
          * @brief Save the value function. 
          */
-        void save();
+        virtual void save();
 
         /**
          * @brief Get the value function.
          */
-        std::shared_ptr<ValueFunction> getValueFunction();
+        virtual std::shared_ptr<ValueFunction> getValueFunction();
 
         /**
          * @brief Update the value function at a specific state and time step.
@@ -101,10 +101,11 @@ namespace sdm
          * @param state the state 
          * @param t the time step
          */
-        void updateValue(const std::shared_ptr<State> &state, number t);
+        virtual void updateValue(const std::shared_ptr<State> &state, number t);
+
+        void printInfo();
 
     protected:
-    
         /**
          * @brief Initialize a trial.
          * 

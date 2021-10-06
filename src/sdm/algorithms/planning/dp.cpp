@@ -1,5 +1,3 @@
-#pragma once
-
 #include <sdm/algorithms/planning/dp.hpp>
 
 namespace sdm

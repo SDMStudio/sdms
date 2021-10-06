@@ -14,7 +14,7 @@ namespace sdm
     void PBVI::initLogger()
     {
         // ************* Global Logger ****************
-        std::string format = config::LOG_SDMS + "Trial {}\nV({})\tSizeV({})\tTime({})\n";
+        std::string format = config::LOG_SDMS + "Trial {}\tV({})\tSizeV({})\tTime({})\n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
@@ -35,11 +35,12 @@ namespace sdm
     void PBVI::initTrial()
     {
         max_error = -std::numeric_limits<double>::max();
+        was_updated = false;
     }
 
-    bool PBVI::stop(const std::shared_ptr<State> &, double, number)
+    bool PBVI::stop(const std::shared_ptr<State> &, double, number t)
     {
-        return (max_error <= error);
+        return ((max_error <= error && was_updated) || (t >= getWorld()->getHorizon()));
     }
 
     // SELECT ACTION IN PBVI
@@ -57,11 +58,13 @@ namespace sdm
     // COMPUTE NEXT STATE IN PBVI
     std::shared_ptr<Space> PBVI::selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        return getWorld()->nextState(state, action, observation, t);
+        std::vector<std::shared_ptr<State>> next_states = {getWorld()->getNextStateAndProba(state, action, observation, t).first};
+        return std::make_shared<DiscreteSpace>(next_states);
     }
 
     void PBVI::updateValue(const std::shared_ptr<State> &state, number t)
     {
+        was_updated = true;
         double old_value = getValueFunction()->getValueAt(state, t);
         ValueIteration::updateValue(state, t);
         max_error = std::max(max_error, getValueFunction()->getValueAt(state, t) - old_value);

@@ -16,7 +16,8 @@ namespace sdm
                                  double lr,
                                  double smooth,
                                  unsigned long num_episodes,
-                                 std::string name) : env_(env),
+                                 std::string name) : Algorithm(name),
+                                                     env_(env),
                                                      experience_memory_(experience_memory),
                                                      q_value_(q_value),
                                                      q_target_(q_target),
@@ -25,8 +26,7 @@ namespace sdm
                                                      horizon_(horizon),
                                                      discount_(discount),
                                                      lr_(lr),
-                                                     num_episodes_(num_episodes),
-                                                     name_(name)
+                                                     num_episodes_(num_episodes)
     {
     }
 
@@ -76,7 +76,7 @@ namespace sdm
             }
             if (do_test_)
             {
-                do_test();
+                test();
                 do_test_ = false;
             }
         }
@@ -167,9 +167,9 @@ namespace sdm
         return backup_->getGreedyAction(observation->toState(), t);
     }
 
-
     template <class TInput>
-    std::shared_ptr<GymInterface> QLearning<TInput>::getEnv() const{
+    std::shared_ptr<GymInterface> QLearning<TInput>::getEnv() const
+    {
         return this->env_;
     }
 

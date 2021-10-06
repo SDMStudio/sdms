@@ -1,8 +1,12 @@
 #include <sdm/types.hpp>
+#include <sdm/config.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/core/state/belief_state.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/state/private_occupancy_state.hpp>
 
 namespace sdm
 {
@@ -28,7 +32,7 @@ namespace sdm
     void HSVI::initLogger()
     {
         // ************* Global Logger ****************
-        std::string format = "#> Trial :\t{}\tError :\t{}\t->\tValue_LB({})\tValue_UB({})\t Size_LB({}) \t Size_UB({}) \t Time({})  \n";
+        std::string format = config::LOG_SDMS + "Trial {}\tError :\t{}\t->\tValue_LB({})\tValue_UB({})\t Size_LB({}) \t Size_UB({}) \t Time({})\n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
@@ -113,50 +117,33 @@ namespace sdm
     // SELECT OBSERVATION IN HSVI
     std::shared_ptr<Space> HSVI::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        // double error, biggest_error = -std::numeric_limits<double>::max();
-        // std::shared_ptr<Observation> selected_observation;
+        double error, biggest_error = -std::numeric_limits<double>::max();
+        std::shared_ptr<Observation> selected_observation;
 
-        // // Go over reachable observations
-        // auto observation_space = getWorld()->getObservationSpaceAt(state, action, t);
-        // for (const auto &next_observation : *observation_space)
-        // {
-        //     // Get the next state and probability
-        //     auto [next_state, state_transition_proba] = getWorld()->getUnderlyingProblem()->getTransitionProbability(state, action, next_observation->toObservation(), t);
-        //     // Compute the error related to a given next observation
-        //     error = state_transition_proba * excess(next_state->toState(), 0, t + 1);
-        //     if (error > biggest_error)
-        //     {
-        //         biggest_error = error;
-        //         selected_observation = next_observation;
-        //     }
-        // }
-        // return std::make_shared<DiscreteSpace>({selected_observation});
-
-        // Select o* as in the paper
-        double error, biggest_error = -std::numeric_limits<double>::max(), tmp;
-        std::shared_ptr<State> selected_next_state;
-
-        auto observation_space = getWorld()->getObservationSpaceAt(state, action, t);
-        for (const auto &next_observation : *observation_space)
+        // Select next observation
+        auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), t);
+        for (const auto &observation : *observation_space)
         {
             // Get the next state and probability
-            auto [next_state, state_transition_proba] = getWorld()->nextBeliefAndProba(state, action, next_observation->toObservation(), t);
+            auto [next_state, transition_proba] = getWorld()->getNextStateAndProba(state, action->toAction(), observation->toObservation(), t);
             // Compute error correlated to this next state
-            error = state_transition_proba * excess(next_state, 0, t + 1);
+            error = transition_proba * excess(next_state, 0, t + 1);
             if (error > biggest_error)
             {
                 biggest_error = error;
-                selected_next_state = next_state;
+                selected_observation = observation->toObservation();
+                // selected_next_state = next_state;
             }
         }
-        return selected_next_state;
-        
+        return std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Observation>>{selected_observation});
     }
 
     // COMPUTE NEXT STATE IN HSVI
     std::shared_ptr<Space> HSVI::selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        return getWorld()->nextState(state, action, observation, t);
+        std::vector<std::shared_ptr<State>> selected_next_states{getWorld()->getNextStateAndProba(state, action, observation, t).first};
+        return std::make_shared<DiscreteSpace>(selected_next_states);
+        // return select_next_state;
     }
 
     void HSVI::updateValue(const std::shared_ptr<State> &state, number t)
@@ -164,19 +151,19 @@ namespace sdm
         // Update lower bounds
         if (((trial + 1) % lb_update_frequency) == 0)
         {
-            if (keep_same_action_forward_backward)
-                getLowerBound()->updateValueAt(state, selected_action, t);
-            else
-                getLowerBound()->updateValueAt(state, t);
+            // if (keep_same_action_forward_backward)
+            //     getLowerBound()->updateValueAt(state, selected_action, t);
+            // else
+            getLowerBound()->updateValueAt(state, t);
         }
 
         // Update upper bounds
         if (((trial + 1) % ub_update_frequency) == 0)
         {
-            if (keep_same_action_forward_backward)
-                getUpperBound()->updateValueAt(state, selected_action, t);
-            else
-                getUpperBound()->updateValueAt(state, t);
+            // if (keep_same_action_forward_backward)
+            //     getUpperBound()->updateValueAt(state, selected_action, t);
+            // else
+            getUpperBound()->updateValueAt(state, t);
         }
     }
 

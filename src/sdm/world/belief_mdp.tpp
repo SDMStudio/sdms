@@ -68,11 +68,13 @@ namespace sdm
     {
         // Compute next state
         std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
+
         // Compute the coefficient of normalization (eta)
         double eta = next_belief->toBelief()->norm_1();
 
         // Normalize to belief
         next_belief->toBelief()->normalizeBelief(eta);
+
         // Return the pair next belief / proba of the transition in this belief
         return {next_belief->toBelief(), eta};
     }
@@ -305,6 +307,13 @@ namespace sdm
         bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) > value_function->getHorizon()));
         // Compute next state (if required)
         return (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
+    }
+
+
+    template <class TBelief>
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        return this->nextBeliefAndProba(state, action, observation->toObservation(), t);
     }
 
     // ------------------------------------------------------

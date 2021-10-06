@@ -29,7 +29,16 @@ namespace sdm
         /** @brief Get the initial state */
         std::shared_ptr<State> getInitialState();
 
+        /** @brief Set the initial state */
         void setInitialState(const std::shared_ptr<State> &state);
+
+        /**
+         * @brief Get the horizon.
+         */
+        number getHorizon() const;
+        
+        /** @brief Get the start distribution */
+        std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
 
         /**
          * @brief Select the next state.
@@ -40,7 +49,7 @@ namespace sdm
          * @param hsvi a pointer on the algorithm that makes the call
          * @return the next state
          */
-        virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
+        // virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
 
         /**
          * @brief Get the action space at a specific state and timestep.
@@ -56,6 +65,19 @@ namespace sdm
         virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
         virtual Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+
+        /**
+         * @brief Get the next state and corresponding probability.
+         * 
+         * Return the next state s'= T(s,a,o) and p(o | s, a)=p(s'| s, a) (dans ceratins cas mais pas tous)
+         * 
+         * @param state the state
+         * @param action the action
+         * @param observation the observation
+         * @param t the time step
+         * @return the pair of state and probability 
+         */
+        Pair<std::shared_ptr<State>, double> getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
 
         /**
          * @brief Get the reward of executing a specific action in an specific state at timestep t. 

@@ -29,7 +29,7 @@ namespace sdm
     // COMPUTE NEXT STATE IN PERSEUS
     std::shared_ptr<Space> Perseus::selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        return getWorld()->nextState(state, action, observation, t);
+        return PBVI::selectNextStates(state, action, observation, t);
     }
 
 }

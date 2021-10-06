@@ -1,9 +1,9 @@
 #include <sdm/types.hpp>
+#include <sdm/config.hpp>
 #include <sdm/public/algorithm.hpp>
 
 namespace sdm
 {
-
     Algorithm::Algorithm(std::string name) : name(name) {}
 
     Algorithm::~Algorithm() {}
@@ -37,4 +37,16 @@ namespace sdm
     {
         return std::Performance::computeTime(start_execution_time);
     }
+
+    void Algorithm::saveResults(std::string filename, std::string format)
+    {
+    }
+
+    void Algorithm::printInfo()
+    {
+        std::cout << config::LOG_SDMS << "-------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "# name=" << name << std::endl;
+        std::cout << config::LOG_SDMS << "-------------------" << std::endl;
+    }
+
 }

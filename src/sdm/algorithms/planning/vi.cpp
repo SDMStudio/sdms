@@ -13,9 +13,18 @@ namespace sdm
         initLogger();
         value_function->initialize();
     }
+    
+    void ValueIteration::printInfo(){
+        std::cout << config::LOG_SDMS << "-------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "ALGO=ValueIteration"  << std::endl;
+        std::cout << config::LOG_SDMS << "# name=" << name << std::endl;
+        std::cout << config::LOG_SDMS << "# error="  <<error<< std::endl;
+        std::cout << config::LOG_SDMS << "-------------------" << std::endl;
+    }
 
     void ValueIteration::solve()
     {
+        printInfo();
         startExecutionTime();
 
         trial = 0;
@@ -32,6 +41,7 @@ namespace sdm
             trial++; // At the end of the exploration, go to the next trial
 
         } while (!stop(initial_state, 0, 0) && (time_max >= getExecutionTime())); // Do trials until convergence
+        logging();                                                                // Print execution variables in logging output streams
     }
 
     void ValueIteration::explore(const std::shared_ptr<State> &state, double cost_so_far, number t)
@@ -47,13 +57,16 @@ namespace sdm
                 }
 
                 // Select next action
-                for (const auto &action : *selectActions(state, t))
+                auto action_space = selectActions(state, t);
+                for (const auto &action : *action_space)
                 {
                     // Select next observation
-                    for (const auto &observation : *selectObservations(state, action->toAction(), t))
+                    auto obs_space = selectObservations(state, action->toAction(), t);
+                    for (const auto &observation : *obs_space)
                     {
                         // Select next states
-                        for (const auto &next_state : *selectNextStates(state, action->toAction(), observation->toObservation(), t))
+                        auto state_space = selectNextStates(state, action->toAction(), observation->toObservation(), t);
+                        for (const auto &next_state : *state_space)
                         {
                             // Determine the state for a given state, action and observation
                             // auto next_state = selectNextState(state, action, observation, t);
@@ -61,11 +74,11 @@ namespace sdm
                             // Recursive explore
                             explore(next_state->toState(), cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action->toAction(), t), t + 1);
 
-                            // Update the value function (backward update)
-                            updateValue(state, t);
                         }
                     }
                 }
+                // Update the value function (backward update)
+                this->updateValue(state, t);
             }
         }
         catch (const std::exception &exc)
@@ -78,7 +91,7 @@ namespace sdm
 
     void ValueIteration::updateValue(const std::shared_ptr<State> &state, number t)
     {
-        getValueFunction()->updateValueAt(state->toState(), t);
+        getValueFunction()->updateValueAt(state, t);
     }
 
     void ValueIteration::test()
@@ -97,6 +110,7 @@ namespace sdm
     void ValueIteration::initTrial()
     {
     }
+
 }
 
 // // SELECT ACTION IN HSVI

@@ -67,7 +67,7 @@ int learn(int argv, char **args)
 
         if (vm.count("test"))
         {
-            algo->do_test();
+            algo->test();
         }
     }
     catch (std::exception &e)

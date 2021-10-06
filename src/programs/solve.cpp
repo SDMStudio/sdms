@@ -155,11 +155,11 @@ int solve(int argv, char **args)
 
         if (vm.count("test"))
         {
-            algorithm->do_test();
+            algorithm->test();
         }
         if (vm.count("save"))
         {
-            algorithm->do_save();
+            algorithm->save();
         }
     }
     catch (std::exception &e)

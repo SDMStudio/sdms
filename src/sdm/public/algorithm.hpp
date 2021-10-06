@@ -77,10 +77,13 @@ namespace sdm
     
     double getExecutionTime() const;
 
+    virtual void saveResults(std::string filename, std::string format = ".md");
+
+    virtual void printInfo();
+
   protected:
-    std::string name = "hsvi";
+    std::string name = "unknown";
     
-    std::chrono::high_resolution_clock::time_point start_execution_time, stop_execution_time;
-            
+    std::chrono::high_resolution_clock::time_point start_execution_time, stop_execution_time;            
   };
 } // namespace sdm

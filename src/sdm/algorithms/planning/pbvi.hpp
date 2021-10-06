@@ -110,5 +110,7 @@ namespace sdm
 
         /** @brief The allowed error */
         double max_error;
+
+        bool was_updated;
     };
 }
