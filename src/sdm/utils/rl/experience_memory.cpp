@@ -15,8 +15,8 @@ namespace sdm
     void ExperienceMemory::push(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, const double reward, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<Action> &next_action, number step)
     {
         assert(step >= this->experience_memory_.size());                
-        this->experience_memory_[step][this->positions[step]] = std::make_tuple(observation, action, reward, next_observation, next_action);
-        this->positions[step] = (this->positions[step] + 1) % this->capacity_;
+        this->experience_memory_[step][this->positions_[step]] = std::make_tuple(observation, action, reward, next_observation, next_action);
+        this->positions_[step] = (this->positions_[step] + 1) % this->capacity_;
     }
 
     std::vector<ExperienceMemory::sars_transition> ExperienceMemory::sample(number step, int n)

@@ -145,17 +145,17 @@ namespace sdm
     }
 
     template <class TInput>
-    std::shared_ptr<Action> QLearning<TInput>::selectAction(const std::shared_ptr<Observation> &observation)
+    std::shared_ptr<Action> QLearning<TInput>::selectAction(const std::shared_ptr<Observation> &observation, number t)
     {
         // If sampled value is lower than epsilon
         if ((rand() / double(RAND_MAX)) < exploration_process->getEpsilon())
         {
             // Get random action
-            return getEnv()->getRandomAction(observation, this->step);
+            return getEnv()->getRandomAction(observation, t);
         }
         
         // Get greedy action
-        return backup_->getGreedyAction(observation->toState(), this->step);
+        return backup_->getGreedyAction(observation->toState(), t);
      }
 
     template <class TInput>

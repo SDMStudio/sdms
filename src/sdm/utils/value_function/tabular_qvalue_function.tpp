@@ -31,7 +31,7 @@ namespace sdm
     std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction<TInput>::getQValuesAt(const TInput &state, number t)
     {
         using v_type = typename MappedMatrix<TInput, std::shared_ptr<Action>, double>::value_type::second_type;
-        return std::make_shared<v_type>(this->representation[this->isInfiniteHorizon() ? 0 : step].at(state));
+        return std::make_shared<v_type>(this->representation[this->isInfiniteHorizon() ? 0 : t].at(state));
     }
 
     template <class TInput>
