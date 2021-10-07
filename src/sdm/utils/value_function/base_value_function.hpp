@@ -36,6 +36,8 @@ namespace sdm
         : public std::enable_shared_from_this<BaseValueFunction<TInput>>
     {
     public:
+        using T = TInput;
+
         BaseValueFunction();
 
         BaseValueFunction(number horizon);

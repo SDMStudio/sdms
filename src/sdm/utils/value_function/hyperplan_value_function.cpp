@@ -26,7 +26,7 @@ namespace sdm
     }
 
     HyperplanValueFunction::HyperplanValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action_vf, int freq_pruning, TypeOfMaxPlanPrunning type_of_maxplan_prunning)
-        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer<>>(default_value), backup, action_vf, freq_pruning, type_of_maxplan_prunning) {}
+        : HyperplanValueFunction(horizon, std::make_shared<ValueInitializer>(default_value), backup, action_vf, freq_pruning, type_of_maxplan_prunning) {}
 
     HyperplanValueFunction::~HyperplanValueFunction() {}
 

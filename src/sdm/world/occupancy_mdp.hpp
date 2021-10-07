@@ -34,21 +34,6 @@ namespace sdm
 
                 void initialize(number memory);
 
-                /**
-                 * @brief Get the next occupancy state.
-                 * 
-                 * @param occupancy state the occupancy state
-                 * @param action the action
-                 * @param observation the observation
-                 * @param t the timestep
-                 * @return the next occupancy state
-                 * 
-                 * This function returns the next occupancy state. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current occupancy state. 
-                 * If it exists, we return the associated next occupancy state. Otherwise, we compute the next occupancy state using  "computeNextStateAndProbability" function and add the edge from the current occupancy state to the next occupancy state in the graph.
-                 *
-                 */
-                virtual std::shared_ptr<State> nextOccupancyState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, const std::shared_ptr<Observation> &observation, number t = 0);
-
                 /** @brief Get the address of the underlying MPOMDP */
                 virtual std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 

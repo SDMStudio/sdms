@@ -180,7 +180,7 @@ namespace sdm
             return std::make_shared<PBVI>(problem, value_function, error, time_max, name);
         }
 
-        std::shared_ptr<sdm::QLearning<>> makeQLearning(std::shared_ptr<GymInterface> problem,
+        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<GymInterface> problem,
                                                         number horizon,
                                                         double discount,
                                                         double lr,
@@ -191,15 +191,15 @@ namespace sdm
             assert(((discount < 1) || (horizon > 0)));
 
             // Instanciate initializer
-            std::shared_ptr<ZeroInitializer<>> initializer = std::make_shared<sdm::ZeroInitializer<>>();
+            std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
             // Instanciate qvalue function
-            std::shared_ptr<QValueFunction<>> qvalue;
-            qvalue = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
+            std::shared_ptr<QValueFunction> qvalue;
+            qvalue = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
             // Instanciate target qvalue function
-            std::shared_ptr<QValueFunction<>> target_qvalue;
-            target_qvalue = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
+            std::shared_ptr<QValueFunction> target_qvalue;
+            target_qvalue = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
             // Instanciate exploration process
             std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -212,7 +212,7 @@ namespace sdm
             backup = std::make_shared<TabularQValueBackup>(experience_memory, qvalue, qvalue, discount);
 
             // Instanciate algorithme
-            std::shared_ptr<QLearning<>> algorithm = std::make_shared<QLearning<>>(problem, experience_memory, qvalue, qvalue, backup, exploration, horizon, discount, lr, batch_size, num_episodes, name);
+            std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, backup, exploration, horizon, discount, lr, batch_size, num_episodes, name);
 
             return algorithm;
         }

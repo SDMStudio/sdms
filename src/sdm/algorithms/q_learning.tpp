@@ -4,11 +4,10 @@
 namespace sdm
 {
 
-    template <class TInput>
-    QLearning<TInput>::QLearning(std::shared_ptr<GymInterface> &env,
+    QLearning::QLearning(std::shared_ptr<GymInterface> &env,
                                  std::shared_ptr<ExperienceMemoryInterface> experience_memory,
-                                 std::shared_ptr<QValueFunction<TInput>> q_value,
-                                 std::shared_ptr<QValueFunction<TInput>> q_target,
+                                 std::shared_ptr<QValueFunction> q_value,
+                                 std::shared_ptr<QValueFunction> q_target,
                                  std::shared_ptr<QValueBackupInterface> backup,
                                  std::shared_ptr<EpsGreedy> exploration,
                                  number horizon,
@@ -30,8 +29,7 @@ namespace sdm
     {
     }
 
-    template <class TInput>
-    void QLearning<TInput>::initLogger()
+    void QLearning::initLogger()
     {
         std::string format = "#> Episode : {}\tStep : {}/?\tEpsilon : {}\tValue : {}\tT(s) : {}\tN(S) : {}\n";
 
@@ -42,8 +40,7 @@ namespace sdm
         logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
-    template <class TInput>
-    void QLearning<TInput>::initialize()
+    void QLearning::initialize()
     {
         initLogger();
         q_value_->initialize();
@@ -53,8 +50,7 @@ namespace sdm
         episode = 0;
     }
 
-    template <class TInput>
-    void QLearning<TInput>::solve()
+    void QLearning::solve()
     {
         t_begin = clock();
 
@@ -66,35 +62,10 @@ namespace sdm
 
             // Do one episode
             doEpisode();
-            episode++;
-
-            // Test current policy and write logs
-            if (do_log_)
-            {
-                logger_->log(episode, global_step, exploration_process->getEpsilon(), backup_->getValueAt(getEnv()->reset()->toState(), 0), (float)(clock() - t_begin) / CLOCKS_PER_SEC, q_value_->getNumStates());
-                do_log_ = false;
-            }
-            if (do_test_)
-            {
-                test();
-                do_test_ = false;
-            }
         }
     }
 
-    template <class TInput>
-    void QLearning<TInput>::save()
-    {
-        q_value_->save(name_ + "_qvalue.bin");
-    }
-
-    template <class TInput>
-    void QLearning<TInput>::test()
-    {
-    }
-
-    template <class TInput>
-    void QLearning<TInput>::doEpisode()
+    void QLearning::doEpisode()
     {
         observation = getEnv()->reset(); // Reset the environment
 
@@ -106,18 +77,30 @@ namespace sdm
         {
             // Do one step
             doStep();
-            step++;
-            global_step++;
+        }
+        endEpisode();
+    }
 
-            // Save the model
-            do_save_ = (global_step % save_freq == 0);
-            do_log_ = (global_step % log_freq == 0);
-            do_test_ = (global_step % test_freq == 0);
+    void QLearning::endEpisode()
+    {
+        // Increment episode
+        episode++;
+
+        // Test current policy and write logs
+        if (do_log_)
+        {
+            // Log data on the output stream
+            logger_->log(episode, global_step, exploration_process->getEpsilon(), backup_->getValueAt(getEnv()->reset()->toState(), 0), (float)(clock() - t_begin) / CLOCKS_PER_SEC, q_value_->getNumStates());
+            do_log_ = false;
+        }
+        if (do_test_)
+        {
+            test();
+            do_test_ = false;
         }
     }
 
-    template <class TInput>
-    void QLearning<TInput>::doStep()
+    void QLearning::doStep()
     {
         // Action selection following policy and exploration process
         auto action = this->selectAction(this->observation, this->step);
@@ -127,7 +110,7 @@ namespace sdm
         this->is_done = is_done;
 
         // Compute next greedy action
-        auto next_greedy_action = backup_->getGreedyAction(next_observation->toState(), this->step + 1);
+        auto next_greedy_action = this->selectGreedyAction(next_observation, this->step + 1);
 
         // Push experience to memory
         this->experience_memory_->push(this->observation, action, rewards[0], next_observation, next_greedy_action, this->step);
@@ -136,16 +119,37 @@ namespace sdm
 
         // Backup and get Q Value Error
         this->backup_->update(this->step);
+
+        endStep();
     }
 
-    template <class TInput>
-    void QLearning<TInput>::updateTarget()
+    void QLearning::endStep()
+    {
+        // Increment step
+        step++;
+        global_step++;
+
+        // Save the model
+        do_save_ = (global_step % save_freq == 0);
+        do_log_ = (global_step % log_freq == 0);
+        do_test_ = (global_step % test_freq == 0);
+    }
+
+    void QLearning::save()
+    {
+        q_value_->save(name_ + "_qvalue.bin");
+    }
+
+    void QLearning::test()
+    {
+    }
+
+    void QLearning::updateTarget()
     {
         *q_target_ = *q_value_;
     }
 
-    template <class TInput>
-    std::shared_ptr<Action> QLearning<TInput>::selectAction(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<Action> QLearning::selectAction(const std::shared_ptr<Observation> &observation, number t)
     {
         // If sampled value is lower than epsilon
         if ((rand() / double(RAND_MAX)) < exploration_process->getEpsilon())
@@ -153,15 +157,33 @@ namespace sdm
             // Get random action
             return getEnv()->getRandomAction(observation, t);
         }
-
-        // Get greedy action
-        return backup_->getGreedyAction(observation->toState(), t);
+        else
+        {
+            // Get greedy action
+            return this->selectGreedyAction(observation, t);
+        }
     }
 
-    template <class TInput>
-    std::shared_ptr<GymInterface> QLearning<TInput>::getEnv() const
+    std::shared_ptr<GymInterface> QLearning::getEnv() const
     {
         return this->env_;
+    }
+
+    std::shared_ptr<Action> QLearning::selectGreedyAction(const std::shared_ptr<Observation> &observation, number t)
+    {
+        std::shared_ptr<Action> greedy_action;
+        double best_value = -std::numeric_limits<double>::max(), tmp;
+        
+        auto action_space = getEnv()->getActionSpaceAt(observation, t);
+        for (auto action : *action_space)
+        {
+            if (best_value < (tmp = this->q_value_->getQValueAt(observation->toState(), action->toAction(), t)))
+            {
+                best_value = tmp;
+                greedy_action = action->toAction();
+            }
+        }
+        return greedy_action;
     }
 
 } // namespace sdm

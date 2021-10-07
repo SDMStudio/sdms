@@ -29,44 +29,6 @@ namespace sdm
     {
     }
 
-    void HSVI::initLogger()
-    {
-        // ************* Global Logger ****************
-        std::string format = config::LOG_SDMS + "Trial {}\tError :\t{}\t->\tValue_LB({})\tValue_UB({})\t Size_LB({}) \t Size_UB({}) \t Time({})\n";
-
-        // Build a logger that prints logs on the standard output stream
-        auto std_logger = std::make_shared<sdm::StdLogger>(format);
-
-        // Build a logger that stores data in a CSV file
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(name, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Size_LB", "Size_UB", "Time"});
-
-        // Build a multi logger that combines previous loggers
-        this->logger = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, csv_logger});
-    }
-
-    void HSVI::logging()
-    {
-        auto initial_state = getWorld()->getInitialState();
-
-        // Print in loggers some execution variables
-        logger->log(trial,
-                    excess(initial_state, 0, 0) + error,
-                    getLowerBound()->getValueAt(initial_state),
-                    getUpperBound()->getValueAt(initial_state),
-                    getLowerBound()->getSize(),
-                    getUpperBound()->getSize(),
-                    getExecutionTime());
-    }
-
-    void HSVI::initTrial()
-    {
-        // Do the pruning for the lower bound
-        getLowerBound()->do_pruning(trial);
-
-        // Do the pruning for the upper bound
-        getUpperBound()->do_pruning(trial);
-    }
-
     void HSVI::initialize()
     {
         ValueIteration::initialize();
@@ -83,10 +45,7 @@ namespace sdm
         double value_excess;
         try
         {
-            double value_lb = getLowerBound()->getValueAt(state, t);
-            double value_ub = getUpperBound()->getValueAt(state, t);
-            double incumbent = getLowerBound()->getValueAt(getWorld()->getInitialState());
-            value_excess = getWorld()->do_excess(incumbent, value_lb, value_ub, cost_so_far, error, t);
+            value_excess = getWorld()->do_excess(getLowerBound()->getValueAt(getWorld()->getInitialState()), getLowerBound()->getValueAt(state, t), getUpperBound()->getValueAt(state, t), cost_so_far, error, t);
         }
         catch (const std::exception &exc)
         {
@@ -97,15 +56,6 @@ namespace sdm
         return value_excess;
     }
 
-    std::shared_ptr<ValueFunction> HSVI::getLowerBound() const
-    {
-        return lower_bound;
-    }
-
-    std::shared_ptr<ValueFunction> HSVI::getUpperBound() const
-    {
-        return upper_bound;
-    }
 
     // SELECT ACTIONS IN HSVI
     std::shared_ptr<Space> HSVI::selectActions(const std::shared_ptr<State> &state, number t)
@@ -146,6 +96,17 @@ namespace sdm
         // return select_next_state;
     }
 
+
+    std::shared_ptr<ValueFunction> HSVI::getLowerBound() const
+    {
+        return lower_bound;
+    }
+
+    std::shared_ptr<ValueFunction> HSVI::getUpperBound() const
+    {
+        return upper_bound;
+    }
+
     void HSVI::updateValue(const std::shared_ptr<State> &state, number t)
     {
         // Update lower bounds
@@ -165,6 +126,44 @@ namespace sdm
             // else
             getUpperBound()->updateValueAt(state, t);
         }
+    }
+
+    void HSVI::initLogger()
+    {
+        // ************* Global Logger ****************
+        std::string format = config::LOG_SDMS + "Trial {}\tError :\t{}\t->\tValue_LB({})\tValue_UB({})\t Size_LB({}) \t Size_UB({}) \t Time({})\n";
+
+        // Build a logger that prints logs on the standard output stream
+        auto std_logger = std::make_shared<sdm::StdLogger>(format);
+
+        // Build a logger that stores data in a CSV file
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(name, std::vector<std::string>{"Trial", "Error", "Value_LB", "Value_UB", "Size_LB", "Size_UB", "Time"});
+
+        // Build a multi logger that combines previous loggers
+        this->logger = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, csv_logger});
+    }
+
+    void HSVI::logging()
+    {
+        auto initial_state = getWorld()->getInitialState();
+
+        // Print in loggers some execution variables
+        logger->log(trial,
+                    excess(initial_state, 0, 0) + error,
+                    getLowerBound()->getValueAt(initial_state),
+                    getUpperBound()->getValueAt(initial_state),
+                    getLowerBound()->getSize(),
+                    getUpperBound()->getSize(),
+                    getExecutionTime());
+    }
+
+    void HSVI::initTrial()
+    {
+        // Do the pruning for the lower bound
+        getLowerBound()->do_pruning(trial);
+
+        // Do the pruning for the upper bound
+        getUpperBound()->do_pruning(trial);
     }
 
     void HSVI::saveParams(std::string filename, std::string format)

@@ -4,7 +4,7 @@
 
 namespace sdm
 {
-    DiscreteSpace::DiscreteSpace() : num_items_(0) 
+    DiscreteSpace::DiscreteSpace() : num_items_(0)
     {
     }
 
@@ -59,10 +59,9 @@ namespace sdm
     std::shared_ptr<Item> DiscreteSpace::sample() const
     {
         assert(!this->all_items_.empty());
-        std::uniform_int_distribution<int> distr(0, this->all_items_.size() - 1);
-        return this->all_items_.left.at(distr(common::global_urng()));
+        return this->all_items_.left.at(rand() % this->all_items_.size());
     }
-    
+
     number DiscreteSpace::getNumItems() const
     {
         // std::cout << "getNumItems() this->num_items_ " << this->num_items_ << std::endl;
@@ -184,9 +183,9 @@ namespace sdm
     {
         auto find = std::find(this->list_items_.begin(), this->list_items_.end(), item);
 
-        if(find != this->list_items_.end())
+        if (find != this->list_items_.end())
         {
-            return std::distance(this->list_items_.begin(),find);
+            return std::distance(this->list_items_.begin(), find);
         }
 
         return -1;

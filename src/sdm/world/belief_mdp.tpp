@@ -64,6 +64,19 @@ namespace sdm
     }
 
     template <class TBelief>
+    std::shared_ptr<State> BaseBeliefMDP<TBelief>::computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        if (this->batch_size_ == 0)
+        {
+            return this->computeExactNextState(belief, action, observation, t).first;
+        }
+        else
+        {
+            return this->computeSampledNextState(belief, action, observation, t).first;
+        }
+    }
+
+    template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         // Compute next state
@@ -77,19 +90,6 @@ namespace sdm
 
         // Return the pair next belief / proba of the transition in this belief
         return {next_belief->toBelief(), eta};
-    }
-
-    template <class TBelief>
-    std::shared_ptr<State> BaseBeliefMDP<TBelief>::computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        if (this->batch_size_ == 0)
-        {
-            return this->computeExactNextState(belief, action, observation, t).first;
-        }
-        else
-        {
-            return this->computeSampledNextState(belief, action, observation, t).first;
-        }
     }
 
     template <class TBelief>
@@ -119,8 +119,8 @@ namespace sdm
         }
 
         next_belief->toBelief()->finalize();
-        // Return next belief.
 
+        // Return next belief.
         return std::make_pair(next_belief, nullptr);
     }
 
@@ -161,7 +161,7 @@ namespace sdm
     // ------------------------------------------------------
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::nextBeliefAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         auto action_observation = std::make_pair(action, observation);
 
@@ -224,33 +224,12 @@ namespace sdm
     }
 
     template <class TBelief>
-    std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        return this->nextBeliefAndProba(belief, action, observation, t).first;
+        bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) > value_function->getHorizon()));
+        // Compute next state (if required)
+        return (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->getNextStateAndProba(belief, action, observation->toObservation(), t);
     }
-
-    // template <class TBelief>
-    // std::shared_ptr<State> BaseBeliefMDP<TBelief>::nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
-    // {
-    //     // Select o* as in the paper
-    //     double max_o = -std::numeric_limits<double>::max(), tmp;
-
-    //     std::shared_ptr<State> selected_next_belief;
-    //     auto observation_space = this->getObservationSpaceAt(belief, action, t);
-    //     for (const auto &observation : *observation_space)
-    //     {
-    //         // Get the next state and probability
-    //         auto [next_belief, belief_transition_proba] = this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
-    //         // Compute error correlated to this next belief
-    //         tmp = belief_transition_proba * hsvi->do_excess(next_belief, 0, t + 1);
-    //         if (tmp > max_o)
-    //         {
-    //             max_o = tmp;
-    //             selected_next_belief = next_belief;
-    //         }
-    //     }
-    //     return selected_next_belief;
-    // }
 
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
@@ -301,21 +280,6 @@ namespace sdm
         return exp_next_v;
     }
 
-    template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) > value_function->getHorizon()));
-        // Compute next state (if required)
-        return (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->nextBeliefAndProba(belief, action, observation->toObservation(), t);
-    }
-
-
-    template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        return this->nextBeliefAndProba(state, action, observation->toObservation(), t);
-    }
-
     // ------------------------------------------------------
     // FONCTIONS REQUIRED IN LEARNING ALGORITHMS
     // ------------------------------------------------------
@@ -337,7 +301,7 @@ namespace sdm
         // Compute reward
         double belief_reward = this->getReward(this->current_state_, action, this->step_);
         // Compute next belief
-        this->current_state_ = this->nextBelief(this->current_state_, action, observation, this->step_);
+        this->current_state_ = this->getNextStateAndProba(this->current_state_, action, observation, this->step_).first;
         this->step_++;
         // if sampled ...
         return std::make_tuple(this->current_state_, std::vector<double>{belief_reward, rewards[0]}, is_done);

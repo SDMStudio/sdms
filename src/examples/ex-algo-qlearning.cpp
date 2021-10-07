@@ -25,11 +25,11 @@ int main(int argc, char **argv)
     // Parse file into MPOMDP
     std::shared_ptr<GymInterface> env = std::make_shared<gym::RobotBin>(sizeX, sizeY);
 
-    std::shared_ptr<ZeroInitializer<>> initializer = std::make_shared<sdm::ZeroInitializer<>>();
-    std::shared_ptr<QValueFunction<>> q_value_table = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
+    std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
+    std::shared_ptr<QValueFunction> q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
-    std::shared_ptr<ZeroInitializer<>> target_initializer = std::make_shared<sdm::ZeroInitializer<>>();
-    std::shared_ptr<QValueFunction<>> target_q_value_table = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
+    std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
+    std::shared_ptr<QValueFunction> target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
     // Instanciate exploration process
     std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     std::shared_ptr<QValueBackupInterface> backup = std::make_shared<TabularQValueBackup>(experience_memory, q_value_table, q_value_table, discount);
 
-    auto algorithm = std::make_shared<QLearning<>>(env, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, "RobotBin");
+    auto algorithm = std::make_shared<QLearning>(env, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, "RobotBin");
 
     algorithm->initialize();
     algorithm->solve();

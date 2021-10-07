@@ -40,39 +40,8 @@ namespace sdm
         BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
         ~BaseBeliefMDP();
 
-        /**
-         * @brief Get the next belief.
-         * 
-         * @param belief the belief
-         * @param action the action
-         * @param observation the observation
-         * @param t the timestep
-         * @return the next belief
-         * 
-         * This function returns the next belief. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current belief. 
-         * If exists, we return the associated next belief. Otherwise, we compute the next belief using  "computeNextStateAndProba" function and add the edge from the current belief to the next belief in the graph.
-         *
-         */
-        virtual Pair<std::shared_ptr<State>, double> nextBeliefAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-        
-        virtual std::shared_ptr<State> nextBelief(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-
-        /** @brief Get the Observation Probability p(o | b', a) */
-        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
-
         /** @brief Get the address of the underlying POMDP */
         virtual std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
-
-        /**
-         * @brief Select the next belief.
-         * 
-         * @param belief the current belief
-         * @param action the action
-         * @param t the timestep
-         * @param hsvi a pointer on the algorithm that makes the call
-         * @return the next state
-         */
-        // virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
 
         /**
          * @brief Get the action space at a specific belief and timestep.
@@ -85,6 +54,7 @@ namespace sdm
          * 
          */
         virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
+
         virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
 
         /**
@@ -110,8 +80,26 @@ namespace sdm
          * @return double 
          */
         virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
+        
         Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
-        Pair<std::shared_ptr<State>, double> getNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+
+        /**
+         * @brief Get the next generic state (i.e. belief, occupancy state, etc).
+         * 
+         * This function returns the next occupancy state. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current occupancy state. 
+         * If exists, we return the associated next belief. Otherwise, we compute the next belief using  "computeNextStateAndProba" function and add the edge from the current belief to the next belief in the graph.
+         *
+         * @param state the current state
+         * @param action the action
+         * @param observation the observation
+         * @param t the time step
+         * @return the next belief
+         *
+         */
+        Pair<std::shared_ptr<State>, double> getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+
+        /** @brief Get the Observation Probability p(o | b', a) */
+        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
 
         // *****************
         //    RL methods

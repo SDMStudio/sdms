@@ -29,14 +29,13 @@ namespace sdm
    * state-of-the-art algorithms such as: Q-learning, DQN.
    * 
    */
-  template <class TInput = std::shared_ptr<State>>
   class QLearning : public Algorithm
   {
   public:
     QLearning(std::shared_ptr<GymInterface> &env,
               std::shared_ptr<ExperienceMemoryInterface> experience_memory,
-              std::shared_ptr<QValueFunction<TInput>> q_value,
-              std::shared_ptr<QValueFunction<TInput>> q_target,
+              std::shared_ptr<QValueFunction> q_value,
+              std::shared_ptr<QValueFunction> q_target,
               std::shared_ptr<QValueBackupInterface> backup,
               std::shared_ptr<EpsGreedy> exploration,
               number horizon,
@@ -74,6 +73,15 @@ namespace sdm
      * 
      */
     void doEpisode();
+    
+    /**
+     * @brief Finalize the episode
+     * 
+     * This function will increment the number of episodes executed and update log variables. 
+     *  
+     */
+    void endEpisode();
+
 
     /**
      * @brief Execute a learning step.
@@ -85,6 +93,14 @@ namespace sdm
      * 
      */
     void doStep();
+
+    /**
+     * @brief Finalize the step.
+     *  
+     * This function will increment the number of steps executed and update log variables. 
+     * 
+     */
+    void endStep();
 
     /**
      * @brief Test the current policy and display the reward obtained.
@@ -152,7 +168,7 @@ namespace sdm
     std::shared_ptr<ExperienceMemoryInterface> experience_memory_;
 
     /** @brief Q-value function. */
-    std::shared_ptr<QValueFunction<TInput>> q_value_, q_target_;
+    std::shared_ptr<QValueFunction> q_value_, q_target_;
 
     std::shared_ptr<QValueBackupInterface> backup_;
 

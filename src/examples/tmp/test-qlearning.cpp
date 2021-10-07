@@ -96,8 +96,8 @@ int main(int argc, char **argv)
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
-        else if (formalism == "PrivateHierarchicalOccupancyMDP")
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
+        else if (formalism == "HierarchicalOccupancyMDP")
+            gym = std::make_shared<HierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
 
         // Set precision
         Belief::PRECISION = belief_precision;

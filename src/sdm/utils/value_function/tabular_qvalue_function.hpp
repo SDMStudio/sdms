@@ -11,16 +11,14 @@
  */
 namespace sdm
 {
-    template <class TInput = std::shared_ptr<State>>
-    class TabularQValueFunction : public QValueFunction<TInput>
+    class TabularQValueFunction : public QValueFunction
     {
-
     public:
-        using Container = MappedMatrix<TInput, std::shared_ptr<Action>, double>;
+        using Container = MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
 
-        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer<TInput>> initializer, bool active_learning = true);
+        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
 
-        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0., bool active_learning = true);
+        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
 
         /**
          * @brief Initialize the value function 
@@ -38,7 +36,7 @@ namespace sdm
          * @param state the state
          * @return the action value vector 
          */
-        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const TInput &state, number t);
+        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the q-value given state and action
@@ -47,23 +45,21 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        double getQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t);
+        double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
-        // double getValueAt(const TInput &state, number t);
+        // double getValueAt(const std::shared_ptr<State> &state, number t);
 
-        // std::shared_ptr<Action> getBestAction(const TInput &state, number t = 0);
+        // std::shared_ptr<Action> getBestAction(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Update the value at a given state
          */
-        void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t = 0);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
          * @brief Update the value at a given state (given a delta)
          */
-        void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t, double delta);
-
-        bool isNotSeen(const TInput &state, number t);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta);
 
         int getNumStates() const;
 
@@ -99,14 +95,16 @@ namespace sdm
          */
         std::vector<Container> representation;
 
+        /**
+         * @brief The learning rate.
+         * 
+         */
         double learning_rate_;
-        bool active_learning_;
 
         /**
          * @brief The initializer to use for this value function. 
          * 
          */
-        std::shared_ptr<QInitializer<TInput>> initializer_;
+        std::shared_ptr<QInitializer> initializer_;
     };
 } // namespace sdm
-#include <sdm/utils/value_function/tabular_qvalue_function.tpp>

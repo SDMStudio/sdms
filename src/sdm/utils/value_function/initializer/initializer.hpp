@@ -38,11 +38,10 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <class TInput = std::shared_ptr<State>>
     class QInitializer
     {
     public:
-        virtual void init(std::shared_ptr<QValueFunction<TInput>> vf) = 0;
+        virtual void init(std::shared_ptr<QValueFunction> vf) = 0;
         virtual ~QInitializer() {}
     };
 
@@ -52,8 +51,7 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <class TInput = std::shared_ptr<State>>
-    class ValueInitializer : public Initializer, public QInitializer<TInput>
+    class ValueInitializer : public Initializer, public QInitializer
     {
     protected:
         double value;
@@ -83,9 +81,9 @@ namespace sdm
         {
             this->template initBase<std::shared_ptr<State>>(vf);
         }
-        void init(std::shared_ptr<QValueFunction<TInput>> vf)
+        void init(std::shared_ptr<QValueFunction> vf)
         {
-            this->template initBase<Pair<TInput,std::shared_ptr<Action>>>(vf);
+            this->template initBase<Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>(vf);
         }
     };
 
@@ -95,11 +93,10 @@ namespace sdm
      * @tparam TState the state type
      * @tparam TAction the action type
      */
-    template <class TInput = std::shared_ptr<State>>
-    class ZeroInitializer : public ValueInitializer<TInput>
+    class ZeroInitializer : public ValueInitializer
     {
     public:
-        ZeroInitializer(std::shared_ptr<SolvableByHSVI> = nullptr)  : ValueInitializer<TInput>(0){}
+        ZeroInitializer(std::shared_ptr<SolvableByHSVI> = nullptr) : ValueInitializer(0) {}
     };
 
     /**
@@ -117,7 +114,7 @@ namespace sdm
 
     public:
         BoundInitializer();
-        BoundInitializer(std::shared_ptr<SolvableByHSVI> world,double value);
+        BoundInitializer(std::shared_ptr<SolvableByHSVI> world, double value);
 
         void init(std::shared_ptr<ValueFunction> vf);
         double getValue(std::shared_ptr<ValueFunction> vf, number t);
@@ -166,4 +163,3 @@ namespace sdm
     };
 
 } // namespace sdm
-

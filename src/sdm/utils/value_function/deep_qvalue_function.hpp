@@ -8,7 +8,7 @@
  */
 namespace sdm
 {
-    class PieceWiseLinearConvexQValueFunction : public QValueFunction
+    class DeepQValueFunction : public QValueFunction
     {
     protected:
         using PSI = std::unordered_map<std::shared_ptr<OccupancyStateInterface>, TabularQValueFunction /*, HashSpecific, EqualSpecific*/>;
@@ -32,8 +32,8 @@ namespace sdm
 
     public:
 
-        PieceWiseLinearConvexQValueFunction(number horizon, std::shared_ptr<QInitializer> initializer);
-        PieceWiseLinearConvexQValueFunction(number horizon = 0, double default_value = 0.);
+        DeepQValueFunction(number horizon, std::shared_ptr<QInitializer> initializer);
+        DeepQValueFunction(number horizon = 0, double default_value = 0.);
 
         /**
          * @brief Initialize the value function 
@@ -83,7 +83,7 @@ namespace sdm
          */
         virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, PieceWiseLinearConvexQValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, DeepQValueFunction &vf)
         {
             os << vf.str();
             return os;
