@@ -11,7 +11,7 @@ namespace sdm
      */
     namespace nn
     {
-        struct DQNImpl : torch::nn::Module
+        struct MlpnetImpl : torch::nn::Module
         {
             DQNImpl(sdm::number num_states, sdm::number num_actions)
                 : fc1(torch::nn::Linear(num_states, 10)),
@@ -27,6 +27,6 @@ namespace sdm
             }
             torch::nn::Linear fc1, fc2;
         };
-        TORCH_MODULE(DQN);
+        TORCH_MODULE(Mlpnet);
     }
 }
