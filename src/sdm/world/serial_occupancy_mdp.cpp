@@ -56,20 +56,18 @@ namespace sdm
 
     std::shared_ptr<Action> SerialOccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
-        clock_t t_begin = clock();
 
         // Transform in serial occupancy state
         auto serial_ostate = std::dynamic_pointer_cast<OccupancyState>(ostate);
 
         // Get the selected joint action
         auto action = std::static_pointer_cast<DeterministicDecisionRule>(decision_rule)->act(joint_history->getIndividualHistory(this->getAgentId(t)));
-        SerialOccupancyMDP::TIME_IN_APPLY_DR += ((float)(clock() - t_begin) / CLOCKS_PER_SEC);
         return action;
     }
 
-    bool SerialOccupancyMDP::do_compression(number t) const
+    bool SerialOccupancyMDP::doCompression(number t) const
     {
-        return (OccupancyMDP::do_compression(t) /* && this->getAgentId(t) == 0*/);
+        return (OccupancyMDP::doCompression(t) /* && this->getAgentId(t) == 0*/);
     }
 
     double SerialOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)

@@ -18,7 +18,6 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
 #include <sdm/world/hierarchical_occupancy_mdp.hpp>
-#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
@@ -107,7 +106,6 @@ int main(int argc, char **argv)
             std::cout << "Formalism non reconnu" << std::endl;
             return 1;
         }
-        std::cout << "main" << std::endl;
 
         // Set precision
         Belief::PRECISION = belief_precision;
@@ -144,22 +142,22 @@ int main(int argc, char **argv)
 
         // algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 
-        std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
-        std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
-        std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
-        std::cout << "TOTAL TIME IN APPLY DR : " << OccupancyMDP::TIME_IN_APPLY_DR << std::endl;
-        std::cout << "TOTAL TIME IN UNDERLYING STEP : " << OccupancyMDP::TIME_IN_UNDER_STEP << std::endl;
-        std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
-        std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
-        std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
-        std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
-        std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
-        std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
-        std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
-        std::cout << "OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
+        // std::cout << "PASSAGE IN NEXT STATE : " << OccupancyMDP::PASSAGE_IN_NEXT_STATE << std::endl;
+        // std::cout << "MEAN SIZE STATE : " << OccupancyMDP::MEAN_SIZE_STATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN STEP : " << OccupancyMDP::TIME_IN_STEP << std::endl;
+        // std::cout << "TOTAL TIME IN APPLY DR : " << OccupancyMDP::TIME_IN_APPLY_DR << std::endl;
+        // std::cout << "TOTAL TIME IN UNDERLYING STEP : " << OccupancyMDP::TIME_IN_UNDER_STEP << std::endl;
+        // std::cout << "TOTAL TIME IN GET REWARD : " << OccupancyMDP::TIME_IN_GET_REWARD << std::endl;
+        // std::cout << "TOTAL TIME IN GET ACTION : " << OccupancyMDP::TIME_IN_GET_ACTION << std::endl;
+        // std::cout << "TOTAL TIME IN NEXT Occupancy STATE : " << OccupancyMDP::TIME_IN_NEXT_OSTATE << std::endl;
+        // std::cout << "\nTOTAL TIME IN NEXT STATE : " << OccupancyMDP::TIME_IN_NEXT_STATE << std::endl;
+        // std::cout << "TOTAL TIME IN COMPRESS : " << OccupancyMDP::TIME_IN_COMPRESS << std::endl;
+        // std::cout << "\nTOTAL TIME IN Occupancy::operator== : " << OccupancyState::TIME_IN_EQUAL_OPERATOR << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::getProba : " << OccupancyState::TIME_IN_GET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::setProba : " << OccupancyState::TIME_IN_SET_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::addProba : " << OccupancyState::TIME_IN_ADD_PROBA << std::endl;
+        // std::cout << "TOTAL TIME IN Occupancy::finalize : " << OccupancyState::TIME_IN_FINALIZE << std::endl;
+        // std::cout << "OccupancyState::TIME_IN_HASH : " << OccupancyState::TIME_IN_HASH << std::endl;
     }
     catch (std::exception &e)
     {

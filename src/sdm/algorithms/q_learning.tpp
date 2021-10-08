@@ -85,6 +85,7 @@ namespace sdm
     {
         // Increment episode
         episode++;
+        this->is_done = false;
 
         // Test current policy and write logs
         if (do_log_)

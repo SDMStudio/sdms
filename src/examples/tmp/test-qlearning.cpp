@@ -17,7 +17,6 @@
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 

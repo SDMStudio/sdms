@@ -33,13 +33,7 @@ namespace sdm
         virtual bool checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation);
 
     protected:
-        
         /** @brief the identifier of the agent at the last level of the hierarchy */
-        std::shared_ptr<Action> current_action_;
-        
-        /** @brief the identifier of the agent at the last level of the hierarchy */
-        number low_level_agent_id_;
-        
-        virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+        number low_level_agent_id_;        
       };
 } // namespace sdm

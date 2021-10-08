@@ -30,6 +30,6 @@ namespace sdm
                 double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
 
         protected:
-                bool do_compression(number t) const;
+                bool doCompression(number t) const;
         };
 } // namespace sdm

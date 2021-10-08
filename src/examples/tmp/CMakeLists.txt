@@ -192,8 +192,6 @@ if(BARIS)
 		${INCLUDE_DIR}/algorithms/planning/hsvi.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/networked_distributed_pomdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
@@ -261,8 +259,6 @@ if(QLEARNING)
 		${INCLUDE_DIR}/algorithms/planning/hsvi.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/networked_distributed_pomdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp

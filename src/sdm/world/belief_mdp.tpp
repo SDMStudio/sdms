@@ -64,36 +64,21 @@ namespace sdm
     }
 
     template <class TBelief>
-    std::shared_ptr<State> BaseBeliefMDP<TBelief>::computeNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        if (this->batch_size_ == 0)
-        {
-            return this->computeExactNextState(belief, action, observation, t).first;
-        }
-        else
-        {
-            return this->computeSampledNextState(belief, action, observation, t).first;
-        }
-    }
-
-    template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         // Compute next state
-        std::shared_ptr<State> next_belief = this->computeNextState(belief, action, observation, t);
-
-        // Compute the coefficient of normalization (eta)
-        double eta = next_belief->toBelief()->norm_1();
-
-        // Normalize to belief
-        next_belief->toBelief()->normalizeBelief(eta);
-
-        // Return the pair next belief / proba of the transition in this belief
-        return {next_belief->toBelief(), eta};
+         if (this->batch_size_ == 0)
+        {
+            return this->computeExactNextState(belief, action, observation, t);
+        }
+        else
+        {
+            return this->computeSampledNextState(belief, action, observation, t);
+        }
     }
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
@@ -120,12 +105,18 @@ namespace sdm
 
         next_belief->toBelief()->finalize();
 
+        // Compute the coefficient of normalization (eta)
+        double eta = next_belief->toBelief()->norm_1();
+
+        // Normalize to belief
+        next_belief->toBelief()->normalizeBelief(eta);
+
         // Return next belief.
-        return std::make_pair(next_belief, nullptr);
+        return std::make_pair(next_belief, eta);
     }
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseBeliefMDP<TBelief>::computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number)
     {
         // Create next belief.
         std::shared_ptr<State> next_belief = std::make_shared<TBelief>();
@@ -152,8 +143,15 @@ namespace sdm
         // Finalize belief
         next_belief->toBelief()->finalize();
 
+
+        // Compute the coefficient of normalization (eta)
+        double eta = next_belief->toBelief()->norm_1();
+
+        // Normalize to belief
+        next_belief->toBelief()->normalizeBelief(eta);
+
         // Return next belief.
-        return std::make_pair(next_belief, nullptr);
+        return std::make_pair(next_belief, eta);
     }
 
     // ------------------------------------------------------

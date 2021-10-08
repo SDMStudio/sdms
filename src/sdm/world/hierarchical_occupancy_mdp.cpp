@@ -28,30 +28,9 @@ namespace sdm
     {
         return (std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(this->getLowLevelAgentID()) == observation);
     }
-
-    Pair<std::shared_ptr<State>, double> HierarchicalOccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        // Compute next state
-        std::shared_ptr<State> next_state = this->computeNextState(belief, action, observation, t);
-
-        // Compute the coefficient of normalization (eta)
-        double eta = next_state->toBelief()->norm_1();
-        std::cout << "\n\nEta=" << eta << std::endl;
-        std::cout << "\nNext State : \n"
-                  << next_state->str() << std::endl;
-
-        // Normalize to belief
-        next_state->toBelief()->normalizeBelief(eta);
-        std::cout << "\nNormalized : \n"
-                  << next_state->str() << std::endl;
-
-        // Return the pair next belief / proba of the transition in this belief
-        return {next_state->toBelief(), eta};
-    }
-
+    
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
-        std::cout << "step - "<< this->current_state_->str() << std::endl;
         // Compute reward
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
 
@@ -60,23 +39,18 @@ namespace sdm
 
         // Get a random number between 0 and 1
         double epsilon = std::rand() / (double(RAND_MAX));
-        std::cout << "epsilon=" << epsilon << std::endl;
 
         // Go over all observations of the lower-level agent
         for (auto obs_n : *this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), this->step_))
         {
-            std::cout << "2 - " << obs_n->str() << std::endl;
             std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, obs_n->toObservation(), this->step_);
-            std::cout << "3" << std::endl;
 
             cumul += prob;
-            std::cout << "cumul=" << cumul << std::endl;
             if (epsilon < cumul)
             {
                 this->step_++;
                 this->current_state_ = candidate_state;
-                std::cout << "(end) step" << std::endl;
-                return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), (this->step_ >= this->getUnderlyingMPOMDP()->getHorizon()));
+                return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
             }
         }
     }
