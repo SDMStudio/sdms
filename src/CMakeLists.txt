@@ -180,19 +180,10 @@ else()
 	target_link_libraries(${LIB_SDMS} value_function parser planning rl)
 
 	install(TARGETS ${LIB_SDMS} DESTINATION lib)
-	# LIB SDMS
-	# file(
-	# 	GLOB_RECURSE
-	# 	lib_sdm
-	# 	${INCLUDE_DIR}/**
-	# )
-	# add_library(${LIB_SDMS} STATIC ${lib_sdm})
-
-	# install(TARGETS ${LIB_SDMS} DESTINATION lib)
 endif()
 # file(COPY ${SDMS_LIB_DIR}/libtb2.so DESTINATION /usr/lib)
-install(FILES ${SDMS_LIB_DIR}/libtb2.so DESTINATION /usr/lib)
-set(TB2_LIBRARIES libtb2.so)
+# install(FILES ${SDMS_LIB_DIR}/libtb2.so DESTINATION /usr/lib)
+set(TB2_LIBRARIES ${SDMS_LIB_DIR}/libtb2.so)
 
 ########### BUILD PROGRAMS ###########
 
