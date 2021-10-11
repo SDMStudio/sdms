@@ -28,11 +28,6 @@ namespace sdm
         return std::dynamic_pointer_cast<BaseSerialInterface>(this->getPointer());
     }
 
-    std::shared_ptr<SerialOccupancyInterface> State::toSerialOccupancyState()
-    {
-        return std::dynamic_pointer_cast<SerialOccupancyInterface>(this->getPointer());
-    }
-
     TypeState State::getTypeState() const
     {
         return TypeState::STATE;

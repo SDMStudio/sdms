@@ -14,7 +14,7 @@
 #include <sdm/types.hpp>
 
 #include <sdm/core/state/state.hpp>
-#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serial_state.hpp>
 
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
@@ -199,7 +199,7 @@ namespace sdm
          * @brief Map the serialState to a precise pointeur of State
          * 
          */
-        std::unordered_map<SerializedState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
+        std::unordered_map<SerialState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> distribution_serial;
 
@@ -207,7 +207,7 @@ namespace sdm
          * @brief Initialize Serial State Space
          * 
          */
-        void createInitSerializedStateSpace();
+        void createInitSerialStateSpace();
 
         /**
          * @brief Initialize "serialized_state_space_"
@@ -229,7 +229,7 @@ namespace sdm
          * 
          * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
          */
-        const std::shared_ptr<State> getPointeurState(SerializedState &) const;
+        const std::shared_ptr<State> getPointeurState(SerialState &) const;
 
         void createDistribution();
 

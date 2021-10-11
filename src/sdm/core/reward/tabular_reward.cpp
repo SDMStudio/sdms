@@ -14,11 +14,6 @@ namespace sdm
   {
   }
 
-  // TabularReward::TabularReward(number num_jactions, number num_states)
-  // {
-  //   this->initReward(num_jactions, num_states);
-  // }
-
   void TabularReward::initReward(number, number)
   {
     // number a;
@@ -32,27 +27,6 @@ namespace sdm
   {
     return this->rewards_.getValueAt(s, a);
   }
-
-  // const TabularReward::vector_type &TabularReward::getReward(std::shared_ptr<Action> a) const
-  // {
-  //   return this->rewards_[a];
-  // }
-
-  // const std::vector<TabularReward::vector_type> &TabularReward::getReward() const
-  // {
-  //   return this->rewards;
-  // }
-
-  // void TabularReward::setReward(std::shared_ptr<Action> a, TabularReward::vector_type v)
-  // {
-  //   auto r = v.min();
-  //   this->min = std::min(r, this->min);
-
-  //   r = v.max();
-  //   this->max = std::max(r, this->max);
-
-  //   this->rewards[a] = v;
-  // }
 
   void TabularReward::setReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double reward, number)
   {

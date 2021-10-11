@@ -13,6 +13,10 @@ namespace sdm
     /**
      * @brief A common interface for objects that represent an occupancy state.
      * 
+     * This interface will be used to solve games that have been transformed in 
+     * occupancy games. In this definition, an occupancy state is a distribution
+     * over histories. To each history, we assign a corresponding belief (over states).
+     * 
      */
     class OccupancyStateInterface : virtual public BeliefInterface
     {
@@ -124,6 +128,7 @@ namespace sdm
         virtual void finalize() = 0;
 
         virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
+
         virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space) = 0;
 
         virtual std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory) = 0;

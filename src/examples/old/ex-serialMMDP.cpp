@@ -7,7 +7,7 @@
 #include <sdm/core/action/base_action.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/base_state.hpp>
-#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serial_state.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     
     // Creation of a Serial State
     auto joint_serial_action = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2}));
-    auto serial_state = std::make_shared<SerializedState>(state_0,joint_serial_action);
+    auto serial_state = std::make_shared<SerialState>(state_0,joint_serial_action);
 
     // Some Function of Serial State
     std::cout<<serial_state->str()<<std::endl;

@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	try
 	{
 
-		using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
+		using TState = SerializedOccupancyState<SerialState, JointHistoryTree_p<number>>;
         using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
 		// Construct SerialOccupancyMDP using parser

@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	{
 
 		using TActionPrescriptor = DeterministicDecisionRule<HistoryTree_p<number>, number>;
-		using TStatePrescriptor = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;;
+		using TStatePrescriptor = SerializedOccupancyState<SerialState, JointHistoryTree_p<number>>;;
 
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 

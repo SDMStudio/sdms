@@ -21,7 +21,7 @@ namespace sdm
         //Initialize the Serial MMDP
 
         //Create Serial State Space
-        this->createInitSerializedStateSpace();
+        this->createInitSerialStateSpace();
 
         //Create distribution for the case Serial MMDP
         this->createDistribution();
@@ -136,7 +136,7 @@ namespace sdm
         }
     }
 
-    void SerializedMMDP::createInitSerializedStateSpace()
+    void SerializedMMDP::createInitSerialStateSpace()
     {
         // Vector of all serial state
         std::vector<std::shared_ptr<DiscreteSpace>> all_serialized_state;
@@ -184,7 +184,7 @@ namespace sdm
                 for (const auto &action : all_new_action)
                 {
                     // Add new serial state with the state of the problem and vector of action
-                    auto next_serial_state = std::make_shared<SerializedState>(state->toState(), action);
+                    auto next_serial_state = std::make_shared<SerialState>(state->toState(), action);
                     std::shared_ptr<State> next_serial_state_str = next_serial_state;
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
@@ -238,13 +238,13 @@ namespace sdm
                     {
                         for (const auto next_hidden_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action), agent_id + 1))
                         {
-                            auto next_state = SerializedState(next_hidden_state, Joint<std::shared_ptr<Action>>());
+                            auto next_state = SerialState(next_hidden_state, Joint<std::shared_ptr<Action>>());
                             dynamics->setReachablesStates(serialized_state, serial_action, this->getPointeurState(next_state));
                         }
                     }
                     else
                     {
-                        auto next_state = SerializedState(hidden_state, next_action);
+                        auto next_state = SerialState(hidden_state, next_action);
                         dynamics->setReachablesStates(serialized_state, serial_action, this->getPointeurState(next_state));
                     }
                 }
@@ -268,7 +268,7 @@ namespace sdm
         return this->map_joint_action_to_pointeur.at(joint_action);
     }
 
-    const std::shared_ptr<State> SerializedMMDP::getPointeurState(SerializedState &serialized_state) const
+    const std::shared_ptr<State> SerializedMMDP::getPointeurState(SerialState &serialized_state) const
     {
         return this->map_serialized_state_to_pointeur.at(serialized_state);
     }

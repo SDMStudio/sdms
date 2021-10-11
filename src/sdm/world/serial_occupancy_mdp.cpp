@@ -1,5 +1,5 @@
 #include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serial_state.hpp>
 
 namespace sdm
 {

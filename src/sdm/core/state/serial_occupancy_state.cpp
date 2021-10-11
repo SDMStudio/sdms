@@ -1,5 +1,5 @@
 #include <iomanip>
-#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serial_state.hpp>
 #include <sdm/core/state/serial_occupancy_state.hpp>
 
 namespace sdm
@@ -15,7 +15,7 @@ namespace sdm
 
     number SerialOccupancyState::getCurrentAgentId() const
     {
-        return std::dynamic_pointer_cast<SerializedState>(*this->getBeliefAt(*this->getJointHistories().begin())->getStates().begin())->getCurrentAgentId();
+        return std::dynamic_pointer_cast<SerialState>(*this->getBeliefAt(*this->getJointHistories().begin())->getStates().begin())->getCurrentAgentId();
     }
 
     TypeState SerialOccupancyState::getTypeState() const
