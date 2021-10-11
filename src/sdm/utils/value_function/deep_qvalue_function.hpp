@@ -12,7 +12,9 @@ namespace sdm
 {
     /**
      * @brief 
+     * 
      *  Q(S,A, \theta) = \sum_{o,u} S(o) * A(u|o) * q(S, o,u; \theta) -- nous cherchons a implemente q(; \theta)
+     *
      */
     class DeepQValueFunction : public QValueFunction
     {
@@ -41,9 +43,9 @@ namespace sdm
         /**
          * @brief Update the value at a given state (given a delta)
          */
-        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta);
+        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double delta,number t);
 
-        void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t, double delta);
+        void updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, double delta, number t);
 
         /**
          * @brief Define this function in order to be able to display the value function

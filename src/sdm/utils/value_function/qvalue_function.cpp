@@ -28,7 +28,6 @@ namespace sdm
 
     std::shared_ptr<Action> QValueFunction::getBestAction(const TGlobalInput &, number)
     {
-        //Pas de BestAction dans ton code Baris ?
         throw sdm::exception::NotImplementedException();
     }
 

@@ -67,7 +67,7 @@ namespace sdm
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         // Compute next state
-         if (this->batch_size_ == 0)
+        if (this->batch_size_ == 0)
         {
             return this->computeExactNextState(belief, action, observation, t);
         }
@@ -142,7 +142,6 @@ namespace sdm
 
         // Finalize belief
         next_belief->toBelief()->finalize();
-
 
         // Compute the coefficient of normalization (eta)
         double eta = next_belief->toBelief()->norm_1();
@@ -294,15 +293,31 @@ namespace sdm
     template <class TBelief>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseBeliefMDP<TBelief>::step(std::shared_ptr<Action> action)
     {
-        // Do a step on the underlying problem
-        auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(action);
+
         // Compute reward
         double belief_reward = this->getReward(this->current_state_, action, this->step_);
-        // Compute next belief
-        this->current_state_ = this->getNextStateAndProba(this->current_state_, action, observation, this->step_).first;
-        this->step_++;
-        // if sampled ...
-        return std::make_tuple(this->current_state_, std::vector<double>{belief_reward, rewards[0]}, is_done);
+
+        double cumul = 0.0, prob = 0.0;
+        std::shared_ptr<State> candidate_state = nullptr;
+
+        // Get a random number between 0 and 1
+        double epsilon = std::rand() / (double(RAND_MAX));
+
+        // Go over all observations of the lower-level agent
+        auto accessible_observation_space = this->getObservationSpaceAt(this->current_state_, action, this->step_);
+        for (auto observation : *accessible_observation_space)
+        {
+            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, observation->toObservation(), this->step_);
+
+            cumul += prob;
+            if (epsilon < cumul)
+            {
+                this->step_++;
+                this->current_state_ = candidate_state;
+                break;
+            }
+        }
+        return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingProblem()->getNumAgents(), belief_reward), (this->step_ > this->getUnderlyingProblem()->getHorizon()));
     }
 
     // Useless

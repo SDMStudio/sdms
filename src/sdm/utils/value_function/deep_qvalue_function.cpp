@@ -36,11 +36,11 @@ namespace sdm
         // definir le tenseur torch
     }
 
-    void DeepQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double delta)
+    void DeepQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double delta,number t)
     {
     }
 
-    void DeepQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &state, const std::shared_ptr<JointHistoryInterface> &observation, const std::shared_ptr<Action> &action, number t, double delta)
+    void DeepQValueFunction::updateQValueAt(const std::shared_ptr<OccupancyStateInterface> &state, const std::shared_ptr<JointHistoryInterface> &observation, const std::shared_ptr<Action> &action, double delta, number t)
     {
     }
 

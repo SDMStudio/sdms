@@ -1,5 +1,5 @@
 /**
- * @file value_function.hpp
+ * @file qvalue_function.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
  * @brief Defines the value function interface.
  * @version 0.1
@@ -24,11 +24,12 @@ namespace sdm
 {
     /**
      * @class QValueFunction
-     * @brief This class is the abstract class of value function. All value function must derived this class.
      * 
-     * @tparam std::shared_ptr<State> Type of the state.
-     * @tparam std::shared_ptr<Action> Type of the action.
-     * @tparam double Type of the value.
+     * @brief This abstract class is made up of various methods specific to Q-value functions. 
+     * 
+     * All Q-value functions must inherit from this class to be considered as data structures 
+     * usable by reinforcement learning algorithms
+     * 
      */
     class QValueFunction : public QValueFunctionBase
     {
@@ -105,14 +106,12 @@ namespace sdm
         /**
          * @brief Update the value at a given state (given a target)
          */
-        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, double target) = 0;
+        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double target, number t = 0) = 0;
 
         /**
          * @brief Get the number of accessible states
          */
         virtual int getNumStates() const = 0;
-
-        // virtual void printNumberOfActions() = 0;
 
         /**
          * @brief Define this function in order to be able to display the value function

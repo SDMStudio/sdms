@@ -203,22 +203,7 @@ namespace sdm
         void setup();
         void normalize();
 
-        static double TIME_IN_GET_PROBA, TIME_IN_SET_PROBA, TIME_IN_ADD_PROBA, TIME_IN_FINALIZE, TIME_IN_FINALIZE_PRIVATE, TIME_IN_EQUAL_OPERATOR, TIME_IN_MINUS_OPERATOR, TIME_IN_HASH, TIME_IN_COMPRESS, TIME_IN_DOT_OPERATOR, TIME_IN_INFERIOR_OPERATOR;
-        static unsigned long PASSAGE_GET_PROBA, PASSAGE_SET_PROBA, PASSAGE_FINALIZE;
-
         std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory);
-
-        void prepareIndividualHierarchicalHistoryVectors(number t);
-        std::shared_ptr<JointHistoryInterface> getIndividualHierarchicalHistory(number t, number agent, std::shared_ptr<JointHistoryInterface> candidate_ihhistory);
-        std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoriesOf(number t, number agent);
-        bool individualHierarchicalHistoryVectorForIsDone(number t, number agent);
-        void pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
-
-        std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t);
-        void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface> &individual_hierarchical_history);
-
-        static void cleanTIME();
-        void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information) const;
 
         /** @brief Keep relation between list of individual histories and joint histories */
         static RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
@@ -285,18 +270,15 @@ namespace sdm
 
 namespace std
 {
-
     template <>
     struct hash<sdm::OccupancyState>
     {
         typedef sdm::OccupancyState argument_type;
         typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
+        inline result_type operator()(const argument_type &in, double precision) const
         {
-            std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-
             size_t seed = 0;
-            double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
+            double inverse_of_precision = 1. / precision;
             std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
             std::vector<int> rounded;
             for (const auto &pair_jhist_proba : ordered)
@@ -310,9 +292,12 @@ namespace std
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
-            in.updateTime(time_start, "Time Hash");
             return seed;
-            // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
+        }
+
+        inline result_type operator()(const argument_type &in) const
+        {
+            return std::hash<sdm::OccupancyState>()(in, sdm::OccupancyState::PRECISION);
         }
     };
 }

@@ -50,7 +50,7 @@ namespace sdm
     // bool operator<=(const VectorInterface &) const;
     // bool operator==(const VectorInterface &) const;
     // bool operator!=(const VectorInterface &) const;
-    // bool is_equal(const VectorInterface &other, double precision) const;
+    // bool isEqual(const VectorInterface &other, double precision) const;
 
     // T dot(const VectorInterface &other) const;
     // T operator^(const VectorInterface &other) const;

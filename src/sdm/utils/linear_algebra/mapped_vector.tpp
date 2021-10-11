@@ -189,7 +189,7 @@ namespace sdm
     }
 
     template <class TIndex, class T, class Hash, class KeyEqual>
-    bool MappedVector<TIndex, T, Hash, KeyEqual>::is_equal(const MappedVector<TIndex, T, Hash, KeyEqual> &other, double precision) const
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::isEqual(const MappedVector<TIndex, T, Hash, KeyEqual> &other, double precision) const
     {
         if (this->size() != other.size())
         {
@@ -221,7 +221,7 @@ namespace sdm
     template <class TIndex, class T, class Hash, class KeyEqual>
     bool MappedVector<TIndex, T, Hash, KeyEqual>::operator==(const MappedVector<TIndex, T, Hash, KeyEqual> &other) const
     {
-        return this->is_equal(other, PRECISION);
+        return this->isEqual(other, PRECISION);
     }
 
     template <class TIndex, class T, class Hash, class KeyEqual>

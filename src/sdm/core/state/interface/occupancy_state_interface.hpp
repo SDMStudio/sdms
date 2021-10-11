@@ -127,14 +127,5 @@ namespace sdm
         virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space) = 0;
 
         virtual std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory) = 0;
-
-        virtual void prepareIndividualHierarchicalHistoryVectors(number t) = 0;
-        virtual std::shared_ptr<JointHistoryInterface> getIndividualHierarchicalHistory(number t, number agent, std::shared_ptr<JointHistoryInterface> candidate_ihhistory) = 0;
-        virtual std::vector<std::shared_ptr<JointHistoryInterface>> getIndividualHierarchicalHistoriesOf(number t, number agent) = 0;
-        virtual bool individualHierarchicalHistoryVectorForIsDone(number t, number agent) = 0;
-        virtual void pushToIndividualHierarchicalHistoriesOf(number t, number agent, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;
-
-        virtual std::vector<std::shared_ptr<JointHistoryInterface>> getJointHistoryVector(number t) = 0;
-        virtual void pushToJointHistoryVector(number t, std::shared_ptr<JointHistoryInterface>& individual_hierarchical_history) = 0;
     };
 }

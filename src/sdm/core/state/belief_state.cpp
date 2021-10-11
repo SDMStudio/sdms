@@ -132,7 +132,7 @@ namespace sdm
 
   bool Belief::operator==(const Belief &other) const
   {
-    return MappedVector<std::shared_ptr<State>, double>::is_equal(other, Belief::PRECISION);
+    return MappedVector<std::shared_ptr<State>, double>::isEqual(other, Belief::PRECISION);
   }
 
   double Belief::operator<(const Belief &other) const

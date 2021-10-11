@@ -87,7 +87,7 @@ namespace sdm
     bool operator<=(const sdmsVector &) const;
     bool operator==(const sdmsVector &) const;
     bool operator!=(const sdmsVector &) const;
-    bool is_equal(const sdmsVector &other, double precision) const;
+    bool isEqual(const sdmsVector &other, double precision) const;
 
     // template <class AE>
     T dot(const sdmsVector &v2) const;

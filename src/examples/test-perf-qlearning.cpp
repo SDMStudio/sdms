@@ -11,6 +11,7 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/pwlc_qvalue_function.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
@@ -117,15 +118,15 @@ int main(int argc, char **argv)
         std::cout << "OccupancyState::PRECISION=" << OccupancyState::PRECISION << std::endl;
         std::cout << "PrivateOccupancyState::PRECISION_COMPRESSION=" << PrivateOccupancyState::PRECISION_COMPRESSION << std::endl;
         // Instanciate the initializer
-        std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
+        // std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
         std::shared_ptr<QValueFunction> q_value_table;
-        q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        q_value_table = std::make_shared<PieceWiseLinearConvexQValueFunction>(std::dynamic_pointer_cast<OccupancyMDP>(gym), horizon, lr, 0);
 
-        std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
+        // std::shared_ptr<ZeroInitializer> target_initializer = std::make_shared<sdm::ZeroInitializer>();
 
         std::shared_ptr<QValueFunction> target_q_value_table;
-        target_q_value_table = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
+        target_q_value_table = std::make_shared<PieceWiseLinearConvexQValueFunction>(std::dynamic_pointer_cast<OccupancyMDP>(gym), horizon, lr, 0);
 
         // Instanciate exploration process
         std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();

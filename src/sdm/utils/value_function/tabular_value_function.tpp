@@ -40,9 +40,6 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BaseTabularValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-#ifdef LOGTIME
-        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-#endif
         if (t < this->getHorizon() && this->init_function_ != nullptr)
         {
             if ((this->representation[t].find(state) == this->representation[t].end()))
@@ -52,10 +49,6 @@ namespace sdm
             }
         }
         double value = this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
-
-#ifdef LOGTIME
-        this->updateTime(time_start,"GetValueAt");
-#endif
         return value;
     }
 
@@ -65,11 +58,6 @@ namespace sdm
         return std::make_pair(state, this->getInitFunction()->operator()(state, t));
     }
 
-    template <class Hash, class KeyEqual>
-    void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
-    {
-        this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
-    }
 
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t)
@@ -81,9 +69,6 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, number t)
     {
-#ifdef LOGTIME
-        std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-#endif
         auto value = this->template backup<double>(state, action, t);
 
         // Because with use some 
@@ -93,12 +78,14 @@ namespace sdm
         }
 
         this->updateValueAt(state, t, value);
-
-#ifdef LOGTIME
-        this->updateTime(time_start,"UpdateValue");
-#endif
     }
 
+    template <class Hash, class KeyEqual>
+    void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t, double target)
+    {
+        this->representation[this->isInfiniteHorizon() ? 0 : t][state] = target;
+    }
+    
     template <class Hash, class KeyEqual>
     size_t BaseTabularValueFunction<Hash, KeyEqual>::getSize(number t) const
     {

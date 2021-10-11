@@ -22,7 +22,7 @@ namespace sdm
     {
         auto [observation, action, reward, next_observation, next_action] = this->experience_memory_->sample(t)[0];
         double delta = reward + this->discount_ * this->q_value_table->getQValueAt(next_observation->toState(), next_action, t + 1) - this->q_value_table->getQValueAt(observation->toState(), action, t);
-        this->q_value_table->updateQValueAt(observation->toState(), action, t, delta);
+        this->q_value_table->updateQValueAt(observation->toState(), action, delta, t);
         return delta;
     }
 

@@ -33,7 +33,7 @@ namespace sdm
         return this->getQValuesAt(state, t)->at(action);
     }
 
-    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number step, double delta)
+    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double delta, number step)
     {
         auto h = this->isInfiniteHorizon() ? 0 : step;
         this->representation[h][state][action] = this->representation[h][state][action] + this->learning_rate_ * delta;

@@ -13,7 +13,6 @@ namespace sdm
         : BaseTabularValueFunction<Hash, KeyEqual>(horizon, initializer, backup, action_vf, true), freq_pruning_(freq_pruning), type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
     {
 #ifdef WITH_CPLEX
-
         if (std::dynamic_pointer_cast<ActionVFSawtoothLP>(action_vf) || std::dynamic_pointer_cast<ActionVFSawtoothLPSerial>(action_vf))
         {
             this->is_sawtooth_lp = true;
@@ -30,12 +29,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-
         double value = (t >= this->getHorizon()) ? this->representation[t].getDefault() : this->evaluate(state, t).second;
-
-        this->updateTime(time_start, "GetValueAt");
-
         return value;
     }
 
@@ -90,10 +84,6 @@ namespace sdm
     template <class Hash, class KeyEqual>
     Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state, number t)
     {
-#ifdef LOGTIME
-        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-#endif
-
         assert(this->getInitFunction() != nullptr);
         assert(state->getTypeState() != TypeState::STATE);
 
@@ -124,11 +114,6 @@ namespace sdm
                 argmin_ = point;
             }
         }
-
-#ifdef LOGTIME
-        this->updateTime(time_start, "Evaluate");
-#endif
-
         return std::make_pair(argmin_, v_ub_state + min_ext);
     }
 
@@ -197,9 +182,6 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::do_pruning(number t)
     {
-#ifdef LOGTIME
-        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-#endif
         if (t % this->freq_pruning_ == 0)
         {
             for (number time = 0; time < this->getHorizon(); time++)
@@ -207,9 +189,6 @@ namespace sdm
                 this->prune(time);
             }
         }
-#ifdef LOGTIME
-        this->updateTime(time_start, "Pruning");
-#endif
     }
 
     template <class Hash, class KeyEqual>

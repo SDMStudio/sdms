@@ -20,6 +20,7 @@ namespace sdm
      * @brief This class contains attributes and methods common to all value functions. 
      * 
      * Some attributes are callable. They will be called to update the value function (i.e. the initializer, the backup).  
+     * 
      */
     class ValueFunction
         : public ValueFunctionBase,
@@ -135,15 +136,7 @@ namespace sdm
         template <typename TData>
         TData backup(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
         {
-#ifdef LOGTIME
-            std::chrono::high_resolution_clock::time_point time_start =  std::chrono::high_resolution_clock::now();
-#endif
-
             auto backup = std::static_pointer_cast<BackupInterface<TData>>(this->backup_)->backup(this->getptr(),state,action,t);
-
-#ifdef LOGTIME 
-            this->updateTime(time_start,"backup");
-#endif
 
             return backup;
         }
@@ -165,22 +158,6 @@ namespace sdm
          * @return std::shared_ptr<Action> 
          */
         Pair<std::shared_ptr<Action>, double> getBestActionAndValue(const std::shared_ptr<State> &state, number t);
-
-
-#ifdef LOGTIME
-        double total_time_update_backup =0;
-        double total_time_update_best_action =0;
-        double total_time_evaluate =0;
-        double total_time_exist =0;
-        double time_get_value_at = 0;
-        double time_update_value =0;
-        double time_pruning =0;
-
-
-        void StartTime();
-        void updateTime(std::chrono::high_resolution_clock::time_point start_time,std::string information);
-        double getTime(std::string information);
-#endif
 
         virtual void do_pruning(number t) =0;
 
