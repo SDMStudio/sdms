@@ -4,7 +4,7 @@
 
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 
 namespace sdm
 {
@@ -15,7 +15,7 @@ namespace sdm
 
     void ActionVFMaxplanLPSerial::createObjectiveFunction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
     {
-        auto under_pb = std::dynamic_pointer_cast<SerializedMPOMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMPOMDP>(ActionVFBase::world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
 
         number agent_id = under_pb->getAgentId(t);
@@ -68,7 +68,7 @@ namespace sdm
     void ActionVFMaxplanLPSerial::createDecentralizedVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Create Individual Decentralized Variable
@@ -78,7 +78,7 @@ namespace sdm
     void ActionVFMaxplanLPSerial::createDecentralizedConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Create Individual Decentralized Constraints
@@ -88,7 +88,7 @@ namespace sdm
     std::shared_ptr<Action> ActionVFMaxplanLPSerial::getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Determine the element useful for create a DeterminiticDecisionRule

@@ -116,7 +116,7 @@ namespace sdm
          * @return true if the problem is serialized.
          * @return false if the problem is not serialized.
          */
-        bool isSerialized() const;
+        bool isSerial() const;
 
         /**
          * @brief Get the specific discount factor for the problem at hand

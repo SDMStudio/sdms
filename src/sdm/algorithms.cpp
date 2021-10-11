@@ -32,7 +32,7 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 
 #include <sdm/utils/rl/eps_greedy.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
@@ -250,18 +250,18 @@ namespace sdm
             }
             else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
             {
-                auto serialized_mmdp = std::make_shared<SerializedMMDP>(problem);
-                formalism_problem = std::make_shared<SolvableByMDP>(serialized_mmdp);
+                auto serial_mmdp = std::make_shared<SerialMMDP>(problem);
+                formalism_problem = std::make_shared<SolvableByMDP>(serial_mmdp);
             }
             else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
             {
-                auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                formalism_problem = std::make_shared<BeliefMDP>(serialized_mpomdp, batch_size);
+                auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
+                formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
             else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
             {
-                auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                formalism_problem = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, compression, store_state, store_action, batch_size);
+                auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
+                formalism_problem = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, compression, store_state, store_action, batch_size);
             }
             else
             {

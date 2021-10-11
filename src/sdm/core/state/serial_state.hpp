@@ -74,9 +74,9 @@ namespace sdm
 //   namespace serialization
 //   {
 //     template <class Archive>
-//     void serialize(Archive &archive, sdm::SerialState &serialized_state, const unsigned int)
+//     void serialize(Archive &archive, sdm::SerialState &serial_state, const unsigned int)
 //     {
-//       // archive &boost::serialization::base_object<sdm::Pair<sdm::number, std::vector<sdm::number>>>(serialized_state);
+//       // archive &boost::serialization::base_object<sdm::Pair<sdm::number, std::vector<sdm::number>>>(serial_state);
 //     }
 
 //   } // namespace serialization

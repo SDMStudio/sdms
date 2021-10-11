@@ -22,7 +22,7 @@
 #include <sdm/world/hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
 #include <sdm/parser/parser.hpp>
 
@@ -138,10 +138,10 @@ int main(int argc, char **argv)
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<BeliefMDP>(mdp);
         // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
-        // auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(mdp);
-        // // auto serialized_mpomdp = mdp;
-        // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
-        // // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(serialized_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+        // auto serial_mpomdp = std::make_shared<SerialMPOMDP>(mdp);
+        // // auto serial_mpomdp = mdp;
+        // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
+        // // std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(serial_mpomdp, memory, vm.count("compression"), vm.count("store_states"), vm.count("store_actions"));
 
         // // ---------- Comment / Uncomment this section to enable solving with HSVI ----------
         // //
@@ -163,21 +163,21 @@ int main(int argc, char **argv)
         // // Instanciate value functions
         // if (vm.count("store_states") && vm.count("store_actions"))
         // {
-        //     // lb = std::make_shared<TabularValueFunction>(serialized_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-        //     // ub = std::make_shared<TabularValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
-        //     // ub = std::make_shared<PointSetValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     // lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
-        //     ub = std::make_shared<PointSetValueFunction>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
+        //     // lb = std::make_shared<TabularValueFunction>(serial_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+        //     // ub = std::make_shared<TabularValueFunction>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        //     lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
+        //     // ub = std::make_shared<PointSetValueFunction>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        //     // lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+        //     ub = std::make_shared<PointSetValueFunction>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
         // }
         // else
         // {
-        //     // lb = std::make_shared<TabularValueFunction2>(serialized_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-        //     // ub = std::make_shared<TabularValueFunction2>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
-        //     // ub = std::make_shared<PointSetValueFunction2>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     // lb = std::make_shared<HyperplanValueFunction>(serialized_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
-        //     ub = std::make_shared<PointSetValueFunction2>(serialized_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
+        //     // lb = std::make_shared<TabularValueFunction2>(serial_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+        //     // ub = std::make_shared<TabularValueFunction2>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        //     lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
+        //     // ub = std::make_shared<PointSetValueFunction2>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+        //     // lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+        //     ub = std::make_shared<PointSetValueFunction2>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
         // }
 
         double MAX_RUNNING_TIME = 1800;

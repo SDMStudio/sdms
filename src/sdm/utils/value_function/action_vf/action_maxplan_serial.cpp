@@ -5,7 +5,7 @@
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 
 
 #include <sdm/world/occupancy_mdp.hpp>

@@ -42,7 +42,6 @@ namespace sdm
 
         std::shared_ptr<Space> getActionSpace(number t = 0) const;
         std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
-
         std::string toStdFormat();
     };
 

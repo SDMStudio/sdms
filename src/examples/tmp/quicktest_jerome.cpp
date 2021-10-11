@@ -21,7 +21,7 @@
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
 
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
 
@@ -49,8 +49,8 @@ int main(int argc, char **argv)
     problem->setHorizon(horizon);
     problem->setDiscount(discount);
 
-    auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-    std::shared_ptr<SolvableByHSVI> mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp,memory);
+    auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
+    std::shared_ptr<SolvableByHSVI> mdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp,memory);
 
     auto algo_backward = std::make_shared<BackwardInduction>(mdp,mdp->getUnderlyingProblem()->getHorizon());
     auto algo_hsvi = sdm::algo::makeHSVI(mdp,"Tabular","Tabular","PomdpHsvi","Min",discount,0,mdp->getUnderlyingProblem()->getHorizon());

@@ -61,7 +61,7 @@ namespace sdm
          * @return true if the problem is serialized.
          * @return false if the problem is not serialized.
          */
-        virtual bool isSerialized() const = 0;
+        virtual bool isSerial() const = 0;
 
 
         /**

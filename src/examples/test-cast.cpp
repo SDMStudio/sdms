@@ -22,7 +22,7 @@
 #include <sdm/world/hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
 #include <sdm/parser/parser.hpp>
 

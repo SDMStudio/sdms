@@ -5,8 +5,8 @@
 #include <sdm/core/state/interface/serial_interface.hpp>
 
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/serialized_mmdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mmdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/world/base/mpomdp_interface.hpp>
 
 namespace sdm
@@ -74,7 +74,7 @@ namespace sdm
 
         try
         {
-            auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+            auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
             auto compressed_occupancy_state = state->toOccupancyState();
 
             // Gets the current individual history conditional on the current joint history
@@ -116,7 +116,7 @@ namespace sdm
 
     void ActionVFSawtoothLPSerial::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         auto compressed_occupancy_state = state->toOccupancyState();
@@ -150,7 +150,7 @@ namespace sdm
     void ActionVFSawtoothLPSerial::createDecentralizedVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Create Individual Decentralized Variable
@@ -160,7 +160,7 @@ namespace sdm
     void ActionVFSawtoothLPSerial::createDecentralizedConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Create Individual Decentralized Constraints
@@ -170,7 +170,7 @@ namespace sdm
     std::shared_ptr<Action> ActionVFSawtoothLPSerial::getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(ActionVFBase::world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionVFBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Determine the element useful for create a DeterminiticDecisionRule

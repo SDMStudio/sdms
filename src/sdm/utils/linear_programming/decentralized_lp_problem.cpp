@@ -2,7 +2,7 @@
 #include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
 
 #include <sdm/world/base/mmdp_interface.hpp>
-#include <sdm/world/serialized_mmdp.hpp>
+#include <sdm/world/serial_mmdp.hpp>
 
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
@@ -232,7 +232,7 @@ namespace sdm
     void DecentralizedLP::createDecentralizedVariablesSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(this->world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Create Individual Decentralized Variable
@@ -256,7 +256,7 @@ namespace sdm
     void DecentralizedLP::createDecentralizedConstraintsSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(this->world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Create Individual Decentralized Constraints
@@ -281,7 +281,7 @@ namespace sdm
     std::shared_ptr<Action> DecentralizedLP::getVariableResultSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerializedMMDP>(this->world_->getUnderlyingProblem());
+        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
         //Determine the element useful for create a DeterminiticDecisionRule

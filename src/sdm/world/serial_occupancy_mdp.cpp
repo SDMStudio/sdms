@@ -15,25 +15,25 @@ namespace sdm
 
     number SerialOccupancyMDP::getAgentId(number t) const
     {
-        return this->getUnderlyingSerializedMMDP()->getAgentId(t);
+        return this->getUnderlyingSerialMMDP()->getAgentId(t);
     }
 
     bool SerialOccupancyMDP::isLastAgent(number t) const
     {
-        return this->getUnderlyingSerializedMMDP()->isLastAgent(t);
+        return this->getUnderlyingSerialMMDP()->isLastAgent(t);
     }
 
     double SerialOccupancyMDP::getDiscount(number t) const
     {
-        return this->getUnderlyingSerializedMMDP()->getDiscount(t);
+        return this->getUnderlyingSerialMMDP()->getDiscount(t);
     }
 
-    std::shared_ptr<SerialMMDPInterface> SerialOccupancyMDP::getUnderlyingSerializedMMDP() const
+    std::shared_ptr<SerialMMDPInterface> SerialOccupancyMDP::getUnderlyingSerialMMDP() const
     {
         return std::dynamic_pointer_cast<SerialMMDPInterface>(this->getUnderlyingMDP());
     }
 
-    std::shared_ptr<SerialMPOMDPInterface> SerialOccupancyMDP::getUnderlyingSerializedMPOMDP() const
+    std::shared_ptr<SerialMPOMDPInterface> SerialOccupancyMDP::getUnderlyingSerialMPOMDP() const
     {
         return std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->getUnderlyingMDP());
     }

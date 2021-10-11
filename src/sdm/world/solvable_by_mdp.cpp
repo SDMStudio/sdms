@@ -73,7 +73,7 @@ namespace sdm
         return tmp;
     }
 
-    bool SolvableByMDP::isSerialized() const
+    bool SolvableByMDP::isSerial() const
     {
         return false;
     }

@@ -1,7 +1,7 @@
 /**
- * @file serialized_mmdp.hpp
+ * @file serial_mmdp.hpp
  * @author Jérôme ARJONILLA 
- * @brief Defines the Serialized MMDP.
+ * @brief Defines the Serial MMDP.
  * @version 0.1
  * @date 17/08/2021
  * 
@@ -29,12 +29,12 @@
 
 namespace sdm
 {
-    class SerializedMMDP : virtual public SerialMMDPInterface
+    class SerialMMDP : virtual public SerialMMDPInterface
     {
     public:
-        SerializedMMDP(const std::shared_ptr<MMDPInterface> &mmdp);
+        SerialMMDP(const std::shared_ptr<MMDPInterface> &mmdp);
 
-        virtual ~SerializedMMDP();
+        virtual ~SerialMMDP();
 
         /**
          * @brief Get the number of agents
@@ -178,10 +178,10 @@ namespace sdm
         std::shared_ptr<MMDPInterface> mmdp_;
 
         /**
-         * @brief Refer to the Serialized State Space
+         * @brief Refer to the Serial State Space
          * 
          */
-        Joint<std::shared_ptr<DiscreteSpace>> serialized_state_space_;
+        Joint<std::shared_ptr<DiscreteSpace>> serial_state_space_;
 
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states
@@ -199,7 +199,7 @@ namespace sdm
          * @brief Map the serialState to a precise pointeur of State
          * 
          */
-        std::unordered_map<SerialState, std::shared_ptr<State>> map_serialized_state_to_pointeur;
+        std::unordered_map<SerialState, std::shared_ptr<State>> map_serial_state_to_pointeur;
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> distribution_serial;
 
@@ -210,7 +210,7 @@ namespace sdm
         void createInitSerialStateSpace();
 
         /**
-         * @brief Initialize "serialized_state_space_"
+         * @brief Initialize "serial_state_space_"
          * 
          */
         void createInitReachableStateSpace();

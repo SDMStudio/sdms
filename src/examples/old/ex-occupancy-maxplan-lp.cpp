@@ -12,7 +12,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // ************** Exemple Next State in Serialized Occupancy MDP
+    // ************** Exemple Next State in Serial Occupancy MDP
 
 	std::string filename;
     number horizon = 3;

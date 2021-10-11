@@ -21,8 +21,8 @@ namespace sdm
                 number getAgentId(number t) const;
                 bool isLastAgent(number t) const;
                 double getDiscount(number t) const;
-                std::shared_ptr<SerialMMDPInterface> getUnderlyingSerializedMMDP() const;
-                std::shared_ptr<SerialMPOMDPInterface> getUnderlyingSerializedMPOMDP() const;
+                std::shared_ptr<SerialMMDPInterface> getUnderlyingSerialMMDP() const;
+                std::shared_ptr<SerialMPOMDPInterface> getUnderlyingSerialMPOMDP() const;
 
                 std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
                 std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
