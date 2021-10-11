@@ -5,9 +5,7 @@
 
 namespace sdm
 {
-    BackwardInduction::BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,
-               std::string name) : world_(world),
-                                  name_(name)
+    BackwardInduction::BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,std::string name) : DynamicProgramming(world, 0, name)
     {
         auto tabular_backup = std::make_shared<TabularBackup>(world);
         auto action_tabular = std::make_shared<ActionVFTabulaire>(world);
@@ -22,12 +20,12 @@ namespace sdm
         return this->shared_from_this();
     }
 
-    void BackwardInduction::do_initialize()
+    void BackwardInduction::initialize()
     {
         this->bound_->initialize();
     }
 
-    void BackwardInduction::do_solve()
+    void BackwardInduction::solve()
     {
         std::cout << "\n\n###############################################################\n";
         std::cout << "#############    Start BackwardInduction \"" << this->name_ << "\"    ####################\n";
@@ -35,21 +33,21 @@ namespace sdm
 
         this->start_state = this->world_->getInitialState();
 
-        this->do_explore(start_state, 0, 0);
+        this->explore(start_state, 0, 0);
 
         std::cout << "#>Value Final, s h:" << 0 << "\t V_(" << this->bound_->getValueAt(start_state, 0) << ")"<< std::endl;
     }
 
-    bool BackwardInduction::do_stop(const std::shared_ptr<State> &, double , number h)
+    bool BackwardInduction::stop(const std::shared_ptr<State> &, double , number h)
     {
         return this->world_->getUnderlyingProblem()->getHorizon()<= h;
     }
 
-    void BackwardInduction::do_explore(const std::shared_ptr<State> &state, double cost_so_far, number h)
+    void BackwardInduction::explore(const std::shared_ptr<State> &state, double cost_so_far, number h)
     {
         try
         {
-            if (!this->do_stop(state, cost_so_far, h))
+            if (!this->stop(state, cost_so_far, h))
             {
                 auto action_space = this->world_->getActionSpaceAt(state, h);
 
@@ -64,7 +62,7 @@ namespace sdm
                     for(const auto& observation : *observation_space)
                     {
                         auto [next_state,proba] = this->world_->getNextState(this->bound_,state,action->toAction(),observation->toObservation(),h);
-                        this->do_explore(next_state,cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, action->toAction(), h),h+1);
+                        this->explore(next_state,cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, action->toAction(), h),h+1);
 
                         resultat_backpropagation += this->world_->getDiscount(h) * proba * this->bound_->getValueAt(next_state,h+1);
                     }
@@ -88,31 +86,22 @@ namespace sdm
         catch (const std::exception &exc)
         {
             // catch anything thrown within try block that derives from std::exception
-            std::cerr << "BackwardInduction::do_explore(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "BackwardInduction::explore(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
     }
 
-    void BackwardInduction::do_test()
+    void BackwardInduction::test()
     {
     }
 
-    void BackwardInduction::do_save()
+    void BackwardInduction::save()
     {
     }
 
     std::shared_ptr<ValueFunction> BackwardInduction::getBound() const
     {
         return this->bound_;
-    }
-
-    void BackwardInduction::saveResults(std::string , double )
-    {
-    }
-
-    double BackwardInduction::getResult()
-    {
-        return this->bound_->getValueAt(this->world_->getInitialState());
     }
     
 } // namespace sdm

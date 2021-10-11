@@ -175,8 +175,6 @@ namespace std
         typedef std::size_t result_type;
         inline result_type operator()(const argument_type &in) const
         {
-            std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-
             size_t seed = 0;
             double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
             std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
@@ -192,9 +190,7 @@ namespace std
                 //Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
-            in.updateTime(time_start, "Time Hash");
             return seed;
-            // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
         }
     };
 }

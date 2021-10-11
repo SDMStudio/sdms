@@ -24,33 +24,32 @@ namespace sdm
         return this->initial_state_;
     }
 
-    std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
+    number SolvableByMDP::getHorizon() const
     {
-        double max = -std::numeric_limits<double>::max();
-        std::shared_ptr<State> argmax = 0;
-
-        auto observation_space = this->getObservationSpaceAt(state,action,t);
-        for (const auto &next_state : *observation_space)
-        {
-            double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
-            if (tmp > max)
-            {
-                max = tmp;
-                argmax = next_state->toState();
-            }
-        }
-
-        // for (const auto &pair_state_proba : state->expand(action))
-        // {
-        //     double tmp = pair_state_proba.second * hsvi->do_excess(pair_state_proba.first, 0, t + 1);
-        //     if (tmp > max)
-        //     {
-        //         max = tmp;
-        //         argmax = state_;
-        //     }
-        // }
-        return argmax;
+        return this->getUnderlyingProblem()->getHorizon();
     }
+
+    std::shared_ptr<Distribution<std::shared_ptr<State>>> SolvableByMDP::getStartDistribution() const
+    {
+    }
+
+    // std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)
+    // {
+    //     double max = -std::numeric_limits<double>::max();
+    //     std::shared_ptr<State> argmax = 0;
+
+    //     auto observation_space = this->getObservationSpaceAt(state,action,t);
+    //     for (const auto &next_state : *observation_space)
+    //     {
+    //         double tmp = this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
+    //         if (tmp > max)
+    //         {
+    //             max = tmp;
+    //             argmax = next_state->toState();
+    //         }
+    //     }
+    //     return argmax;
+    // }
 
     std::shared_ptr<Space> SolvableByMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
@@ -66,7 +65,7 @@ namespace sdm
     {
         double tmp = 0.0;
 
-        auto observation_space = this->getObservationSpaceAt(state,action,t);
+        auto observation_space = this->getObservationSpaceAt(state, action, t);
         for (const auto &next_state : *observation_space)
         {
             tmp += this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * value_function->getValueAt(next_state->toState(), t + 1);
@@ -74,7 +73,7 @@ namespace sdm
         return tmp;
     }
 
-    bool SolvableByMDP::isSerialized() const
+    bool SolvableByMDP::isSerial() const
     {
         return false;
     }
@@ -112,14 +111,17 @@ namespace sdm
     std::shared_ptr<Space> SolvableByMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         auto reachable_set = this->underlying_problem_->getReachableStates(state, action, t);
-        return std::make_shared<DiscreteSpace>( std::vector<std::shared_ptr<State>>(reachable_set.begin(), reachable_set.end()));
+        return std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<State>>(reachable_set.begin(), reachable_set.end()));
     }
 
-    Pair<std::shared_ptr<State>, double> SolvableByMDP::getNextState(const std::shared_ptr<ValueFunction> & ,const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t)
+    Pair<std::shared_ptr<State>, double> SolvableByMDP::getNextState(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        return std::make_pair(observation->toState(),this->underlying_problem_->getTransitionProbability(state, action, observation->toState(), t));
+        return std::make_pair(observation->toState(), this->underlying_problem_->getTransitionProbability(state, action, observation->toState(), t));
     }
 
-
+    Pair<std::shared_ptr<State>, double> SolvableByMDP::getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    {
+        return std::make_pair(observation->toState(), this->getUnderlyingProblem()->getTransitionProbability(state, action, observation->toState(), t));
+    }
 
 }

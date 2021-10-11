@@ -48,9 +48,6 @@ namespace sdm
         /** @brief Cast the state into a serial interface */
         virtual std::shared_ptr<BaseSerialInterface> toSerial();
 
-        /** @brief Cast the state into a serial occupancy state */
-        virtual std::shared_ptr<SerialOccupancyInterface> toSerialOccupancyState();
-
         /**
          * @brief Get the hash of the state. 
          * The hash is used in tabular value functions in order to compare efficiently two states. 

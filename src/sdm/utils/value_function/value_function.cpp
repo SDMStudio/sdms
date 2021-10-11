@@ -40,89 +40,10 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ValueFunction::getBestActionAndValue(const std::shared_ptr<State> &state, number t)
     {
-#ifdef LOGTIME
-        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-#endif
-
         auto pair_action_value = this->action_->selectBestAction(this->getptr(), state, t);
-
-#ifdef LOGTIME
-        this->updateTime(time_start, "Best Action");
-#endif
 
         return pair_action_value;
     }
-
-#ifdef LOGTIME
-    void ValueFunction::updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information)
-    {
-        if (information == "backup")
-        {
-            this->total_time_update_backup += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Best Action")
-        {
-            this->total_time_update_best_action += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Exist")
-        {
-            this->total_time_exist += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Evaluate")
-        {
-            this->total_time_evaluate += std::Performance::computeTime(start_time);
-        }
-        else if (information == "GetValueAt")
-        {
-            this->time_get_value_at += std::Performance::computeTime(start_time);
-        }
-        else if (information == "UpdateValue")
-        {
-            this->time_update_value += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Pruning")
-        {
-            this->time_pruning += std::Performance::computeTime(start_time);
-        }
-    }
-
-    double ValueFunction::getTime(std::string information)
-    {
-        if (information == "backup")
-        {
-            return this->total_time_update_backup;
-        }
-        else if (information == "Best Action")
-        {
-            return this->total_time_update_best_action;
-        }
-        else if (information == "Exist")
-        {
-            return this->total_time_exist;
-        }
-        else if (information == "Evaluate")
-        {
-            return this->total_time_evaluate;
-        }
-        else if (information == "GetValueAt")
-        {
-            return this->time_get_value_at;
-        }
-        else if (information == "UpdateValue")
-        {
-            return this->time_update_value;
-        }
-        else if (information == "Pruning")
-        {
-            return this->time_pruning;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-#endif
 
     size_t ValueFunction::getSize() const
     {

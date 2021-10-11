@@ -2,8 +2,8 @@
 
 #include <sdm/exception.hpp>
 #include <sdm/algorithms.hpp>
-#include <sdm/world/serialized_belief_mdp.hpp>
-#include <sdm/core/state/serialized_belief_state.hpp>
+#include <sdm/world/serial_belief_mdp.hpp>
+#include <sdm/core/state/serial_belief_state.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/initializers.hpp>
@@ -32,19 +32,19 @@ int main(int argc, char **argv)
 
 	try
 	{
-		using TStatePrescriptor = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
+		using TStatePrescriptor = SerialOccupancyState<SerialState, JointHistoryTree_p<number>>;
 		using TActionPrescriptor = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>> serialized_oMDP = std::make_shared<SerializedOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);;        
+		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>> serial_oMDP = std::make_shared<SerialOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);;        
 
-		serialized_oMDP->getUnderlyingProblem()->setDiscount(discount);
-		serialized_oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
+		serial_oMDP->getUnderlyingProblem()->setDiscount(discount);
+		serial_oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
-		if (serialized_oMDP->isSerialized())
+		if (serial_oMDP->isSerial())
 		{
-			horizon = horizon * serialized_oMDP->getUnderlyingProblem()->getNumAgents();
+			horizon = horizon * serial_oMDP->getUnderlyingProblem()->getNumAgents();
 		}
 
 		// Instanciate initializers 
@@ -52,18 +52,18 @@ int main(int argc, char **argv)
 		auto ub_init = std::make_shared<MDPInitializer<TStatePrescriptor, TActionPrescriptor>>("ValueIteration");
 
 		// Instanciate the Tabular version for the lower bound
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(serialized_oMDP, horizon, lb_init); 
+		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> lower_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(serial_oMDP, horizon, lb_init); 
 
 		// Instanciate the Tabular version for the upper bound 
-		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(serialized_oMDP, horizon, ub_init);
+		std::shared_ptr<sdm::ValueFunction<TStatePrescriptor, TActionPrescriptor>> upper_bound = std::make_shared<MappedValueFunction<TStatePrescriptor, TActionPrescriptor>>(serial_oMDP, horizon, ub_init);
 
-		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(serialized_oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-Occupancy-MDP-POMDPInitializer");
+		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(serial_oMDP, lower_bound, upper_bound, horizon, error, trials, "Example-Occupancy-MDP-POMDPInitializer");
 
 		//Initialization of HSVI
-		p_algo->do_initialize();
+		p_algo->initialize();
 
 		//Resolution of HSVI
-		p_algo->do_solve();
+		p_algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

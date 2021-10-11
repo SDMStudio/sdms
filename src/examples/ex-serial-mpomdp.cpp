@@ -3,7 +3,7 @@
 #include <sdm/types.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 
 using namespace sdm;
 
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "#> Transform the problem into a Serial MPOMDP" << std::endl;
     std::cout << "----------------------------------------" << std::endl;
-    std::shared_ptr<MPOMDPInterface> serial_mpomdp = std::make_shared<SerializedMPOMDP>(mpomdp);
+    std::shared_ptr<MPOMDPInterface> serial_mpomdp = std::make_shared<SerialMPOMDP>(mpomdp);
 
     std::cout << "#> Description of the serialized MPOMDP" << std::endl;
     std::cout << "#> Horizon=" << serial_mpomdp->getHorizon() << std::endl;

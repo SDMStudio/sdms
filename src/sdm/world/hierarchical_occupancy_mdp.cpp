@@ -1,3 +1,4 @@
+#include <memory>
 #include <sdm/world/hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
 
@@ -27,34 +28,30 @@ namespace sdm
     {
         return (std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(this->getLowLevelAgentID()) == observation);
     }
-
-    Pair<std::shared_ptr<State>, double> HierarchicalOccupancyMDP::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        //
-        std::shared_ptr<State> next_state = this->computeNextState(belief, action, observation, t);
-        // Compute the coefficient of normalization (eta)
-        double eta = next_state->toBelief()->norm_1();
-        next_state->toBelief()->normalizeBelief(eta);
-        return {next_state->toBelief(), eta};
-    }
-
+    
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
-        this->current_action_ = this->applyDecisionRule(this->current_state_->toOccupancyState(), this->current_history_->toJointHistory(), action, this->step_);
-
-        // Do a step on the underlying problem
-        auto [observation, rewards, is_done] = this->getUnderlyingProblem()->step(this->current_action_);
-
         // Compute reward
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
 
-        std::shared_ptr<Observation> observation_n = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(observation)->at(this->getLowLevelAgentID());
+        double cumul = 0.0, prob = 0.0;
+        std::shared_ptr<State> candidate_state = nullptr;
 
-        // Compute next belief
-        this->current_state_ = this->nextBelief(this->current_state_, action, observation_n, this->step_);
+        // Get a random number between 0 and 1
+        double epsilon = std::rand() / (double(RAND_MAX));
 
-        this->current_history_ = this->getNextHistory(observation);
-        this->step_++;
-        return std::make_tuple(this->current_state_, std::vector<double>{occupancy_reward}, is_done);
+        // Go over all observations of the lower-level agent
+        for (auto obs_n : *this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), this->step_))
+        {
+            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, obs_n->toObservation(), this->step_);
+
+            cumul += prob;
+            if (epsilon < cumul)
+            {
+                this->step_++;
+                this->current_state_ = candidate_state;
+                return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
+            }
+        }
     }
 } // namespace sdm

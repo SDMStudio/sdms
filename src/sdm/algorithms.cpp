@@ -1,6 +1,8 @@
 #include <sdm/algorithms.hpp>
 #include <sdm/algorithms/alpha_star.hpp>
 #include <sdm/algorithms/q_learning.hpp>
+#include <sdm/algorithms/planning/vi.hpp>
+#include <sdm/algorithms/planning/pbvi.hpp>
 #include <sdm/algorithms/backward_induction.hpp>
 
 #include <sdm/utils/value_function/initializer/initializers.hpp>
@@ -30,7 +32,7 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 
 #include <sdm/utils/rl/eps_greedy.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
@@ -153,15 +155,32 @@ namespace sdm
                     upper_bound = std::make_shared<TabularValueFunction2>(horizon, ub_init, tabular_backup, action_tabular, true);
             }
 
-            return std::make_shared<HSVI>(problem, lower_bound, upper_bound, horizon, error, trials, name, freq_update_lb, freq_update_ub, time_max);
+            return std::make_shared<HSVI>(problem, lower_bound, upper_bound, error, trials, name, freq_update_lb, freq_update_ub, time_max);
         }
 
-        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, double error, number horizon)
+        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, std::string value_function_name,
+                                                                std::string vf_init_name, double discount, double error, number horizon,
+                                                                bool store_state, std::string name, double time_max)
         {
-            return std::make_shared<ValueIteration>(problem, error, horizon);
+            // Instanciate initializers
+            auto init = sdm::makeInitializer(vf_init_name, problem);
+
+            // Instanciate possible backup
+            auto tabular_backup = std::make_shared<TabularBackup>(problem);
+
+            // Instanciate possible action selection
+            auto action_tabular = std::make_shared<ActionVFTabulaire>(problem);
+
+            std::shared_ptr<ValueFunction> value_function;
+            if (store_state)
+                value_function = std::make_shared<TabularValueFunction>(horizon, init, tabular_backup, action_tabular, false);
+            else
+                value_function = std::make_shared<TabularValueFunction2>(horizon, init, tabular_backup, action_tabular, false);
+
+            return std::make_shared<PBVI>(problem, value_function, error, time_max, name);
         }
 
-        std::shared_ptr<sdm::QLearning<>> makeQLearning(std::shared_ptr<GymInterface> problem,
+        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<GymInterface> problem,
                                                         number horizon,
                                                         double discount,
                                                         double lr,
@@ -172,15 +191,15 @@ namespace sdm
             assert(((discount < 1) || (horizon > 0)));
 
             // Instanciate initializer
-            std::shared_ptr<ZeroInitializer<>> initializer = std::make_shared<sdm::ZeroInitializer<>>();
+            std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
             // Instanciate qvalue function
-            std::shared_ptr<QValueFunction<>> qvalue;
-            qvalue = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
+            std::shared_ptr<QValueFunction> qvalue;
+            qvalue = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
             // Instanciate target qvalue function
-            std::shared_ptr<QValueFunction<>> target_qvalue;
-            target_qvalue = std::make_shared<TabularQValueFunction<>>(horizon, lr, initializer);
+            std::shared_ptr<QValueFunction> target_qvalue;
+            target_qvalue = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
             // Instanciate exploration process
             std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -193,7 +212,7 @@ namespace sdm
             backup = std::make_shared<TabularQValueBackup>(experience_memory, qvalue, qvalue, discount);
 
             // Instanciate algorithme
-            std::shared_ptr<QLearning<>> algorithm = std::make_shared<QLearning<>>(problem, experience_memory, qvalue, qvalue, backup, exploration, horizon, discount, lr, batch_size, num_episodes, name);
+            std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, backup, exploration, horizon, discount, lr, batch_size, num_episodes, name);
 
             return algorithm;
         }
@@ -231,18 +250,18 @@ namespace sdm
             }
             else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
             {
-                auto serialized_mmdp = std::make_shared<SerializedMMDP>(problem);
-                formalism_problem = std::make_shared<SolvableByMDP>(serialized_mmdp);
+                auto serial_mmdp = std::make_shared<SerialMMDP>(problem);
+                formalism_problem = std::make_shared<SolvableByMDP>(serial_mmdp);
             }
             else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
             {
-                auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                formalism_problem = std::make_shared<BeliefMDP>(serialized_mpomdp, batch_size);
+                auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
+                formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
             else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
             {
-                auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-                formalism_problem = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp, memory, compression, store_state, store_action, batch_size);
+                auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
+                formalism_problem = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, compression, store_state, store_action, batch_size);
             }
             else
             {
@@ -314,7 +333,10 @@ namespace sdm
             }
             else if ((algo_name == "ValueIteration") || (algo_name == "VI"))
             {
-                p_algo = std::make_shared<ValueIteration>(formalism_problem, error, formalism_problem->getUnderlyingProblem()->getHorizon());
+                p_algo = makeValueIteration(formalism_problem, lower_bound,
+                                            lb_init, discount, error,
+                                            formalism_problem->getUnderlyingProblem()->getHorizon(),
+                                            store_state, name, time_max);
             }
             else
             {

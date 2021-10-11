@@ -14,9 +14,9 @@
 // #include <sdm/world/solvable_by_hsvi.hpp>
 // #include <sdm/world/belief_mdp.hpp>
 // #include <sdm/world/occupancy_mdp.hpp>
-// #include <sdm/world/serialized_mmdp.hpp>
-// #include <sdm/world/serialized_occupancy_mdp.hpp>
-// #include <sdm/world/serialized_belief_mdp.hpp>
+// #include <sdm/world/serial_mmdp.hpp>
+// #include <sdm/world/serial_occupancy_mdp.hpp>
+// #include <sdm/world/serial_belief_mdp.hpp>
 
 namespace sdm
 {

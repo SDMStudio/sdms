@@ -4,7 +4,7 @@
 #include <sdm/types.hpp>
 #include <sdm/spaces.hpp>
 #include <sdm/core/reward.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
 /**

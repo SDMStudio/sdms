@@ -18,16 +18,16 @@
 #include <sdm/core/distribution.hpp>
 
 #include <sdm/world/base/mpomdp_interface.hpp>
-#include <sdm/world/serialized_mmdp.hpp>
+#include <sdm/world/serial_mmdp.hpp>
 
 #include <sdm/core/dynamics/tabular_observation_dynamics_SAS.hpp>
 
 namespace sdm
 {
-    class SerializedMPOMDP : public SerialMPOMDPInterface, public SerializedMMDP
+    class SerialMPOMDP : public SerialMPOMDPInterface, public SerialMMDP
     {
     public:
-        SerializedMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp);
+        SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp);
 
         /**
          * @brief Get the reachable next states
@@ -99,7 +99,7 @@ namespace sdm
          * @brief  Create the Observation Space
          * 
          */
-        Joint<std::shared_ptr<DiscreteSpace>> serialized_observation_space_;
+        Joint<std::shared_ptr<DiscreteSpace>> serial_observation_space_;
 
         /**
          * @brief Initialize Serial Observation Space

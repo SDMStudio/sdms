@@ -1,11 +1,11 @@
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/world/serial_occupancy_mdp.hpp>
 
 using namespace sdm;
 
 int main(int, char **)
 {
 	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
-	auto serial_MDP = std::make_shared<SerializedMMDP>(problem_path);
+	auto serial_MDP = std::make_shared<SerialMMDP>(problem_path);
 	auto underlying_problem = serial_MDP->getUnderlyingProblem();
 
 	std::cout<<"\n getState : "<<underlying_problem->getStateSpace();

@@ -17,7 +17,6 @@
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
@@ -96,8 +95,8 @@ int main(int argc, char **argv)
             gym = std::make_shared<BeliefMDP>(dpomdp, batch_size);
         else if (formalism == "OccupancyMDP")
             gym = std::make_shared<OccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
-        else if (formalism == "PrivateHierarchicalOccupancyMDP")
-            gym = std::make_shared<PrivateHierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
+        else if (formalism == "HierarchicalOccupancyMDP")
+            gym = std::make_shared<HierarchicalOccupancyMDP>(dpomdp, memory, true, true, true, batch_size);
 
         // Set precision
         Belief::PRECISION = belief_precision;
@@ -129,8 +128,8 @@ int main(int argc, char **argv)
 
         auto algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, max_steps, name);
 
-        algorithm->do_initialize();
-        algorithm->do_solve();
+        algorithm->initialize();
+        algorithm->solve();
 
         algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 

@@ -2,8 +2,8 @@
 
 #include <sdm/exception.hpp>
 #include <sdm/algorithms.hpp>
-#include <sdm/world/serialized_belief_mdp.hpp>
-#include <sdm/core/state/serialized_belief_state.hpp>
+#include <sdm/world/serial_belief_mdp.hpp>
+#include <sdm/core/state/serial_belief_state.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 #include <sdm/utils/value_function/initializers.hpp>
@@ -35,18 +35,18 @@ int main(int argc, char **argv)
 	try
 	{
 
-		using TState = SerializedBeliefState;
+		using TState = SerialBeliefState;
 		using TAction = number;
 		using TObservation = Joint<number>;
 
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-		auto serial_belief_MDP = std::make_shared<SerializedBeliefMDP<TState, TAction, TObservation>>(filename);        
+		auto serial_belief_MDP = std::make_shared<SerialBeliefMDP<TState, TAction, TObservation>>(filename);        
 
 		serial_belief_MDP->getUnderlyingProblem()->setDiscount(discount);
 		serial_belief_MDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
-		if (serial_belief_MDP->isSerialized())
+		if (serial_belief_MDP->isSerial())
 		{
 			horizon = horizon * serial_belief_MDP->getUnderlyingProblem()->getNumAgents();
 		}

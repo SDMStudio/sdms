@@ -23,6 +23,10 @@ namespace sdm
         virtual number getCurrentAgentId() const = 0;
     };
 
+    /**
+     * @brief A common interface for serial states. 
+     * 
+     */
     class BaseSerialInterface : public SerialInterface, virtual public State
     {
     public:
@@ -47,7 +51,4 @@ namespace sdm
         virtual void setAgentId(number) = 0;
     };
 
-    class SerialOccupancyInterface : virtual public SerialInterface, virtual public OccupancyStateInterface
-    {
-    };
 }

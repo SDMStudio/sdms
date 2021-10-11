@@ -63,7 +63,7 @@ namespace sdm
                 for (const auto &observation : under_pb->getReachableObservations(hidden_state->toState(), action->toAction(), next_hidden_state->toState(), t))
                 {
                     //Determine the next belief conditionning to the action and observation
-                    auto tempo_belief = belief_mdp->nextBelief(belief, action->toAction(), observation->toObservation(), t);
+                    auto tempo_belief = belief_mdp->getNextStateAndProba(belief, action->toAction(), observation->toObservation(), t).first;
 
                     // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
                     tmp += vf->evaluate(tempo_belief, t + 1).first->toBelief()->getProbability(next_hidden_state) * under_pb->getDynamics(hidden_state->toState(), action->toAction(), next_hidden_state->toState(), observation->toObservation(), t);
@@ -90,7 +90,7 @@ namespace sdm
             new_hyperplan->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
 
             // Get the next occupancy state associated to the decision rule
-            auto next_occupancy_state = occupancy_mdp->nextOccupancyState(occupancy, decision_rule, sdm::NO_OBSERVATION, t);
+            auto next_occupancy_state = occupancy_mdp->getNextStateAndProba(occupancy, decision_rule, sdm::NO_OBSERVATION, t).first;
             // Determine the best next hyperplan associated to the next occupancy state
             auto best_evaluate_occupancy_state = vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState();
 

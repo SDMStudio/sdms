@@ -5,7 +5,7 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/world/serial_occupancy_mdp.hpp>
 
 #include<sdm/algorithms.hpp>
 #include <sdm/utils/value_function/sawtooth_vf_with_lp_relaxed.hpp>
@@ -37,16 +37,16 @@ int main(int argc, char **argv)
 	{
 
 		using TActionPrescriptor = DeterministicDecisionRule<HistoryTree_p<number>, number>;
-		using TStatePrescriptor = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;;
+		using TStatePrescriptor = SerialOccupancyState<SerialState, JointHistoryTree_p<number>>;;
 
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>>  soMDP = std::make_shared<SerializedOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);        
+		std::shared_ptr<SolvableByHSVI<TStatePrescriptor, TActionPrescriptor>>  soMDP = std::make_shared<SerialOccupancyMDP<TStatePrescriptor, TActionPrescriptor>>(filename, horizon);        
 
 		soMDP->getUnderlyingProblem()->setDiscount(discount);
 		soMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
-		if (soMDP->isSerialized())
+		if (soMDP->isSerial())
 		{
 			horizon = horizon * soMDP->getUnderlyingProblem()->getNumAgents();
 		}
@@ -64,10 +64,10 @@ int main(int argc, char **argv)
 		auto p_algo = std::make_shared<HSVI<TStatePrescriptor, TActionPrescriptor>>(soMDP, lower_bound, upper_bound, horizon, error, trials, "Example-SawtoothLP-SerialOccupancyMDP");
 
 		//Initialization of HSVI
-		p_algo->do_initialize();
+		p_algo->initialize();
 
 		//Resolution of HSVI
-		p_algo->do_solve();
+		p_algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

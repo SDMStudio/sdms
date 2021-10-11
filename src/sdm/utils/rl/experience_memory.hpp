@@ -12,9 +12,9 @@ namespace sdm
     class ExperienceMemory : public ExperienceMemoryInterface
     {
     protected:
-        int capacity_;
+        number capacity_;
+        std::vector<number> positions_;
         std::vector<std::vector<sars_transition>> experience_memory_;
-        int position;
 
     public:
         ExperienceMemory(number horizon, int capacity = 1);
@@ -24,5 +24,8 @@ namespace sdm
         std::vector<sars_transition> sample(number t, int n = 1);
 
         int size();
+
+        int getCapacity() const;
+
     };
 } // namespace sdm

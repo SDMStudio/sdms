@@ -20,8 +20,6 @@
 #include <sdm/utils/rl/experience_memory.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
-#include <sdm/world/private_hierarchical_occupancy_mdp_with_history.hpp>
 
 #include <sdm/core/state/private_occupancy_state.hpp>
 
@@ -181,10 +179,10 @@ int main(int argc, char **argv)
 
         std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(gym, experience_memory, q_value_table, q_value_table, backup, exploration, horizon, discount, lr, 1, num_episodes, name);
 
-        algorithm->do_initialize();
+        algorithm->initialize();
         std::cout << "store_actions " << store_actions << std::endl;
         std::cout << "store_action_spaces " << store_action_spaces << std::endl;
-        algorithm->do_solve();
+        algorithm->solve();
 
         algorithm->saveResults(name + "_test_rl.csv", OccupancyState::PRECISION);
 

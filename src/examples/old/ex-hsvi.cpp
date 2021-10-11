@@ -3,18 +3,18 @@
 #include <memory>
 #include <sdm/exception.hpp>
 // #include <sdm/core/state/beliefs.hpp>
-// #include <sdm/world/serialized_belief_mdp.hpp>
+// #include <sdm/world/serial_belief_mdp.hpp>
 // #include <sdm/world/discrete_pomdp.hpp>
 #include <sdm/world/discrete_mdp.hpp>
 // #include <sdm/world/occupancy_mdp.hpp>
-// #include <sdm/world/serialized_occupancy_mdp.hpp>
+// #include <sdm/world/serial_occupancy_mdp.hpp>
 // #include <sdm/core/state/occupancy_state.hpp>
-// #include <sdm/core/state/serialized_occupancy_state.hpp>
+// #include <sdm/core/state/serial_occupancy_state.hpp>
 // #include <sdm/core/action/joint_det_decision_rule.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 // #include <sdm/utils/value_function/max_plan_vf.hpp>
 // #include <sdm/utils/value_function/tabular_value_function.hpp>
-// #include <sdm/algorithms/hsvi.hpp>
+// #include <sdm/algorithms/planning/hsvi.hpp>
 
 using namespace sdm;
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 		using TAction = number; // JointDeterministicDecisionRule<TStateDescriptor, TActionDescriptor>;
 		using TState = number;
 		// using TState = BeliefState<number>;
-		// using TState = SerializedBeliefState;
+		// using TState = SerialBeliefState;
 		// using TState = BeliefStateGraph_p<number, number>;
 		
 
@@ -80,8 +80,8 @@ int main(int argc, char **argv)
 
 		// auto algo = std::make_shared<HSVI<TState, TAction>>(omdp_world, lower_bound, upper_bound, horizon, error, trial, "");
 
-		// algo->do_initialize();
-		// algo->do_solve();
+		// algo->initialize();
+		// algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

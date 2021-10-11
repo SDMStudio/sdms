@@ -3,7 +3,7 @@
 #include <sdm/types.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 
 using namespace sdm;
 

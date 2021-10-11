@@ -52,8 +52,8 @@ if(DAVID)
 	file(
 		GLOB_RECURSE
 		lib_hsvi
-		${INCLUDE_DIR}/algorithms/hsvi.cpp
-		${INCLUDE_DIR}/algorithms/value_iteration.cpp
+		${INCLUDE_DIR}/algorithms/planning/hsvi.cpp
+		${INCLUDE_DIR}/algorithms/planning/vi.cpp
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
@@ -122,9 +122,9 @@ if(JEROME)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms.cpp
-		${INCLUDE_DIR}/algorithms/hsvi.cpp
+		${INCLUDE_DIR}/algorithms/planning/hsvi.cpp
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
-		${INCLUDE_DIR}/algorithms/value_iteration.cpp
+		${INCLUDE_DIR}/algorithms/planning/vi.cpp
 		${INCLUDE_DIR}/algorithms/backward_induction.cpp
 		${INCLUDE_DIR}/algorithms/alpha_star.cpp
 
@@ -189,11 +189,9 @@ if(BARIS)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
-		${INCLUDE_DIR}/algorithms/hsvi.cpp
+		${INCLUDE_DIR}/algorithms/planning/hsvi.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/networked_distributed_pomdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp
@@ -258,11 +256,9 @@ if(QLEARNING)
 		GLOB_RECURSE
 		lib_hsvi
 		${INCLUDE_DIR}/algorithms/q_learning.cpp
-		${INCLUDE_DIR}/algorithms/hsvi.cpp
+		${INCLUDE_DIR}/algorithms/planning/hsvi.cpp
 		${INCLUDE_DIR}/world/belief_mdp.cpp
 		${INCLUDE_DIR}/world/occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp.cpp
-		${INCLUDE_DIR}/world/private_hierarchical_occupancy_mdp_with_history.cpp
 		${INCLUDE_DIR}/world/solvable_by_mdp.cpp
 		${INCLUDE_DIR}/world/networked_distributed_pomdp.cpp
 		${INCLUDE_DIR}/utils/value_function/base_value_function.cpp

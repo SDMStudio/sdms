@@ -6,13 +6,13 @@
 #include <sdm/core/state/occupancy_state.hpp>
 
 #include<sdm/algorithms.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // ************** Exemple Next State in Serialized Occupancy MDP
+    // ************** Exemple Next State in Serial Occupancy MDP
 
 	std::string filename;
     number horizon = 3;
@@ -72,10 +72,10 @@ int main(int argc, char **argv)
 		// *** 
 
 		//Initialization of HSVI
-		p_algo->do_initialize();
+		p_algo->initialize();
 
 		//Resolution of HSVI
-		p_algo->do_solve();
+		p_algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

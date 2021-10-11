@@ -8,9 +8,6 @@
 
 // #include <sdm/utils/value_function/hierarchical_qvalue_function.hpp>
 
-// #include <sdm/world/private_hierarchical_occupancy_mdp.hpp>
-
-
 // namespace sdm
 // {
 

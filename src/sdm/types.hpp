@@ -8,6 +8,9 @@
 #include "sys/sysinfo.h"
 
 #include <chrono>
+
+#include <sdm/config.hpp>
+
 namespace sdm
 {
 

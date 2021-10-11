@@ -1,4 +1,5 @@
 
+#include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
@@ -7,7 +8,7 @@
 
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
-#include <sdm/algorithms/value_iteration.hpp>
+#include <sdm/algorithms/planning/vi.hpp>
 
 namespace sdm
 {
@@ -30,40 +31,40 @@ namespace sdm
         auto mdp = this->world_->getUnderlyingProblem();
         std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
 
-        if (this->algo_name_ == "ValueIteration")
+        // if (this->algo_name_ == "ValueIteration")
+        // {
+        //     auto value_iteration = std::make_shared<sdm::ValueIteration>(hsvi_mdp, this->error_, mdp->getHorizon());
+
+        //     value_iteration->initialize();
+        //     value_iteration->solve();
+
+        //     vf->initialize(std::make_shared<State2OccupancyValueFunction>(value_iteration->getValueFunction()));
+        // }
+        // else
+        // {
+        auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+        auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
+
+        auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
+        auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
+
+        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
+        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
+
+        auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub,this->error_, 100000, "MDP_Initialisation");
+
+        algorithm->initialize();
+
+        for (const auto &element : *mdp->getStateSpace(0))
         {
-            auto value_iteration = std::make_shared<sdm::ValueIteration>(hsvi_mdp, this->error_, mdp->getHorizon());
-
-            value_iteration->do_initialize();
-            value_iteration->do_solve();
-
-            vf->initialize(std::make_shared<State2OccupancyValueFunction>(value_iteration->getValueFunction()));
+            auto state = element->toState();
+            hsvi_mdp->setInitialState(state);
+            algorithm->solve();
         }
-        else
-        {
-            auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
-            auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
 
-            auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-            auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
-
-            auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
-            auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
-
-            auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), this->error_, 100000, "MDP_Initialisation");
-
-            algorithm->do_initialize();
-
-            for (const auto &element : *mdp->getStateSpace(0))
-            {
-                auto state = element->toState();
-                hsvi_mdp->setInitialState(state);
-                algorithm->do_solve();
-            }
-
-            auto ubound = algorithm->getUpperBound();
-            vf->initialize(std::make_shared<State2OccupancyValueFunction>(ubound));
-        }
+        auto ubound = algorithm->getUpperBound();
+        vf->initialize(std::make_shared<State2OccupancyValueFunction>(ubound));
+        // }
         // Set the function that will be used to get interactively upper bounds
     }
 } // namespace sdm

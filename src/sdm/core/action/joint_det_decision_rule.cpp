@@ -40,12 +40,7 @@ namespace sdm
         {
             auto individual_decision_rule = this->get(agent);
             auto individual_state = joint_state_->get(agent);
-            // std::cout << "------------ AGENT " << agent << "-------------" << std::endl;
-            // std::cout << "*individual_state=" << *individual_state << std::endl;
-            // std::cout << "individual_state=" << individual_state << std::endl;
-            // std::cout << "individual_decision_rule=" << *individual_decision_rule << std::endl;
             auto individual_action = individual_decision_rule->act(individual_state);
-            // std::cout << "individual_action=" << individual_action << std::endl;
             joint_action->push_back(individual_action->toAction());
         }
         return joint_action;

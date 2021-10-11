@@ -64,8 +64,8 @@ int main(int argc, char **argv)
     auto lb = std::make_shared<PointSetValueFunction>(horizon,-1000,tabular_backup);
 
     auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), 0.01);
-    algorithm->do_initialize();
-    algorithm->do_solve();
+    algorithm->initialize();
+    algorithm->solve();
 
     // Test Hyperplan ! 
 

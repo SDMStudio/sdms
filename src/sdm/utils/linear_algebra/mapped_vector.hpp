@@ -100,7 +100,7 @@ namespace sdm
         bool operator!=(const MappedVector &) const;
         bool operator<(const MappedVector &) const;
         bool operator==(const MappedVector &other) const;
-        bool is_equal(const MappedVector &other, double precision) const;
+        bool isEqual(const MappedVector &other, double precision) const;
 
         /**
          * @brief This method implements a non-commutative dot product

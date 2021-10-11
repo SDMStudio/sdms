@@ -7,7 +7,7 @@
 #include <sdm/core/action/base_action.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/base_state.hpp>
-#include <sdm/core/state/serialized_state.hpp>
+#include <sdm/core/state/serial_state.hpp>
 
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
@@ -18,7 +18,7 @@
 #include <sdm/world/mdp.hpp>
 #include <sdm/world/mmdp.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
-#include <sdm/world/serialized_mmdp.hpp>
+#include <sdm/world/serial_mmdp.hpp>
 
 #include <sdm/utils/value_function/tabular_value_function.hpp>
 
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     
     // Creation of a Serial State
     auto joint_serial_action = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2}));
-    auto serial_state = std::make_shared<SerializedState>(state_0,joint_serial_action);
+    auto serial_state = std::make_shared<SerialState>(state_0,joint_serial_action);
 
     // Some Function of Serial State
     std::cout<<serial_state->str()<<std::endl;
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     auto mdp = std::make_shared<MMDP>(state_space, action_space, rew, dynamics,start_distrib,horizon,1.);
 
     //Creation of the Serial MMDP with the MMDP
-    auto serial_mmdp = std::make_shared<SerializedMMDP>(mdp);
+    auto serial_mmdp = std::make_shared<SerialMMDP>(mdp);
 
     // Some function of the Serial MMDP 
     std::cout << "#> NumAgents = " << serial_mmdp->getNumAgents() << std::endl;
@@ -109,15 +109,15 @@ int main(int argc, char **argv)
 
     for(const auto &state : *serial_mmdp->getStateSpace(1))
     {
-        auto serialized_state = state->toState()->toSerial();
-        number agent_identifier = serialized_state->getCurrentAgentId();
+        auto serial_state = state->toState()->toSerial();
+        number agent_identifier = serial_state->getCurrentAgentId();
 
         for(auto action_tmp : *serial_mmdp->getActionSpace(agent_identifier))
         {
             std::cout<<"action "<<action_tmp->str()<<std::endl;
             auto serial_action = action_tmp->toAction();
 
-            std::cout<<serialized_state->str()<<" , "<<serial_action->str()<<std::endl;
+            std::cout<<serial_state->str()<<" , "<<serial_action->str()<<std::endl;
             std::cout<<"Reward = " << serial_mmdp->getReward(state->toState(), serial_action,agent_identifier) << std::endl;
 
             for(const auto &next_state : serial_mmdp->getReachableStates(state->toState(),serial_action))

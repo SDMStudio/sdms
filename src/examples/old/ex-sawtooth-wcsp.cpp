@@ -67,8 +67,8 @@ int main(int argc, char **argv)
 
         auto algo = std::make_shared<HSVI>(oMDP, lower_bound, upper_bound, problem->getHorizon(), error, trials);
 
-        algo->do_initialize();
-        algo->do_solve();
+        algo->initialize();
+        algo->solve();
 	}
 	catch (sdm::exception::Exception &e)
 	{

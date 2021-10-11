@@ -5,7 +5,7 @@
 
 #include <sdm/parser/parser.hpp>
 #include <sdm/world/belief_mdp.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
@@ -35,10 +35,10 @@ int main(int argc, char **argv)
     auto ub = std::make_shared<TabularValueFunction>(horizon, init_ub, tabular_backup, tabular_action, true);
 
     auto algo = std::make_shared<HSVI>(beliefMDP, lb, ub, horizon, 0.01);
-    algo->do_initialize();
+    algo->initialize();
     std::cout << *algo->getLowerBound() << std::endl;
     std::cout << *algo->getUpperBound() << std::endl;
-    algo->do_solve();
+    algo->solve();
 
     return 0;
 }

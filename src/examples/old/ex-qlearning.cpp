@@ -67,8 +67,8 @@ int main(int argc, char **argv)
         );
 
 
-        algo->do_initialize();
-        algo->do_solve();
+        algo->initialize();
+        algo->solve();
 
         //--------
         //-------- Ex 2) QLEARNING POUR LA RESOLUTION EXACTE DES POMDPs (as BeliefMDP)
@@ -80,8 +80,8 @@ int main(int argc, char **argv)
         // env->getUnderlyingProblem()->setupDynamicsGenerator();
 
         // auto algo = sdm::algo::makeQLearning<BeliefState, number>(env, "", "", horizon, discount, lr, 1, max_step, "test_qlearn_bmdp");
-        // algo->do_initialize();
-        // algo->do_solve();
+        // algo->initialize();
+        // algo->solve();
 
 
         //--------
@@ -94,8 +94,8 @@ int main(int argc, char **argv)
         // env->setupDynamicsGenerator();
 
         // auto algo = sdm::algo::makeQLearning<number, number>(env, "qvalue_name", "initializer_name", horizon, discount, lr, 1, max_step, "test_qlearn");
-        // algo->do_initialize();
-        // algo->do_solve();
+        // algo->initialize();
+        // algo->solve();
 
 
         

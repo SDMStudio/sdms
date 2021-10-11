@@ -1,9 +1,9 @@
 #include <iostream>
 
 #include <sdm/exception.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/world/serial_occupancy_mdp.hpp>
 
 #include<sdm/algorithms.hpp>
 
@@ -11,7 +11,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    // ************** Exemple Next State in Serialized Occupancy MDP
+    // ************** Exemple Next State in Serial Occupancy MDP
 
 	std::string filename;
     number horizon = 3;
@@ -32,12 +32,12 @@ int main(int argc, char **argv)
 
 	try
 	{
-		using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
+		using TState = SerialOccupancyState<SerialState, JointHistoryTree_p<number>>;
         using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
 		// Construct Serial OccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
-		auto somdp_world = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, horizon);
+		auto somdp_world = std::make_shared<SerialOccupancyMDP<TState, TAction>>(filename, horizon);
 
 		// We will show how to expand an initial occupancy state and generate next ones using compression
 		int depth = 0, limit = 3;

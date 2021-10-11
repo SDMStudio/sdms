@@ -34,21 +34,6 @@ namespace sdm
 
                 void initialize(number memory);
 
-                /**
-                 * @brief Get the next occupancy state.
-                 * 
-                 * @param occupancy state the occupancy state
-                 * @param action the action
-                 * @param observation the observation
-                 * @param t the timestep
-                 * @return the next occupancy state
-                 * 
-                 * This function returns the next occupancy state. To do so, we check in the MDP graph the existance of an edge (action / observation) starting from the current occupancy state. 
-                 * If it exists, we return the associated next occupancy state. Otherwise, we compute the next occupancy state using  "computeNextStateAndProbability" function and add the edge from the current occupancy state to the next occupancy state in the graph.
-                 *
-                 */
-                virtual std::shared_ptr<State> nextOccupancyState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, const std::shared_ptr<Observation> &observation, number t = 0);
-
                 /** @brief Get the address of the underlying MPOMDP */
                 virtual std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 
@@ -95,19 +80,10 @@ namespace sdm
                 double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
                 virtual std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
 
-                // *****************
-                //    PROFILING
-                // *****************
-
-                static double TIME_IN_NEXT_STATE, TIME_IN_COMPRESS, TIME_IN_GET_ACTION, TIME_IN_STEP, TIME_IN_GET_REWARD, TIME_IN_NEXT_OSTATE, TIME_IN_EXP_NEXT;
-                static double TIME_IN_UNDER_STEP, TIME_IN_APPLY_DR;
-                static number PASSAGE_IN_NEXT_STATE;
-                static unsigned long MEAN_SIZE_STATE;
-
-                /** @brief Initial and current histories. */
-                std::shared_ptr<HistoryInterface> initial_history_, current_history_;
-
         protected:
+                /** @brief Initial and current histories. */
+                std::shared_ptr<HistoryInterface> initial_history_;
+
                 /** @brief Hyperparameters. */
                 bool compression_ = true;
 
@@ -128,22 +104,16 @@ namespace sdm
                  * 
                  */
                 virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-                virtual std::shared_ptr<State> computeNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-                virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-                virtual Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-
-                std::shared_ptr<HistoryInterface> getNextHistory(const std::shared_ptr<Observation> &observation);
+                virtual Pair<std::shared_ptr<State>, double>  computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual Pair<std::shared_ptr<State>, double>  computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual Pair<std::shared_ptr<OccupancyStateInterface>, double> finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &next_one_step_left_compressed_occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_fully_uncompressed_occupancy_state, number t);
 
                 virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
 
                 /** @brief Return true if compression must be done */
-                virtual bool do_compression(number t) const;
+                virtual bool doCompression(number t) const;
 
-                virtual void update_occupancy_state_proba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
-
-                // std::shared_ptr<std::unordered_map<JointDeterministicDecisionRule, std::shared_ptr<Action>>> action_map_;
-
-                // std::shared_ptr<Action> getActionPointer(std::shared_ptr<Action> action_tmp);
+                virtual void updateOccupancyStateProba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
         };
 
         using OccupancyMDP = BaseOccupancyMDP<OccupancyState>;

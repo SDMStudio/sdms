@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sdm/algorithms/hsvi.hpp>
-#include <sdm/algorithms/value_iteration.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
+#include <sdm/algorithms/planning/vi.hpp>
 #include <sdm/algorithms/q_learning.hpp>
 
 namespace sdm
@@ -47,7 +47,7 @@ namespace sdm
         /**
          * @brief Build QLearning algorithm.
          */
-        std::shared_ptr<sdm::QLearning<>> makeQLearning(std::shared_ptr<GymInterface> problem,
+        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<GymInterface> problem,
                                                         number horizon = 0,
                                                         double discount = 0.9,
                                                         double lr = 0.01,

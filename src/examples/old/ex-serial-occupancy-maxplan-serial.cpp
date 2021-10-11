@@ -6,7 +6,7 @@
 #include <sdm/core/state/occupancy_state.hpp>
 
 #include<sdm/algorithms.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 using namespace sdm;
 
@@ -33,13 +33,13 @@ int main(int argc, char **argv)
 	try
 	{
 
-		using TState = SerializedOccupancyState<SerializedState, JointHistoryTree_p<number>>;
+		using TState = SerialOccupancyState<SerialState, JointHistoryTree_p<number>>;
         using TAction = DeterministicDecisionRule<HistoryTree_p<number>, number>;
 
 		// Construct SerialOccupancyMDP using parser
 		std::cout << "#> Parsing file \"" << filename << "\"\n";
 
-		std::shared_ptr<SolvableByHSVI<TState, TAction>>  oMDP = std::make_shared<SerializedOccupancyMDP<TState, TAction>>(filename, horizon);
+		std::shared_ptr<SolvableByHSVI<TState, TAction>>  oMDP = std::make_shared<SerialOccupancyMDP<TState, TAction>>(filename, horizon);
 
 		// Creation of HSVI with maxplan 
 		//auto p_algo =  sdm::algo::makeHSVI<TState, TAction>(oMDP, "", "maxplan_serial", "MaxInitializer", "MinInitialize", discount, error, horizon, trials, "Example-MaxPlan-OccupancyMDP");
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 		oMDP->getUnderlyingProblem()->setDiscount(discount);
 		oMDP->getUnderlyingProblem()->setPlanningHorizon(horizon);
 
-		if (oMDP->isSerialized())
+		if (oMDP->isSerial())
 		{
 			horizon = horizon * oMDP->getUnderlyingProblem()->getNumAgents();
 		}
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
 		// Instanciate the max-plan serial representation of the lower bound
 		//auto lower_bound = std::make_shared<MaxPlanValueFunction<TState, TAction>>(omdp_world, horizon, lb_init); //
-		auto lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerialized<TState, TAction>>(oMDP, horizon, lb_init);
+		auto lower_bound = std::make_shared<sdm::MaxPlanValueFunctionSerial<TState, TAction>>(oMDP, horizon, lb_init);
 
 		// Instanciate the Tabular version for the upper bound
 		auto upper_bound = std::make_shared<MappedValueFunction<TState, TAction>>(oMDP, horizon, ub_init);
@@ -69,10 +69,10 @@ int main(int argc, char **argv)
 		// *** 
 
 		//Initialization of HSVI
-		p_algo->do_initialize();
+		p_algo->initialize();
 
 		//Resolution of HSVI
-		p_algo->do_solve();
+		p_algo->solve();
 	}
 	catch (exception::Exception &e)
 	{

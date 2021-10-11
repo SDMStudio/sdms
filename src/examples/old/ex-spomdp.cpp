@@ -1,11 +1,11 @@
-#include <sdm/world/serialized_occupancy_mdp.hpp>
+#include <sdm/world/serial_occupancy_mdp.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
 	std::string problem_path("../data/world/dpomdp/tiger.dpomdp");
-	auto serial_MPOMDP = std::make_shared<SerializedMPOMDP>(problem_path);
+	auto serial_MPOMDP = std::make_shared<SerialMPOMDP>(problem_path);
 
 	std::cout<<"\n getState : "<<serial_MPOMDP->getStateSpace()->str();
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 			std::cout<<next_obs<<" ";
 		}
 
-		std::cout<<"\n serialized_state : "<<serial_state<<", serial_action : "<<serial_action<<", joint_obs : "<<joint_obs<<", next_serialized_state : "<<serial_state_next;
+		std::cout<<"\n serial_state : "<<serial_state<<", serial_action : "<<serial_action<<", joint_obs : "<<joint_obs<<", next_serial_state : "<<serial_state_next;
 		std::cout<<"\n ObsProbability : "<<serial_MPOMDP->getObservationProbability(serial_state,serial_action,joint_obs,serial_state_next);
 		std::cout<<"\n Dynamics : "<<serial_MPOMDP->getDynamics(serial_state,serial_action,joint_obs,serial_state_next);
 

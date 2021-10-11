@@ -21,7 +21,7 @@
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
 
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
 
@@ -49,34 +49,34 @@ int main(int argc, char **argv)
     problem->setHorizon(horizon);
     problem->setDiscount(discount);
 
-    auto serialized_mpomdp = std::make_shared<SerializedMPOMDP>(problem);
-    std::shared_ptr<SolvableByHSVI> mdp = std::make_shared<SerialOccupancyMDP>(serialized_mpomdp,memory);
+    auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
+    std::shared_ptr<SolvableByHSVI> mdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp,memory);
 
     auto algo_backward = std::make_shared<BackwardInduction>(mdp,mdp->getUnderlyingProblem()->getHorizon());
     auto algo_hsvi = sdm::algo::makeHSVI(mdp,"Tabular","Tabular","PomdpHsvi","Min",discount,0,mdp->getUnderlyingProblem()->getHorizon());
     auto algo_alpha_star = std::make_shared<AlphaStar>(mdp,"A*");
 
-    algo_hsvi->do_initialize();
-    algo_alpha_star->do_initialize();
-    algo_backward->do_initialize();
+    algo_hsvi->initialize();
+    algo_alpha_star->initialize();
+    algo_backward->initialize();
 
     std::chrono::high_resolution_clock::time_point t_begin = std::chrono::high_resolution_clock::now();
 
-    algo_hsvi->do_solve();
+    algo_hsvi->solve();
 
     std::chrono::high_resolution_clock::time_point t_end = std::chrono::high_resolution_clock::now();
     double TOTAL_TIME_HSVI = std::chrono::duration_cast<std::chrono::duration<double>>(t_end-t_begin).count();
 
     t_begin = std::chrono::high_resolution_clock::now();
 
-    // algo_alpha_star->do_solve();
+    // algo_alpha_star->solve();
 
     t_end = std::chrono::high_resolution_clock::now();
     double TOTAL_TIME_ALPHASTAR = std::chrono::duration_cast<std::chrono::duration<double>>(t_end-t_begin).count();
 
     t_begin = std::chrono::high_resolution_clock::now();
 
-    // algo_backward->do_solve();
+    // algo_backward->solve();
 
     t_end = std::chrono::high_resolution_clock::now();
 

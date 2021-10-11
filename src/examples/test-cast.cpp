@@ -9,7 +9,7 @@
 #include <sdm/exception.hpp>
 
 #include <sdm/algorithms.hpp>
-#include <sdm/algorithms/hsvi.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/base_item.hpp>
@@ -22,7 +22,7 @@
 #include <sdm/world/hierarchical_occupancy_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
 #include <sdm/parser/parser.hpp>
 

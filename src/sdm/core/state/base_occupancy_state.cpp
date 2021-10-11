@@ -41,7 +41,7 @@
 
 //     bool BaseOccupancyState::operator==(const OccupancyState &other) const
 //     {
-//         bool are_equal = MappedVector<std::shared_ptr<State>, double>::is_equal(other, PRECISION);
+//         bool are_equal = MappedVector<std::shared_ptr<State>, double>::isEqual(other, PRECISION);
 //         return are_equal;
 //     }
 
