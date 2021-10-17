@@ -13,7 +13,7 @@
 <!-- [![PyPI](https://img.shields.io/pypi/v/itk-rtk.svg)](https://pypi.python.org/pypi/itk-rtk) -->
 
 
-[![License](https://img.shields.io/github/license/sdmstudio/sdms)](https://gitlab.inria.fr/chroma1/plasma/sdms/-/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/tag/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/tags)
 [![Contributors](https://img.shields.io/github/contributors-anon/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/graphs/contributors)
 
@@ -22,8 +22,8 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 
 - [1. About SDM'Studio](#1-about-sdmstudio)
   - [1.1. Formalisms](#11-formalisms)
-    - [Multi-agent](#multi-agent)
-    - [Single-agent](#single-agent)
+  	- [Multi-agent](#multi-agent)
+  	- [Single-agent](#single-agent)
   - [1.2. Algorithms](#12-algorithms)
 - [2. Installation](#2-installation)
 - [3. Basic Usage](#3-basic-usage)
