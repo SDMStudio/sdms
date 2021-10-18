@@ -12,3 +12,4 @@ namespace sdm
         return this->world_->getReward(state, action, t) + this->world_->getDiscount(t) * this->world_->getExpectedNextValue(vf, state, action, t);
     }
 }
+

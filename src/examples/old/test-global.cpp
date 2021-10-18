@@ -31,16 +31,16 @@
 // #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 // #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
-// #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-// #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
-// #include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
-// #include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
-// #include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
-// #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+// #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+// #include <sdm/utils/value_function/action_selection/action_maxplan.hpp>
+// #include <sdm/utils/value_function/action_selection/action_sawtooth_lp.hpp>
+// #include <sdm/utils/value_function/action_selection/action_sawtooth_lp_serial.hpp>
+// #include <sdm/utils/value_function/action_selection/action_maxplan_serial.hpp>
+// #include <sdm/utils/value_function/action_selection/action_maxplan_lp.hpp>
 
-// #include <sdm/utils/value_function/tabular_value_function.hpp>
-// #include <sdm/utils/value_function/point_set_value_function.hpp>
-// #include <sdm/utils/value_function/hyperplan_value_function.hpp>
+// #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
+// #include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+// #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 // #include <sdm/core/state/belief_state.hpp>
 // #include <sdm/core/state/occupancy_state.hpp>

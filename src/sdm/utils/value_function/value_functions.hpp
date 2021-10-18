@@ -12,7 +12,7 @@
 
 #include <map>
 #include <sdm/utils/value_function/value_function.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 namespace sdm
 {

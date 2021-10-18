@@ -6,9 +6,9 @@
 
 #include <sdm/parser/parser.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/point_set_value_function.hpp>
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
     auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
 
-    auto lb = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup);
+    auto lb = std::make_shared<PWLCValueFunction>(horizon,init_lb,maxplan_backup);
     lb->initialize();
 
     std::cout<<lb->str()<<std::endl;
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     std::cout<<lb->str()<<std::endl;
 
 
-    std::cout<<"Best Action "<<maxplan_backup->getBestAction(lb,state,0)->str()<<std::endl;
+    std::cout<<"Best Action "<<maxplan_backup->getGreedyAction(lb,state,0)->str()<<std::endl;
 
 
 

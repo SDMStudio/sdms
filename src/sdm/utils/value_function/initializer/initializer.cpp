@@ -1,11 +1,45 @@
 #include <sdm/exception.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
+#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
+#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
 
 namespace sdm
 {
+
+    // ******************
+    // Value Initializer
+    // ******************
+    void ValueInitializer::initBase(std::shared_ptr<ValueFunctionInterface> vf)
+    {
+        if (vf->getHorizon() < 1)
+        {
+            vf->initialize(this->value);
+        }
+        else
+        {
+            for (number t = 0; t < vf->getHorizon(); t++)
+            {
+                vf->initialize(this->value, t);
+            }
+
+            vf->initialize(0, vf->getHorizon());
+        }
+    }
+
+    void ValueInitializer::init(std::shared_ptr<ValueFunction> vf)
+    {
+        this->initBase(vf);
+    }
+    void ValueInitializer::init(std::shared_ptr<QValueFunction> vf)
+    {
+        this->initBase(vf);
+    }
+
     // ******************
     // Bound Initializer
-    // ****************** 
+    // ******************
     BoundInitializer::BoundInitializer() {}
 
     BoundInitializer::BoundInitializer(std::shared_ptr<SolvableByHSVI> world, double value) : value_(value), world_(world) {}
@@ -23,7 +57,7 @@ namespace sdm
             vf->initialize(tot, vf->getHorizon());
             for (number t = vf->getHorizon(); t > 0; t--)
             {
-                tot = this->getValue(vf, t-1) + this->world_->getUnderlyingProblem()->getDiscount(t) * tot;
+                tot = this->getValue(vf, t - 1) + this->world_->getUnderlyingProblem()->getDiscount(t) * tot;
                 vf->initialize(tot, t - 1);
             }
         }
@@ -49,12 +83,11 @@ namespace sdm
         } while (factor > 1.e-10);
         value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
         return value;
-        // throw exception::NotImplementedException();
     }
 
     // ******************
     // Min Initializer
-    // ****************** 
+    // ******************
     MinInitializer::MinInitializer(std::shared_ptr<SolvableByHSVI> world)
     {
         this->world_ = world;
@@ -69,10 +102,10 @@ namespace sdm
 
     // ******************
     // Max Initializer
-    // ****************** 
+    // ******************
     MaxInitializer::MaxInitializer(std::shared_ptr<SolvableByHSVI> world)
     {
-        this->world_= world;
+        this->world_ = world;
     }
 
     void MaxInitializer::init(std::shared_ptr<ValueFunction> vf)
@@ -84,8 +117,8 @@ namespace sdm
 
     // ******************
     // Blind Initializer
-    // ****************** 
-    BlindInitializer::BlindInitializer(std::shared_ptr<SolvableByHSVI> world) 
+    // ******************
+    BlindInitializer::BlindInitializer(std::shared_ptr<SolvableByHSVI> world)
     {
         this->world_ = world;
     }

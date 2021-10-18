@@ -14,7 +14,10 @@
 
 #include <sdm/core/function.hpp>
 #include <sdm/utils/linear_algebra/vector_interface.hpp>
-#include <sdm/utils/value_function/base_value_function.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
+#include <sdm/utils/value_function/initializer/initializer.hpp>
+#include <sdm/utils/value_function/update_operator/qupdate_operator.hpp>
+#include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -31,18 +34,10 @@ namespace sdm
      * usable by reinforcement learning algorithms
      * 
      */
-    class QValueFunction : public QValueFunctionBase
+    class QValueFunction : public ValueFunctionInterface
     {
-    protected:
-        /**
-         * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
-         * 
-         */
-        // std::shared_ptr<BinaryFunction<std::shared_ptr<State>, std::shared_ptr<Action>, number, double>> init_function_ = nullptr;
 
     public:
-        using TGlobalInput = typename QValueFunctionBase::T;
-
         QValueFunction();
 
         /**
@@ -51,13 +46,14 @@ namespace sdm
          * @param problem 
          * @param default_value 
          */
-        QValueFunction(number horizon);
+        QValueFunction(number horizon = 0,
+                       const std::shared_ptr<Initializer> &intializer = nullptr,
+                       const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
+                       const std::shared_ptr<QUpdateOperatorInterface> &update_operator = nullptr);
 
-        /**
-         * @brief Initialize the value function 
-         */
-        virtual void initialize() = 0;
 
+        virtual void initialize();
+        
         /**
          * @brief Initialize the value function with a default value
          */
@@ -66,28 +62,7 @@ namespace sdm
         /**
          * @brief Get the value at a given state
          */
-        double getValueAt(const TGlobalInput &input, number t = 0);
-
-        /**
-         * @brief Update the value at a given state
-         */
-        void updateValueAt(const TGlobalInput &input, number t = 0);
-
-        /**
-         * @brief Get the best action to do at a state
-         * 
-         * @param state the state
-         * @return the best action
-         */
-        std::shared_ptr<Action> getBestAction(const TGlobalInput &input, number t);
-        
-        /**
-         * @brief Get the q-values for all actions at a state
-         * 
-         * @param state the state
-         * @return the q-value vector 
-         */
-        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t) = 0;
+        double getValueAt(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Get the q-value given state and action
@@ -96,7 +71,7 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
         /**
          * @brief Update the value at a given state
@@ -104,24 +79,8 @@ namespace sdm
         virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) = 0;
 
         /**
-         * @brief Update the value at a given state (given a target)
+         * @brief Update the value at a given state (given a delta)
          */
-        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double target, number t = 0) = 0;
-
-        /**
-         * @brief Get the number of accessible states
-         */
-        virtual int getNumStates() const = 0;
-
-        /**
-         * @brief Define this function in order to be able to display the value function
-         */
-        virtual std::string str() const = 0;
-
-        /**
-         * @brief Get shared pointer on the current QValueFunction
-         */
-        std::shared_ptr<QValueFunction> getptr();
-
+        virtual void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double delta, number t = 0) = 0;
     };
 } // namespace sdm

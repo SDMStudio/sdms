@@ -4,7 +4,7 @@
 #include <sdm/algorithms/planning/dp.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_vf_interface.hpp>
 
 namespace sdm
 {
@@ -83,7 +83,7 @@ namespace sdm
     /**
      * @brief representation. 
      */
-    std::shared_ptr<TabularValueFunction> bound_;
+    std::shared_ptr<TabularValueFunctionInterface> bound_;
 
     /**
      * @brief Logger.

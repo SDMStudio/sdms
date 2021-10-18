@@ -247,7 +247,6 @@ namespace sdm
 
     double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &other) const
     {
-
         double product = 0.0;
 
         for (const auto &jhistory : this->getJointHistories())

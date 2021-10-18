@@ -6,24 +6,24 @@
 #include <sdm/algorithms/backward_induction.hpp>
 
 #include <sdm/utils/value_function/initializer/initializers.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/tabular_qvalue_function.hpp>
-#include <sdm/utils/value_function/point_set_value_function.hpp>
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
 
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
-#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
-#include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan.hpp>
+#include <sdm/utils/value_function/action_selection/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_selection/action_sawtooth_lp_serial.hpp>
 
-#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_lp_serial.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_wcsp.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_lp_serial.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_serial.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_wcsp.hpp>
 
 #include <sdm/parser/parser.hpp>
 
@@ -82,15 +82,15 @@ namespace sdm
             }
 
             // Instanciate possible action selection
-            auto action_tabular = std::make_shared<ActionVFTabulaire>(problem);
-            auto action_maxplan = std::make_shared<ActionVFMaxplan>(problem);
-            auto action_maxplan_wcsp = std::make_shared<ActionVFMaxplanWCSP>(problem);
+            auto action_tabular = std::make_shared<ExhaustiveActionSelection>(problem);
+            auto action_maxplan = std::make_shared<ActionSelectionMaxplan>(problem);
+            auto action_maxplan_wcsp = std::make_shared<ActionSelectionMaxplanWCSP>(problem);
 #ifdef WITH_CPLEX
-            auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(problem);
-            auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(problem);
-            auto action_maxplan_lp_serial = std::make_shared<ActionVFMaxplanLPSerial>(problem);
-            auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
-            auto action_sawtooth_lp_serial = std::make_shared<ActionVFSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
+            auto action_maxplan_serial = std::make_shared<ActionSelectionMaxplanSerial>(problem);
+            auto action_maxplan_lp = std::make_shared<ActionSelectionMaxplanLP>(problem);
+            auto action_maxplan_lp_serial = std::make_shared<ActionSelectionMaxplanLPSerial>(problem);
+            auto action_sawtooth_lp = std::make_shared<ActionSelectionSawtoothLP>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
+            auto action_sawtooth_lp_serial = std::make_shared<ActionSelectionSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
 #endif
 
             // Instanciate initializers
@@ -104,24 +104,24 @@ namespace sdm
             // Lower Bound
             if (lower_bound_name == "maxplan")
             {
-                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
             else if (lower_bound_name == "maxplan_wcsp")
             {
-                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_wcsp, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_wcsp, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
 #ifdef WITH_CPLEX
             else if (lower_bound_name == "maxplan_serial")
             {
-                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
             else if (lower_bound_name == "maxplan_lp")
             {
-                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
             else if (lower_bound_name == "maxplan_lp_serial")
             {
-                lower_bound = std::make_shared<HyperplanValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
             }
 #endif
             else
@@ -169,7 +169,7 @@ namespace sdm
             auto tabular_backup = std::make_shared<TabularBackup>(problem);
 
             // Instanciate possible action selection
-            auto action_tabular = std::make_shared<ActionVFTabulaire>(problem);
+            auto action_tabular = std::make_shared<ExhaustiveActionSelection>(problem);
 
             std::shared_ptr<ValueFunction> value_function;
             if (store_state)

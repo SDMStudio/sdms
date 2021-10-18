@@ -122,7 +122,7 @@ namespace sdm
   //   {
   //   case TypeOfMaxPlanPrunning::PAIRWISE :
   //     s = "PAIRWISE";
-  //   case TypeOfMaxPlanPrunning::BOUNDED :    
+  //   case TypeOfMaxPlanPrunning::BOUNDED :
   //     s = "BOUNDED";
 
   //   default:
@@ -138,7 +138,6 @@ namespace sdm
     BOTH,
     NONE
   };
-
 
   enum TypeState
   {
@@ -175,6 +174,12 @@ namespace sdm
   {
     float tr_double = (float)v;
     sdm::hash_combine(seed, tr_double);
+  }
+
+  template <class BaseClass, class MyClass>
+  bool isInstanceOf(std::shared_ptr<MyClass> aPtr)
+  {
+    return (std::dynamic_pointer_cast<BaseClass>(aPtr) != nullptr);
   }
 
   // template <typename T>
@@ -288,24 +293,24 @@ namespace std
 
     static long long RanMemoryUsed(struct sysinfo memInfo)
     {
-        sysinfo (&memInfo);
+      sysinfo(&memInfo);
 
-        long long physMemUsed = memInfo.totalram - memInfo.freeram;
-        //Multiply in next statement to avoid int overflow on right hand side...
-        physMemUsed *= memInfo.mem_unit;
+      long long physMemUsed = memInfo.totalram - memInfo.freeram;
+      //Multiply in next statement to avoid int overflow on right hand side...
+      physMemUsed *= memInfo.mem_unit;
 
-        return physMemUsed / 1024 / 1024;
+      return physMemUsed / 1024 / 1024;
     }
 
     static long long totalMemory(struct sysinfo memInfo)
     {
-        sysinfo (&memInfo);
+      sysinfo(&memInfo);
 
-        long long totalPhysMem = memInfo.totalram;
-        //Multiply in next statement to avoid int overflow on right hand side...
-        totalPhysMem *= memInfo.mem_unit;
+      long long totalPhysMem = memInfo.totalram;
+      //Multiply in next statement to avoid int overflow on right hand side...
+      totalPhysMem *= memInfo.mem_unit;
 
-        return totalPhysMem / 1024 / 1024;
+      return totalPhysMem / 1024 / 1024;
     }
 
     // static void StartTime()

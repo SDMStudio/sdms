@@ -107,6 +107,7 @@ namespace sdm
          * 
          */
         void createDecentralizedControlConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        
         /**
          * @brief Create the Joint Decentralized Variable i.e. Build variables a(u|o)
          * 

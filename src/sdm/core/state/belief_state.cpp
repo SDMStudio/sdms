@@ -13,14 +13,7 @@ namespace sdm
 
   Belief::Belief(std::size_t size) : MappedVector<std::shared_ptr<State>>(size, 0.)
   {
-
-    // this->container = std::make_shared<SparseVector<std::shared_ptr<State>>>(size, default_value);
   }
-
-  // Belief::Belief(std::initializer_list<Belief::value_type> list_values) : MappedVector<std::shared_ptr<State>>(list_values.size(), default_value)
-  // {
-  //   // this->container = std::make_shared<SparseVector<std::shared_ptr<State>>>(list_values);
-  // }
 
   Belief::Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba) : Belief(list_states.size())
   {
@@ -165,7 +158,7 @@ namespace sdm
     return this->getDefault();
   }
 
-  std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> Belief::getVectorInferface()
+  std::shared_ptr<BeliefInterface::Vector> Belief::getVectorInferface()
   {
     return std::static_pointer_cast<MappedVector<std::shared_ptr<State>>>(std::dynamic_pointer_cast<Belief>(this->toBelief()));
   }

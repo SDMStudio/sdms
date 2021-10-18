@@ -30,8 +30,8 @@
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 using namespace sdm;
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
 		// Instanciate action selection and backup
 		auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
-		auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
+		auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
 		std::shared_ptr<ValueFunction> lb, ub;
 		// Instanciate value functions
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 		// for (int i = 0; i < horizon; i++)
 		// {
 		// 	std::cout << "------ACTION-----------" << std::endl;
-		// 	auto action = ub->getBestAction(state, i);
+		// 	auto action = ub->getGreedyAction(state, i);
 		// 	std::cout << *action << std::endl;
 		// 	std::cout << "------UPDATE LB-----------" << std::endl;
 		// 	lb->updateValueAt(state, action, i);

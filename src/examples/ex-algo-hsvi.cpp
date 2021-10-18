@@ -11,8 +11,8 @@
 #include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 using namespace sdm;
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
 		// Instanciate action selection and backup
 		auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
-		auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
+		auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
 		std::shared_ptr<ValueFunction> lb, ub;
 		// Instanciate value functions

@@ -32,16 +32,16 @@
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
-#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
-#include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan.hpp>
+#include <sdm/utils/value_function/action_selection/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_selection/action_sawtooth_lp_serial.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_serial.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_lp.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/point_set_value_function.hpp>
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
@@ -146,14 +146,14 @@ int main(int argc, char **argv)
         // // ---------- Comment / Uncomment this section to enable solving with HSVI ----------
         // //
         // auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
-        // auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
+        // auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
         // auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_mdp);
-        // auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi_mdp);
-        // auto action_maxplan_serial = std::make_shared<ActionVFMaxplanSerial>(hsvi_mdp);
-        // auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(hsvi_mdp);
-        // auto action_sawtooth_lp = std::make_shared<ActionVFSawtoothLP>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
-        // auto action_sawtooth_lp_serial = std::make_shared<ActionVFSawtoothLPSerial>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        // auto action_maxplan = std::make_shared<ActionSelectionMaxplan>(hsvi_mdp);
+        // auto action_maxplan_serial = std::make_shared<ActionSelectionMaxplanSerial>(hsvi_mdp);
+        // auto action_maxplan_lp = std::make_shared<ActionSelectionMaxplanLP>(hsvi_mdp);
+        // auto action_sawtooth_lp = std::make_shared<ActionSelectionSawtoothLP>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
+        // auto action_sawtooth_lp_serial = std::make_shared<ActionSelectionSawtoothLPSerial>(hsvi_mdp, TypeOfResolution::IloIfThenResolution, 0, TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING);
 
         // // Instanciate Initializer
         // auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
@@ -165,18 +165,18 @@ int main(int argc, char **argv)
         // {
         //     // lb = std::make_shared<TabularValueFunction>(serial_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
         //     // ub = std::make_shared<TabularValueFunction>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
+        //     lb = std::make_shared<PWLCValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
         //     // ub = std::make_shared<PointSetValueFunction>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     // lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+        //     // lb = std::make_shared<PWLCValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
         //     ub = std::make_shared<PointSetValueFunction>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
         // }
         // else
         // {
         //     // lb = std::make_shared<TabularValueFunction2>(serial_mpomdp->getHorizon(), init_lb, tabular_backup, action_tabular);
         //     // ub = std::make_shared<TabularValueFunction2>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
+        //     lb = std::make_shared<PWLCValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_serial);
         //     // ub = std::make_shared<PointSetValueFunction2>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_tabular);
-        //     // lb = std::make_shared<HyperplanValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
+        //     // lb = std::make_shared<PWLCValueFunction>(serial_mpomdp->getHorizon(), init_lb, maxplan_backup, action_maxplan_lp);
         //     ub = std::make_shared<PointSetValueFunction2>(serial_mpomdp->getHorizon(), init_ub, tabular_backup, action_sawtooth_lp_serial);
         // }
 

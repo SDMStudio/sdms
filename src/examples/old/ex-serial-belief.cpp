@@ -5,7 +5,7 @@
 #include <sdm/world/serial_belief_mdp.hpp>
 #include <sdm/core/state/serial_belief_state.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/initializers.hpp>
 
 

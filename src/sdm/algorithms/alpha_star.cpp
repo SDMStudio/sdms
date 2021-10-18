@@ -1,8 +1,8 @@
 #include <sdm/algorithms/alpha_star.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
@@ -15,7 +15,7 @@ namespace sdm
                          std::string name) : DynamicProgramming(world, 0, name)
     {
         auto tabular_backup = std::make_shared<TabularBackup>(world);
-        auto action_tabular = std::make_shared<ActionVFTabulaire>(world);
+        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
 
         auto init = std::make_shared<POMDPInitializer>(world, "HSVI");
 
@@ -104,7 +104,7 @@ namespace sdm
                 auto state = alpha_star_element->current_element;
 
                 this->openSet.erase(this->openSet.begin());
-                //Boucle sur tous les successeurs possibles
+                // Boucle sur tous les successeurs possibles
 
                 if (h != this->world_->getUnderlyingProblem()->getHorizon())
                 {
@@ -129,7 +129,7 @@ namespace sdm
                             {
                                 next_alpha_star_element->value_g_ = alpha_star_element->value_g_ - cost;
                                 next_alpha_star_element->value_f_ = next_alpha_star_element->value_g_ - this->bound_->evaluate(next_state, h + 1).second;
-                                this->bound_->updateValueAt(next_state, h + 1, -next_alpha_star_element->value_g_);
+                                this->bound_->setValueAt(next_state, -next_alpha_star_element->value_g_, h + 1);
 
                                 if (std::find(this->openSet.begin(), this->openSet.end(), next_alpha_star_element) == this->openSet.end())
                                 {

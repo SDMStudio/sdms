@@ -5,7 +5,7 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/serial_occupancy_state.hpp>
 #include <sdm/core/state/belief_state.hpp>
@@ -49,13 +49,12 @@ namespace sdm
 
         //Creation of a new belief
         auto new_hyperplan = std::make_shared<Belief>();
-        new_hyperplan->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
+        new_hyperplan->setDefaultValue(std::static_pointer_cast<PWLCValueFunction>(vf)->getDefaultValue(t));
 
         // Go over all state in the current belief
         for (const auto &hidden_state : belief->getStates())
         {
             double tmp = 0.0;
-
             // Go over all hidden state reachable
             for (const auto &next_hidden_state : under_pb->getReachableStates(hidden_state->toState(), action->toAction(), t))
             {
@@ -87,7 +86,7 @@ namespace sdm
 
             // Create the new hyperplan
             auto new_hyperplan = std::make_shared<OccupancyState>(under_pb->getNumAgents());
-            new_hyperplan->setDefaultValue(std::static_pointer_cast<HyperplanValueFunction>(vf)->getDefaultValue(t));
+            new_hyperplan->setDefaultValue(std::static_pointer_cast<PWLCValueFunction>(vf)->getDefaultValue(t));
 
             // Get the next occupancy state associated to the decision rule
             auto next_occupancy_state = occupancy_mdp->getNextStateAndProba(occupancy, decision_rule, sdm::NO_OBSERVATION, t).first;

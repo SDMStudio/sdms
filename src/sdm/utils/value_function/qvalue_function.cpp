@@ -7,7 +7,11 @@ namespace sdm
     {
     }
 
-    QValueFunction::QValueFunction(number horizon) : QValueFunctionBase(horizon)
+    QValueFunction::QValueFunction(number horizon,
+                                   const std::shared_ptr<Initializer> &intializer,
+                                   const std::shared_ptr<ActionSelectionInterface> &action,
+                                   const std::shared_ptr<UpdateOperatorInterface> &update_operator)
+        : ValueFunctionInterface(horizon, intializer, action, update_operator)
     {
     }
 
@@ -16,19 +20,8 @@ namespace sdm
         return std::static_pointer_cast<QValueFunction>(this->shared_from_this());
     }
 
-    double QValueFunction::getValueAt(const TGlobalInput &input, number t)
+    double QValueFunction::getValueAt(const std::shared_ptr<State> &state, number t = 0)
     {
-        return this->getQValueAt(input.first, input.second, t);
+        return this->getActionSelection()->getGreedyAction().second;
     }
-
-    void QValueFunction::updateValueAt(const TGlobalInput &input, number t)
-    {
-        this->updateQValueAt(input.first, input.second, t);
-    }
-
-    std::shared_ptr<Action> QValueFunction::getBestAction(const TGlobalInput &, number)
-    {
-        throw sdm::exception::NotImplementedException();
-    }
-
 } // namespace sdm

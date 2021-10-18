@@ -12,18 +12,21 @@
 
 #include <math.h>
 #include <sdm/types.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
-#include <sdm/utils/value_function/qvalue_function.hpp>
+// #include <sdm/utils/value_function/value_function_interface.hpp>
+// #include <sdm/utils/value_function/value_function.hpp>
+// #include <sdm/utils/value_function/qvalue_function.hpp>
 
 namespace sdm
 {
+    class SolvableByHSVI;
+    class ValueFunction;
+    class QValueFunction;
+    class ValueFunctionInterface;
+
     /**
-     * @brief Abstract class for initializer. 
+     * @brief Abstract class for state value function initializer. 
      * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
      */
     class Initializer
     {
@@ -33,10 +36,8 @@ namespace sdm
     };
 
     /**
-     * @brief Abstract class for initializer. 
+     * @brief Abstract class for action value function initializer. 
      * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
      */
     class QInitializer
     {
@@ -46,10 +47,8 @@ namespace sdm
     };
 
     /**
-     * @brief  This initializer initializes a value function to a constant value.
+     * @brief This initializer initializes a value function to a constant value.
      * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
      */
     class ValueInitializer : public Initializer, public QInitializer
     {
@@ -58,40 +57,14 @@ namespace sdm
 
     public:
         ValueInitializer(double v) : value(v){};
-
-        template <class TGlobalInput>
-        void initBase(std::shared_ptr<BaseValueFunction<TGlobalInput>> vf)
-        {
-            if (vf->getHorizon() < 1)
-            {
-                vf->initialize(this->value);
-            }
-            else
-            {
-                for (number t = 0; t < vf->getHorizon(); t++)
-                {
-                    vf->initialize(this->value, t);
-                }
-
-                vf->initialize(0, vf->getHorizon());
-            }
-        }
-
-        void init(std::shared_ptr<ValueFunction> vf)
-        {
-            this->template initBase<std::shared_ptr<State>>(vf);
-        }
-        void init(std::shared_ptr<QValueFunction> vf)
-        {
-            this->template initBase<Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>(vf);
-        }
+        void initBase(std::shared_ptr<ValueFunctionInterface> vf);
+        void init(std::shared_ptr<ValueFunction> vf);
+        void init(std::shared_ptr<QValueFunction> vf);
     };
 
     /**
      * @brief This initializer initializes a value function to zero.
      * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
      */
     class ZeroInitializer : public ValueInitializer
     {
@@ -102,8 +75,6 @@ namespace sdm
     /**
      * @brief This initializer initializes a value function to the estimation of the value if we get a constant reward at every timestep.
      * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
      */
     class BoundInitializer : public Initializer
     {
@@ -124,8 +95,6 @@ namespace sdm
     /**
      * @brief This initializer initializes a value function to the worst value. This is a pessimistic initialization.
      * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
      */
     class MinInitializer : public BoundInitializer
     {
@@ -138,8 +107,6 @@ namespace sdm
     /**
      * @brief This initializer initializes a value function to the best value. This is an optimistic initialization.
      * 
-     * @tparam TState the state type
-     * @tparam TAction the action type
      */
     class MaxInitializer : public BoundInitializer
     {

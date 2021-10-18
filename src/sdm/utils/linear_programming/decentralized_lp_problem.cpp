@@ -244,7 +244,7 @@ namespace sdm
         auto under_pb = this->world_->getUnderlyingProblem();
 
         //Create Joint Decentralized Variable
-        this->createDecentralizedVariablesJoint(vf,state, env, var, index, t);
+        this->createDecentralizedVariablesJoint(vf, state, env, var, index, t);
 
         for (auto agent = 0; agent < under_pb->getNumAgents(); ++agent)
         {

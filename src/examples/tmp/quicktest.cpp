@@ -8,9 +8,9 @@
 #include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 using namespace sdm;
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     std::shared_ptr<SolvableByHSVI> beliefMDP = std::make_shared<BeliefMDP>(mdp_tiger);
 
     auto tabular_backup = std::make_shared<TabularBackup>(beliefMDP);
-    auto tabular_action = std::make_shared<ActionVFTabulaire>(beliefMDP);
+    auto tabular_action = std::make_shared<ExhaustiveActionSelection>(beliefMDP);
 
     auto init_lb = std::make_shared<MinInitializer>(beliefMDP);
     auto init_ub = std::make_shared<MaxInitializer>(beliefMDP);

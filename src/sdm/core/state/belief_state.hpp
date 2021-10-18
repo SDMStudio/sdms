@@ -32,7 +32,6 @@ namespace sdm
     Belief(std::size_t);
     Belief(const Belief &);
     Belief(const MappedVector<std::shared_ptr<State>> &);
-    // Belief(std::initializer_list<value_type>);
     Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
 
     virtual ~Belief();
@@ -70,7 +69,7 @@ namespace sdm
     void setDefaultValue(double);
     double getDefaultValue() const;
 
-    std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> getVectorInferface();
+    std::shared_ptr<BeliefInterface::Vector> getVectorInferface();
 
     void finalize();
 

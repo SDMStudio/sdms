@@ -2,8 +2,8 @@
 #include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
@@ -43,7 +43,7 @@ namespace sdm
         // else
         // {
         auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
-        auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_mdp);
+        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
         auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);

@@ -105,7 +105,7 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> SolvableByMDP::selectNextAction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h)
     {
-        return ub->getBestActionAndValue(s, h);
+        return ub->getGreedyActionAndValue(s, h);
     }
 
     std::shared_ptr<Space> SolvableByMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)

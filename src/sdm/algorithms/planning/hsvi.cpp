@@ -60,7 +60,7 @@ namespace sdm
     // SELECT ACTIONS IN HSVI
     std::shared_ptr<Space> HSVI::selectActions(const std::shared_ptr<State> &state, number t)
     {
-        std::vector<std::shared_ptr<Action>> selected_actions{getUpperBound()->getBestAction(state, t)};
+        std::vector<std::shared_ptr<Action>> selected_actions{getUpperBound()->getGreedyAction(state, t)};
         return std::make_shared<DiscreteSpace>(selected_actions);
     }
 

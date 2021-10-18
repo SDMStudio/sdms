@@ -6,7 +6,7 @@
 #include <sdm/algorithms/planning/vi.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 namespace sdm
 {

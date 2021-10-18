@@ -4,7 +4,7 @@
 #include <sdm/algorithms/planning/dp.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 #include <chrono>
 #include <string>

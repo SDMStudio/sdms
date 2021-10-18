@@ -116,7 +116,7 @@ namespace sdm
 // // SELECT ACTION IN HSVI
 // std::shared_ptr<Space> ValueIteration::selectActions(const std::shared_ptr<State> &state, number t)
 // {
-//     return std::make_shared<DiscreteSpace>({upper_bound->getBestAction(state, t)});
+//     return std::make_shared<DiscreteSpace>({upper_bound->getGreedyAction(state, t)});
 // }
 
 // // SELECT ACTION IN HSVI
