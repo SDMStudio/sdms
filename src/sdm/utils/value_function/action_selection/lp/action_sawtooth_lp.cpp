@@ -1,5 +1,5 @@
 #ifdef WITH_CPLEX
-#include <sdm/utils/value_function/action_selection/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
@@ -158,7 +158,7 @@ namespace sdm
         return {best_action, min_value};
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
         switch (this->type_of_linear_program_)
         {

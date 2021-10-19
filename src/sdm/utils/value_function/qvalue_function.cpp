@@ -10,8 +10,8 @@ namespace sdm
     QValueFunction::QValueFunction(number horizon,
                                    const std::shared_ptr<Initializer> &intializer,
                                    const std::shared_ptr<ActionSelectionInterface> &action,
-                                   const std::shared_ptr<UpdateOperatorInterface> &update_operator)
-        : ValueFunctionInterface(horizon, intializer, action, update_operator)
+                                   const std::shared_ptr<QUpdateOperatorInterface> &update_operator)
+        : ValueFunctionInterface(horizon, intializer, action), update_operator_(update_operator)
     {
     }
 
@@ -20,8 +20,18 @@ namespace sdm
         return std::static_pointer_cast<QValueFunction>(this->shared_from_this());
     }
 
-    double QValueFunction::getValueAt(const std::shared_ptr<State> &state, number t = 0)
+    double QValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        return this->getActionSelection()->getGreedyAction().second;
+        return this->getActionSelection()->getGreedyActionAndValue(this->getptr(), state, t).second;
+    }
+
+    void QValueFunction::updateQValueAt(number t)
+    {
+        this->getUpdateOperator()->update(t);
+    }
+
+    std::shared_ptr<QUpdateOperatorInterface> QValueFunction::getUpdateOperator() const
+    {
+        return this->update_operator_;
     }
 } // namespace sdm

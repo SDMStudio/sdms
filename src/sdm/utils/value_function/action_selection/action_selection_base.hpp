@@ -1,8 +1,8 @@
 #pragma once
 
-#include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
+#include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
 
 namespace sdm
 {
@@ -21,7 +21,7 @@ namespace sdm
          * @param number t : time step
          * @return std::shared_ptr<Action> : Action
          */
-        Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t) = 0;
+        Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t) = 0;
 
         std::shared_ptr<SolvableByHSVI> getWorld() const;
 

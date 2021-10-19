@@ -1,5 +1,5 @@
 #ifdef WITH_CPLEX
-#include <sdm/utils/value_function/action_selection/action_sawtooth_lp_serial.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp_serial.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/core/state/interface/serial_interface.hpp>

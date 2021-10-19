@@ -160,10 +160,10 @@ namespace sdm
     void HSVI::initTrial()
     {
         // Do the pruning for the lower bound
-        getLowerBound()->do_pruning(trial);
+        // getLowerBound()->doPruning(trial);
 
         // Do the pruning for the upper bound
-        getUpperBound()->do_pruning(trial);
+        // getUpperBound()->doPruning(trial);
     }
 
     void HSVI::saveParams(std::string filename, std::string format)

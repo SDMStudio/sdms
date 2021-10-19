@@ -10,8 +10,8 @@
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
-#include <sdm/utils/value_function/action_selection/action_sawtooth_wcsp.hpp>
-#include <sdm/utils/value_function/action_selection/action_maxplan_wcsp.hpp>
+#include <sdm/utils/value_function/action_selection/wcsp/action_sawtooth_wcsp.hpp>
+#include <sdm/utils/value_function/action_selection/wcsp/action_maxplan_wcsp.hpp>
 
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>

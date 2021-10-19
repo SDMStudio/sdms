@@ -13,7 +13,7 @@ namespace sdm
     {
     }
 
-    Pair<std::shared_ptr<Action>, double> ConstraintProgrammingSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ConstraintProgrammingSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> max_decision_rule;
         double max_value = -std::numeric_limits<double>::max();

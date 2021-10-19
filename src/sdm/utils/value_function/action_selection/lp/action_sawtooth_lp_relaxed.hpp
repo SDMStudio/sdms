@@ -1,6 +1,6 @@
 // #pragma once
 
-// #include <sdm/utils/value_function/action_selection/action_sawtooth_lp.hpp>
+// #include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
 
 // namespace sdm
 // {
@@ -18,7 +18,7 @@
 //          * @param number t : time step
 //          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
 //          */
-//         virtual Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+//         virtual Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
 //         /**
 //          * @brief Create the constraints of the LP

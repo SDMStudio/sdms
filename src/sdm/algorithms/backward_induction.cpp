@@ -1,18 +1,24 @@
 #include <sdm/algorithms/backward_induction.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 
 namespace sdm
 {
     BackwardInduction::BackwardInduction(std::shared_ptr<SolvableByHSVI> &world, std::string name) : DynamicProgramming(world, 0, name)
     {
-        auto tabular_backup = std::make_shared<TabularBackup>(world);
+        // auto tabular_backup = std::make_shared<TabularBackup>(world);
         auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
 
         auto init = std::make_shared<MinInitializer>(world);
 
-        this->bound_ = std::make_shared<TabularValueFunction>(this->world_->getUnderlyingProblem()->getHorizon(), init, tabular_backup, action_tabular, true);
+        auto bound = std::make_shared<TabularValueFunction>(this->world_->getUnderlyingProblem()->getHorizon(), init, action_tabular);
+
+        bound->setUpdateOperator(std::make_shared<TabularUpdate>(world, bound));
+
+        this->bound_ = bound;
+
+        
     }
 
     std::shared_ptr<BackwardInduction> BackwardInduction::getptr()

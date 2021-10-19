@@ -2,7 +2,7 @@
 #pragma once
 
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/action_selection/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
 
 namespace sdm
 {

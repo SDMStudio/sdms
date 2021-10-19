@@ -3,7 +3,7 @@
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
 
 #include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/utils/value_function/qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/tabular_q_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -19,7 +19,7 @@ namespace sdm
      * the action must inherit from the `Action` interface.
      * 
      */
-    class TabularQValueFunction : public QValueFunction
+    class TabularQValueFunction : public TabularQValueFunctionInterface
     {
     public:
         using Container = MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
@@ -45,6 +45,15 @@ namespace sdm
          * @return the q-value 
          */
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+
+        /**
+         * @brief Set the q-value at a specific state s, action a and timestep t.
+         *
+         * @param state the state
+         * @param action the action
+         * @param t the time step
+         */
+        void setQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double value, number t);
 
         /**
          * @brief Update the value at a given state

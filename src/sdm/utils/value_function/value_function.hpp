@@ -14,13 +14,13 @@ namespace sdm
 {
 
     using namespace update;
-    
+
     /**
      * @class ValueFunction
-     * @brief This class contains attributes and methods common to all value functions. 
-     * 
-     * Some attributes are callable. They will be called to update the value function (i.e. the initializer, the backup).  
-     * 
+     * @brief This class contains attributes and methods common to all value functions.
+     *
+     * Some attributes are callable. They will be called to update the value function (i.e. the initializer, the backup).
+     *
      */
     class ValueFunction
         : public ValueFunctionInterface,
@@ -32,7 +32,7 @@ namespace sdm
 
         /**
          * @brief Construct an incremental value function object.
-         * 
+         *
          * @param horizon the horizon
          * @param intializer the initializer function
          * @param backup the backup function
@@ -44,20 +44,20 @@ namespace sdm
 
         /**
          * @brief Copy constructor
-         * 
+         *
          * @param copy the value function to be copied
          */
         ValueFunction(const ValueFunction &copy);
 
         /**
          * @brief Destroy the value function
-         * 
+         *
          */
         virtual ~ValueFunction();
 
         /**
          * @brief Initialize the value function
-         * 
+         *
          */
         void initialize();
 
@@ -67,15 +67,20 @@ namespace sdm
         virtual void initialize(double v, number t = 0) = 0;
 
         /**
-         * @brief Set a function as a interactive way to get initial values for state that are not already initialized. 
-         * 
-         * @param init_function the function that enables to get initial values 
+         * @brief Set a function as a interactive way to get initial values for state that are not already initialized.
+         *
+         * @param init_function the function that enables to get initial values
          */
         void initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function);
 
         /**
+         * @brief Get the value at a given state
+         */
+        virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
+
+        /**
          * @brief Get the q-value at a given state and action
-         * 
+         *
          * @param state the state
          * @param action the action
          * @param t the time step
@@ -83,31 +88,26 @@ namespace sdm
          */
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
-        /** @brief Call operator to get value of state. */
+        /**
+         * @brief Call operator to get value of state.
+         */
         double operator()(const std::shared_ptr<State> &state, const number &t = 0);
 
         /**
-         * @brief Get the Init Function 
-         * 
-         * @return the function used as default function
-         */
-        std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
-
-        /**
          * @brief Evaluate the element given
-         * 
+         *
          * @param state : ELement to evaluate
-         * @param t 
-         * @return Pair<std::shared_ptr<State>, double> 
+         * @param t
+         * @return Pair<std::shared_ptr<State>, double>
          */
         virtual Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Update the value at a given state
-         * 
-         * This function will use the update operator on the input state to make an update 
+         *
+         * This function will use the update operator on the input state to make an update
          * to the value function.
-         * 
+         *
          */
         virtual void updateValueAt(const std::shared_ptr<State> &state, number t);
 
@@ -117,28 +117,42 @@ namespace sdm
         virtual void updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
+         * @brief Get the Init Function
+         *
+         * @return the function used as default function
+         */
+        std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
+
+        /**
          * @brief Get the update operator
          */
         std::shared_ptr<UpdateOperatorInterface> getUpdateOperator() const;
+
+        /**
+         * @brief Set the update operator
+         * 
+         * @param update_operator the update operator
+         */
+        void setUpdateOperator(std::shared_ptr<UpdateOperatorInterface> update_operator);
 
         /**
          * @brief Return the possible indexes of the value function
          */
         virtual std::vector<std::shared_ptr<State>> getSupport(number t) = 0;
 
-        /** @brief Get the size of the value function at timestep t */
-        virtual size_t getSize(number t) const = 0;
-
-        /** @brief Get the total size of the value function. */
+        /**
+         * @brief Get the total size of the value function
+         */
         size_t getSize() const;
 
         /**
-         * @brief Prune unecessary data at a specific time step.
-         * 
-         * @param t the time step
+         * @brief Get the size of the value function at timestep t
          */
-        virtual void do_pruning(number t) = 0;
+        virtual size_t getSize(number t) const = 0;
 
+        /**
+         * @brief Get a shared pointer on this value function
+         */
         std::shared_ptr<ValueFunction> getptr();
 
     protected:

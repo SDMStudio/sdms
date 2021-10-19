@@ -33,11 +33,6 @@ namespace sdm
          * @brief The world
          */
         std::shared_ptr<SolvableByHSVI> world_;
-
-        /**
-         * @brief The temporary one-stage value function represention.
-         */
-        std::shared_ptr<BeliefInterface> tmp_representation;
     };
 }
 #endif

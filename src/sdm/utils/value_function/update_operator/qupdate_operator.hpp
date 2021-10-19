@@ -4,13 +4,16 @@
 
 namespace sdm
 {
+
+    class TabularQValueFunctionInterface;
+    // class PWLCValueFunctionInterface;
+
     namespace update
     {
         /**
          * @brief This interface is the interface that is common to all update operators.
          *
          * Any class inheriting from this interface can be used to update a value function.
-         * The value function is
          *
          */
         class QUpdateOperatorInterface
@@ -54,8 +57,8 @@ namespace sdm
             std::shared_ptr<TQValueFunction> qvalue_function;
         };
 
-        using QPWLCQUpdateOperator = QUpdateOperator<PWLCQValueFunction>;
-        using QTabularQUpdateOperator = QUpdateOperator<TabularQValueFunction>;
+        // using PWLCQUpdateOperator = QUpdateOperator<PWLCQValueFunction>;
+        using TabularQUpdateOperator = QUpdateOperator<TabularQValueFunctionInterface>;
 
     } // namespace update
 } // namespace sdm

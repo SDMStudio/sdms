@@ -106,6 +106,28 @@ namespace sdm
         }
     }
 
+    double PWLCValueFunction::getQValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
+    {
+        // Cast the world into a MPOMDP 
+        auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
+        
+        // Determine the reward for the hidden state and the action
+        double factor = mpomdp->getReward(x, u, t);
+
+        // Go over all reachable next hidden state
+        for (const auto &y : mpomdp->getReachableStates(x, u, t))
+        {
+            // Go over all reachable observation
+            for (const auto &z : mpomdp->getReachableObservations(x, u, y, t))
+            {
+                // Determine the next joint history conditionning to the observation
+                auto o_ = o->expand(z->toObservation())->toJointHistory();
+                factor += this->getWorld()->getDiscount(t) * this->tmp_representation->toOccupancyState()->getProbability(o_, y) * mpomdp->getDynamics(x, u, y, z, t);
+            }
+        }
+        return factor;
+    }
+
     // void PWLCValueFunction::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     // {
 

@@ -1,6 +1,6 @@
 #ifdef WITH_CPLEX
 
-#include <sdm/utils/value_function/action_selection/action_maxplan_lp_serial.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp_serial.hpp>
 
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>

@@ -1,7 +1,7 @@
 #include <sdm/algorithms/alpha_star.hpp>
 
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -14,12 +14,13 @@ namespace sdm
     AlphaStar::AlphaStar(std::shared_ptr<SolvableByHSVI> &world,
                          std::string name) : DynamicProgramming(world, 0, name)
     {
-        auto tabular_backup = std::make_shared<TabularBackup>(world);
-        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
-
         auto init = std::make_shared<POMDPInitializer>(world, "HSVI");
-
-        this->bound_ = std::make_shared<TabularValueFunction>(world_->getUnderlyingProblem()->getHorizon(), init, tabular_backup, action_tabular, false);
+        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
+        auto bound = std::make_shared<TabularValueFunction>(world_->getUnderlyingProblem()->getHorizon(), init, action_tabular);
+        
+        bound->setUpdateOperator(std::make_shared<TabularUpdate>(world, bound));
+        
+        this->bound_ = bound;
     }
 
     std::shared_ptr<AlphaStar> AlphaStar::getptr()

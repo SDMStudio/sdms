@@ -31,6 +31,7 @@ namespace sdm
 
     std::shared_ptr<Distribution<std::shared_ptr<State>>> SolvableByMDP::getStartDistribution() const
     {
+        return this->getUnderlyingMDP()->getStartDistribution();
     }
 
     // std::shared_ptr<State> SolvableByMDP::nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t, const std::shared_ptr<HSVI> &hsvi)

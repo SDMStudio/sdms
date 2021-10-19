@@ -6,18 +6,19 @@ namespace sdm
 
     ExhaustiveActionSelection::ExhaustiveActionSelection(const std::shared_ptr<SolvableByHSVI> &world) : ActionSelectionBase(world) {}
 
-    Pair<std::shared_ptr<Action>, double> ExhaustiveActionSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ExhaustiveActionSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
 
-        auto action_space = this->getWorld()->getActionSpaceAt(state, t);
-
         //Go over all actions
+        auto action_space = this->getWorld()->getActionSpaceAt(state, t);
         for (const auto &action : *action_space)
         {
-            //Determine the value of the backup for a precise action
+            // Cast the action
             auto casted_action = action->toAction();
+
+            //Determine the value of the backup for a precise action
             if (max < (tmp = value_function->getQValueAt(state, casted_action, t)))
             {
                 best_action = casted_action;

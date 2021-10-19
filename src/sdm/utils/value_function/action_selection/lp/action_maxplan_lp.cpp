@@ -1,5 +1,5 @@
 #ifdef WITH_CPLEX
-#include <sdm/utils/value_function/action_selection/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp.hpp>
 
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
@@ -12,27 +12,6 @@ namespace sdm
 
     ActionSelectionMaxplanLP::ActionSelectionMaxplanLP() {}
     ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByHSVI> &world) : ConstraintProgrammingSelection(world), DecentralizedLP(world) {}
-
-    // Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
-    // {
-    //     std::shared_ptr<Action> max_decision_rule;
-    //     double max = -std::numeric_limits<double>::max();
-
-    //     // Go over all hyperplan in the Support
-    //     for (const auto &hyperplan : vf->getSupport(t + 1))
-    //     {
-    //         this->tmp_representation = hyperplan->toBelief();
-    //         auto pair_action_value = this->createLP(vf, state, t);
-
-    //         // Select the Best Action
-    //         if (pair_action_value.second > max)
-    //         {
-    //             max_decision_rule = pair_action_value.first;
-    //             max = pair_action_value.second;
-    //         }
-    //     }
-    //     return {max_decision_rule, max};
-    // }
 
     Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::createAndSolveCP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {

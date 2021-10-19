@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <sdm/utils/value_function/action_selection/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp.hpp>
 
 namespace sdm
 {

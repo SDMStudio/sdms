@@ -17,13 +17,13 @@
 
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 #include <sdm/utils/value_function/action_selection/action_maxplan.hpp>
-#include <sdm/utils/value_function/action_selection/action_sawtooth_lp.hpp>
-#include <sdm/utils/value_function/action_selection/action_sawtooth_lp_serial.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp_serial.hpp>
 
-#include <sdm/utils/value_function/action_selection/action_maxplan_lp.hpp>
-#include <sdm/utils/value_function/action_selection/action_maxplan_lp_serial.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp_serial.hpp>
 #include <sdm/utils/value_function/action_selection/action_maxplan_serial.hpp>
-#include <sdm/utils/value_function/action_selection/action_maxplan_wcsp.hpp>
+#include <sdm/utils/value_function/action_selection/wcsp/action_maxplan_wcsp.hpp>
 
 #include <sdm/parser/parser.hpp>
 

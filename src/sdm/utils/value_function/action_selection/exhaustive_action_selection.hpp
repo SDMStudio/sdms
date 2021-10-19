@@ -10,7 +10,6 @@ namespace sdm
         using TData = double;
 
         ExhaustiveActionSelection();
-        
         ExhaustiveActionSelection(const std::shared_ptr<SolvableByHSVI> &world);
 
         /**
@@ -21,6 +20,6 @@ namespace sdm
          * @param number t : time step
          * @return std::shared_ptr<Action> : Action
          */
-        Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
     };
 }

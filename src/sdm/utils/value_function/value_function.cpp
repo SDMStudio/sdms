@@ -11,23 +11,16 @@ namespace sdm
     ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,
                                  const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                  const std::shared_ptr<UpdateOperatorInterface> &update_operator)
-        : ValueFunctionInterface(horizon, initializer, action_selection, update_operator)
+        : ValueFunctionInterface(horizon, initializer, action_selection), update_operator_(update_operator)
     {
     }
 
-    ValueFunction::ValueFunction(const ValueFunction &copy) : ValueFunctionInterface(copy.horizon_,
-                                                                                     copy.initializer_,
-                                                                                     copy.action_selection_,
-                                                                                     copy.update_operator_)
+    ValueFunction::ValueFunction(const ValueFunction &copy) : ValueFunctionInterface(copy.horizon_, copy.initializer_, copy.action_selection_),
+                                                              update_operator_(copy.update_operator_)
     {
     }
 
     ValueFunction::~ValueFunction() {}
-
-    std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
-    {
-        return this->init_function_;
-    }
 
     double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
@@ -49,19 +42,9 @@ namespace sdm
         this->init_function_ = init_function;
     }
 
-    std::shared_ptr<ValueFunction> ValueFunction::getptr()
+    std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
     {
-        return std::static_pointer_cast<ValueFunction>(this->shared_from_this());
-    }
-
-    size_t ValueFunction::getSize() const
-    {
-        size_t size_total = 0;
-        for (number t = 0; t < this->getHorizon(); t++)
-        {
-            size_total += this->getSize(t);
-        }
-        return size_total;
+        return this->init_function_;
     }
 
     void ValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
@@ -78,6 +61,25 @@ namespace sdm
     std::shared_ptr<UpdateOperatorInterface> ValueFunction::getUpdateOperator() const
     {
         return this->update_operator_;
+    }
+    void ValueFunction::setUpdateOperator(std::shared_ptr<UpdateOperatorInterface> update_operator)
+    {
+        this->update_operator_ = update_operator;
+    }
+
+    std::shared_ptr<ValueFunction> ValueFunction::getptr()
+    {
+        return std::static_pointer_cast<ValueFunction>(this->shared_from_this());
+    }
+
+    size_t ValueFunction::getSize() const
+    {
+        size_t size_total = 0;
+        for (number t = 0; t < this->getHorizon(); t++)
+        {
+            size_total += this->getSize(t);
+        }
+        return size_total;
     }
 
 } // namespace sdm

@@ -8,19 +8,32 @@ namespace sdm
             std::shared_ptr<ExperienceMemory> experience_memory,
             std::shared_ptr<QValueFunction> q_value_table,
             std::shared_ptr<QValueFunction> target_q_value_table,
-            double discount) : QUpdateOperator(q_value_table), experience_memory_(experience_memory), target_q_value_table(target_q_value_table), discount_(discount)
+            double discount) : TabularQUpdateOperator(q_value_table),
+                               experience_memory_(experience_memory),
+                               target_q_value_table(target_q_value_table),
+                               discount_(discount)
         {
+        }
+
+        double TabularQUpdate::deltaSARSA(const std::shared_ptr<State> &observation,
+                                          const std::shared_ptr<Action> &action,
+                                          double reward,
+                                          const std::shared_ptr<State> &next_observation,
+                                          const std::shared_ptr<Action> &next_action,
+                                          numbet t)
+        {
+            return (reward + getWorld()->getDiscount(t) * qvalue_function->getQValueAt(next_observation, next_action, t + 1) - qvalue_function->getQValueAt(observation, action, t));
         }
 
         double TabularQUpdate::update(number t)
         {
             auto [observation, action, reward, next_observation, next_action] = this->experience_memory_->sample(t)[0];
 
-            double delta = reward + this->getWorld()->getDiscount(t) * this->value_function->getQValueAt(next_observation->toState(), next_action, t + 1) - this->q_value_table->getQValueAt(observation->toState(), action, t);
+            double delta = this->deltaSARSA(observation->toState(), action, reward, next_observation->toState(), next_action, t);
 
-            double new_value = this->value_function->getQValueAt(observation->toState(), action t) + this->learning_rate_ * delta;
+            double new_value = this->qvalue_function->getQValueAt(observation->toState(), action, t) + this->learning_rate_ * delta;
 
-            this->value_function->setValueAt(state, action, new_value);
+            this->qvalue_function->setQValueAt(observation->toState(), action, new_value, t);
 
             return delta;
         }

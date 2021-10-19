@@ -12,10 +12,10 @@ namespace sdm
 {
     /**
      * @brief Q-value function instance represented by a piecewise linear and convex function.
-     * 
-     * This representation is specific to the resolution of decentralized POMDP. A linear function 
+     *
+     * This representation is specific to the resolution of decentralized POMDP. A linear function
      * is assigned to each cluster of occupancy states (close to a granularity coefficient).
-     * 
+     *
      */
     class PieceWiseLinearConvexQValueFunction : public QValueFunction
     {
@@ -45,18 +45,18 @@ namespace sdm
 
         /**
          * @brief The problem to be solved.
-         * 
+         *
          */
         std::shared_ptr<OccupancyMDP> omdp;
 
         /**
-         * @brief The data structure storing the value function representation. 
+         * @brief The data structure storing the value function representation.
          */
         std::vector<PSI> representation;
 
         /**
-         * @brief The initializer to use for this value function. 
-         * 
+         * @brief The initializer to use for this value function.
+         *
          */
         std::shared_ptr<QInitializer> initializer_;
 
@@ -67,10 +67,10 @@ namespace sdm
 
         /**
          * @brief Get a pointer on a linear value function at an occupancy state
-         * 
+         *
          * @param state the state
          * @param t the time step
-         * @return the address of the q-value function corresponding to an occupancy state 
+         * @return the address of the q-value function corresponding to an occupancy state
          */
         TabularQValueFunction *getQ(const std::shared_ptr<State> &state, number t);
 
@@ -78,7 +78,7 @@ namespace sdm
         PieceWiseLinearConvexQValueFunction(const std::shared_ptr<OccupancyMDP> &omdp, number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
 
         /**
-         * @brief Initialize the value function 
+         * @brief Initialize the value function
          */
         void initialize();
 
@@ -89,23 +89,33 @@ namespace sdm
 
         /**
          * @brief Get the q-value at a specific state and time step.
-         * 
+         *
          * @param state the state
          * @param t the time step
-         * @return the action value vector 
+         * @return the action value vector
          */
         std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
 
-
         /**
          * @brief Get the q-value at a specific state, action and time step.
-         * 
+         *
          * @param state the state
          * @param action the action
          * @param t the time step
-         * @return the q-value 
+         * @return the q-value
          */
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+
+        /**
+         * @brief Get the q-value.
+         * 
+         * @param x the state
+         * @param o the history
+         * @param u the action
+         * @param t the time step
+         * @return the q-value 
+         */
+        double getQValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t);
 
         /**
          * @brief Update the value at a given state

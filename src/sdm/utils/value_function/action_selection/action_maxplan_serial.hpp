@@ -23,7 +23,7 @@ namespace sdm
          * @param number t : time step
          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
          */
-        Pair<std::shared_ptr<Action>,double> getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>,double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Select the best action and value associated for a state at a precise time and a precise next hyperplan at t +1

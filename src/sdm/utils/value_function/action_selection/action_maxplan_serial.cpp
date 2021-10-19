@@ -16,7 +16,7 @@ namespace sdm
 
     ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByHSVI> &world) : ActionSelectionBase(world) {}
 
-    Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanSerial::getGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanSerial::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {
         // Definie local Variable
         double argmax_global = -std::numeric_limits<double>::max();
@@ -24,10 +24,10 @@ namespace sdm
         std::shared_ptr<State> best_hyperplan;
 
         // // Go other the hyperplanes of decision step t+1
-        for (const auto &hyperplan : vf->getSupport(t + 1))
+        for (const auto &hyperplan : value_function->getSupport(t + 1))
         {
             // Compute the best action and corresponding value for a hyperplan
-            auto decision_and_value = this->selectBestDecisionRuleKnowingNextHyperplan(vf, state, hyperplan, t);
+            auto decision_and_value = this->selectBestDecisionRuleKnowingNextHyperplan(value_function, state, hyperplan, t);
 
             // Take the best deterministic decision rule and best hyperplan associated
             if (argmax_global < decision_and_value.second)
@@ -37,62 +37,6 @@ namespace sdm
                 best_hyperplan = hyperplan;
             }
         }
-
-        // auto value_backup = state->toBelief()->operator^(vf->template backup<std::shared_ptr<State>>(state,decision_max->toAction(),t)->toBelief());
-
-        // if(std::abs(argmax_global - value_backup)> 0.01)
-        // {
-        //     std::cout<<"Problem at "<<t<<", value maxplan serial "<<argmax_global<<", value backup "<<value_backup<<std::endl;
-        //     std::cout<<"Action "<<decision_max->str()<<std::endl;
-        //     std::cout<<"State "<<state->str()<<std::endl;
-
-        //     auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
-
-        //     auto next_occupancy_state = occupancy_mdp->nextOccupancyState(state, decision_max, sdm::NO_OBSERVATION, t);
-        //     // Determine the best next hyperplan associated to the next occupancy state
-        //     auto best_evaluate_occupancy_state = vf->evaluate(next_occupancy_state, t + 1).first->toOccupancyState();
-
-        //     std::cout<<"\n \n Best hyperplan for maxplan serial "<<best_hyperplan->str()<<std::endl;
-
-        //     auto under_pb = std::dynamic_pointer_cast<SerialMMDPInterface>(this->world_->getUnderlyingProblem());
-        //     auto agent = under_pb->getAgentId(t);
-        //     auto serial_occupancy_state = state->toOccupancyState();
-
-        //     double total = 0.0;
-
-        //     for (const auto &individual_history : serial_occupancy_state->getIndividualHistories(agent))
-        //     {
-        //         std::cout<<"Individual history "<<individual_history->str()<<std::endl;
-        //         std::shared_ptr<PrivateOccupancyState> private_serial_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state)->getPrivateOccupancyState(under_pb->getAgentId(t), individual_history);
-
-        //         auto action = decision_max->toDecisionRule()->act(individual_history);
-        //         auto value = this->evaluationOfHyperplanKnowingNextHyperplanAndDiscreteAction(private_serial_occupancy_state, action, best_hyperplan,t);
-        //         std::cout<<"Value "<<value * serial_occupancy_state->getProbabilityOverIndividualHistories(agent, individual_history)<<std::endl;
-        //         total += value * serial_occupancy_state->getProbabilityOverIndividualHistories(agent, individual_history);
-        //     }
-        //     std::cout<<"TOtal" <<total<< std::endl;
-
-
-        //     std::cout<<"\n \n Best hyperplan "<<best_evaluate_occupancy_state->str()<<std::endl;
-
-
-        //     total = 0.0;
-        //     for (const auto &individual_history : serial_occupancy_state->getIndividualHistories(agent))
-        //     {
-        //         std::cout<<"Individual history "<<individual_history->str()<<std::endl;
-        //         std::shared_ptr<PrivateOccupancyState> private_serial_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state)->getPrivateOccupancyState(under_pb->getAgentId(t), individual_history);
-
-        //         auto action = decision_max->toDecisionRule()->act(individual_history);
-        //         auto value = this->evaluationOfHyperplanKnowingNextHyperplanAndDiscreteAction(private_serial_occupancy_state, action, best_evaluate_occupancy_state,t);
-        //         std::cout<<"Value "<<value * serial_occupancy_state->getProbabilityOverIndividualHistories(agent, individual_history)<<std::endl;
-        //         total += value * serial_occupancy_state->getProbabilityOverIndividualHistories(agent, individual_history);
-        //     }
-        //     std::cout<<"TOtal" <<total<< std::endl;
-
-        //     std::cout<<"Hyerplan created "<<vf->template backup<std::shared_ptr<State>>(state,decision_max->toAction(),t)->toBelief()->str()<<std::endl;
-        //     exit(-1);
-        // }
-
         return {decision_max, argmax_global};
     }
 
@@ -164,12 +108,10 @@ namespace sdm
             {
                 //Get the probability of the occupancy state
                 auto probability = occupancy_state->getProbability(joint_history, state);
+                
                 // Determine the reward
                 double immediate_reward = under_pb->getReward(state, action, t);
                 double next_expected_value = this->evaluateNextExpectedValueAt(next_hyperplan, joint_history, state, action, t);
-
-                // std::cout<<"Value tmp "<<immediate_reward + discount * next_expected_value<<std::endl;
-                // std::cout<<"probability "<<probability * (immediate_reward + discount * next_expected_value)<<std::endl;
 
                 value += probability * (immediate_reward + discount * next_expected_value);
             }

@@ -1,4 +1,4 @@
-#include <sdm/utils/value_function/action_selection/action_maxplan_wcsp.hpp>
+#include <sdm/utils/value_function/action_selection/wcsp/action_maxplan_wcsp.hpp>
 
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
 #include <sdm/world/base/mmdp_interface.hpp>
@@ -13,7 +13,7 @@ namespace sdm
 
     ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByHSVI>& world): ConstraintProgrammingSelection(world) {}
 
-    // Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanWCSP::getGreedyActionAndValue(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t)
+    // Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanWCSP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface>& vf, const std::shared_ptr<State>& state, number t)
     // {
     //     std::shared_ptr<Action> max_decision_rule;
     //     double max = -std::numeric_limits<double>::max();

@@ -29,7 +29,7 @@ namespace sdm
          * @param number t : time step
          * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
          */
-        // Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state, number t);
+        // Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface>& vf, const std::shared_ptr<State>& state, number t);
 
         /**
          * @brief Create the variable which will be used to resolve the LP
