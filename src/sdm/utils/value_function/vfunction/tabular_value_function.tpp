@@ -3,7 +3,6 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/backup/backup_base.hpp>
 
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
@@ -11,9 +10,13 @@
 namespace sdm
 {
     template <class Hash, class KeyEqual>
-    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<ActionSelectionInterface> &action_selection, const std::shared_ptr<TabularUpdateOperator> &update_operator, bool is_upper_bound)
-        : TabularValueFunctionInterface(horizon, initializer, action_selection, update_operator), is_upper_bound_(is_upper_bound)
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,
+                                                                       const std::shared_ptr<ActionSelectionInterface> &action_selection,
+                                                                       const std::shared_ptr<TabularUpdateOperator> &update_operator,
+                                                                       bool is_upper_bound)
+        : ValueFunctionInterface(horizon, initializer, action_selection), is_upper_bound_(is_upper_bound)
     {
+        this->update_operator_ = update_operator;
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
@@ -108,7 +111,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     std::vector<std::shared_ptr<State>> BaseTabularValueFunction<Hash, KeyEqual>::getSupport(number t)
     {
-        return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
+        return this->getRepresentation(t).getIndexes();
     }
 
     template <class Hash, class KeyEqual>

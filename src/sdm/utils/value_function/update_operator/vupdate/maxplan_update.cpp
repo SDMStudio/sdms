@@ -1,10 +1,9 @@
-#include <sdm/utils/value_function>
+#include <sdm/core/state/belief_state.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
-#include <sdm/core/state/belief_state.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 
 #include <sdm/utils/value_function/update_operator/vupdate/maxplan_update.hpp>
 

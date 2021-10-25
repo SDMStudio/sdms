@@ -68,7 +68,7 @@ namespace sdm
                     for (const auto &observation : *observation_space)
                     {
                         // Compute next state and proba
-                        auto [next_state, proba] = this->world_->getNextState(this->bound_, state, action->toAction(), observation->toObservation(), h);
+                        auto [next_state, proba] = this->world_->getNextState( state, action->toAction(), observation->toObservation(), h);
                         
                         // Explore next state
                         this->explore(next_state, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, action->toAction(), h), h + 1);

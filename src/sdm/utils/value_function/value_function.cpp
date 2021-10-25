@@ -20,8 +20,6 @@ namespace sdm
     {
     }
 
-    ValueFunction::~ValueFunction() {}
-
     double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(vf, state, action, t);
@@ -32,19 +30,14 @@ namespace sdm
         return this->getValueAt(state, t);
     }
 
-    void ValueFunction::initialize()
-    {
-        ValueFunctionInterface::initialize();
-    }
-
-    void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
-    {
-        this->init_function_ = init_function;
-    }
-
     std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
     {
         return this->init_function_;
+    }
+
+    void ValueFunction::setInitFunction(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
+    {
+        this->init_function_ = init_function;
     }
 
     void ValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)

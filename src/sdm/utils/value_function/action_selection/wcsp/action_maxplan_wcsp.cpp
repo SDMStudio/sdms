@@ -11,30 +11,14 @@ namespace sdm
 {
     ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(){}
 
-    ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByHSVI>& world): ConstraintProgrammingSelection(world) {}
+    ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByHSVI>& world): MaxPlanSelectionBase(world) {}
+    
+    Pair<std::shared_ptr<Action>,double>  ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunction>& value_function, const std::shared_ptr<State>& state, number t)
+    {
+        return this->createAndSolveWCSP(value_function, state, t);
+    }
 
-    // Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanWCSP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface>& vf, const std::shared_ptr<State>& state, number t)
-    // {
-    //     std::shared_ptr<Action> max_decision_rule;
-    //     double max = -std::numeric_limits<double>::max();
-
-    //     // Go over all hyperplan in the Support
-    //     for (const auto &hyperplan : vf->getSupport(t + 1))
-    //     {
-    //         this->tmp_representation = hyperplan->toBelief();
-    //         auto pair_action_value = this->createWCSPProblem(vf,state, t);
-
-    //         // Select the Best Action 
-    //         if (pair_action_value.second > max)
-    //         {
-    //             max_decision_rule = pair_action_value.first;
-    //             max = pair_action_value.second;
-    //         }
-    //     }
-    //     return {max_decision_rule, max};
-    // }
-
-    Pair<std::shared_ptr<Action>,double>  ActionSelectionMaxplanWCSP::createAndSolveCP(const std::shared_ptr<ValueFunction>& , const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>,double>  ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunction>& , const std::shared_ptr<State>& state, number t)
     {
         this->variables.clear();
 

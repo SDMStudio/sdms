@@ -11,9 +11,7 @@
 #include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
-#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/backup/tabular_qvalue_backup.hpp>
+#include <sdm/utils/value_function/update_operator.hpp>
 
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 #include <sdm/utils/value_function/action_selection/action_maxplan.hpp>

@@ -82,7 +82,6 @@ namespace sdm
          */
         // virtual std::shared_ptr<Distribution<std::shared_ptr<State>>> getNextStateDistribution(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const = 0;
 
-
         /**
          * @brief Get the next state and corresponding probability.
          * 
@@ -120,5 +119,22 @@ namespace sdm
          * @return the expected next value
          */
         virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+
+        /**
+         * @brief Checks if the problem has a finite horizon.
+         * 
+         * The problem has a finite horizon if the horizon is set to a value 
+         * greater than zero.
+         * 
+         */
+        inline bool isFiniteHorizon() const { return (this->getHorizon() > 0); }
+
+        /**
+         * @brief Checks if the problem has an infinite horizon.
+         * 
+         * The problem has an infinite horizon if the horizon is set to zero.
+         * 
+         */
+        inline bool isInfiniteHorizon() const { return !isFiniteHorizon(); }
     };
 } // namespace sdm

@@ -32,12 +32,22 @@ namespace sdm
 
     std::shared_ptr<Action> ValueFunctionInterface::getGreedyAction(const std::shared_ptr<State> &state, number t)
     {
-        return this->getActionSelection()->getGreedyActionAndValue(state, t).first;
+        return this->getGreedyActionAndValue(state, t).first;
     }
 
     Pair<std::shared_ptr<Action>, double> ValueFunctionInterface::getGreedyActionAndValue(const std::shared_ptr<State> &state, number t)
     {
-        return this->getActionSelection()->getGreedyActionAndValue(state, t);
+        auto action_selector = this->getActionSelection();
+        if (!action_selector)
+        {
+            throw sdm::exception::Exception("Action selector not set. Please use the method <ValueFunction>::setActionSelector.");
+        }
+        return this->getActionSelection()->getGreedyActionAndValue(this->getptr(), state, t);
+    }
+
+    std::shared_ptr<ValueFunctionInterface> ValueFunctionInterface::getptr()
+    {
+        return shared_from_this();
     }
 
     void ValueFunctionInterface::save(std::string)

@@ -3,7 +3,9 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/utils/value_function/initializer/initializers.hpp>
-#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
@@ -17,7 +19,7 @@ namespace sdm
      * is assigned to each cluster of occupancy states (close to a granularity coefficient).
      *
      */
-    class PieceWiseLinearConvexQValueFunction : public QValueFunction
+    class PieceWiseLinearConvexQValueFunction : public QValueFunction, virtual PWLCValueFunctionInterface
     {
     protected:
         /**

@@ -5,68 +5,60 @@
 namespace sdm
 {
 
-    Belief2OccupancyValueFunction::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction> pomdp_vf) : pomdp_vf_(pomdp_vf)
+    Belief2OccupancyValueFunction::Belief2OccupancyValueFunction(std::shared_ptr<ValueFunction> pomdp_value_function)
+        : pomdp_value_function(pomdp_value_function)
     {
     }
 
-    double Belief2OccupancyValueFunction::operatorMPOMDP(const std::shared_ptr<State> &state, const number &tau)
+    double Belief2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, number t)
     {
-        double value = 0.0;
-        auto ostate = state->toOccupancyState();
-
-        // $sum_{o_{\tau}} p(o_{\tau} \mid s_{\tau} v_{\tau}^{pomdp}\left( x_{\tau} \mid o_{\tau} \right))$
-        for (const auto &joint_history : ostate->getJointHistories())
+        if (state == nullptr)
         {
-            auto belief = ostate->getBeliefAt(joint_history);
-            value += ostate->getProbability(joint_history) * this->pomdp_vf_->getValueAt(belief, tau);
-
-            auto belief_not_exist = true;
-            for(const auto& element : this->pomdp_vf_->getSupport(tau))
-            {
-                if(element == belief)
-                {
-                    belief_not_exist = false;
-                    break;
-                }
-            }
-
-            if (belief_not_exist)
-            {
-                // std::cout<<"Problem !!!!!!!!!!!!!!!"<<std::endl;
-                // exit(-1);
-            }
-
+            return getRelaxation()->operator()(state, t);
         }
-        return value;
-    }
-
-    double Belief2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
-    {
-        if(state == nullptr)
+        else if (sdm::isInstanceOf<OccupancyStateInterface>(state))
         {
-            return this->pomdp_vf_->operator()(state, tau);
+            return operatorOccupancyState(state->toOccupancyState(), t);
         }
-
-        switch (state->getTypeState())
+        else if (sdm::isInstanceOf<BeliefInterface>(state))
         {
-        case TypeState::OCCUPANCY_STATE:
-            return operatorMPOMDP(state, tau);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE:
-            return operatorMPOMDP(state, tau);
-            break;
-        default:
-            throw sdm::exception::Exception("The initializer used is not available for this formalism !");
-            break;
+            return operatorBeliefState(state->toBelief(), t);
+        }
+        else
+        {
+            return operatorState(state, t);
         }
     }
 
-    double Belief2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &belief_AND_action, const number &tau)
+    double Belief2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &belief_AND_action, number t)
     {
         auto belief = belief_AND_action.first;
         auto action = belief_AND_action.second;
 
-        return this->pomdp_vf_->template backup<double>(belief, action, tau);
+        return getPOMDPValueFunction()->getQValueAt(belief, action, t);
+    }
+
+    double Belief2OccupancyValueFunction::operatorState(const std::shared_ptr<State> &, number)
+    {
+        throw sdm::exception::Exception("The initializer used is not available for this formalism !");
+    }
+
+    double Belief2OccupancyValueFunction::operatorBeliefState(const std::shared_ptr<BeliefInterface> &belief_state, number t)
+    {
+        return this->getPOMDPValueFunction()->getValueAt(belief_state, t);
+    }
+
+    double Belief2OccupancyValueFunction::operatorOccupancyState(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
+    {
+        double value = 0.0;
+
+        // $sum_{o_{t}} p(o_{t} \mid s_{t} v_{t}^{pomdp}\left( x_{t} \mid o_{t} \right))$
+        for (const auto &joint_history : occupancy_state->getJointHistories())
+        {
+            auto belief = occupancy_state->getBeliefAt(joint_history);
+            value += occupancy_state->getProbability(joint_history) * operatorBeliefState(belief, t);
+        }
+        return value;
     }
 
     bool Belief2OccupancyValueFunction::isPomdpAvailable()
@@ -81,8 +73,12 @@ namespace sdm
 
     std::shared_ptr<ValueFunction> Belief2OccupancyValueFunction::getRelaxation()
     {
-        return this->pomdp_vf_;
+        return this->pomdp_value_function;
     }
 
+    std::shared_ptr<ValueFunction> Belief2OccupancyValueFunction::getPOMDPValueFunction()
+    {
+        return this->pomdp_value_function;
+    }
 
 } // namespace sdm

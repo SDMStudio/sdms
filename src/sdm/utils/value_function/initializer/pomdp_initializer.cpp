@@ -7,8 +7,8 @@
 #include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
-#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/maxplan_update.hpp>
 
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 #include <sdm/utils/value_function/action_selection/action_maxplan.hpp>
@@ -33,8 +33,8 @@ namespace sdm
         auto pomdp = this->world_->getUnderlyingProblem();
         std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::static_pointer_cast<OccupancyMDP>(this->world_)->getUnderlyingBeliefMDP();
 
-        auto tabular_backup = std::make_shared<TabularBackup>(hsvi_pomdp);
-        auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_pomdp);
+        auto tabular_update = std::make_shared<update::TabularUpdate>(hsvi_pomdp);
+        auto maxplan_update = std::make_shared<update::MaxPlanUpdateOperator*>(hsvi_pomdp);
 
         auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_pomdp);
         auto action_maxplan = std::make_shared<ActionSelectionMaxplan>(hsvi_pomdp);
@@ -42,8 +42,8 @@ namespace sdm
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp,"ValueIteration",0);
 
-        auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
-        auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
+        auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_lb, tabular_update, action_tabular, false);
+        auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_ub, tabular_update, action_tabular, true);
 
         auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, this->error_, 5000, "pomdp_"+ this->algo_name_+ "_init", 1, 1, 1000);
 
@@ -52,6 +52,6 @@ namespace sdm
         
         auto ubound = algorithm->getUpperBound();
 
-        vf->initialize(std::make_shared<Belief2OccupancyValueFunction>(ubound));
+        vf->setInitFunction(std::make_shared<Belief2OccupancyValueFunction>(ubound));
     }
 } // namespace sdm

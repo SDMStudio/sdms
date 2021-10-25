@@ -44,7 +44,7 @@ namespace sdm
     public :
         virtual ~BaseRelaxedValueFunction() {}
 
-        virtual double operator()(const std::shared_ptr<State> &ostate, const number &tau) = 0;
+        virtual double operator()(const std::shared_ptr<State> &ostate, number t) = 0;
 
         virtual bool isPomdpAvailable() = 0;
         virtual bool isMdpAvailable() = 0;
@@ -59,9 +59,9 @@ namespace sdm
 
         virtual ~RelaxedValueFunction() {}
 
-        virtual double operator()(const std::shared_ptr<State> &ostate, const number &tau) = 0;
+        virtual double operator()(const std::shared_ptr<State> &ostate, number t) = 0;
 
-        virtual double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &ostate, const number &tau) = 0;
+        virtual double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &ostate, number t) = 0;
 
         virtual bool isPomdpAvailable() = 0;
         virtual bool isMdpAvailable() = 0;

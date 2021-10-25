@@ -1,8 +1,7 @@
 #pragma once
 
-#include <sdm/utils/value_function/initializer/initializer.hpp>
+#include <sdm/utils/value_function/prunable_structure.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -12,7 +11,7 @@ namespace sdm
 {
     template <class Hash = std::hash<std::shared_ptr<State>>, class KeyEqual = std::equal_to<std::shared_ptr<State>>>
     class BasePointSetValueFunction : public BaseTabularValueFunction<Hash, KeyEqual>,
-                                      virtual public ValueFunctionApproximationInterface
+                                      public PrunableStructure
     {
     public:
         using Container = typename BaseTabularValueFunction<Hash, KeyEqual>::Container;

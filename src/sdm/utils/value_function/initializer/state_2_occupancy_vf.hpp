@@ -13,23 +13,22 @@ namespace sdm
         std::shared_ptr<ValueFunction> mdp_vf_;
 
     public:
-        State2OccupancyValueFunction(std::shared_ptr<ValueFunction> );
+        State2OccupancyValueFunction(std::shared_ptr<ValueFunction>);
 
-        double operatorState(const std::shared_ptr<State> &, const number &);
-        double operatorBelief(const std::shared_ptr<State> &, const number &);
-        double operatorOccupancy(const std::shared_ptr<State> &, const number &);
+        double operator()(const std::shared_ptr<State> &state, number t);
 
-        double operator()(const std::shared_ptr<State> &, const number &);
+        double operatorState(const std::shared_ptr<State> &state, number t);
+        double operatorBeliefState(const std::shared_ptr<BeliefInterface> &belief_state, number t);
+        double operatorOccupancyState(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t);
 
-        double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action> > &, const number &);
-        double operatorQTableState(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau);
-        double operatorQTableBelief(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau);
-
+        double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, number t);
+        double operatorQTableState(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, number t);
+        double operatorQTableBelief(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, number t);
 
         bool isPomdpAvailable();
         bool isMdpAvailable();
 
         std::shared_ptr<ValueFunction> getRelaxation();
-
+        std::shared_ptr<ValueFunction> getMDPValueFunction();
     };
 } // namespace sdm

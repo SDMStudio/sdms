@@ -1,27 +1,26 @@
-#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/tabular_qvalue_function.hpp>
 
 namespace sdm
 {
-    TabularQValueFunction::TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer)
-        : QValueFunction(horizon), learning_rate_(learning_rate), initializer_(initializer)
+    TabularQValueFunction::TabularQValueFunction(number horizon,
+                                                 const std::shared_ptr<Initializer> &initializer,
+                                                 const std::shared_ptr<ActionSelectionInterface> &action_selection,
+                                                 const std::shared_ptr<TabularQUpdateOperator> &update_operator)
+        : ValueFunctionInterface(horizon, initializer, action_selection)
     {
+        this->update_operator_ = update_operator;
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 
-    TabularQValueFunction::TabularQValueFunction(number horizon, double learning_rate, double default_value)
-        : TabularQValueFunction(horizon, learning_rate, std::make_shared<ValueInitializer>(default_value))
+    void TabularQValueFunction::initialize()
     {
+        this->initializer_->init(this->getptr());
     }
 
-    // void TabularQValueFunction::initialize()
-    // {
-    //     this->initializer_->init(this->getptr());
-    // }
-
-    // void TabularQValueFunction::initialize(double default_value, number t)
-    // {
-    //     this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
-    // }
+    void TabularQValueFunction::initialize(double default_value, number t)
+    {
+        this->representation[this->isInfiniteHorizon() ? 0 : t] = Container(default_value);
+    }
 
     std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValuesAt(const std::shared_ptr<State> &state, number t)
     {
@@ -38,17 +37,6 @@ namespace sdm
     {
         auto h = this->isInfiniteHorizon() ? 0 : t;
         this->representation[h][state][action] = value;
-    }
-
-    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double delta, number step)
-    {
-        auto h = this->isInfiniteHorizon() ? 0 : step;
-        this->representation[h][state][action] = this->representation[h][state][action] + this->learning_rate_ * delta;
-    }
-
-    void TabularQValueFunction::updateQValueAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number)
-    {
-        throw sdm::exception::NotImplementedException();
     }
 
     int TabularQValueFunction::getNumStates() const

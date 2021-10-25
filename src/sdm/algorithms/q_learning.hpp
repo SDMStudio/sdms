@@ -16,7 +16,6 @@
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
-#include <sdm/utils/value_function/backup/qvalue_backup_interface.hpp>
 #include <sdm/utils/rl/experience_memory_interface.hpp>
 
 namespace sdm

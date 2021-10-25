@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <sdm/utils/value_function/action_selection/constraint_programming_selection.hpp>
 #include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 
 namespace sdm
 {
-    class ActionSelectionMaxplanLP : public ConstraintProgrammingSelection, public DecentralizedLP
+    class ActionSelectionMaxplanLP : public MaxPlanSelectionBase, public DecentralizedLP
     {
     public:
         using TData = std::shared_ptr<State>;
@@ -15,7 +15,7 @@ namespace sdm
         ActionSelectionMaxplanLP();
         ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByHSVI> &world);
 
-        Pair<std::shared_ptr<Action>, double> createAndSolveCP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
 
         double beta(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t);
 

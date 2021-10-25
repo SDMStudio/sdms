@@ -3,12 +3,12 @@
 #include <bits/stdc++.h>
 #include <sdm/config.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/utils/value_function/vfunction/pwlc_vf_interface.hpp>
+#include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
 
 namespace sdm
 {
-    class PWLCValueFunction : public PWLCValueFunctionInterface
+    class PWLCValueFunction : public ValueFunction, virtual public PWLCValueFunctionInterface
     {
     public:
         static double PRECISION;
@@ -30,7 +30,7 @@ namespace sdm
          * @return double
          */
         double getValueAt(const std::shared_ptr<State> &, number = 0);
-        
+
         /**
          * @brief Add a hyperplane in the hyperplan set.
          *
@@ -44,11 +44,13 @@ namespace sdm
         void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplan, number t);
 
         /**
-         * @brief
+         * @brief Get the set of hyperplanes at a time step
          *
-         * @return std::string
+         * @return the list of hyperplanes
          */
-        std::vector<std::shared_ptr<State>> getSupport(number);
+        std::vector<std::shared_ptr<State>> getHyperplanesAt(number t);
+
+        void getBeta(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
         /**
          * @brief Get the Default Value at time step t

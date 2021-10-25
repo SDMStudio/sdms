@@ -1,4 +1,4 @@
-#include <sdm/utils/value_function/pwlc_qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
 #include <sdm/core/action/decision_rule.hpp>
 
 namespace sdm

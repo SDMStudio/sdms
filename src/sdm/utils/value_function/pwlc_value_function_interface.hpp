@@ -2,6 +2,7 @@
 
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/prunable_structure.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
 
 namespace sdm
@@ -14,12 +15,11 @@ namespace sdm
      * the lower bound.
      *
      */
-    class PWLCValueFunctionInterface : public ValueFunctionApproximationInterface
+    class PWLCValueFunctionInterface : public ValueFunctionInterface, public PrunableStructure
     {
     public:
         PWLCValueFunctionInterface(number horizon = 0, const std::shared_ptr<Initializer> &initializer = nullptr,
                                    const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
-                                   const std::shared_ptr<PWLCUpdateOperator> &update_operator = nullptr,
                                    int freq_pruning = -1);
 
         /**
@@ -33,5 +33,9 @@ namespace sdm
          * @param t the timestep
          */
         virtual void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplan, number t) = 0;
+
+        virtual std::vector<std::shared_ptr<State>> getHyperplanesAt(number t) = 0;
+
+        virtual void getBeta(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
     };
 }

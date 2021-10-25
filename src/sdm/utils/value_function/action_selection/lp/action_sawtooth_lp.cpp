@@ -160,16 +160,17 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
+        auto value_function = std::static_pointer_cast<ValueFunction>(vf);
         switch (this->type_of_linear_program_)
         {
         case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
-            return this->selectBestActionFull(vf, state, t);
+            return this->selectBestActionFull(value_function, state, t);
             break;
         case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING:
-            return this->selectBestActionRelaxed(vf, state, t);
+            return this->selectBestActionRelaxed(value_function, state, t);
             break;
         case TypeSawtoothLinearProgram::RELAXED_V2_SAWTOOTH_LINER_PROGRAMMING:
-            return this->selectBestActionRelaxedV2(vf, state, t);
+            return this->selectBestActionRelaxedV2(value_function, state, t);
             break;
 
         default:

@@ -11,9 +11,9 @@ namespace sdm
 {
 
     ActionSelectionMaxplanLP::ActionSelectionMaxplanLP() {}
-    ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByHSVI> &world) : ConstraintProgrammingSelection(world), DecentralizedLP(world) {}
+    ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByHSVI> &world) : MaxPlanSelectionBase(world), DecentralizedLP(world) {}
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::createAndSolveCP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
     {
         return this->createLP(vf, state, t);
     }
@@ -56,6 +56,7 @@ namespace sdm
         for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
         {
             weight += occupancy_state->getProbability(joint_history, state) * this->beta(state, joint_history, action, t);
+            // weight += occupancy_state->getProbability(joint_history, state) * this->value_function->getQ(state, joint_history, action, t);
         }
         return weight;
     }

@@ -3,9 +3,8 @@
 namespace sdm
 {
     TabularValueFunctionInterface::TabularValueFunctionInterface(number horizon, const std::shared_ptr<Initializer> &initializer,
-                                                                 const std::shared_ptr<ActionSelectionInterface> &action,
-                                                                 const std::shared_ptr<TabularUpdateOperator> &update_operator)
-        : ValueFunction(horizon, initializer, action, update_operator)
+                                                                 const std::shared_ptr<ActionSelectionInterface> &action_selection)
+        : ValueFunctionInterface(horizon, initializer, action_selection)
     {
     }
 } // namespace sdm

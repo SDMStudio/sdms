@@ -2,7 +2,6 @@
 #include <sdm/config.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/algorithms/planning/perseus.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
 // #include <sdm/world/belief_mdp.hpp>
 
 namespace sdm

@@ -106,7 +106,7 @@ namespace sdm
         }
     }
 
-    double PWLCValueFunction::getQValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
+    double PWLCValueFunction::getBeta(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
         // Cast the world into a MPOMDP 
         auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
@@ -126,6 +126,11 @@ namespace sdm
             }
         }
         return factor;
+    }
+
+    std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(number t)
+    {
+        return this->representation[t];
     }
 
     // void PWLCValueFunction::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
@@ -152,11 +157,6 @@ namespace sdm
     // {
     //     this->updateValueAt(state, this->getGreedyAction(state, t), t);
     // }
-
-    std::vector<std::shared_ptr<State>> PWLCValueFunction::getSupport(number t)
-    {
-        return this->representation[t];
-    }
 
     double PWLCValueFunction::getDefaultValue(number t)
     {

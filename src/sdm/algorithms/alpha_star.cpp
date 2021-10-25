@@ -120,7 +120,7 @@ namespace sdm
 
                         for (const auto &observation : *observation_space)
                         {
-                            auto [next_state, proba] = this->world_->getNextState(this->bound_, state, action->toAction(), observation->toObservation(), h);
+                            auto [next_state, proba] = this->world_->getNextState(state, action->toAction(), observation->toObservation(), h);
 
                             this->map_element_to_alpha_item.at(h + 1).emplace(next_state, std::make_shared<AlphaStarItem>(next_state, std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), h + 1));
 

@@ -1,6 +1,5 @@
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
-#include <sdm/utils/value_function/initializer/initializer.hpp>
 
 #include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
 #include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp_serial.hpp>
@@ -14,7 +13,7 @@ namespace sdm
                                                                          int freq_pruning,
                                                                          TypeOfSawtoothPrunning type_of_sawtooth_prunning)
         : BaseTabularValueFunction<Hash, KeyEqual>(horizon, initializer, action_selection, update_operator, true),
-          ValueFunctionApproximationInterface(horizon, initializer, action_selection, update_operator, freq_pruning),
+          PrunableStructure(horizon, freq_pruning),
           type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
     {
 #ifdef WITH_CPLEX

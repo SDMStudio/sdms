@@ -7,8 +7,6 @@ namespace sdm
     class ExhaustiveActionSelection : public ActionSelectionBase
     {
     public:
-        using TData = double;
-
         ExhaustiveActionSelection();
         ExhaustiveActionSelection(const std::shared_ptr<SolvableByHSVI> &world);
 

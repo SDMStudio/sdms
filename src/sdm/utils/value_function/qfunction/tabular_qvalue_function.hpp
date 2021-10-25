@@ -1,8 +1,7 @@
 #pragma once
 
 #include <sdm/utils/linear_algebra/mapped_matrix.hpp>
-
-#include <sdm/utils/value_function/initializer/initializer.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/qfunction/tabular_q_interface.hpp>
 
 /**
@@ -19,22 +18,27 @@ namespace sdm
      * the action must inherit from the `Action` interface.
      * 
      */
-    class TabularQValueFunction : public TabularQValueFunctionInterface
+    class TabularQValueFunction : public QValueFunction, public TabularQValueFunctionInterface
     {
     public:
         using Container = MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
 
-        TabularQValueFunction(number horizon, double learning_rate, std::shared_ptr<QInitializer> initializer);
-
-        TabularQValueFunction(number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
+        TabularQValueFunction(number horizon,
+                              const std::shared_ptr<Initializer> &initializer,
+                              const std::shared_ptr<ActionSelectionInterface> &action_selection,
+                              const std::shared_ptr<TabularQUpdateOperator> &update_operator);
 
         /**
-         * @brief Get the q-value at a state
-         * 
-         * @param state the state
-         * @return the action value vector 
+         * @brief Initialize the value function by using initializer.
          */
-        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
+        void initialize();
+
+        /**
+         * @brief Set all values of the vector to a default value.
+         *
+         * @param default_value the default value
+         */
+        void initialize(double default_value, number t = 0);
 
         /**
          * @brief Get the q-value at a specific state, action and time step.
@@ -56,14 +60,12 @@ namespace sdm
         void setQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double value, number t);
 
         /**
-         * @brief Update the value at a given state
+         * @brief Get the q-value at a state
+         * 
+         * @param state the state
+         * @return the action value vector 
          */
-        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
-
-        /**
-         * @brief Update the value at a given state (given a delta)
-         */
-        void updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double delta, number t = 0);
+        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
 
         int getNumStates() const;
 
@@ -86,11 +88,5 @@ namespace sdm
          *
          */
         std::vector<Container> representation;
-
-        /**
-         * @brief The learning rate.
-         * 
-         */
-        double learning_rate_;
     };
 } // namespace sdm

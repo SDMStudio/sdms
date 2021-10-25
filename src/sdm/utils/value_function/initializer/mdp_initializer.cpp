@@ -4,7 +4,7 @@
 
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
 
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
@@ -42,14 +42,14 @@ namespace sdm
         // }
         // else
         // {
-        auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+        auto tabular_update = std::make_shared<update::TabularUpdate>(hsvi_mdp);
         auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
         auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
-        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
+        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, action_tabular, tabular_update, false);
+        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, action_tabular, tabular_update, true);
 
         auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub,this->error_, 100000, "MDP_Initialisation");
 
@@ -63,7 +63,7 @@ namespace sdm
         }
 
         auto ubound = algorithm->getUpperBound();
-        vf->initialize(std::make_shared<State2OccupancyValueFunction>(ubound));
+        vf->setInitFunction(std::make_shared<State2OccupancyValueFunction>(ubound));
         // }
         // Set the function that will be used to get interactively upper bounds
     }

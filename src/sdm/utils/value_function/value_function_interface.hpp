@@ -69,6 +69,11 @@ namespace sdm
         virtual void initialize();
 
         /**
+         * @brief Initialize the value function to a constant value
+         */
+        virtual void initialize(double v, number t = 0) = 0;
+
+        /**
          * @brief Get the value at a given state
          */
         virtual double getValueAt(const std::shared_ptr<State> &state, number t = 0) = 0;
@@ -129,6 +134,11 @@ namespace sdm
          * function
          */
         virtual std::string str() const = 0;
+
+        /**
+         * @brief Get a shared pointer on this value function
+         */
+        std::shared_ptr<ValueFunctionInterface> getptr();
 
         /**
          * @brief Get the horizon
