@@ -9,7 +9,7 @@ namespace sdm
     class TabularQValueFunctionInterface : virtual public ValueFunctionInterface
     {
     public:
-        TabularQValueFunctionInterface(number horizon = 0,
+        TabularQValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
                                        const std::shared_ptr<Initializer> &intializer = nullptr,
                                        const std::shared_ptr<ActionSelectionInterface> &action_selection = nullptr);
 

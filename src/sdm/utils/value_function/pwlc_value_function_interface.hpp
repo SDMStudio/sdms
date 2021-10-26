@@ -15,10 +15,11 @@ namespace sdm
      * the lower bound.
      *
      */
-    class PWLCValueFunctionInterface : public ValueFunctionInterface, public PrunableStructure
+    class PWLCValueFunctionInterface : virtual public ValueFunctionInterface, public PrunableStructure
     {
     public:
-        PWLCValueFunctionInterface(number horizon = 0, const std::shared_ptr<Initializer> &initializer = nullptr,
+        PWLCValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                                   const std::shared_ptr<Initializer> &initializer = nullptr,
                                    const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
                                    int freq_pruning = -1);
 

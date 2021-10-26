@@ -24,7 +24,8 @@ namespace sdm
     public:
         using Container = MappedVector<std::shared_ptr<State>, double, Hash, KeyEqual>;
 
-        BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initialize = nullptr,
+        BaseTabularValueFunction(const std::shared_ptr<SolvableByDP> &world = nullptr,
+                                 const std::shared_ptr<Initializer> &initialize = nullptr,
                                  const std::shared_ptr<ActionSelectionInterface> &action_selectionr = nullptr,
                                  const std::shared_ptr<TabularUpdateOperator> &update_operator = nullptr,
                                  bool is_upper_bound = false);
@@ -111,7 +112,6 @@ namespace sdm
             os << vf.str();
             return os;
         }
-
 
         // Will soon be deprecated
         void do_pruning(number t);

@@ -11,30 +11,22 @@ namespace sdm
     // ******************
     // Value Initializer
     // ******************
-    void ValueInitializer::initBase(std::shared_ptr<ValueFunctionInterface> vf)
+    ValueInitializer::ValueInitializer(double v) : value(v) {}
+
+    void ValueInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
-        if (vf->getHorizon() < 1)
+        if (value_function->isInfiniteHorizon())
         {
-            vf->initialize(this->value);
+            value_function->initialize(this->value);
         }
         else
         {
-            for (number t = 0; t < vf->getHorizon(); t++)
+            for (number t = 0; t < value_function->getHorizon(); t++)
             {
-                vf->initialize(this->value, t);
+                value_function->initialize(this->value, t);
             }
-
-            vf->initialize(0, vf->getHorizon());
+            value_function->initialize(0, value_function->getHorizon());
         }
-    }
-
-    void ValueInitializer::init(std::shared_ptr<ValueFunction> vf)
-    {
-        this->initBase(vf);
-    }
-    void ValueInitializer::init(std::shared_ptr<QValueFunction> vf)
-    {
-        this->initBase(vf);
     }
 
     // ******************
@@ -44,41 +36,40 @@ namespace sdm
 
     BoundInitializer::BoundInitializer(std::shared_ptr<SolvableByHSVI> world, double value) : value_(value), world_(world) {}
 
-    void BoundInitializer::init(std::shared_ptr<ValueFunction> vf)
+    void BoundInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
-
-        if (vf->isInfiniteHorizon())
+        if (value_function->isInfiniteHorizon())
         {
-            vf->initialize(this->computeValueInfiniteHorizon(vf));
+            value_function->initialize(this->computeValueInfiniteHorizon(value_function));
         }
         else
         {
             double tot = 0.0;
-            vf->initialize(tot, vf->getHorizon());
-            for (number t = vf->getHorizon(); t > 0; t--)
+            value_function->initialize(tot, value_function->getHorizon());
+            for (number t = value_function->getHorizon(); t > 0; t--)
             {
-                tot = this->getValue(vf, t - 1) + this->world_->getUnderlyingProblem()->getDiscount(t) * tot;
-                vf->initialize(tot, t - 1);
+                tot = this->getValue(value_function, t - 1) + this->world_->getUnderlyingProblem()->getDiscount(t) * tot;
+                value_function->initialize(tot, t - 1);
             }
         }
     }
 
-    double BoundInitializer::getValue(std::shared_ptr<ValueFunction>, number t)
+    double BoundInitializer::getValue(std::shared_ptr<ValueFunctionInterface>, number t)
     {
         return (this->callback_value == nullptr) ? this->value_ : ((*world_->getUnderlyingProblem()).*callback_value)(t);
     }
 
-    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf)
+    double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunctionInterface> value_function)
     {
         auto under_pb = world_->getUnderlyingProblem();
 
         // long l = log(1 - world_->getDiscount()) * this->error_ / this->reward_->getMaxReward();
         number t = 0;
-        double value = this->getValue(vf, t), factor = 1.;
+        double value = this->getValue(value_function, t), factor = 1.;
         do
         {
             factor *= under_pb->getDiscount(t);
-            value += factor * this->getValue(vf, t + 1);
+            value += factor * this->getValue(value_function, t + 1);
             t++;
         } while (factor > 1.e-10);
         value = floor(value) + (value > 0); // value = -2.99 --> floor(-2.99) + 0 = -3.0 and 2.99 --> floor(2.99) + 1 = 2 + 1 = 3.0
@@ -93,11 +84,11 @@ namespace sdm
         this->world_ = world;
     }
 
-    void MinInitializer::init(std::shared_ptr<ValueFunction> vf)
+    void MinInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
         // this->world_->getUnderlyingProblem()->getMinReward();
         this->callback_value = &MDPInterface::getMinReward;
-        BoundInitializer::init(vf);
+        BoundInitializer::init(value_function);
     }
 
     // ******************
@@ -108,11 +99,11 @@ namespace sdm
         this->world_ = world;
     }
 
-    void MaxInitializer::init(std::shared_ptr<ValueFunction> vf)
+    void MaxInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
         // this->value_ = this->world_->getUnderlyingProblem()->getMaxReward(t);
         this->callback_value = &MDPInterface::getMaxReward;
-        BoundInitializer::init(vf);
+        BoundInitializer::init(value_function);
     }
 
     // ******************
@@ -123,12 +114,12 @@ namespace sdm
         this->world_ = world;
     }
 
-    void BlindInitializer::init(std::shared_ptr<ValueFunction> vf)
+    void BlindInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
         auto under_pb = this->world_->getUnderlyingProblem();
         std::vector<double> ra, rt;
 
-        for (number t = 0; t < vf->getHorizon(); t++)
+        for (number t = 0; t < value_function->getHorizon(); t++)
         {
             ra.clear();
             for (auto &a : *under_pb->getActionSpace(t))
@@ -143,7 +134,7 @@ namespace sdm
         }
 
         this->value_ = *std::min_element(rt.begin(), rt.end());
-        BoundInitializer::init(vf);
+        BoundInitializer::init(value_function);
     }
 
 } // namespace sdm

@@ -18,7 +18,7 @@ namespace sdm
     Pair<std::shared_ptr<Action>, double> MaxPlanSelectionBase::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
         // Cast the generic value function into a piece-wise linear convex value function.
-        auto value_function = std::static_pointer_cast<PWLCValueFunctionInterface>(vf);
+        auto value_function = std::dynamic_pointer_cast<PWLCValueFunctionInterface>(vf);
 
         // Instanciate return variables
         std::shared_ptr<Action> max_decision_rule;

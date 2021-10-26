@@ -23,10 +23,10 @@ namespace sdm
     public:
         using Container = MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>;
 
-        TabularQValueFunction(number horizon,
+        TabularQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                               const std::shared_ptr<Initializer> &initializer,
                               const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                              const std::shared_ptr<TabularQUpdateOperator> &update_operator);
+                              const std::shared_ptr<TabularQUpdateOperator> &update_operator = nullptr);
 
         /**
          * @brief Initialize the value function by using initializer.

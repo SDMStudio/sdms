@@ -1,4 +1,5 @@
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
 
 namespace sdm
 {

@@ -10,7 +10,7 @@ namespace sdm
     {
     }
 
-    double Belief2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, number t)
+    double Belief2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &t)
     {
         if (state == nullptr)
         {
@@ -30,7 +30,7 @@ namespace sdm
         }
     }
 
-    double Belief2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &belief_AND_action, number t)
+    double Belief2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &belief_AND_action, const number &t)
     {
         auto belief = belief_AND_action.first;
         auto action = belief_AND_action.second;
@@ -38,17 +38,17 @@ namespace sdm
         return getPOMDPValueFunction()->getQValueAt(belief, action, t);
     }
 
-    double Belief2OccupancyValueFunction::operatorState(const std::shared_ptr<State> &, number)
+    double Belief2OccupancyValueFunction::operatorState(const std::shared_ptr<State> &, const number &)
     {
         throw sdm::exception::Exception("The initializer used is not available for this formalism !");
     }
 
-    double Belief2OccupancyValueFunction::operatorBeliefState(const std::shared_ptr<BeliefInterface> &belief_state, number t)
+    double Belief2OccupancyValueFunction::operatorBeliefState(const std::shared_ptr<BeliefInterface> &belief_state, const number &t)
     {
         return this->getPOMDPValueFunction()->getValueAt(belief_state, t);
     }
 
-    double Belief2OccupancyValueFunction::operatorOccupancyState(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
+    double Belief2OccupancyValueFunction::operatorOccupancyState(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const number &t)
     {
         double value = 0.0;
 

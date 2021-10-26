@@ -16,7 +16,8 @@ namespace sdm
     public:
         using Container = typename BaseTabularValueFunction<Hash, KeyEqual>::Container;
 
-        BasePointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,
+        BasePointSetValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                  const std::shared_ptr<Initializer> &initializer,
                                   const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                   const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                   int freq_prunning = -1,

@@ -23,9 +23,9 @@ namespace sdm
          * @param const number& : index variable
          * @param number : time step
          */
-        virtual void createDecentralizedVariables(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t) = 0;
-        void createDecentralizedVariablesSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
-        void createDecentralizedVariablesOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
+        virtual void createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t) = 0;
+        void createDecentralizedVariablesSerial(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
+        void createDecentralizedVariablesOccupancy(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Set decentralized constraints 
@@ -36,9 +36,9 @@ namespace sdm
          * @param number&
          * @param number : time step
          */
-        virtual void createDecentralizedConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
-        void createDecentralizedConstraintsSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
-        void createDecentralizedConstraintsOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        virtual void createDecentralizedConstraints(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
+        void createDecentralizedConstraintsSerial(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createDecentralizedConstraintsOccupancy(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State>& state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Get the result of the variable created
@@ -49,9 +49,9 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Action> 
          */
-        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t) = 0;
-        std::shared_ptr<Action> getVariableResultSerial(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t);
-        std::shared_ptr<Action> getVariableResultOccupancy(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t);
+        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t) = 0;
+        std::shared_ptr<Action> getVariableResultSerial(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t);
+        std::shared_ptr<Action> getVariableResultOccupancy(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t);
 
     protected : 
 
@@ -67,7 +67,7 @@ namespace sdm
          * @param number : agent_id
          * 
          */
-        void createDecentralizedConstraintsIndividual(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id);
+        void createDecentralizedConstraintsIndividual(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id);
 
         /**
          * @brief Create the Individual Decentralized Variable i.e. Build variables a_i(u_i|o_i)
@@ -80,7 +80,7 @@ namespace sdm
          * @param number : agent_id
          * 
          */
-        void createDecentralizedVariablesIndividual(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t, number agent_id);
+        void createDecentralizedVariablesIndividual(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t, number agent_id);
 
         /**
          * @brief Create the Joint Decentralized Constraints i.e.  set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
@@ -93,7 +93,7 @@ namespace sdm
          * @param number : timestep 
          * 
          */
-        void createDecentralizedConstraintsJoint(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createDecentralizedConstraintsJoint(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Create the Control Decentralized Constraints i.e.  set constraint a(u|o) <= a_i(u_i|o_i)
@@ -106,7 +106,7 @@ namespace sdm
          * @param number : timestep 
          * 
          */
-        void createDecentralizedControlConstraints(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createDecentralizedControlConstraints(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
         
         /**
          * @brief Create the Joint Decentralized Variable i.e. Build variables a(u|o)
@@ -118,7 +118,7 @@ namespace sdm
          * @param number : timestep 
          * 
          */
-        void createDecentralizedVariablesJoint(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
+        void createDecentralizedVariablesJoint(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Get the Individual Variable Result i.e. return the result for the variable a(u|o) the first vector refers to the vector of discrete action and the second vector refers to the vector of individual history
@@ -131,7 +131,7 @@ namespace sdm
          * 
          * @return Pair<std::vector<std::shared_ptr<Item>>,std::vector<std::shared_ptr<Item>>> , the first vector refers to the vector of discrete action and the second vector refers to the vector of individual history
          */
-        Pair<std::vector<std::shared_ptr<Item>>,std::vector<std::shared_ptr<Item>>> getVariableResultIndividual(const std::shared_ptr<ValueFunction>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t, number agent_id);
+        Pair<std::vector<std::shared_ptr<Item>>,std::vector<std::shared_ptr<Item>>> getVariableResultIndividual(const std::shared_ptr<ValueFunctionInterface>&vf,const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t, number agent_id);
 
 
     };

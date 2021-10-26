@@ -37,6 +37,7 @@ namespace sdm
         class UpdateOperator : public UpdateOperatorInterface
         {
         public:
+            UpdateOperator() {}
             UpdateOperator(const std::shared_ptr<TValueFunction> &value_function) : value_function(value_function) {}
 
             /**
@@ -45,6 +46,36 @@ namespace sdm
              * @param t the time step
              */
             virtual void update(std::shared_ptr<State> state, std::shared_ptr<Action> action, number t) = 0;
+
+            /**
+             * @brief Get the updatable value function 
+             * 
+             * @return the value function
+             */
+            inline std::shared_ptr<ValueFunctionInterface> getValueFunction() const
+            {
+                return this->value_function;
+            }
+
+            /**
+             * @brief Set the updatable value function
+             * 
+             * @param value_function the value function
+             */
+            void setValueFunction(const std::shared_ptr<TValueFunction> & value_function) const
+            {
+                this->value_function = value_function;
+            }
+
+            /**
+             * @brief Get the world
+             * 
+             * @return the world 
+             */
+            inline std::shared_ptr<SolvableByDP> getWorld() const
+            {
+                return this->getValueFunction()->getWorld();
+            }
 
         protected:
             std::shared_ptr<TValueFunction> value_function;

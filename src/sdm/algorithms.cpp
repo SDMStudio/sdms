@@ -7,14 +7,14 @@
 
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/tabular_qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/tabular_qvalue_function.hpp>
 #include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/update_operator.hpp>
 
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
-#include <sdm/utils/value_function/action_selection/action_maxplan.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 #include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
 #include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp_serial.hpp>
 
@@ -64,10 +64,6 @@ namespace sdm
         {
             assert(((discount < 1) || (horizon > 0)));
 
-            // Instanciate possible backup
-            auto tabular_backup = std::make_shared<TabularBackup>(problem);
-            auto maxplan_backup = std::make_shared<MaxPlanBackup>(problem);
-
             // Type of resolution to use (for CPLEX)
             TypeOfResolution type_of_resolution = (current_type_of_resolution == "BigM") ? TypeOfResolution::BigM
                                                                                          : TypeOfResolution::IloIfThenResolution;
@@ -80,8 +76,7 @@ namespace sdm
             }
 
             // Instanciate possible action selection
-            auto action_tabular = std::make_shared<ExhaustiveActionSelection>(problem);
-            auto action_maxplan = std::make_shared<ActionSelectionMaxplan>(problem);
+            auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(problem);
             auto action_maxplan_wcsp = std::make_shared<ActionSelectionMaxplanWCSP>(problem);
 #ifdef WITH_CPLEX
             auto action_maxplan_serial = std::make_shared<ActionSelectionMaxplanSerial>(problem);
@@ -95,6 +90,9 @@ namespace sdm
             auto lb_init = sdm::makeInitializer(lb_init_name, problem);
             auto ub_init = sdm::makeInitializer(ub_init_name, problem);
 
+            // Instanciate update operators
+            std::shared_ptr<UpdateOperatorInterface> lb_update_operator, ub_update_operator;
+
             // Instanciate bounds
             std::shared_ptr<sdm::ValueFunction> lower_bound;
             std::shared_ptr<sdm::ValueFunction> upper_bound;
@@ -102,56 +100,68 @@ namespace sdm
             // Lower Bound
             if (lower_bound_name == "maxplan")
             {
-                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, exhaustive_selection, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
             }
             else if (lower_bound_name == "maxplan_wcsp")
             {
-                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_wcsp, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_wcsp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
             }
 #ifdef WITH_CPLEX
             else if (lower_bound_name == "maxplan_serial")
             {
-                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
             }
             else if (lower_bound_name == "maxplan_lp")
             {
-                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
             }
             else if (lower_bound_name == "maxplan_lp_serial")
             {
-                lower_bound = std::make_shared<PWLCValueFunction>(horizon, lb_init, maxplan_backup, action_maxplan_lp_serial, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
             }
 #endif
             else
             {
                 if (store_state)
-                    lower_bound = std::make_shared<TabularValueFunction>(horizon, lb_init, tabular_backup, action_tabular, false);
+                    lower_bound = std::make_shared<TabularValueFunction>(problem, lb_init, exhaustive_selection, nullptr, false);
                 else
-                    lower_bound = std::make_shared<TabularValueFunction2>(horizon, lb_init, tabular_backup, action_tabular, false);
+                    lower_bound = std::make_shared<TabularValueFunction2>(problem, lb_init, exhaustive_selection, nullptr, false);
+                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
             }
+            lower_bound->setUpdateOperator(lb_update_operator);
 
             // Upper Bound
             if (upper_bound_name == "sawtooth")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_tabular, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, exhaustive_selection, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
 #ifdef WITH_CPLEX
             else if (upper_bound_name == "sawtooth_lp")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_sawtooth_lp, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, action_sawtooth_lp, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
             else if (upper_bound_name == "sawtooth_lp_serial")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(horizon, ub_init, tabular_backup, action_sawtooth_lp_serial, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, action_sawtooth_lp_serial, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
 #endif
             else
             {
                 if (store_state)
-                    upper_bound = std::make_shared<TabularValueFunction>(horizon, ub_init, tabular_backup, action_tabular, true);
+                    upper_bound = std::make_shared<TabularValueFunction>(problem, ub_init, exhaustive_selection, nullptr, true);
                 else
-                    upper_bound = std::make_shared<TabularValueFunction2>(horizon, ub_init, tabular_backup, action_tabular, true);
+                    upper_bound = std::make_shared<TabularValueFunction2>(problem, ub_init, exhaustive_selection, nullptr, true);
+                ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
+            upper_bound->setUpdateOperator(ub_update_operator);
 
             return std::make_shared<HSVI>(problem, lower_bound, upper_bound, error, trials, name, freq_update_lb, freq_update_ub, time_max);
         }
@@ -160,44 +170,33 @@ namespace sdm
                                                                 std::string vf_init_name, double discount, double error, number horizon,
                                                                 bool store_state, std::string name, double time_max)
         {
-            // Instanciate initializers
+            // Instanciate the initializer
             auto init = sdm::makeInitializer(vf_init_name, problem);
 
-            // Instanciate possible backup
-            auto tabular_backup = std::make_shared<TabularBackup>(problem);
-
-            // Instanciate possible action selection
-            auto action_tabular = std::make_shared<ExhaustiveActionSelection>(problem);
+            // Instanciate the action selection procedure
+            auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(problem);
 
             std::shared_ptr<ValueFunction> value_function;
             if (store_state)
-                value_function = std::make_shared<TabularValueFunction>(horizon, init, tabular_backup, action_tabular, false);
+                value_function = std::make_shared<TabularValueFunction>(problem, init, exhaustive_selection, nullptr, false);
             else
-                value_function = std::make_shared<TabularValueFunction2>(horizon, init, tabular_backup, action_tabular, false);
+                value_function = std::make_shared<TabularValueFunction2>(problem, init, exhaustive_selection, nullptr, false);
+
+            // Instanciate the update operator
+            value_function->setUpdateOperator(std::make_shared<TabularUpdate>(value_function));
 
             return std::make_shared<PBVI>(problem, value_function, error, time_max, name);
         }
 
         std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<GymInterface> problem,
-                                                        number horizon,
-                                                        double discount,
-                                                        double lr,
-                                                        double batch_size,
-                                                        unsigned long num_episodes,
-                                                        std::string name)
+                                                      number horizon,
+                                                      double discount,
+                                                      double lr,
+                                                      double batch_size,
+                                                      unsigned long num_episodes,
+                                                      std::string name)
         {
             assert(((discount < 1) || (horizon > 0)));
-
-            // Instanciate initializer
-            std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
-
-            // Instanciate qvalue function
-            std::shared_ptr<QValueFunction> qvalue;
-            qvalue = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
-
-            // Instanciate target qvalue function
-            std::shared_ptr<QValueFunction> target_qvalue;
-            target_qvalue = std::make_shared<TabularQValueFunction>(horizon, lr, initializer);
 
             // Instanciate exploration process
             std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
@@ -205,12 +204,25 @@ namespace sdm
             // Instanciate the memory
             std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
 
-            // Instanciate backup
-            std::shared_ptr<QValueBackupInterface> backup;
-            backup = std::make_shared<TabularQValueBackup>(experience_memory, qvalue, qvalue, discount);
+            // Instanciate initializer
+            std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
+
+            // Instanciate action selection
+            std::shared_ptr<ActionSelectionInterface> exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(problem);
+
+            // Instanciate qvalue function
+            std::shared_ptr<TabularQValueFunction> qvalue;
+            qvalue = std::make_shared<TabularQValueFunction>(problem, initializer, exhaustive_selection);
+
+            // Instanciate target qvalue function
+            std::shared_ptr<TabularQValueFunction> target_qvalue;
+            target_qvalue = std::make_shared<TabularQValueFunction>(problem, initializer, exhaustive_selection);
+
+            // Set update operator 
+            qvalue->setUpdateOperator(std::make_shared<TabularQUpdate>(experience_memory, qvalue, target_qvalue, discount, lr));
 
             // Instanciate algorithme
-            std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, backup, exploration, horizon, discount, lr, batch_size, num_episodes, name);
+            std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, exploration, horizon, batch_size, num_episodes, name);
 
             return algorithm;
         }

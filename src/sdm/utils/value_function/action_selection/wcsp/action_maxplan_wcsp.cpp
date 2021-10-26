@@ -13,12 +13,12 @@ namespace sdm
 
     ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByHSVI>& world): MaxPlanSelectionBase(world) {}
     
-    Pair<std::shared_ptr<Action>,double>  ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunction>& value_function, const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>,double>  ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface>& value_function, const std::shared_ptr<State>& state, number t)
     {
         return this->createAndSolveWCSP(value_function, state, t);
     }
 
-    Pair<std::shared_ptr<Action>,double>  ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunction>& , const std::shared_ptr<State>& state, number t)
+    Pair<std::shared_ptr<Action>,double>  ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface>& , const std::shared_ptr<State>& state, number t)
     {
         this->variables.clear();
 

@@ -5,14 +5,14 @@
 
 // namespace sdm
 // {
-//     PointSetQValueFunction::PointSetQValueFunction(number horizon, std::shared_ptr<ValueInitializer> initializer,  const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionSelectionInterface> &action_selection)
-//         : ValueFunction(horizon,initializer, backup, action_selection), TabularQValueFunction(horizon,0,initializer)
+//     PointSetQValueFunction::PointSetQValueFunction( std::shared_ptr<ValueInitializer> initializer,  const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionSelectionInterface> &action_selection)
+//         : ValueFunction(initializer, backup, action_selection), TabularQValueFunction(0,initializer)
 //     {
 //     }
 
 
-//     PointSetQValueFunction::PointSetQValueFunction(number horizon, double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionSelectionInterface> &action_selection)
-//         : PointSetQValueFunction(horizon,std::make_shared<ValueInitializer>(default_value),backup,action_selection)
+//     PointSetQValueFunction::PointSetQValueFunction( double default_value, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionSelectionInterface> &action_selection)
+//         : PointSetQValueFunction(std::make_shared<ValueInitializer>(default_value),backup,action_selection)
 //     {
 //     }
 

@@ -2,9 +2,10 @@
 
 namespace sdm
 {
-    TabularValueFunctionInterface::TabularValueFunctionInterface(number horizon, const std::shared_ptr<Initializer> &initializer,
+    TabularValueFunctionInterface::TabularValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                                                                 const std::shared_ptr<Initializer> &initializer,
                                                                  const std::shared_ptr<ActionSelectionInterface> &action_selection)
-        : ValueFunctionInterface(horizon, initializer, action_selection)
+        : ValueFunctionInterface( world, initializer, action_selection)
     {
     }
 } // namespace sdm

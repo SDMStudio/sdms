@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 
 namespace sdm
 {
@@ -57,8 +58,8 @@ namespace sdm
             std::shared_ptr<TQValueFunction> qvalue_function;
         };
 
-        // using PWLCQUpdateOperator = QUpdateOperator<PWLCQValueFunction>;
         using TabularQUpdateOperator = QUpdateOperator<TabularQValueFunctionInterface>;
+        using PWLCQUpdateOperator = QUpdateOperator<PWLCValueFunctionInterface>;
 
     } // namespace update
 } // namespace sdm

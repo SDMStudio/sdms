@@ -8,9 +8,10 @@ namespace sdm
     {
     }
 
-    ValueFunctionInterface::ValueFunctionInterface(number horizon, const std::shared_ptr<Initializer> &initializer,
+    ValueFunctionInterface::ValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                                                   const std::shared_ptr<Initializer> &initializer,
                                                    const std::shared_ptr<ActionSelectionInterface> &action_selection)
-        : horizon_(horizon), initializer_(initializer), action_selection_(action_selection)
+        : horizon_(world->getHorizon()), world_(world), initializer_(initializer), action_selection_(action_selection)
     {
     }
 
@@ -43,6 +44,11 @@ namespace sdm
             throw sdm::exception::Exception("Action selector not set. Please use the method <ValueFunction>::setActionSelector.");
         }
         return this->getActionSelection()->getGreedyActionAndValue(this->getptr(), state, t);
+    }
+
+    std::shared_ptr<SolvableByDP> ValueFunctionInterface::getWorld() const
+    {
+        return this->world_;
     }
 
     std::shared_ptr<ValueFunctionInterface> ValueFunctionInterface::getptr()

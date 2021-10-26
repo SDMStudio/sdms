@@ -34,14 +34,14 @@ namespace sdm
      * usable by reinforcement learning algorithms
      *
      */
-    class QValueFunction : public ValueFunctionInterface
+    class QValueFunction : virtual public ValueFunctionInterface
     {
 
     public:
         QValueFunction();
 
-        QValueFunction(number horizon = 0,
-                       const std::shared_ptr<Initializer> &intializer = nullptr,
+        QValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                       const std::shared_ptr<Initializer> &initializer = nullptr,
                        const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
                        const std::shared_ptr<QUpdateOperatorInterface> &update_operator = nullptr);
 

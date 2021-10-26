@@ -14,13 +14,15 @@ namespace sdm
 
     double PWLCValueFunction::PRECISION = config::PRECISION_SDMS_VECTOR;
 
-    PWLCValueFunction::PWLCValueFunction(number horizon,
+    PWLCValueFunction::PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                          const std::shared_ptr<Initializer> &initializer,
                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                          const std::shared_ptr<PWLCUpdateOperator> &update_operator,
                                          int freq_pruning,
                                          TypeOfMaxPlanPrunning type_of_maxplan_prunning)
-        : PWLCValueFunctionInterface(horizon, initializer, action_selection, update_operator, freq_pruning),
+        : ValueFunctionInterface(world, initializer, action_selection),
+          ValueFunction(world, initializer, action_selection_, update_operator),
+          PWLCValueFunctionInterface(world, initializer, action_selection_, freq_pruning),
           type_of_maxplan_prunning_(type_of_maxplan_prunning)
     {
         // Create all different structure in order to use the hyperplan value function.
@@ -37,12 +39,6 @@ namespace sdm
     void PWLCValueFunction::initialize()
     {
         this->initializer_->init(this->getptr());
-    }
-
-    double PWLCValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
-    {
-        double value = this->evaluate(state, t).second;
-        return value;
     }
 
     double PWLCValueFunction::getValueAt(const std::shared_ptr<State> &state, number t)
@@ -77,7 +73,7 @@ namespace sdm
             this->createDefault(state, t);
 
             // Go over all hyperplan in the support
-            for (const auto &plan : this->getSupport(t))
+            for (const auto &plan : this->getHyperplanesAt(t))
             {
                 auto belief_plan = plan->toBelief();
 
@@ -106,31 +102,41 @@ namespace sdm
         }
     }
 
-    double PWLCValueFunction::getBeta(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
-    {
-        // Cast the world into a MPOMDP 
-        auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
-        
-        // Determine the reward for the hidden state and the action
-        double factor = mpomdp->getReward(x, u, t);
+    // double PWLCValueFunction::getBeta(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
+    // {
+    //     // Cast the world into a MPOMDP
+    //     auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
 
-        // Go over all reachable next hidden state
-        for (const auto &y : mpomdp->getReachableStates(x, u, t))
-        {
-            // Go over all reachable observation
-            for (const auto &z : mpomdp->getReachableObservations(x, u, y, t))
-            {
-                // Determine the next joint history conditionning to the observation
-                auto o_ = o->expand(z->toObservation())->toJointHistory();
-                factor += this->getWorld()->getDiscount(t) * this->tmp_representation->toOccupancyState()->getProbability(o_, y) * mpomdp->getDynamics(x, u, y, z, t);
-            }
-        }
-        return factor;
+    //     // Determine the reward for the hidden state and the action
+    //     double factor = mpomdp->getReward(x, u, t);
+
+    //     // Go over all reachable next hidden state
+    //     for (const auto &y : mpomdp->getReachableStates(x, u, t))
+    //     {
+    //         // Go over all reachable observation
+    //         for (const auto &z : mpomdp->getReachableObservations(x, u, y, t))
+    //         {
+    //             // Determine the next joint history conditionning to the observation
+    //             auto o_ = o->expand(z->toObservation())->toJointHistory();
+    //             factor += this->getWorld()->getDiscount(t) * this->tmp_representation->toOccupancyState()->getProbability(o_, y) * mpomdp->getDynamics(x, u, y, z, t);
+    //         }
+    //     }
+    //     return factor;
+    // }
+
+    void PWLCValueFunction::getBeta(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    {
+        throw sdm::exception::NotImplementedException();
     }
 
     std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(number t)
     {
         return this->representation[t];
+    }
+
+    std::vector<std::shared_ptr<State>> PWLCValueFunction::getSupport(number t)
+    {
+        return this->getHyperplanesAt(t);
     }
 
     // void PWLCValueFunction::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)

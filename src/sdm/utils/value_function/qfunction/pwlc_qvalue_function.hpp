@@ -19,7 +19,7 @@ namespace sdm
      * is assigned to each cluster of occupancy states (close to a granularity coefficient).
      *
      */
-    class PieceWiseLinearConvexQValueFunction : public QValueFunction, virtual PWLCValueFunctionInterface
+    class PieceWiseLinearConvexQValueFunction : public QValueFunction, public PWLCValueFunctionInterface
     {
     protected:
         /**
@@ -57,12 +57,6 @@ namespace sdm
         std::vector<PSI> representation;
 
         /**
-         * @brief The initializer to use for this value function.
-         *
-         */
-        std::shared_ptr<QInitializer> initializer_;
-
-        /**
          * @brief The value by default.
          */
         double default_value_, learning_rate_;
@@ -77,8 +71,14 @@ namespace sdm
         TabularQValueFunction *getQ(const std::shared_ptr<State> &state, number t);
 
     public:
-        PieceWiseLinearConvexQValueFunction(const std::shared_ptr<OccupancyMDP> &omdp, number horizon = 0, double learning_rate = 0.1, double default_value = 0.);
+        // PieceWiseLinearConvexQValueFunction(const std::shared_ptr<OccupancyMDP> &omdp,
+        //                                     number horizon = 0,
+        //                                     double default_value = 0.);
 
+        PieceWiseLinearConvexQValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                            const std::shared_ptr<Initializer> &intializer = nullptr,
+                                            const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
+                                            const std::shared_ptr<PWLCQUpdateOperator> &update_operator = nullptr);
         /**
          * @brief Initialize the value function
          */

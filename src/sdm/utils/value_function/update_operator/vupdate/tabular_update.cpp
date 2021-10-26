@@ -7,7 +7,7 @@ namespace sdm
 {
 namespace update
 {
-    TabularUpdate::TabularUpdate(const std::shared_ptr<SolvableByHSVI> &world, const std::shared_ptr<TabularValueFunctionInterface> &value_function)
+    TabularUpdate::TabularUpdate(const std::shared_ptr<TabularValueFunctionInterface> &value_function)
         : TabularUpdateOperator(value_function)
     {
     }

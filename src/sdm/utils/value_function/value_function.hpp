@@ -2,6 +2,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/function.hpp>
+#include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
 
@@ -21,14 +22,14 @@ namespace sdm
      * Some attributes are callable. They will be called to update the value function (i.e. the initializer, the backup).
      *
      */
-    class ValueFunction : public ValueFunctionInterface,
+    class ValueFunction : virtual public ValueFunctionInterface,
                           public BinaryFunction<std::shared_ptr<State>, number, double>
 
     {
     public:
         ValueFunction();
 
-        ValueFunction(number horizon = 0,
+        ValueFunction(const std::shared_ptr<SolvableByDP> &world,
                       const std::shared_ptr<Initializer> &intializer = nullptr,
                       const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
                       const std::shared_ptr<UpdateOperatorInterface> &update_operator = nullptr);
@@ -121,6 +122,11 @@ namespace sdm
          * @brief Get a shared pointer on this value function
          */
         std::shared_ptr<ValueFunction> getptr();
+
+        /**
+         * @brief Return the possible indexes of the value function
+         */
+        virtual std::vector<std::shared_ptr<State>> getSupport(number t = 0) = 0;
 
     protected:
         /**

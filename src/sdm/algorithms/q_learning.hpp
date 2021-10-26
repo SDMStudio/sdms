@@ -35,11 +35,8 @@ namespace sdm
               std::shared_ptr<ExperienceMemoryInterface> experience_memory,
               std::shared_ptr<QValueFunction> q_value,
               std::shared_ptr<QValueFunction> q_target,
-              std::shared_ptr<QValueBackupInterface> backup,
               std::shared_ptr<EpsGreedy> exploration,
               number horizon,
-              double discount = 0.9,
-              double lr = 0.001,
               double smooth = 0.99,
               unsigned long num_episodes = 10000,
               std::string name = "qlearning");
@@ -72,7 +69,7 @@ namespace sdm
      * 
      */
     void doEpisode();
-    
+
     /**
      * @brief Finalize the episode
      * 
@@ -80,7 +77,6 @@ namespace sdm
      *  
      */
     void endEpisode();
-
 
     /**
      * @brief Execute a learning step.
@@ -169,8 +165,6 @@ namespace sdm
     /** @brief Q-value function. */
     std::shared_ptr<QValueFunction> q_value_, q_target_;
 
-    std::shared_ptr<QValueBackupInterface> backup_;
-
     /** @brief The exploration process. */
     std::shared_ptr<EpsGreedy> exploration_process;
 
@@ -181,8 +175,6 @@ namespace sdm
      * @brief Some hyperparameters for the algorithm.
      */
     number horizon_, step;
-
-    double discount_, lr_;
 
     std::vector<double> rewards_;
 

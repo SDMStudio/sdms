@@ -17,6 +17,7 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/public/boost_serializable.hpp>
+#include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
 
@@ -55,7 +56,8 @@ namespace sdm
          * @param action_selection the action selection operator
          * @param update_operator the update operator
          */
-        ValueFunctionInterface(number horizon, const std::shared_ptr<Initializer> &initializer,
+        ValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                               const std::shared_ptr<Initializer> &initializer,
                                const std::shared_ptr<ActionSelectionInterface> &action_selection);
 
         /**
@@ -104,6 +106,13 @@ namespace sdm
          * @return the best action and the corresponding value
          */
         virtual Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<State> &state, number t);
+
+        /**
+         * @brief Get the corresponding world
+         * 
+         * @return the world 
+         */
+        virtual std::shared_ptr<SolvableByDP> getWorld() const;
 
         /**
          * @brief Save a value function into a file. 
@@ -183,6 +192,12 @@ namespace sdm
          * @brief The horizon for planning/learning.
          */
         number horizon_;
+
+        /**
+         * @brief The world 
+         * 
+         */
+        std::shared_ptr<SolvableByDP> world_;
 
         /**
          * @brief The initializer to use for this value function. 

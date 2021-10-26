@@ -24,12 +24,12 @@ namespace sdm
          * @param t the time step
          * @return action and corresponding value
          */
-        Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t);
 
-        Pair<std::shared_ptr<Action>, double> createAndSolveWCSP(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, number t);
 
         // Fonction temporaire le temps de bien comprendre
-        Pair<std::shared_ptr<Action>, double> createWCSPProblem(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        // Pair<std::shared_ptr<Action>, double> createWCSPProblem(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
 
     protected:
         /**

@@ -2,13 +2,14 @@
 
 namespace sdm
 {
-    TabularQValueFunction::TabularQValueFunction(number horizon,
+    TabularQValueFunction::TabularQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                                  const std::shared_ptr<Initializer> &initializer,
                                                  const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                                  const std::shared_ptr<TabularQUpdateOperator> &update_operator)
-        : ValueFunctionInterface(horizon, initializer, action_selection)
+        : ValueFunctionInterface(world, initializer, action_selection),
+          QValueFunction(world, initializer, action_selection, update_operator),
+          TabularQValueFunctionInterface(world, initializer, action_selection)
     {
-        this->update_operator_ = update_operator;
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 

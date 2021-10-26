@@ -13,11 +13,13 @@ namespace sdm
     public:
         static double PRECISION;
 
-        PWLCValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,
-                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                          const std::shared_ptr<PWLCUpdateOperator> &update_operator,
-                          int freq_prunning = -1,
-                          TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE);
+        PWLCValueFunction(
+            const std::shared_ptr<SolvableByDP> &world,
+            const std::shared_ptr<Initializer> &initializer,
+            const std::shared_ptr<ActionSelectionInterface> &action_selection,
+            const std::shared_ptr<PWLCUpdateOperator> &update_operator,
+            int freq_prunning = -1,
+            TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE);
 
         void initialize();
 
@@ -49,6 +51,8 @@ namespace sdm
          * @return the list of hyperplanes
          */
         std::vector<std::shared_ptr<State>> getHyperplanesAt(number t);
+        
+        std::vector<std::shared_ptr<State>> getSupport(number t);
 
         void getBeta(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 

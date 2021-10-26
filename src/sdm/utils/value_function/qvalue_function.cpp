@@ -7,11 +7,11 @@ namespace sdm
     {
     }
 
-    QValueFunction::QValueFunction(number horizon,
-                                   const std::shared_ptr<Initializer> &intializer,
+    QValueFunction::QValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                   const std::shared_ptr<Initializer> &initializer,
                                    const std::shared_ptr<ActionSelectionInterface> &action,
                                    const std::shared_ptr<QUpdateOperatorInterface> &update_operator)
-        : ValueFunctionInterface(horizon, intializer, action), update_operator_(update_operator)
+        : ValueFunctionInterface(world, initializer, action), update_operator_(update_operator)
     {
     }
 
@@ -37,6 +37,6 @@ namespace sdm
 
     std::shared_ptr<QValueFunction> QValueFunction::getptr()
     {
-        return std::static_pointer_cast<QValueFunction>(this->shared_from_this());
+        return std::dynamic_pointer_cast<QValueFunction>(this->shared_from_this());
     }
 } // namespace sdm

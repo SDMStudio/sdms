@@ -9,7 +9,8 @@ namespace sdm
     class TabularValueFunctionInterface : virtual public ValueFunctionInterface
     {
     public:
-        TabularValueFunctionInterface(number horizon = 0, const std::shared_ptr<Initializer> &initializer = nullptr,
+        TabularValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                                      const std::shared_ptr<Initializer> &initializer = nullptr,
                                       const std::shared_ptr<ActionSelectionInterface> &action = nullptr);
 
         /**

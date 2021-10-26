@@ -16,7 +16,7 @@
 //     public:
 //         using Container = typename TabularQValueFunction::Container;
 
-//         PointSetQValueFunction(number horizon, std::shared_ptr<ValueInitializer> initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionSelectionInterface> &action_selection);
+//         PointSetQValueFunction( std::shared_ptr<ValueInitializer> initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionSelectionInterface> &action_selection);
 
 //         PointSetQValueFunction(number horizon = 0, double default_value = 0., const std::shared_ptr<BackupInterfaceForValueFunction> &backup = nullptr, const std::shared_ptr<ActionSelectionInterface> &action_selection = nullptr);
 

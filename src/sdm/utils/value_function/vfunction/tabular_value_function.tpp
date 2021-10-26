@@ -10,13 +10,16 @@
 namespace sdm
 {
     template <class Hash, class KeyEqual>
-    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,
+    BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                                                       const std::shared_ptr<Initializer> &initializer,
                                                                        const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                                                        const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                                                        bool is_upper_bound)
-        : ValueFunctionInterface(horizon, initializer, action_selection), is_upper_bound_(is_upper_bound)
+        : ValueFunctionInterface(world, initializer, action_selection),
+          ValueFunction(world, initializer, action_selection, update_operator),
+          TabularValueFunctionInterface(world, initializer, action_selection),
+          is_upper_bound_(is_upper_bound)
     {
-        this->update_operator_ = update_operator;
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
 

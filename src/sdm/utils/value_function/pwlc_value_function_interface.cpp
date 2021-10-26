@@ -2,10 +2,11 @@
 
 namespace sdm
 {
-    PWLCValueFunctionInterface::PWLCValueFunctionInterface(number horizon, const std::shared_ptr<Initializer> &initializer,
+    PWLCValueFunctionInterface::PWLCValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                                                           const std::shared_ptr<Initializer> &initializer,
                                                            const std::shared_ptr<ActionSelectionInterface> &action,
                                                            int freq_pruning)
-        : ValueFunctionInterface(horizon, initializer, action), PrunableStructure(horizon, freq_pruning)
+        : ValueFunctionInterface(world, initializer, action), PrunableStructure(world->getHorizon(), freq_pruning)
     {
     }
 } // namespace sdm

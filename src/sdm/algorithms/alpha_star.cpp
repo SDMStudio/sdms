@@ -16,9 +16,9 @@ namespace sdm
     {
         auto init = std::make_shared<POMDPInitializer>(world, "HSVI");
         auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
-        auto bound = std::make_shared<TabularValueFunction>(world_->getUnderlyingProblem()->getHorizon(), init, action_tabular);
+        auto bound = std::make_shared<TabularValueFunction>(world, init, action_tabular);
         
-        bound->setUpdateOperator(std::make_shared<TabularUpdate>(world, bound));
+        bound->setUpdateOperator(std::make_shared<TabularUpdate>(bound));
         
         this->bound_ = bound;
     }

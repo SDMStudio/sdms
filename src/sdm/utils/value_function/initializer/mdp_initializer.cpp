@@ -25,8 +25,9 @@ namespace sdm
     {
     }
 
-    void MDPInitializer::init(std::shared_ptr<ValueFunction> vf)
+    void MDPInitializer::init(std::shared_ptr<ValueFunctionInterface> vf)
     {
+        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
         // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
         auto mdp = this->world_->getUnderlyingProblem();
         std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<SolvableByMDP>(mdp);
@@ -42,14 +43,16 @@ namespace sdm
         // }
         // else
         // {
-        auto tabular_update = std::make_shared<update::TabularUpdate>(hsvi_mdp);
         auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
         auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-        auto lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, action_tabular, tabular_update, false);
-        auto ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, action_tabular, tabular_update, true);
+        auto lb = std::make_shared<TabularValueFunction>(hsvi_mdp, init_lb, action_tabular, nullptr, false);
+        lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
+
+        auto ub = std::make_shared<TabularValueFunction>(hsvi_mdp, init_ub, action_tabular, nullptr, true);
+        ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
 
         auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub,this->error_, 100000, "MDP_Initialisation");
 
@@ -63,7 +66,7 @@ namespace sdm
         }
 
         auto ubound = algorithm->getUpperBound();
-        vf->setInitFunction(std::make_shared<State2OccupancyValueFunction>(ubound));
+        value_function->setInitFunction(std::make_shared<State2OccupancyValueFunction>(ubound));
         // }
         // Set the function that will be used to get interactively upper bounds
     }

@@ -5,37 +5,31 @@ namespace sdm
 {
 
     QLearning::QLearning(std::shared_ptr<GymInterface> &env,
-                                 std::shared_ptr<ExperienceMemoryInterface> experience_memory,
-                                 std::shared_ptr<QValueFunction> q_value,
-                                 std::shared_ptr<QValueFunction> q_target,
-                                 std::shared_ptr<QValueBackupInterface> backup,
-                                 std::shared_ptr<EpsGreedy> exploration,
-                                 number horizon,
-                                 double discount,
-                                 double lr,
-                                 double smooth,
-                                 unsigned long num_episodes,
-                                 std::string name) : Algorithm(name),
-                                                     env_(env),
-                                                     experience_memory_(experience_memory),
-                                                     q_value_(q_value),
-                                                     q_target_(q_target),
-                                                     backup_(backup),
-                                                     exploration_process(exploration),
-                                                     horizon_(horizon),
-                                                     discount_(discount),
-                                                     lr_(lr),
-                                                     num_episodes_(num_episodes)
+                         std::shared_ptr<ExperienceMemoryInterface> experience_memory,
+                         std::shared_ptr<QValueFunction> q_value,
+                         std::shared_ptr<QValueFunction> q_target,
+                         std::shared_ptr<EpsGreedy> exploration,
+                         number horizon,
+                         double smooth,
+                         unsigned long num_episodes,
+                         std::string name) : Algorithm(name),
+                                             env_(env),
+                                             experience_memory_(experience_memory),
+                                             q_value_(q_value),
+                                             q_target_(q_target),
+                                             exploration_process(exploration),
+                                             horizon_(horizon),
+                                             num_episodes_(num_episodes)
     {
     }
 
     void QLearning::initLogger()
     {
-        std::string format = "#> Episode : {}\tStep : {}/?\tEpsilon : {}\tValue : {}\tT(s) : {}\tN(S) : {}\n";
+        std::string format = "#> Episode : {}\tStep : {}/?\tValue : {}\tT(s) : {}\tEpsilon : {}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(name_ + ".txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(name_, std::vector<std::string>{"Episode", "Step", "Epsilon", "Value", "Time", "N(S)"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(name_, std::vector<std::string>{"Episode", "Step", "Value", "Time", "Epsilon"});
 
         logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
@@ -91,7 +85,12 @@ namespace sdm
         if (do_log_)
         {
             // Log data on the output stream
-            logger_->log(episode, global_step, exploration_process->getEpsilon(), backup_->getValueAt(getEnv()->reset()->toState(), 0), (float)(clock() - t_begin) / CLOCKS_PER_SEC, q_value_->getNumStates());
+            logger_->log(episode,
+                         global_step,
+                         this->q_value_->getValueAt(getEnv()->reset()->toState(), 0),
+                         (float)(clock() - t_begin) / CLOCKS_PER_SEC,
+                         exploration_process->getEpsilon());
+                         
             do_log_ = false;
         }
         if (do_test_)
@@ -111,7 +110,7 @@ namespace sdm
         this->is_done = is_done;
 
         // Compute next greedy action
-        auto next_greedy_action = this->selectGreedyAction(next_observation, this->step + 1);
+        auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation->toState(), this->step + 1);
 
         // Push experience to memory
         this->experience_memory_->push(this->observation, action, rewards[0], next_observation, next_greedy_action, this->step);
@@ -119,7 +118,7 @@ namespace sdm
         this->observation = next_observation;
 
         // Backup and get Q Value Error
-        this->backup_->update(this->step);
+        this->q_value_->updateValueAt(this->step);
 
         endStep();
     }
@@ -174,7 +173,7 @@ namespace sdm
     {
         std::shared_ptr<Action> greedy_action;
         double best_value = -std::numeric_limits<double>::max(), tmp;
-        
+
         auto action_space = getEnv()->getActionSpaceAt(observation, t);
         for (auto action : *action_space)
         {

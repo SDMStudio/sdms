@@ -7,13 +7,14 @@
 namespace sdm
 {
     template <class Hash, class KeyEqual>
-    BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,
+    BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                                                         const std::shared_ptr<Initializer> &initializer,
                                                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                                                          const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                                                          int freq_pruning,
                                                                          TypeOfSawtoothPrunning type_of_sawtooth_prunning)
-        : BaseTabularValueFunction<Hash, KeyEqual>(horizon, initializer, action_selection, update_operator, true),
-          PrunableStructure(horizon, freq_pruning),
+        : BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection, update_operator, true),
+          PrunableStructure(world->getHorizon(), freq_pruning),
           type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
     {
 #ifdef WITH_CPLEX
@@ -248,33 +249,34 @@ namespace sdm
             // }
             // this->representation[t] = current_representation;
         }
-
-        template <class Hash, class KeyEqual>
-        std::string BasePointSetValueFunction<Hash, KeyEqual>::str() const
-        {
-            std::ostringstream res;
-            res << "<point_set_representation horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-            for (std::size_t i = 0; i < this->representation.size(); i++)
-            {
-                res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
-                for (const auto &pair_st_val : this->representation[i])
-                {
-                    // res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
-                    // res << "\t\t</state>" << std::endl;
-                    std::ostringstream state_str;
-                    state_str << pair_st_val.first->str();
-                    res << "\t\t<state>" << std::endl;
-                    res << tools::addIndent(state_str.str(), 3) << std::endl;
-                    res << "\t\t</state>" << std::endl;
-                    res << "\t\t<value>" << std::endl;
-                    res << "\t\t\t" << pair_st_val.second << std::endl;
-                    res << "\t\t</value>" << std::endl;
-                }
-                res << "\t</value>" << std::endl;
-            }
-
-            res << "</point_set_representation>" << std::endl;
-            return res.str();
-        }
     }
+
+    template <class Hash, class KeyEqual>
+    std::string BasePointSetValueFunction<Hash, KeyEqual>::str() const
+    {
+        std::ostringstream res;
+        res << "<point_set_representation horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
+        for (std::size_t i = 0; i < this->representation.size(); i++)
+        {
+            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
+            for (const auto &pair_st_val : this->representation[i])
+            {
+                // res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
+                // res << "\t\t</state>" << std::endl;
+                std::ostringstream state_str;
+                state_str << pair_st_val.first->str();
+                res << "\t\t<state>" << std::endl;
+                res << tools::addIndent(state_str.str(), 3) << std::endl;
+                res << "\t\t</state>" << std::endl;
+                res << "\t\t<value>" << std::endl;
+                res << "\t\t\t" << pair_st_val.second << std::endl;
+                res << "\t\t</value>" << std::endl;
+            }
+            res << "\t</value>" << std::endl;
+        }
+
+        res << "</point_set_representation>" << std::endl;
+        return res.str();
+    }
+
 } // namespace sdm

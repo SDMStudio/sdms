@@ -160,7 +160,7 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
-        auto value_function = std::static_pointer_cast<ValueFunction>(vf);
+        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
         switch (this->type_of_linear_program_)
         {
         case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
@@ -184,7 +184,7 @@ namespace sdm
     // ************************************************************************
     // ************************************************************************
 
-    void ActionSelectionSawtoothLP::createVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         try
         {
@@ -206,7 +206,7 @@ namespace sdm
         }
     }
 
-    void ActionSelectionSawtoothLP::createObjectiveVariable(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloEnv &env, IloNumVarArray &var, number &index, number)
+    void ActionSelectionSawtoothLP::createObjectiveVariable(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &, IloEnv &env, IloNumVarArray &var, number &index, number)
     {
         //<! 0.b Build variables v_0 = objective variable!
         std::string VarName = this->getVarNameWeight(0);
@@ -248,7 +248,7 @@ namespace sdm
     // ************************************************************************
     // ************************************************************************
 
-    void ActionSelectionSawtoothLP::createConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         assert(vf->getInitFunction() != nullptr);
 
@@ -303,14 +303,14 @@ namespace sdm
         }
     }
 
-    void ActionSelectionSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number)
+    void ActionSelectionSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number)
     {
         con.add(IloRange(env, -IloInfinity, IloInfinity));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
         index++;
     }
 
-    void ActionSelectionSawtoothLP::createConstraintsKnowingInformation(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_joint_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createConstraintsKnowingInformation(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_joint_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         // We search for the joint_history which allow us to obtain the current next_history conditionning to the next joint observation
         switch (this->current_type_of_resolution_)
@@ -349,7 +349,7 @@ namespace sdm
         index++;
     }
 
-    void ActionSelectionSawtoothLP::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createInitialConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto under_pb = ActionSelectionBase::world_->getUnderlyingProblem();
 
@@ -374,7 +374,7 @@ namespace sdm
         index++;
     }
 
-    void ActionSelectionSawtoothLP::createSawtoothBigM(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createSawtoothBigM(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         try
         {
@@ -410,7 +410,7 @@ namespace sdm
         }
     }
 
-    void ActionSelectionSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
+    void ActionSelectionSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double denominator, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
     {
         try
         {
@@ -445,7 +445,7 @@ namespace sdm
         }
     }
 
-    void ActionSelectionSawtoothLP::createObjectiveFunction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &, IloNumVarArray &var, IloObjective &obj, number)
+    void ActionSelectionSawtoothLP::createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &, IloNumVarArray &var, IloObjective &obj, number)
     {
         // <! 1.a get variable v
         auto recover = this->getNumber(this->getVarNameWeight(0));
@@ -458,7 +458,7 @@ namespace sdm
     // ************************************************************************
     // ************************************************************************
 
-    double ActionSelectionSawtoothLP::getQValueRelaxation(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t)
+    double ActionSelectionSawtoothLP::getQValueRelaxation(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t)
     {
         // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
         double weight = 0.0;
@@ -483,7 +483,7 @@ namespace sdm
         return current_upper_bound - initial_upper_bound;
     }
 
-    double ActionSelectionSawtoothLP::computeSawtooth(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator, double difference, number t)
+    double ActionSelectionSawtoothLP::computeSawtooth(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator, double difference, number t)
     {
         double Qrelaxation = this->getQValueRelaxation(vf, state, joint_history, action, t);
         double SawtoothRatio = 0.0;
@@ -495,7 +495,7 @@ namespace sdm
         return Qrelaxation + SawtoothRatio * difference;
     }
 
-    double ActionSelectionSawtoothLP::getSawtoothMinimumRatio(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, double denominator, number t)
+    double ActionSelectionSawtoothLP::getSawtoothMinimumRatio(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, double denominator, number t)
     {
         double numerator = 0.0;
 
@@ -528,17 +528,17 @@ namespace sdm
     // ************************************************************************
     // ************************************************************************
 
-    void ActionSelectionSawtoothLP::createDecentralizedVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         return DecentralizedLP::createDecentralizedVariablesOccupancy(vf, state, env, var, index, t);
     }
 
-    void ActionSelectionSawtoothLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createDecentralizedConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         return DecentralizedLP::createDecentralizedConstraintsOccupancy(vf, state, env, con, var, index, t);
     }
 
-    std::shared_ptr<Action> ActionSelectionSawtoothLP::getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
+    std::shared_ptr<Action> ActionSelectionSawtoothLP::getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         return DecentralizedLP::getVariableResultOccupancy(vf, state, cplex, var, t);
     }
@@ -548,7 +548,7 @@ namespace sdm
         return std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation());
     }
 
-    Pair<std::shared_ptr<State>, double> ActionSelectionSawtoothLP::evaluate(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &decision_rule, number t)
+    Pair<std::shared_ptr<State>, double> ActionSelectionSawtoothLP::evaluate(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &decision_rule, number t)
     {
         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionSelectionBase::world_);
         auto occupancy_state = state_tmp->toOccupancyState();

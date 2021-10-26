@@ -26,7 +26,7 @@ namespace sdm
          * @param t the time step
          * @return the decision rule 
          */
-        Pair<std::shared_ptr<Action>, double> createLP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &occupancy_state, number t);
+        Pair<std::shared_ptr<Action>, double> createLP(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, number t);
 
     protected:
         /**

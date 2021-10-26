@@ -5,7 +5,7 @@
 #include <sdm/exception.hpp>
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/space/discrete_space.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 
 /**
  * @namespace  sdm
@@ -16,7 +16,8 @@ namespace sdm
     class ValueFunction;
 
     /**
-     * @brief Public interface that must be implemented by all transformed problems that can be solved using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
+     * @brief Public interface that must be implemented by all transformed problems that can be solved 
+     * using HSVI (i.e. beliefMDP, occupancyMDP, occupancyGame, etc).
      * 
      * @tparam TState The state type
      * @tparam TAction The action type
@@ -53,8 +54,10 @@ namespace sdm
         /**
          * @brief Get the action space at a specific state and timestep.
          * 
-         * The state dependency is required when the game forbid the usage of a number of actions in this state. It is also used in some reformulated problems where actions are decision rules.
-         * The time dependency is required in extensive-form games in which some agents have a different action space.   
+         * The state dependency is required when the game forbid the usage of a number of actions in 
+         * this state. It is also used in some reformulated problems where actions are decision rules.
+         * The time dependency is required in extensive-form games in which some agents have a different 
+         * action space.   
          * 
          * @param state the state
          * @param t the time step
@@ -95,6 +98,17 @@ namespace sdm
          */
         virtual Pair<std::shared_ptr<State>, double> getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t) = 0;
 
+        /**
+         * @brief Get the well defined underlying problem. 
+         * 
+         * Some problems are solvable by DP algorithms even if they are not well defined. Usually, they 
+         * simply are reformulation of an underlying well defined problem. For instance, the underlying 
+         * DecPOMDP of the OccupancyMDP or the underlying POMDP of the current BeliefMDP.  
+         * 
+         * @return the underlying problem 
+         */
+        virtual const std::shared_ptr<MDPInterface> &getUnderlyingProblem() const = 0;
+
         /** ---------- FOR BELLMAN OPERATOR -------------- */
 
         /**
@@ -113,7 +127,7 @@ namespace sdm
          * @brief Get the expected next value
          * 
          * @param value_function a pointer on the value function to use to perform the calculus.
-         * @param state the state on which to evaluate the next expected value *
+         * @param state the state on which to evaluate the next expected value
          * @param action the action
          * @param t the time step
          * @return the expected next value
