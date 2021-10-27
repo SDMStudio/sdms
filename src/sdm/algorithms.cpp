@@ -98,41 +98,45 @@ namespace sdm
             std::shared_ptr<sdm::ValueFunction> upper_bound;
 
             // Lower Bound
-            //             if (lower_bound_name == "maxplan")
-            //             {
-            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, exhaustive_selection, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            //             }
-            //             else if (lower_bound_name == "maxplan_wcsp")
-            //             {
-            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_wcsp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            //             }
-            // #ifdef WITH_CPLEX
-            //             else if (lower_bound_name == "maxplan_serial")
-            //             {
-            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            //             }
-            //             else if (lower_bound_name == "maxplan_lp")
-            //             {
-            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            //             }
-            //             else if (lower_bound_name == "maxplan_lp_serial")
-            //             {
-            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            //             }
-            // #endif
-            //             else
-            //             {
-            if (store_state)
-                lower_bound = std::make_shared<TabularValueFunction>(problem, lb_init, exhaustive_selection);
+            if (lower_bound_name == "maxplan")
+            {
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, exhaustive_selection, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::MaxPlanUpdateOperator>(lower_bound);
+            }
+            else if (lower_bound_name == "maxplan_wcsp")
+            {
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_wcsp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::MaxPlanUpdateOperator>(lower_bound);
+            }
+#ifdef WITH_CPLEX
+            else if (lower_bound_name == "maxplan_serial")
+            {
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::MaxPlanUpdateOperator>(lower_bound);
+            }
+            else if (lower_bound_name == "maxplan_lp")
+            {
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::MaxPlanUpdateOperator>(lower_bound);
+            }
+            else if (lower_bound_name == "maxplan_lp_serial")
+            {
+                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+                lb_update_operator = std::make_shared<update::MaxPlanUpdateOperator>(lower_bound);
+            }
+#endif
+            else if (lower_bound_name == "tabular")
+            {
+                if (store_state)
+                    lower_bound = std::make_shared<TabularValueFunction>(problem, lb_init, exhaustive_selection);
+                else
+                    lower_bound = std::make_shared<TabularValueFunction2>(problem, lb_init, exhaustive_selection);
+                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
+            }
             else
-                lower_bound = std::make_shared<TabularValueFunction2>(problem, lb_init, exhaustive_selection);
-            lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            // }
+            {
+                std::cout << "Unrecognized Lower bound name" << std::endl;
+            }
             lower_bound->setUpdateOperator(lb_update_operator);
 
             // Upper Bound

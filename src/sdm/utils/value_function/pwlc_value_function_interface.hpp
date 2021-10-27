@@ -37,6 +37,9 @@ namespace sdm
 
         virtual std::vector<std::shared_ptr<State>> getHyperplanesAt(number t) = 0;
 
-        virtual void getBeta(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual double getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t) = 0;
+
+        virtual double getDefaultValue(number t) = 0;
+
     };
 }

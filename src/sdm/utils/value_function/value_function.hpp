@@ -16,7 +16,6 @@ namespace sdm
     using namespace update;
 
     /**
-     * @class ValueFunction
      * @brief This class contains attributes and methods common to all value functions.
      *
      * Some attributes are callable. They will be called to update the value function (i.e. the initializer, the backup).
@@ -60,11 +59,11 @@ namespace sdm
         double operator()(const std::shared_ptr<State> &state, const number &t = 0);
 
         /**
-         * @brief Evaluate the element given
+         * @brief Evaluate the value of an input state
          *
-         * @param state : ELement to evaluate
-         * @param t
-         * @return Pair<std::shared_ptr<State>, double>
+         * @param state the state to evaluate
+         * @param t the time step
+         * @return a state / value pair 
          */
         virtual Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
 
