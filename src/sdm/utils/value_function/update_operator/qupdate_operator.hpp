@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 
 namespace sdm
 {
@@ -41,7 +42,17 @@ namespace sdm
              *
              * @param qvalue_function the qvalue function
              */
-            QUpdateOperator(const std::shared_ptr<TQValueFunction> &value_function);
+            QUpdateOperator(const std::shared_ptr<ValueFunctionInterface> &qvalue_function)
+            {
+                if (auto derived = std::dynamic_pointer_cast<TQValueFunction>(qvalue_function))
+                {
+                    this->qvalue_function = derived;
+                }
+                else
+                {
+                    throw sdm::exception::TypeError("Cannot instanciate QUpdateOperator<T> with q-value function that does not derive from T.");
+                }
+            }
 
             /**
              * @brief Update the value function.
@@ -57,8 +68,8 @@ namespace sdm
             std::shared_ptr<TQValueFunction> qvalue_function;
         };
 
-        // using PWLCQUpdateOperator = QUpdateOperator<PWLCQValueFunction>;
         using TabularQUpdateOperator = QUpdateOperator<TabularQValueFunctionInterface>;
+        using PWLCQUpdateOperator = QUpdateOperator<PWLCValueFunctionInterface>;
 
     } // namespace update
 } // namespace sdm

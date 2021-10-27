@@ -7,16 +7,16 @@ namespace sdm
 {
     LPBase::LPBase() {}
 
-    LPBase::LPBase(const std::shared_ptr<SolvableByHSVI> &world) : world_(world) {}
+    LPBase::LPBase(const std::shared_ptr<SolvableByDP> &world) : world_(world) {}
 
     LPBase::~LPBase() {}
 
-    std::shared_ptr<SolvableByHSVI> LPBase::getWorld() const
+    std::shared_ptr<SolvableByDP> LPBase::getWorld() const
     {
         return this->world_;
     }
 
-    Pair<std::shared_ptr<Action>, double> LPBase::createLP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> LPBase::createLP(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
         number index = 0;
 
@@ -65,7 +65,7 @@ namespace sdm
             else
             {
                 value = cplex.getObjValue();
-                action = this->getVariableResult(vf, state, cplex, var, t);
+                action = this->getVariableResult(vf, state, cplex, variables, t);
             }
         }
         catch (IloException &e)

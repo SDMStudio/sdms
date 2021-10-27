@@ -1,13 +1,12 @@
 #pragma once
 
 #include <cstddef>
+#include <chrono>
 #include <iostream>
 #include <boost/bimap.hpp>
 
 #include "sys/types.h"
 #include "sys/sysinfo.h"
-
-#include <chrono>
 
 #include <sdm/config.hpp>
 

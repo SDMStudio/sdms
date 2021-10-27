@@ -2,20 +2,20 @@
 
 #pragma once
 
-#include <sdm/utils/value_function/action_selection/constraint_programming_selection.hpp>
 #include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 
 namespace sdm
 {
-    class ActionSelectionMaxplanLP : public ConstraintProgrammingSelection, public DecentralizedLP
+    class ActionSelectionMaxplanLP : public MaxPlanSelectionBase, public DecentralizedLP
     {
     public:
         using TData = std::shared_ptr<State>;
 
         ActionSelectionMaxplanLP();
-        ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByHSVI> &world);
+        ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world);
 
-        Pair<std::shared_ptr<Action>, double> createAndSolveCP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
         double beta(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t);
 
@@ -39,7 +39,7 @@ namespace sdm
          * @param var 
          * @param t 
          */
-        void createVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number &index, number t);
+        void createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Create a Objective Constraint of the LP
@@ -49,7 +49,7 @@ namespace sdm
          * @param obj 
          * @param t 
          */
-        void createObjectiveFunction(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
+        void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
 
         /**
          * @brief Create the constraints of the LP
@@ -61,7 +61,7 @@ namespace sdm
          * @param index 
          * @param t 
          */
-        void createConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Set decentralized variables 
@@ -72,7 +72,7 @@ namespace sdm
          * @param const number& : index variable
          * @param number : time step
          */
-        virtual void createDecentralizedVariables(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
+        virtual void createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Set decentralized constraints 
@@ -83,7 +83,7 @@ namespace sdm
          * @param number&
          * @param number : time step
          */
-        virtual void createDecentralizedConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        virtual void createDecentralizedConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Get the result of the variable created
@@ -94,14 +94,14 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Action> 
          */
-        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t);
+        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t);
 
         /**
          * @brief Get the world
          * 
          * @return the world 
          */
-        std::shared_ptr<SolvableByHSVI> getWorld() const;
+        std::shared_ptr<SolvableByDP> getWorld() const;
     };
 }
 

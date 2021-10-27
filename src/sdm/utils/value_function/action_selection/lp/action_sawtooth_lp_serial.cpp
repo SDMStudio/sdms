@@ -12,7 +12,7 @@
 namespace sdm
 {
     ActionSelectionSawtoothLPSerial::ActionSelectionSawtoothLPSerial() {}
-    ActionSelectionSawtoothLPSerial::ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution,
+    ActionSelectionSawtoothLPSerial::ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution,
                                                        number bigM_value, TypeSawtoothLinearProgram type_of_linear_programm)
         : ActionSelectionSawtoothLP(world, current_type_of_resolution, bigM_value, type_of_linear_programm)
     {

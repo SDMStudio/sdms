@@ -2,7 +2,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/nn/mlpnet.hpp>
-#include <sdm/utils/value_function/deep_qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/deep_qvalue_function.hpp>
 
 namespace sdm
 {

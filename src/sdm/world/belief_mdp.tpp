@@ -221,9 +221,9 @@ namespace sdm
     }
 
     template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        bool skip_compute_next_state = (value_function->isFiniteHorizon() && ((t + 1) > value_function->getHorizon()));
+        bool skip_compute_next_state = (this->isFiniteHorizon() && ((t + 1) > this->getHorizon()));
         // Compute next state (if required)
         return (skip_compute_next_state) ? Pair<std::shared_ptr<State>, double>({nullptr, 1.}) : this->getNextStateAndProba(belief, action, observation->toObservation(), t);
     }
@@ -269,7 +269,7 @@ namespace sdm
         for (const auto &observation : *accessible_observation_space)
         {
             // Compute next state
-            auto [next_state, state_transition_proba] = this->getNextState(value_function, belief, action, observation->toObservation(), t);
+            auto [next_state, state_transition_proba] = this->getNextState(belief, action, observation->toObservation(), t);
 
             // Update the next expected value at the next state
             exp_next_v += state_transition_proba * value_function->getValueAt(next_state, t + 1);
@@ -293,7 +293,6 @@ namespace sdm
     template <class TBelief>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseBeliefMDP<TBelief>::step(std::shared_ptr<Action> action)
     {
-
         // Compute reward
         double belief_reward = this->getReward(this->current_state_, action, this->step_);
 

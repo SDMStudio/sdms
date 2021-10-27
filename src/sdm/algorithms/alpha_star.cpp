@@ -16,9 +16,9 @@ namespace sdm
     {
         auto init = std::make_shared<POMDPInitializer>(world, "HSVI");
         auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
-        auto bound = std::make_shared<TabularValueFunction>(world_->getUnderlyingProblem()->getHorizon(), init, action_tabular);
+        auto bound = std::make_shared<TabularValueFunction>(world, init, action_tabular);
         
-        bound->setUpdateOperator(std::make_shared<TabularUpdate>(world, bound));
+        bound->setUpdateOperator(std::make_shared<TabularUpdate>(bound));
         
         this->bound_ = bound;
     }
@@ -120,7 +120,7 @@ namespace sdm
 
                         for (const auto &observation : *observation_space)
                         {
-                            auto [next_state, proba] = this->world_->getNextState(this->bound_, state, action->toAction(), observation->toObservation(), h);
+                            auto [next_state, proba] = this->world_->getNextState(state, action->toAction(), observation->toObservation(), h);
 
                             this->map_element_to_alpha_item.at(h + 1).emplace(next_state, std::make_shared<AlphaStarItem>(next_state, std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), h + 1));
 

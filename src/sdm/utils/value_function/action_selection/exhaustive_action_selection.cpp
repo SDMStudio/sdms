@@ -1,10 +1,11 @@
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
 
 namespace sdm
 {
     ExhaustiveActionSelection::ExhaustiveActionSelection() {}
 
-    ExhaustiveActionSelection::ExhaustiveActionSelection(const std::shared_ptr<SolvableByHSVI> &world) : ActionSelectionBase(world) {}
+    ExhaustiveActionSelection::ExhaustiveActionSelection(const std::shared_ptr<SolvableByDP> &world) : ActionSelectionBase(world) {}
 
     Pair<std::shared_ptr<Action>, double> ExhaustiveActionSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {

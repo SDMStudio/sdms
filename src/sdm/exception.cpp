@@ -22,6 +22,11 @@ namespace sdm
         {
         }
 
+
+        TypeError::TypeError(const std::string& msg_) : Exception(msg_)
+        {
+        }
+
         std::string FileNotFoundException::get_file() const
         {
             return file;

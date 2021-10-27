@@ -8,23 +8,21 @@ namespace sdm
 
     ValueFunction::ValueFunction() {}
 
-    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer,
+    ValueFunction::ValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                 const std::shared_ptr<Initializer> &initializer,
                                  const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                  const std::shared_ptr<UpdateOperatorInterface> &update_operator)
-        : ValueFunctionInterface(horizon, initializer, action_selection), update_operator_(update_operator)
+        : ValueFunctionInterface(world, initializer, action_selection), update_operator_(update_operator)
     {
     }
 
-    ValueFunction::ValueFunction(const ValueFunction &copy) : ValueFunctionInterface(copy.horizon_, copy.initializer_, copy.action_selection_),
-                                                              update_operator_(copy.update_operator_)
+    ValueFunction::ValueFunction(const ValueFunction &copy) : ValueFunction(copy.world_, copy.initializer_, copy.action_selection_, copy.update_operator_)
     {
     }
-
-    ValueFunction::~ValueFunction() {}
 
     double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(vf, state, action, t);
+        return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
     }
 
     double ValueFunction::operator()(const std::shared_ptr<State> &state, const number &t)
@@ -32,19 +30,14 @@ namespace sdm
         return this->getValueAt(state, t);
     }
 
-    void ValueFunction::initialize()
-    {
-        ValueFunctionInterface::initialize();
-    }
-
-    void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
-    {
-        this->init_function_ = init_function;
-    }
-
     std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
     {
         return this->init_function_;
+    }
+
+    void ValueFunction::setInitFunction(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
+    {
+        this->init_function_ = init_function;
     }
 
     void ValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
@@ -69,7 +62,7 @@ namespace sdm
 
     std::shared_ptr<ValueFunction> ValueFunction::getptr()
     {
-        return std::static_pointer_cast<ValueFunction>(this->shared_from_this());
+        return std::dynamic_pointer_cast<ValueFunction>(this->shared_from_this());
     }
 
     size_t ValueFunction::getSize() const

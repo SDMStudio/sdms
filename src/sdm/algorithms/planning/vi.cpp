@@ -13,13 +13,14 @@ namespace sdm
         initLogger();
         value_function->initialize();
     }
-    
-    void ValueIteration::printInfo(){
-        std::cout << config::LOG_SDMS << "-------------------" << std::endl;
-        std::cout << config::LOG_SDMS << "ALGO=ValueIteration"  << std::endl;
-        std::cout << config::LOG_SDMS << "# name=" << name << std::endl;
-        std::cout << config::LOG_SDMS << "# error="  <<error<< std::endl;
-        std::cout << config::LOG_SDMS << "-------------------" << std::endl;
+
+    void ValueIteration::printInfo()
+    {
+        std::cout << "-------------------" << std::endl;
+        std::cout << "ALGO=ValueIteration" << std::endl;
+        std::cout << "# name=" << name << std::endl;
+        std::cout << "# error=" << error << std::endl;
+        std::cout << "-------------------" << std::endl;
     }
 
     void ValueIteration::solve()
@@ -73,7 +74,6 @@ namespace sdm
 
                             // Recursive explore
                             explore(next_state->toState(), cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action->toAction(), t), t + 1);
-
                         }
                     }
                 }

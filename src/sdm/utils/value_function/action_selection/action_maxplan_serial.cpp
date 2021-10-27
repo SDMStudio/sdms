@@ -14,33 +14,14 @@ namespace sdm
 {
     ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial() {}
 
-    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByHSVI> &world) : ActionSelectionBase(world) {}
+    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world) {}
 
-    Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanSerial::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanSerial::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {
-        // Definie local Variable
-        double argmax_global = -std::numeric_limits<double>::max();
-        std::shared_ptr<Action> decision_max;
-        std::shared_ptr<State> best_hyperplan;
-
-        // // Go other the hyperplanes of decision step t+1
-        for (const auto &hyperplan : value_function->getSupport(t + 1))
-        {
-            // Compute the best action and corresponding value for a hyperplan
-            auto decision_and_value = this->selectBestDecisionRuleKnowingNextHyperplan(value_function, state, hyperplan, t);
-
-            // Take the best deterministic decision rule and best hyperplan associated
-            if (argmax_global < decision_and_value.second)
-            {
-                argmax_global = decision_and_value.second;
-                decision_max = decision_and_value.first;
-                best_hyperplan = hyperplan;
-            }
-        }
-        return {decision_max, argmax_global};
+        return this->selectBestDecisionRuleKnowingNextHyperplan(value_function, state, this->tmp_representation, t);
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)
     {
         auto serial_occupancy_state = state->toOccupancyState();
         auto under_pb = std::dynamic_pointer_cast<SerialMMDPInterface>(this->world_->getUnderlyingProblem());

@@ -8,92 +8,78 @@ namespace sdm
     {
     }
 
-    double State2OccupancyValueFunction::operatorState(const std::shared_ptr<State> &state, const number &tau)
+    double State2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &t)
     {
-        return this->mdp_vf_->operator()(state, tau);
+        if (state == nullptr)
+        {
+            return getRelaxation()->operator()(state, t);
+        }
+        else if (sdm::isInstanceOf<OccupancyStateInterface>(state))
+        {
+            return operatorOccupancyState(state->toOccupancyState(), t);
+        }
+        else if (sdm::isInstanceOf<BeliefInterface>(state))
+        {
+            return operatorBeliefState(state->toBelief(), t);
+        }
+        else
+        {
+            return operatorState(state, t);
+        }
     }
 
-    double State2OccupancyValueFunction::operatorBelief(const std::shared_ptr<State> &state, const number &tau)
+    double State2OccupancyValueFunction::operatorState(const std::shared_ptr<State> &state, const number &t)
+    {
+        return this->getMDPValueFunction()->operator()(state, t);
+    }
+
+    double State2OccupancyValueFunction::operatorBeliefState(const std::shared_ptr<BeliefInterface> &belief_state, const number &t)
     {
         double value = 0.0;
-        auto ostate = state->toBelief();
 
-        for (auto &ost : ostate->getStates())
+        for (auto &state : belief_state->getStates())
         {
-            value += ostate->getProbability(ost) * this->mdp_vf_->operator()(ost, tau);
+            value += belief_state->getProbability(state) * operatorState(state, t);
         }
         return value;
     }
 
-    double State2OccupancyValueFunction::operatorOccupancy(const std::shared_ptr<State> &state, const number &tau)
+    double State2OccupancyValueFunction::operatorOccupancyState(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const number &t)
     {
         double value = 0.0;
-        auto ostate = state->toOccupancyState();
-
-        for (auto &jhistory : ostate->getJointHistories())
+        for (auto &jhistory : occupancy_state->getJointHistories())
         {
-            double belief_value = this->operator()(ostate->getBeliefAt(jhistory), tau);
-            value += ostate->getProbability(jhistory) * belief_value;
+            double belief_value = this->operatorBeliefState(occupancy_state->getBeliefAt(jhistory), t);
+            value += occupancy_state->getProbability(jhistory) * belief_value;
         }
         return value;
     }
 
-    double State2OccupancyValueFunction::operator()(const std::shared_ptr<State> &state, const number &tau)
-    {
-        if(state == nullptr)
-        {
-            return this->mdp_vf_->operator()(state, tau);
-        }
-
-        switch (state->getTypeState())
-        {
-        case TypeState::STATE:
-            return operatorState(state, tau);
-            break;
-
-        case TypeState::BELIEF_STATE:
-            return operatorBelief(state, tau);
-            break;
-
-        case TypeState::OCCUPANCY_STATE:
-            return operatorOccupancy(state, tau);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE:
-            return operatorOccupancy(state, tau);
-            break;
-
-        default:
-            return operatorState(state, tau);
-            break;
-        }
-        // return this->operator()<>(ostate, tau);
-    }
-
-    double State2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, const number &tau)
+    double State2OccupancyValueFunction::operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, const number &t)
     {
         switch (state_AND_action.first->getTypeState())
         {
-        case TypeState::STATE :
-            return this->operatorQTableState(state_AND_action,tau);
+        case TypeState::STATE:
+            return this->operatorQTableState(state_AND_action, t);
             break;
 
-        case TypeState::BELIEF_STATE :
-            return operatorQTableBelief(state_AND_action,tau);
+        case TypeState::BELIEF_STATE:
+            return operatorQTableBelief(state_AND_action, t);
             break;
         default:
-            return this->operatorQTableState(state_AND_action,tau);
+            return this->operatorQTableState(state_AND_action, t);
             break;
         }
     }
 
-    double State2OccupancyValueFunction::operatorQTableState(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau)
+    double State2OccupancyValueFunction::operatorQTableState(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, const number &t)
     {
         auto state = state_AND_action.first;
         auto action = state_AND_action.second;
 
-        return this->mdp_vf_->template backup<double>(state, action, tau);
+        return this->getMDPValueFunction()->getQValueAt(state, action, t);
     }
-    double State2OccupancyValueFunction::operatorQTableBelief(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>>  &state_AND_action, const number &tau)
+    double State2OccupancyValueFunction::operatorQTableBelief(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &state_AND_action, const number &t)
     {
         auto state = state_AND_action.first->toBelief();
         auto action = state_AND_action.second;
@@ -101,12 +87,10 @@ namespace sdm
         double value = 0.0;
         for (auto &ost : state->getStates())
         {
-            value += state->getProbability(ost) * this->mdp_vf_->template backup<double>(ost, action, tau);
+            value += state->getProbability(ost) * this->getMDPValueFunction()->getQValueAt(ost, action, t);
         }
         return value;
     }
-
-
 
     bool State2OccupancyValueFunction::isPomdpAvailable()
     {
@@ -118,6 +102,11 @@ namespace sdm
     }
 
     std::shared_ptr<ValueFunction> State2OccupancyValueFunction::getRelaxation()
+    {
+        return this->mdp_vf_;
+    }
+
+    std::shared_ptr<ValueFunction> State2OccupancyValueFunction::getMDPValueFunction()
     {
         return this->mdp_vf_;
     }

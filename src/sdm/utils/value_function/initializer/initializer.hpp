@@ -20,8 +20,6 @@
 namespace sdm
 {
     class SolvableByHSVI;
-    class ValueFunction;
-    class QValueFunction;
     class ValueFunctionInterface;
 
     /**
@@ -31,35 +29,22 @@ namespace sdm
     class Initializer
     {
     public:
-        virtual void init(std::shared_ptr<ValueFunction> vf) = 0;
         virtual ~Initializer() {}
+        virtual void init(std::shared_ptr<ValueFunctionInterface> vf) = 0;
     };
-
-    /**
-     * @brief Abstract class for action value function initializer. 
-     * 
-     */
-    class QInitializer
-    {
-    public:
-        virtual void init(std::shared_ptr<QValueFunction> vf) = 0;
-        virtual ~QInitializer() {}
-    };
-
+    
     /**
      * @brief This initializer initializes a value function to a constant value.
      * 
      */
-    class ValueInitializer : public Initializer, public QInitializer
+    class ValueInitializer : public Initializer
     {
     protected:
         double value;
 
     public:
-        ValueInitializer(double v) : value(v){};
-        void initBase(std::shared_ptr<ValueFunctionInterface> vf);
-        void init(std::shared_ptr<ValueFunction> vf);
-        void init(std::shared_ptr<QValueFunction> vf);
+        ValueInitializer(double v);
+        void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
     /**
@@ -87,9 +72,9 @@ namespace sdm
         BoundInitializer();
         BoundInitializer(std::shared_ptr<SolvableByHSVI> world, double value);
 
-        void init(std::shared_ptr<ValueFunction> vf);
-        double getValue(std::shared_ptr<ValueFunction> vf, number t);
-        double computeValueInfiniteHorizon(std::shared_ptr<ValueFunction> vf);
+        void init(std::shared_ptr<ValueFunctionInterface> vf);
+        double getValue(std::shared_ptr<ValueFunctionInterface> vf, number t);
+        double computeValueInfiniteHorizon(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
     /**
@@ -101,7 +86,7 @@ namespace sdm
     public:
         MinInitializer(std::shared_ptr<SolvableByHSVI> world);
 
-        void init(std::shared_ptr<ValueFunction> vf);
+        void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
     /**
@@ -113,11 +98,12 @@ namespace sdm
     public:
         MaxInitializer(std::shared_ptr<SolvableByHSVI> world);
 
-        void init(std::shared_ptr<ValueFunction> vf);
+        void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
     /**
      * @brief This initializer calculates the initial lower bound $\bar{V}_0$ using the blind  policy method [Hauskrecht, 1997]. 
+     * 
      * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf . 
      * 
      */
@@ -126,7 +112,7 @@ namespace sdm
     public:
         BlindInitializer(std::shared_ptr<SolvableByHSVI> world);
 
-        void init(std::shared_ptr<ValueFunction> vf);
+        void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
 } // namespace sdm

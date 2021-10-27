@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sdm/utils/value_function/action_selection/constraint_programming_selection.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 #include <sdm/utils/linear_programming/variable_naming.hpp>
 
 // #include "../../toulbar2/src/toulbar2lib.hpp"
@@ -8,28 +8,28 @@
 
 namespace sdm
 {
-    class ActionSelectionMaxplanWCSP : public ConstraintProgrammingSelection, public VarNaming
+    class ActionSelectionMaxplanWCSP : public MaxPlanSelectionBase, public VarNaming
     {
     public:
         using TData = std::shared_ptr<State>;
 
         ActionSelectionMaxplanWCSP();
-        ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByHSVI> &world);
-
-        Pair<std::shared_ptr<Action>, double> createAndSolveCP(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, number t);
+        ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world);
 
         /**
-         * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time
-         * 
-         * @param const std::shared_ptr<ValueFunction>& vf : Value function
-         * @param const std::shared_ptr<State>& state : current state
-         * @param number t : time step
-         * @return  Pair<std::shared_ptr<Action>,TData> : best action and the hyperplan at t+1 associated
+         * @brief Compute the greedy action and corresponding value for a specific next hyperplan (saved in the temporary representation).
+         *
+         * @param vf the value function
+         * @param state the state
+         * @param t the time step
+         * @return action and corresponding value
          */
-        Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t);
+
+        Pair<std::shared_ptr<Action>, double> createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, number t);
 
         // Fonction temporaire le temps de bien comprendre
-        Pair<std::shared_ptr<Action>, double> createWCSPProblem(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
+        // Pair<std::shared_ptr<Action>, double> createWCSPProblem(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
 
     protected:
         /**

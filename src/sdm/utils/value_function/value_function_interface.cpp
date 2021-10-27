@@ -8,9 +8,10 @@ namespace sdm
     {
     }
 
-    ValueFunctionInterface::ValueFunctionInterface(number horizon, const std::shared_ptr<Initializer> &initializer,
+    ValueFunctionInterface::ValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                                                   const std::shared_ptr<Initializer> &initializer,
                                                    const std::shared_ptr<ActionSelectionInterface> &action_selection)
-        : horizon_(horizon), initializer_(initializer), action_selection_(action_selection)
+        : horizon_(world->getHorizon()), world_(world), initializer_(initializer), action_selection_(action_selection)
     {
     }
 
@@ -32,12 +33,27 @@ namespace sdm
 
     std::shared_ptr<Action> ValueFunctionInterface::getGreedyAction(const std::shared_ptr<State> &state, number t)
     {
-        return this->getActionSelection()->getGreedyActionAndValue(state, t).first;
+        return this->getGreedyActionAndValue(state, t).first;
     }
 
     Pair<std::shared_ptr<Action>, double> ValueFunctionInterface::getGreedyActionAndValue(const std::shared_ptr<State> &state, number t)
     {
-        return this->getActionSelection()->getGreedyActionAndValue(state, t);
+        auto action_selector = this->getActionSelection();
+        if (!action_selector)
+        {
+            throw sdm::exception::Exception("Action selector not set. Please use the method <ValueFunction>::setActionSelector.");
+        }
+        return this->getActionSelection()->getGreedyActionAndValue(this->getptr(), state, t);
+    }
+
+    std::shared_ptr<SolvableByDP> ValueFunctionInterface::getWorld() const
+    {
+        return this->world_;
+    }
+
+    std::shared_ptr<ValueFunctionInterface> ValueFunctionInterface::getptr()
+    {
+        return shared_from_this();
     }
 
     void ValueFunctionInterface::save(std::string)

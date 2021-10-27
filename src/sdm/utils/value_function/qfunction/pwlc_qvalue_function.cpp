@@ -1,12 +1,23 @@
-#include <sdm/utils/value_function/pwlc_qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
 #include <sdm/core/action/decision_rule.hpp>
 
 namespace sdm
 {
     double PieceWiseLinearConvexQValueFunction::GRANULARITY = 0.1;
 
-    PieceWiseLinearConvexQValueFunction::PieceWiseLinearConvexQValueFunction(const std::shared_ptr<OccupancyMDP> &omdp, number horizon, double learning_rate, double default_value)
-        : QValueFunction(horizon), omdp(omdp), default_value_(default_value), learning_rate_(learning_rate)
+    // PieceWiseLinearConvexQValueFunction::PieceWiseLinearConvexQValueFunction(const std::shared_ptr<OccupancyMDP> &omdp, number horizon, double learning_rate, double default_value)
+    //     : ValueFunctionInterface(horizon), omdp(omdp), default_value_(default_value)
+    // {
+    //     this->representation = std::vector<PSI>(this->isInfiniteHorizon() ? 1 : this->getHorizon() + 1, PSI());
+    // }
+
+    PieceWiseLinearConvexQValueFunction::PieceWiseLinearConvexQValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                                                             const std::shared_ptr<Initializer> &initializer,
+                                                                             const std::shared_ptr<ActionSelectionInterface> &action,
+                                                                             const std::shared_ptr<PWLCQUpdateOperator> &update_operator)
+        : ValueFunctionInterface(world, initializer, action),
+          QValueFunction(world, initializer, action, update_operator),
+          PWLCValueFunctionInterface(world, initializer, action)
     {
         this->representation = std::vector<PSI>(this->isInfiniteHorizon() ? 1 : this->getHorizon() + 1, PSI());
     }
@@ -58,19 +69,20 @@ namespace sdm
 
     void PieceWiseLinearConvexQValueFunction::updateQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double delta, number t)
     {
-        auto h = this->isInfiniteHorizon() ? 0 : t;
-        auto q_s = this->getQ(state, h);
-        if (q_s == nullptr)
-        {
-            auto casted_state = std::dynamic_pointer_cast<OccupancyState>(state);
-            representation[h][*casted_state] = TabularQValueFunction(0, this->learning_rate_);
-            q_s = this->getQ(state, h);
-        }
-        for (auto o : state->toOccupancyState()->getJointHistories())
-        {
-            auto u = omdp->applyDecisionRule(state->toOccupancyState(), o, action, h);
-            q_s->updateQValueAt(o, u, delta * state->toOccupancyState()->getProbability(o));
-        }
+        // auto h = this->isInfiniteHorizon() ? 0 : t;
+        // auto q_s = this->getQ(state, h);
+        // if (q_s == nullptr)
+        // {
+        //     auto casted_state = std::dynamic_pointer_cast<OccupancyState>(state);
+        //     representation[h][*casted_state] = TabularQValueFunction(0, this->learning_rate_);
+        //     q_s = this->getQ(state, h);
+        // }
+        // for (auto o : state->toOccupancyState()->getJointHistories())
+        // {
+        //     auto u = omdp->applyDecisionRule(state->toOccupancyState(), o, action, h);
+        //     q_s->updateQValueAt(o, u, delta * state->toOccupancyState()->getProbability(o));
+        // }
+        throw sdm::exception::NotImplementedException();
     }
 
     void PieceWiseLinearConvexQValueFunction::updateQValueAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number)

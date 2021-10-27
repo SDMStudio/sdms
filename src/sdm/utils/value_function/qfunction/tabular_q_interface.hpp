@@ -6,13 +6,12 @@
 
 namespace sdm
 {
-    class TabularQValueFunctionInterface : public QValueFunction
+    class TabularQValueFunctionInterface : virtual public ValueFunctionInterface
     {
     public:
-        TabularQValueFunctionInterface(number horizon = 0,
+        TabularQValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
                                        const std::shared_ptr<Initializer> &intializer = nullptr,
-                                       const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
-                                       const std::shared_ptr<TabularQUpdateOperator> &update_operator = nullptr);
+                                       const std::shared_ptr<ActionSelectionInterface> &action_selection = nullptr);
 
         /**
          * @brief Set the q-value at a specific state s, action a and timestep t.

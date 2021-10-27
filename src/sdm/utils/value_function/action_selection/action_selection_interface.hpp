@@ -5,7 +5,7 @@
 
 namespace sdm
 {
-    class ValueFunction;
+    class ValueFunctionInterface;
 
     class ActionSelectionInterface
     {

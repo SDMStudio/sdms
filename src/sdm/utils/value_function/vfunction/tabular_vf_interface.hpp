@@ -6,13 +6,12 @@
 
 namespace sdm
 {
-    class TabularValueFunctionInterface : public ValueFunction
+    class TabularValueFunctionInterface : virtual public ValueFunctionInterface
     {
     public:
-        TabularValueFunctionInterface(number horizon = 0,
+        TabularValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
                                       const std::shared_ptr<Initializer> &initializer = nullptr,
-                                      const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
-                                      const std::shared_ptr<TabularUpdateOperator> &update_operator = nullptr);
+                                      const std::shared_ptr<ActionSelectionInterface> &action = nullptr);
 
         /**
          * @brief Set the value function at state s and timestep t to a new value.

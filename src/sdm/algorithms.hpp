@@ -47,7 +47,7 @@ namespace sdm
         /**
          * @brief Build QLearning algorithm.
          */
-        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<GymInterface> problem,
+        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<SolvableByDP> problem,
                                                         number horizon = 0,
                                                         double discount = 0.9,
                                                         double lr = 0.01,

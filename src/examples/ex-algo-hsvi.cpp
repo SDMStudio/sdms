@@ -41,8 +41,8 @@ int main(int argc, char **argv)
 
 		std::shared_ptr<ValueFunction> lb, ub;
 		// Instanciate value functions
-		lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
-		ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
+		lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
+		ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
 
 		// Instanciate HSVI
 		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, error, 10000, "", 1, 1);

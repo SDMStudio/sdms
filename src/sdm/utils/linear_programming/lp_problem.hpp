@@ -11,13 +11,13 @@ namespace sdm
     {
     public:
         LPBase();
-        LPBase(const std::shared_ptr<SolvableByHSVI> &);
+        LPBase(const std::shared_ptr<SolvableByDP> &);
         ~LPBase();
 
         /**
          * @brief Get the world 
          */
-        std::shared_ptr<SolvableByHSVI> getWorld() const;
+        std::shared_ptr<SolvableByDP> getWorld() const;
 
         /**
          * @brief Main function who is used to create the Linear program and solve it.
@@ -26,13 +26,13 @@ namespace sdm
          * @param t the time step
          * @return the decision rule 
          */
-        Pair<std::shared_ptr<Action>, double> createLP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &occupancy_state, number t);
+        Pair<std::shared_ptr<Action>, double> createLP(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, number t);
 
     protected:
         /**
          * @brief The world
          */
-        std::shared_ptr<SolvableByHSVI> world_;
+        std::shared_ptr<SolvableByDP> world_;
     };
 }
 #endif

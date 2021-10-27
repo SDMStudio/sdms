@@ -2,9 +2,9 @@
 
 #include <sdm/types.hpp>
 #include <sdm/core/function.hpp>
+#include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
-#include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -22,56 +22,22 @@ namespace sdm
      * Some attributes are callable. They will be called to update the value function (i.e. the initializer, the backup).
      *
      */
-    class ValueFunction
-        : public ValueFunctionInterface,
-          public BinaryFunction<std::shared_ptr<State>, number, double>
+    class ValueFunction : virtual public ValueFunctionInterface,
+                          public BinaryFunction<std::shared_ptr<State>, number, double>
 
     {
     public:
         ValueFunction();
 
-        /**
-         * @brief Construct an incremental value function object.
-         *
-         * @param horizon the horizon
-         * @param intializer the initializer function
-         * @param backup the backup function
-         * @param action the action selection function
-         */
-        ValueFunction(number horizon = 0, const std::shared_ptr<Initializer> &intializer = nullptr,
+        ValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                      const std::shared_ptr<Initializer> &intializer = nullptr,
                       const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
                       const std::shared_ptr<UpdateOperatorInterface> &update_operator = nullptr);
 
         /**
          * @brief Copy constructor
-         *
-         * @param copy the value function to be copied
          */
         ValueFunction(const ValueFunction &copy);
-
-        /**
-         * @brief Destroy the value function
-         *
-         */
-        virtual ~ValueFunction();
-
-        /**
-         * @brief Initialize the value function
-         *
-         */
-        void initialize();
-
-        /**
-         * @brief Initialize the value function with a default value
-         */
-        virtual void initialize(double v, number t = 0) = 0;
-
-        /**
-         * @brief Set a function as a interactive way to get initial values for state that are not already initialized.
-         *
-         * @param init_function the function that enables to get initial values
-         */
-        void initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function);
 
         /**
          * @brief Get the value at a given state
@@ -117,13 +83,6 @@ namespace sdm
         virtual void updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
-         * @brief Get the Init Function
-         *
-         * @return the function used as default function
-         */
-        std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
-
-        /**
          * @brief Get the update operator
          */
         std::shared_ptr<UpdateOperatorInterface> getUpdateOperator() const;
@@ -136,9 +95,18 @@ namespace sdm
         void setUpdateOperator(std::shared_ptr<UpdateOperatorInterface> update_operator);
 
         /**
-         * @brief Return the possible indexes of the value function
+         * @brief Get the Init Function
+         *
+         * @return the function used as default function
          */
-        virtual std::vector<std::shared_ptr<State>> getSupport(number t) = 0;
+        std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> getInitFunction();
+
+        /**
+         * @brief Set a function as a interactive way to get initial values for state that are not already initialized.
+         *
+         * @param init_function the function that enables to get initial values
+         */
+        void setInitFunction(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function);
 
         /**
          * @brief Get the total size of the value function
@@ -154,6 +122,11 @@ namespace sdm
          * @brief Get a shared pointer on this value function
          */
         std::shared_ptr<ValueFunction> getptr();
+
+        /**
+         * @brief Return the possible indexes of the value function
+         */
+        virtual std::vector<std::shared_ptr<State>> getSupport(number t = 0) = 0;
 
     protected:
         /**

@@ -5,13 +5,10 @@
 
 namespace sdm
 {
-    class ValueFunctionApproximationInterface : public ValueFunction
+    class PrunableStructure
     {
     public:
-        ValueFunctionApproximationInterface(number horizon = 0, const std::shared_ptr<Initializer> &initializer = nullptr,
-                                            const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
-                                            const std::shared_ptr<UpdateOperatorInterface> &update_operator = nullptr,
-                                            int freq_pruning = -1);
+        PrunableStructure(number horizon = 0,int freq_pruning = -1);
 
         /**
          * @brief Apply the pruning process to the whole structure.
@@ -45,5 +42,10 @@ namespace sdm
          * @brief Frequency of pruning.
          */
         int freq_pruning;
+
+        /**
+         * @brief The horizon.
+         */
+        number horizon;
     };
 } // namespace sdm

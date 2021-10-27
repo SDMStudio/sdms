@@ -12,7 +12,7 @@ namespace sdm
         using TData = ActionSelectionSawtoothLP::TData;
 
         ActionSelectionSawtoothLPSerial();
-        ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
+        ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
 
         /**
          * @brief Create constraints with the Big M formalim

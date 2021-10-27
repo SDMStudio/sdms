@@ -8,11 +8,11 @@
 namespace sdm
 {
 
-    class ConstraintProgrammingSelection : public ActionSelectionBase
+    class MaxPlanSelectionBase : public ActionSelectionBase
     {
     public:
-        ConstraintProgrammingSelection();
-        ConstraintProgrammingSelection(const std::shared_ptr<SolvableByHSVI> &world);
+        MaxPlanSelectionBase();
+        MaxPlanSelectionBase(const std::shared_ptr<SolvableByDP> &world);
 
         /**
          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time
@@ -25,14 +25,14 @@ namespace sdm
         Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
         /**
-         * @brief Create and solve the constrained problem.
+         * @brief Compute the greedy action and corresponding value for a specific next hyperplan (saved in the temporary representation).
          *
          * @param vf the value function
          * @param state the state
          * @param t the time step
          * @return action and corresponding value
          */
-        virtual Pair<std::shared_ptr<Action>, double> createAndSolveCP(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t) = 0;
+        virtual Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t) = 0;
 
     protected:
         /**

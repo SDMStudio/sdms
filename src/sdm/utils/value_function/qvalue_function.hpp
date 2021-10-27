@@ -12,12 +12,10 @@
 
 #include <memory>
 
+#include <sdm/types.hpp>
 #include <sdm/core/function.hpp>
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
-#include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/update_operator/qupdate_operator.hpp>
-#include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -36,27 +34,16 @@ namespace sdm
      * usable by reinforcement learning algorithms
      *
      */
-    class QValueFunction : public ValueFunctionInterface
+    class QValueFunction : virtual public ValueFunctionInterface
     {
 
     public:
         QValueFunction();
 
-        QValueFunction(number horizon = 0,
-                       const std::shared_ptr<Initializer> &intializer = nullptr,
+        QValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                       const std::shared_ptr<Initializer> &initializer = nullptr,
                        const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
                        const std::shared_ptr<QUpdateOperatorInterface> &update_operator = nullptr);
-
-        /**
-         * @brief Initialize the value function
-         *
-         */
-        virtual void initialize();
-
-        /**
-         * @brief Initialize the value function with a default value
-         */
-        virtual void initialize(double v, number t = 0) = 0;
 
         /**
          * @brief Get the value at a given state
@@ -70,17 +57,24 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Update the value at a given time step
          */
-        void updateQValueAt(number t = 0);
+        void updateValueAt(number t = 0);
 
         /**
          * @brief Get the update operator
          */
         std::shared_ptr<QUpdateOperatorInterface> getUpdateOperator() const;
+
+        /**
+         * @brief Set the update operator
+         * 
+         * @param update_operator the update operator
+         */
+        void setUpdateOperator(std::shared_ptr<QUpdateOperatorInterface> update_operator);
 
         /**
          * @brief Get a shared pointer on this q-value function

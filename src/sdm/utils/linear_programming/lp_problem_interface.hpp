@@ -19,7 +19,7 @@ namespace sdm
          * @param t 
          * @return Pair<std::shared_ptr<Action>,double> 
          */
-        virtual Pair<std::shared_ptr<Action>,double> createLP(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, number t) = 0;
+        virtual Pair<std::shared_ptr<Action>,double> createLP(const std::shared_ptr<ValueFunctionInterface>&vf, const std::shared_ptr<State> &occupancy_state, number t) = 0;
 
         /**
          * @brief Create the variable which will be used to resolve the LP
@@ -29,7 +29,7 @@ namespace sdm
          * @param var 
          * @param t 
          */
-        virtual void createVariables(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var,number &index, number t) = 0;
+        virtual void createVariables(const std::shared_ptr<ValueFunctionInterface>&vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var,number &index, number t) = 0;
         
         /**
          * @brief Create a Objective Constraint of the LP
@@ -39,7 +39,7 @@ namespace sdm
          * @param obj 
          * @param t 
          */
-        virtual void createObjectiveFunction(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t) = 0;
+        virtual void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface>&vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t) = 0;
         
         /**
          * @brief Create the constraints of the LP
@@ -51,7 +51,7 @@ namespace sdm
          * @param index 
          * @param t 
          */
-        virtual void createConstraints(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
+        virtual void createConstraints(const std::shared_ptr<ValueFunctionInterface>&vf, const std::shared_ptr<State>& occupancy_state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t) = 0;
 
         /**
          * @brief Get the result of the variable created
@@ -62,6 +62,6 @@ namespace sdm
          * @param t 
          * @return std::shared_ptr<Action> 
          */
-        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state,const IloCplex &cplex, const IloNumVarArray &var, number t) =0;
+        virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunctionInterface>&vf, const std::shared_ptr<State> &occupancy_state,const IloCplex &cplex, const IloNumVarArray &var, number t) =0;
     };
 }

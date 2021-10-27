@@ -17,6 +17,7 @@
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/public/boost_serializable.hpp>
+#include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
 
@@ -55,7 +56,8 @@ namespace sdm
          * @param action_selection the action selection operator
          * @param update_operator the update operator
          */
-        ValueFunctionInterface(number horizon, const std::shared_ptr<Initializer> &initializer,
+        ValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
+                               const std::shared_ptr<Initializer> &initializer,
                                const std::shared_ptr<ActionSelectionInterface> &action_selection);
 
         /**
@@ -67,6 +69,11 @@ namespace sdm
          * @brief Initialize the value function 
          */
         virtual void initialize();
+
+        /**
+         * @brief Initialize the value function to a constant value
+         */
+        virtual void initialize(double v, number t = 0) = 0;
 
         /**
          * @brief Get the value at a given state
@@ -101,6 +108,13 @@ namespace sdm
         virtual Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<State> &state, number t);
 
         /**
+         * @brief Get the corresponding world
+         * 
+         * @return the world 
+         */
+        virtual std::shared_ptr<SolvableByDP> getWorld() const;
+
+        /**
          * @brief Save a value function into a file. 
          * 
          * The extension of the file will indicate the type of formatage for 
@@ -129,6 +143,11 @@ namespace sdm
          * function
          */
         virtual std::string str() const = 0;
+
+        /**
+         * @brief Get a shared pointer on this value function
+         */
+        std::shared_ptr<ValueFunctionInterface> getptr();
 
         /**
          * @brief Get the horizon
@@ -173,6 +192,12 @@ namespace sdm
          * @brief The horizon for planning/learning.
          */
         number horizon_;
+
+        /**
+         * @brief The world 
+         * 
+         */
+        std::shared_ptr<SolvableByDP> world_;
 
         /**
          * @brief The initializer to use for this value function. 
