@@ -11,7 +11,7 @@
 namespace sdm
 {
     ActionSelectionSawtoothLP::ActionSelectionSawtoothLP() {}
-    ActionSelectionSawtoothLP::ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByHSVI> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program) : ActionSelectionBase(world), DecentralizedLP(world), current_type_of_resolution_(current_type_of_resolution), type_of_linear_program_(type_of_linear_program)
+    ActionSelectionSawtoothLP::ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program) : ActionSelectionBase(world), DecentralizedLP(world), current_type_of_resolution_(current_type_of_resolution), type_of_linear_program_(type_of_linear_program)
     {
         this->bigM_value_ = bigM_value;
     }
@@ -250,8 +250,8 @@ namespace sdm
 
     void ActionSelectionSawtoothLP::createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        assert(vf->getInitFunction() != nullptr);
-
+        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
+        assert(value_function->getInitFunction() != nullptr);
         //<!  Build sawtooth constraints v - \sum_{u} a(u|o) * Q(k,s,o,u,y,z, diff, t  ) + \omega_k(y,<o,z>)*M <= M,  \forall k, y,<o,z>
         //<!  Build sawtooth constraints  Q(k,s,o,u,y,z, diff, t ) = (v_k - V_k) \frac{\sum_{x} s(x,o) * p(x,u,z,y)}}{s_k(y,<o,z>)},  \forall a(u|o)
 
@@ -259,9 +259,9 @@ namespace sdm
         {
             auto compressed_occupancy_state = state->toOccupancyState();
 
-            if (vf->getSupport(t + 1).empty())
+            if (value_function->getSupport(t + 1).empty())
             {
-                this->createInitialConstraints(vf, state, env, con, var, index, t);
+                this->createInitialConstraints(value_function, state, env, con, var, index, t);
             }
             else
             {
@@ -272,7 +272,7 @@ namespace sdm
                     const auto &next_one_step_uncompressed_occupancy_state = ostate->toOccupancyState()->getOneStepUncompressedOccupancy();
 
                     // Compute the difference i.e. (v_k - V_k)
-                    double difference = this->computeDifference(vf, next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first, t);
+                    double difference = this->computeDifference(value_function, next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first, t);
 
                     // Go over all joint histories in over the support of next_one_step_uncompressed_occupancy_state
                     for (const auto &next_history_AND_All_next_hidden_state : next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.second)
@@ -288,13 +288,13 @@ namespace sdm
                             // Determine the next Joint observation thanks to the next joint history
                             auto next_joint_observation = this->determineNextJointObservation(next_history, t);
 
-                            this->createConstraintsKnowingInformation(vf, state, nullptr, next_hidden_state, next_joint_observation, next_history, next_one_step_uncompressed_occupancy_state, denominator, difference, env, model, con, var, index, t);
+                            this->createConstraintsKnowingInformation(value_function, state, nullptr, next_hidden_state, next_joint_observation, next_history, next_one_step_uncompressed_occupancy_state, denominator, difference, env, model, con, var, index, t);
                         }
                     }
                     this->createOmegaConstraints(next_state_AND_value_AND_All_next_history_AND_All_next_hidden_state.first, env, con, var, index);
                 }
             }
-            this->createDecentralizedConstraints(vf, state, env, con, var, index, t);
+            this->createDecentralizedConstraints(value_function, state, env, con, var, index, t);
         }
         catch (const std::exception &exc)
         {
@@ -351,6 +351,7 @@ namespace sdm
 
     void ActionSelectionSawtoothLP::createInitialConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
+        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
         auto under_pb = ActionSelectionBase::world_->getUnderlyingProblem();
 
         number recover = 0;
@@ -367,7 +368,7 @@ namespace sdm
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
 
-                Qrelaxation = this->getQValueRelaxation(vf, state, joint_history, action->toAction(), t);
+                Qrelaxation = this->getQValueRelaxation(value_function, state, joint_history, action->toAction(), t);
                 con[index].setLinearCoef(var[recover], -Qrelaxation);
             }
         }
@@ -458,7 +459,7 @@ namespace sdm
     // ************************************************************************
     // ************************************************************************
 
-    double ActionSelectionSawtoothLP::getQValueRelaxation(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t)
+    double ActionSelectionSawtoothLP::getQValueRelaxation(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t)
     {
         // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
         double weight = 0.0;
@@ -485,11 +486,12 @@ namespace sdm
 
     double ActionSelectionSawtoothLP::computeSawtooth(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator, double difference, number t)
     {
-        double Qrelaxation = this->getQValueRelaxation(vf, state, joint_history, action, t);
+        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
+        double Qrelaxation = this->getQValueRelaxation(value_function, state, joint_history, action, t);
         double SawtoothRatio = 0.0;
         if (joint_history->expand(next_observation) == next_joint_history)
         {
-            SawtoothRatio = this->getSawtoothMinimumRatio(vf, state, joint_history, action, next_hidden_state, next_observation, denominator, t);
+            SawtoothRatio = this->getSawtoothMinimumRatio(value_function, state, joint_history, action, next_hidden_state, next_observation, denominator, t);
         }
 
         return Qrelaxation + SawtoothRatio * difference;
@@ -550,6 +552,7 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, double> ActionSelectionSawtoothLP::evaluate(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &decision_rule, number t)
     {
+            auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionSelectionBase::world_);
         auto occupancy_state = state_tmp->toOccupancyState();
 
@@ -559,14 +562,14 @@ namespace sdm
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
             auto action = occupancy_mdp->applyDecisionRule(occupancy_state, joint_history, decision_rule, t);
-            min_ext += this->getQValueRelaxation(vf, occupancy_state, joint_history, action->toAction(), t);
+            min_ext += this->getQValueRelaxation(value_function, occupancy_state, joint_history, action->toAction(), t);
         }
 
         // Go over all element in the support
-        for (const auto &point_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
+        for (const auto &point_value : std::dynamic_pointer_cast<TabularValueFunction>(value_function)->getRepresentation(t + 1))
         {
             auto point = point_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
-            double difference = this->computeDifference(vf, point_value, t);
+            double difference = this->computeDifference(value_function, point_value, t);
 
             double max_value = -std::numeric_limits<double>::max();
 
@@ -585,7 +588,7 @@ namespace sdm
                     for (const auto &joint_history : occupancy_state->getJointHistories())
                     {
                         auto action = occupancy_mdp->applyDecisionRule(occupancy_state, joint_history, decision_rule, t);
-                        total += this->computeSawtooth(vf, occupancy_state, action, joint_history, next_hidden_state, next_observation, next_joint_history, denominator, difference, t);
+                        total += this->computeSawtooth(value_function, occupancy_state, action, joint_history, next_hidden_state, next_observation, next_joint_history, denominator, difference, t);
                     }
 
                     // determine the max for the support

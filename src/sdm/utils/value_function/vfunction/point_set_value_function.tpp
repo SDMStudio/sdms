@@ -13,12 +13,13 @@ namespace sdm
                                                                          const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                                                          int freq_pruning,
                                                                          TypeOfSawtoothPrunning type_of_sawtooth_prunning)
-        : BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection, update_operator, true),
+        : ValueFunctionInterface(world, initializer, action_selection),
+          BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection, update_operator),
           PrunableStructure(world->getHorizon(), freq_pruning),
           type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
     {
 #ifdef WITH_CPLEX
-        if (std::dynamic_pointer_cast<ActionSelectionSawtoothLP>(action_selection) || std::dynamic_pointer_cast<ActionSelectionSawtoothLPSerial>(action_selection))
+        if (isInstanceOf<ActionSelectionSawtoothLP>(action_selection))
         {
             this->is_sawtooth_lp = true;
         }
@@ -28,122 +29,130 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        double value = (t >= this->getHorizon()) ? this->representation[t].getDefault() : this->evaluate(state, t).second;
-        return value;
+        return this->evaluate(state, t).second;
+    }
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::getRelaxedValueAt(const std::shared_ptr<State> &state, number t)
+    {
+        if (this->getInitFunction())
+            return this->getInitFunction()->operator()(state, t);
+        else
+            return this->getRepresentation(t).getDefault();
     }
 
     template <class Hash, class KeyEqual>
     Pair<std::shared_ptr<State>, double> BasePointSetValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state, number t)
     {
-        assert(this->getInitFunction() != nullptr);
-        assert(state->getTypeState() != TypeState::STATE);
 
-        double min_ext = 0.0;
-        double v_ub_state = this->getInitFunction()->operator()(state, t);
-
-        if (this->is_sawtooth_lp && this->getSupport(t).size() != 0)
+        auto iterator_on_point = this->representation[t].find(state);
+        if (iterator_on_point != this->representation[t].end())
         {
-            min_ext = std::numeric_limits<double>::max();
-        }
-
-        std::shared_ptr<State> argmin_ = state;
-
-        // Go over all element in the support
-        for (const auto &point_value : this->getRepresentation(t))
-        {
-            auto [point, v_kappa] = point_value;
-
-            double v_ub_kappa = this->getInitFunction()->operator()(point, t);
-
-            double phi = this->computeRatio(state, point, t);
-
-            // determine the min ext
-            double min_int = phi * (v_kappa - v_ub_kappa);
-            if (min_int < min_ext)
-            {
-                min_ext = min_int;
-                argmin_ = point;
-            }
-        }
-        return std::make_pair(argmin_, v_ub_state + min_ext);
-    }
-
-    template <class Hash, class KeyEqual>
-    double BasePointSetValueFunction<Hash, KeyEqual>::computeRatio(const std::shared_ptr<State> &state, const std::shared_ptr<State> &point, number t)
-    {
-        switch (state->getTypeState())
-        {
-        case TypeState::BELIEF_STATE:
-            return this->ratioBelief(state, point);
-            break;
-        case TypeState::OCCUPANCY_STATE:
-            return this->ratioOccupancy(state, point, t);
-            break;
-        case TypeState::SERIAL_OCCUPANCY_STATE:
-            return this->ratioOccupancy(state, point, t);
-            break;
-        default:
-            throw sdm::exception::Exception("BasePointSetValueFunction::evaluate not defined for this state!");
-            break;
-        }
-    }
-
-    template <class Hash, class KeyEqual>
-    double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<State> &point_tmp)
-    {
-        // Determine the ratio for the specific case when the state is a belief
-        double phi = 1.0;
-
-        auto state = state_tmp->toBelief();
-        auto point = point_tmp->toBelief();
-
-        for (auto &support : point->getStates())
-        {
-            double v_int = (state->getProbability(support) / point->getProbability(support));
-            // determine the min int
-            if (v_int < phi)
-            {
-                phi = v_int;
-            }
-        }
-        return phi;
-    }
-
-    template <class Hash, class KeyEqual>
-    double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<State> &state_tmp, const std::shared_ptr<State> &point_tmp, number t)
-    {
-        // Determine the ratio for the specific case when the state is a Occupancy State
-
-        double phi;
-        std::shared_ptr<OccupancyStateInterface> point, occupancy_state;
-        if (!this->is_sawtooth_lp)
-        {
-            phi = 1.0;
-            point = point_tmp->toOccupancyState();
-            occupancy_state = state_tmp->toOccupancyState();
+            return *iterator_on_point;
         }
         else
         {
-            phi = std::numeric_limits<double>::max();
-            point = point_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
-            occupancy_state = state_tmp->toOccupancyState()->getOneStepUncompressedOccupancy();
+            // Compute v(s) = v^{relax}(s) + min_k min_{x\in Supp(s^k)} \frac{s(x)}{s^k(x)} \left( v^{relax}(s^k) - v^k\right)
+            std::shared_ptr<State> argmin_k = state;
+            double min_k = (this->getSupport(t).size() == 0) ? 0.0 : std::numeric_limits<double>::max();
+            double v_relax = this->getRelaxedValueAt(state, t);
+
+            // Go over all points in the representation
+            for (const auto &point_k : this->getRepresentation(t))
+            {
+                // Dissociate element of the k-th point (state / value)
+                auto [s_k, v_k] = point_k;
+
+                // Estimate the value of the relaxation at s_k
+                double v_relax_k = this->getRelaxedValueAt(s_k, t);
+
+                // Get minimum ratio s(x)/s^k(x)
+                double ratio = this->computeRatio(state, s_k);
+
+                // Determine the "value" for k-th point
+                double min_int = ratio * (v_k - v_relax_k);
+
+                // If the "value" of k-th point is minimal, keep it
+                if (min_int < min_k)
+                {
+                    min_k = min_int;
+                    argmin_k = s_k;
+                }
+            }
+            return std::make_pair(argmin_k, v_relax + min_k);
+        }
+    }
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::computeRatio(const std::shared_ptr<State> &s, const std::shared_ptr<State> &s_k)
+    {
+        if (sdm::isInstanceOf<OccupancyStateInterface>(s))
+        {
+            return this->ratioOccupancy(s->toOccupancyState(), s_k->toOccupancyState());
+        }
+        else if (sdm::isInstanceOf<BeliefInterface>(s))
+        {
+            return this->ratioBelief(s->toBelief(), s_k->toBelief());
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<BeliefInterface> &b, const std::shared_ptr<BeliefInterface> &b_k)
+    {
+        // Determine the ratio for the specific case when the state is a belief
+        double min_ratio = 1.0;
+
+        for (auto &x : b_k->getStates())
+        {
+            double ratio_k_x = (b->getProbability(x) / b_k->getProbability(x));
+            // determine the min ratio
+            if (ratio_k_x < min_ratio)
+            {
+                min_ratio = ratio_k_x;
+            }
+        }
+        return min_ratio;
+    }
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_k)
+    {
+        // Determine the ratio for the specific case when the state is a Occupancy State
+
+        double min_ratio;
+        std::shared_ptr<OccupancyStateInterface> point, occupancy_state;
+        if (!this->is_sawtooth_lp)
+        {
+            min_ratio = 1.0;
+            point = s_k;
+            occupancy_state = s;
+        }
+        else
+        {
+            min_ratio = std::numeric_limits<double>::max();
+            point = s_k->getOneStepUncompressedOccupancy();
+            occupancy_state = s->getOneStepUncompressedOccupancy();
         }
 
         // Go over all joint history
-        for (auto &joint_history : point->getJointHistories())
+        for (auto &o : point->getJointHistories())
         {
             // Go over all hidden state in the belief conditionning to the joitn history
-            for (const auto &hidden_state : point->getBeliefAt(joint_history)->getStates())
+            for (const auto &x : point->getBeliefAt(o)->getStates())
             {
-                double v_int = (occupancy_state->getProbability(joint_history, hidden_state) / point->getProbability(joint_history, hidden_state));
+                double ratio_k_o_x = (occupancy_state->getProbability(o, x) / point->getProbability(o, x));
                 // determine the min int
-                if (v_int < phi)
+                if (ratio_k_o_x < min_ratio)
                 {
-                    phi = v_int;
+                    min_ratio = ratio_k_o_x;
                 }
             }
         }
-        return phi;
+        return min_ratio;
     }
 
     // **********************
@@ -168,7 +177,7 @@ namespace sdm
         for (const auto &point_AND_value : start_representation)
         {
             auto evaluate = this->evaluate(point_AND_value.first, t);
-            BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(point_AND_value.first, t, evaluate.second);
+            this->setValueAt(point_AND_value.first, evaluate.second, t);
             support_of_each_point[evaluate.first].push_back(point_AND_value.first);
         }
 
@@ -258,8 +267,8 @@ namespace sdm
         res << "<point_set_representation horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
         for (std::size_t i = 0; i < this->representation.size(); i++)
         {
-            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
-            for (const auto &pair_st_val : this->representation[i])
+            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation.at(i).getDefault() << "\">" << std::endl;
+            for (const auto &pair_st_val : this->representation.at(i))
             {
                 // res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
                 // res << "\t\t</state>" << std::endl;

@@ -38,7 +38,17 @@ namespace sdm
         {
         public:
             UpdateOperator() {}
-            UpdateOperator(const std::shared_ptr<TValueFunction> &value_function) : value_function(value_function) {}
+            UpdateOperator(const std::shared_ptr<ValueFunctionInterface> &value_function)
+            {
+                if (auto derived = std::dynamic_pointer_cast<TValueFunction>(value_function))
+                {
+                    this->value_function = derived;
+                }
+                else
+                {
+                    throw sdm::exception::TypeError("Cannot instanciate UpdateOperator<T> with value function that does not derive from T.");
+                }
+            }
 
             /**
              * @brief Update the value function.
@@ -62,7 +72,7 @@ namespace sdm
              * 
              * @param value_function the value function
              */
-            void setValueFunction(const std::shared_ptr<TValueFunction> & value_function) const
+            void setValueFunction(const std::shared_ptr<TValueFunction> &value_function) const
             {
                 this->value_function = value_function;
             }

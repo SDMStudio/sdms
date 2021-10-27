@@ -9,12 +9,12 @@ namespace sdm
     {
     public:
         ActionSelectionBase();
-        ActionSelectionBase(const std::shared_ptr<SolvableByHSVI> &world);
+        ActionSelectionBase(const std::shared_ptr<SolvableByDP> &world);
         virtual ~ActionSelectionBase();
 
-        std::shared_ptr<SolvableByHSVI> getWorld() const;
+        std::shared_ptr<SolvableByDP> getWorld() const;
 
     protected:
-        std::shared_ptr<SolvableByHSVI> world_;
+        std::shared_ptr<SolvableByDP> world_;
     };
 }

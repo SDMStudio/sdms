@@ -22,7 +22,7 @@ namespace sdm
      * @param world the problem to be solved by Backward induction
      * @param name the name of the algorithm (this name is used to save logs)
      */
-    BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,
+    BackwardInduction(const std::shared_ptr<SolvableByHSVI> &world,
                       std::string name = "backward induction");
 
     std::shared_ptr<BackwardInduction> getptr();
@@ -75,11 +75,7 @@ namespace sdm
     std::shared_ptr<ValueFunction> getBound() const;
 
   protected:
-    /**
-     * @brief The problem to be solved.
-     * 
-     */
-    std::shared_ptr<SolvableByHSVI> world_;
+    number LOG_DEPTH = 1; 
 
     /**
      * @brief representation. 

@@ -10,7 +10,7 @@ namespace sdm
         class TabularUpdate : public TabularUpdateOperator
         {
         public:
-            TabularUpdate(const std::shared_ptr<TabularValueFunctionInterface> &value_function);
+            TabularUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function);
 
             void update(std::shared_ptr<State> state, std::shared_ptr<Action> action, number t);
         };

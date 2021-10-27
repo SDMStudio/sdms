@@ -42,7 +42,17 @@ namespace sdm
              *
              * @param qvalue_function the qvalue function
              */
-            QUpdateOperator(const std::shared_ptr<TQValueFunction> &value_function);
+            QUpdateOperator(const std::shared_ptr<ValueFunctionInterface> &qvalue_function)
+            {
+                if (auto derived = std::dynamic_pointer_cast<TQValueFunction>(qvalue_function))
+                {
+                    this->qvalue_function = derived;
+                }
+                else
+                {
+                    throw sdm::exception::TypeError("Cannot instanciate QUpdateOperator<T> with q-value function that does not derive from T.");
+                }
+            }
 
             /**
              * @brief Update the value function.

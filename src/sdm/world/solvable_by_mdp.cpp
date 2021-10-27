@@ -74,11 +74,6 @@ namespace sdm
         return tmp;
     }
 
-    bool SolvableByMDP::isSerial() const
-    {
-        return false;
-    }
-
     const std::shared_ptr<MDPInterface> &SolvableByMDP::getUnderlyingProblem() const
     {
         return this->underlying_problem_;

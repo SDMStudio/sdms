@@ -98,67 +98,76 @@ namespace sdm
             std::shared_ptr<sdm::ValueFunction> upper_bound;
 
             // Lower Bound
-            if (lower_bound_name == "maxplan")
-            {
-                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, exhaustive_selection, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            }
-            else if (lower_bound_name == "maxplan_wcsp")
-            {
-                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_wcsp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            }
-#ifdef WITH_CPLEX
-            else if (lower_bound_name == "maxplan_serial")
-            {
-                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            }
-            else if (lower_bound_name == "maxplan_lp")
-            {
-                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            }
-            else if (lower_bound_name == "maxplan_lp_serial")
-            {
-                lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
-                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            }
-#endif
+            //             if (lower_bound_name == "maxplan")
+            //             {
+            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, exhaustive_selection, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
+            //             }
+            //             else if (lower_bound_name == "maxplan_wcsp")
+            //             {
+            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_wcsp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
+            //             }
+            // #ifdef WITH_CPLEX
+            //             else if (lower_bound_name == "maxplan_serial")
+            //             {
+            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
+            //             }
+            //             else if (lower_bound_name == "maxplan_lp")
+            //             {
+            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
+            //             }
+            //             else if (lower_bound_name == "maxplan_lp_serial")
+            //             {
+            //                 lower_bound = std::make_shared<PWLCValueFunction>(problem, lb_init, action_maxplan_lp_serial, nullptr, freq_prunning_lower_bound, type_of_maxplan_prunning);
+            //                 lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
+            //             }
+            // #endif
+            //             else
+            //             {
+            if (store_state)
+                lower_bound = std::make_shared<TabularValueFunction>(problem, lb_init, exhaustive_selection);
             else
-            {
-                if (store_state)
-                    lower_bound = std::make_shared<TabularValueFunction>(problem, lb_init, exhaustive_selection, nullptr, false);
-                else
-                    lower_bound = std::make_shared<TabularValueFunction2>(problem, lb_init, exhaustive_selection, nullptr, false);
-                lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
-            }
+                lower_bound = std::make_shared<TabularValueFunction2>(problem, lb_init, exhaustive_selection);
+            lb_update_operator = std::make_shared<update::TabularUpdate>(lower_bound);
+            // }
             lower_bound->setUpdateOperator(lb_update_operator);
 
             // Upper Bound
             if (upper_bound_name == "sawtooth")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, exhaustive_selection, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                if (store_state)
+                    upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, exhaustive_selection, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                else
+                    upper_bound = std::make_shared<PointSetValueFunction2>(problem, ub_init, exhaustive_selection, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
                 ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
 #ifdef WITH_CPLEX
             else if (upper_bound_name == "sawtooth_lp")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, action_sawtooth_lp, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                if (store_state)
+                    upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, action_sawtooth_lp, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                else
+                    upper_bound = std::make_shared<PointSetValueFunction2>(problem, ub_init, action_sawtooth_lp, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
                 ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
             else if (upper_bound_name == "sawtooth_lp_serial")
             {
-                upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, action_sawtooth_lp_serial, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                if (store_state)
+                    upper_bound = std::make_shared<PointSetValueFunction>(problem, ub_init, action_sawtooth_lp_serial, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
+                else
+                    upper_bound = std::make_shared<PointSetValueFunction2>(problem, ub_init, action_sawtooth_lp_serial, nullptr, freq_prunning_upper_bound, type_of_sawtooth_pruning);
                 ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
 #endif
             else
             {
                 if (store_state)
-                    upper_bound = std::make_shared<TabularValueFunction>(problem, ub_init, exhaustive_selection, nullptr, true);
+                    upper_bound = std::make_shared<TabularValueFunction>(problem, ub_init, exhaustive_selection);
                 else
-                    upper_bound = std::make_shared<TabularValueFunction2>(problem, ub_init, exhaustive_selection, nullptr, true);
+                    upper_bound = std::make_shared<TabularValueFunction2>(problem, ub_init, exhaustive_selection);
                 ub_update_operator = std::make_shared<update::TabularUpdate>(upper_bound);
             }
             upper_bound->setUpdateOperator(ub_update_operator);
@@ -178,9 +187,9 @@ namespace sdm
 
             std::shared_ptr<ValueFunction> value_function;
             if (store_state)
-                value_function = std::make_shared<TabularValueFunction>(problem, init, exhaustive_selection, nullptr, false);
+                value_function = std::make_shared<TabularValueFunction>(problem, init, exhaustive_selection);
             else
-                value_function = std::make_shared<TabularValueFunction2>(problem, init, exhaustive_selection, nullptr, false);
+                value_function = std::make_shared<TabularValueFunction2>(problem, init, exhaustive_selection);
 
             // Instanciate the update operator
             value_function->setUpdateOperator(std::make_shared<TabularUpdate>(value_function));
@@ -188,7 +197,7 @@ namespace sdm
             return std::make_shared<PBVI>(problem, value_function, error, time_max, name);
         }
 
-        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<GymInterface> problem,
+        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<SolvableByDP> problem,
                                                       number horizon,
                                                       double discount,
                                                       double lr,
@@ -218,11 +227,11 @@ namespace sdm
             std::shared_ptr<TabularQValueFunction> target_qvalue;
             target_qvalue = std::make_shared<TabularQValueFunction>(problem, initializer, exhaustive_selection);
 
-            // Set update operator 
+            // Set update operator
             qvalue->setUpdateOperator(std::make_shared<TabularQUpdate>(experience_memory, qvalue, target_qvalue, discount, lr));
 
             // Instanciate algorithme
-            std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, exploration, horizon, batch_size, num_episodes, name);
+            std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, batch_size, num_episodes, name);
 
             return algorithm;
         }
@@ -250,11 +259,11 @@ namespace sdm
             {
                 formalism_problem = std::make_shared<SolvableByMDP>(problem);
             }
-            else if ((formalism == "pomdp") || (formalism == "POMDP"))
+            else if ((formalism == "belief-mdp") || (formalism == "BeliefMDP") || (formalism == "bmdp") || (formalism == "bMDP"))
             {
                 formalism_problem = std::make_shared<BeliefMDP>(problem, batch_size);
             }
-            else if ((formalism == "decpomdp") || (formalism == "DecPOMDP") || (formalism == "dpomdp") || (formalism == "DPOMDP"))
+            else if ((formalism == "occupancy-mdp") || (formalism == "OccupancyMDP") || (formalism == "omdp") || (formalism == "oMDP"))
             {
                 formalism_problem = std::make_shared<OccupancyMDP>(problem, memory, compression, store_state, store_action, batch_size);
             }
@@ -263,12 +272,12 @@ namespace sdm
                 auto serial_mmdp = std::make_shared<SerialMMDP>(problem);
                 formalism_problem = std::make_shared<SolvableByMDP>(serial_mmdp);
             }
-            else if ((formalism == "extensive-pomdp") || (formalism == "Extensive-POMDP"))
+            else if ((formalism == "extensive-belief-mdp") || (formalism == "Extensive-BeliefMDP") || (formalism == "ext-bMDP") || (formalism == "ext-bmdp"))
             {
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
-            else if ((formalism == "extensive-decpomdp") || (formalism == "Extensive-DecPOMDP") || (formalism == "extensive-dpomdp") || (formalism == "Extensive-DPOMDP"))
+            else if ((formalism == "extensive-occupancy-mdp") || (formalism == "Extensive-OccupancyMDP") || (formalism == "ext-oMDP") || (formalism == "ext-omdp"))
             {
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, compression, store_state, store_action, batch_size);
@@ -325,15 +334,16 @@ namespace sdm
             }
             else if ((algo_name == "qlearning") || (algo_name == "QLearning") || (algo_name == "QLEARNING"))
             {
-                std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism_problem);
-                p_algo = makeQLearning(gym, formalism_problem->getUnderlyingProblem()->getHorizon(), discount, error, 1, trials, name);
+                // std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism_problem);
+                p_algo = makeQLearning(formalism_problem, formalism_problem->getUnderlyingProblem()->getHorizon(), discount, error, 1, trials, name);
             }
             else if ((algo_name == "Alpha*") || (algo_name == "A*"))
             {
-                if (!((formalism_name == "extensive-decpomdp") || (formalism_name == "Extensive-DecPOMDP") || (formalism_name == "extensive-dpomdp") ||
-                      (formalism_name == "Extensive-DPOMDP") || (formalism_name == "decpomdp") || (formalism_name == "DecPOMDP") || (formalism_name == "dpomdp") || (formalism_name == "DPOMDP")))
+                if (!((formalism_name == "Extensive-OccupancyMDP") || (formalism_name == "extensive-occupancy-mdp") ||
+                      (formalism_name == "ext-oMDP") || (formalism_name == "ext-omdp") || (formalism_name == "omdp") ||
+                      (formalism_name == "OccupancyMDP") || (formalism_name == "oMDP") || (formalism_name == "occupancy-mdp")))
                 {
-                    throw sdm::exception::Exception("Formalism impossible for A* algorithm, the problem have to be a decpomdp or extensive-decpomdp");
+                    throw sdm::exception::Exception("Formalism impossible for A* algorithm, the problem have to be a derive from occupancy MDP");
                 }
                 p_algo = std::make_shared<AlphaStar>(formalism_problem);
             }

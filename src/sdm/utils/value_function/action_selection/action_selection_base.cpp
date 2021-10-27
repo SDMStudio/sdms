@@ -3,11 +3,11 @@ namespace sdm
 {
     ActionSelectionBase::ActionSelectionBase() {}
 
-    ActionSelectionBase::ActionSelectionBase(const std::shared_ptr<SolvableByHSVI> &world) : world_(world) {}
+    ActionSelectionBase::ActionSelectionBase(const std::shared_ptr<SolvableByDP> &world) : world_(world) {}
 
     ActionSelectionBase::~ActionSelectionBase() {}
 
-    std::shared_ptr<SolvableByHSVI> ActionSelectionBase::getWorld() const
+    std::shared_ptr<SolvableByDP> ActionSelectionBase::getWorld() const
     {
         return this->world_;
     }

@@ -11,13 +11,13 @@ namespace sdm
     {
     public:
         LPBase();
-        LPBase(const std::shared_ptr<SolvableByHSVI> &);
+        LPBase(const std::shared_ptr<SolvableByDP> &);
         ~LPBase();
 
         /**
          * @brief Get the world 
          */
-        std::shared_ptr<SolvableByHSVI> getWorld() const;
+        std::shared_ptr<SolvableByDP> getWorld() const;
 
         /**
          * @brief Main function who is used to create the Linear program and solve it.
@@ -32,7 +32,7 @@ namespace sdm
         /**
          * @brief The world
          */
-        std::shared_ptr<SolvableByHSVI> world_;
+        std::shared_ptr<SolvableByDP> world_;
     };
 }
 #endif

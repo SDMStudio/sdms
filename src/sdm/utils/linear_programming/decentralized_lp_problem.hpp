@@ -12,7 +12,7 @@ namespace sdm
     public :
 
         DecentralizedLP();
-        DecentralizedLP(const std::shared_ptr<SolvableByHSVI>&);
+        DecentralizedLP(const std::shared_ptr<SolvableByDP>&);
 
         /**
          * @brief Set decentralized variables 

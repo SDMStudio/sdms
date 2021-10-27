@@ -5,20 +5,12 @@
 
 namespace sdm
 {
-    BackwardInduction::BackwardInduction(std::shared_ptr<SolvableByHSVI> &world, std::string name) : DynamicProgramming(world, 0, name)
+    BackwardInduction::BackwardInduction(const std::shared_ptr<SolvableByHSVI> &world, std::string name) : DynamicProgramming(world, 0, name)
     {
-        // auto tabular_backup = std::make_shared<TabularBackup>(world);
-        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
-
         auto init = std::make_shared<MinInitializer>(world);
-
-        auto bound = std::make_shared<TabularValueFunction>(world, init, action_tabular);
-
-        bound->setUpdateOperator(std::make_shared<TabularUpdate>(bound));
-
-        this->bound_ = bound;
-
-        
+        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
+        this->bound_ = std::make_shared<TabularValueFunction>(world, init, action_tabular);
+        this->bound_->setUpdateOperator(std::make_shared<TabularUpdate>(this->bound_));
     }
 
     std::shared_ptr<BackwardInduction> BackwardInduction::getptr()
@@ -37,16 +29,16 @@ namespace sdm
         std::cout << "#############    Start BackwardInduction \"" << this->name_ << "\"    ####################\n";
         std::cout << "###############################################################\n\n";
 
-        this->start_state = this->world_->getInitialState();
+        this->start_state = getWorld()->getInitialState();
 
         this->explore(start_state, 0, 0);
 
-        std::cout << "#>Value Final, s h:" << 0 << "\t V_(" << this->bound_->getValueAt(start_state, 0) << ")" << std::endl;
+        std::cout << "#> Value Final, s h:" << 0 << "\t V_(" << this->bound_->getValueAt(start_state, 0) << ")" << std::endl;
     }
 
     bool BackwardInduction::stop(const std::shared_ptr<State> &, double, number h)
     {
-        return this->world_->getUnderlyingProblem()->getHorizon() <= h;
+        return (h >= this->getWorld()->getHorizon());
     }
 
     void BackwardInduction::explore(const std::shared_ptr<State> &state, double cost_so_far, number h)
@@ -58,23 +50,23 @@ namespace sdm
                 double best_value = -std::numeric_limits<double>::max(), resultat_backpropagation;
 
                 // Go over all actions
-                auto action_space = this->world_->getActionSpaceAt(state, h);
+                auto action_space = getWorld()->getActionSpaceAt(state, h);
                 for (const auto &action : *action_space)
                 {
-                    resultat_backpropagation = this->world_->getReward(state, action->toAction(), h);
+                    resultat_backpropagation = getWorld()->getReward(state, action->toAction(), h);
 
                     // Go over all observations
-                    auto observation_space = this->world_->getObservationSpaceAt(state, action->toAction(), h);
+                    auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), h);
                     for (const auto &observation : *observation_space)
                     {
                         // Compute next state and proba
-                        auto [next_state, proba] = this->world_->getNextState( state, action->toAction(), observation->toObservation(), h);
-                        
+                        auto [next_state, proba] = getWorld()->getNextState(state, action->toAction(), observation->toObservation(), h);
+
                         // Explore next state
-                        this->explore(next_state, cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, action->toAction(), h), h + 1);
+                        this->explore(next_state, cost_so_far + getWorld()->getDiscount(h) * getWorld()->getReward(state, action->toAction(), h), h + 1);
 
                         // Update backprop value
-                        resultat_backpropagation += this->world_->getDiscount(h) * proba * this->bound_->getValueAt(next_state, h + 1);
+                        resultat_backpropagation += getWorld()->getDiscount(h) * proba * this->bound_->getValueAt(next_state, h + 1);
                     }
 
                     if (best_value < resultat_backpropagation)
@@ -84,12 +76,14 @@ namespace sdm
                 }
                 this->bound_->setValueAt(state, best_value, h);
             }
-            //---------------DEBUG-----------------//
-            if (h == 1)
+            if (h <= LOG_DEPTH)
             {
-                std::cout << "#>Backward, s h:" << h << "\t V_(" << this->bound_->getValueAt(state, h) << ")" << std::endl;
+                for (int i = 0; i < h; i++)
+                {
+                    std::cout << "\t";
+                }
+                std::cout << "#> h: " << h << "\ts: " << state->str() << "\t V_(" << this->bound_->getValueAt(state, h) << ")" << std::endl;
             }
-            //-----------------DEBUG----------------//
 
             // ------------- TEST ------------
         }

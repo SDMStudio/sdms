@@ -7,11 +7,11 @@ namespace sdm
 {
     LPBase::LPBase() {}
 
-    LPBase::LPBase(const std::shared_ptr<SolvableByHSVI> &world) : world_(world) {}
+    LPBase::LPBase(const std::shared_ptr<SolvableByDP> &world) : world_(world) {}
 
     LPBase::~LPBase() {}
 
-    std::shared_ptr<SolvableByHSVI> LPBase::getWorld() const
+    std::shared_ptr<SolvableByDP> LPBase::getWorld() const
     {
         return this->world_;
     }

@@ -293,7 +293,6 @@ namespace sdm
     template <class TBelief>
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> BaseBeliefMDP<TBelief>::step(std::shared_ptr<Action> action)
     {
-
         // Compute reward
         double belief_reward = this->getReward(this->current_state_, action, this->step_);
 

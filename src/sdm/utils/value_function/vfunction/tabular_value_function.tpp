@@ -13,12 +13,10 @@ namespace sdm
     BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                                                        const std::shared_ptr<Initializer> &initializer,
                                                                        const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                                                                       const std::shared_ptr<TabularUpdateOperator> &update_operator,
-                                                                       bool is_upper_bound)
+                                                                       const std::shared_ptr<TabularUpdateOperator> &update_operator)
         : ValueFunctionInterface(world, initializer, action_selection),
           ValueFunction(world, initializer, action_selection, update_operator),
-          TabularValueFunctionInterface(world, initializer, action_selection),
-          is_upper_bound_(is_upper_bound)
+          TabularValueFunctionInterface(world, initializer, action_selection)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
     }
@@ -30,7 +28,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::initialize()
     {
-        this->initializer_->init(this->getptr());
+        this->getInitializer()->init(this->getptr());
     }
 
     template <class Hash, class KeyEqual>
@@ -49,7 +47,7 @@ namespace sdm
                 return this->getInitFunction()->operator()(state, t);
             }
         }
-        double value = this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
+        double value = this->getRepresentation(t).at(state);
         return value;
     }
 
@@ -95,7 +93,7 @@ namespace sdm
         res << "<tabular_value_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
         for (std::size_t i = 0; i < this->representation.size(); i++)
         {
-            res << "\t<value_function t=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation[i].getDefault() << "\">" << std::endl;
+            res << "\t<value_function t=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << this->representation.at(i).getDefault() << "\">" << std::endl;
             for (const auto &pair_state_val : this->representation[i])
             {
                 res << "\t\t<value>\n";
@@ -125,11 +123,4 @@ namespace sdm
 
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::do_pruning(number) {}
-
-    template <class Hash, class KeyEqual>
-    double BaseTabularValueFunction<Hash, KeyEqual>::getDefaultAt(number t)
-    {
-        return this->representation.at(t).getDefault();
-    }
-
 } // namespace sdm

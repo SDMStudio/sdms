@@ -14,7 +14,7 @@ namespace sdm
 {
     ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial() {}
 
-    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByHSVI> &world) : MaxPlanSelectionBase(world) {}
+    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world) {}
 
     Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanSerial::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {

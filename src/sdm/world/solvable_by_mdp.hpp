@@ -111,14 +111,6 @@ namespace sdm
         const std::shared_ptr<MDPInterface> &getUnderlyingProblem() const;
 
         /**
-         * @brief Check if the problem is serialized.
-         * 
-         * @return true if the problem is serialized.
-         * @return false if the problem is not serialized.
-         */
-        bool isSerial() const;
-
-        /**
          * @brief Get the specific discount factor for the problem at hand
          * 
          * @param number decision epoch or any other parameter 

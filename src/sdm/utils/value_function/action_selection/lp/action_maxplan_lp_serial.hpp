@@ -12,7 +12,7 @@ namespace sdm
         using TData = std::shared_ptr<State>;
         
         ActionSelectionMaxplanLPSerial();
-        ActionSelectionMaxplanLPSerial(const std::shared_ptr<SolvableByHSVI>& world);
+        ActionSelectionMaxplanLPSerial(const std::shared_ptr<SolvableByDP>& world);
         
         /**
          * @brief Create a Objective Constraint of the LP

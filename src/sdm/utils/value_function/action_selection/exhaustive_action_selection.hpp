@@ -8,7 +8,7 @@ namespace sdm
     {
     public:
         ExhaustiveActionSelection();
-        ExhaustiveActionSelection(const std::shared_ptr<SolvableByHSVI> &world);
+        ExhaustiveActionSelection(const std::shared_ptr<SolvableByDP> &world);
 
         /**
          * @brief Select the best action for a state at a precise time

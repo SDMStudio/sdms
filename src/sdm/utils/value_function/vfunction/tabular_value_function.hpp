@@ -27,8 +27,7 @@ namespace sdm
         BaseTabularValueFunction(const std::shared_ptr<SolvableByDP> &world = nullptr,
                                  const std::shared_ptr<Initializer> &initialize = nullptr,
                                  const std::shared_ptr<ActionSelectionInterface> &action_selectionr = nullptr,
-                                 const std::shared_ptr<TabularUpdateOperator> &update_operator = nullptr,
-                                 bool is_upper_bound = false);
+                                 const std::shared_ptr<TabularUpdateOperator> &update_operator = nullptr);
 
         BaseTabularValueFunction(const BaseTabularValueFunction &copy);
 
@@ -115,7 +114,6 @@ namespace sdm
 
         // Will soon be deprecated
         void do_pruning(number t);
-        double getDefaultAt(number t);
 
     protected:
         /**
@@ -124,8 +122,6 @@ namespace sdm
          * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          */
         std::vector<Container> representation;
-
-        bool is_upper_bound_;
 
     public:
         friend class boost::serialization::access;

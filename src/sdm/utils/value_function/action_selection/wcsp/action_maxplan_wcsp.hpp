@@ -14,7 +14,7 @@ namespace sdm
         using TData = std::shared_ptr<State>;
 
         ActionSelectionMaxplanWCSP();
-        ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByHSVI> &world);
+        ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world);
 
         /**
          * @brief Compute the greedy action and corresponding value for a specific next hyperplan (saved in the temporary representation).

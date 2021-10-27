@@ -13,7 +13,7 @@ namespace sdm
         using TData = std::shared_ptr<State>;
 
         ActionSelectionMaxplanSerial();
-        ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByHSVI> &world);
+        ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world);
 
         /**
          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time

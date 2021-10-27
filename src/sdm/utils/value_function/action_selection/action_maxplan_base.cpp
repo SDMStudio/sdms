@@ -11,7 +11,7 @@ namespace sdm
     {
     }
 
-    MaxPlanSelectionBase::MaxPlanSelectionBase(const std::shared_ptr<SolvableByHSVI> &world) : ActionSelectionBase(world)
+    MaxPlanSelectionBase::MaxPlanSelectionBase(const std::shared_ptr<SolvableByDP> &world) : ActionSelectionBase(world)
     {
     }
 

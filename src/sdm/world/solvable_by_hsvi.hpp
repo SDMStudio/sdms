@@ -46,15 +46,6 @@ namespace sdm
         virtual Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t) = 0;
 
         /**
-         * @brief Check if the problem is serialized.
-         * 
-         * @return true if the problem is serialized.
-         * @return false if the problem is not serialized.
-         */
-        virtual bool isSerial() const = 0;
-
-
-        /**
          * @brief Get the specific weighted discount factor for the problem at hand
          * 
          * @param number decision epoch or any other parameter 

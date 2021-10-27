@@ -31,7 +31,7 @@ namespace sdm
   class QLearning : public Algorithm
   {
   public:
-    QLearning(std::shared_ptr<GymInterface> &env,
+    QLearning(const std::shared_ptr<GymInterface> &env,
               std::shared_ptr<ExperienceMemoryInterface> experience_memory,
               std::shared_ptr<QValueFunction> q_value,
               std::shared_ptr<QValueFunction> q_target,

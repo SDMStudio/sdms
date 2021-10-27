@@ -13,7 +13,7 @@ namespace sdm
         using TData = std::shared_ptr<State>;
 
         ActionSelectionMaxplanLP();
-        ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByHSVI> &world);
+        ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world);
 
         Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
@@ -101,7 +101,7 @@ namespace sdm
          * 
          * @return the world 
          */
-        std::shared_ptr<SolvableByHSVI> getWorld() const;
+        std::shared_ptr<SolvableByDP> getWorld() const;
     };
 }
 

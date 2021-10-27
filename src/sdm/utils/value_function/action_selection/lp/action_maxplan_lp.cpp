@@ -11,7 +11,7 @@ namespace sdm
 {
 
     ActionSelectionMaxplanLP::ActionSelectionMaxplanLP() {}
-    ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByHSVI> &world) : MaxPlanSelectionBase(world), DecentralizedLP(world) {}
+    ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world), DecentralizedLP(world) {}
 
     Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
@@ -107,7 +107,7 @@ namespace sdm
         return DecentralizedLP::getVariableResultOccupancy(vf, state, cplex, var, t);
     }
 
-    std::shared_ptr<SolvableByHSVI> ActionSelectionMaxplanLP::getWorld() const
+    std::shared_ptr<SolvableByDP> ActionSelectionMaxplanLP::getWorld() const
     {
         return DecentralizedLP::world_;
     }

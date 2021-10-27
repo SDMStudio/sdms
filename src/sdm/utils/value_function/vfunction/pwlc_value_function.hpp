@@ -95,12 +95,6 @@ namespace sdm
         std::vector<double> default_values_per_horizon;
 
         /**
-         * @brief The last time the prunning took place
-         *
-         */
-        number last_prunning = 0;
-
-        /**
          * @brief The type of pruning used.
          * 
          */

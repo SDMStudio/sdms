@@ -48,10 +48,10 @@ namespace sdm
         auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
         auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-        auto lb = std::make_shared<TabularValueFunction>(hsvi_mdp, init_lb, action_tabular, nullptr, false);
+        auto lb = std::make_shared<TabularValueFunction>(hsvi_mdp, init_lb, action_tabular);
         lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
 
-        auto ub = std::make_shared<TabularValueFunction>(hsvi_mdp, init_ub, action_tabular, nullptr, true);
+        auto ub = std::make_shared<TabularValueFunction>(hsvi_mdp, init_ub, action_tabular);
         ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
 
         auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub,this->error_, 100000, "MDP_Initialisation");

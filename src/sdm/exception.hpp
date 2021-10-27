@@ -60,6 +60,18 @@ namespace sdm
         };
 
         /**
+         * @brief Type error.
+         */
+        class TypeError : public Exception
+        {
+        public:
+            /** Constructor (C++ STL string).
+             *  @param file_ The file
+             */
+            explicit TypeError(const std::string&msg_);
+        };
+
+        /**
          * @brief File not found exception.
          */
         class FileNotFoundException : public Exception

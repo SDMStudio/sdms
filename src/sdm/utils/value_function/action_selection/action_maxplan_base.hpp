@@ -12,7 +12,7 @@ namespace sdm
     {
     public:
         MaxPlanSelectionBase();
-        MaxPlanSelectionBase(const std::shared_ptr<SolvableByHSVI> &world);
+        MaxPlanSelectionBase(const std::shared_ptr<SolvableByDP> &world);
 
         /**
          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time

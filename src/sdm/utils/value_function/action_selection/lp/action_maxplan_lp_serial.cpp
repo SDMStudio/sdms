@@ -10,7 +10,7 @@ namespace sdm
 {
 
     ActionSelectionMaxplanLPSerial::ActionSelectionMaxplanLPSerial() {}
-    ActionSelectionMaxplanLPSerial::ActionSelectionMaxplanLPSerial(const std::shared_ptr<SolvableByHSVI> &world) : ActionSelectionMaxplanLP(world) {}
+    ActionSelectionMaxplanLPSerial::ActionSelectionMaxplanLPSerial(const std::shared_ptr<SolvableByDP> &world) : ActionSelectionMaxplanLP(world) {}
 
 
     void ActionSelectionMaxplanLPSerial::createObjectiveFunction(const std::shared_ptr<ValueFunction> &, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)

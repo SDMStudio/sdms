@@ -9,7 +9,7 @@
 namespace sdm
 {
     DecentralizedLP::DecentralizedLP(){}
-    DecentralizedLP::DecentralizedLP(const std::shared_ptr<SolvableByHSVI>& world) : LPBase(world) {}
+    DecentralizedLP::DecentralizedLP(const std::shared_ptr<SolvableByDP>& world) : LPBase(world) {}
 
     void DecentralizedLP::createDecentralizedConstraintsIndividual(const std::shared_ptr<ValueFunctionInterface>&,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id)
     {

@@ -30,19 +30,17 @@ namespace sdm
     {
         auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
         // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
-        auto pomdp = this->world_->getUnderlyingProblem();
         std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::static_pointer_cast<OccupancyMDP>(this->world_)->getUnderlyingBeliefMDP();
-
 
         auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(hsvi_pomdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp, "ValueIteration", 0);
 
-        auto lb = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection, nullptr, false);
+        auto lb = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection);
         lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
 
-        auto ub = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, nullptr, true);
+        auto ub = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection);
         ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
 
         auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, this->error_, 5000, "pomdp_" + this->algo_name_ + "_init", 1, 1, 1000);
