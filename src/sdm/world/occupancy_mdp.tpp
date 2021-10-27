@@ -259,11 +259,11 @@ namespace sdm
                         if (next_joint_history_probability > 0)
                         {
                             // Update new fully uncompressed occupancy state
-                            std::shared_ptr<JointHistoryInterface> next_joint_history = joint_history->expand(/* joint_action, */ joint_observation->toObservation())->toJointHistory();
+                            std::shared_ptr<JointHistoryInterface> next_joint_history = joint_history->expand(joint_observation->toObservation()/*, joint_action*/ )->toJointHistory();
                             this->updateOccupancyStateProba(next_fully_uncompressed_occupancy_state, next_joint_history, next_belief->toBelief(), next_joint_history_probability);
 
                             // Update new one step uncompressed occupancy state
-                            std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(/* joint_action, */ joint_observation->toObservation())->toJointHistory();
+                            std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(joint_observation->toObservation()/*, joint_action*/)->toJointHistory();
                             this->updateOccupancyStateProba(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief->toBelief(), next_joint_history_probability);
 
                             // Update next history labels

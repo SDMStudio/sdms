@@ -31,6 +31,8 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/world/serial_mpomdp.hpp>
+#include <sdm/world/hierarchical_mpomdp.hpp>
+#include <sdm/world/hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/utils/rl/eps_greedy.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
@@ -271,7 +273,7 @@ namespace sdm
             {
                 formalism_problem = std::make_shared<OccupancyMDP>(problem, memory, compression, store_state, store_action, batch_size);
             }
-            else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP"))
+            else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP") || (formalism == "ext-MDP") || (formalism == "ext-mdp"))
             {
                 auto serial_mmdp = std::make_shared<SerialMMDP>(problem);
                 formalism_problem = std::make_shared<SolvableByMDP>(serial_mmdp);
@@ -285,6 +287,21 @@ namespace sdm
             {
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, compression, store_state, store_action, batch_size);
+            }
+            else if ((formalism == "hierarchical-mdp") || (formalism == "Hierarchical-MDP") || (formalism == "hMDP") || (formalism == "hmdp"))
+            {
+                auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
+                formalism_problem = std::make_shared<SolvableByMDP>(hierarchical_mpomdp);
+            }
+            else if ((formalism == "hierarchical-belief-mdp") || (formalism == "Hierarchical-BeliefMDP") || (formalism == "hbMDP") || (formalism == "hbmdp"))
+            {
+                auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
+                formalism_problem = std::make_shared<BeliefMDP>(hierarchical_mpomdp, batch_size);
+            }
+            else if ((formalism == "hierarchical-occupancy-mdp") || (formalism == "Hierarchical-OccupancyMDP") || (formalism == "hoMDP") || (formalism == "homdp"))
+            {
+                auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
+                formalism_problem = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_mpomdp, memory, compression, store_state, store_action, batch_size);
             }
             else
             {
