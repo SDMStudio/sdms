@@ -22,7 +22,7 @@ namespace sdm
      * @tparam TState The state type
      * @tparam TAction The action type
      */
-    class SolvableByDP
+    class SolvableByDP : public std::enable_shared_from_this<SolvableByDP>
     {
     public:
         virtual ~SolvableByDP() {}

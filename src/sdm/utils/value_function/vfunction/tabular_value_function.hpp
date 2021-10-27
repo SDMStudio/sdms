@@ -137,7 +137,10 @@ namespace sdm
         }
     };
 
+    /** @brief Tabular value function using address comparison */
     using TabularValueFunction = BaseTabularValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
+    
+    /** @brief Point set value function using state content comparison */
     using TabularValueFunction2 = BaseTabularValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
 
 } // namespace sdm

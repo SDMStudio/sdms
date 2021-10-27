@@ -5,16 +5,16 @@
 
 namespace sdm
 {
-namespace update
-{
-    TabularUpdate::TabularUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function)
-        : TabularUpdateOperator(value_function)
+    namespace update
     {
-    }
+        TabularUpdate::TabularUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function)
+            : TabularUpdateOperator(value_function)
+        {
+        }
 
-    void TabularUpdate::update(std::shared_ptr<State> state, std::shared_ptr<Action> action, number t)
-    {
-        value_function->setValueAt(state, this->value_function->getQValueAt(state, action, t), t);
+        void TabularUpdate::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+        {
+            value_function->setValueAt(state, this->value_function->getQValueAt(state, action, t), t);
+        }
     }
-}
 }

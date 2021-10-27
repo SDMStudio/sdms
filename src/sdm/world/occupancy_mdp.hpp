@@ -38,7 +38,7 @@ namespace sdm
                 virtual std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 
                 /** @brief Get the address of the underlying BeliefMDP */
-                virtual std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
+                virtual std::shared_ptr<BeliefMDPInterface> getUnderlyingBeliefMDP();
 
                 /**
                  * @brief Get the observation space of the central planner. 

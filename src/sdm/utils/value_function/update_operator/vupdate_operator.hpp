@@ -24,7 +24,7 @@ namespace sdm
              *
              * @param t the time step
              */
-            virtual void update(std::shared_ptr<State> state, std::shared_ptr<Action> action, number t) = 0;
+            virtual void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
         };
 
         /**
@@ -55,14 +55,14 @@ namespace sdm
              *
              * @param t the time step
              */
-            virtual void update(std::shared_ptr<State> state, std::shared_ptr<Action> action, number t) = 0;
+            virtual void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
             /**
              * @brief Get the updatable value function 
              * 
              * @return the value function
              */
-            inline std::shared_ptr<ValueFunctionInterface> getValueFunction() const
+            inline std::shared_ptr<TValueFunction> getValueFunction() const
             {
                 return this->value_function;
             }

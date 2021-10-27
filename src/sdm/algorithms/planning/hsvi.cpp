@@ -56,7 +56,6 @@ namespace sdm
         return value_excess;
     }
 
-
     // SELECT ACTIONS IN HSVI
     std::shared_ptr<Space> HSVI::selectActions(const std::shared_ptr<State> &state, number t)
     {
@@ -76,6 +75,7 @@ namespace sdm
         {
             // Get the next state and probability
             auto [next_state, transition_proba] = getWorld()->getNextStateAndProba(state, action->toAction(), observation->toObservation(), t);
+
             // Compute error correlated to this next state
             error = transition_proba * excess(next_state, 0, t + 1);
             if (error > biggest_error)
@@ -95,7 +95,6 @@ namespace sdm
         return std::make_shared<DiscreteSpace>(selected_next_states);
         // return select_next_state;
     }
-
 
     std::shared_ptr<ValueFunction> HSVI::getLowerBound() const
     {
@@ -217,11 +216,11 @@ namespace sdm
             ofs << " | " << getUpperBound()->getValueAt(initial_state);
             ofs << " | " << getLowerBound()->getSize();
             ofs << " | " << getUpperBound()->getSize();
-            ofs << " | " << std::static_pointer_cast<OccupancyMDP>(getWorld())->getMDPGraph()->getNumNodes();
-            ofs << " | " << std::static_pointer_cast<OccupancyMDP>(getWorld())->getUnderlyingBeliefMDP()->getMDPGraph()->getNumNodes();
+            ofs << " | " << std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getMDPGraph()->getNumNodes();
+            ofs << " | deprecated "; //<< std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getUnderlyingBeliefMDP()->getMDPGraph()->getNumNodes();
 
             number num_max_jhist = 0, tmp;
-            for (const auto &state : std::static_pointer_cast<OccupancyMDP>(getWorld())->getStoredStates())
+            for (const auto &state : std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getStoredStates())
             {
                 if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
                 {

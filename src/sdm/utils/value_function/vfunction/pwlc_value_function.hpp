@@ -8,18 +8,17 @@
 
 namespace sdm
 {
-    class PWLCValueFunction : public ValueFunction, virtual public PWLCValueFunctionInterface
+    class PWLCValueFunction : public ValueFunction, public PWLCValueFunctionInterface
     {
     public:
         static double PRECISION;
 
-        PWLCValueFunction(
-            const std::shared_ptr<SolvableByDP> &world,
-            const std::shared_ptr<Initializer> &initializer,
-            const std::shared_ptr<ActionSelectionInterface> &action_selection,
-            const std::shared_ptr<PWLCUpdateOperator> &update_operator,
-            int freq_prunning = -1,
-            TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE);
+        PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                          const std::shared_ptr<Initializer> &initializer,
+                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
+                          const std::shared_ptr<PWLCUpdateOperator> &update_operator,
+                          int freq_prunning = -1,
+                          TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE);
 
         void initialize();
 
@@ -51,10 +50,11 @@ namespace sdm
          * @return the list of hyperplanes
          */
         std::vector<std::shared_ptr<State>> getHyperplanesAt(number t);
-        
+
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
-        void getBeta(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+        
+        double getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
 
         /**
          * @brief Get the Default Value at time step t
@@ -65,12 +65,13 @@ namespace sdm
          */
         double getDefaultValue(number);
 
+
         /**
-         * @brief Evaluate the element given
+         * @brief Evaluate the value of an input state
          *
-         * @param state : ELement to evaluate
-         * @param t
-         * @return Pair<std::shared_ptr<State>, double>
+         * @param state the state to evaluate
+         * @param t the time step
+         * @return a pair containing the max hyperplane for this state and the value
          */
         Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
 
@@ -86,9 +87,9 @@ namespace sdm
          * @brief The value function represention.
          * 
          * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
-         * 
          */
         std::vector<HyperplanSet> representation;
+
         /**
          * @brief the default values, one for each decision epoch.
          */
@@ -96,7 +97,6 @@ namespace sdm
 
         /**
          * @brief The type of pruning used.
-         * 
          */
         TypeOfMaxPlanPrunning type_of_maxplan_prunning_;
 
@@ -108,14 +108,6 @@ namespace sdm
          * @param t the time step
          */
         void prune(number t);
-
-        /**
-         * @brief Create a Default object
-         *
-         * @param state
-         * @param t
-         */
-        void createDefault(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Determine if the state is already stocked.
@@ -146,6 +138,10 @@ namespace sdm
          * @return the maximum value and hyperplan at a specific state (std::pair<double, std::shared_ptr<State>>)
          */
         std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<State> &, number);
+
+        double getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation);
+        double getNextAlphaValueBelief(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &);
+        double getNextAlphaValueOccupancy(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation);
     };
 
 } // namespace sdm

@@ -132,7 +132,10 @@ namespace sdm
         }
     };
 
+    /** @brief Point set value function using address comparison */
     using PointSetValueFunction = BasePointSetValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
+    
+    /** @brief Point set value function using state content comparison */
     using PointSetValueFunction2 = BasePointSetValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
 
 } // namespace sdm

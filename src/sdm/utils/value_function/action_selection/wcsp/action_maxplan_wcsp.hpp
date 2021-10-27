@@ -26,7 +26,9 @@ namespace sdm
          */
         Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t);
 
-        Pair<std::shared_ptr<Action>, double> createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Action>, double> createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t);
+
+        double getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history, const std::shared_ptr<Action> action, number t);
 
         // Fonction temporaire le temps de bien comprendre
         // Pair<std::shared_ptr<Action>, double> createWCSPProblem(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
@@ -51,10 +53,6 @@ namespace sdm
          */
         long getCost(double);
 
-        double getValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hyperplan, number t);
-
-        std::shared_ptr<BeliefInterface> tmp_representation;
-
-        void determineMaxValue(const std::shared_ptr<State> &state, number t);
+        void determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t);
     };
 }
