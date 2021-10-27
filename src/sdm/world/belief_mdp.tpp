@@ -64,6 +64,12 @@ namespace sdm
     }
 
     template <class TBelief>
+    std::shared_ptr<BeliefMDPInterface> BaseBeliefMDP<TBelief>::getUnderlyingBeliefMDP() 
+    {
+        return std::dynamic_pointer_cast<BeliefMDPInterface>(this->shared_from_this());
+    }
+
+    template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         // Compute next state

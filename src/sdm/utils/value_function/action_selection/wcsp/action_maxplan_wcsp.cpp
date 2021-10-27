@@ -23,7 +23,7 @@ namespace sdm
         this->variables.clear();
 
         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
+        auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->world_);
 
         auto occupancy_state = state->toOccupancyState();
 

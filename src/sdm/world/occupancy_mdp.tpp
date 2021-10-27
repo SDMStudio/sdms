@@ -68,7 +68,7 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    std::shared_ptr<BeliefMDP> BaseOccupancyMDP<TOccupancyState>::getUnderlyingBeliefMDP() const
+    std::shared_ptr<BeliefMDPInterface> BaseOccupancyMDP<TOccupancyState>::getUnderlyingBeliefMDP()
     {
         return this->belief_mdp_;
     }
@@ -547,15 +547,15 @@ namespace sdm
             aggregated_belief->normalizeBelief(aggregated_belief->norm_1());
 
             // Check if the belief already exists in the belief space
-            if (this->getUnderlyingBeliefMDP()->state_space_.find(*aggregated_belief) == this->getUnderlyingBeliefMDP()->state_space_.end())
+            if (this->belief_mdp_->state_space_.find(*aggregated_belief) == this->belief_mdp_->state_space_.end())
             {
                 // Store the belief in the graph
-                this->getUnderlyingBeliefMDP()->getMDPGraph()->addNode(aggregated_belief);
+                this->belief_mdp_->getMDPGraph()->addNode(aggregated_belief);
                 // Store the belief in the belief space
-                this->getUnderlyingBeliefMDP()->state_space_[*aggregated_belief] = aggregated_belief;
+                this->belief_mdp_->state_space_[*aggregated_belief] = aggregated_belief;
             }
             // Get the address of the belief
-            auto ptr_belief = this->getUnderlyingBeliefMDP()->state_space_.at(*aggregated_belief);
+            auto ptr_belief = this->belief_mdp_->state_space_.at(*aggregated_belief);
 
             // Build fully uncompressed occupancy state
             occupancy_state->setProbability(joint_history->toJointHistory(), ptr_belief->toBelief(), occupancy_state->getProbability(joint_history) + probability);

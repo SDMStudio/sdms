@@ -30,7 +30,7 @@ namespace sdm
     {
         auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
         // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
-        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::static_pointer_cast<OccupancyMDP>(this->world_)->getUnderlyingBeliefMDP();
+        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::dynamic_pointer_cast<BeliefMDPInterface>(this->world_)->getUnderlyingBeliefMDP();
 
         auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(hsvi_pomdp);
 

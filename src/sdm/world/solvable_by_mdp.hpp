@@ -14,7 +14,7 @@ namespace sdm
      * @brief The class for Markov Decision Processes.
      *
      */
-    class SolvableByMDP : public SolvableByHSVI
+    class SolvableByMDP : virtual public SolvableByHSVI
     {
     public:
         /** @brief Default constructor */

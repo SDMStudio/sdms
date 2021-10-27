@@ -26,7 +26,7 @@ namespace sdm
      * HSVI can be used to solve all problem implementing this interface.
      * 
      */
-    class SolvableByHSVI : public SolvableByDP
+    class SolvableByHSVI : virtual public SolvableByDP
     {
     public:
         virtual ~SolvableByHSVI() {}

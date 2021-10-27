@@ -553,7 +553,7 @@ namespace sdm
     Pair<std::shared_ptr<State>, double> ActionSelectionSawtoothLP::evaluate(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &decision_rule, number t)
     {
             auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
-        auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionSelectionBase::world_);
+        auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(ActionSelectionBase::world_);
         auto occupancy_state = state_tmp->toOccupancyState();
 
         std::shared_ptr<State> argmin_;

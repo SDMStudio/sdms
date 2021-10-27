@@ -217,11 +217,11 @@ namespace sdm
             ofs << " | " << getUpperBound()->getValueAt(initial_state);
             ofs << " | " << getLowerBound()->getSize();
             ofs << " | " << getUpperBound()->getSize();
-            ofs << " | " << std::static_pointer_cast<OccupancyMDP>(getWorld())->getMDPGraph()->getNumNodes();
-            ofs << " | " << std::static_pointer_cast<OccupancyMDP>(getWorld())->getUnderlyingBeliefMDP()->getMDPGraph()->getNumNodes();
+            ofs << " | " << std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getMDPGraph()->getNumNodes();
+            ofs << " | deprecated " ;//<< std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getUnderlyingBeliefMDP()->getMDPGraph()->getNumNodes();
 
             number num_max_jhist = 0, tmp;
-            for (const auto &state : std::static_pointer_cast<OccupancyMDP>(getWorld())->getStoredStates())
+            for (const auto &state : std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getStoredStates())
             {
                 if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
                 {
