@@ -7,10 +7,10 @@ namespace sdm
 {
     namespace update
     {
-        class MaxPlanUpdateOperator : public PWLCUpdateOperator
+        class PWLCUpdate : public PWLCUpdateOperator
         {
         public:
-            MaxPlanUpdateOperator(const std::shared_ptr<ValueFunctionInterface> &value_function);
+            PWLCUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function);
 
             void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 

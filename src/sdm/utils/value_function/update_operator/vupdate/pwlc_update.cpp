@@ -5,17 +5,17 @@
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 
-#include <sdm/utils/value_function/update_operator/vupdate/maxplan_update.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/pwlc_update.hpp>
 
 namespace sdm
 {
 
     namespace update
     {
-        MaxPlanUpdateOperator::MaxPlanUpdateOperator(const std::shared_ptr<ValueFunctionInterface> &value_function)
+        PWLCUpdate::PWLCUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function)
             : PWLCUpdateOperator(value_function) {}
 
-        void MaxPlanUpdateOperator::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+        void PWLCUpdate::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
         {
             if (sdm::isInstanceOf<OccupancyStateInterface>(state))
             {
@@ -51,7 +51,7 @@ namespace sdm
         //     return beta_s_a;
         // }
 
-        std::shared_ptr<State> MaxPlanUpdateOperator::computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, const std::shared_ptr<Action> &action, number t)
+        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, const std::shared_ptr<Action> &action, number t)
         {
             // Creation of a new belief
             auto new_hyperplan = std::make_shared<Belief>();
@@ -98,7 +98,7 @@ namespace sdm
         //     return new_hyperplan;
         // }
 
-        // std::shared_ptr<State> MaxPlanUpdateOperator::computeNewHyperplane(const std::shared_ptr<BeliefInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
+        // std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<BeliefInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
         // {
         //     // Create the new hyperplan
         //     auto new_hyperplan = std::make_shared<OccupancyState::VectorType>(value_function->getDefaultValue(t));
@@ -126,7 +126,7 @@ namespace sdm
         //     return new_hyperplan;
         // }
 
-        std::shared_ptr<State> MaxPlanUpdateOperator::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
+        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
         {
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
             auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());

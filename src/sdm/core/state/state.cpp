@@ -33,11 +33,12 @@ namespace sdm
         return TypeState::STATE;
     }
 
-    size_t State::hash() const
+    size_t State::hash(double precision) const
     {
         throw exception::Exception("Hash (i.e. size_t X::hash() const ) is not implemented for this class");
     }
-    bool State::operator==(const std::shared_ptr<State> &) const
+
+    bool State::isEqual(const std::shared_ptr<State> &, double) const
     {
         throw exception::Exception("Equal Operator (i.e. bool X::operator==() const ) is not implemented for this class");
     }

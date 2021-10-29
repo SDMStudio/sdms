@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
 
 namespace sdm
 {
@@ -49,6 +50,8 @@ namespace sdm
                     throw sdm::exception::TypeError("Cannot instanciate UpdateOperator<T> with value function that does not derive from T.");
                 }
             }
+            virtual ~UpdateOperator() {}
+
 
             /**
              * @brief Update the value function.

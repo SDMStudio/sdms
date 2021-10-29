@@ -12,7 +12,7 @@
 //  ------------------------------------------------------------------------
 
 #include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/maxplan_update.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/pwlc_update.hpp>
 
 
 //  ------------------------------------------------------------------------
@@ -20,3 +20,4 @@
 //  ------------------------------------------------------------------------
 
 #include <sdm/utils/value_function/update_operator/qupdate/tabular_qupdate.hpp>
+#include <sdm/utils/value_function/update_operator/qupdate/pwlc_qupdate.hpp>

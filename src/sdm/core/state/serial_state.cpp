@@ -21,12 +21,12 @@ namespace sdm
 
     std::shared_ptr<State> SerialState::getHiddenState() const 
     {
-        return this->state_.first;
+        return this->state.first;
     }
 
     Joint<std::shared_ptr<Action>> SerialState::getAction()const 
     {
-        return this->state_.second;
+        return this->state.second;
     }
 
     number SerialState::getCurrentAgentId() const

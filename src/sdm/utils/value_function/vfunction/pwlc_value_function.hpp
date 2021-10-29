@@ -18,7 +18,7 @@ namespace sdm
                           const std::shared_ptr<ActionSelectionInterface> &action_selection,
                           const std::shared_ptr<PWLCUpdateOperator> &update_operator,
                           int freq_prunning = -1,
-                          TypeOfMaxPlanPrunning type_of_maxplan_prunning = TypeOfMaxPlanPrunning::PAIRWISE);
+                          MaxplanPruning::Type type_of_maxplan_prunning = MaxplanPruning::Type::PAIRWISE);
 
         void initialize();
 
@@ -33,16 +33,16 @@ namespace sdm
         double getValueAt(const std::shared_ptr<State> &, number = 0);
 
         /**
-         * @brief Add a hyperplane in the hyperplan set.
+         * @brief Add a hyperplane in the hyperplane set.
          *
-         * This fonction will addd the hyperplan called new_hyperplan in the
+         * This fonction will addd the hyperplane called new_hyperplane in the
          * set of plans at a specific time step. 
          * 
          * @param state the state
          * @param new_hyperplane the new hyperplane
          * @param t the timestep
          */
-        void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplan, number t);
+        void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t);
 
         /**
          * @brief Get the set of hyperplanes at a time step
@@ -51,9 +51,17 @@ namespace sdm
          */
         std::vector<std::shared_ptr<State>> getHyperplanesAt(number t);
 
+        /**
+         * @brief Get the best hyperplane resulting to the higher value when evaluated at a given state.
+         * 
+         * @param state the state
+         * @param t the time step
+         * @return the max hyperplane 
+         */
+        std::shared_ptr<State> getHyperplaneAt(const std::shared_ptr<State> &state, number t);
+
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
-        
         double getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
 
         /**
@@ -65,13 +73,12 @@ namespace sdm
          */
         double getDefaultValue(number);
 
-
         /**
-         * @brief Evaluate the value of an input state
+         * @brief Get the maximum value and corresponding hyperplane at a specific state
          *
-         * @param state the state to evaluate
+         * @param state a specific state
          * @param t the time step
-         * @return a pair containing the max hyperplane for this state and the value
+         * @return the maximum value and hyperplane at a specific state
          */
         Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
 
@@ -98,7 +105,7 @@ namespace sdm
         /**
          * @brief The type of pruning used.
          */
-        TypeOfMaxPlanPrunning type_of_maxplan_prunning_;
+        MaxplanPruning::Type type_of_maxplan_prunning_;
 
         std::vector<std::unordered_set<std::shared_ptr<State>>> all_state_updated_so_far;
 
@@ -119,8 +126,9 @@ namespace sdm
 
         /*!
          * @brief this method prunes dominated points, known as bounded pruning by Trey Smith.
+
          * This approach stores the number of frequency states, among those already visited, that are maximal at a hyperplan.
-         * And prune hyperplan with a number of maximal frequency states zero.
+         * And prune hyperplane with a number of maximal frequency states zero.
          */
         void bounded_prune(number = 0);
 
@@ -130,14 +138,6 @@ namespace sdm
          * @param number : timestep
          */
         void pairwise_prune(number t);
-
-        /**
-         * @brief Get the maximum value and hyperplan at a specific state
-         *
-         * @param state a specific state
-         * @return the maximum value and hyperplan at a specific state (std::pair<double, std::shared_ptr<State>>)
-         */
-        std::pair<double, std::shared_ptr<State>> getMaxAt(const std::shared_ptr<State> &, number);
 
         double getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation);
         double getNextAlphaValueBelief(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &);

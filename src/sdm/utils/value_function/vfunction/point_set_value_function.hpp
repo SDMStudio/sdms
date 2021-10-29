@@ -31,7 +31,7 @@ namespace sdm
                                   const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                   const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                   int freq_prunning = -1,
-                                  TypeOfSawtoothPrunning type_of_sawtooth_prunning = TypeOfSawtoothPrunning::NONE);
+                                  SawtoothPrunning::Type type_of_sawtooth_prunning = SawtoothPrunning::Type::NONE);
 
         /**
          * @brief Evaluate the value at a state.
@@ -75,7 +75,7 @@ namespace sdm
          * @brief Type of pruning.
          *
          */
-        TypeOfSawtoothPrunning type_of_sawtooth_prunning_;
+        SawtoothPrunning::Type type_of_sawtooth_prunning_;
 
         /**
          * @brief Is set to true if the structure use a linear program

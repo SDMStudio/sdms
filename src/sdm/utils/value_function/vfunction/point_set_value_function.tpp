@@ -12,7 +12,7 @@ namespace sdm
                                                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                                                          const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                                                          int freq_pruning,
-                                                                         TypeOfSawtoothPrunning type_of_sawtooth_prunning)
+                                                                         SawtoothPrunning::Type type_of_sawtooth_prunning)
         : ValueFunctionInterface(world, initializer, action_selection),
           BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection, update_operator),
           PrunableStructure(world->getHorizon(), freq_pruning),
@@ -200,7 +200,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
     {
-        if (this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::GLOBAL)
+        if (this->type_of_sawtooth_prunning_ == SawtoothPrunning::Type::BOTH or this->type_of_sawtooth_prunning_ == SawtoothPrunning::Type::GLOBAL)
         {
             auto [support_of_each_point, sort_by_number_of_support] = this->iterative_pruning(t);
 

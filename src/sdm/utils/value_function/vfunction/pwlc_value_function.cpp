@@ -20,7 +20,7 @@ namespace sdm
                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                          const std::shared_ptr<PWLCUpdateOperator> &update_operator,
                                          int freq_pruning,
-                                         TypeOfMaxPlanPrunning type_of_maxplan_prunning)
+                                         MaxplanPruning::Type type_of_maxplan_prunning)
         : ValueFunctionInterface(world, initializer, action_selection),
           ValueFunction(world, initializer, action_selection_, update_operator),
           PWLCValueFunctionInterface(world, initializer, action_selection_, freq_pruning),
@@ -59,7 +59,6 @@ namespace sdm
             // Add default value of the default state
             default_state->setDefaultValue(value);
 
-            // default_state->finalize();
             this->representation[t].push_back(default_state);
         }
     }
@@ -179,6 +178,11 @@ namespace sdm
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
 
+    std::shared_ptr<State> PWLCValueFunction::getHyperplaneAt(const std::shared_ptr<State> &state, number t)
+    {
+        return this->evaluate(state, t).first;
+    }
+
     std::vector<std::shared_ptr<State>> PWLCValueFunction::getSupport(number t)
     {
         return this->getHyperplanesAt(t);
@@ -199,7 +203,7 @@ namespace sdm
     //         this->representation[t].push_back(new_hyperplan);
 
     //         // Add state to all state update so far, only if the prunning used is Bounded
-    //         if (this->type_of_maxplan_prunning_ == TypeOfMaxPlanPrunning::BOUNDED)
+    //         if (this->type_of_maxplan_prunning_ == MaxplanPruning::Type::BOUNDED)
     //             this->all_state_updated_so_far[t].insert(state);
     //     }
     // }
@@ -213,10 +217,10 @@ namespace sdm
     {
         switch (this->type_of_maxplan_prunning_)
         {
-        case TypeOfMaxPlanPrunning::PAIRWISE:
+        case MaxplanPruning::Type::PAIRWISE:
             this->pairwise_prune(t);
             break;
-        case TypeOfMaxPlanPrunning::BOUNDED:
+        case MaxplanPruning::Type::BOUNDED:
             this->bounded_prune(t);
 
         default:

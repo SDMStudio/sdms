@@ -1,13 +1,14 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
+#include <sdm/utils/rl/experience_memory.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
 
 namespace sdm
 {
 
     class TabularQValueFunctionInterface;
-    // class PWLCValueFunctionInterface;
+    class PWLCValueFunctionInterface;
 
     namespace update
     {
@@ -42,17 +43,25 @@ namespace sdm
              *
              * @param qvalue_function the qvalue function
              */
-            QUpdateOperator(const std::shared_ptr<ValueFunctionInterface> &qvalue_function)
+            QUpdateOperator(std::shared_ptr<ExperienceMemory> experience_memory,
+                            std::shared_ptr<ValueFunctionInterface> q_value,
+                            std::shared_ptr<ValueFunctionInterface> target_q_value,
+                            double learning_rate) : experience_memory(experience_memory), learning_rate(learning_rate)
             {
-                if (auto derived = std::dynamic_pointer_cast<TQValueFunction>(qvalue_function))
+                auto derived = std::dynamic_pointer_cast<TQValueFunction>(q_value);
+                auto derived_target = std::dynamic_pointer_cast<TQValueFunction>(target_q_value);
+                if (derived && derived_target)
                 {
-                    this->qvalue_function = derived;
+                    this->q_value = derived;
+                    this->target_q_value = derived_target;
                 }
                 else
                 {
                     throw sdm::exception::TypeError("Cannot instanciate QUpdateOperator<T> with q-value function that does not derive from T.");
                 }
             }
+
+            virtual ~QUpdateOperator() {}
 
             /**
              * @brief Update the value function.
@@ -61,11 +70,49 @@ namespace sdm
              */
             virtual void update(number t) = 0;
 
+            /**
+             * @brief Get the updatable q-value function 
+             * 
+             * 
+             * @return the q-value function
+             */
+            inline std::shared_ptr<TQValueFunction> getQValueFunction() const
+            {
+                return this->q_value;
+            }
+
+            /**
+             * @brief Set the updatable q-value function
+             * 
+             * @param q_value the q-value function
+             */
+            void setQValueFunction(const std::shared_ptr<TQValueFunction> &q_value) const
+            {
+                this->q_value = q_value;
+            }
+
+            /**
+             * @brief Get the world
+             * 
+             * @return the world 
+             */
+            inline std::shared_ptr<SolvableByDP> getWorld() const
+            {
+                return this->getQValueFunction()->getWorld();
+            }
+
         protected:
+            /**
+             * @brief Experience memory.
+             */
+            std::shared_ptr<ExperienceMemory> experience_memory;
+
             /**
              * @brief the Q-value function
              */
-            std::shared_ptr<TQValueFunction> qvalue_function;
+            std::shared_ptr<TQValueFunction> q_value, target_q_value;
+
+            double learning_rate;
         };
 
         using TabularQUpdateOperator = QUpdateOperator<TabularQValueFunctionInterface>;

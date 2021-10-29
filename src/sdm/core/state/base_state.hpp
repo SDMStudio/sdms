@@ -59,9 +59,8 @@ namespace sdm
     virtual bool operator==(const BaseState&other) const;
 
     virtual TypeState getTypeState() const ;
-
-  protected:
-    TState state_;
+    
+    TState state;
   };
 
     /** @brief BaseState class with type `number` */

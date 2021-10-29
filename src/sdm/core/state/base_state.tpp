@@ -4,7 +4,7 @@ namespace sdm
     BaseState<TState>::BaseState() {}
 
     template <typename TState>
-    BaseState<TState>::BaseState(const TState &item) : state_(item) {}
+    BaseState<TState>::BaseState(const TState &item) : state(item) {}
 
     template <typename TState>
     BaseState<TState>::~BaseState() {}
@@ -12,20 +12,20 @@ namespace sdm
     template <typename TState>
     TState BaseState<TState>::getState() const
     {
-        return this->state_;
+        return this->state;
     }
 
     template <typename TState>
     void BaseState<TState>::setState(const TState &state)
     {
-        this->state_ = state;
+        this->state = state;
     }
 
     template <typename TState>
     std::string BaseState<TState>::str() const
     {
         std::ostringstream res;
-        res << "State(" << this->state_ << ")";
+        res << "State(" << this->state << ")";
         return res.str();
     }
 
