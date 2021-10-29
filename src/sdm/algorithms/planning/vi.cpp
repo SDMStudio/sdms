@@ -14,18 +14,23 @@ namespace sdm
         value_function->initialize();
     }
 
-    void ValueIteration::printInfo()
+    void ValueIteration::printStartInfo()
     {
-        std::cout << "-------------------" << std::endl;
-        std::cout << "ALGO=ValueIteration" << std::endl;
-        std::cout << "# name=" << name << std::endl;
-        std::cout << "# error=" << error << std::endl;
-        std::cout << "-------------------" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "START PLANNING" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" <<config::NO_COLOR << std::endl;
+    }
+
+    void ValueIteration::printEndInfo()
+    {
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "END PLANNING" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" <<config::NO_COLOR << std::endl;
     }
 
     void ValueIteration::solve()
     {
-        printInfo();
+        printStartInfo();
         startExecutionTime();
 
         trial = 0;
@@ -43,6 +48,7 @@ namespace sdm
 
         } while (!stop(initial_state, 0, 0) && (time_max >= getExecutionTime())); // Do trials until convergence
         logging();                                                                // Print execution variables in logging output streams
+        printEndInfo();
     }
 
     void ValueIteration::explore(const std::shared_ptr<State> &state, double cost_so_far, number t)

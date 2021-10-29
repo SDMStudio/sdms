@@ -130,7 +130,7 @@ namespace sdm
     void HSVI::initLogger()
     {
         // ************* Global Logger ****************
-        std::string format = config::LOG_SDMS + "Trial {}\tError :\t{}\t->\tValue_LB({})\tValue_UB({})\t Size_LB({}) \t Size_UB({}) \t Time({})\n";
+        std::string format = config::LOG_SDMS + "Trial {:<8} Error {:<12.4f} Value_LB {:<12.4f} Value_UB {:<12.4f} Size_LB {:<10} Size_UB {:<10} Time {:<12.4f}\n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);

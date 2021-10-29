@@ -59,13 +59,15 @@ int solve(int argv, char **args)
 
     try
     {
-        std::string problem, algo_name, formalism, upper_bound, lower_bound, ub_init, lb_init, sawtooth_type_of_resolution, type_sawtooth_linear_programming;
+        std::string problem, algo_name, formalism, upper_bound, lower_bound, ub_init, lb_init;
         int trials, memory;
         number horizon, seed, batch_size, freq_update_lb, freq_update_ub;
         double error, discount;
         double p_b, p_o, p_c;
         bool compress, store_actions, store_states;
-        number sawtooth_BigM_value;
+        
+        int freq_pruning_v1 = 1, freq_pruning_v2 = 1;
+        std::string type_of_resolution_v1, type_of_resolution_v2, type_of_pruning_v1, type_of_pruning_v2;
 
         po::options_description options("Options");
         options.add_options()
@@ -100,11 +102,14 @@ int solve(int argv, char **args)
         ("upper_bound", po::value<string>(&upper_bound)->default_value("tabular"), "the upper bound representation (HSVI)")
         ("lb_init", po::value<string>(&lb_init)->default_value("Min"), "the lower bound initialization method (HSVI, ValueIteration)")
         ("ub_init", po::value<string>(&ub_init)->default_value("Max"), "the upper bound initialization method (HSVI)")
-        ("freq_update_lb", po::value<number>(&freq_update_lb)->default_value(1), "the batch size used in learning algorithms")
-        ("freq_update_ub", po::value<number>(&freq_update_ub)->default_value(1), "the batch size used in learning algorithms")
-        ("sawtooth_type_of_resolution", po::value<string>(&sawtooth_type_of_resolution)->default_value("IloIfThen"), "the type of resolution used for sawtooth (BigM, IloIfThen)")
-        ("sawtooth_BigM_value", po::value<number>(&sawtooth_BigM_value)->default_value(100), "the upper bound initialization method (HSVI)")
-        ("type_sawtooth_linear_programming", po::value<string>(&type_sawtooth_linear_programming)->default_value("Full"), "the type of linear program used for sawtooth (Relaxed, Full)");
+        ("freq_update_lb", po::value<number>(&freq_update_lb)->default_value(1), "the update frequency of the lower bound.")
+        ("freq_update_ub", po::value<number>(&freq_update_ub)->default_value(1), "the update frequency of the upper bound.")
+        ("lb_type_of_resolution", po::value<string>(&type_of_resolution_v1)->default_value(""), "the type of resolution for the lower bound (ex: 'BigM:100' or 'IloIfThen' for LP)")
+        ("ub_type_of_resolution", po::value<string>(&type_of_resolution_v2)->default_value(""), "the type of resolution for the upper bound (ex: 'BigM:100' or 'IloIfThen' for LP)")
+        ("lb_freq_pruning", po::value<int>(&freq_pruning_v1)->default_value(1), "the pruning frequency for the first value function.")
+        ("ub_freq_pruning", po::value<int>(&freq_pruning_v2)->default_value(1), "the pruning frequency for the second value function .")
+        ("lb_type_of_pruning", po::value<string>(&type_of_pruning_v1)->default_value("none"), "the pruning type for the lower bound (ex: 'bounded', 'pairwise', 'none'")
+        ("ub_type_of_pruning", po::value<string>(&type_of_pruning_v2)->default_value("none"), "the pruning type for the upper bound (ex: 'iterative', 'global', 'none'");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
         visible.add(options).add(config).add(algo_config);
@@ -147,26 +152,30 @@ int solve(int argv, char **args)
         algorithm = sdm::algo::make(algo_name,
                                     problem,
                                     formalism,
-                                    upper_bound,
-                                    lower_bound,
-                                    ub_init,
-                                    lb_init,
+                                    horizon,
                                     discount,
                                     error,
-                                    horizon,
                                     trials,
+                                    MAX_RUNNING_TIME,
+                                    name,
                                     memory,
                                     compress,
-                                    store_actions,
                                     store_states,
-                                    name,
-                                    MAX_RUNNING_TIME,
+                                    store_actions,
+                                    batch_size,
+                                    lower_bound,
+                                    lb_init,
                                     freq_update_lb,
+                                    type_of_resolution_v1,
+                                    freq_pruning_v1,
+                                    type_of_pruning_v1,
+                                    upper_bound,
+                                    ub_init,
                                     freq_update_ub,
-                                    sawtooth_type_of_resolution,
-                                    sawtooth_BigM_value,
-                                    type_sawtooth_linear_programming, PAIRWISE, -1, NONE, -1,
-                                    batch_size);
+                                    type_of_resolution_v2,
+                                    freq_pruning_v2,
+                                    type_of_pruning_v2
+                                    );
 
         // Initialize algorithm
         algorithm->initialize();

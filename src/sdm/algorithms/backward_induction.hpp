@@ -75,7 +75,7 @@ namespace sdm
     std::shared_ptr<ValueFunction> getBound() const;
 
   protected:
-    number LOG_DEPTH = 1; 
+    number LOG_DEPTH = 2; 
 
     /**
      * @brief representation. 

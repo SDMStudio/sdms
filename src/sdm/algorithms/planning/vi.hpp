@@ -103,7 +103,8 @@ namespace sdm
          */
         virtual void updateValue(const std::shared_ptr<State> &state, number t);
 
-        void printInfo();
+        void printStartInfo();
+        void printEndInfo();
 
     protected:
         /**

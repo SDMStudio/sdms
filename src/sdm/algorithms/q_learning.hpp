@@ -130,15 +130,6 @@ namespace sdm
     std::shared_ptr<Action> selectAction(const std::shared_ptr<Observation> &observation, number t);
 
     /**
-     * @brief Select the best action according to the current q-value.
-     * 
-     * @param observation the current observation
-     * @param t the timestep
-     * @return the selected action
-     */
-    std::shared_ptr<Action> selectGreedyAction(const std::shared_ptr<Observation> &observation, number t);
-
-    /**
      * @brief Initialize the loggers.
      * 
      * The loggers are objects allowing to write the statistics relative to the execution of the 
@@ -175,8 +166,6 @@ namespace sdm
      * @brief Some hyperparameters for the algorithm.
      */
     number horizon_, step;
-
-    std::vector<double> rewards_;
 
     unsigned long global_step, num_episodes_, episode;
 

@@ -25,15 +25,20 @@ namespace sdm
 
     void BackwardInduction::solve()
     {
-        std::cout << "\n\n###############################################################\n";
-        std::cout << "#############    Start BackwardInduction \"" << this->name_ << "\"    ####################\n";
-        std::cout << "###############################################################\n\n";
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "START PLANNING" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" <<config::NO_COLOR << std::endl;
 
         this->start_state = getWorld()->getInitialState();
 
         this->explore(start_state, 0, 0);
 
-        std::cout << "#> Value Final, s h:" << 0 << "\t V_(" << this->bound_->getValueAt(start_state, 0) << ")" << std::endl;
+        std::cout << config::LOG_SDMS << "FINALE VALUE : " << this->bound_->getValueAt(start_state, 0) << std::endl;
+
+
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "END PLANNING" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" <<config::NO_COLOR << std::endl;
     }
 
     bool BackwardInduction::stop(const std::shared_ptr<State> &, double, number h)
@@ -78,11 +83,12 @@ namespace sdm
             }
             if (h <= LOG_DEPTH)
             {
+                std::cout << config::LOG_SDMS;
                 for (int i = 0; i < h; i++)
                 {
-                    std::cout << "\t";
+                    std::cout << "     ";
                 }
-                std::cout << "#> h: " << h << "\ts: " << state->str() << "\t V_(" << this->bound_->getValueAt(state, h) << ")" << std::endl;
+                std::cout << "Horizon " << h << "    State " << state << "    Value " << this->bound_->getValueAt(state, h) << std::endl;
             }
 
             // ------------- TEST ------------

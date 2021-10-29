@@ -25,7 +25,7 @@ namespace sdm
 
     void QLearning::initLogger()
     {
-        std::string format = "#> Episode : {}\tStep : {}/?\tValue : {}\tT(s) : {}\tEpsilon : {}\n";
+        std::string format = config::LOG_SDMS + "Episode {:>8}/"+ std::to_string(this->num_episodes_) + "    Step {:<14} Value {:<12.4f} T(s) {:<12.4f} Eps {:<6.2f}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(name_ + ".txt", format);
@@ -160,30 +160,13 @@ namespace sdm
         else
         {
             // Get greedy action
-            return this->selectGreedyAction(observation, t);
+            return this->q_value_->getGreedyAction(observation->toState(), t);
         }
     }
 
     std::shared_ptr<GymInterface> QLearning::getEnv() const
     {
         return this->env_;
-    }
-
-    std::shared_ptr<Action> QLearning::selectGreedyAction(const std::shared_ptr<Observation> &observation, number t)
-    {
-        std::shared_ptr<Action> greedy_action;
-        double best_value = -std::numeric_limits<double>::max(), tmp;
-
-        auto action_space = getEnv()->getActionSpaceAt(observation, t);
-        for (auto action : *action_space)
-        {
-            if (best_value < (tmp = this->q_value_->getQValueAt(observation->toState(), action->toAction(), t)))
-            {
-                best_value = tmp;
-                greedy_action = action->toAction();
-            }
-        }
-        return greedy_action;
     }
 
 } // namespace sdm

@@ -55,12 +55,22 @@ int learn(int argv, char **args)
 
         common::global_urng().seed(seed);
 
-        auto algo = sdm::algo::make(algorithm, problem, formalism,
-                                    qvalue, qvalue, q_init, q_init,
-                                    discount, lr, horizon, num_episodes, memory,
-                                    compress, store_states, store_actions, name, 5000, 
-                                    1, 1, "", 0, "", PAIRWISE, -1, NONE, -1, 
-                                    batch_size);
+        // Build algorithm
+        auto algo = sdm::algo::make(algorithm,
+                               problem,
+                               formalism,
+                               horizon,
+                               discount,
+                               lr,
+                               num_episodes,
+                               1800,
+                               name,
+                               memory,
+                               compress,
+                               store_states,
+                               store_actions,
+                               batch_size,
+                               qvalue);
 
         algo->initialize();
         algo->solve();

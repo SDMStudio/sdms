@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	int truncation = 1 ;
 
     int freq_prunning = -1;
-    sdm::TypeOfMaxPlanPrunning type_of_maxplan_prunning_ = sdm::TypeOfMaxPlanPrunning::PAIRWISE ;
+    sdm::MaxplanPruning::Type type_of_maxplan_prunning_ = sdm::MaxplanPruning::Type::PAIRWISE ;
     
 
     auto problem = sdm::parser::parse_file(filename);

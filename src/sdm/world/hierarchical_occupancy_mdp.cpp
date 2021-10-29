@@ -19,7 +19,7 @@ namespace sdm
         return this->low_level_agent_id_;
     }
 
-    std::shared_ptr<Space> HierarchicalOccupancyMDP::getObservationSpace(number t)
+    std::shared_ptr<Space> HierarchicalOccupancyMDP::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
     {
         return this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), t);
     }
