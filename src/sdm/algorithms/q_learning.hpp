@@ -181,4 +181,3 @@ namespace sdm
     clock_t t_begin;
   };
 } // namespace sdm
-#include <sdm/algorithms/q_learning.tpp>

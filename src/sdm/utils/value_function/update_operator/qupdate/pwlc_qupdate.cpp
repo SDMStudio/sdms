@@ -37,7 +37,7 @@ namespace sdm
                                   number t)
         {
             double target_value = target(state, action, reward, next_state, next_action, t);
-            return (target_value - q_value->getQValueAt(state, action, t));
+            return (q_value->getQValueAt(state, action, t) - target_value);
         }
 
         void PWLCQUpdate::update(number t)
@@ -89,6 +89,9 @@ namespace sdm
                 }
             }
             new_hyperplane->state.finalize();
+            // std::cout << "\n\n\nDELTA "  << delta << std::endl;
+            // std::cout << "OLD HYPERPLANE "  << old_hyperplane->getState().str() << std::endl;
+            // std::cout << "NEW HYPERPLANE "  << new_hyperplane->getState().str() << std::endl;
 
             return new_hyperplane;
         }

@@ -1,5 +1,4 @@
 
-
 #include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>

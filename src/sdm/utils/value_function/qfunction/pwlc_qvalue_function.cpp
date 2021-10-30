@@ -117,25 +117,22 @@ namespace sdm
     std::string PWLCQValueFunction::str() const
     {
         std::ostringstream res;
-        // res << "<hierarchical_qvalue_function_v2 horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
-        // for (sdm::size_t i = 0; i < this->representation.size(); i++)
-        // {
-        //     res << "\t<timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << "\" default=\"" << 0 << "\">" << std::endl;
-        //     for (auto const& [s, q] : this->representation[i])
-        //     {
-        //         auto jh = *s->getJointHistories().begin();
-        //         if (jh->getHorizon() < this->horizon_)
-        //         {
-        //             res << "\t\t<S-Q>" << std::endl;
-        //             tools::indentedOutput(res, s->str().c_str(), 3);
-        //             res << std::endl;
-        //             tools::indentedOutput(res, q.str().c_str(), 3);
-        //             res << "\t\t</S-Q>" << std::endl;
-        //         }
-        //     }
-        //     res << "\t</timestep>" << std::endl;
-        // }
-        // res << "</hierarchical_qvalue_function_v2>" << std::endl;
+        res << "<pwlc_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;
+        for (sdm::size_t i = 0; i < this->representation.size(); i++)
+        {
+            res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
+            for (const auto& pair_state_hyperplane : this->representation[i])
+            {
+                res << "\t\t<state>"<<std::endl;
+                tools::indentedOutput(res, pair_state_hyperplane.first->str().c_str(), 3);
+                res << "\t\t</state>" << std::endl;
+                res << "\t\t<plan>" << std::endl;
+                tools::indentedOutput(res, pair_state_hyperplane.second->getState().str().c_str(), 3);
+                res << "\n\t\t</plan>" << std::endl;
+            }
+            res << "\t</value>" << std::endl;
+        }
+        res << "</pwlc_qvalue_function>" << std::endl;
         return res.str();
     }
 } // namespace sdm

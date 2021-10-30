@@ -86,6 +86,18 @@ namespace sdm
         std::string getPathTo(std::string base, std::string world_name, std::string formalism_name);
 
         /**
+         * @brief Return the path the problem.
+         * 
+         * If the input string exists, the function return it. If it is a string following a specific 
+         * format (i.e <formalism>/<world> or <world>.<formalism>), then the program will get the 
+         * problem from the directory mentionned in the `config.hpp` file.
+         * 
+         * @param path the absolute path to the problem or a formatted string 
+         * @return the absolute path to the problem
+         */
+        std::string getWorldPath(std::string input);
+
+        /**
          * @brief Copy values contained in a std::set into a std::vector.
          * 
          * @tparam T the type of items

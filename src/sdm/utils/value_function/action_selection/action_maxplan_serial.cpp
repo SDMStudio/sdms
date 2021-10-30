@@ -1,5 +1,3 @@
-#ifdef WITH_CPLEX
-
 #include <sdm/utils/value_function/action_selection/action_maxplan_serial.hpp>
 #include <sdm/core/action/det_decision_rule.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
@@ -121,5 +119,3 @@ namespace sdm
         return next_expected_value;
     }
 }
-
-#endif

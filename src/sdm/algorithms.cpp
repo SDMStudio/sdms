@@ -82,11 +82,9 @@ namespace sdm
             {
                 action_selection = std::make_shared<ActionSelectionSawtoothLP>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
             }
+#else
+            throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
 #endif
-            if (!action_selection)
-            {
-                throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
-            }
             return action_selection;
         }
 
@@ -114,10 +112,15 @@ namespace sdm
                     action_selection = std::make_shared<ActionSelectionMaxplanWCSP>(problem);
                 else if (value_name.find("lp") != string::npos)
                 {
+#ifdef WITH_CPLEX
                     if (isInstanceOf<SerialProblemInterface>(problem))
                         action_selection = std::make_shared<ActionSelectionMaxplanLPSerial>(problem);
                     else
                         action_selection = std::make_shared<ActionSelectionMaxplanLP>(problem);
+#else
+                    throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
+
+#endif
                 }
                 else
                 {
@@ -266,7 +269,11 @@ namespace sdm
                 }
                 else if (qvalue_name.find("lp") != string::npos)
                 {
+#ifdef WITH_CPLEX
                     action_selection = std::make_shared<ActionSelectionMaxplanLP>(problem);
+#else
+            throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
+#endif
                 }
                 else
                 {
@@ -513,6 +520,8 @@ namespace sdm
             std::cout << COLOR_NAME_PARAMS << "type_of_pruning_v2=" << COLOR_PARAMS << type_of_pruning_v2 << std::endl;
             std::cout << COLOR_BLOCKS << "------------------------------------" << std::endl;
             std::cout << config::NO_COLOR;
+
+            problem_path = tools::getWorldPath(problem_path);
 
             // Build the formalism
             auto formalism = makeFormalism(problem_path, formalism_name, discount, horizon, memory, compression, store_state, store_action, batch_size);

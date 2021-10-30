@@ -104,6 +104,12 @@ namespace sdm
     {
         // Action selection following policy and exploration process
         auto action = this->selectAction(this->observation, this->step);
+        
+        // std::cout << "\n\nstate"<<std::endl;
+        // std::cout << this->observation->str()<<std::endl;
+        
+        // std::cout << "\n\naction"<<std::endl;
+        // std::cout << action->str()<<std::endl;
 
         // Execute one step in env and get next observation and rewards
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
@@ -119,6 +125,9 @@ namespace sdm
 
         // Backup and get Q Value Error
         this->q_value_->updateValueAt(this->step);
+
+        // std::cout << "\n\nvalue"<<std::endl;
+        // std::cout << this->q_value_->str()<<std::endl;
 
         endStep();
     }
