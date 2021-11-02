@@ -24,7 +24,6 @@ namespace sdm
 
     void PWLCQValueFunction::initialize(double value, number t)
     {
-
         // If there are not element at time t, we have to create the default State
         if (this->representation[t].size() == 0)
         {
@@ -68,8 +67,8 @@ namespace sdm
 
                 for (auto state : occupancy_state->getBeliefAt(history)->getStates())
                 {
-                    qvalue += occupancy_state->getProbability(history, state) /* * decision_rule->getProbability(history, action) */ * this->getBeta(hyperplane, state, history, action, t);
-                    // hyperplane->getValue(state, history, action);
+                    double proba_a = decision_rule->getProbability(history->getIndividualHistories().toJoint<State>(), std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action));
+                    qvalue += occupancy_state->getProbability(history, state) * proba_a * this->getBeta(hyperplane, state, history, action, t);
                 }
             }
         }
@@ -87,14 +86,9 @@ namespace sdm
         return (tmp_it != this->representation[t].end()) ? tmp_it->second : this->default_hyperplane[t];
     }
 
-    std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(number t)
+    std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(const std::shared_ptr<State>& state, number t)
     {
-        std::vector<std::shared_ptr<State>> list_hyperplanes;
-        for (const auto &pair_state_hyperplane : this->getRepresentation(t))
-        {
-            list_hyperplanes.push_back(pair_state_hyperplane.second);
-        }
-        return list_hyperplanes;
+        return {getHyperplaneAt(state, t-1)};
     }
 
     double PWLCQValueFunction::getBeta(const std::shared_ptr<State> &hyperplane, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
@@ -121,9 +115,10 @@ namespace sdm
         for (sdm::size_t i = 0; i < this->representation.size(); i++)
         {
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
-            for (const auto& pair_state_hyperplane : this->representation[i])
+            for (const auto &pair_state_hyperplane : this->representation[i])
             {
-                res << "\t\t<state>"<<std::endl;
+
+                res << "\t\t<state>" << std::endl;
                 tools::indentedOutput(res, pair_state_hyperplane.first->str().c_str(), 3);
                 res << "\t\t</state>" << std::endl;
                 res << "\t\t<plan>" << std::endl;

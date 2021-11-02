@@ -106,7 +106,7 @@ namespace sdm
 
         std::shared_ptr<State> getHyperplaneAt(const std::shared_ptr<State> &state, number t);
 
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(number t);
+        std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State>& state, number t);
 
         double getBeta(const std::shared_ptr<State> &belief_state, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
 

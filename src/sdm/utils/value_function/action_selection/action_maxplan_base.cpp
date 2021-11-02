@@ -24,7 +24,7 @@ namespace sdm
         double max_value = -std::numeric_limits<double>::max();
 
         // Go over all hyperplan in the Support
-        for (const auto &hyperplan : value_function->getHyperplanesAt(t + 1))
+        for (const auto &hyperplan : value_function->getHyperplanesAt(state, t + 1))
         {
             this->tmp_representation = hyperplan->toBelief();
             

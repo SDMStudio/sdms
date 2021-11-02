@@ -49,7 +49,7 @@ namespace sdm
          *
          * @return the list of hyperplanes
          */
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(number t);
+        std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State>& state, number t);
 
         /**
          * @brief Get the best hyperplane resulting to the higher value when evaluated at a given state.

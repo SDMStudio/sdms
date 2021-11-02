@@ -21,7 +21,8 @@ namespace sdm
     {
         try
         {
-            return this->map_state_to_action_.at(state);
+            auto iter = this->map_state_to_action_.find(state);
+            return (iter != this->map_state_to_action_.end()) ? iter->second : nullptr;
         }
         catch (const std::exception &e)
         {
