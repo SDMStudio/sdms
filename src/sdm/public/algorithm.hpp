@@ -22,9 +22,8 @@ namespace sdm
   class Algorithm
   {
   public:
-
     Algorithm(std::string name);
-  
+
     virtual ~Algorithm();
 
     /**
@@ -58,6 +57,17 @@ namespace sdm
     virtual void save() = 0;
 
     /**
+     * @brief Get the name of the algorithm as a string. 
+     * 
+     * This function will return the name of the algorithm as a string. 
+     * It does not return the name of a specific instance (`name` attribute) 
+     * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+     * 
+     * @return the algorithm name 
+     */
+    virtual std::string getAlgorithmName() = 0;
+    
+    /**
      * @brief Get the name of the algorithm.
      * 
      * This function will return the name provided by the user at 
@@ -69,12 +79,30 @@ namespace sdm
      */
     std::string getName() const;
 
+    /**
+     * @brief Start the timer.
+     */
     void startExecutionTime();
+
+    /**
+     * @brief Stop the timer
+     */
     void stopExecutionTime();
 
+    /**
+     * @brief Retrieves the start time of the execution
+     * 
+     * @return the start time 
+     */
     std::chrono::high_resolution_clock::time_point getStartExectionTime() const;
+
+    /**
+     * @brief Retrieves the stop time of the execution
+     * 
+     * @return the stop time 
+     */
     std::chrono::high_resolution_clock::time_point getStopExectionTime() const;
-    
+
     double getExecutionTime() const;
 
     virtual void saveResults(std::string filename, std::string format = ".md");
@@ -83,7 +111,7 @@ namespace sdm
 
   protected:
     std::string name = "unknown";
-    
-    std::chrono::high_resolution_clock::time_point start_execution_time, stop_execution_time;            
+
+    std::chrono::high_resolution_clock::time_point start_execution_time, stop_execution_time;
   };
 } // namespace sdm

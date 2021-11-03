@@ -32,7 +32,20 @@ namespace sdm
          */
         number getTrial();
 
+        /**
+         * @brief Print starting informations on the output screen.
+         */
+        void printStartInfo();
+
+        /**
+         * @brief Print ending informations on the output screen.
+         */
+        void printEndInfo();
+
     protected:
+        /**
+         * @brief Initialize the logger
+         */
         virtual void initLogger();
 
         /** @brief The problem to be solved */

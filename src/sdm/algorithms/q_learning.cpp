@@ -25,7 +25,7 @@ namespace sdm
 
     void QLearning::initLogger()
     {
-        std::string format = config::LOG_SDMS + "Episode {:>8}/"+ std::to_string(this->num_episodes_) + "    Step {:<14} Value {:<12.4f} T(s) {:<12.4f} Eps {:<6.2f}\n";
+        std::string format = config::LOG_SDMS + "Episode {:>8}/" + std::to_string(this->num_episodes_) + "    Step {:<14} Value {:<12.4f} T(s) {:<12.4f} Eps {:<6.2f}\n";
 
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
         auto file_logger = std::make_shared<sdm::FileLogger>(name_ + ".txt", format);
@@ -90,7 +90,7 @@ namespace sdm
                          this->q_value_->getValueAt(getEnv()->reset()->toState(), 0),
                          (float)(clock() - t_begin) / CLOCKS_PER_SEC,
                          exploration_process->getEpsilon());
-                         
+
             do_log_ = false;
         }
         if (do_test_)
@@ -102,14 +102,9 @@ namespace sdm
 
     void QLearning::doStep()
     {
+
         // Action selection following policy and exploration process
         auto action = this->selectAction(this->observation, this->step);
-        
-        // std::cout << "\n\nstate"<<std::endl;
-        // std::cout << this->observation->str()<<std::endl;
-        
-        // std::cout << "\n\naction"<<std::endl;
-        // std::cout << action->str()<<std::endl;
 
         // Execute one step in env and get next observation and rewards
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
@@ -125,9 +120,6 @@ namespace sdm
 
         // Backup and get Q Value Error
         this->q_value_->updateValueAt(this->step);
-
-        // std::cout << "\n\nvalue"<<std::endl;
-        // std::cout << this->q_value_->str()<<std::endl;
 
         endStep();
     }

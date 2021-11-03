@@ -59,7 +59,7 @@ namespace sdm
          * @param cost_so_far the cost so far
          * @param t the time step of the exploration
          */
-        virtual void explore(const std::shared_ptr<State> &state, double cost_so_far, number t);
+        virtual void doTrial();
 
         /**
          * @brief Check if the stop criterion is reached or not.
@@ -70,7 +70,7 @@ namespace sdm
          * @return true the stop criterion is reached 
          * @return false the stop criterion is not reached yet
          */
-        virtual bool stop(const std::shared_ptr<State> &state, double cost_so_far, number t) = 0;
+        virtual bool stop();
 
         /**
 		 * @brief Log execution variables in output streams.
@@ -103,10 +103,16 @@ namespace sdm
          */
         virtual void updateValue(const std::shared_ptr<State> &state, number t);
 
-        void printStartInfo();
-        void printEndInfo();
-
     protected:
+
+        /**
+         * @brief Select the states that wil be used to update the value function.
+         * 
+         * @param h the horizon
+         * @return the state spaces
+         */
+        virtual std::shared_ptr<Space> selectStates(number h) = 0;
+
         /**
          * @brief Initialize a trial.
          * 
@@ -115,37 +121,12 @@ namespace sdm
          */
         virtual void initTrial();
 
-        /**
-         * @brief Select the list of actions to explore.
-         * 
-         * This function can be inherited to build algorithms with different 
-         * exploration heuristics
-         * 
-         * @return a list of actions 
-         */
-        virtual std::shared_ptr<Space> selectActions(const std::shared_ptr<State> &state, number t) = 0;
-
-        /**
-         * @brief Select the list of observations to explore.
-         * 
-         * This function can be inherited to build algorithms with different 
-         * exploration heuristics
-         * 
-         * @return a list of observations 
-         */
-        virtual std::shared_ptr<Space> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
-
-        /**
-         * @brief Compute the next state.
-         * 
-         * @return the next state 
-         */
-        virtual std::shared_ptr<Space> selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,
-                                                        const std::shared_ptr<Observation> &observation, number t) = 0;
-
         /** @brief The value function */
-        std::shared_ptr<ValueFunction> value_function;
+        std::shared_ptr<ValueFunction> value_function, tmp_value_function;
 
-        double time_max;
+        /** @brief The time max before leaving execution */
+        double time_max, max_error;
+
+        bool was_updated;
     };
 }

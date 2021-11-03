@@ -7,6 +7,20 @@ namespace sdm
     {
     }
 
+    void DynamicProgramming::printStartInfo()
+    {
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "START PLANNING (" << this->getAlgorithmName() << ")" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
+    }
+
+    void DynamicProgramming::printEndInfo()
+    {
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "END PLANNING (" << this->getAlgorithmName() << ")" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
+    }
+
     void DynamicProgramming::initLogger()
     {
         // ************* Global Logger ****************

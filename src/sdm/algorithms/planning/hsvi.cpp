@@ -19,7 +19,7 @@ namespace sdm
                number lb_update_frequency,
                number ub_update_frequency,
                double time_max,
-               bool keep_same_action_forward_backward) : ValueIteration(world, lower_bound, error, time_max, name),
+               bool keep_same_action_forward_backward) : TSVI(world, lower_bound, error, time_max, name),
                                                          lower_bound(lower_bound),
                                                          upper_bound(upper_bound),
                                                          num_max_trials(num_max_trials),
@@ -31,7 +31,7 @@ namespace sdm
 
     void HSVI::initialize()
     {
-        ValueIteration::initialize();
+        TSVI::initialize();
         getUpperBound()->initialize();
     }
 
@@ -155,6 +155,9 @@ namespace sdm
                     getUpperBound()->getSize(),
                     getExecutionTime());
     }
+
+    std::string HSVI::getAlgorithmName() { return "HSVI";}
+
 
     void HSVI::initTrial()
     {
