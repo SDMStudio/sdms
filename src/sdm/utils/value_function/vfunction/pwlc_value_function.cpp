@@ -36,10 +36,10 @@ namespace sdm
         : ValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
           ValueFunction(copy.world_, copy.initializer_, copy.action_selection_, copy.update_operator_),
           PWLCValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_, copy.freq_pruning),
-          type_of_maxplan_prunning_(copy.type_of_maxplan_prunning_),
           representation(copy.representation),
-          all_state_updated_so_far(copy.all_state_updated_so_far),
-          default_values_per_horizon(copy.default_values_per_horizon)
+          default_values_per_horizon(copy.default_values_per_horizon),
+          type_of_maxplan_prunning_(copy.type_of_maxplan_prunning_),
+          all_state_updated_so_far(copy.all_state_updated_so_far)
     {
     }
 

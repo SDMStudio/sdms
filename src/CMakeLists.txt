@@ -185,5 +185,5 @@ install(DIRECTORY ${SDMS_MAN_DIR} DESTINATION share)
 # Install data
 install(DIRECTORY ${SDMS_WORLD_DIR} DESTINATION share/sdms)
 
-# add_subdirectory(examples)
-# add_subdirectory(programs)
+add_subdirectory(examples)
+add_subdirectory(programs)
