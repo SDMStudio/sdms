@@ -46,7 +46,7 @@ namespace sdm
         /**
          * @brief Initialize the logger
          */
-        virtual void initLogger();
+        virtual void initLogger() = 0;
 
         /** @brief The problem to be solved */
         std::shared_ptr<SolvableByHSVI> world;

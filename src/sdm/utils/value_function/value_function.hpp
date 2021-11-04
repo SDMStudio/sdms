@@ -127,6 +127,13 @@ namespace sdm
          */
         virtual std::vector<std::shared_ptr<State>> getSupport(number t = 0) = 0;
 
+        /**
+         * @brief Copy the value function and return a reference to the copied object.
+         * 
+         * @return the address of the value function copied
+         */
+        virtual std::shared_ptr<ValueFunctionInterface> copy() = 0;
+
     protected:
         /**
          * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.

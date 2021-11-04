@@ -13,13 +13,13 @@ namespace sdm
     void DFSVI::initLogger()
     {
         // ************* Global Logger ****************
-        std::string format = config::LOG_SDMS + "Trial {}\tV({})\tSizeV({})\tTime({})\n";
+        std::string format = config::LOG_SDMS + "Trial {:<8} Value {:<12.4f} Size {:<10} Time {:<12.4f}\n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
 
         // Build a logger that stores data in a CSV file
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(name, std::vector<std::string>{"Trial", "Value", "SizeV", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(name, std::vector<std::string>{"Trial", "Value", "Size", "Time"});
 
         // Build a multi logger that combines previous loggers
         this->logger = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, csv_logger});
@@ -71,7 +71,7 @@ namespace sdm
 
     std::string DFSVI::getAlgorithmName()
     {
-        return "DepthFirstSearchValueIteration";
+        return "DepthFirstSearchVI";
     }
 
     // void DFSVI::solve()

@@ -179,4 +179,9 @@ namespace sdm
         }
     }
 
+    std::string AlphaStar::getAlgorithmName()
+    {
+        return "A*";
+    }
+
 } // namespace sdm

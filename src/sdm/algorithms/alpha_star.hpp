@@ -131,6 +131,17 @@ namespace sdm
     void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
 
     void initLogger();
+
+    /**
+     * @brief Get the name of the algorithm as a string. 
+     * 
+     * This function will return the name of the algorithm as a string. 
+     * It does not return the name of a specific instance (`name` attribute) 
+     * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+     * 
+     * @return the algorithm name 
+     */
+    std::string getAlgorithmName();
     
     /**
      * @brief Compare two A* items.

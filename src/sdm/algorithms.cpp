@@ -1,9 +1,4 @@
 #include <sdm/algorithms.hpp>
-#include <sdm/algorithms/alpha_star.hpp>
-#include <sdm/algorithms/q_learning.hpp>
-#include <sdm/algorithms/planning/vi.hpp>
-#include <sdm/algorithms/planning/pbvi.hpp>
-#include <sdm/algorithms/backward_induction.hpp>
 
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
@@ -231,24 +226,19 @@ namespace sdm
 
         std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, std::string value_function_name,
                                                                 std::string vf_init_name, double discount, double error, number horizon,
-                                                                bool store_state, std::string name, double time_max)
+                                                                bool store_state, std::string name, double time_max,
+                                                                std::string vf_type_of_resolution_name,
+                                                                int vf_freq_pruning, std::string vf_type_of_pruning)
         {
-            // Instanciate the initializer
-            auto init = sdm::makeInitializer(vf_init_name, problem);
+            assert(((discount < 1) || (horizon > 0)));
 
-            // Instanciate the action selection procedure
-            auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(problem);
+            // Instanciate value function
+            std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
 
-            std::shared_ptr<ValueFunction> value_function;
-            if (store_state)
-                value_function = std::make_shared<TabularValueFunction>(problem, init, exhaustive_selection);
-            else
-                value_function = std::make_shared<TabularValueFunction2>(problem, init, exhaustive_selection);
-
-            // Instanciate the update operator
-            value_function->setUpdateOperator(std::make_shared<TabularUpdate>(value_function));
-
-            return std::make_shared<PBVI>(problem, value_function, error, time_max, name);
+            auto algo = std::make_shared<ValueIteration>(problem, value_function, error, time_max, name);
+            algo->setTmpValueFunction(tmp_value_function);
+            return algo;
         }
 
         std::shared_ptr<QValueFunction> makeQValueFunction(std::shared_ptr<SolvableByDP> problem, std::string qvalue_name, std::string q_init_name)
@@ -272,7 +262,7 @@ namespace sdm
 #ifdef WITH_CPLEX
                     action_selection = std::make_shared<ActionSelectionMaxplanLP>(problem);
 #else
-            throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
+                    throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
 #endif
                 }
                 else
@@ -419,7 +409,7 @@ namespace sdm
         }
 
         std::shared_ptr<Algorithm> makeAlgorithm(std::string algo_name, std::shared_ptr<SolvableByHSVI> formalism, double discount,
-                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max,
+                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max, number num_samples,
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
@@ -457,7 +447,23 @@ namespace sdm
                 p_algo = makeValueIteration(formalism, value_function_1,
                                             init_v1, discount, error,
                                             formalism->getHorizon(),
-                                            store_state, name, time_max);
+                                            store_state, name, time_max,
+                                            type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
+            }
+            else if ((algo_name == "perseus") || (algo_name == "Perseus")|| (algo_name == "PERSEUS"))
+            {
+                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
+                p_algo = std::make_shared<Perseus>(formalism, value_function, num_samples, trials, error, time_max, name);
+            }
+            else if ((algo_name == "dfsvi") || (algo_name == "DFSVI") || (algo_name == "DepthFirstSearchVI") || (algo_name == "DepthFirstSearchValueIteration"))
+            {
+                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
+                p_algo = std::make_shared<DFSVI>(formalism, value_function, error, time_max, name);
+            }
+            else if ((algo_name == "rsvi") || (algo_name == "RSVI") || (algo_name == "RandomSearchVI") || (algo_name == "RandomSearchValueIteration"))
+            {
+                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
+                p_algo = std::make_shared<RSVI>(formalism, value_function, error, num_samples, time_max, name);
             }
             else
             {
@@ -478,7 +484,7 @@ namespace sdm
         }
 
         std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism_name, number horizon, double discount, double error, int trials, double time_max, std::string name,
-                                        int memory, bool compression, bool store_state, bool store_action, number batch_size,
+                                        int memory, bool compression, bool store_state, bool store_action, number batch_size, number num_samples,
                                         std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                         std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
@@ -527,14 +533,14 @@ namespace sdm
             auto formalism = makeFormalism(problem_path, formalism_name, discount, horizon, memory, compression, store_state, store_action, batch_size);
 
             // Build the algorithm
-            return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max,
+            return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max, num_samples,
                                  value_function_1, init_v1, freq_update_v1, type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1,
                                  value_function_2, init_v2, freq_update_v2, type_of_resolution_v2, freq_pruning_v2, type_of_pruning_v2);
         }
 
         std::vector<std::string> available()
         {
-            return {"A*", "BackwardInduction", "HSVI", "QLearning", "ValueIteration"};
+            return {"A*", "BackwardInduction", "DFSVI", "HSVI", "Perseus", "QLearning", "RSVI", "ValueIteration"};
         }
 
     }

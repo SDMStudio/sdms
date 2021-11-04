@@ -30,15 +30,12 @@ namespace sdm
          * @param horizon the planning horizon
          * 
          */
-        Perseus(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, double error, double time_max, std::string name);
+        Perseus(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, number size_by_step, double error, double time_max, std::string name);
+        void initTrial();
+        void initialize();
 
-        /**
-		 * @brief Log execution variables in output streams.
-         * 
-         * Write execution variables in the logger. 
-         * 
-		 */
-        void logging();
+        bool stop();
+        void updateValue(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the name of the algorithm as a string. 
@@ -53,17 +50,12 @@ namespace sdm
 
     protected:
         /**
-         * @brief Initialize the logger
-         */
-        void initLogger();
-        
-        /**
          * @brief Select the states that wil be used to update the value function.
          * 
          * @param h the horizon
          * @return the state spaces
          */
-        virtual std::shared_ptr<Space> selectStates(number h) = 0;
+        std::shared_ptr<Space> selectStates(number h);
 
         /**
          * @brief Select one state.
@@ -72,5 +64,7 @@ namespace sdm
          * @return select one state
          */
         std::shared_ptr<State> selectOneState(number t);
+
+        number num_sample_states, size_by_step;
     };
 }

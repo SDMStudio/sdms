@@ -32,6 +32,17 @@ namespace sdm
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, 0);
     }
 
+    PWLCValueFunction::PWLCValueFunction(const PWLCValueFunction &copy)
+        : ValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
+          ValueFunction(copy.world_, copy.initializer_, copy.action_selection_, copy.update_operator_),
+          PWLCValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_, copy.freq_pruning),
+          type_of_maxplan_prunning_(copy.type_of_maxplan_prunning_),
+          representation(copy.representation),
+          all_state_updated_so_far(copy.all_state_updated_so_far),
+          default_values_per_horizon(copy.default_values_per_horizon)
+    {
+    }
+
     void PWLCValueFunction::initialize(double value, number t)
     {
         this->default_values_per_horizon[t] = value;
@@ -213,7 +224,6 @@ namespace sdm
     //     return beta_hyperplane;
     // }
 
-
     // std::vector<std::shared_ptr<State>> PWLCValueFunction::getBeta(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     // {
 
@@ -254,7 +264,7 @@ namespace sdm
     //     return beta_hyperplane;
     // }
 
-    std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(const std::shared_ptr<State>&, number t)
+    std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(const std::shared_ptr<State> &, number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
@@ -267,6 +277,12 @@ namespace sdm
     std::vector<std::shared_ptr<State>> PWLCValueFunction::getSupport(number t)
     {
         return this->getHyperplanesAt(nullptr, t);
+    }
+
+    std::shared_ptr<ValueFunctionInterface> PWLCValueFunction::copy()
+    {
+        auto casted_value = std::dynamic_pointer_cast<PWLCValueFunction>(this->getptr());
+        return std::make_shared<PWLCValueFunction>(*casted_value);
     }
 
     // void PWLCValueFunction::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)

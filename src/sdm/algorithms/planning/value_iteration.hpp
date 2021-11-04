@@ -75,7 +75,7 @@ namespace sdm
         /**
 		 * @brief Log execution variables in output streams.
 		 */
-        virtual void logging() = 0;
+        void logging();
 
         /**
          * @brief Test the current policy and display the reward obtained.
@@ -92,6 +92,7 @@ namespace sdm
          */
         virtual std::shared_ptr<ValueFunction> getValueFunction();
 
+
         /**
          * @brief Update the value function at a specific state and time step.
          * 
@@ -103,6 +104,21 @@ namespace sdm
          */
         virtual void updateValue(const std::shared_ptr<State> &state, number t);
 
+        /**
+         * @brief Get the name of the algorithm as a string. 
+         * 
+         * This function will return the name of the algorithm as a string. 
+         * It does not return the name of a specific instance (`name` attribute) 
+         * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+         * 
+         * @return the algorithm name 
+         */
+        std::string getAlgorithmName();
+
+        std::shared_ptr<ValueFunction> getTmpValueFunction();
+        
+        void setTmpValueFunction(const std::shared_ptr<ValueFunction> &tmp_vf);
+
     protected:
 
         /**
@@ -111,7 +127,7 @@ namespace sdm
          * @param h the horizon
          * @return the state spaces
          */
-        virtual std::shared_ptr<Space> selectStates(number h) = 0;
+        virtual std::shared_ptr<Space> selectStates(number h);
 
         /**
          * @brief Initialize a trial.
@@ -120,6 +136,11 @@ namespace sdm
          * 
          */
         virtual void initTrial();
+
+        /**
+         * @brief Initialize the logger
+         */
+        void initLogger();
 
         /** @brief The value function */
         std::shared_ptr<ValueFunction> value_function, tmp_value_function;

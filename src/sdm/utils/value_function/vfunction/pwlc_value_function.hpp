@@ -19,9 +19,19 @@ namespace sdm
                           const std::shared_ptr<PWLCUpdateOperator> &update_operator,
                           int freq_prunning = -1,
                           MaxplanPruning::Type type_of_maxplan_prunning = MaxplanPruning::Type::PAIRWISE);
+                          
+        PWLCValueFunction(const PWLCValueFunction &copy);
 
+        /**
+         * @brief Initialize the value function by using initializer.
+         */
         void initialize();
 
+        /**
+         * @brief Set all values of the vector to a default value.
+         *
+         * @param default_value the default value
+         */
         void initialize(double, number = 0);
 
         /**
@@ -82,9 +92,23 @@ namespace sdm
          */
         Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
 
+        /**
+         * @brief Get the size of the value function at timestep t
+         */
         size_t getSize(number t) const;
 
+        /**
+         * @brief Get a string representation of this class.
+         */
         std::string str() const;
+
+        /**
+         * @brief Copy the value function and return a reference to the copied object.
+         * 
+         * @return the address of the value function copied
+         */
+        std::shared_ptr<ValueFunctionInterface> copy();
+
 
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;

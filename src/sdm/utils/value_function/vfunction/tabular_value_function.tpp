@@ -23,7 +23,10 @@ namespace sdm
 
     template <class Hash, class KeyEqual>
     BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(const BaseTabularValueFunction &copy)
-        : TabularValueFunctionInterface(copy), representation(copy.representation) {}
+        : ValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
+          ValueFunction(copy),
+          TabularValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
+          representation(copy.representation) {}
 
     template <class Hash, class KeyEqual>
     void BaseTabularValueFunction<Hash, KeyEqual>::initialize()
@@ -83,6 +86,13 @@ namespace sdm
     void BaseTabularValueFunction<Hash, KeyEqual>::load(std::string)
     {
         // BoostSerializable<BaseTabularValueFunction>::load(filename);
+    }
+
+    template <class Hash, class KeyEqual>
+    std::shared_ptr<ValueFunctionInterface> BaseTabularValueFunction<Hash, KeyEqual>::copy()
+    {
+        auto casted_value = std::dynamic_pointer_cast<BaseTabularValueFunction<Hash, KeyEqual>>(this->getptr());
+        return std::make_shared<BaseTabularValueFunction<Hash, KeyEqual>>(*casted_value);
     }
 
     template <class Hash, class KeyEqual>

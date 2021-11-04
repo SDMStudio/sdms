@@ -13,6 +13,21 @@ namespace sdm
         this->bound_->setUpdateOperator(std::make_shared<TabularUpdate>(this->bound_));
     }
 
+    void BackwardInduction::initLogger()
+    {
+        // ************* Global Logger ****************
+        std::string format = config::LOG_SDMS + "Horizon {:<8} Value {:<12.4f} Size {:<10} Time {:<12.4f}\n";
+
+        // Build a logger that prints logs on the standard output stream
+        auto std_logger = std::make_shared<sdm::StdLogger>(format);
+
+        // Build a logger that stores data in a CSV file
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(name, std::vector<std::string>{"Horizon", "Value", "Size", "Time"});
+
+        // Build a multi logger that combines previous loggers
+        this->logger = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, csv_logger});
+    }
+
     std::shared_ptr<BackwardInduction> BackwardInduction::getptr()
     {
         return this->shared_from_this();
@@ -20,25 +35,22 @@ namespace sdm
 
     void BackwardInduction::initialize()
     {
-        this->bound_->initialize();
+        bound_->initialize();
+        initLogger();
     }
 
     void BackwardInduction::solve()
     {
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
-        std::cout << config::LOG_SDMS << "START PLANNING" << std::endl;
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" <<config::NO_COLOR << std::endl;
+        printStartInfo();
+        startExecutionTime();
 
-        this->start_state = getWorld()->getInitialState();
+        start_state = getWorld()->getInitialState();
 
-        this->explore(start_state, 0, 0);
+        explore(start_state, 0, 0);
 
-        std::cout << config::LOG_SDMS << "FINALE VALUE : " << this->bound_->getValueAt(start_state, 0) << std::endl;
+        std::cout << config::LOG_SDMS << "FINALE VALUE : " << bound_->getValueAt(start_state, 0) << std::endl;
 
-
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
-        std::cout << config::LOG_SDMS << "END PLANNING" << std::endl;
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" <<config::NO_COLOR << std::endl;
+        printEndInfo();
     }
 
     bool BackwardInduction::stop(const std::shared_ptr<State> &, double, number h)
@@ -83,12 +95,8 @@ namespace sdm
             }
             if (h <= LOG_DEPTH)
             {
-                std::cout << config::LOG_SDMS;
-                for (int i = 0; i < h; i++)
-                {
-                    std::cout << "     ";
-                }
-                std::cout << "Horizon " << h << "    State " << state << "    Value " << this->bound_->getValueAt(state, h) << std::endl;
+                // Print in loggers some execution variables
+                logger->log(h, getBound()->getValueAt(start_state, 0), getBound()->getSize(), getExecutionTime());
             }
 
             // ------------- TEST ------------
@@ -114,4 +122,8 @@ namespace sdm
         return this->bound_;
     }
 
+    std::string BackwardInduction::getAlgorithmName()
+    {
+        return "BackwardInduction";
+    }
 } // namespace sdm

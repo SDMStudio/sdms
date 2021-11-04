@@ -27,6 +27,16 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
+    BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(const BasePointSetValueFunction &copy)
+        : ValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
+          BaseTabularValueFunction<Hash, KeyEqual>(copy),
+          PrunableStructure(copy.world_->getHorizon(), copy.freq_pruning),
+          type_of_sawtooth_prunning_(copy.type_of_sawtooth_prunning_),
+          is_sawtooth_lp(copy.is_sawtooth_lp)
+    {
+    }
+
+    template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
         return this->evaluate(state, t).second;
@@ -258,6 +268,13 @@ namespace sdm
             // }
             // this->representation[t] = current_representation;
         }
+    }
+
+    template <class Hash, class KeyEqual>
+    std::shared_ptr<ValueFunctionInterface> BasePointSetValueFunction<Hash, KeyEqual>::copy()
+    {
+        auto casted_value = std::dynamic_pointer_cast<BasePointSetValueFunction<Hash, KeyEqual>>(this->getptr());
+        return std::make_shared<BasePointSetValueFunction<Hash, KeyEqual>>(*casted_value);
     }
 
     template <class Hash, class KeyEqual>

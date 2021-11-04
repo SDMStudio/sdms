@@ -74,5 +74,4 @@ namespace sdm
         }
         return size_total;
     }
-
 } // namespace sdm

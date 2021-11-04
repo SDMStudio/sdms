@@ -170,4 +170,9 @@ namespace sdm
         return this->env_;
     }
 
+    std::string QLearning::getAlgorithmName()
+    {
+        return "QLearning";
+    }
+
 } // namespace sdm
