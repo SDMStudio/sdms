@@ -32,6 +32,6 @@ namespace sdm
 
     public:
         POMDPInitializer(std::shared_ptr<SolvableByHSVI> world, std::string algo_name, double error = 0.01, int trials = 10000);
-        void init(std::shared_ptr<ValueFunction> vf);
+        void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 } // namespace sdm

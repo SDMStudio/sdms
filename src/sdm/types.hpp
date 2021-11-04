@@ -1,13 +1,12 @@
 #pragma once
 
 #include <cstddef>
+#include <chrono>
 #include <iostream>
 #include <boost/bimap.hpp>
 
 #include "sys/types.h"
 #include "sys/sysinfo.h"
-
-#include <chrono>
 
 #include <sdm/config.hpp>
 
@@ -108,37 +107,26 @@ namespace sdm
 
   };
 
-  enum TypeOfMaxPlanPrunning
+  namespace MaxplanPruning
   {
-    PAIRWISE,
-    BOUNDED
-  };
+    enum Type
+    {
+      PAIRWISE,
+      BOUNDED,
+      NONE
+    };
+  }
 
-  // std::ostream& operator<<(std::ostream& out, const TypeOfMaxPlanPrunning value)
-  // {
-  //   const char* s = 0;
-
-  //   switch (value)
-  //   {
-  //   case TypeOfMaxPlanPrunning::PAIRWISE :
-  //     s = "PAIRWISE";
-  //   case TypeOfMaxPlanPrunning::BOUNDED :    
-  //     s = "BOUNDED";
-
-  //   default:
-  //     break;
-  //   }
-  //   return out<<s;
-  // }
-
-  enum TypeOfSawtoothPrunning
+  namespace SawtoothPrunning
   {
-    ITERATIVE,
-    GLOBAL,
-    BOTH,
-    NONE
-  };
-
+    enum Type
+    {
+      ITERATIVE,
+      GLOBAL,
+      BOTH,
+      NONE
+    };
+  }
 
   enum TypeState
   {
@@ -177,6 +165,12 @@ namespace sdm
     sdm::hash_combine(seed, tr_double);
   }
 
+  template <class BaseClass, class MyClass>
+  bool isInstanceOf(std::shared_ptr<MyClass> aPtr)
+  {
+    return (std::dynamic_pointer_cast<BaseClass>(aPtr) != nullptr);
+  }
+
   // template <typename T>
   // struct equal_from_ptr
   // {
@@ -206,7 +200,7 @@ namespace sdm
       // if left or right is a nullptr, then return false
       if ((left == nullptr) ^ (right == nullptr))
         return false;
-      return ((left == right) || left->operator==(right));
+      return ((left == right) || left->isEqual(right));
     }
   };
 
@@ -288,24 +282,24 @@ namespace std
 
     static long long RanMemoryUsed(struct sysinfo memInfo)
     {
-        sysinfo (&memInfo);
+      sysinfo(&memInfo);
 
-        long long physMemUsed = memInfo.totalram - memInfo.freeram;
-        //Multiply in next statement to avoid int overflow on right hand side...
-        physMemUsed *= memInfo.mem_unit;
+      long long physMemUsed = memInfo.totalram - memInfo.freeram;
+      //Multiply in next statement to avoid int overflow on right hand side...
+      physMemUsed *= memInfo.mem_unit;
 
-        return physMemUsed / 1024 / 1024;
+      return physMemUsed / 1024 / 1024;
     }
 
     static long long totalMemory(struct sysinfo memInfo)
     {
-        sysinfo (&memInfo);
+      sysinfo(&memInfo);
 
-        long long totalPhysMem = memInfo.totalram;
-        //Multiply in next statement to avoid int overflow on right hand side...
-        totalPhysMem *= memInfo.mem_unit;
+      long long totalPhysMem = memInfo.totalram;
+      //Multiply in next statement to avoid int overflow on right hand side...
+      totalPhysMem *= memInfo.mem_unit;
 
-        return totalPhysMem / 1024 / 1024;
+      return totalPhysMem / 1024 / 1024;
     }
 
     // static void StartTime()

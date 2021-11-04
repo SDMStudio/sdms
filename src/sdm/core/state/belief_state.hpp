@@ -32,10 +32,13 @@ namespace sdm
     Belief(std::size_t);
     Belief(const Belief &);
     Belief(const MappedVector<std::shared_ptr<State>> &);
-    // Belief(std::initializer_list<value_type>);
     Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
-
     virtual ~Belief();
+
+    size_t hash(double precision = PRECISION) const;
+    bool operator==(const Belief &other) const;
+    bool isEqual(const Belief &other, double precision = PRECISION) const;
+    bool isEqual(const std::shared_ptr<State> &other, double precision = PRECISION) const;
 
     std::vector<std::shared_ptr<State>> getStates() const;
     double getProbability(const std::shared_ptr<State> &state) const;
@@ -51,11 +54,7 @@ namespace sdm
     size_t size() const { return MappedVector<std::shared_ptr<State>>::size(); }
 
     std::string str() const;
-
-    size_t hash() const;
-
-    bool operator==(const Belief &) const;
-    bool operator==(const std::shared_ptr<State> &other) const;
+    
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
 
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
@@ -70,7 +69,7 @@ namespace sdm
     void setDefaultValue(double);
     double getDefaultValue() const;
 
-    std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> getVectorInferface();
+    std::shared_ptr<BeliefInterface::Vector> getVectorInferface();
 
     void finalize();
 
@@ -98,9 +97,14 @@ namespace std
   {
     typedef sdm::Belief argument_type;
     typedef std::size_t result_type;
+    inline result_type operator()(const argument_type &in, double precision) const
+    {
+      return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, precision);
+    }
+
     inline result_type operator()(const argument_type &in) const
     {
-      return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::Belief::PRECISION);
+      return std::hash<sdm::Belief>()(in, sdm::Belief::PRECISION);
     }
   };
 }

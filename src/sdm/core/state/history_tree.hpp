@@ -12,6 +12,7 @@
 #pragma once
 
 #include <sdm/core/state/state.hpp>
+#include <sdm/core/action/action.hpp>
 #include <sdm/utils/struct/tree.hpp>
 #include <sdm/core/state/interface/history_interface.hpp>
 
@@ -28,45 +29,11 @@ namespace sdm
      * and observations at previous timesteps. 
      * 
      */
-    class HistoryTree : virtual public HistoryInterface, public Tree<std::shared_ptr<Observation>>
+    class HistoryTree : virtual public HistoryInterface, public Tree<Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>>>
     {
-    protected:
-        /**
-         *  @brief  Expands the tree using truncated expand method
-         * 
-         *  @param  data the data of the expanded node
-         *  @param  backup wheter the node is marked or not
-         * 
-         *  @return the truncated expanded tree
-         */
-        template <typename output>
-        std::shared_ptr<output> truncatedExpand(const std::shared_ptr<Observation> &observation, bool backup)
-        {
-            std::list<std::shared_ptr<Observation>> items;
-
-            //<! fill in the vector of observation to simulate
-            items.push_front(observation);
-            auto parent = this->getptr();
-            while (items.size() < this->getMaxDepth())
-            {
-                items.push_front(parent->getData());
-                parent = parent->getParent();
-            }
-
-            //<! iteratively expands the base_graph
-            auto trace = parent->getOrigin();
-
-            for (auto it = items.begin(); it != items.end(); ++it)
-            {
-                trace = std::dynamic_pointer_cast<output>(trace->expand(*it, backup));
-            }
-
-            return std::dynamic_pointer_cast<output>(trace);
-        }
-
     public:
-        using value_type = typename Tree<std::shared_ptr<Observation>>::value_type;
-        
+        using value_type = typename Tree<Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>>>::value_type;
+
         /**
          *  @brief  Default constructor.
          *  This constructor builds a default and empty tree.
@@ -89,7 +56,7 @@ namespace sdm
          * 
          *  This constructor builds a tree with a given parent and item.
          */
-        HistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item);
+        HistoryTree(std::shared_ptr<HistoryTree> parent, const Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>> &item);
 
         std::shared_ptr<HistoryInterface> getPreviousHistory();
 
@@ -108,23 +75,24 @@ namespace sdm
          *  child. The constructed child is returned.
          */
         template <typename output = HistoryTree>
-        std::shared_ptr<output> expand(const std::shared_ptr<Observation> &observation, bool backup = true)
+        std::shared_ptr<output> expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action = nullptr, bool backup = true)
         {
-            if (backup && (this->children_.find(observation) != this->children_.end()))
+            auto obs_action = std::make_pair(observation, action);
+            if (backup && (this->children_.find(obs_action) != this->children_.end()))
             {
-                return std::dynamic_pointer_cast<output>(this->getChild(observation));
+                return std::dynamic_pointer_cast<output>(this->getChild(obs_action));
             }
             if (backup && (this->getDepth() >= this->getMaxDepth()))
             {
-                return this->truncatedExpand<output>(observation, backup);
+                return this->truncatedExpand<output>(observation, action, backup);
             }
             if (backup)
             {
-                this->children_.emplace(observation, std::make_shared<output>(this->getptr(), observation));
+                this->children_.emplace(obs_action, std::make_shared<output>(this->getptr(), obs_action));
 
-                return std::dynamic_pointer_cast<output>(this->getChild(observation));
+                return std::dynamic_pointer_cast<output>(this->getChild(obs_action));
             }
-            return std::make_shared<output>(this->getptr(), observation);
+            return std::make_shared<output>(this->getptr(), obs_action);
         }
         /**
          * @brief Expands the history
@@ -132,7 +100,7 @@ namespace sdm
          * @param observation the observation of the expanded node
          * @return the expanded history
          */
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, bool backup = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action = nullptr, bool backup = true);
 
         std::string str() const;
         std::string short_str() const;
@@ -143,10 +111,9 @@ namespace sdm
         std::shared_ptr<HistoryTree> getParent() const;
         std::shared_ptr<HistoryTree> getOrigin();
         std::vector<std::shared_ptr<HistoryTree>> getChildren() const;
-        std::shared_ptr<HistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
+        std::shared_ptr<HistoryTree> getChild(const Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>> &obs_act) const;
 
-        const std::shared_ptr<Observation> &getData() const;
-
+        const Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>> &getData() const;
 
         friend std::ostream &operator<<(std::ostream &os, HistoryTree &i_hist)
         {
@@ -156,7 +123,42 @@ namespace sdm
 
         template <class Archive>
         void serialize(Archive &archive, const unsigned int);
+
+    protected:
+        /**
+         *  @brief  Expands the tree using truncated expand method
+         * 
+         *  @param  data the data of the expanded node
+         *  @param  backup wheter the node is marked or not
+         * 
+         *  @return the truncated expanded tree
+         */
+        template <typename output>
+        std::shared_ptr<output> truncatedExpand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup)
+        {
+            std::list<value_type> items;
+            auto obs_action = std::make_pair(observation, action);
+
+            //<! fill in the vector of observation to simulate
+            items.push_front(obs_action);
+            auto parent = this->getptr();
+            while (items.size() < this->getMaxDepth())
+            {
+                items.push_front(parent->getData());
+                parent = parent->getParent();
+            }
+
+            //<! iteratively expands the base_graph
+            auto trace = parent->getOrigin();
+
+            for (auto it = items.begin(); it != items.end(); ++it)
+            {
+                trace = std::dynamic_pointer_cast<output>(trace->expand(it->first, it->second, backup));
+            }
+
+            return std::dynamic_pointer_cast<output>(trace);
+        }
     };
 
 } // namespace sdm
-// #include <sdm/core/state/history_tree.tpp>
+  // #include <sdm/core/state/history_tree.tpp>

@@ -1,18 +1,31 @@
 #include <sdm/algorithms/backward_induction.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 
 namespace sdm
 {
-    BackwardInduction::BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,std::string name) : DynamicProgramming(world, 0, name)
+    BackwardInduction::BackwardInduction(const std::shared_ptr<SolvableByHSVI> &world, std::string name) : DynamicProgramming(world, 0, name)
     {
-        auto tabular_backup = std::make_shared<TabularBackup>(world);
-        auto action_tabular = std::make_shared<ActionVFTabulaire>(world);
+        auto init = std::make_shared<MinInitializer>(world);
+        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
+        this->bound_ = std::make_shared<TabularValueFunction>(world, init, action_tabular);
+        this->bound_->setUpdateOperator(std::make_shared<TabularUpdate>(this->bound_));
+    }
 
-        auto init= std::make_shared<MinInitializer>(world);
+    void BackwardInduction::initLogger()
+    {
+        // ************* Global Logger ****************
+        std::string format = config::LOG_SDMS + "Horizon {:<8} Value {:<12.4f} Size {:<10} Time {:<12.4f}\n";
 
-        this->bound_ = std::make_shared<TabularValueFunction>(this->world_->getUnderlyingProblem()->getHorizon(), init, tabular_backup, action_tabular, true);
+        // Build a logger that prints logs on the standard output stream
+        auto std_logger = std::make_shared<sdm::StdLogger>(format);
+
+        // Build a logger that stores data in a CSV file
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(name, std::vector<std::string>{"Horizon", "Value", "Size", "Time"});
+
+        // Build a multi logger that combines previous loggers
+        this->logger = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, csv_logger});
     }
 
     std::shared_ptr<BackwardInduction> BackwardInduction::getptr()
@@ -22,25 +35,27 @@ namespace sdm
 
     void BackwardInduction::initialize()
     {
-        this->bound_->initialize();
+        bound_->initialize();
+        initLogger();
     }
 
     void BackwardInduction::solve()
     {
-        std::cout << "\n\n###############################################################\n";
-        std::cout << "#############    Start BackwardInduction \"" << this->name_ << "\"    ####################\n";
-        std::cout << "###############################################################\n\n";
+        printStartInfo();
+        startExecutionTime();
 
-        this->start_state = this->world_->getInitialState();
+        start_state = getWorld()->getInitialState();
 
-        this->explore(start_state, 0, 0);
+        explore(start_state, 0, 0);
 
-        std::cout << "#>Value Final, s h:" << 0 << "\t V_(" << this->bound_->getValueAt(start_state, 0) << ")"<< std::endl;
+        std::cout << config::LOG_SDMS << "FINALE VALUE : " << bound_->getValueAt(start_state, 0) << std::endl;
+
+        printEndInfo();
     }
 
-    bool BackwardInduction::stop(const std::shared_ptr<State> &, double , number h)
+    bool BackwardInduction::stop(const std::shared_ptr<State> &, double, number h)
     {
-        return this->world_->getUnderlyingProblem()->getHorizon()<= h;
+        return (h >= this->getWorld()->getHorizon());
     }
 
     void BackwardInduction::explore(const std::shared_ptr<State> &state, double cost_so_far, number h)
@@ -49,22 +64,26 @@ namespace sdm
         {
             if (!this->stop(state, cost_so_far, h))
             {
-                auto action_space = this->world_->getActionSpaceAt(state, h);
+                double best_value = -std::numeric_limits<double>::max(), resultat_backpropagation;
 
-                double best_value = -std::numeric_limits<double>::max();
-                double resultat_backpropagation;
-                for (const auto& action : *action_space)
+                // Go over all actions
+                auto action_space = getWorld()->getActionSpaceAt(state, h);
+                for (const auto &action : *action_space)
                 {
-                    resultat_backpropagation = this->world_->getReward(state,action->toAction(),h);
+                    resultat_backpropagation = getWorld()->getReward(state, action->toAction(), h);
 
-                    auto observation_space = this->world_->getObservationSpaceAt(state,action->toAction(),h);
-
-                    for(const auto& observation : *observation_space)
+                    // Go over all observations
+                    auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), h);
+                    for (const auto &observation : *observation_space)
                     {
-                        auto [next_state,proba] = this->world_->getNextState(this->bound_,state,action->toAction(),observation->toObservation(),h);
-                        this->explore(next_state,cost_so_far + this->world_->getDiscount(h) * this->world_->getReward(state, action->toAction(), h),h+1);
+                        // Compute next state and proba
+                        auto [next_state, proba] = getWorld()->getNextState(state, action->toAction(), observation->toObservation(), h);
 
-                        resultat_backpropagation += this->world_->getDiscount(h) * proba * this->bound_->getValueAt(next_state,h+1);
+                        // Explore next state
+                        this->explore(next_state, cost_so_far + getWorld()->getDiscount(h) * getWorld()->getReward(state, action->toAction(), h), h + 1);
+
+                        // Update backprop value
+                        resultat_backpropagation += getWorld()->getDiscount(h) * proba * this->bound_->getValueAt(next_state, h + 1);
                     }
 
                     if (best_value < resultat_backpropagation)
@@ -72,14 +91,13 @@ namespace sdm
                         best_value = resultat_backpropagation;
                     }
                 }
-                this->bound_->updateValueAt(state,h,best_value);
+                this->bound_->setValueAt(state, best_value, h);
             }
-            //---------------DEBUG-----------------//
-            if(h == 1)
+            if (h <= LOG_DEPTH)
             {
-                std::cout << "#>Backward, s h:" << h << "\t V_(" << this->bound_->getValueAt(state, h) << ")"<< std::endl;
+                // Print in loggers some execution variables
+                logger->log(h, getBound()->getValueAt(start_state, 0), getBound()->getSize(), getExecutionTime());
             }
-            //-----------------DEBUG----------------//
 
             // ------------- TEST ------------
         }
@@ -103,5 +121,9 @@ namespace sdm
     {
         return this->bound_;
     }
-    
+
+    std::string BackwardInduction::getAlgorithmName()
+    {
+        return "BackwardInduction";
+    }
 } // namespace sdm

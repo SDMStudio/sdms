@@ -23,7 +23,7 @@ namespace sdm
          * We consider that histories can expand next history from themselves and the next observation. 
          * 
          */
-        virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, bool backup = true) = 0;
+        virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action = nullptr, bool backup = true) = 0;
 
         /**
          * @brief Get the previous history. 

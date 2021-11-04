@@ -119,20 +119,33 @@ namespace sdm
         return std::make_pair(sampled_joint_history, this->getBeliefAt(sampled_joint_history));
     }
 
-    size_t OccupancyState::hash() const
+    size_t OccupancyState::hash(double precision) const
     {
-        return std::hash<OccupancyState>()(*this);
+        if (precision < 0)
+        {
+            precision = OccupancyState::PRECISION;
+        }
+        return std::hash<OccupancyState>()(*this, precision);
     }
 
-    bool OccupancyState::operator==(const OccupancyState &other) const
+  bool OccupancyState::operator==(const OccupancyState &other) const
+  {
+    return this->isEqual(other);
+  }
+
+    bool OccupancyState::isEqual(const OccupancyState &other, double precision) const
     {
+        if (precision < 0)
+        {
+            precision = Belief::PRECISION;
+        }
 
         if (this->size() != other.size())
         {
             return false;
         }
 
-        if (std::abs(this->getDefault() - other.getDefault()) > PRECISION)
+        if (std::abs(this->getDefault() - other.getDefault()) > precision)
         {
             return false;
         }
@@ -144,7 +157,7 @@ namespace sdm
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
                 // Does the corresponding probabilities are equals ?
-                if (std::abs(this->getProbability(jhistory, state) - other.getProbability(jhistory, state)) > OccupancyState::PRECISION)
+                if (std::abs(this->getProbability(jhistory, state) - other.getProbability(jhistory, state)) > precision)
                 {
                     return false;
                 }
@@ -153,14 +166,14 @@ namespace sdm
         return true;
     }
 
-    bool OccupancyState::operator==(const std::shared_ptr<State> &other) const
+    bool OccupancyState::isEqual(const std::shared_ptr<State> &other, double precision) const
     {
-        return this->operator==(*std::dynamic_pointer_cast<OccupancyState>(other));
+        return this->isEqual(*std::dynamic_pointer_cast<OccupancyState>(other), precision);
     }
 
     bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
     {
-        return OccupancyState::operator==(*std::dynamic_pointer_cast<OccupancyState>(other));
+        return this->isEqual(*std::dynamic_pointer_cast<OccupancyState>(other));
     }
 
     double OccupancyState::operator<(const OccupancyState &other) const
@@ -247,7 +260,6 @@ namespace sdm
 
     double OccupancyState::operator^(const std::shared_ptr<BeliefInterface> &other) const
     {
-
         double product = 0.0;
 
         for (const auto &jhistory : this->getJointHistories())

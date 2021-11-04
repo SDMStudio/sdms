@@ -4,7 +4,7 @@
 #include <sdm/algorithms/planning/dp.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 namespace sdm
 {
@@ -12,7 +12,8 @@ namespace sdm
   /**
    * @brief The algorithm [Backward Induction](https://en.wikipedia.org/wiki/Backward_induction). 
    */
-  class BackwardInduction : public DynamicProgramming, public std::enable_shared_from_this<BackwardInduction>
+  class BackwardInduction : public DynamicProgramming,
+                            public std::enable_shared_from_this<BackwardInduction>
   {
   public:
     /**
@@ -21,7 +22,7 @@ namespace sdm
      * @param world the problem to be solved by Backward induction
      * @param name the name of the algorithm (this name is used to save logs)
      */
-    BackwardInduction(std::shared_ptr<SolvableByHSVI> &world,
+    BackwardInduction(const std::shared_ptr<SolvableByHSVI> &world,
                       std::string name = "backward induction");
 
     std::shared_ptr<BackwardInduction> getptr();
@@ -73,23 +74,29 @@ namespace sdm
      */
     std::shared_ptr<ValueFunction> getBound() const;
 
+    /**
+     * @brief Get the name of the algorithm as a string. 
+     * 
+     * This function will return the name of the algorithm as a string. 
+     * It does not return the name of a specific instance (`name` attribute) 
+     * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+     * 
+     * @return the algorithm name 
+     */
+    std::string getAlgorithmName();
+
   protected:
     /**
-     * @brief The problem to be solved.
-     * 
+     * @brief Initialize the logger
      */
-    std::shared_ptr<SolvableByHSVI> world_;
+    void initLogger();
+
+    number LOG_DEPTH = 2;
 
     /**
      * @brief representation. 
      */
     std::shared_ptr<TabularValueFunction> bound_;
-
-    /**
-     * @brief Logger.
-     * 
-     */
-    std::shared_ptr<MultiLogger> logger_;
 
     /**
      * @brief Some variables for the algorithm.

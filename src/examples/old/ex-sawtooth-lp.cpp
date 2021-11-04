@@ -4,14 +4,14 @@
 
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 
-#include <sdm/utils/value_function/point_set_value_function.hpp>
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
-#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
+#include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp.hpp>
 
 #include <sdm/parser/parser.hpp>
 #include <sdm/exception.hpp>
@@ -67,14 +67,14 @@ int main(int argc, char **argv)
 		auto tabular_backup = std::make_shared<TabularBackup>(oMDP);
 		auto maxplan_backup = std::make_shared<MaxPlanBackup>(oMDP);
 
-		auto action_maxplan_lp = std::make_shared<ActionVFMaxplanLP>(oMDP);
-		auto action_sawtooth_lp =  std::make_shared<ActionVFSawtoothLP>(oMDP, type_of_resolution,ValueBigM,type_of_linear_program);
+		auto action_maxplan_lp = std::make_shared<ActionSelectionMaxplanLP>(oMDP);
+		auto action_sawtooth_lp =  std::make_shared<ActionSelectionSawtoothLP>(oMDP, type_of_resolution,ValueBigM,type_of_linear_program);
 
         auto init_lb = std::make_shared<MinInitializer>(oMDP);
         auto init_ub = std::make_shared<MDPInitializer>(oMDP, "Pomdp Init");
 
 		// Instanciate bounds
-		std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<HyperplanValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_lp);
+		std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<PWLCValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_lp);
 		std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_lp);
 
         auto algo = std::make_shared<HSVI>(oMDP, lower_bound, upper_bound, problem->getHorizon(), error, trials);

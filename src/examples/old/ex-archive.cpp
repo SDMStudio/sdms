@@ -18,7 +18,7 @@
 #include <sdm/core/action/joint_det_decision_rule.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/history.hpp>
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>

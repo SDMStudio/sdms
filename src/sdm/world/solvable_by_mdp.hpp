@@ -14,7 +14,7 @@ namespace sdm
      * @brief The class for Markov Decision Processes.
      *
      */
-    class SolvableByMDP : public SolvableByHSVI
+    class SolvableByMDP : virtual public SolvableByHSVI
     {
     public:
         /** @brief Default constructor */
@@ -64,7 +64,7 @@ namespace sdm
 
         virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
-        virtual Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+        virtual Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
 
         /**
          * @brief Get the next state and corresponding probability.
@@ -109,14 +109,6 @@ namespace sdm
          * @return the underlying problem 
          */
         const std::shared_ptr<MDPInterface> &getUnderlyingProblem() const;
-
-        /**
-         * @brief Check if the problem is serialized.
-         * 
-         * @return true if the problem is serialized.
-         * @return false if the problem is not serialized.
-         */
-        bool isSerial() const;
 
         /**
          * @brief Get the specific discount factor for the problem at hand

@@ -52,6 +52,9 @@ namespace sdm
         /** @brief Color code for the main theme */
         const std::string SDMS_THEME_1 = "\033[1;36m";
 
+        /** @brief Color code for the secondary theme */
+        const std::string SDMS_THEME_2 = "\033[0;37m";
+
         /** @brief Color code for ***No Color*** */
         const std::string NO_COLOR = "\033[0m";
 

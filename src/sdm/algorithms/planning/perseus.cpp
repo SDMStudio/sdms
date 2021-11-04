@@ -1,35 +1,67 @@
 
-#include <sdm/config.hpp>
-#include <sdm/exception.hpp>
 #include <sdm/algorithms/planning/perseus.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
-// #include <sdm/world/belief_mdp.hpp>
 
 namespace sdm
 {
-    Perseus::Perseus(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, double error, number num_samples, double max_time, std::string name)
-        : PBVI(world, value_function, error, max_time, name), num_samples(num_samples)
+    Perseus::Perseus(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, number size_by_step, double error, double time_max, std::string name)
+        : ValueIteration(world, value_function, error, time_max, name), num_sample_states(num_sample_states), size_by_step(size_by_step)
     {
     }
 
-    //  SELECT ACTION IN PERSEUS
-    std::shared_ptr<Space> Perseus::selectActions(const std::shared_ptr<State> &state, number t)
+    void Perseus::initTrial()
     {
-        throw exception::NotImplementedException();
-        // return std::make_shared<DiscreteSpace>(getWorld()->getActionSpaceAt(state, t)->sample(num_samples), false);
     }
 
-    //  SELECT ACTION IN PERSEUS
-    std::shared_ptr<Space> Perseus::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    void Perseus::initialize()
     {
-        throw exception::NotImplementedException();
-        // return std::make_shared<DiscreteSpace>(getWorld()->getNextObservationDistribution(state, action, t)->sample(num_samples), false);
+        initLogger();
+        value_function->initialize();
     }
 
-    // COMPUTE NEXT STATE IN PERSEUS
-    std::shared_ptr<Space> Perseus::selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<State> Perseus::selectOneState(number t)
     {
-        return PBVI::selectNextStates(state, action, observation, t);
+        std::shared_ptr<State> current_state = getWorld()->getInitialState();
+        std::shared_ptr<Action> current_action;
+        std::shared_ptr<Observation> current_observation;
+        for (number h = 0; h < t; h++)
+        {
+            current_action = getWorld()->getActionSpaceAt(current_state, t)->sample()->toAction(); //getWorld()->getRandomAction(current_state, t);
+            current_observation = getWorld()->getObservationSpaceAt(current_state, current_action, t)->sample()->toObservation();
+            current_state = getWorld()->getNextStateAndProba(current_state, current_action, current_observation, t).first;
+        }
+        return current_state;
+    }
+
+    std::shared_ptr<Space> Perseus::selectStates(number t)
+    {
+        if (isInstanceOf<MDPInterface>(this->getWorld()))
+        {
+            return std::dynamic_pointer_cast<MDPInterface>(getWorld())->getStateSpace(t);
+        }
+        else
+        {
+            std::vector<std::shared_ptr<State>> list_states;
+            for (int i = 0; i < num_sample_states; i++)
+            {
+                list_states.push_back(this->selectOneState(t));
+            }
+            return std::make_shared<DiscreteSpace>(list_states);
+        }
+    }
+
+    bool Perseus::stop()
+    {
+        return (getValueFunction()->getSize() > (size_by_step * getWorld()->getHorizon()));
+    }
+
+    void Perseus::updateValue(const std::shared_ptr<State> &state, number t)
+    {
+        getValueFunction()->updateValueAt(state, t);
+    }
+
+    std::string Perseus::getAlgorithmName()
+    {
+        return "Perseus";
     }
 
 }

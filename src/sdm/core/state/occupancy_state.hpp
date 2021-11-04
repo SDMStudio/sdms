@@ -35,10 +35,10 @@ namespace sdm
         OccupancyState(const OccupancyState &copy);
         ~OccupancyState();
 
-        size_t hash() const;
-
-        bool operator==(const std::shared_ptr<State> &other) const;
+        size_t hash(double precision = PRECISION) const;
         bool operator==(const OccupancyState &other) const;
+        bool isEqual(const OccupancyState &other, double precision = PRECISION) const;
+        bool isEqual(const std::shared_ptr<State> &other, double precision = PRECISION) const;
 
         double getProbability(const std::shared_ptr<State> &joint_history) const;
         double getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history) const;

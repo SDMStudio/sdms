@@ -17,6 +17,7 @@
 #include <sdm/core/action/action.hpp>
 #include <sdm/utils/struct/recursive_map.hpp>
 #include <sdm/utils/struct/graph.hpp>
+#include <sdm/world/base/belief_mdp_interface.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
 #include <sdm/world/gym_interface.hpp>
@@ -32,7 +33,8 @@ namespace sdm
      *  
      */
     template <class TBelief>
-    class BaseBeliefMDP : public SolvableByMDP,
+    class BaseBeliefMDP : virtual public SolvableByMDP,
+                          virtual public BeliefMDPInterface,
                           public GymInterface
     {
     public:
@@ -41,7 +43,10 @@ namespace sdm
         ~BaseBeliefMDP();
 
         /** @brief Get the address of the underlying POMDP */
-        virtual std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
+        std::shared_ptr<POMDPInterface> getUnderlyingPOMDP() const;
+
+        /** @brief Get the address of the underlying BeliefMDP */
+        std::shared_ptr<BeliefMDPInterface> getUnderlyingBeliefMDP();
 
         /**
          * @brief Get the action space at a specific belief and time step.
@@ -89,8 +94,8 @@ namespace sdm
          * @return double 
          */
         virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
-        
-        Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+
+        Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
 
         /**
          * @brief Get the next generic state (i.e. belief, occupancy state, etc).
@@ -107,7 +112,7 @@ namespace sdm
          * @return the next belief
          *
          */
-        Pair<std::shared_ptr<State>, double> getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation>& observation, number t);
+        Pair<std::shared_ptr<State>, double> getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
 
         /** @brief Get the Observation Probability p(o | b', a) */
         virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const;
@@ -134,7 +139,7 @@ namespace sdm
 
         /** @brief A pointer on the bag containing all states. */
         RecursiveMap<TBelief, std::shared_ptr<State>> state_space_;
-        
+
         std::shared_ptr<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>> reward_graph_;
 
     public:
@@ -155,7 +160,6 @@ namespace sdm
 
         /** @brief the MDP Graph (graph of state transition) */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> mdp_graph_;
-
 
         /**
          * @brief Compute the state transition in order to return next state and associated probability.

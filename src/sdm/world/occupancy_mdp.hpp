@@ -38,7 +38,7 @@ namespace sdm
                 virtual std::shared_ptr<MPOMDPInterface> getUnderlyingMPOMDP() const;
 
                 /** @brief Get the address of the underlying BeliefMDP */
-                virtual std::shared_ptr<BeliefMDP> getUnderlyingBeliefMDP() const;
+                virtual std::shared_ptr<BeliefMDPInterface> getUnderlyingBeliefMDP();
 
                 /**
                  * @brief Get the observation space of the central planner. 
@@ -49,7 +49,7 @@ namespace sdm
                  * Depending of the case, the central planner may observe or not what agents observe.
                  * 
                  */
-                std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
+                virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
                 virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &occupancy_state, number t = 0);
                 virtual double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);

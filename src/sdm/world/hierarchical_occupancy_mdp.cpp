@@ -19,7 +19,7 @@ namespace sdm
         return this->low_level_agent_id_;
     }
 
-    std::shared_ptr<Space> HierarchicalOccupancyMDP::getObservationSpace(number t)
+    std::shared_ptr<Space> HierarchicalOccupancyMDP::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
     {
         return this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), t);
     }
@@ -28,7 +28,7 @@ namespace sdm
     {
         return (std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(this->getLowLevelAgentID()) == observation);
     }
-    
+
     std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
         // Compute reward
@@ -50,8 +50,9 @@ namespace sdm
             {
                 this->step_++;
                 this->current_state_ = candidate_state;
-                return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
+                break;
             }
         }
+        return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
     }
 } // namespace sdm

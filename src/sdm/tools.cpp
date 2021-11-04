@@ -1,4 +1,5 @@
 #include <sdm/tools.hpp>
+#include <sys/stat.h>
 #include <regex>
 
 namespace sdm
@@ -6,9 +7,46 @@ namespace sdm
 
     namespace tools
     {
-        std::string getPathTo(std::string base, std::string world_name, std::string formalism_name)
+        std::string getPathTo(std::string base_dir, std::string world_name, std::string formalism_name)
         {
-            return base + "/" + formalism_name + "/" + world_name + "." + formalism_name;
+            if (base_dir[base_dir.size()] != '/')
+            {
+                base_dir = base_dir + "/";
+            }
+            return base_dir + formalism_name + "/" + world_name + "." + formalism_name;
+        }
+
+        std::string getWorldPath(std::string path)
+        {
+            struct stat buffer;
+            if (stat(path.c_str(), &buffer) == 0)
+            {
+                return path;
+            }
+            else
+            {
+                std::string formalism_name, world_name;
+                std::size_t pos = path.find(".");
+                if (pos != std::string::npos)
+                {
+                    world_name = path.substr(0, pos);
+                    formalism_name = path.substr(pos + 1);
+                }
+                else
+                {
+                    for (char separator : {'/', ':', '-', ',', ';'})
+                    {
+                        std::size_t pos = path.find(separator);
+                        if (pos != std::string::npos)
+                        {
+                            world_name = path.substr(pos + 1);
+                            formalism_name = path.substr(0, pos);
+                            break;
+                        }
+                    }
+                }
+                return getPathTo(config::PROBLEM_PATH, world_name, formalism_name);
+            }
         }
 
         bool hasExtension(std::string filename, std::string extension)

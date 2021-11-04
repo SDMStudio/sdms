@@ -14,6 +14,8 @@ namespace sdm
     class BeliefInterface : public State
     {
     public:
+        using Vector = VectorInterface<std::shared_ptr<State>, double>;
+
         virtual std::vector<std::shared_ptr<State>> getStates() const = 0;
 
         virtual size_t size() const = 0;
@@ -38,7 +40,7 @@ namespace sdm
         virtual double getDefaultValue() const = 0;
         virtual void finalize() = 0;
 
-        virtual std::shared_ptr<VectorInterface<std::shared_ptr<State>, double>> getVectorInferface() = 0;
+        virtual std::shared_ptr<Vector> getVectorInferface() = 0;
 
         TypeState getTypeState() const
         {

@@ -68,7 +68,7 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    std::shared_ptr<BeliefMDP> BaseOccupancyMDP<TOccupancyState>::getUnderlyingBeliefMDP() const
+    std::shared_ptr<BeliefMDPInterface> BaseOccupancyMDP<TOccupancyState>::getUnderlyingBeliefMDP()
     {
         return this->belief_mdp_;
     }
@@ -259,11 +259,11 @@ namespace sdm
                         if (next_joint_history_probability > 0)
                         {
                             // Update new fully uncompressed occupancy state
-                            std::shared_ptr<JointHistoryInterface> next_joint_history = joint_history->expand(/* joint_action, */ joint_observation->toObservation())->toJointHistory();
+                            std::shared_ptr<JointHistoryInterface> next_joint_history = joint_history->expand(joint_observation->toObservation() /*, joint_action*/)->toJointHistory();
                             this->updateOccupancyStateProba(next_fully_uncompressed_occupancy_state, next_joint_history, next_belief->toBelief(), next_joint_history_probability);
 
                             // Update new one step uncompressed occupancy state
-                            std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(/* joint_action, */ joint_observation->toObservation())->toJointHistory();
+                            std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(joint_observation->toObservation() /*, joint_action*/)->toJointHistory();
                             this->updateOccupancyStateProba(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief->toBelief(), next_joint_history_probability);
 
                             // Update next history labels
@@ -512,12 +512,12 @@ namespace sdm
             std::shared_ptr<OccupancyStateInterface> next_compressed_occupancy_state;
             // Compress the occupancy state
             next_compressed_occupancy_state = next_one_step_left_compressed_occupancy_state->compress()->toOccupancyState();
+
             double norm_compressed = next_compressed_occupancy_state->toBelief()->norm_1();
             next_compressed_occupancy_state->normalizeBelief(norm_compressed);
-            // Set 
+            // Set
             next_compressed_occupancy_state->setFullyUncompressedOccupancy(next_fully_uncompressed_occupancy_state);
             next_compressed_occupancy_state->setOneStepUncompressedOccupancy(next_one_step_left_compressed_occupancy_state);
-
 
             return {next_compressed_occupancy_state, norm_one_step};
         }
@@ -547,15 +547,15 @@ namespace sdm
             aggregated_belief->normalizeBelief(aggregated_belief->norm_1());
 
             // Check if the belief already exists in the belief space
-            if (this->getUnderlyingBeliefMDP()->state_space_.find(*aggregated_belief) == this->getUnderlyingBeliefMDP()->state_space_.end())
+            if (this->belief_mdp_->state_space_.find(*aggregated_belief) == this->belief_mdp_->state_space_.end())
             {
                 // Store the belief in the graph
-                this->getUnderlyingBeliefMDP()->getMDPGraph()->addNode(aggregated_belief);
+                this->belief_mdp_->getMDPGraph()->addNode(aggregated_belief);
                 // Store the belief in the belief space
-                this->getUnderlyingBeliefMDP()->state_space_[*aggregated_belief] = aggregated_belief;
+                this->belief_mdp_->state_space_[*aggregated_belief] = aggregated_belief;
             }
             // Get the address of the belief
-            auto ptr_belief = this->getUnderlyingBeliefMDP()->state_space_.at(*aggregated_belief);
+            auto ptr_belief = this->belief_mdp_->state_space_.at(*aggregated_belief);
 
             // Build fully uncompressed occupancy state
             occupancy_state->setProbability(joint_history->toJointHistory(), ptr_belief->toBelief(), occupancy_state->getProbability(joint_history) + probability);

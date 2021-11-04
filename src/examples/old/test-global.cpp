@@ -31,16 +31,16 @@
 // #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
 // #include <sdm/utils/value_function/backup/tabular_backup.hpp>
 
-// #include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-// #include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
-// #include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
-// #include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
-// #include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
-// #include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
+// #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+// #include <sdm/utils/value_function/action_selection/action_maxplan.hpp>
+// #include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
+// #include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp_serial.hpp>
+// #include <sdm/utils/value_function/action_selection/action_maxplan_serial.hpp>
+// #include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp.hpp>
 
-// #include <sdm/utils/value_function/tabular_value_function.hpp>
-// #include <sdm/utils/value_function/point_set_value_function.hpp>
-// #include <sdm/utils/value_function/hyperplan_value_function.hpp>
+// #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
+// #include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+// #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 // #include <sdm/core/state/belief_state.hpp>
 // #include <sdm/core/state/occupancy_state.hpp>
@@ -159,22 +159,22 @@
 
 //                 "#"+std::to_string(0);
 
-//         TypeOfMaxPlanPrunning type_lb_pruning_;
+//         MaxplanPruning::Type type_lb_pruning_;
 //         if(type_lb_pruning == "Bounded")
 //         {
-//             type_lb_pruning_ = TypeOfMaxPlanPrunning::BOUNDED;
+//             type_lb_pruning_ = MaxplanPruning::Type::BOUNDED;
 //         }else if(type_lb_pruning == "Pairwise")
 //         {
-//             type_lb_pruning_ = TypeOfMaxPlanPrunning::PAIRWISE;
+//             type_lb_pruning_ = MaxplanPruning::Type::PAIRWISE;
 //         }
 
-//         TypeOfSawtoothPrunning type_ub_pruning_;
+//         SawtoothPrunning::Type type_ub_pruning_;
 //         if(type_ub_pruning == "Global")
 //         {
-//             type_ub_pruning_ = TypeOfSawtoothPrunning::GLOBAL;
+//             type_ub_pruning_ = SawtoothPrunning::Type::GLOBAL;
 //         }else if(type_ub_pruning == "Iterative")
 //         {
-//             type_ub_pruning_ = TypeOfSawtoothPrunning::ITERATIVE;
+//             type_ub_pruning_ = SawtoothPrunning::Type::ITERATIVE;
 //         }
 
 //         auto algo = sdm::algo::make("hsvi",

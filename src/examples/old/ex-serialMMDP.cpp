@@ -20,7 +20,7 @@
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/serial_mmdp.hpp>
 
-#include <sdm/utils/value_function/tabular_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 using namespace sdm;
 

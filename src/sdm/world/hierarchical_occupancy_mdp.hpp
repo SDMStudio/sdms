@@ -28,7 +28,7 @@ namespace sdm
          */
         number getLowLevelAgentID();
 
-        virtual std::shared_ptr<Space> getObservationSpace(number t);
+        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
         virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
         virtual bool checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation);
 
