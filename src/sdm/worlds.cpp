@@ -7,7 +7,7 @@ namespace sdm
     {
         std::vector<std::string> available()
         {
-            return {"MDP", "BeliefMDP", "OccupancyMDP", "Extensive-MDP", "Extensive-BeliefMDP", "Extensive-OccupancyMDP"};
+            return {"MDP", "BeliefMDP", "OccupancyMDP", "Extensive-MDP", "Extensive-BeliefMDP", "Extensive-OccupancyMDP", "Hierarchical-MDP", "Hierarchical-BeliefMDP", "Hierarchical-OccupancyMDP"};
         }
     }
 }

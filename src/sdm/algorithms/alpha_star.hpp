@@ -49,17 +49,15 @@ namespace sdm
         }
     };
 
-    /** @brief The problem to be solved */
-    std::shared_ptr<SolvableByHSVI> world_;
-
     /** @brief The representation. */
-    std::shared_ptr<TabularValueFunction> bound_;
+    std::shared_ptr<TabularValueFunction> value_function;
 
     /** @brief The logger */
     std::shared_ptr<MultiLogger> logger_;
 
     /** @brief Some hyperparameters for the algorithm */
     number planning_horizon_;
+
     std::string name_ = "backward_induction";
 
     std::shared_ptr<State> start_state;
@@ -79,7 +77,8 @@ namespace sdm
      * @param world the problem to be solved by A*
      * @param name the name of the algorithm (this name is used to save logs)
      */
-    AlphaStar(std::shared_ptr<SolvableByHSVI> &world,
+    AlphaStar(const std::shared_ptr<SolvableByHSVI> &world,
+              const std::shared_ptr<ValueFunction> &value_function,
               std::string name = "A*");
 
     std::shared_ptr<AlphaStar> getptr();
@@ -127,11 +126,22 @@ namespace sdm
     /**
      * @brief Get the bound value function 
      */
-    std::shared_ptr<ValueFunction> getBound() const;
+    std::shared_ptr<TabularValueFunction> getBound() const;
 
     void updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information);
 
     void initLogger();
+
+    /**
+     * @brief Get the name of the algorithm as a string. 
+     * 
+     * This function will return the name of the algorithm as a string. 
+     * It does not return the name of a specific instance (`name` attribute) 
+     * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+     * 
+     * @return the algorithm name 
+     */
+    std::string getAlgorithmName();
     
     /**
      * @brief Compare two A* items.

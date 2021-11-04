@@ -40,10 +40,11 @@ then
     else
         echo -e "${LOG_SDMS}PyTorch already installed"
     fi
+
     mkdir -p ./build && cd ./build
 
     # Build and install SDMS
-    cmake .. && make -j install
+    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j install
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
     if [ ${RESULT_INSTALL_SDMS} -eq 0 ];
@@ -76,11 +77,14 @@ then
         echo -e "${LOG_SDMS}PyTorch already installed"
     fi
 
+    # Install Toolbar library 
+    cp lib/libtb2.so /lib/x86_64-linux-gnu/
+
     echo -e "${LOG_SDMS}Create build directory."
     mkdir -p ./build && cd ./build
 
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
-    cmake .. && make -j install
+    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j install
 
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?

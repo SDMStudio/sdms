@@ -1,9 +1,8 @@
-#ifdef WITH_CPLEX
 
 #pragma once
 
 #include <sdm/utils/value_function/action_selection/action_selection_base.hpp>
-#include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
+#include <sdm/core/state/interface/belief_interface.hpp>
 
 namespace sdm
 {
@@ -41,5 +40,3 @@ namespace sdm
         std::shared_ptr<BeliefInterface> tmp_representation;
     };
 }
-
-#endif

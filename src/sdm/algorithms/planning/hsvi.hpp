@@ -15,7 +15,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/algorithms/planning/vi.hpp>
+#include <sdm/algorithms/planning/tsvi.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 
@@ -32,7 +32,7 @@ namespace sdm
    	 * feature-based HSVI, one-sided HSVI, etc.
    	 * 
    	 */
-	class HSVI : public ValueIteration,
+	class HSVI : public TSVI,
 				 public std::enable_shared_from_this<HSVI>
 	{
 	public:
@@ -86,6 +86,17 @@ namespace sdm
 		 */
 		void logging();
 
+        /**
+         * @brief Get the name of the algorithm as a string. 
+         * 
+         * This function will return the name of the algorithm as a string. 
+         * It does not return the name of a specific instance (`name` attribute) 
+         * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+         * 
+         * @return the algorithm name 
+         */
+        std::string getAlgorithmName();
+
 		/**
     	 * @brief Get the lower bound value function 
     	 */
@@ -96,7 +107,7 @@ namespace sdm
     	 */
 		std::shared_ptr<ValueFunction> getUpperBound() const;
 
-        /**
+		/**
          * @brief Update the value function at a specific state and time step.
          * 
          * This function will make an update on the value function using the 
@@ -105,13 +116,13 @@ namespace sdm
          * @param state the state 
          * @param t the time step
          */
-        void updateValue(const std::shared_ptr<State> &state, number t);
+		void updateValue(const std::shared_ptr<State> &state, number t);
 
 		void saveParams(std::string filename, std::string format = ".md");
+
 		void saveResults(std::string filename, std::string format = ".md");
 
 	protected:
-
 		/**
          * @brief Initialize the loggers.
          * 
@@ -138,7 +149,7 @@ namespace sdm
          * 
          * @return a list of actions 
          */
-		std::shared_ptr<Space> selectActions(const std::shared_ptr<State> &state, number t) ;
+		std::shared_ptr<Space> selectActions(const std::shared_ptr<State> &state, number t);
 
 		/**
          * @brief Select the list of observations to explore.
@@ -148,7 +159,7 @@ namespace sdm
          * 
          * @return a list of observations 
          */
-		std::shared_ptr<Space> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) ;
+		std::shared_ptr<Space> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
 		/**
          * @brief Compute the next state.
@@ -156,7 +167,7 @@ namespace sdm
          * @return the next state 
          */
 		std::shared_ptr<Space> selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,
-												const std::shared_ptr<Observation> &observation, number t) ;
+												const std::shared_ptr<Observation> &observation, number t);
 
 		/** @brief Lower Bound representation. */
 		std::shared_ptr<ValueFunction> lower_bound, upper_bound;

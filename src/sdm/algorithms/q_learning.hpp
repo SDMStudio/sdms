@@ -130,15 +130,6 @@ namespace sdm
     std::shared_ptr<Action> selectAction(const std::shared_ptr<Observation> &observation, number t);
 
     /**
-     * @brief Select the best action according to the current q-value.
-     * 
-     * @param observation the current observation
-     * @param t the timestep
-     * @return the selected action
-     */
-    std::shared_ptr<Action> selectGreedyAction(const std::shared_ptr<Observation> &observation, number t);
-
-    /**
      * @brief Initialize the loggers.
      * 
      * The loggers are objects allowing to write the statistics relative to the execution of the 
@@ -154,6 +145,17 @@ namespace sdm
      * @return the gym environment 
      */
     std::shared_ptr<GymInterface> getEnv() const;
+
+    /**
+     * @brief Get the name of the algorithm as a string. 
+     * 
+     * This function will return the name of the algorithm as a string. 
+     * It does not return the name of a specific instance (`name` attribute) 
+     * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+     * 
+     * @return the algorithm name 
+     */
+    std::string getAlgorithmName();
 
   protected:
     /** @brief The problem to be solved */
@@ -176,8 +178,6 @@ namespace sdm
      */
     number horizon_, step;
 
-    std::vector<double> rewards_;
-
     unsigned long global_step, num_episodes_, episode;
 
     std::string name_ = "qlearning";
@@ -192,4 +192,3 @@ namespace sdm
     clock_t t_begin;
   };
 } // namespace sdm
-#include <sdm/algorithms/q_learning.tpp>

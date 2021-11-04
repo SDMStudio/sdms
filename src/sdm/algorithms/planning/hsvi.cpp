@@ -19,7 +19,7 @@ namespace sdm
                number lb_update_frequency,
                number ub_update_frequency,
                double time_max,
-               bool keep_same_action_forward_backward) : ValueIteration(world, lower_bound, error, time_max, name),
+               bool keep_same_action_forward_backward) : TSVI(world, lower_bound, error, time_max, name),
                                                          lower_bound(lower_bound),
                                                          upper_bound(upper_bound),
                                                          num_max_trials(num_max_trials),
@@ -31,7 +31,7 @@ namespace sdm
 
     void HSVI::initialize()
     {
-        ValueIteration::initialize();
+        TSVI::initialize();
         getUpperBound()->initialize();
     }
 
@@ -130,7 +130,7 @@ namespace sdm
     void HSVI::initLogger()
     {
         // ************* Global Logger ****************
-        std::string format = config::LOG_SDMS + "Trial {}\tError :\t{}\t->\tValue_LB({})\tValue_UB({})\t Size_LB({}) \t Size_UB({}) \t Time({})\n";
+        std::string format = config::LOG_SDMS + "Trial {:<8} Error {:<12.4f} Value_LB {:<12.4f} Value_UB {:<12.4f} Size_LB {:<10} Size_UB {:<10} Time {:<12.4f}\n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
@@ -155,6 +155,9 @@ namespace sdm
                     getUpperBound()->getSize(),
                     getExecutionTime());
     }
+
+    std::string HSVI::getAlgorithmName() { return "HSVI";}
+
 
     void HSVI::initTrial()
     {

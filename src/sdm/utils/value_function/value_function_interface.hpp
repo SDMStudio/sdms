@@ -27,6 +27,10 @@
  */
 namespace sdm
 {
+
+    class ValueFunction;
+    class QValueFunction;
+
     /**
      * @brief This class is the abstract class of all kind of value functions. 
      * 
@@ -186,6 +190,13 @@ namespace sdm
             os << vf.str();
             return os;
         }
+
+
+        /** @brief Cast the state into a history */
+        virtual std::shared_ptr<ValueFunction> toValueFunction();
+
+        /** @brief Cast the state into a serial interface */
+        virtual std::shared_ptr<QValueFunction> toQValueFunction();
 
     protected:
         /**

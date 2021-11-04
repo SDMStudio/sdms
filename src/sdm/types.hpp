@@ -107,36 +107,26 @@ namespace sdm
 
   };
 
-  enum TypeOfMaxPlanPrunning
+  namespace MaxplanPruning
   {
-    PAIRWISE,
-    BOUNDED
-  };
+    enum Type
+    {
+      PAIRWISE,
+      BOUNDED,
+      NONE
+    };
+  }
 
-  // std::ostream& operator<<(std::ostream& out, const TypeOfMaxPlanPrunning value)
-  // {
-  //   const char* s = 0;
-
-  //   switch (value)
-  //   {
-  //   case TypeOfMaxPlanPrunning::PAIRWISE :
-  //     s = "PAIRWISE";
-  //   case TypeOfMaxPlanPrunning::BOUNDED :
-  //     s = "BOUNDED";
-
-  //   default:
-  //     break;
-  //   }
-  //   return out<<s;
-  // }
-
-  enum TypeOfSawtoothPrunning
+  namespace SawtoothPrunning
   {
-    ITERATIVE,
-    GLOBAL,
-    BOTH,
-    NONE
-  };
+    enum Type
+    {
+      ITERATIVE,
+      GLOBAL,
+      BOTH,
+      NONE
+    };
+  }
 
   enum TypeState
   {
@@ -210,7 +200,7 @@ namespace sdm
       // if left or right is a nullptr, then return false
       if ((left == nullptr) ^ (right == nullptr))
         return false;
-      return ((left == right) || left->operator==(right));
+      return ((left == right) || left->isEqual(right));
     }
   };
 

@@ -12,7 +12,7 @@ namespace sdm
                                                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                                                          const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                                                          int freq_pruning,
-                                                                         TypeOfSawtoothPrunning type_of_sawtooth_prunning)
+                                                                         SawtoothPrunning::Type type_of_sawtooth_prunning)
         : ValueFunctionInterface(world, initializer, action_selection),
           BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection, update_operator),
           PrunableStructure(world->getHorizon(), freq_pruning),
@@ -24,6 +24,16 @@ namespace sdm
             this->is_sawtooth_lp = true;
         }
 #endif
+    }
+
+    template <class Hash, class KeyEqual>
+    BasePointSetValueFunction<Hash, KeyEqual>::BasePointSetValueFunction(const BasePointSetValueFunction &copy)
+        : ValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
+          BaseTabularValueFunction<Hash, KeyEqual>(copy),
+          PrunableStructure(copy.world_->getHorizon(), copy.freq_pruning),
+          type_of_sawtooth_prunning_(copy.type_of_sawtooth_prunning_),
+          is_sawtooth_lp(copy.is_sawtooth_lp)
+    {
     }
 
     template <class Hash, class KeyEqual>
@@ -200,7 +210,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
     {
-        if (this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == TypeOfSawtoothPrunning::GLOBAL)
+        if (this->type_of_sawtooth_prunning_ == SawtoothPrunning::Type::BOTH or this->type_of_sawtooth_prunning_ == SawtoothPrunning::Type::GLOBAL)
         {
             auto [support_of_each_point, sort_by_number_of_support] = this->iterative_pruning(t);
 
@@ -258,6 +268,13 @@ namespace sdm
             // }
             // this->representation[t] = current_representation;
         }
+    }
+
+    template <class Hash, class KeyEqual>
+    std::shared_ptr<ValueFunctionInterface> BasePointSetValueFunction<Hash, KeyEqual>::copy()
+    {
+        auto casted_value = std::dynamic_pointer_cast<BasePointSetValueFunction<Hash, KeyEqual>>(this->getptr());
+        return std::make_shared<BasePointSetValueFunction<Hash, KeyEqual>>(*casted_value);
     }
 
     template <class Hash, class KeyEqual>

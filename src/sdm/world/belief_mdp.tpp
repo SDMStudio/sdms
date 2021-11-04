@@ -292,7 +292,6 @@ namespace sdm
     {
         this->step_ = 0;
         this->current_state_ = this->initial_state_;
-        std::dynamic_pointer_cast<GymInterface>(this->getUnderlyingProblem())->reset();
         return this->current_state_;
     }
 

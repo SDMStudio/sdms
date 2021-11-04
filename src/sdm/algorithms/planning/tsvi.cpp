@@ -1,31 +1,22 @@
 
-#include <sdm/algorithms/planning/vi.hpp>
+#include <sdm/algorithms/planning/tsvi.hpp>
 
 namespace sdm
 {
-    ValueIteration::ValueIteration(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, double error, double time_max, std::string name)
+    TSVI::TSVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, double error, double time_max, std::string name)
         : DynamicProgramming(world, error, name), value_function(value_function), time_max(time_max)
     {
     }
 
-    void ValueIteration::initialize()
+    void TSVI::initialize()
     {
         initLogger();
         value_function->initialize();
     }
-
-    void ValueIteration::printInfo()
+    
+    void TSVI::solve()
     {
-        std::cout << "-------------------" << std::endl;
-        std::cout << "ALGO=ValueIteration" << std::endl;
-        std::cout << "# name=" << name << std::endl;
-        std::cout << "# error=" << error << std::endl;
-        std::cout << "-------------------" << std::endl;
-    }
-
-    void ValueIteration::solve()
-    {
-        printInfo();
+        printStartInfo();
         startExecutionTime();
 
         trial = 0;
@@ -43,9 +34,10 @@ namespace sdm
 
         } while (!stop(initial_state, 0, 0) && (time_max >= getExecutionTime())); // Do trials until convergence
         logging();                                                                // Print execution variables in logging output streams
+        printEndInfo();
     }
 
-    void ValueIteration::explore(const std::shared_ptr<State> &state, double cost_so_far, number t)
+    void TSVI::explore(const std::shared_ptr<State> &state, double cost_so_far, number t)
     {
         try
         {
@@ -84,54 +76,33 @@ namespace sdm
         catch (const std::exception &exc)
         {
             // Catch anything thrown within try block that derives from std::exception
-            std::cerr << "ValueIteration::explore(..) exception caught: " << exc.what() << std::endl;
+            std::cerr << "TSVI::explore(..) exception caught: " << exc.what() << std::endl;
             exit(-1);
         }
     }
 
-    void ValueIteration::updateValue(const std::shared_ptr<State> &state, number t)
+    void TSVI::updateValue(const std::shared_ptr<State> &state, number t)
     {
         getValueFunction()->updateValueAt(state, t);
     }
 
-    void ValueIteration::test()
+    void TSVI::test()
     {
     }
 
-    void ValueIteration::save()
+    void TSVI::save()
     {
     }
 
-    std::shared_ptr<ValueFunction> ValueIteration::getValueFunction()
+    std::shared_ptr<ValueFunction> TSVI::getValueFunction()
     {
         return value_function;
     }
 
-    void ValueIteration::initTrial()
+    void TSVI::initTrial()
     {
     }
 
+
+
 }
-
-// // SELECT ACTION IN HSVI
-// std::shared_ptr<Space> ValueIteration::selectActions(const std::shared_ptr<State> &state, number t)
-// {
-//     return std::make_shared<DiscreteSpace>({upper_bound->getGreedyAction(state, t)});
-// }
-
-// // SELECT ACTION IN HSVI
-// std::shared_ptr<Space> ValueIteration::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-// {
-// }
-
-// //  SELECT ACTION IN Perseus
-// std::shared_ptr<Space> ValueIteration::selectActions(const std::shared_ptr<State> &state, number t)
-// {
-//     return std::make_shared<DiscreteSpace>(world->getActionSpaceAt(state, t)->sample(n), false);
-// }
-
-// //  SELECT ACTION IN Perseus
-// std::shared_ptr<Space> ValueIteration::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-// {
-//     return std::make_shared<DiscreteSpace>(world->getNextObservationDistribution(state, action, t)->sample(n), false);
-// }

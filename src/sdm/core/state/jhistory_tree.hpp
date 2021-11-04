@@ -66,7 +66,7 @@ namespace sdm
          *  @param  parent   the parent tree
          *  @param  item     the item
          */
-        JointHistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item);
+        JointHistoryTree(std::shared_ptr<HistoryTree> parent, const Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>> &item);
 
         /**
          * @brief Construct a new joint history based on individual histories
@@ -86,8 +86,8 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, bool backup = true);
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &joint_observation, bool backup = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, const std::shared_ptr<Joint<std::shared_ptr<Action>>> &joint_action = nullptr, bool backup = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action = nullptr, bool backup = true);
 
         /**
          * @brief Get the address of the individual history of agent 'agent_id' 
@@ -118,7 +118,7 @@ namespace sdm
         std::shared_ptr<JointHistoryTree> getOrigin();
         void isNotOrigin();
         std::vector<std::shared_ptr<JointHistoryTree>> getChildren() const;
-        std::shared_ptr<JointHistoryTree> getChild(const std::shared_ptr<Observation> &child_item) const;
+        std::shared_ptr<JointHistoryTree> getChild(const Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>> &child_item) const;
 
         friend std::ostream &operator<<(std::ostream &os, JointHistoryTree &j_hist)
         {

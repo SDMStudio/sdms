@@ -32,8 +32,21 @@ namespace sdm
          */
         number getTrial();
 
+        /**
+         * @brief Print starting informations on the output screen.
+         */
+        void printStartInfo();
+
+        /**
+         * @brief Print ending informations on the output screen.
+         */
+        void printEndInfo();
+
     protected:
-        virtual void initLogger();
+        /**
+         * @brief Initialize the logger
+         */
+        virtual void initLogger() = 0;
 
         /** @brief The problem to be solved */
         std::shared_ptr<SolvableByHSVI> world;

@@ -93,6 +93,13 @@ namespace sdm
         void load(std::string filename);
 
         /**
+         * @brief Copy the value function and return a reference to the copied object.
+         * 
+         * @return the address of the value function copied
+         */
+        std::shared_ptr<ValueFunctionInterface> copy();
+
+        /**
          * @brief Get a string representation of this class.
          */
         std::string str() const;
@@ -102,9 +109,19 @@ namespace sdm
          */
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
+        /**
+         * @brief Get the representation structure of the value function. 
+         * 
+         * @param t the time step
+         * @return the container
+         */
         Container getRepresentation(number t);
 
+        /**
+         * @brief Get the size of the value function at timestep t
+         */
         size_t getSize(number t) const;
+        
 
         friend std::ostream &operator<<(std::ostream &os, BaseTabularValueFunction &vf)
         {

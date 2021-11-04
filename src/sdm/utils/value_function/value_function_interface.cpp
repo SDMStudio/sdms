@@ -1,4 +1,5 @@
 #include <sdm/utils/value_function/value_function.hpp>
+#include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/vector_interface.hpp>
 
@@ -21,15 +22,6 @@ namespace sdm
     {
         this->getInitializer()->init(this->getptr());
     }
-
-    // void ValueFunctionInterface::updateValueAt(const std::shared_ptr<State> &state, number t)
-    // {
-    //     this->getUpdateOperator()->update(state, t);
-    // }
-
-    // void ValueFunctionInterface::updateValueAt(const std::shared_ptr<State> &state, double value, number t = 0)
-    // {
-    // }
 
     std::shared_ptr<Action> ValueFunctionInterface::getGreedyAction(const std::shared_ptr<State> &state, number t)
     {
@@ -91,8 +83,15 @@ namespace sdm
         return this->action_selection_;
     }
 
-    // std::shared_ptr<UpdateOperatorInterface> ValueFunctionInterface::getUpdateOperator() const
-    // {
-    //     return this->update_operator_;
-    // }
+
+    std::shared_ptr<ValueFunction> ValueFunctionInterface::toValueFunction()
+    {
+        return std::dynamic_pointer_cast<ValueFunction>(this->getptr());
+    }
+   
+    std::shared_ptr<QValueFunction> ValueFunctionInterface::toQValueFunction()
+    {
+        return std::dynamic_pointer_cast<QValueFunction>(this->getptr());
+    }
+
 } // namespace sdm

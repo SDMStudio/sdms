@@ -159,22 +159,22 @@
 
 //                 "#"+std::to_string(0);
 
-//         TypeOfMaxPlanPrunning type_lb_pruning_;
+//         MaxplanPruning::Type type_lb_pruning_;
 //         if(type_lb_pruning == "Bounded")
 //         {
-//             type_lb_pruning_ = TypeOfMaxPlanPrunning::BOUNDED;
+//             type_lb_pruning_ = MaxplanPruning::Type::BOUNDED;
 //         }else if(type_lb_pruning == "Pairwise")
 //         {
-//             type_lb_pruning_ = TypeOfMaxPlanPrunning::PAIRWISE;
+//             type_lb_pruning_ = MaxplanPruning::Type::PAIRWISE;
 //         }
 
-//         TypeOfSawtoothPrunning type_ub_pruning_;
+//         SawtoothPrunning::Type type_ub_pruning_;
 //         if(type_ub_pruning == "Global")
 //         {
-//             type_ub_pruning_ = TypeOfSawtoothPrunning::GLOBAL;
+//             type_ub_pruning_ = SawtoothPrunning::Type::GLOBAL;
 //         }else if(type_ub_pruning == "Iterative")
 //         {
-//             type_ub_pruning_ = TypeOfSawtoothPrunning::ITERATIVE;
+//             type_ub_pruning_ = SawtoothPrunning::Type::ITERATIVE;
 //         }
 
 //         auto algo = sdm::algo::make("hsvi",

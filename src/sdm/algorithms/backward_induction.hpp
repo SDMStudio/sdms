@@ -74,19 +74,29 @@ namespace sdm
      */
     std::shared_ptr<ValueFunction> getBound() const;
 
+    /**
+     * @brief Get the name of the algorithm as a string. 
+     * 
+     * This function will return the name of the algorithm as a string. 
+     * It does not return the name of a specific instance (`name` attribute) 
+     * but those of the general algorithm used (i.e. HSVI, QLearning, etc).
+     * 
+     * @return the algorithm name 
+     */
+    std::string getAlgorithmName();
+
   protected:
-    number LOG_DEPTH = 1; 
+    /**
+     * @brief Initialize the logger
+     */
+    void initLogger();
+
+    number LOG_DEPTH = 2;
 
     /**
      * @brief representation. 
      */
     std::shared_ptr<TabularValueFunction> bound_;
-
-    /**
-     * @brief Logger.
-     * 
-     */
-    std::shared_ptr<MultiLogger> logger_;
 
     /**
      * @brief Some variables for the algorithm.

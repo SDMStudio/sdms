@@ -1,8 +1,6 @@
 #include <sdm/algorithms/alpha_star.hpp>
 
-#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
-#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_vf_interface.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
@@ -11,16 +9,18 @@ namespace sdm
 {
     double AlphaStar::TIME_TO_REMOVE = 0;
 
-    AlphaStar::AlphaStar(std::shared_ptr<SolvableByHSVI> &world,
+    AlphaStar::AlphaStar(const std::shared_ptr<SolvableByHSVI> &world,
+                         const std::shared_ptr<ValueFunction> &value_function,
                          std::string name) : DynamicProgramming(world, 0, name)
     {
-        auto init = std::make_shared<POMDPInitializer>(world, "HSVI");
-        auto action_tabular = std::make_shared<ExhaustiveActionSelection>(world);
-        auto bound = std::make_shared<TabularValueFunction>(world, init, action_tabular);
-        
-        bound->setUpdateOperator(std::make_shared<TabularUpdate>(bound));
-        
-        this->bound_ = bound;
+        if (auto derived = std::dynamic_pointer_cast<TabularValueFunction>(value_function))
+        {
+            this->value_function = derived;
+        }
+        else
+        {
+            throw sdm::exception::TypeError("A* does not yet support other representation than the tabular one.");
+        }
     }
 
     std::shared_ptr<AlphaStar> AlphaStar::getptr()
@@ -32,13 +32,13 @@ namespace sdm
     {
 
         // ************* Global Logger ****************
-        std::string format = "#> Point at Horizon :\t{}\t, current value :\t{} \t, max estimation \t{}\t Size Bound to explore\t{} \t Total Size \t{} \t Time({})  \n";
+        std::string format = config::LOG_SDMS + "Horizon {:<6} GValue {:<12.4f} FValue (MaxEstim) {:<12.4f} SizeExplore {:<10} Size {:<10} Time {:<12.4f}\n";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
 
         // Build a logger that stores data in a CSV file
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Horizon", "G_value", "F_value", "Size_explore", "Size_total", "Time"});
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->name_, std::vector<std::string>{"Horizon", "G_value", "F_value", "Size_explore", "D", "Time"});
 
         // Build a multi logger that combines previous loggers
         this->logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, csv_logger});
@@ -46,10 +46,11 @@ namespace sdm
 
     void AlphaStar::initialize()
     {
-        this->bound_->initialize();
+        getBound()->initialize();
+
         this->initLogger();
 
-        for (size_t i = 0; i <= this->world_->getUnderlyingProblem()->getHorizon(); i++)
+        for (size_t i = 0; i <= getWorld()->getHorizon(); i++)
         {
             this->map_element_to_alpha_item.push_back(std::unordered_map<std::shared_ptr<State>, std::shared_ptr<AlphaStarItem>>());
         }
@@ -57,13 +58,13 @@ namespace sdm
 
     void AlphaStar::solve()
     {
-        std::cout << "\n\n###############################################################\n";
-        std::cout << "#############    Start AlphaStar \"" << this->name_ << "\"    ####################\n";
-        std::cout << "###############################################################\n\n";
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "START A*" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
 
-        this->start_state = this->world_->getInitialState();
+        this->start_state = getWorld()->getInitialState();
 
-        this->map_element_to_alpha_item.at(0).emplace(this->start_state, std::make_shared<AlphaStarItem>(this->start_state, 0, -this->bound_->evaluate(this->start_state, 0).second, 0));
+        this->map_element_to_alpha_item.at(0).emplace(this->start_state, std::make_shared<AlphaStarItem>(this->start_state, 0, -getBound()->getValueAt(this->start_state, 0), 0));
         this->openSet.push_back(this->map_element_to_alpha_item.at(0).at(this->start_state));
 
         this->start_time = std::chrono::high_resolution_clock::now();
@@ -72,7 +73,7 @@ namespace sdm
         while (this->openSet.size() != 0 && !this->stop(*this->openSet.begin(), 0, this->openSet.begin()->get()->horizon_))
         {
             this->current_time = std::chrono::high_resolution_clock::now();
-            this->logger_->log(this->openSet.begin()->get()->horizon_, this->openSet.begin()->get()->value_g_, this->openSet.begin()->get()->value_f_, this->openSet.size(), std::static_pointer_cast<ValueFunction>(this->bound_)->getSize(), this->duration - AlphaStar::TIME_TO_REMOVE);
+            this->logger_->log(this->openSet.begin()->get()->horizon_, this->openSet.begin()->get()->value_g_, this->openSet.begin()->get()->value_f_, this->openSet.size(), std::dynamic_pointer_cast<ValueFunction>(getBound())->getSize(), this->duration - AlphaStar::TIME_TO_REMOVE);
             this->updateTime(current_time, "Time_to_remove");
 
             this->explore(*this->openSet.begin(), 0, this->openSet.begin()->get()->horizon_);
@@ -83,16 +84,20 @@ namespace sdm
         // Logging (save data and print algorithms variables)
         //---------------------------------//
         this->current_time = std::chrono::high_resolution_clock::now();
-        this->logger_->log(this->map_element_to_alpha_item.at(0).at(this->start_state)->horizon_, this->map_element_to_alpha_item.at(0).at(this->start_state)->value_g_, this->map_element_to_alpha_item.at(0).at(this->start_state)->value_f_, this->openSet.size(), std::static_pointer_cast<ValueFunction>(this->bound_)->getSize(), this->duration - AlphaStar::TIME_TO_REMOVE);
+        this->logger_->log(this->map_element_to_alpha_item.at(0).at(this->start_state)->horizon_, this->map_element_to_alpha_item.at(0).at(this->start_state)->value_g_, this->map_element_to_alpha_item.at(0).at(this->start_state)->value_f_, this->openSet.size(), std::dynamic_pointer_cast<ValueFunction>(getBound())->getSize(), this->duration - AlphaStar::TIME_TO_REMOVE);
         this->updateTime(current_time, "Time_to_remove");
         //---------------------------------//
 
-        std::cout << "Best value " << this->bound_->getRepresentation(this->world_->getUnderlyingProblem()->getHorizon()).max() << std::endl;
+        std::cout << config::LOG_SDMS << "FINALE VALUE : " << getBound()->getRepresentation(getWorld()->getHorizon()).max() << std::endl;
+
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "END A*" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
     }
 
     bool AlphaStar::stop(const std::shared_ptr<State> &, double, number h)
     {
-        return this->world_->getUnderlyingProblem()->getHorizon() <= h || this->openSet.size() == 0;
+        return getWorld()->getHorizon() <= h || this->openSet.size() == 0;
     }
 
     void AlphaStar::explore(const std::shared_ptr<State> &state_tmp, double cost_so_far, number h)
@@ -107,20 +112,20 @@ namespace sdm
                 this->openSet.erase(this->openSet.begin());
                 // Boucle sur tous les successeurs possibles
 
-                if (h != this->world_->getUnderlyingProblem()->getHorizon())
+                if (h != getWorld()->getHorizon())
                 {
-                    auto action_space = this->world_->getActionSpaceAt(state, h);
+                    auto action_space = getWorld()->getActionSpaceAt(state, h);
 
                     double cost;
                     for (const auto &action : *action_space)
                     {
-                        auto observation_space = this->world_->getObservationSpaceAt(state, action->toAction(), h);
+                        auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), h);
 
-                        cost = this->world_->getDiscount(h) * this->world_->getReward(state, action->toAction(), h);
+                        cost = getWorld()->getDiscount(h) * getWorld()->getReward(state, action->toAction(), h);
 
                         for (const auto &observation : *observation_space)
                         {
-                            auto [next_state, proba] = this->world_->getNextState(state, action->toAction(), observation->toObservation(), h);
+                            auto [next_state, proba] = getWorld()->getNextState(state, action->toAction(), observation->toObservation(), h);
 
                             this->map_element_to_alpha_item.at(h + 1).emplace(next_state, std::make_shared<AlphaStarItem>(next_state, std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), h + 1));
 
@@ -129,8 +134,8 @@ namespace sdm
                             if (next_alpha_star_element->value_g_ > alpha_star_element->value_g_ - cost)
                             {
                                 next_alpha_star_element->value_g_ = alpha_star_element->value_g_ - cost;
-                                next_alpha_star_element->value_f_ = next_alpha_star_element->value_g_ - this->bound_->evaluate(next_state, h + 1).second;
-                                this->bound_->setValueAt(next_state, -next_alpha_star_element->value_g_, h + 1);
+                                next_alpha_star_element->value_f_ = next_alpha_star_element->value_g_ - getBound()->getValueAt(next_state, h + 1);
+                                getBound()->setValueAt(next_state, -next_alpha_star_element->value_g_, h + 1);
 
                                 if (std::find(this->openSet.begin(), this->openSet.end(), next_alpha_star_element) == this->openSet.end())
                                 {
@@ -159,9 +164,9 @@ namespace sdm
     {
     }
 
-    std::shared_ptr<ValueFunction> AlphaStar::getBound() const
+    std::shared_ptr<TabularValueFunction> AlphaStar::getBound() const
     {
-        return this->bound_;
+        return this->value_function;
     }
 
     void AlphaStar::updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information)
@@ -172,6 +177,11 @@ namespace sdm
         {
             AlphaStar::TIME_TO_REMOVE += time;
         }
+    }
+
+    std::string AlphaStar::getAlgorithmName()
+    {
+        return "A*";
     }
 
 } // namespace sdm

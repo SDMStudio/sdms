@@ -1,4 +1,3 @@
-#ifdef WITH_CPLEX
 
 #pragma once
 
@@ -42,4 +41,3 @@ namespace sdm
     };
 }
 
-#endif

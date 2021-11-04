@@ -8,7 +8,7 @@
 
 #include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
-#include <sdm/algorithms/planning/vi.hpp>
+#include <sdm/algorithms/planning/value_iteration.hpp>
 
 namespace sdm
 {

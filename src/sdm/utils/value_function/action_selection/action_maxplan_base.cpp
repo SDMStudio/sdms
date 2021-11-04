@@ -1,5 +1,4 @@
 
-
 #include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
@@ -25,7 +24,7 @@ namespace sdm
         double max_value = -std::numeric_limits<double>::max();
 
         // Go over all hyperplan in the Support
-        for (const auto &hyperplan : value_function->getHyperplanesAt(t + 1))
+        for (const auto &hyperplan : value_function->getHyperplanesAt(state, t + 1))
         {
             this->tmp_representation = hyperplan->toBelief();
             

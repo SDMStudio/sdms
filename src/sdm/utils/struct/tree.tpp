@@ -129,7 +129,7 @@ namespace sdm
         {
             std::ostringstream tmp;
             tmp << "<data>" << std::endl;
-            tmp << "\t"<< this->getData()->str() << std::endl;
+            tmp << "\t"<< this->getData() << std::endl;
             tmp << "</data>"<< std::endl;
             sdm::tools::indentedOutput(res, tmp.str().c_str(), this->getDepth() + 1);
         }

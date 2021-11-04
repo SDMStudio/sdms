@@ -8,7 +8,7 @@
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/maxplan_update.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/pwlc_update.hpp>
 
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 

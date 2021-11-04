@@ -72,9 +72,8 @@ namespace sdm
 
     double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &joint_state, const std::shared_ptr<Action> &joint_action) const
     {
-
-        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
-        auto joint_action_ = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action);
+        std::shared_ptr<Joint<std::shared_ptr<State>>> joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        std::shared_ptr<Joint<std::shared_ptr<Action>>> joint_action_ = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action);
 
         double probability = 1.;
         for (number agent_id = 0; agent_id < this->size(); agent_id++)
@@ -129,7 +128,7 @@ namespace sdm
         return res.str();
     }
 
-    bool JointDeterministicDecisionRule::elementExist(const std::shared_ptr<State>& joint_state)
+    bool JointDeterministicDecisionRule::elementExist(const std::shared_ptr<State> &joint_state)
     {
         auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
 
@@ -138,7 +137,7 @@ namespace sdm
             auto individual_decision_rule = this->get(agent);
             auto individual_state = joint_state_->at(agent);
 
-            if(!individual_decision_rule->elementExist(individual_state))
+            if (!individual_decision_rule->elementExist(individual_state))
             {
                 return false;
             }

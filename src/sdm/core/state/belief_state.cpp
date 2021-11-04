@@ -36,13 +36,13 @@ namespace sdm
   Belief::~Belief()
   {
   }
-  
+
   std::vector<std::shared_ptr<State>> Belief::getStates() const
   {
     return this->getIndexes();
   }
 
-  bool Belief::isStateExist(const std::shared_ptr<State>& state_tmp)const
+  bool Belief::isStateExist(const std::shared_ptr<State> &state_tmp) const
   {
     return MappedVector<std::shared_ptr<State>, double>::isExist(state_tmp);
   }
@@ -65,8 +65,7 @@ namespace sdm
 
   std::shared_ptr<State> Belief::sampleState()
   {
-    return this->distribution_.sample()
-    ;
+    return this->distribution_.sample();
   }
 
   void Belief::normalizeBelief(double norm_1)
@@ -85,14 +84,32 @@ namespace sdm
     return state;
   }
 
-  size_t Belief::hash() const
+  size_t Belief::hash(double precision) const
   {
-    return std::hash<Belief>()(*this);
+    if (precision < 0)
+    {
+      precision = Belief::PRECISION;
+    }
+    return std::hash<Belief>()(*this, precision);
+  }
+  
+  bool Belief::operator==(const Belief &other) const
+  {
+    return this->isEqual(other);
   }
 
-  bool Belief::operator==(const std::shared_ptr<State> &other) const
+  bool Belief::isEqual(const Belief &other, double precision) const
   {
-    return this->operator==(*std::dynamic_pointer_cast<Belief>(other));
+    if (precision < 0)
+    {
+      precision = Belief::PRECISION;
+    }
+    return MappedVector<std::shared_ptr<State>, double>::isEqual(other, precision);
+  }
+
+  bool Belief::isEqual(const std::shared_ptr<State> &other, double precision) const
+  {
+    return this->isEqual(*std::dynamic_pointer_cast<Belief>(other), precision);
   }
 
   bool Belief::operator==(const std::shared_ptr<BeliefInterface> &other) const
@@ -101,7 +118,7 @@ namespace sdm
     {
       return false;
     }
-    
+
     for (const auto &state : this->getStates())
     {
       if (this->getProbability(state) != other->getProbability(state))
@@ -121,11 +138,6 @@ namespace sdm
       product += item.second * other->getProbability(item.first);
     }
     return product;
-  }
-
-  bool Belief::operator==(const Belief &other) const
-  {
-    return MappedVector<std::shared_ptr<State>, double>::isEqual(other, Belief::PRECISION);
   }
 
   double Belief::operator<(const Belief &other) const
@@ -186,7 +198,7 @@ namespace sdm
       i++;
     }
     res << ", default value =";
-    res<<this->getDefaultValue()<<" )";
+    res << this->getDefaultValue() << " )";
     return res.str();
   }
 

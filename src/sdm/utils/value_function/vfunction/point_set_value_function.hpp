@@ -31,7 +31,9 @@ namespace sdm
                                   const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                   const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                   int freq_prunning = -1,
-                                  TypeOfSawtoothPrunning type_of_sawtooth_prunning = TypeOfSawtoothPrunning::NONE);
+                                  SawtoothPrunning::Type type_of_sawtooth_prunning = SawtoothPrunning::Type::NONE);
+
+        BasePointSetValueFunction(const BasePointSetValueFunction &copy);
 
         /**
          * @brief Evaluate the value at a state.
@@ -62,6 +64,16 @@ namespace sdm
          */
         double getRelaxedValueAt(const std::shared_ptr<State> &state, number t);
 
+        /**
+         * @brief Copy the value function and return a reference to the copied object.
+         * 
+         * @return the address of the value function copied
+         */
+        std::shared_ptr<ValueFunctionInterface> copy();
+
+        /**
+         * @brief Get a string representation of this class.
+         */
         std::string str() const;
 
         friend std::ostream &operator<<(std::ostream &os, BasePointSetValueFunction &vf)
@@ -75,7 +87,7 @@ namespace sdm
          * @brief Type of pruning.
          *
          */
-        TypeOfSawtoothPrunning type_of_sawtooth_prunning_;
+        SawtoothPrunning::Type type_of_sawtooth_prunning_;
 
         /**
          * @brief Is set to true if the structure use a linear program
