@@ -19,6 +19,8 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <limits>
+#include <algorithm>
 
 namespace sdm
 {
@@ -88,6 +90,55 @@ namespace sdm
       {
         return parse_file(filename.c_str());
       }
+    }
+
+    std::shared_ptr<sdm::TwoPlayersBayesianGame> parse_file_bayesian(std::string filename)
+    {
+
+      auto split = [](const std::string chaine, char delimiteur)
+      {
+          std::vector<std::string> elements;
+          std::stringstream ss(chaine);
+          std::string sousChaine;
+          while (getline(ss, sousChaine, delimiteur))
+          {
+              elements.push_back(sousChaine);
+          }
+          return elements;
+      };
+      
+      std::shared_ptr<sdm::TwoPlayersBayesianGame> game;
+      std::ifstream inputFile(filename);
+      std::string line; getline(inputFile, line);
+      std::vector<std::string> lineElements(split(line,' '));
+
+      // get problem dimensions
+      transform(lineElements.begin(), lineElements.end(), std::back_inserter(game->typesNumbers),
+              [](const std::string& str) { return std::stoi(str); });
+
+      getline(inputFile, line); lineElements = split(line, ' ');
+      transform(lineElements.begin(), lineElements.end(), std::back_inserter(game->matrixDimensions),
+              [](const std::string& str) { return std::stoi(str); });
+
+      // get payoffMatrix
+      for (int i = 0; i < game->typesNumbers[0]*game->typesNumbers[1]*game->matrixDimensions[0]*2; i++)
+      {
+          getline(inputFile, line); lineElements = split(line, ' ');
+          game->payoffMatrixes.push_back({});
+          transform(lineElements.begin(), lineElements.end(), std::back_inserter(game->payoffMatrixes[i]),
+              [](const std::string& str) { return std::stof(str);});
+      }
+
+      // get joint probabilities
+      for (int i = 0; i < game->typesNumbers[0]; i++)
+      {
+          getline(inputFile, line); lineElements = split(line, ' ');
+          game->jointTypeProbabilities.push_back({});
+          transform(lineElements.begin(), lineElements.end(), std::back_inserter(game->jointTypeProbabilities[i]),
+              [](const std::string& str) { return std::stof(str);});
+      }
+
+      return game;
     }
 
   } // namespace parser
