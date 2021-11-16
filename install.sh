@@ -84,7 +84,7 @@ then
     mkdir -p ./build && cd ./build
 
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
-    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j install
+    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j 4 install
 
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?

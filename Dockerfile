@@ -24,6 +24,9 @@ RUN mkdir -p /opt \
     && unzip tmp_libtorch.zip -d /opt\
     && rm tmp_libtorch.zip
 
+COPY lib/libtb2.so /lib
+COPY ibm /opt/ibm
+
 # Make a snapshot of the source code and build an image based on this source code at this moment.
 # The image contains the sources (/opt/sdms) and installed sdms base on these sources 
 FROM dev AS build
@@ -31,22 +34,12 @@ FROM dev AS build
 COPY . /opt/sdms
 WORKDIR /opt/sdms
 
-RUN cmake . -DCMAKE_PREFIX_PATH=/opt/libtorch -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF \
-    && make install
+RUN rm -r ibm
+RUN mkdir build
+WORKDIR /opt/sdms/build
 
-# Image that contain SDMS source, documentation and tests. Everything is built and install in /usr/local.
-# FROM dev-base AS build-all
-
-# RUN apt-get -y update \
-#     && apt-get install -y  \
-#     doxygen \
-#     python3-pip
-#     python3-sphinx \
-
-# RUN pip3 install breathe
-
-# RUN cmake . -DCMAKE_PREFIX_PATH=/opt/libtorch -DBUILD_DOCS=ON -DBUILD_TESTS=ON \
-#     && make install
+RUN cmake .. \
+    && make -j4 install
 
 # Same as build but does not contains sources of SDMS so that the size of the image is smaller
 FROM dev AS runtime
