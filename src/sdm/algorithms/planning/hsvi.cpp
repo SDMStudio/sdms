@@ -156,8 +156,7 @@ namespace sdm
                     getExecutionTime());
     }
 
-    std::string HSVI::getAlgorithmName() { return "HSVI";}
-
+    std::string HSVI::getAlgorithmName() { return "HSVI"; }
 
     void HSVI::initTrial()
     {

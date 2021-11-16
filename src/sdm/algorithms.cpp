@@ -194,9 +194,7 @@ namespace sdm
         }
 
         std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem,
-                                            double discount,
                                             double error,
-                                            number horizon,
                                             int trials,
                                             bool store_state,
                                             bool store_action,
@@ -215,8 +213,6 @@ namespace sdm
                                             std::string lb_type_of_pruning,
                                             std::string ub_type_of_pruning)
         {
-            assert(((discount < 1) || (horizon > 0)));
-
             // Instanciate bounds
             std::shared_ptr<sdm::ValueFunction> lower_bound = makeValueFunction(problem, lower_bound_name, lb_init_name, store_state, lb_type_of_resolution_name, lb_type_of_pruning, lb_freq_pruning);
             std::shared_ptr<sdm::ValueFunction> upper_bound = makeValueFunction(problem, upper_bound_name, ub_init_name, store_state, ub_type_of_resolution_name, ub_type_of_pruning, ub_freq_pruning);
@@ -224,19 +220,35 @@ namespace sdm
             return std::make_shared<HSVI>(problem, lower_bound, upper_bound, error, trials, name, lb_freq_update, ub_freq_update, time_max);
         }
 
-        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, std::string value_function_name,
-                                                                std::string vf_init_name, double discount, double error, number horizon,
+        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
+                                                                std::string value_function_name, std::string vf_init_name, double error,
                                                                 bool store_state, std::string name, double time_max,
                                                                 std::string vf_type_of_resolution_name,
                                                                 int vf_freq_pruning, std::string vf_type_of_pruning)
         {
-            assert(((discount < 1) || (horizon > 0)));
-
             // Instanciate value function
             std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
             std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
 
             auto algo = std::make_shared<ValueIteration>(problem, value_function, error, time_max, name);
+
+            algo->setTmpValueFunction(tmp_value_function);
+            return algo;
+        }
+
+        std::shared_ptr<sdm::PBVI> makePBVI(std::shared_ptr<SolvableByHSVI> problem,
+                                            std::string value_function_name, std::string vf_init_name, number num_samples, double error,
+                                            bool store_state, std::string name, double time_max,
+                                            std::string vf_type_of_resolution_name,
+                                            int vf_freq_pruning, std::string vf_type_of_pruning)
+        {
+
+            // Instanciate value function
+            std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
+
+            auto algo = std::make_shared<PBVI>(problem, value_function, num_samples, error, time_max, name);
+
             algo->setTmpValueFunction(tmp_value_function);
             return algo;
         }
@@ -413,11 +425,14 @@ namespace sdm
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
+
+            assert(((discount < 1) || (formalism->getHorizon() > 0)));
+
             //  Build the algorithm
             std::shared_ptr<Algorithm> p_algo;
             if ((algo_name == "hsvi") || (algo_name == "HSVI"))
             {
-                p_algo = makeHSVI(formalism, discount, error, formalism->getHorizon(), trials, store_state, store_action, name, time_max,
+                p_algo = makeHSVI(formalism, error, trials, store_state, store_action, name, time_max,
                                   value_function_1, value_function_2, init_v1, init_v2, freq_update_v1, freq_update_v2,
                                   type_of_resolution_v1, type_of_resolution_v2, freq_pruning_v1, freq_pruning_v2, type_of_pruning_v1, type_of_pruning_v2);
             }
@@ -426,7 +441,7 @@ namespace sdm
                 // std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism);
                 p_algo = makeQLearning(formalism, value_function_1, init_v1, formalism->getHorizon(), discount, error, 1, trials, name);
             }
-            else if ((algo_name == "Alpha*") || (algo_name == "A*"))
+            else if ((algo_name == "Alpha*") || (algo_name == "A*") || (algo_name == "a*"))
             {
                 if (isInstanceOf<BeliefMDPInterface>(formalism))
                 {
@@ -444,26 +459,25 @@ namespace sdm
             }
             else if ((algo_name == "ValueIteration") || (algo_name == "VI"))
             {
-                p_algo = makeValueIteration(formalism, value_function_1,
-                                            init_v1, discount, error,
-                                            formalism->getHorizon(),
-                                            store_state, name, time_max,
+                p_algo = makeValueIteration(formalism, value_function_1, init_v1,
+                                            error, store_state, name, time_max,
                                             type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
             }
-            else if ((algo_name == "perseus") || (algo_name == "Perseus")|| (algo_name == "PERSEUS"))
+            else if ((algo_name == "pbvi") || (algo_name == "PBVI"))
             {
-                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
-                p_algo = std::make_shared<Perseus>(formalism, value_function, num_samples, trials, error, time_max, name);
+                p_algo = makePBVI(formalism, value_function_1, init_v1,
+                                  num_samples, error, store_state, name, time_max,
+                                  type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
             }
             else if ((algo_name == "dfsvi") || (algo_name == "DFSVI") || (algo_name == "DepthFirstSearchVI") || (algo_name == "DepthFirstSearchValueIteration"))
             {
                 std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
                 p_algo = std::make_shared<DFSVI>(formalism, value_function, error, time_max, name);
             }
-            else if ((algo_name == "rsvi") || (algo_name == "RSVI") || (algo_name == "RandomSearchVI") || (algo_name == "RandomSearchValueIteration"))
+            else if ((algo_name == "perseus") || (algo_name == "PERSEUS") || (algo_name == "Perseus"))
             {
                 std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
-                p_algo = std::make_shared<RSVI>(formalism, value_function, error, num_samples, time_max, name);
+                p_algo = std::make_shared<Perseus>(formalism, value_function, error, num_samples, time_max, name);
             }
             else
             {
@@ -540,7 +554,7 @@ namespace sdm
 
         std::vector<std::string> available()
         {
-            return {"A*", "BackwardInduction", "DFSVI", "HSVI", "Perseus", "QLearning", "RSVI", "ValueIteration"};
+            return {"A*", "BackwardInduction", "DFSVI", "HSVI", "PBVI", "Perseus", "QLearning", "ValueIteration"};
         }
 
     }

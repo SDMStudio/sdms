@@ -76,7 +76,8 @@ namespace sdm
     template <class TOccupancyState>
     double BaseOccupancyMDP<TOccupancyState>::do_excess(double incumbent, double lb, double ub, double cost_so_far, double error, number horizon)
     {
-        return std::min(ub - lb, cost_so_far + this->getUnderlyingProblem()->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
+        // return std::min(ub - lb, cost_so_far + this->getUnderlyingProblem()->getDiscount(horizon) * ub - incumbent) - error / this->getWeightedDiscount(horizon);
+        return (ub - lb) - error / this->getWeightedDiscount(horizon);
     }
 
     // -------------------

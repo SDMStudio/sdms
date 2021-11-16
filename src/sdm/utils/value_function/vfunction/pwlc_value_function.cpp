@@ -135,15 +135,15 @@ namespace sdm
         }
     }
 
-    double PWLCValueFunction::getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation)
+    double PWLCValueFunction::getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t)
     {
         if (sdm::isInstanceOf<OccupancyStateInterface>(alpha))
         {
-            return getNextAlphaValueOccupancy(alpha, state, history, action, next_state, observation);
+            return getNextAlphaValueOccupancy(alpha, state, history, action, next_state, observation, t);
         }
         else if (sdm::isInstanceOf<BeliefInterface>(alpha))
         {
-            return getNextAlphaValueBelief(alpha, state, history, action, next_state, observation);
+            return getNextAlphaValueBelief(alpha, state, history, action, next_state, observation, t);
         }
         else
         {
@@ -151,12 +151,12 @@ namespace sdm
         }
     }
 
-    double PWLCValueFunction::getNextAlphaValueBelief(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &)
+    double PWLCValueFunction::getNextAlphaValueBelief(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number)
     {
         return alpha->toBelief()->getVectorInferface()->getValueAt(next_state);
     }
 
-    double PWLCValueFunction::getNextAlphaValueOccupancy(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation)
+    double PWLCValueFunction::getNextAlphaValueOccupancy(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number)
     {
         return alpha->toOccupancyState()->getProbability(history->expand(observation)->toJointHistory(), next_state);
     }
@@ -175,7 +175,7 @@ namespace sdm
             for (const auto &observation : pomdp->getReachableObservations(state, action, next_state, t))
             {
                 // Get the next value of an hyperplane
-                double alpha_ = this->getNextAlphaValue(alpha, state, history, action, next_state, observation);
+                double alpha_ = this->getNextAlphaValue(alpha, state, history, action, next_state, observation, t);
 
                 // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
                 next_expected_value += alpha_ * pomdp->getDynamics(state, action, next_state, observation, t);

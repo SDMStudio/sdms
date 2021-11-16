@@ -42,13 +42,7 @@ namespace sdm
 
     void ValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        auto [best_action, tmp] = this->getGreedyActionAndValue(state, t);
-        this->updateValueAt(state, best_action, t);
-    }
-
-    void ValueFunction::updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-    {
-        this->getUpdateOperator()->update(state, action, t);
+        this->getUpdateOperator()->update(state, t);
     }
 
     std::shared_ptr<UpdateOperatorInterface> ValueFunction::getUpdateOperator() const

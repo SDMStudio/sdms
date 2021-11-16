@@ -12,11 +12,11 @@ namespace sdm
         public:
             PWLCUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function);
 
-            void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+            void update(const std::shared_ptr<State> &state, number t);
 
         protected:
-            std::shared_ptr<State> computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, const std::shared_ptr<Action> &action, number t);
-            std::shared_ptr<State> computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
+            std::shared_ptr<State> computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, number t);
+            std::shared_ptr<State> computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t);
         };
     }
 }

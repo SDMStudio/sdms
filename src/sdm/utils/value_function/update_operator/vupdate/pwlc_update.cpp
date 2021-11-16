@@ -15,36 +15,80 @@ namespace sdm
         PWLCUpdate::PWLCUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function)
             : PWLCUpdateOperator(value_function) {}
 
-        void PWLCUpdate::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+        void PWLCUpdate::update(const std::shared_ptr<State> &state, number t)
         {
             if (sdm::isInstanceOf<OccupancyStateInterface>(state))
             {
-                this->value_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toOccupancyState(), action, t), t);
+                this->value_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toOccupancyState(), t), t);
             }
             else if (sdm::isInstanceOf<BeliefInterface>(state))
             {
-                this->value_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toBelief(), action, t), t);
+                this->value_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toBelief(), t), t);
             }
         }
 
-        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, const std::shared_ptr<Action> &action, number t)
+        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, number t)
         {
-            // Creation of a new belief
-            auto new_hyperplan = std::make_shared<Belief>();
-            new_hyperplan->setDefaultValue(value_function->getDefaultValue(t));
+            auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
 
-            // Go over all state in the current belief
-            for (const auto &state : belief_state->getStates())
+            // Compute \alpha_ao (\beta_ao in the paper of Trey Smith)
+            RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, std::shared_ptr<BeliefInterface>> alpha_ao;
+            for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
             {
-                // For each hidden state with associate the value \beta^{new}(x) = r(x,u) + \gamma * \sum_{x_,z_} p(x,u,z_,x_) * best_next_hyperplan(x_);
-                new_hyperplan->setValueAt(state, value_function->getBeta(nullptr, state, nullptr, action, t));
+                for (const auto &observation : *getWorld()->getObservationSpaceAt(belief_state, action->toAction(), t))
+                {
+                    auto next_belief_state = getWorld()->getNextStateAndProba(belief_state, action->toAction(), observation->toObservation(), t).first;
+                    alpha_ao[action->toAction()][observation->toObservation()] = this->value_function->getHyperplaneAt(next_belief_state, t+1)->toBelief();
+                }
             }
-            new_hyperplan->finalize();
-            return new_hyperplan;
+
+            // Creation of a new belief
+            double best_value = std::numeric_limits<double>::lowest(), alpha_a_value;
+            auto new_hyperplane = std::make_shared<Belief>();
+            new_hyperplane->setDefaultValue(value_function->getDefaultValue(t));
+            for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
+            {
+                // Creation of a new belief
+                auto alpha_a = std::make_shared<Belief>();
+                alpha_a->setDefaultValue(value_function->getDefaultValue(t));
+
+                // Go over all state in the current belief
+                for (const auto &state : belief_state->getStates())
+                {
+                    double next_expected_value = 0.0;
+
+                    // Go over all hidden state reachable next state
+                    for (const auto &next_state : pomdp->getReachableStates(state, action->toAction(), t))
+                    {
+                        // Go over all observation reachable observation
+                        for (const auto &observation : pomdp->getReachableObservations(state, action->toAction(), next_state, t))
+                        {
+
+                            // Get the next value of an hyperplane
+                            double next_alpha_value = alpha_ao[action->toAction()][observation]->getVectorInferface()->getValueAt(next_state);
+
+                            // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
+                            next_expected_value += next_alpha_value * pomdp->getDynamics(state, action->toAction(), next_state, observation, t);
+                        }
+                    }
+                    // For each hidden state with associate the value \beta^{new}(x) = r(x,u) + \gamma * \sum_{x_,z_} p(x,u,z_,x_) * best_next_hyperplan(x_);
+                    alpha_a->setValueAt(state, pomdp->getReward(state, action->toAction(), t) + this->getWorld()->getDiscount(t) * next_expected_value);
+                }
+                alpha_a->finalize();
+
+                alpha_a_value = belief_state->operator^(alpha_a);
+                if (alpha_a_value > best_value)
+                {
+                    new_hyperplane = alpha_a;
+                    best_value = alpha_a_value;
+                }
+            }
+            return new_hyperplane;
         }
 
-        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
+        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
         {
+            std::shared_ptr<Action> decision_rule = this->getValueFunction()->getGreedyAction(occupancy_state, t);
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
             auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
 
@@ -54,9 +98,9 @@ namespace sdm
 
             // Get the next occupancy state associated to the decision rule
             auto next_occupancy_state = occupancy_mdp->getNextStateAndProba(occupancy_state, decision_rule, sdm::NO_OBSERVATION, t).first;
-            
+
             // Determine the best next hyperplan associated to the next occupancy state
-            auto best_evaluate_occupancy_state = std::dynamic_pointer_cast<ValueFunction>(this->getValueFunction())->evaluate(next_occupancy_state, t + 1).first;
+            auto best_next_hyperplane = std::dynamic_pointer_cast<ValueFunction>(this->getValueFunction())->evaluate(next_occupancy_state, t + 1).first;
 
             // Go over all joint history for the occupancy state
             for (const auto &jhistory : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
@@ -69,7 +113,7 @@ namespace sdm
                 for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())
                 {
                     // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
-                    new_belief->setProbability(state, value_function->getBeta(best_evaluate_occupancy_state, state, jhistory, action, t));
+                    new_belief->setProbability(state, value_function->getBeta(best_next_hyperplane, state, jhistory, action, t));
                 }
                 new_belief->finalize();
                 new_hyperplan->setProbability(jhistory, new_belief, 1);

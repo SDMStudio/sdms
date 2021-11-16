@@ -35,15 +35,30 @@ namespace sdm
         auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(hsvi_pomdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
-        auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp, "ValueIteration", 0);
+        auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp, "ValueIteration");
 
-        auto lb = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection);
-        lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
+        std::shared_ptr<ValueFunction> lb, ub;
+        if (this->algo_name_ == "TabHSVI")
+        {
+            // Instanciate lower bound
+            lb = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection);
+            lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
+            // Instanciate upper bound
+            ub = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection);
+            ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+        }
+        else
+        {
+            // Instanciate lower bound
+            lb = std::make_shared<PWLCValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection, nullptr, 1);
+            lb->setUpdateOperator(std::make_shared<update::PWLCUpdate>(lb));
 
-        auto ub = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection);
-        ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+            // Instanciate upper bound
+            ub = std::make_shared<PointSetValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, nullptr, 1, SawtoothPrunning::GLOBAL);
+            ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+        }
 
-        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, this->error_, 5000, "pomdp_" + this->algo_name_ + "_init", 1, 1, 1000);
+        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, this->error_, this->trials_, "PomdpHsvi_Init", 1, 1, 3600);
 
         algorithm->initialize();
         algorithm->solve();

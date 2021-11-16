@@ -11,7 +11,6 @@ namespace sdm
     void ValueIteration::initialize()
     {
         initLogger();
-        value_function->initialize();
         tmp_value_function->initialize();
     }
 
@@ -101,7 +100,7 @@ namespace sdm
 
         getTmpValueFunction()->updateValueAt(state, t);
         was_updated = true;
-        max_error = std::max(max_error, getValueFunction()->getValueAt(state, t) - getTmpValueFunction()->getValueAt(state, t));
+        max_error = std::max(max_error, std::abs(getValueFunction()->getValueAt(state, t) - getTmpValueFunction()->getValueAt(state, t)));
     }
 
     std::shared_ptr<Space> ValueIteration::selectStates(number t)
