@@ -18,8 +18,8 @@ namespace sdm
                           const std::shared_ptr<ActionSelectionInterface> &action_selection,
                           const std::shared_ptr<PWLCUpdateOperator> &update_operator,
                           int freq_prunning = -1,
-                          MaxplanPruning::Type type_of_maxplan_prunning = MaxplanPruning::Type::PAIRWISE);
-                          
+                          MaxplanPruning::Type type_of_maxplan_prunning = MaxplanPruning::PAIRWISE);
+
         PWLCValueFunction(const PWLCValueFunction &copy);
 
         /**
@@ -59,7 +59,7 @@ namespace sdm
          *
          * @return the list of hyperplanes
          */
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State>& state, number t);
+        std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the best hyperplane resulting to the higher value when evaluated at a given state.
@@ -109,7 +109,6 @@ namespace sdm
          */
         std::shared_ptr<ValueFunctionInterface> copy();
 
-
     protected:
         using HyperplanSet = std::vector<std::shared_ptr<State>>;
         // using HyperplanSet = std::unordered_set<std::shared_ptr<State>, Hash, KeyEqual>;
@@ -149,7 +148,7 @@ namespace sdm
         bool exist(const std::shared_ptr<BeliefInterface> &, number t, double precision = PRECISION);
 
         /*!
-         * @brief this method prunes dominated points, known as bounded pruning by Trey Smith.
+         * @brief This method prunes dominated points, known as bounded pruning by Trey Smith.
 
          * This approach stores the number of frequency states, among those already visited, that are maximal at a hyperplan.
          * And prune hyperplane with a number of maximal frequency states zero.
@@ -157,7 +156,7 @@ namespace sdm
         void bounded_prune(number = 0);
 
         /**
-         * @brief this method prunes dominated vectors, known as Pairwise pruning.
+         * @brief This method prunes dominated vectors, known as Pairwise pruning.
          *
          * @param number : timestep
          */

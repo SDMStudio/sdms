@@ -175,7 +175,7 @@ namespace sdm
         std::unordered_map<std::shared_ptr<State>, std::vector<std::shared_ptr<State>>> support_of_each_point;
         std::map<int, std::vector<std::shared_ptr<State>>> sort_by_number_of_support;
 
-        Container start_representation = this->getRepresentation(t);
+        auto start_representation = this->getRepresentation(t);
 
         // Initialise the map support_of_each_point;
         for (const auto &point_AND_value : start_representation)
@@ -191,12 +191,14 @@ namespace sdm
             support_of_each_point[evaluate.first].push_back(point_AND_value.first);
         }
 
+        int count =0;
         // Sort the map "support_of_each_point" by the number of time each point is a support
         for (const auto &element : support_of_each_point)
         {
             // Delete the element that aren't useful for any other point
             if (element.second.size() == 0)
             {
+                count++;
                 this->representation[t].erase(element.first);
             }
             else
@@ -210,7 +212,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
     {
-        if (this->type_of_sawtooth_prunning_ == SawtoothPrunning::Type::BOTH or this->type_of_sawtooth_prunning_ == SawtoothPrunning::Type::GLOBAL)
+        if (this->type_of_sawtooth_prunning_ == SawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == SawtoothPrunning::GLOBAL)
         {
             auto [support_of_each_point, sort_by_number_of_support] = this->iterative_pruning(t);
 
