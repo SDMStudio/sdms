@@ -12,7 +12,7 @@ namespace sdm
         public:
             TabularUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function);
 
-            void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+            void update(const std::shared_ptr<State> &state, number t);
         };
     }
 }

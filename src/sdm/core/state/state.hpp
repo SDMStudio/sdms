@@ -24,6 +24,17 @@ namespace sdm
     class BaseSerialInterface;
     class SerialOccupancyInterface;
 
+    template <class BaseClass, class MyClass>
+    std::shared_ptr<BaseClass> to(std::shared_ptr<MyClass> aPtr)
+    {
+        return std::dynamic_pointer_cast<BaseClass>(aPtr);
+    }
+
+    template <class MyClass>
+    std::shared_ptr<BeliefInterface> toBelief(std::shared_ptr<MyClass> aPtr)
+    {
+        return sdm::to<BeliefInterface>(aPtr);
+    }
     /**
      * @brief A public interface for states. 
      * 

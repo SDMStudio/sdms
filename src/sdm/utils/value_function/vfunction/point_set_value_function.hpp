@@ -31,7 +31,7 @@ namespace sdm
                                   const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                   const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                   int freq_prunning = -1,
-                                  SawtoothPrunning::Type type_of_sawtooth_prunning = SawtoothPrunning::Type::NONE);
+                                  SawtoothPrunning::Type type_of_sawtooth_prunning = SawtoothPrunning::NONE);
 
         BasePointSetValueFunction(const BasePointSetValueFunction &copy);
 

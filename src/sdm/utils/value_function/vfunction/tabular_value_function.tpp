@@ -50,7 +50,7 @@ namespace sdm
                 return this->getInitFunction()->operator()(state, t);
             }
         }
-        double value = this->getRepresentation(t).at(state);
+        double value = this->representation[t].at(state);
         return value;
     }
 
@@ -122,11 +122,11 @@ namespace sdm
     template <class Hash, class KeyEqual>
     std::vector<std::shared_ptr<State>> BaseTabularValueFunction<Hash, KeyEqual>::getSupport(number t)
     {
-        return this->getRepresentation(t).getIndexes();
+        return this->representation[t].getIndexes();
     }
 
     template <class Hash, class KeyEqual>
-    typename BaseTabularValueFunction<Hash, KeyEqual>::Container BaseTabularValueFunction<Hash, KeyEqual>::getRepresentation(number t)
+    typename BaseTabularValueFunction<Hash, KeyEqual>::Container &BaseTabularValueFunction<Hash, KeyEqual>::getRepresentation(number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }

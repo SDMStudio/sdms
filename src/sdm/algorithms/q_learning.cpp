@@ -44,6 +44,15 @@ namespace sdm
         episode = 0;
     }
 
+    void QLearning::logging()
+    {
+        this->logger_->log(this->episode,
+                           this->global_step,
+                           this->q_value_->getValueAt(getEnv()->reset()->toState(), 0),
+                           (float)(clock() - t_begin) / CLOCKS_PER_SEC,
+                           this->exploration_process->getEpsilon());
+    }
+
     void QLearning::solve()
     {
         t_begin = clock();
@@ -85,12 +94,7 @@ namespace sdm
         if (do_log_)
         {
             // Log data on the output stream
-            logger_->log(episode,
-                         global_step,
-                         this->q_value_->getValueAt(getEnv()->reset()->toState(), 0),
-                         (float)(clock() - t_begin) / CLOCKS_PER_SEC,
-                         exploration_process->getEpsilon());
-
+            logging();
             do_log_ = false;
         }
         if (do_test_)

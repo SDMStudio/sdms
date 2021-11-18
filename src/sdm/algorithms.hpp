@@ -1,11 +1,11 @@
 #pragma once
 
 #include <sdm/algorithms/planning/value_iteration.hpp>
-#include <sdm/algorithms/planning/perseus.hpp>
+#include <sdm/algorithms/planning/pbvi.hpp>
 
 #include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/algorithms/planning/dfsvi.hpp>
-#include <sdm/algorithms/planning/rsvi.hpp>
+#include <sdm/algorithms/planning/perseus.hpp>
 
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/algorithms/alpha_star.hpp>
@@ -34,9 +34,7 @@ namespace sdm
          * @brief Build HSVI algorithm. 
          */
         std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem,
-                                            double discount = 1.0,
                                             double error = 0.01,
-                                            number horizon = 10,
                                             int trials = 10000,
                                             bool store_state = true,
                                             bool store_action = true,
@@ -58,12 +56,17 @@ namespace sdm
         /**
          * @brief Build the ValueIteration version that use TabularValueFunction Representation
          */
-        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem, std::string value_function_name,
-                                                                std::string vf_init_name, double discount, double error, number horizon,
+        std::shared_ptr<sdm::ValueIteration> makeValueIteration(std::shared_ptr<SolvableByHSVI> problem,
+                                                                std::string value_function_name, std::string vf_init_name, double error,
                                                                 bool store_state, std::string name, double time_max,
                                                                 std::string vf_type_of_resolution_name,
                                                                 int vf_freq_pruning, std::string vf_type_of_pruning);
 
+        std::shared_ptr<sdm::PBVI> makePBVI(std::shared_ptr<SolvableByHSVI> problem,
+                                            std::string value_function_name, std::string vf_init_name, number num_samples, std::string type_sampling, double error,
+                                            bool store_state, std::string name, double time_max,
+                                            std::string vf_type_of_resolution_name,
+                                            int vf_freq_pruning, std::string vf_type_of_pruning);
         /**
          * @brief Build Q-Value Function.
          */
@@ -99,7 +102,7 @@ namespace sdm
          * @brief Build an algorithm.
          */
         std::shared_ptr<Algorithm> makeAlgorithm(std::string algo_name, std::shared_ptr<SolvableByHSVI> formalism, double discount,
-                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max, number num_samples,
+                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max, number num_samples, std::string type_sampling,
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2);
 
@@ -136,6 +139,7 @@ namespace sdm
                                         bool store_action = true,
                                         number batch_size = 0,
                                         number num_samples = 10,
+                                        std::string type_sampling = "",
                                         std::string value_function_1 = "tabular",
                                         std::string init_v1 = "Min",
                                         number freq_update_v1 = 1,

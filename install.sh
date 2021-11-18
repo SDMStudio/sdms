@@ -81,10 +81,11 @@ then
     cp lib/libtb2.so /lib/x86_64-linux-gnu/
 
     echo -e "${LOG_SDMS}Create build directory."
+    rm -rf build
     mkdir -p ./build && cd ./build
 
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
-    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j install
+    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j 4 install
 
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?

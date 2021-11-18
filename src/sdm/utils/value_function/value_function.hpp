@@ -74,12 +74,7 @@ namespace sdm
          * to the value function.
          *
          */
-        virtual void updateValueAt(const std::shared_ptr<State> &state, number t);
-
-        /**
-         * @brief Update the value at a given state and action.
-         */
-        virtual void updateValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0);
+        virtual void updateValueAt(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Get the update operator

@@ -115,7 +115,7 @@ namespace sdm
          * @param t the time step
          * @return the container
          */
-        Container getRepresentation(number t);
+        Container &getRepresentation(number t);
 
         /**
          * @brief Get the size of the value function at timestep t

@@ -1,28 +1,24 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/core/space/space.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/utils/value_function/value_function.hpp>
-#include <sdm/algorithms/planning/value_iteration.hpp>
+#include <sdm/algorithms/planning/dfsvi.hpp>
 
 namespace sdm
 {
     /**
-     * @brief [Point-Based Value Iteration](https://www.ijcai.org/Proceedings/03/Papers/147.pdf)
-     * and its extensions (ValueIteration, ValueIteration for DecPOMDP).
+     * @brief Random search value iteration algorithm
      * 
-     * This class contains the general algorithmic scheme of Point-Based Value Iteration. 
-     * By redefining the way the value function or the world are represented, we will be 
-     * able to obtain different state-of-the-art algorithms such as: Value Iteration, Point-based
-     * Value Iteration, etc.
+     * This algorithm is a tree search algorithm selecting randomly the branches 
+     * to be explored (branches consists of next actons and observations).
+     * By redefining the world, we will be able to solve different class of 
+     * problems such as MDP, POMDP, DecPOMDP, and so on.
      * 
      */
-    class Perseus : public ValueIteration
+    class Perseus : public DFSVI
     {
     public:
         /**
-         * @brief Construct the Perseus algorithm.
+         * @brief Construct the RandomSearchValueIteration algorithm.
          * 
          * @param world the world to be solved
          * @param value_function the value function representation
@@ -30,13 +26,8 @@ namespace sdm
          * @param horizon the planning horizon
          * 
          */
-        Perseus(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, number size_by_step, double error, double time_max, std::string name);
-        void initTrial();
-        void initialize();
-
-        bool stop();
-        void updateValue(const std::shared_ptr<State> &state, number t);
-
+        Perseus(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, double error, number num_samples, double max_time, std::string name = "RandomSearchVI");
+        
         /**
          * @brief Get the name of the algorithm as a string. 
          * 
@@ -50,21 +41,34 @@ namespace sdm
 
     protected:
         /**
-         * @brief Select the states that wil be used to update the value function.
+         * @brief Select the list of actions to explore.
          * 
-         * @param h the horizon
-         * @return the state spaces
+         * This function can be inherited to build algorithms with different 
+         * exploration heuristics
+         * 
+         * @return a list of actions 
          */
-        std::shared_ptr<Space> selectStates(number h);
+        std::shared_ptr<Space> selectActions(const std::shared_ptr<State> &state, number t);
 
         /**
-         * @brief Select one state.
+         * @brief Select the list of observations to explore.
          * 
-         * @param t the time step
-         * @return select one state
+         * This function can be inherited to build algorithms with different 
+         * exploration heuristics
+         * 
+         * @return a list of observations 
          */
-        std::shared_ptr<State> selectOneState(number t);
+        std::shared_ptr<Space> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
-        number num_sample_states, size_by_step;
+        /**
+         * @brief Compute the next state.
+         * 
+         * @return the next state 
+         */
+        std::shared_ptr<Space> selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,
+                                                const std::shared_ptr<Observation> &observation, number t);
+
+        /** @brief The number of decision rules to sample and explore */
+        number num_samples;
     };
 }

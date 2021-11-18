@@ -12,9 +12,9 @@ namespace sdm
         {
         }
 
-        void TabularUpdate::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+        void TabularUpdate::update(const std::shared_ptr<State> &state, number t)
         {
-            value_function->setValueAt(state, this->value_function->getQValueAt(state, action, t), t);
+            value_function->setValueAt(state, this->value_function->getQValueAt(state, this->value_function->getGreedyAction(state, t), t), t);
         }
     }
 }

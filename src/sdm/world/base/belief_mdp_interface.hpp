@@ -4,6 +4,7 @@
 #include <sdm/exception.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/utils/struct/graph.hpp>
 
 namespace sdm
 {
@@ -18,5 +19,15 @@ namespace sdm
 
         /** @brief Get the address of the underlying BeliefMDP */
         virtual std::shared_ptr<BeliefMDPInterface> getUnderlyingBeliefMDP() = 0;
+
+        /**
+         * @brief Get the MDP graph. 
+         * 
+         * In the case where the variables `store_states` and `store_actions` are set to true, 
+         * we iteratively construct and save the graph of state transitions. 
+         * 
+         * @return the graph representing a markov decision process 
+         */
+        virtual std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph() = 0;
     };
 } // namespace sdm

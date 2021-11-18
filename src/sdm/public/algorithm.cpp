@@ -38,7 +38,7 @@ namespace sdm
         return std::Performance::computeTime(start_execution_time);
     }
 
-    void Algorithm::saveResults(std::string filename, std::string format)
+    void Algorithm::logging()
     {
     }
 

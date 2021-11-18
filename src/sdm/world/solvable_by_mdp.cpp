@@ -66,10 +66,9 @@ namespace sdm
     {
         double tmp = 0.0;
 
-        auto observation_space = this->getObservationSpaceAt(state, action, t);
-        for (const auto &next_state : *observation_space)
+        for (const auto &next_state : this->underlying_problem_->getReachableStates(state, action, t))
         {
-            tmp += this->underlying_problem_->getTransitionProbability(state, action, next_state->toState(), t) * value_function->getValueAt(next_state->toState(), t + 1);
+            tmp += this->underlying_problem_->getTransitionProbability(state, action, next_state, t) * value_function->getValueAt(next_state, t + 1);
         }
         return tmp;
     }

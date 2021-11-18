@@ -157,6 +157,8 @@ namespace sdm
      */
     std::string getAlgorithmName();
 
+    void logging();
+
   protected:
     /** @brief The problem to be solved */
     std::shared_ptr<GymInterface> env_;
@@ -185,7 +187,7 @@ namespace sdm
   private:
     std::shared_ptr<Observation> observation;
 
-    number log_freq = 1000, test_freq = 10000, save_freq = 10000, max_num_steps_by_ep_ = 200, target_update_freq = 1;
+    number log_freq = 100, test_freq = 10000, save_freq = 10000, max_num_steps_by_ep_ = 200, target_update_freq = 1;
 
     bool do_log_ = false, do_test_ = false, do_save_ = false, is_done = false;
 

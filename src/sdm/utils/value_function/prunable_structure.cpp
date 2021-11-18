@@ -3,13 +3,13 @@
 namespace sdm
 {
 
-    PrunableStructure::PrunableStructure(number horizon, int freq_pruning) : freq_pruning(freq_pruning)
+    PrunableStructure::PrunableStructure(number horizon, int freq_pruning) : horizon(horizon), freq_pruning(freq_pruning)
     {
     }
 
     void PrunableStructure::doPruning(number trial)
     {
-        if (trial % this->getPruningFrequency() == 0)
+        if (trial  % this->getPruningFrequency() == 0)
         {
             for (number time = 0; time < this->horizon; time++)
             {
