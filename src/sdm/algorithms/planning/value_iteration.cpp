@@ -71,7 +71,7 @@ namespace sdm
     {
         try
         {
-            for (number t = 0; t < getWorld()->getHorizon(); t++)
+            for (int t = getWorld()->getHorizon() - 1; t >= 0; t--)
             {
                 // Select next states
                 auto state_space = selectStates(t);
@@ -97,7 +97,6 @@ namespace sdm
 
     void ValueIteration::updateValue(const std::shared_ptr<State> &state, number t)
     {
-
         getTmpValueFunction()->updateValueAt(state, t);
         was_updated = true;
         max_error = std::max(max_error, std::abs(getValueFunction()->getValueAt(state, t) - getTmpValueFunction()->getValueAt(state, t)));

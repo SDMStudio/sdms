@@ -14,30 +14,71 @@ namespace sdm
         initStateSpace();
     }
 
-    void PBVI::initStateSpace()
+    std::shared_ptr<State> PBVI::sampleNextState(const std::shared_ptr<State> &state, number t)
     {
-        for (number t = 0; t < getWorld()->getHorizon(); t++)
-        {
+        std::shared_ptr<Action> sampled_action = getWorld()->getActionSpaceAt(state, t)->sample()->toAction(); //getWorld()->getRandomAction(current_state, t);
 
-            std::vector<std::shared_ptr<State>> list_states;
-            for (int i = 0; i < num_sample_states; i++)
+        std::shared_ptr<State> candidate_state = nullptr;
+
+        // Get a random number between 0 and 1
+        double epsilon = std::rand() / (double(RAND_MAX)), cumul = 0., proba;
+
+        // Go over all observations of the lower-level agent
+        auto obs_space = getWorld()->getObservationSpaceAt(state, sampled_action, t);
+        for (auto obs_n : *obs_space)
+        {
+            std::tie(candidate_state, proba) = getWorld()->getNextStateAndProba(state, sampled_action, obs_n->toObservation(), t);
+
+            cumul += proba;
+            if (epsilon < cumul)
             {
-                list_states.push_back(selectOneState(t));
+                return candidate_state;
             }
-            sampled_state_space.push_back(std::make_shared<DiscreteSpace>(list_states));
         }
     }
+
+    void PBVI::initStateSpace()
+    {
+        std::vector<std::set<std::shared_ptr<State>>> list_states(getWorld()->getHorizon());
+        std::shared_ptr<State> initial_state = getWorld()->getInitialState();
+        list_states[0].insert(initial_state);
+
+        for (int i = 0; i < num_sample_states; i++)
+        {
+            std::shared_ptr<State> current_state = initial_state;
+
+            for (number t = 1; t < getWorld()->getHorizon(); t++)
+            {
+                current_state = sampleNextState(current_state, t);
+                list_states[t].insert(current_state);
+            }
+        }
+        for (number t = 0; t < getWorld()->getHorizon(); t++)
+        {
+            sampled_state_space.push_back(std::make_shared<DiscreteSpace>(tools::set2vector(list_states[t])));
+        }
+    }
+
+    // void PBVI::initStateSpace()
+    // {
+    //     for (number t = 0; t < getWorld()->getHorizon(); t++)
+    //     {
+
+    //         std::vector<std::shared_ptr<State>> list_states;
+    //         for (int i = 0; i < num_sample_states; i++)
+    //         {
+    //             list_states.push_back(selectOneState(t));
+    //         }
+    //         sampled_state_space.push_back(std::make_shared<DiscreteSpace>(list_states));
+    //     }
+    // }
 
     std::shared_ptr<State> PBVI::selectOneState(number t)
     {
         std::shared_ptr<State> current_state = getWorld()->getInitialState();
-        std::shared_ptr<Action> current_action;
-        std::shared_ptr<Observation> current_observation;
         for (number h = 0; h < t; h++)
         {
-            current_action = getWorld()->getActionSpaceAt(current_state, t)->sample()->toAction(); //getWorld()->getRandomAction(current_state, t);
-            current_observation = getWorld()->getObservationSpaceAt(current_state, current_action, t)->sample()->toObservation();
-            current_state = getWorld()->getNextStateAndProba(current_state, current_action, current_observation, t).first;
+            current_state = sampleNextState(current_state, t);
         }
         return current_state;
     }

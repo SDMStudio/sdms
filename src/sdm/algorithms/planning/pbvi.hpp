@@ -31,7 +31,7 @@ namespace sdm
          * 
          */
         PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, double error, double time_max, std::string name);
-        
+
         void initialize();
 
         /**
@@ -46,6 +46,8 @@ namespace sdm
         std::string getAlgorithmName();
 
     protected:
+        std::shared_ptr<State> sampleNextState(const std::shared_ptr<State> &state, number t);
+
         void initStateSpace();
 
         /**
