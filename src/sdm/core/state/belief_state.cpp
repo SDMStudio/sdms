@@ -172,7 +172,7 @@ namespace sdm
 
   std::shared_ptr<BeliefInterface::Vector> Belief::getVectorInferface()
   {
-    return std::static_pointer_cast<MappedVector<std::shared_ptr<State>>>(std::dynamic_pointer_cast<Belief>(this->toBelief()));
+    return std::dynamic_pointer_cast<MappedVector<std::shared_ptr<State>>>(this->getPointer());
   }
 
   void Belief::finalize()

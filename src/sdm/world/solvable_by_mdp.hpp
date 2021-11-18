@@ -7,6 +7,7 @@
 #include <sdm/world/base/mdp_interface.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/algorithms/planning/hsvi.hpp>
+#include <sdm/utils/struct/recursive_map.hpp>
 
 namespace sdm
 {
@@ -159,5 +160,7 @@ namespace sdm
 
         /** @brief The initial state */
         std::shared_ptr<State> initial_state_;
+
+        RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Space>> observation_space;
     };
 } // namespace sdm

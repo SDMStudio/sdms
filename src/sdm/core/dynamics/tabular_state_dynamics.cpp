@@ -54,19 +54,19 @@ namespace sdm
     double TabularStateDynamics::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number) const
     {
         const auto &iterator = this->t_model.find(action);
-        return (iterator == this->t_model.end()) ? 0. : this->t_model.at(action).getValueAt(state, next_state);
+        return (iterator == this->t_model.end()) ? 0. : iterator->second.getValueAt(state, next_state);
     }
 
     std::set<std::shared_ptr<State>> TabularStateDynamics::getReachableStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number) const
     {
-        try
-        {
+        // try
+        // {
             return this->successor_states.at(state).at(action);
-        }
-        catch (std::exception e)
-        {
-            return {};
-        }
+        // }
+        // catch (std::exception e)
+        // {
+        //     return {};
+        // }
 
         // const auto &iterator = this->successor_states.find(state);
         // if (iterator != this->successor_states.end())

@@ -19,7 +19,7 @@ namespace sdm
 
     std::shared_ptr<State> PBVI::sampleNextState(const std::shared_ptr<State> &state, number t)
     {
-        std::shared_ptr<Action> sampled_action = getWorld()->getActionSpaceAt(state, t)->sample()->toAction(); //getWorld()->getRandomAction(current_state, t);
+        std::shared_ptr<Action> sampled_action = std::dynamic_pointer_cast<GymInterface>(getWorld())->getRandomAction(state, t);
 
         std::shared_ptr<State> candidate_state = nullptr;
 

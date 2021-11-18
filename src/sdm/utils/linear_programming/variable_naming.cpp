@@ -6,7 +6,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "jdr"
-          << "." << action->str() << "." << joint_history->short_str();
+          << "." << action << "." << joint_history;
       return oss.str();
     }
 
@@ -34,7 +34,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "idr"
-          << "." << action->str() << "." << individual_history->short_str() << "." << agent_id;
+          << "." << action << "." << individual_history << "." << agent_id;
       return oss.str();
     }
 
@@ -53,7 +53,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "wsh"
-          << "." << i << "." << s->str() << "." << jh->short_str();
+          << "." << i << "." << s << "." << jh;
       return oss.str();
     }
     
@@ -61,7 +61,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "ih"
-          << "." << ihistory->short_str() << "." << agent;
+          << "." << ihistory << "." << agent;
       return oss.str();
     }
 
