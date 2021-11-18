@@ -92,6 +92,7 @@ namespace sdm
         this->setBeliefAt(joint_history, belief);
         // Set the probability of the joint history
         Belief::setProbability(joint_history, proba);
+        
         // this->setProbability(joint_history, proba);
     }
 
@@ -609,7 +610,7 @@ namespace sdm
 
     std::shared_ptr<OccupancyState> OccupancyState::getptr()
     {
-        return std::dynamic_pointer_cast<OccupancyState>(this->toState()->toOccupancyState());
+        return std::dynamic_pointer_cast<OccupancyState>(this->getPointer());
     }
 
     std::string OccupancyState::str() const

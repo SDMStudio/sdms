@@ -127,7 +127,7 @@ namespace sdm
      * @param t the timestep
      * @return the selected action  
      */
-    std::shared_ptr<Action> selectAction(const std::shared_ptr<Observation> &observation, number t);
+    std::shared_ptr<Action> selectAction(const std::shared_ptr<State> &state, number t);
 
     /**
      * @brief Initialize the loggers.
@@ -185,7 +185,7 @@ namespace sdm
     std::string name_ = "qlearning";
 
   private:
-    std::shared_ptr<Observation> observation;
+    std::shared_ptr<State> observation;
 
     number log_freq = 100, test_freq = 10000, save_freq = 10000, max_num_steps_by_ep_ = 200, target_update_freq = 1;
 

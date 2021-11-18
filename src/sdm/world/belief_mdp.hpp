@@ -121,10 +121,9 @@ namespace sdm
         //    RL methods
         // *****************
 
-        virtual std::shared_ptr<Observation> reset();
-        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
-        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+        virtual std::shared_ptr<State> reset();
+        virtual std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the MDP graph. 
@@ -143,6 +142,9 @@ namespace sdm
         std::shared_ptr<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>> reward_graph_;
 
     public:
+        /** @brief The underlying well defined POMDP */
+        std::shared_ptr<POMDPInterface> underlying_pomdp;
+
         // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;
 

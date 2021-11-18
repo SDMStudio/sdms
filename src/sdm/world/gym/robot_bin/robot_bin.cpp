@@ -45,17 +45,17 @@ namespace sdm
             this->action_space_ = std::make_shared<DiscreteSpace>(list_actions);
         }
 
-        std::shared_ptr<Space> RobotBin::getActionSpaceAt(const std::shared_ptr<Observation> &, number)
+        std::shared_ptr<Space> RobotBin::getActionSpaceAt(const std::shared_ptr<State> &, number)
         {
             return this->action_space_;
         }
 
-        std::shared_ptr<Action> RobotBin::getRandomAction(const std::shared_ptr<Observation> &, number)
+        std::shared_ptr<Action> RobotBin::getRandomAction(const std::shared_ptr<State> &, number)
         {
             return this->action_space_->sample()->toAction();
         }
 
-        std::shared_ptr<Observation> RobotBin::reset()
+        std::shared_ptr<State> RobotBin::reset()
         {
             // Reset the coordinates of the robot
             this->coord_robot_ = this->coord_space_->getItem(0)->to<CoordState>();
@@ -87,7 +87,7 @@ namespace sdm
             return state->toState();
         }
 
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> RobotBin::step(std::shared_ptr<Action> action)
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> RobotBin::step(std::shared_ptr<Action> action)
         {
             auto str_action = std::dynamic_pointer_cast<DiscreteActionString>(action)->getAction();
             bool is_done = true;

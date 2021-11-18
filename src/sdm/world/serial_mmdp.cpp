@@ -292,22 +292,22 @@ namespace sdm
         return all_action;
     }
 
-    std::shared_ptr<Space> SerialMMDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number)
+    std::shared_ptr<Space> SerialMMDP::getActionSpaceAt(const std::shared_ptr<State> &, number)
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    std::shared_ptr<Observation> SerialMMDP::reset()
+    std::shared_ptr<State> SerialMMDP::reset()
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>)
     {
         throw sdm::exception::NotImplementedException();
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>, bool)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>, bool)
     {
         throw sdm::exception::NotImplementedException();
     }
@@ -322,7 +322,7 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
     }
 
-    std::shared_ptr<Action> SerialMMDP::getRandomAction(const std::shared_ptr<Observation> &, number t)
+    std::shared_ptr<Action> SerialMMDP::getRandomAction(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t)->sample()->toAction();
     }

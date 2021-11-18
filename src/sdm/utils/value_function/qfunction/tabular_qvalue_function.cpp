@@ -25,13 +25,12 @@ namespace sdm
 
     std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> TabularQValueFunction::getQValuesAt(const std::shared_ptr<State> &state, number t)
     {
-        using v_type = typename MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>::value_type::second_type;
-        return std::make_shared<v_type>(this->representation[this->isInfiniteHorizon() ? 0 : t].at(state));
+        throw exception::Exception("getQValuesAt is deprecated !");
     }
 
     double TabularQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        return this->getQValuesAt(state, t)->at(action);
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].at(state).at(action);
     }
 
     void TabularQValueFunction::setQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double value, number t)

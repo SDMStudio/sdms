@@ -134,15 +134,15 @@ namespace sdm
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
 
-        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &observation, number t);
 
-        std::shared_ptr<Observation> reset();
+        std::shared_ptr<State> reset();
 
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
 
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
 
         void setInternalState(std::shared_ptr<State>);
 

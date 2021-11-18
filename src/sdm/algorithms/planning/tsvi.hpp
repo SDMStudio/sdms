@@ -97,7 +97,7 @@ namespace sdm
          * @param t the time step
          */
         virtual void updateValue(const std::shared_ptr<State> &state, number t);
-        
+
     protected:
         /**
          * @brief Initialize a trial.
@@ -119,7 +119,7 @@ namespace sdm
          * 
          * @return a list of actions 
          */
-        virtual std::shared_ptr<Space> selectActions(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::vector<std::shared_ptr<Action>> selectActions(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Select the list of observations to explore.
@@ -129,20 +129,12 @@ namespace sdm
          * 
          * @return a list of observations 
          */
-        virtual std::shared_ptr<Space> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
-
-        /**
-         * @brief Compute the next state.
-         * 
-         * @return the next state 
-         */
-        virtual std::shared_ptr<Space> selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,
-                                                        const std::shared_ptr<Observation> &observation, number t) = 0;
+        virtual std::vector<std::shared_ptr<Observation>> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         // ------------------
         // --- ATTRIBUTES ---
         // ------------------
-        
+
         /** 
          * @brief The value function 
          */

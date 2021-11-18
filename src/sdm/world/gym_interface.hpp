@@ -28,7 +28,7 @@ namespace sdm
          * @param t time step
          * @return the action space. 
          */
-        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t) = 0;
+        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get random action.
@@ -36,19 +36,19 @@ namespace sdm
          * @param t time step.
          * @return the random action. 
          */
-        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t) = 0;
+        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Reset the environment and return initial observation.
          * @return the initial observation
          */
-        virtual std::shared_ptr<Observation> reset() = 0;
+        virtual std::shared_ptr<State> reset() = 0;
 
         /**
          * @brief Do a step on the environment.
          * @param action the action to execute
          * @return the information produced. Include : next observation, rewards, episode done  
          */
-        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
+        virtual std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
     };
 } // namespace sdm

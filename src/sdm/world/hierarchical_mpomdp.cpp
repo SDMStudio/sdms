@@ -42,15 +42,15 @@ namespace sdm
     // }
 
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalMPOMDP::step(std::shared_ptr<Action> action)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> HierarchicalMPOMDP::step(std::shared_ptr<Action> action)
     {
         auto [obs, rewards, is_done] = this->mpomdp_->step(action);
-        return {this->getHierarchicalObservation(obs), rewards, is_done};
+        return {this->getHierarchicalObservation(obs)->toState(), rewards, is_done};
     }
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalMPOMDP::step(std::shared_ptr<Action> action, bool increment_timestep)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> HierarchicalMPOMDP::step(std::shared_ptr<Action> action, bool increment_timestep)
     {
         auto [obs, rewards, is_done] = this->mpomdp_->step(action, increment_timestep);
-        return {this->getHierarchicalObservation(obs), rewards, is_done};
+        return {this->getHierarchicalObservation(obs)->toState(), rewards, is_done};
     }
 
     void HierarchicalMPOMDP::setupObservationSpace()

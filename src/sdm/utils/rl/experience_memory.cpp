@@ -12,7 +12,7 @@ namespace sdm
         this->capacity_ = capacity;
     }
 
-    void ExperienceMemory::push(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, const double reward, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<Action> &next_action, number step)
+    void ExperienceMemory::push(const std::shared_ptr<State> &observation, const std::shared_ptr<Action> &action, const double reward, const std::shared_ptr<State> &next_observation, const std::shared_ptr<Action> &next_action, number step)
     {
         assert(step < this->experience_memory_.size());
 

@@ -11,23 +11,17 @@ namespace sdm
     }
 
     //  SELECT ACTION IN PERSEUS
-    std::shared_ptr<Space> Perseus::selectActions(const std::shared_ptr<State> &state, number t)
+    std::vector<std::shared_ptr<Action>> Perseus::selectActions(const std::shared_ptr<State> &state, number t)
     {
         throw exception::NotImplementedException();
         // return std::make_shared<DiscreteSpace>(getWorld()->getActionSpaceAt(state, t)->sample(num_samples), false);
     }
 
     //  SELECT ACTION IN PERSEUS
-    std::shared_ptr<Space> Perseus::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    std::vector<std::shared_ptr<Observation>> Perseus::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         throw exception::NotImplementedException();
         // return std::make_shared<DiscreteSpace>(getWorld()->getNextObservationDistribution(state, action, t)->sample(num_samples), false);
-    }
-
-    // COMPUTE NEXT STATE IN PERSEUS
-    std::shared_ptr<Space> Perseus::selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        return DFSVI::selectNextStates(state, action, observation, t);
     }
 
     std::string Perseus::getAlgorithmName()

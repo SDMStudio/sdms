@@ -27,11 +27,11 @@ namespace sdm
         {
             auto [observation, action, reward, next_observation, next_action] = experience_memory->sample(t)[0];
 
-            double delta = deltaSARSA(observation->toState(), action, reward, next_observation->toState(), next_action, t);
+            double delta = deltaSARSA(observation, action, reward, next_observation, next_action, t);
 
-            double new_value = q_value->getQValueAt(observation->toState(), action, t) + learning_rate * delta;
+            double new_value = q_value->getQValueAt(observation, action, t) + learning_rate * delta;
 
-            q_value->setQValueAt(observation->toState(), action, new_value, t);
+            q_value->setQValueAt(observation, action, new_value, t);
         }
     }
 }
