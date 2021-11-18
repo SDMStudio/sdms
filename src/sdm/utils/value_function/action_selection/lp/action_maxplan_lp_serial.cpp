@@ -17,7 +17,7 @@ namespace sdm
     {
         auto under_pb = std::dynamic_pointer_cast<SerialMPOMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
-        auto occupancy_state = state->toOccupancyState();
+        auto occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
 
         number recover = 0;
         double weight = 0.0, factor = 0.0;
@@ -30,7 +30,7 @@ namespace sdm
             {
                 // Compute \sum_{x} s(o,x)* discount * [ r(x,o) + \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
                 weight = 0.0;
-                for (const auto &private_joint_history : std::dynamic_pointer_cast<OccupancyState>(occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
+                for (const auto &private_joint_history : occupancy_state->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
                 {
                     weight += this->getWeight(value_function, occupancy_state, private_joint_history, action->toAction(), t);
                 }

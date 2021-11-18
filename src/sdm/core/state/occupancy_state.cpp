@@ -90,9 +90,10 @@ namespace sdm
     {
         // Set the belief corresponding to a specific joint history
         this->setBeliefAt(joint_history, belief);
+        
         // Set the probability of the joint history
         Belief::setProbability(joint_history, proba);
-        
+
         // this->setProbability(joint_history, proba);
     }
 
@@ -129,10 +130,10 @@ namespace sdm
         return std::hash<OccupancyState>()(*this, precision);
     }
 
-  bool OccupancyState::operator==(const OccupancyState &other) const
-  {
-    return this->isEqual(other);
-  }
+    bool OccupancyState::operator==(const OccupancyState &other) const
+    {
+        return this->isEqual(other);
+    }
 
     bool OccupancyState::isEqual(const OccupancyState &other, double precision) const
     {
@@ -592,11 +593,23 @@ namespace sdm
 
     void OccupancyState::finalize()
     {
-
         Belief::finalize();
         this->setup();
         this->setupPrivateOccupancyStates();
         this->setProbabilityOverIndividualHistories();
+    }
+
+    void OccupancyState::finalize(bool do_compression)
+    {
+        if (do_compression)
+        {
+            finalize();
+        }
+        else
+        {
+            Belief::finalize();
+            this->setup();
+        }
     }
 
     void OccupancyState::normalize()

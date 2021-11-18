@@ -92,6 +92,7 @@ namespace sdm
         const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &getAllIndividualHistories() const;
 
         void finalize();
+        void finalize(bool do_compression);
 
         /**
          * @brief Get the fully uncompressed occupancy state.

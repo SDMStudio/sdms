@@ -47,8 +47,8 @@ namespace sdm
         auto under_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->world_->getUnderlyingProblem());
         
         auto agent = under_pb->getAgentId(t);
-        auto occupancy_state = state->toOccupancyState();
-        std::shared_ptr<PrivateOccupancyState> private_serial_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state)->getPrivateOccupancyState(under_pb->getAgentId(t), ihistory);
+        auto occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
+        std::shared_ptr<PrivateOccupancyState> private_serial_occupancy_state = occupancy_state->getPrivateOccupancyState(under_pb->getAgentId(t), ihistory);
 
         std::shared_ptr<Action> best_action;
         double argmax_local = -std::numeric_limits<double>::max();

@@ -500,7 +500,7 @@ namespace sdm
         next_one_step_left_compressed_occupancy_state->normalizeBelief(norm_one_step);
 
         // Finalize and normalize the fully uncompressed occupancy state
-        next_fully_uncompressed_occupancy_state->finalize();
+        next_fully_uncompressed_occupancy_state->finalize(false);
         double norm_fully = next_fully_uncompressed_occupancy_state->norm_1();
         next_fully_uncompressed_occupancy_state->normalizeBelief(norm_fully);
 

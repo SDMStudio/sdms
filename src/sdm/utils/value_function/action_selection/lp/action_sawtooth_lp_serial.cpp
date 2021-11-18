@@ -75,7 +75,7 @@ namespace sdm
         try
         {
             auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-            auto compressed_occupancy_state = state->toOccupancyState();
+            auto compressed_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
 
             // Gets the current individual history conditional on the current joint history
             number agent_id = under_pb->getAgentId(t);
@@ -93,7 +93,7 @@ namespace sdm
                     recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
 
                     double compute_sawtooth = 0.0;
-                    for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
+                    for (const auto &joint_history : compressed_occupancy_state->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
                     {
                         compute_sawtooth += this->computeSawtooth(vf, state, action->toAction(), joint_history, next_hidden_state, next_observation, next_joint_history, denominator, difference, t);
                     }
@@ -120,7 +120,7 @@ namespace sdm
         auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
         number agent_id = under_pb->getAgentId(t);
 
-        auto compressed_occupancy_state = state->toOccupancyState();
+        auto compressed_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
 
         number recover = 0;
         double Qrelaxation;
@@ -137,7 +137,7 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id));
 
                 Qrelaxation = 0.0;
-                for (const auto &joint_history : std::dynamic_pointer_cast<OccupancyState>(compressed_occupancy_state)->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
+                for (const auto &joint_history : compressed_occupancy_state->getPrivateOccupancyState(agent_id, indiv_history)->getJointHistories())
                 {
                     Qrelaxation += this->getQValueRelaxation(value_function, compressed_occupancy_state, joint_history, action->toAction(), t);
                 }
