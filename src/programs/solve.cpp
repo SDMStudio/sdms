@@ -27,8 +27,8 @@ std::shared_ptr<Algorithm> algorithm;
 
 void leave()
 {
+    algorithm->logging();
     std::cout << config::LOG_SDMS << "Exit process" << std::endl;
-    algorithm->saveResults(name);
     algorithm = nullptr;
     exit(0);
 }
@@ -60,7 +60,7 @@ int solve(int argv, char **args)
 
     try
     {
-        std::string world, algo_name, formalism, upper_bound, lower_bound, ub_init, lb_init;
+        std::string world, algo_name, formalism, upper_bound, lower_bound, ub_init, lb_init, type_sampling;
         int trials, memory;
         number horizon, seed, batch_size,num_samples, freq_update_lb, freq_update_ub;
         double error, discount;
@@ -115,6 +115,7 @@ int solve(int argv, char **args)
         po::options_description pbvi_config("PBVI configuration");
         pbvi_config.add_options()
         ("num_samples", po::value<number>(&num_samples)->default_value(10), "the number of sample to generate in the algorithm")
+        ("type_sampling", po::value<string>(&type_sampling)->default_value(""), "the type of sampling process")
         ("value_function", po::value<string>(&lower_bound), "the lower bound representation")
         ("vf_init", po::value<string>(&lb_init), "the lower bound initialization method")
         ("freq_update", po::value<number>(&freq_update_lb), "the update frequency of the lower bound.")
@@ -182,6 +183,7 @@ int solve(int argv, char **args)
                                     store_actions,
                                     batch_size,
                                     num_samples,
+                                    type_sampling,
                                     lower_bound,
                                     lb_init,
                                     freq_update_lb,

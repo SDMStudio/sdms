@@ -105,7 +105,10 @@ namespace sdm
 
     double getExecutionTime() const;
 
-    virtual void saveResults(std::string filename, std::string format = ".md");
+		/**
+		 * @brief Log execution variables in output streams.
+		 */
+    virtual void logging();
 
     virtual void printInfo();
 

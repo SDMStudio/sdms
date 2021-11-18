@@ -237,7 +237,7 @@ namespace sdm
         }
 
         std::shared_ptr<sdm::PBVI> makePBVI(std::shared_ptr<SolvableByHSVI> problem,
-                                            std::string value_function_name, std::string vf_init_name, number num_samples, double error,
+                                            std::string value_function_name, std::string vf_init_name, number num_samples, std::string type_sampling, double error,
                                             bool store_state, std::string name, double time_max,
                                             std::string vf_type_of_resolution_name,
                                             int vf_freq_pruning, std::string vf_type_of_pruning)
@@ -247,7 +247,7 @@ namespace sdm
             std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
             std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
 
-            auto algo = std::make_shared<PBVI>(problem, value_function, num_samples, error, time_max, name);
+            auto algo = std::make_shared<PBVI>(problem, value_function, num_samples, error, time_max, name, type_sampling);
 
             algo->setTmpValueFunction(tmp_value_function);
             return algo;
@@ -421,7 +421,7 @@ namespace sdm
         }
 
         std::shared_ptr<Algorithm> makeAlgorithm(std::string algo_name, std::shared_ptr<SolvableByHSVI> formalism, double discount,
-                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max, number num_samples,
+                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max, number num_samples, std::string type_sampling,
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
@@ -466,7 +466,7 @@ namespace sdm
             else if ((algo_name == "pbvi") || (algo_name == "PBVI"))
             {
                 p_algo = makePBVI(formalism, value_function_1, init_v1,
-                                  num_samples, error, store_state, name, time_max,
+                                  num_samples, type_sampling, error, store_state, name, time_max,
                                   type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
             }
             else if ((algo_name == "dfsvi") || (algo_name == "DFSVI") || (algo_name == "DepthFirstSearchVI") || (algo_name == "DepthFirstSearchValueIteration"))
@@ -498,7 +498,7 @@ namespace sdm
         }
 
         std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism_name, number horizon, double discount, double error, int trials, double time_max, std::string name,
-                                        int memory, bool compression, bool store_state, bool store_action, number batch_size, number num_samples,
+                                        int memory, bool compression, bool store_state, bool store_action, number batch_size, number num_samples, std::string type_sampling,
                                         std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                         std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
@@ -547,7 +547,7 @@ namespace sdm
             auto formalism = makeFormalism(problem_path, formalism_name, discount, horizon, memory, compression, store_state, store_action, batch_size);
 
             // Build the algorithm
-            return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max, num_samples,
+            return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max, num_samples, type_sampling,
                                  value_function_1, init_v1, freq_update_v1, type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1,
                                  value_function_2, init_v2, freq_update_v2, type_of_resolution_v2, freq_pruning_v2, type_of_pruning_v2);
         }

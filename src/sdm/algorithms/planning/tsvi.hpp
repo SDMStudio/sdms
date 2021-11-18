@@ -73,11 +73,6 @@ namespace sdm
         virtual bool stop(const std::shared_ptr<State> &state, double cost_so_far, number t) = 0;
 
         /**
-		 * @brief Log execution variables in output streams.
-		 */
-        virtual void logging() = 0;
-
-        /**
          * @brief Test the current policy and display the reward obtained.
          */
         virtual void test();

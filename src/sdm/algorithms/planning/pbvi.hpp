@@ -30,7 +30,7 @@ namespace sdm
          * @param horizon the planning horizon
          * 
          */
-        PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, double error, double time_max, std::string name);
+        PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, double error, double time_max, std::string name, std::string type_sampling = "");
 
         void initialize();
 
@@ -49,6 +49,7 @@ namespace sdm
         std::shared_ptr<State> sampleNextState(const std::shared_ptr<State> &state, number t);
 
         void initStateSpace();
+        void initStateSpace2();
 
         /**
          * @brief Select the states that wil be used to update the value function.
@@ -69,5 +70,7 @@ namespace sdm
         number num_sample_states;
 
         std::vector<std::shared_ptr<Space>> sampled_state_space;
+
+        std::string type_sampling;
     };
 }

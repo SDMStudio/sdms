@@ -127,6 +127,17 @@ namespace sdm
         }
     }
 
+    void HSVI::initTrial()
+    {
+        // Do the pruning for the lower bound
+        if (auto prunable_vf = std::dynamic_pointer_cast<PrunableStructure>(getLowerBound()))
+            prunable_vf->doPruning(trial);
+
+        // Do the pruning for the upper bound
+        if (auto prunable_vf = std::dynamic_pointer_cast<PrunableStructure>(getUpperBound()))
+            prunable_vf->doPruning(trial);
+    }
+
     void HSVI::initLogger()
     {
         // ************* Global Logger ****************
@@ -183,18 +194,7 @@ namespace sdm
     }
 
     std::string HSVI::getAlgorithmName() { return "HSVI"; }
-
-    void HSVI::initTrial()
-    {
-        // Do the pruning for the lower bound
-        if (auto prunable_vf = std::dynamic_pointer_cast<PrunableStructure>(getLowerBound()))
-            prunable_vf->doPruning(trial);
-
-        // Do the pruning for the upper bound
-        if (auto prunable_vf = std::dynamic_pointer_cast<PrunableStructure>(getUpperBound()))
-            prunable_vf->doPruning(trial);
-    }
-
+    
     void HSVI::saveParams(std::string filename, std::string format)
     {
         std::ofstream ofs;
@@ -219,49 +219,4 @@ namespace sdm
         ofs.close();
     }
 
-    void HSVI::saveResults(std::string filename, std::string format)
-    {
-        std::ofstream ofs;
-        struct sysinfo memInfo;
-
-        if ((format == ".md"))
-        {
-            auto initial_state = getWorld()->getInitialState();
-            // Compute duration
-            duration = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - start_time).count();
-
-            auto memory = std::Performance::RanMemoryUsed(memInfo);
-
-            saveParams(filename, format);
-
-            ofs.open(filename + format, std::ios::out | std::ios::app);
-            ofs << "## " << filename << "(RESULTS)" << std::endl;
-
-            ofs << " | Time | Trials | Error | LB Value  | UB Value  | Total Size LB | Total Size UB | Num Nodes (oState graph) | Num Nodes (belief graph) | Num Max of JHistory | Memory |" << std::endl;
-            ofs << " | ---- | ------ | ----- | --------  | --------  | ------------- | ------------- | ------------------------ | ------------------------ | ------------------- | ------ |" << std::endl;
-            ofs << " | " << duration;
-            ofs << " | " << trial;
-            ofs << " | " << excess(initial_state, 0, 0) + error;
-            ofs << " | " << getLowerBound()->getValueAt(initial_state);
-            ofs << " | " << getUpperBound()->getValueAt(initial_state);
-            ofs << " | " << getLowerBound()->getSize();
-            ofs << " | " << getUpperBound()->getSize();
-            ofs << " | " << std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getMDPGraph()->getNumNodes();
-            ofs << " | deprecated "; //<< std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getUnderlyingBeliefMDP()->getMDPGraph()->getNumNodes();
-
-            number num_max_jhist = 0, tmp;
-            for (const auto &state : std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->getStoredStates())
-            {
-                if (num_max_jhist < (tmp = state->toOccupancyState()->getJointHistories().size()))
-                {
-                    num_max_jhist = tmp;
-                }
-            }
-            ofs << " | " << num_max_jhist;
-            ofs << " | " << memory;
-            ofs << " | " << std::endl
-                << std::endl;
-            ofs.close();
-        }
-    }
 } // namespace sdm

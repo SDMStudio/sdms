@@ -3,15 +3,18 @@
 
 namespace sdm
 {
-    PBVI::PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, double error, double time_max, std::string name)
-        : ValueIteration(world, value_function, error, time_max, name), num_sample_states(num_sample_states)
+    PBVI::PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, double error, double time_max, std::string name, std::string type_sampling)
+        : ValueIteration(world, value_function, error, time_max, name), num_sample_states(num_sample_states), type_sampling(type_sampling)
     {
     }
 
     void PBVI::initialize()
     {
         ValueIteration::initialize();
-        initStateSpace();
+        if (type_sampling == "1")
+            initStateSpace2();
+        else
+            initStateSpace();
     }
 
     std::shared_ptr<State> PBVI::sampleNextState(const std::shared_ptr<State> &state, number t)
@@ -59,19 +62,18 @@ namespace sdm
         }
     }
 
-    // void PBVI::initStateSpace()
-    // {
-    //     for (number t = 0; t < getWorld()->getHorizon(); t++)
-    //     {
-
-    //         std::vector<std::shared_ptr<State>> list_states;
-    //         for (int i = 0; i < num_sample_states; i++)
-    //         {
-    //             list_states.push_back(selectOneState(t));
-    //         }
-    //         sampled_state_space.push_back(std::make_shared<DiscreteSpace>(list_states));
-    //     }
-    // }
+    void PBVI::initStateSpace2()
+    {
+        for (number t = 0; t < getWorld()->getHorizon(); t++)
+        {
+            std::set<std::shared_ptr<State>> list_states;
+            for (int i = 0; i < num_sample_states; i++)
+            {
+                list_states.insert(selectOneState(t));
+            }
+            sampled_state_space.push_back(std::make_shared<DiscreteSpace>(tools::set2vector(list_states)));
+        }
+    }
 
     std::shared_ptr<State> PBVI::selectOneState(number t)
     {

@@ -157,6 +157,8 @@ namespace sdm
      */
     std::string getAlgorithmName();
 
+    void logging();
+
   protected:
     /** @brief The problem to be solved */
     std::shared_ptr<GymInterface> env_;
