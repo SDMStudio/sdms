@@ -19,18 +19,25 @@ namespace sdm
 
     std::shared_ptr<State> PBVI::sampleNextState(const std::shared_ptr<State> &state, number t)
     {
+        std::cout << "sampleNextState:1" << std::endl;
+
         std::shared_ptr<Action> sampled_action = std::dynamic_pointer_cast<GymInterface>(getWorld())->getRandomAction(state, t);
 
         std::shared_ptr<State> candidate_state = nullptr;
 
+        std::cout << "sampleNextState:2" << std::endl;
         // Get a random number between 0 and 1
         double epsilon = std::rand() / (double(RAND_MAX)), cumul = 0., proba;
 
+        std::cout << "sampleNextState:3" << std::endl;
         // Go over all observations of the lower-level agent
         auto obs_space = getWorld()->getObservationSpaceAt(state, sampled_action, t);
+        std::cout << "sampleNextState:4" << std::endl;
         for (auto obs_n : *obs_space)
         {
+            std::cout << "sampleNextState:5" << std::endl;
             std::tie(candidate_state, proba) = getWorld()->getNextStateAndProba(state, sampled_action, obs_n->toObservation(), t);
+            std::cout << "sampleNextState:6" << std::endl;
 
             cumul += proba;
             if (epsilon < cumul)
@@ -38,12 +45,16 @@ namespace sdm
                 return candidate_state;
             }
         }
+        std::cout << "sampleNextState:4" << std::endl;
     }
 
     void PBVI::initStateSpace()
     {
+        std::cout << "1" << std::endl;
+
         std::vector<std::set<std::shared_ptr<State>>> list_states(getWorld()->getHorizon());
         std::shared_ptr<State> initial_state = getWorld()->getInitialState();
+        std::cout << "2" << std::endl;
         list_states[0].insert(initial_state);
 
         for (int i = 0; i < num_sample_states; i++)
@@ -56,10 +67,12 @@ namespace sdm
                 list_states[t].insert(current_state);
             }
         }
+        std::cout << "3" << std::endl;
         for (number t = 0; t < getWorld()->getHorizon(); t++)
         {
             sampled_state_space.push_back(std::make_shared<DiscreteSpace>(tools::set2vector(list_states[t])));
         }
+        std::cout << "3" << std::endl;
     }
 
     void PBVI::initStateSpace2()

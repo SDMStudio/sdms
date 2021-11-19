@@ -165,11 +165,13 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        // std::cout << "getNextStateAndProba::1" << std::endl;
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
         if (this->store_states_ && this->store_actions_)
         {
+            // std::cout << "getNextStateAndProba::2.1" << std::endl;
 
             // Get the successor
             auto successor = this->getMDPGraph()->getSuccessor(belief, action_observation);
@@ -178,14 +180,17 @@ namespace sdm
             // If already in the successor list
             if (successor != nullptr)
             {
+                // std::cout << "getNextStateAndProba::2.1.1" << std::endl;
                 // Return the successor node
                 return {successor->getData(), this->transition_probability.at(belief).at(action).at(observation)};
             }
             else
             {
+                // std::cout << "getNextStateAndProba::2.1.2" << std::endl;
                 // Build next belief and proba
                 auto [computed_next_belief, next_belief_probability] = this->computeNextStateAndProbability(belief, action, observation, t);
 
+                // std::cout << "getNextStateAndProba::2.1.3" << std::endl;
                 // Store the probability of next belief
                 this->transition_probability[belief][action][observation] = next_belief_probability;
 
@@ -197,17 +202,21 @@ namespace sdm
                     this->state_space_.emplace(b, computed_next_belief);
                 }
 
+                // std::cout << "getNextStateAndProba::2.1.4" << std::endl;
                 // Get the next belief
                 auto next_belief = this->state_space_.at(b);
+                // std::cout << "getNextStateAndProba::2.1.5" << std::endl;
 
                 // Add the sucessor in the list of successors
                 this->getMDPGraph()->addSuccessor(belief, action_observation, next_belief);
+                // std::cout << "getNextStateAndProba::2.1.6" << std::endl;
 
                 return {next_belief, next_belief_probability};
             }
         }
         else if (this->store_states_)
         {
+            // std::cout << "getNextStateAndProba::2.2" << std::endl;
             // Return next belief without storing its value in the graph
             auto [computed_next_belief, proba_belief] = this->computeNextStateAndProbability(belief, action, observation, t);
             TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
@@ -220,6 +229,8 @@ namespace sdm
         }
         else
         {
+            // std::cout << "getNextStateAndProba::2.3" << std::endl;
+
             // Return next belief without storing its value in the graph
             return this->computeNextStateAndProbability(belief, action, observation, t);
         }

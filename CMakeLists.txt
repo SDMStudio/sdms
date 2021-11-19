@@ -8,17 +8,17 @@ set(CMAKE_C_COMPILER "clang")
 # Set the build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
-        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+        "Choose the type of build, options are: Debug Release RelWithDebInfo."
     FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-# Set compilation options
-SET(CMAKE_CXX_FLAGS "-Wall" )
-SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -Wall -pedantic") 
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -Wall -pedantic")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3") 
-
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+# Set compilation options
+SET(CMAKE_CXX_FLAGS "-Wall" CACHE STRING "" FORCE)
+SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -Wall -pedantic" CACHE STRING "" FORCE) 
+SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -Wall -pedantic" CACHE STRING "" FORCE)
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE) 
 
 # Set path to find additional dependencies
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")

@@ -111,6 +111,13 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::setValueAt(const std::shared_ptr<State> &state, double new_value, number t)
+    {
+        assert(false && "PointSet");
+        BaseTabularValueFunction<Hash, KeyEqual>::setValueAt(state, new_value, t);
+    }
+
+    template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::ratioBelief(const std::shared_ptr<BeliefInterface> &b, const std::shared_ptr<BeliefInterface> &b_k)
     {
         // Determine the ratio for the specific case when the state is a belief
@@ -132,7 +139,6 @@ namespace sdm
     double BasePointSetValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_k)
     {
         // Determine the ratio for the specific case when the state is a Occupancy State
-
         double min_ratio;
         std::shared_ptr<OccupancyStateInterface> point, occupancy_state;
         if (!this->is_sawtooth_lp)
@@ -191,7 +197,7 @@ namespace sdm
             support_of_each_point[evaluate.first].push_back(point_AND_value.first);
         }
 
-        int count =0;
+        int count = 0;
         // Sort the map "support_of_each_point" by the number of time each point is a support
         for (const auto &element : support_of_each_point)
         {
