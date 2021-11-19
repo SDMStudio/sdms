@@ -11,6 +11,9 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 #include <sdm/parser/parser_def.hpp>
 #include <sdm/parser/ast_adapted.hpp>
 
+#include <sdm/world/two_players_bayesian_game.hpp>
+#include <sdm/world/two_players_normal_form_game.hpp>
+
 #include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/include/io.hpp>
 #include <boost/config/warning_disable.hpp>
@@ -19,6 +22,8 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <limits>
+#include <algorithm>
 
 namespace sdm
 {
@@ -87,6 +92,113 @@ namespace sdm
       else
       {
         return parse_file(filename.c_str());
+      }
+    }
+
+    std::shared_ptr<sdm::BayesianGameInterface> parse_file_bayesian(std::string filename)
+    {
+
+      auto split = [](const std::string chaine, char delimiteur)
+      {
+          std::vector<std::string> elements;
+          std::stringstream ss(chaine);
+          std::string sousChaine;
+          while (getline(ss, sousChaine, delimiteur))
+          {
+              elements.push_back(sousChaine);
+          }
+          return elements;
+      };
+      std::shared_ptr<sdm::TwoPlayersBayesianGame> game;
+      if (regex_match(filename, std::regex(".*\\.byg$")) || regex_match(filename, std::regex(".*\\.BYG$"))) {
+        game = std::make_shared<sdm::TwoPlayersBayesianGame>(sdm::TwoPlayersBayesianGame());
+      }else{
+        return nullptr; // right way ?
+      }
+      std::ifstream inputFile(filename);
+      if (!inputFile)
+      {
+        throw sdm::exception::FileNotFoundException(std::string(filename));
+      }
+      std::string line; getline(inputFile, line);
+      std::vector<std::string> lineElements(split(line,' '));
+
+      // get problem dimensions
+      game->setTypeNumbers(lineElements);
+
+      std::vector<int> typesNumbers = game->getTypesNumbers();
+
+
+      getline(inputFile, line); lineElements = split(line, ' ');
+      game->setGameDimensions(lineElements);
+      std::vector<int> matrixDimensions = game->getGameDimensions();
+
+      // get payoffMatrix
+      for (int i = 0; i < typesNumbers[0]*typesNumbers[1]*matrixDimensions[0]*2; i++)
+      {
+          getline(inputFile, line); lineElements = split(line, ' ');
+          game->addPayoffLine(lineElements);
+      }
+
+      // get joint probabilities
+      for (int i = 0; i < typesNumbers[0]; i++)
+      {
+          getline(inputFile, line); lineElements = split(line, ' ');
+          game->addJointTypeProbabilities(lineElements);
+      }
+
+      return game;
+    }
+
+    std::shared_ptr<sdm::BayesianGameInterface> parse_file_normal_form(std::string filename)
+    {
+
+      auto split = [](const std::string chaine, char delimiteur)
+      {
+          std::vector<std::string> elements;
+          std::stringstream ss(chaine);
+          std::string sousChaine;
+          while (getline(ss, sousChaine, delimiteur))
+          {
+              elements.push_back(sousChaine);
+          }
+          return elements;
+      };
+      std::shared_ptr<sdm::TwoPlayersNormalFormGame> game;
+      if (regex_match(filename, std::regex(".*\\.nfg$")) || regex_match(filename, std::regex(".*\\.NFG$"))) {
+        game = std::make_shared<sdm::TwoPlayersNormalFormGame>(sdm::TwoPlayersNormalFormGame());
+      } else {
+        return nullptr; // right way ?
+      }
+      std::ifstream inputFile(filename);
+      if (!inputFile)
+      {
+        throw sdm::exception::FileNotFoundException(std::string(filename));
+      }
+      std::string line; getline(inputFile, line);
+      std::vector<std::string> lineElements(split(line,' '));
+
+      std::vector<int> typesNumbers = game->getTypesNumbers();
+      game->setGameDimensions(lineElements);
+      std::vector<int> matrixDimensions = game->getGameDimensions();
+
+      // get payoffMatrix
+      for (int i = 0; i < typesNumbers[0]*typesNumbers[1]*matrixDimensions[0]*2; i++)
+      {
+          getline(inputFile, line); lineElements = split(line, ' ');
+          game->addPayoffLine(lineElements);
+      }
+
+      return game;
+    }
+
+    std::shared_ptr<sdm::BayesianGameInterface> parse_file_bayesian_game(std::string filename){
+      if (regex_match(filename, std::regex(".*\\.nfg$")) || regex_match(filename, std::regex(".*\\.NFG$"))) {
+        return parse_file_normal_form(filename);
+      } else if (regex_match(filename, std::regex(".*\\.byg$")) || regex_match(filename, std::regex(".*\\.BYG$"))){
+        return parse_file_bayesian(filename);
+      } else {
+        throw sdm::exception::Exception("File format not supported by parse_file_bayesian");
       }
     }
 

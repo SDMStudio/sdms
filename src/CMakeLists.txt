@@ -112,6 +112,7 @@ file(
 	${INCLUDE_DIR}/algorithms/planning/**
 	${INCLUDE_DIR}/algorithms/backward_induction.cpp
 	${INCLUDE_DIR}/algorithms/alpha_star.cpp
+	${INCLUDE_DIR}/algorithms/bayesian_game_solver.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(planning_obj OBJECT ${lib_planning_src})
@@ -124,6 +125,7 @@ add_library(planning SHARED $<TARGET_OBJECTS:planning_obj>)
 target_link_libraries(planning core value_function world fmt)
 add_library(planning_static STATIC $<TARGET_OBJECTS:planning_obj>)
 target_link_libraries(planning_static core_static value_function_static world_static fmt)
+
 # LIB REINFORCEMENT LEARNING
 file(
 	GLOB_RECURSE
