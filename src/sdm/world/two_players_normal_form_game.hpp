@@ -4,23 +4,18 @@
 #include <string>
 #include <sdm/world/bayesian_game_interface.hpp>
 
-#ifndef TWOPLAYERSBAYESIANGAME
 
 namespace sdm
 {
-    class TwoPlayersBayesianGame : public BayesianGameInterface
+    class TwoPlayersNormalFormGame : public BayesianGameInterface
     {
         public:
 
-        TwoPlayersBayesianGame();
+        TwoPlayersNormalFormGame();
 
         int getNombreAgents();
 
-        void setTypeNumbers(std::vector<std::string> strTypes);
-
         void setGameDimensions(std::vector<std::string> strMatrixDimensions);
-
-        void addJointTypeProbabilities(std::vector<std::string> strProbabilities);
 
         void addPayoffLine(std::vector<std::string> strPayoffs);
 
@@ -32,9 +27,10 @@ namespace sdm
 
         std::vector<int> getTypesNumbers();
 
-        protected:
-        
         std::vector<std::vector<float>> jointTypeProbabilities;
+
+        protected:
+
         std::vector<int> gameDimensions;
         std::vector<int> typesNumbers;
         std::vector<std::vector<float>> payoffMatrixes;
@@ -42,6 +38,3 @@ namespace sdm
 
     };
 };
-
-#define TWOPLAYERSBAYESIANGAME
-#endif

@@ -1,15 +1,27 @@
 #include "sdm/algorithms/bayesian_game_solver.hpp"
+#include <sdm/exception.hpp>
+
+
+sdm::TwoPlayersBayesianGameSolver::TwoPlayersBayesianGameSolver(std::shared_ptr <BayesianGameInterface> _game, int _playerIndex) : Algorithm("TwoPlayersBayesianGameSolver") {
+    game = _game;
+    playerIndex = _playerIndex;
+}
 
 void sdm::TwoPlayersBayesianGameSolver::initialize(){
     env = IloEnv();
     model = env;
     vars = env;
+    bool loadedLP = getLPFromBayesianGame(game, playerIndex);
+    if (!loadedLP) {
+        std::cerr << "Coul not load game LP in bayesian game solver" << std::endl;
+    }
 }
 
-bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(TwoPlayersBayesianGame game, int playerIndex){
+bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(std::shared_ptr<BayesianGameInterface> game, int playerIndex){
     try {
-        vector<int> typesNumbers(game.getTypesNumbers());
-        vector<int> matrixDimensions(game.getMatrixDimensions());
+        std::vector<int> typesNumbers(game->getTypesNumbers());
+        std::vector<int> matrixDimensions(game->getGameDimensions());
+
         /* CONSTRUCT LP */
 
         // add alpha_i variables
@@ -43,16 +55,15 @@ bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(TwoPlayersBayesian
         for (int opType = 0; opType < opposingPlayerTypes; opType++){
             for (int opAction = 0; opAction < matrixDimensions[abs(playerIndex -1)]; opAction ++){
                 IloExpr actionConstraint(env);
-            
                 for (int plType = 0; plType < typesNumbers[playerIndex]; plType ++){
-                    float jointTypeProba = game.getJointTypeProba(opType, plType);
-                    if (playerIndex == 0) jointTypeProba = game.getJointTypeProba(plType, opType);
+                    float jointTypeProba = game->getJointTypesProba(std::vector<int>{opType, plType});
+                    if (playerIndex == 0) jointTypeProba = game->getJointTypesProba(std::vector<int>{plType, opType});
                     for(int plAction = 0; plAction < matrixDimensions[playerIndex]; plAction ++){
                         float coef;
                         if(playerIndex == 0){
-                            coef = jointTypeProba * game.getPayoff(plType, opType, plAction, opAction, playerIndex);
+                            coef = jointTypeProba * game->getPayoff(std::vector<int>{plType, opType}, std::vector<int>{plAction, opAction}, playerIndex);
                         }else{
-                            coef = jointTypeProba * game.getPayoff(opType, plType, opAction, plAction, playerIndex);
+                            coef = jointTypeProba * game->getPayoff(std::vector<int>{opType, plType}, std::vector<int>{opAction, plAction}, playerIndex);
                         }
                         actionConstraint += coef*vars[numberOfOptiVars + plType*matrixDimensions[0] + plAction];
                     }
@@ -63,7 +74,7 @@ bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(TwoPlayersBayesian
                 actionConstraint.end();
             }
         }
-
+        return true;
     }
     catch (IloException& e) {
         cerr << "Concert exception caught: " << e << endl;
@@ -72,26 +83,37 @@ bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(TwoPlayersBayesian
         cerr << "Unknown exception caught" << endl;
     }
 
+    return false;
 }
 
-bool sdm::TwoPlayersBayesianGameSolver::solve(){
+void sdm::TwoPlayersBayesianGameSolver::solve(){
     IloCplex c(model);
     if ( !c.solve() ) {
         cout << "could not solve" << endl;
         throw(-1);
-        return false;
     }
-    cout << "solved" << endl;
     IloNumArray vals(env);
     env.out() << "Solution status = " << c.getStatus() << endl;
     env.out() << "Solution value = " << c.getObjValue() << endl;
     c.getValues(vals, vars);
     env.out() << "Variables = " << vars << endl;
     env.out() << "Values = " << vals << endl;
-    return true;
+    terminate(); 
 }
 
 void sdm::TwoPlayersBayesianGameSolver::terminate()
 {
     env.end();
+}
+
+std::string sdm::TwoPlayersBayesianGameSolver::getAlgorithmName() {
+    return "TwoPlayersBayesianGameSolver";
+}
+
+void sdm::TwoPlayersBayesianGameSolver::test() {
+    throw sdm::exception::NotImplementedException();
+}
+
+void sdm::TwoPlayersBayesianGameSolver::save() {
+    throw sdm::exception::NotImplementedException();
 }
