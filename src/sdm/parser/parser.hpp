@@ -6,6 +6,7 @@
 #include <sdm/parser/ast.hpp>
 #include <sdm/world/mpomdp.hpp>
 #include <sdm/world/networked_distributed_pomdp.hpp>
+#include <sdm/world/bayesian_game_interface.hpp>
 #include <boost/spirit/home/x3.hpp>
 
 namespace sdm
@@ -28,6 +29,10 @@ namespace sdm
     std::shared_ptr<sdm::DecPOMDP> parse_file(char const *);
     
     std::shared_ptr<sdm::DecPOMDP> parse_file(std::string);
+
+    std::shared_ptr<sdm::BayesianGameInterface> parse_file_bayesian(std::string);
+
+    std::shared_ptr<sdm::BayesianGameInterface> parse_file_normal_form(std::string filename);
 
   } // namespace parser
 } // namespace sdm

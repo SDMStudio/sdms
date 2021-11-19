@@ -68,6 +68,7 @@ add_library(value_function SHARED $<TARGET_OBJECTS:value_function_obj>)
 target_link_libraries(value_function core ${CPLEX_LIBRARIES})
 add_library(value_function_static STATIC $<TARGET_OBJECTS:value_function_obj>)
 target_link_libraries(value_function_static core_static ${CPLEX_LIBRARIES})
+
 # LIB WORLD
 file(
 	GLOB_RECURSE
@@ -111,6 +112,7 @@ file(
 	${INCLUDE_DIR}/algorithms/planning/**
 	${INCLUDE_DIR}/algorithms/backward_induction.cpp
 	${INCLUDE_DIR}/algorithms/alpha_star.cpp
+	${INCLUDE_DIR}/algorithms/bayesian_game_solver.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(planning_obj OBJECT ${lib_planning_src})
@@ -120,9 +122,10 @@ set_property(TARGET planning_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(planning SHARED $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(planning world core fmt)
+target_link_libraries(planning core value_function world fmt)
 add_library(planning_static STATIC $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(planning_static core_static world_static fmt)
+target_link_libraries(planning_static core_static value_function_static world_static fmt)
+
 # LIB REINFORCEMENT LEARNING
 file(
 	GLOB_RECURSE
@@ -138,9 +141,9 @@ set_property(TARGET rl_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(rl SHARED $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(rl world core fmt)
+target_link_libraries(rl core value_function world fmt)
 add_library(rl_static STATIC $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(rl_static core_static world_static fmt)
+target_link_libraries(rl_static core_static value_function_static world_static fmt)
 # LIB SDMS
 file(
 	GLOB_RECURSE
@@ -186,4 +189,4 @@ install(DIRECTORY ${SDMS_MAN_DIR} DESTINATION share)
 install(DIRECTORY ${SDMS_WORLD_DIR} DESTINATION share/sdms)
 
 add_subdirectory(examples)
-# add_subdirectory(programs)
+add_subdirectory(programs)
