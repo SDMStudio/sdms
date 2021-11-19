@@ -118,7 +118,7 @@ namespace sdm
                 new_belief->finalize();
                 new_hyperplan->setProbability(jhistory, new_belief, 1);
             }
-            new_hyperplan->finalize();
+            new_hyperplan->finalize(false);
             return new_hyperplan;
         }
 

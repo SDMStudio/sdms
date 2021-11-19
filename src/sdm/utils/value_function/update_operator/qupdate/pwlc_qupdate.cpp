@@ -43,13 +43,13 @@ namespace sdm
         void PWLCQUpdate::update(number t)
         {
             auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
-            double delta = this->delta(state->toState(), action, reward, next_state->toState(), next_action, t);
+            double delta = this->delta(state, action, reward, next_state, next_action, t);
 
             // Update the hyperplane of the ball that include the sampled state
             if (sdm::isInstanceOf<OccupancyStateInterface>(state))
             {
-                auto new_hyperplane = this->computeNewHyperplane(state->toState()->toOccupancyState(), action->toDecisionRule(), delta, t);
-                q_value->addHyperplaneAt(state->toState(), new_hyperplane, t);
+                auto new_hyperplane = this->computeNewHyperplane(state->toOccupancyState(), action->toDecisionRule(), delta, t);
+                q_value->addHyperplaneAt(state, new_hyperplane, t);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace sdm
             }
             // else if (sdm::isInstanceOf<BeliefInterface>(state))
             // {
-            //     this->qvalue_function->addHyperplaneAt(state->toState(), this->computeNewHyperplane(state->toState()->toBelief(), action,delta, t), t);
+            //     this->qvalue_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toBelief(), action,delta, t), t);
             // }
         }
 

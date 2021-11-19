@@ -86,7 +86,7 @@ namespace sdm
 		 */
 		void logging();
 
-        /**
+		/**
          * @brief Get the name of the algorithm as a string. 
          * 
          * This function will return the name of the algorithm as a string. 
@@ -95,7 +95,7 @@ namespace sdm
          * 
          * @return the algorithm name 
          */
-        std::string getAlgorithmName();
+		std::string getAlgorithmName();
 
 		/**
     	 * @brief Get the lower bound value function 
@@ -149,7 +149,7 @@ namespace sdm
          * 
          * @return a list of actions 
          */
-		std::shared_ptr<Space> selectActions(const std::shared_ptr<State> &state, number t);
+		std::vector<std::shared_ptr<Action>> selectActions(const std::shared_ptr<State> &state, number t);
 
 		/**
          * @brief Select the list of observations to explore.
@@ -159,15 +159,7 @@ namespace sdm
          * 
          * @return a list of observations 
          */
-		std::shared_ptr<Space> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
-
-		/**
-         * @brief Compute the next state.
-         * 
-         * @return the next state 
-         */
-		std::shared_ptr<Space> selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action,
-												const std::shared_ptr<Observation> &observation, number t);
+		std::vector<std::shared_ptr<Observation>> selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
 		/** @brief Lower Bound representation. */
 		std::shared_ptr<ValueFunction> lower_bound, upper_bound;

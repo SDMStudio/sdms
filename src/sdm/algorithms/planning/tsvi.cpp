@@ -13,7 +13,7 @@ namespace sdm
         initLogger();
         value_function->initialize();
     }
-    
+
     void TSVI::solve()
     {
         printStartInfo();
@@ -50,23 +50,16 @@ namespace sdm
                 }
 
                 // Select next action
-                auto action_space = selectActions(state, t);
-                for (const auto &action : *action_space)
+                for (const auto &action : selectActions(state, t))
                 {
                     // Select next observation
-                    auto obs_space = selectObservations(state, action->toAction(), t);
-                    for (const auto &observation : *obs_space)
+                    for (const auto &observation : selectObservations(state, action, t))
                     {
-                        // Select next states
-                        auto state_space = selectNextStates(state, action->toAction(), observation->toObservation(), t);
-                        for (const auto &next_state : *state_space)
-                        {
-                            // Determine the state for a given state, action and observation
-                            // auto next_state = selectNextState(state, action, observation, t);
+                        // Determine the state for a given state, action and observation
+                        auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
 
-                            // Recursive explore
-                            explore(next_state->toState(), cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action->toAction(), t), t + 1);
-                        }
+                        // Recursive explore
+                        explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
                     }
                 }
                 // Update the value function (backward update)
@@ -102,7 +95,5 @@ namespace sdm
     void TSVI::initTrial()
     {
     }
-
-
 
 }

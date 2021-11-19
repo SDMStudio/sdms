@@ -21,6 +21,7 @@ namespace sdm
     DeterministicDecisionRule();
     DeterministicDecisionRule(const DeterministicDecisionRule &copy);
     DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions);
+    DeterministicDecisionRule(const std::vector<std::shared_ptr<State>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions);
 
     /**
      * @brief Get the action deducted from a given state 

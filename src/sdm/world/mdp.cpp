@@ -101,7 +101,7 @@ namespace sdm
         return this->state_space_;
     }
 
-    std::shared_ptr<Observation> MDP::reset()
+    std::shared_ptr<State> MDP::reset()
     {
         this->current_timestep_ = 0;
         this->setInternalState(this->getStartDistribution()->sample());
@@ -125,11 +125,11 @@ namespace sdm
         return this->getInternalState();
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
     {
         double reward = this->getReward(this->getInternalState(), action);
 
-        std::shared_ptr<Observation> observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
+        auto observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_)->toState();
 
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
 
@@ -138,27 +138,27 @@ namespace sdm
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action, bool increment_timestep)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action, bool increment_timestep)
     {
         double reward = this->getReward(this->getInternalState(), action);
 
-        std::shared_ptr<Observation> observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
+        auto observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
 
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
 
         if (increment_timestep)
             this->current_timestep_++;
 
-        return std::make_tuple(observation, std::vector<double>{reward}, is_done);
+        return std::make_tuple(observation->toState(), std::vector<double>{reward}, is_done);
     }
 
     // Useless
-    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
+    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t);
     }
 
-    std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<Observation> &, number t)
+    std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t)->sample()->toAction();
     }

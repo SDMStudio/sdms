@@ -10,6 +10,7 @@
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/algorithms/alpha_star.hpp>
 #include <sdm/algorithms/backward_induction.hpp>
+#include <sdm/algorithms/bayesian_game_solver.hpp>
 
 namespace sdm
 {

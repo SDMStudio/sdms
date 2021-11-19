@@ -74,7 +74,7 @@ namespace sdm
     {
       for (const auto &state : this->getStates())
       {
-        this->setProbability(state->toState(), this->getProbability(state->toState()) / norm_1);
+        this->setProbability(state, this->getProbability(state) / norm_1);
       }
     }
   }

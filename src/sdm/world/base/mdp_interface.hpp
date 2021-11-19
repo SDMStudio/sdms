@@ -85,8 +85,8 @@ namespace sdm
         virtual double getMinReward(number t) const = 0;
         virtual double getMaxReward(number t) const = 0;
 
-        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
-        virtual std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep) = 0;
+        virtual std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action) = 0;
+        virtual std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep) = 0;
 
         /**
          * @brief Get the transition probability, i.e. p(s' | s, a).

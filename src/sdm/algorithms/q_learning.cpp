@@ -48,7 +48,7 @@ namespace sdm
     {
         this->logger_->log(this->episode,
                            this->global_step,
-                           this->q_value_->getValueAt(getEnv()->reset()->toState(), 0),
+                           this->q_value_->getValueAt(getEnv()->reset(), 0),
                            (float)(clock() - t_begin) / CLOCKS_PER_SEC,
                            this->exploration_process->getEpsilon());
     }
@@ -115,7 +115,7 @@ namespace sdm
         this->is_done = is_done;
 
         // Compute next greedy action
-        auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation->toState(), this->step + 1);
+        auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation, this->step + 1);
 
         // Push experience to memory
         this->experience_memory_->push(this->observation, action, rewards[0], next_observation, next_greedy_action, this->step);
@@ -154,18 +154,18 @@ namespace sdm
         *q_target_ = *q_value_;
     }
 
-    std::shared_ptr<Action> QLearning::selectAction(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<Action> QLearning::selectAction(const std::shared_ptr<State> &state, number t)
     {
         // If sampled value is lower than epsilon
         if ((rand() / double(RAND_MAX)) < exploration_process->getEpsilon())
         {
             // Get random action
-            return getEnv()->getRandomAction(observation, t);
+            return getEnv()->getRandomAction(state, t);
         }
         else
         {
             // Get greedy action
-            return this->q_value_->getGreedyAction(observation->toState(), t);
+            return this->q_value_->getGreedyAction(state, t);
         }
     }
 

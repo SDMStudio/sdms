@@ -16,21 +16,21 @@ int main(int argc, char **argv)
     // TEST GRAPH
     std::cout << "\n--------- Usage : class GymInterface ( sdm/world/gym_interface.hpp ) ---------\n\n";
 
-    std::shared_ptr<Observation> observation = env->reset(), next_observation;
+    std::shared_ptr<State> state = env->reset(), next_state;
     std::vector<double> reward;
     bool is_done;
 
-    auto action_space = env->getActionSpaceAt(observation, 0);
+    auto action_space = env->getActionSpaceAt(state, 0);
     std::cout << config::LOG_SDMS << "action_space=" << action_space->str() << std::endl;
     std::cout << config::LOG_SDMS << "T=0" << std::endl;
-    std::cout << "\t\tobservation=" << observation->str() << std::endl;
+    std::cout << "\t\tstate=" << state->str() << std::endl;
 
     for (number t = 0; t < 10; t++)
     {
         auto action = action_space->sample()->toAction();
         std::cout << "\t\taction=" << action->str() << std::endl;
-        std::tie(next_observation, reward, is_done) = env->step(action);
+        std::tie(next_state, reward, is_done) = env->step(action);
         std::cout << config::LOG_SDMS << "T=" << t+1 << std::endl;
-        std::cout << "\t\tobservation=" << next_observation->str() << "\treward=" << reward << "\tis_done=" << is_done << std::endl;
+        std::cout << "\t\tstate=" << next_state->str() << "\treward=" << reward << "\tis_done=" << is_done << std::endl;
     }
 }

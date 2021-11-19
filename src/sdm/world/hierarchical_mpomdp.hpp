@@ -88,8 +88,8 @@ namespace sdm
         std::shared_ptr<Observation> getClassicObservation(const std::shared_ptr<Observation> &hierarchical_joint_observation) const;
         std::shared_ptr<Observation> getHierarchicalObservation(const std::shared_ptr<Observation> &classic_joint_observation) const;
 
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
 
     protected:
         /** @brief The transformed joint observation space */

@@ -43,22 +43,19 @@ namespace sdm
     }
 
     // SELECT ACTION IN DFSVI
-    std::shared_ptr<Space> DFSVI::selectActions(const std::shared_ptr<State> &state, number t)
+    std::vector<std::shared_ptr<Action>>  DFSVI::selectActions(const std::shared_ptr<State> &state, number t)
     {
-        return getWorld()->getActionSpaceAt(state, t);
+        throw sdm::exception::NotImplementedException();
+        // auto all_actions = getWorld()->getActionSpaceAt(state, t)->toDiscreteSpace()->getAll();
+        // return std::vector<std::shared_ptr<Action>>(all_actions.begin(), all_actions.end());
     }
 
     // SELECT OBSERVATION IN DFSVI
-    std::shared_ptr<Space> DFSVI::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    std::vector<std::shared_ptr<Observation>>  DFSVI::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        return getWorld()->getObservationSpaceAt(state, action, t);
-    }
-
-    // COMPUTE NEXT STATE IN DFSVI
-    std::shared_ptr<Space> DFSVI::selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        std::vector<std::shared_ptr<State>> next_states = {getWorld()->getNextStateAndProba(state, action, observation, t).first};
-        return std::make_shared<DiscreteSpace>(next_states);
+        throw sdm::exception::NotImplementedException();
+        // auto all_obss = getWorld()->getObservationSpaceAt(state, action, t)->toDiscreteSpace()->getAll();
+        // return std::vector<std::shared_ptr<Observation>>(all_obss.begin(), all_obss.end());
     }
 
     void DFSVI::updateValue(const std::shared_ptr<State> &state, number t)

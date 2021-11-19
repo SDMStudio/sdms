@@ -29,7 +29,7 @@ namespace sdm
         return (std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(this->getLowLevelAgentID()) == observation);
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
     {
         // Compute reward
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);

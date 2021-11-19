@@ -543,18 +543,26 @@ namespace sdm
 
             problem_path = tools::getWorldPath(problem_path);
 
-            // Build the formalism
-            auto formalism = makeFormalism(problem_path, formalism_name, discount, horizon, memory, compression, store_state, store_action, batch_size);
+            if (algo_name == "BayesianGameSolver")
+            {
+                auto formalism = parser::parse_file_bayesian(problem_path);
+                return std::make_shared<TwoPlayersBayesianGameSolver>(formalism, batch_size);
+            }
+            else
+            {
+                // Build the formalism
+                auto formalism = makeFormalism(problem_path, formalism_name, discount, horizon, memory, compression, store_state, store_action, batch_size);
 
-            // Build the algorithm
-            return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max, num_samples, type_sampling,
-                                 value_function_1, init_v1, freq_update_v1, type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1,
-                                 value_function_2, init_v2, freq_update_v2, type_of_resolution_v2, freq_pruning_v2, type_of_pruning_v2);
+                // Build the algorithm
+                return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max, num_samples, type_sampling,
+                                     value_function_1, init_v1, freq_update_v1, type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1,
+                                     value_function_2, init_v2, freq_update_v2, type_of_resolution_v2, freq_pruning_v2, type_of_pruning_v2);
+            }
         }
 
         std::vector<std::string> available()
         {
-            return {"A*", "BackwardInduction", "DFSVI", "HSVI", "PBVI", "Perseus", "QLearning", "ValueIteration"};
+            return {"A*", "BackwardInduction", "BayesianGameSolver", "DFSVI", "HSVI", "PBVI", "Perseus", "QLearning", "ValueIteration"};
         }
 
     }

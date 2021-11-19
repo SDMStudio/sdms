@@ -58,14 +58,13 @@ namespace sdm
     }
 
     // SELECT ACTIONS IN HSVI
-    std::shared_ptr<Space> HSVI::selectActions(const std::shared_ptr<State> &state, number t)
+    std::vector<std::shared_ptr<Action>> HSVI::selectActions(const std::shared_ptr<State> &state, number t)
     {
-        std::vector<std::shared_ptr<Action>> selected_actions{getUpperBound()->getGreedyAction(state, t)};
-        return std::make_shared<DiscreteSpace>(selected_actions);
+        return {getUpperBound()->getGreedyAction(state, t)};
     }
 
     // SELECT OBSERVATION IN HSVI
-    std::shared_ptr<Space> HSVI::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    std::vector<std::shared_ptr<Observation>> HSVI::selectObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         double error, biggest_error = -std::numeric_limits<double>::max();
         std::shared_ptr<Observation> selected_observation;
@@ -86,14 +85,7 @@ namespace sdm
                 // selected_next_state = next_state;
             }
         }
-        return std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Observation>>{selected_observation});
-    }
-
-    // COMPUTE NEXT STATE IN HSVI
-    std::shared_ptr<Space> HSVI::selectNextStates(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        std::vector<std::shared_ptr<State>> selected_next_states{getWorld()->getNextStateAndProba(state, action, observation, t).first};
-        return std::make_shared<DiscreteSpace>(selected_next_states);
+        return {selected_observation};
     }
 
     std::shared_ptr<ValueFunction> HSVI::getLowerBound() const
@@ -194,7 +186,7 @@ namespace sdm
     }
 
     std::string HSVI::getAlgorithmName() { return "HSVI"; }
-    
+
     void HSVI::saveParams(std::string filename, std::string format)
     {
         std::ofstream ofs;
