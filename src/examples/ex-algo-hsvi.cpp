@@ -9,9 +9,8 @@
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/algorithms/planning/hsvi.hpp>
-
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 using namespace sdm;
@@ -32,17 +31,28 @@ int main(int argc, char **argv)
 		std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, (truncation > 0) ? truncation : horizon, true, true, true);
 
 		// Instanciate Initializer
-		auto init_lb = std::make_shared<MinInitializer>(hsvi_mdp);
-		auto init_ub = std::make_shared<MaxInitializer>(hsvi_mdp);
+		auto lb_init = std::make_shared<MinInitializer>(hsvi_mdp);
+		auto ub_init = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-		// Instanciate action selection and backup
-		auto tabular_backup = std::make_shared<TabularBackup>(hsvi_mdp);
+		// Instanciate action selection 
 		auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
+		// Declare bounds
 		std::shared_ptr<ValueFunction> lb, ub;
-		// Instanciate value functions
-		lb = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_lb, tabular_backup, action_tabular);
-		ub = std::make_shared<TabularValueFunction>(mdp->getHorizon(), init_ub, tabular_backup, action_tabular);
+
+		// Instanciate lower bound
+		lb = std::make_shared<TabularValueFunction>(hsvi_mdp, lb_init, action_tabular);
+
+		// Instanciate lower bound update operator
+		auto lb_update_operator = std::make_shared<TabularUpdate>(lb);
+		lb->setUpdateOperator(lb_update_operator);
+
+		// Instanciate upper bound
+		ub = std::make_shared<TabularValueFunction>(hsvi_mdp, ub_init, action_tabular);
+
+		// Instanciate upper bound update operator
+		auto ub_update_operator = std::make_shared<TabularUpdate>(ub);
+		ub->setUpdateOperator(ub_update_operator);
 
 		// Instanciate HSVI
 		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, error, 10000, "", 1, 1);

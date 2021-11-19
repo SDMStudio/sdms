@@ -111,6 +111,7 @@ file(
 	${INCLUDE_DIR}/algorithms/planning/**
 	${INCLUDE_DIR}/algorithms/backward_induction.cpp
 	${INCLUDE_DIR}/algorithms/alpha_star.cpp
+	${INCLUDE_DIR}/algorithms/bayesian_game_solver.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(planning_obj OBJECT ${lib_planning_src})
@@ -120,9 +121,9 @@ set_property(TARGET planning_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(planning SHARED $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(planning world core fmt)
+target_link_libraries(planning world core fmt ${CPLEX_LIBRARIES})
 add_library(planning_static STATIC $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(planning_static core_static world_static fmt)
+target_link_libraries(planning_static core_static world_static fmt ${CPLEX_LIBRARIES})
 # LIB REINFORCEMENT LEARNING
 file(
 	GLOB_RECURSE
@@ -185,5 +186,5 @@ install(DIRECTORY ${SDMS_MAN_DIR} DESTINATION share)
 # Install data
 install(DIRECTORY ${SDMS_WORLD_DIR} DESTINATION share/sdms)
 
-# add_subdirectory(examples)
-# add_subdirectory(programs)
+add_subdirectory(examples)
+add_subdirectory(programs)

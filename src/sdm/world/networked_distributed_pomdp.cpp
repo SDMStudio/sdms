@@ -393,7 +393,7 @@ namespace sdm
                 }
 
                 // Init ObservationDynamics
-                double proba, dynamics_proba;
+                double proba/* , dynamics_proba */;
                 for (const auto &next_state : *this->getStateSpace())
                 {
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(next_state);

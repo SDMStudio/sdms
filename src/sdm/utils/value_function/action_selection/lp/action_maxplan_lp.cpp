@@ -47,7 +47,7 @@ namespace sdm
         auto occupancy_state = state->toOccupancyState();
 
         number recover = 0;
-        double weight = 0.0, factor = 0.0;
+        double weight = 0.0;
 
         // Go over all joint history
         for (const auto &joint_history : occupancy_state->getJointHistories())
