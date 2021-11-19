@@ -13,6 +13,15 @@ namespace sdm
         }
     }
 
+    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<State>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions)
+    {
+        assert(acc_states.size() == n_actions.size());
+        for (std::size_t i = 0; i < acc_states.size(); i++)
+        {
+            this->setProbability(acc_states[i], n_actions[i], 1);
+        }
+    }
+
     DeterministicDecisionRule::DeterministicDecisionRule(const DeterministicDecisionRule &copy) : map_state_to_action_(copy.map_state_to_action_)
     {
     }

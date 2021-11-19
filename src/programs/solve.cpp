@@ -126,10 +126,16 @@ int solve(int argv, char **args)
         po::options_description qlearning_config("Q-learning configuration");
         qlearning_config.add_options()
         ("qvalue_function", po::value<string>(&lower_bound), "the q-value function representation")
+        ("lr", po::value<double>(&error), "the leraning rate")
         ("q_init", po::value<string>(&lb_init), "the q-value function initialization method");
         
+
+        po::options_description byg_config("Bayesian game solver configuration");
+        byg_config.add_options()
+        ("player_id", po::value<number>(&batch_size), "the identifier of player");
+        
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a problem with specified algorithms and configurations.");
-        visible.add(options).add(config).add(hsvi_config).add(pbvi_config).add(qlearning_config);
+        visible.add(options).add(config).add(hsvi_config).add(pbvi_config).add(qlearning_config).add(byg_config);
 
         po::options_description config_file_options;
         config_file_options.add(config);
