@@ -113,7 +113,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::setValueAt(const std::shared_ptr<State> &state, double new_value, number t)
     {
-        assert(false && "PointSet");
+        assert((getValueAt(state, t) < new_value) && "New value is higher than the old");
         BaseTabularValueFunction<Hash, KeyEqual>::setValueAt(state, new_value, t);
     }
 
