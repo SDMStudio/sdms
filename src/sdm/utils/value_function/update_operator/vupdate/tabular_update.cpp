@@ -14,7 +14,7 @@ namespace sdm
 
         void TabularUpdate::update(const std::shared_ptr<State> &state, number t)
         {
-            auto new_value = this->value_function->getGreedyActionAndValue(state, t).second;
+            auto new_value = this->getValueFunction()->getGreedyActionAndValue(state, t).second;
             // auto old_value = this->value_function->getValueAt(state, t);
             // if (new_value > old_value)
             // {
@@ -22,7 +22,7 @@ namespace sdm
             //     std::cout << "old_value=" << old_value << std::endl;
             //     std::cout << "new_value=" << new_value << std::endl;
             // }
-            value_function->setValueAt(state, new_value, t);
+            this->getValueFunction()->setValueAt(state, new_value, t);
         }
     }
 }

@@ -62,6 +62,7 @@ namespace sdm
         RecursiveMap(const map_t<T0, T1> &x) : map_t<T0, T1>(x) {}
         RecursiveMap(const RecursiveMap &rmap) : map_t<T0, T1>(rmap) {}
         RecursiveMap(std::initializer_list<value_type> vals) : map_t<T0, T1>(vals) {}
+        ~RecursiveMap(){}
 
         /**
          * @brief Emplace a specific element.
@@ -118,6 +119,7 @@ namespace sdm
                 this->emplace(v.first, tmp);
             }
         }
+        ~RecursiveMap(){}
 
         /**
          * @brief Recursively emplace a specific element.

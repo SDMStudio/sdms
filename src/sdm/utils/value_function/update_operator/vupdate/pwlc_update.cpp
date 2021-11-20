@@ -19,11 +19,11 @@ namespace sdm
         {
             if (sdm::isInstanceOf<OccupancyStateInterface>(state))
             {
-                this->value_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toOccupancyState(), t), t);
+                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(state->toOccupancyState(), t), t);
             }
             else if (sdm::isInstanceOf<BeliefInterface>(state))
             {
-                this->value_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toBelief(), t), t);
+                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(state->toBelief(), t), t);
             }
         }
 
@@ -38,19 +38,19 @@ namespace sdm
                 for (const auto &observation : *getWorld()->getObservationSpaceAt(belief_state, action->toAction(), t))
                 {
                     auto next_belief_state = getWorld()->getNextStateAndProba(belief_state, action->toAction(), observation->toObservation(), t).first;
-                    alpha_ao[action->toAction()][observation->toObservation()] = this->value_function->getHyperplaneAt(next_belief_state, t+1)->toBelief();
+                    alpha_ao[action->toAction()][observation->toObservation()] = this->getValueFunction()->getHyperplaneAt(next_belief_state, t+1)->toBelief();
                 }
             }
 
             // Creation of a new belief
             double best_value = std::numeric_limits<double>::lowest(), alpha_a_value;
             auto new_hyperplane = std::make_shared<Belief>();
-            new_hyperplane->setDefaultValue(value_function->getDefaultValue(t));
+            new_hyperplane->setDefaultValue(this->getValueFunction()->getDefaultValue(t));
             for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
             {
                 // Creation of a new belief
                 auto alpha_a = std::make_shared<Belief>();
-                alpha_a->setDefaultValue(value_function->getDefaultValue(t));
+                alpha_a->setDefaultValue(this->getValueFunction()->getDefaultValue(t));
 
                 // Go over all state in the current belief
                 for (const auto &state : belief_state->getStates())
@@ -94,7 +94,7 @@ namespace sdm
 
             // Create the new hyperplan
             auto new_hyperplan = std::make_shared<OccupancyState>(pomdp->getNumAgents());
-            new_hyperplan->setDefaultValue(value_function->getDefaultValue(t));
+            new_hyperplan->setDefaultValue(this->getValueFunction()->getDefaultValue(t));
 
             // Get the next occupancy state associated to the decision rule
             auto next_occupancy_state = occupancy_mdp->getNextStateAndProba(occupancy_state, decision_rule, sdm::NO_OBSERVATION, t).first;
@@ -113,7 +113,7 @@ namespace sdm
                 for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())
                 {
                     // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
-                    new_belief->setProbability(state, value_function->getBeta(best_next_hyperplane, state, jhistory, action, t));
+                    new_belief->setProbability(state, this->getValueFunction()->getBeta(best_next_hyperplane, state, jhistory, action, t));
                 }
                 new_belief->finalize();
                 new_hyperplan->setProbability(jhistory, new_belief, 1);

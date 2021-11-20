@@ -29,6 +29,7 @@ namespace sdm
     {
     public:
         DiscreteDistribution();
+        DiscreteDistribution(const DiscreteDistribution<T>& copy);
         virtual ~DiscreteDistribution() {}
         virtual T sample() const;
 
