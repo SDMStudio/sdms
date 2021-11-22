@@ -16,7 +16,7 @@ namespace sdm
         this->bigM_value_ = bigM_value;
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::selectBestActionFull(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
         // For the Full version of Sawtooth, the support is the element of the Point Set at t+1 and the support of each element
         this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
@@ -41,141 +41,6 @@ namespace sdm
             }
         }
         return this->createLP(vf, state, t);
-    }
-
-    Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::selectBestActionRelaxedV2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
-    {
-        // For the Relaxed version 2 of Sawtooth, the support is only the support of each point set at t+1.
-        //Consequently, we create a LP problem for each point set at t+1
-
-        std::shared_ptr<Action> best_action;
-        double min_value = std::numeric_limits<double>::max();
-
-        if (vf->getSupport(t + 1).empty())
-        {
-            // Resolution of the problem when the support of Point Set is empty
-            this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
-            auto best_action_AND_value = this->createLP(vf, state, t);
-
-            best_action = best_action_AND_value.first;
-            min_value = best_action_AND_value.second;
-        }
-        else
-        {
-
-            //GO over all point set at t+1
-            for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
-            {
-                const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
-
-                //Initialiaze the support
-                this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
-                this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>());
-
-                // Go over all Joint History Next
-                for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
-                {
-                    this->all_support[ostate_AND_value].emplace(next_joint_history, std::vector<std::shared_ptr<State>>());
-                    // Go over all Hidden State in the next one step uncomppresed occupancy state
-                    for (const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
-                    {
-                        this->all_support[ostate_AND_value][next_joint_history].push_back(next_hidden_state);
-                    }
-                }
-
-                //Resolve a LP problem for a precise point set
-                auto [action, value] = this->createLP(vf, state, t);
-
-                if (min_value > value)
-                {
-                    min_value = value;
-                    best_action = action;
-                }
-            }
-        }
-        return {best_action, min_value};
-    }
-
-    Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::selectBestActionRelaxed(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
-    {
-        // For the Relaxed version of Sawtooth, the support is only one support of each point set at t+1.
-        //Consequently, we create a LP problem for each point set at t+1 and each support of this point.
-
-        std::shared_ptr<Action> best_action;
-        double min_value = std::numeric_limits<double>::max();
-
-        if (vf->getSupport(t + 1).empty())
-        {
-            // Resolution of the problem when the support of Point Set is empty
-            this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
-            auto best_action_AND_value = this->createLP(vf, state, t);
-
-            best_action = best_action_AND_value.first;
-            min_value = best_action_AND_value.second;
-        }
-        else
-        {
-            //GO over all point set at t+1
-            for (const auto &ostate_AND_value : std::dynamic_pointer_cast<TabularValueFunction>(vf)->getRepresentation(t + 1))
-            {
-                const auto &next_one_step_uncompressed_occupancy_state = ostate_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy();
-
-                double max_value_support = -std::numeric_limits<double>::max();
-                std::shared_ptr<Action> best_action_support;
-
-                // Go over all Joint History Next
-                for (const auto &next_joint_history : next_one_step_uncompressed_occupancy_state->getJointHistories())
-                {
-                    // Go over all Hidden State in the next one step uncomppresed occupancy state
-                    for (const auto next_hidden_state : next_one_step_uncompressed_occupancy_state->getBeliefAt(next_joint_history)->getStates())
-                    {
-                        //Initialize the support for a precise point set and a precise support of this point.
-                        this->all_support = std::unordered_map<Pair<std::shared_ptr<State>, double>, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>>();
-
-                        //Emplace the information for the LP
-                        this->all_support.emplace(ostate_AND_value, std::unordered_map<std::shared_ptr<HistoryInterface>, std::vector<std::shared_ptr<State>>>());
-                        this->all_support[ostate_AND_value].emplace(next_joint_history, std::vector<std::shared_ptr<State>>());
-                        this->all_support[ostate_AND_value][next_joint_history].push_back(next_hidden_state);
-
-                        auto [action, value] = this->createLP(vf, state, t);
-
-                        // We take the best action with the minimum value
-                        if (max_value_support < value)
-                        {
-                            max_value_support = value;
-                            best_action_support = action->toAction();
-                        }
-                    }
-                }
-
-                if (min_value > max_value_support)
-                {
-                    min_value = max_value_support;
-                    best_action = best_action_support;
-                }
-            }
-        }
-        return {best_action, min_value};
-    }
-
-    Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
-    {
-        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
-        switch (this->type_of_linear_program_)
-        {
-        case TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING:
-            return this->selectBestActionFull(value_function, state, t);
-            break;
-        case TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING:
-            return this->selectBestActionRelaxed(value_function, state, t);
-            break;
-        case TypeSawtoothLinearProgram::RELAXED_V2_SAWTOOTH_LINER_PROGRAMMING:
-            return this->selectBestActionRelaxedV2(value_function, state, t);
-            break;
-
-        default:
-            break;
-        }
     }
 
     // ************************************************************************
@@ -552,7 +417,7 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, double> ActionSelectionSawtoothLP::evaluate(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state_tmp, const std::shared_ptr<Action> &decision_rule, number t)
     {
-            auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
+        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
         auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(ActionSelectionBase::world_);
         auto occupancy_state = state_tmp->toOccupancyState();
 
