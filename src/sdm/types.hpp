@@ -117,13 +117,11 @@ namespace sdm
     };
   }
 
-  namespace SawtoothPrunning
+  namespace SawtoothPruning
   {
     enum Type
     {
-      ITERATIVE,
-      GLOBAL,
-      BOTH,
+      PAIRWISE,
       NONE
     };
   }

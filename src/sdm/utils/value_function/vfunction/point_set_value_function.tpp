@@ -12,7 +12,7 @@ namespace sdm
                                                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                                                          const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                                                          int freq_pruning,
-                                                                         SawtoothPrunning::Type type_of_sawtooth_prunning)
+                                                                         SawtoothPruning::Type type_of_sawtooth_prunning)
         : ValueFunctionInterface(world, initializer, action_selection),
           BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection, update_operator),
           PrunableStructure(world->getHorizon(), freq_pruning),
@@ -187,6 +187,7 @@ namespace sdm
             // Go over all points in point_to_keep
             for (auto state_j = point_to_keep.begin(); state_j != point_to_keep.end(); state_j++)
             {
+                double estimation_i = this->getRelaxedValueAt(state_i, t) + this->computeRatio(state_i, *state_j) * (this->getValueAt(*state_j, t) - this->getRelaxedValueAt(*state_j, t));
                 // If state_j pairwise epsilon-dominates state_i, we add state_i to the set of points to be deleted.
                 if (estimation_i < this->getValueAt(state_i, t) + epsilon)
                 {
@@ -223,15 +224,15 @@ namespace sdm
         // Erase pairwise epsilon-dominated points
         for (const auto &to_delete : point_to_delete)
         {
-            this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
+            this->representation[t].erase(to_delete);
         }
     }
-
 
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
     {
-        this->pairwise_prune(t);
+        if (this->type_of_sawtooth_prunning_ == SawtoothPruning::PAIRWISE)
+            this->pairwise_prune(t);
     }
 
     template <class Hash, class KeyEqual>

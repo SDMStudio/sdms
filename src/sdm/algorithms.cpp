@@ -151,15 +151,11 @@ namespace sdm
                     action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
 
                 // Pruning type
-                SawtoothPrunning::Type type_of_pruning;
-                if (type_of_pruning_name == "iterative")
-                    type_of_pruning = SawtoothPrunning::ITERATIVE;
-                else if (type_of_pruning_name == "global")
-                    type_of_pruning = SawtoothPrunning::GLOBAL;
-                else if (type_of_pruning_name == "both")
-                    type_of_pruning = SawtoothPrunning::BOTH;
+                SawtoothPruning::Type type_of_pruning;
+                if (type_of_pruning_name == "pairwise")
+                    type_of_pruning = SawtoothPruning::PAIRWISE;
                 else if (type_of_pruning_name == "none")
-                    type_of_pruning = SawtoothPrunning::NONE;
+                    type_of_pruning = SawtoothPruning::NONE;
                 else
                     throw sdm::exception::Exception("Unrecognized sawtooth pruning name.");
 

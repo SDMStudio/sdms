@@ -31,7 +31,7 @@ namespace sdm
                                   const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                   const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                   int freq_prunning = -1,
-                                  SawtoothPrunning::Type type_of_sawtooth_prunning = SawtoothPrunning::NONE);
+                                  SawtoothPruning::Type type_of_sawtooth_prunning = SawtoothPruning::PAIRWISE);
 
         BasePointSetValueFunction(const BasePointSetValueFunction &copy);
 
@@ -89,7 +89,7 @@ namespace sdm
          * @brief Type of pruning.
          *
          */
-        SawtoothPrunning::Type type_of_sawtooth_prunning_;
+        SawtoothPruning::Type type_of_sawtooth_prunning_;
 
         /**
          * @brief Is set to true if the structure use a linear program
@@ -103,6 +103,14 @@ namespace sdm
          *
          */
         void prune(number t = 0);
+
+        /**
+         * @brief This method prunes dominated points, known as Pairwise pruning.
+         * 
+         * @param t the timestep 
+         * @param epsilon the epsilon used to check dominance between states 
+         */
+        void pairwise_prune(number t, double epsilon = 0.);
 
         /**
          * @brief Compute the sawtooth ratio for the evaluate function
@@ -130,8 +138,6 @@ namespace sdm
          * @return the minimum ratio between b(x)/b^k(x)  
          */
         double ratioBelief(const std::shared_ptr<BeliefInterface> &b, const std::shared_ptr<BeliefInterface> &b_k);
-
-        Pair<std::unordered_map<std::shared_ptr<State>, std::vector<std::shared_ptr<State>>>, std::map<int, std::vector<std::shared_ptr<State>>>> iterative_pruning(number t);
 
     public:
         friend class boost::serialization::access;
