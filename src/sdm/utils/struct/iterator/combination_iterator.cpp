@@ -24,7 +24,7 @@ namespace sdm
                 this->current_iterators_[i] = this->current_iterators_[i]->operator+(1);
 
                 // Compare incremented i-th iterator to end iterator, 
-                if (*this->current_iterators_.at(i) != *this->end_iterators_.at(i))
+                if (this->current_iterators_.at(i)->operator!=(this->end_iterators_.at(i)))
                 {
                     // If the incremented i-th sub iterator is different to end iterator, stop the for loop and return incremented iterator
                     break;

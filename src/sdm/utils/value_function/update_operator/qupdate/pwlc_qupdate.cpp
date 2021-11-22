@@ -26,7 +26,7 @@ namespace sdm
                                    const std::shared_ptr<Action> &next_action,
                                    number t)
         {
-            return reward + getWorld()->getDiscount(t) * q_value->getQValueAt(next_state, next_action, t + 1);
+            return reward + getWorld()->getDiscount(t) * this->getQValueFunction()->getQValueAt(next_state, next_action, t + 1);
         }
 
         double PWLCQUpdate::delta(const std::shared_ptr<State> &state,
@@ -37,7 +37,7 @@ namespace sdm
                                   number t)
         {
             double target_value = target(state, action, reward, next_state, next_action, t);
-            return (target_value - q_value->getQValueAt(state, action, t));
+            return (target_value - this->getQValueFunction()->getQValueAt(state, action, t));
         }
 
         void PWLCQUpdate::update(number t)
@@ -49,7 +49,7 @@ namespace sdm
             if (sdm::isInstanceOf<OccupancyStateInterface>(state))
             {
                 auto new_hyperplane = this->computeNewHyperplane(state->toOccupancyState(), action->toDecisionRule(), delta, t);
-                q_value->addHyperplaneAt(state, new_hyperplane, t);
+                this->getQValueFunction()->addHyperplaneAt(state, new_hyperplane, t);
             }
             else
             {
@@ -71,11 +71,11 @@ namespace sdm
             auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
 
             // Get old hyperplane
-            auto old_hyperplane = std::dynamic_pointer_cast<PWLCQValueFunction::Hyperplane>(q_value->getHyperplaneAt(occupancy_state, t));
+            auto old_hyperplane = std::dynamic_pointer_cast<PWLCQValueFunction::Hyperplane>(this->getQValueFunction()->getHyperplaneAt(occupancy_state, t));
 
             // Instanciate new hyperplane
             auto new_hyperplane = std::make_shared<PWLCQValueFunction::Hyperplane>(*old_hyperplane);
-            new_hyperplane->state.setDefault(q_value->getDefaultValue(t));
+            new_hyperplane->state.setDefault(this->getQValueFunction()->getDefaultValue(t));
 
             // Go over all joint history for the occupancy state
             for (const auto &history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
@@ -87,7 +87,7 @@ namespace sdm
                 for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(history)->getStates())
                 {
                     // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
-                    double beta = q_value->getBeta(old_hyperplane, state, history, action, t),
+                    double beta = this->getQValueFunction()->getBeta(old_hyperplane, state, history, action, t),
                            proba_o = occupancy_state->getProbability(history, state),
                            proba_a = decision_rule->toDecisionRule()->getProbability(occupancy_state->getCompressedJointHistory(history)->getIndividualHistories().toJoint<State>(), std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action));
 

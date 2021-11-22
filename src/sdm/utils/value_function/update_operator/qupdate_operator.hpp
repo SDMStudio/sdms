@@ -78,7 +78,7 @@ namespace sdm
              */
             inline std::shared_ptr<TQValueFunction> getQValueFunction() const
             {
-                return this->q_value;
+                return this->q_value.lock();
             }
 
             /**
@@ -110,7 +110,7 @@ namespace sdm
             /**
              * @brief the Q-value function
              */
-            std::shared_ptr<TQValueFunction> q_value, target_q_value;
+            std::weak_ptr<TQValueFunction> q_value, target_q_value;
 
             double learning_rate;
         };

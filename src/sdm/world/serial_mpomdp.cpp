@@ -14,7 +14,7 @@ namespace sdm
         return this->serial_observation_space_.at(this->getAgentId(t));
     }
 
-    std::shared_ptr<Space> SerialMPOMDP::getObservationSpace(number, number t) const
+    std::shared_ptr<Space> SerialMPOMDP::getObservationSpace(number agent_id, number t) const
     {
         return this->getObservationSpace(t);
     }
@@ -29,7 +29,7 @@ namespace sdm
         auto serial_state = state->toSerial();
         auto next_serial_state = next_state->toSerial();
 
-        auto all_action = this->addNewAction(serial_state,action);
+        auto all_action = this->addNewAction(serial_state, action);
 
         std::shared_ptr<Item> item = observation;
         auto discrete_space = std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serial_state->getCurrentAgentId()));
@@ -54,7 +54,7 @@ namespace sdm
         auto serial_state = state->toSerial();
         auto next_serial_state = next_state->toSerial();
 
-        auto all_action = this->addNewAction(serial_state,action);
+        auto all_action = this->addNewAction(serial_state, action);
 
         std::shared_ptr<Item> item = observation;
         auto discrete_space = std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serial_state->getCurrentAgentId()));

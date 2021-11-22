@@ -67,7 +67,7 @@ namespace sdm
              */
             inline std::shared_ptr<TValueFunction> getValueFunction() const
             {
-                return this->value_function;
+                return this->value_function.lock();
             }
 
             /**
@@ -91,7 +91,7 @@ namespace sdm
             }
 
         protected:
-            std::shared_ptr<TValueFunction> value_function;
+            std::weak_ptr<TValueFunction> value_function;
         };
 
         using TabularUpdateOperator = UpdateOperator<TabularValueFunctionInterface>;
