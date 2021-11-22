@@ -18,6 +18,8 @@ namespace sdm
           PrunableStructure(world->getHorizon(), freq_pruning),
           type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
     {
+        this->relaxation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
+
 #ifdef WITH_CPLEX
         if (isInstanceOf<ActionSelectionSawtoothLP>(action_selection))
         {
@@ -52,10 +54,21 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::getRelaxedValueAt(const std::shared_ptr<State> &state, number t)
     {
-        if (this->getInitFunction())
-            return this->getInitFunction()->operator()(state, t);
+        double relaxed_value = 0;
+        auto iter_relax = this->relaxation[t].find(state);
+        if (iter_relax == this->relaxation[t].end())
+        {
+            if (this->getInitFunction())
+                relaxed_value = this->getInitFunction()->operator()(state, t);
+            else
+                relaxed_value = this->representation[t].getDefault();
+            this->relaxation[t].emplace(state, relaxed_value);
+        }
         else
-            return this->representation[t].getDefault();
+        {
+            relaxed_value = iter_relax->second;
+        }
+        return relaxed_value;
     }
 
     template <class Hash, class KeyEqual>
@@ -103,18 +116,32 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::computeRatio(const std::shared_ptr<State> &s, const std::shared_ptr<State> &s_k)
     {
+        // Check available ratio in the map and return it
+        auto iter_s = ratios.find(s);
+        if (iter_s != ratios.end())
+        {
+            auto iter_s_k = iter_s->second.find(s_k);
+            if (iter_s_k != iter_s->second.end())
+            {
+                return iter_s_k->second;
+            }
+        }
+        double ratio = 0.;
+        // If no such ratio is already stored, compute it and store it 
         if (sdm::isInstanceOf<OccupancyStateInterface>(s))
         {
-            return this->ratioOccupancy(sdm::to<OccupancyStateInterface>(s), sdm::to<OccupancyStateInterface>(s_k));
+            ratio = this->ratioOccupancy(sdm::to<OccupancyStateInterface>(s), sdm::to<OccupancyStateInterface>(s_k));
         }
         else if (sdm::isInstanceOf<BeliefInterface>(s))
         {
-            return this->ratioBelief(sdm::to<BeliefInterface>(s), sdm::to<BeliefInterface>(s_k));
+            ratio = this->ratioBelief(sdm::to<BeliefInterface>(s), sdm::to<BeliefInterface>(s_k));
         }
         else
         {
-            return 0;
+            throw sdm::exception::Exception("(PointSet::computeRatio) States must inherit from 'BeliefInterface' or 'OccupancyStateInterface'");
         }
+        ratios[s][s_k] = ratio;
+        return ratio;
     }
 
     template <class Hash, class KeyEqual>

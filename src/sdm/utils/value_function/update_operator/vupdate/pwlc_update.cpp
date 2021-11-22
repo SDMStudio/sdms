@@ -17,9 +17,16 @@ namespace sdm
 
         void PWLCUpdate::update(const std::shared_ptr<State> &state, number t)
         {
+            std::shared_ptr<Action> action = this->getValueFunction()->getGreedyAction(state, t);
+            this->update(state, action, t);
+        }
+
+
+        void PWLCUpdate::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+        {
             if (sdm::isInstanceOf<OccupancyStateInterface>(state))
             {
-                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(state->toOccupancyState(), t), t);
+                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(state->toOccupancyState(), action, t), t);
             }
             else if (sdm::isInstanceOf<BeliefInterface>(state))
             {
@@ -86,9 +93,8 @@ namespace sdm
             return new_hyperplane;
         }
 
-        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
+        std::shared_ptr<State> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action>& decision_rule, number t)
         {
-            std::shared_ptr<Action> decision_rule = this->getValueFunction()->getGreedyAction(occupancy_state, t);
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
             auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
 
@@ -106,7 +112,7 @@ namespace sdm
             for (const auto &jhistory : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
             {
                 // Select the joint action
-                auto action = occupancy_mdp->applyDecisionRule(occupancy_state->toOccupancyState(), occupancy_state->toOccupancyState()->getCompressedJointHistory(jhistory), decision_rule, t);
+                auto action = occupancy_mdp->applyDecisionRule(occupancy_state, occupancy_state->getCompressedJointHistory(jhistory), decision_rule, t);
 
                 // Create new belief
                 auto new_belief = std::make_shared<Belief>();

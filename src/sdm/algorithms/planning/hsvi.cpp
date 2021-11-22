@@ -100,22 +100,24 @@ namespace sdm
 
     void HSVI::updateValue(const std::shared_ptr<State> &state, number t)
     {
-        // Update lower bounds
-        if (((trial + 1) % lb_update_frequency) == 0)
-        {
-            // if (keep_same_action_forward_backward)
-            //     getLowerBound()->updateValueAt(state, selected_action, t);
-            // else
-            getLowerBound()->updateValueAt(state, t);
-        }
-
-        // Update upper bounds
+        // Update upper bounds every 'ub_update_frequency' trials
         if (((trial + 1) % ub_update_frequency) == 0)
         {
-            // if (keep_same_action_forward_backward)
-            //     getUpperBound()->updateValueAt(state, selected_action, t);
-            // else
-            getUpperBound()->updateValueAt(state, t);
+            auto action = getUpperBound()->getGreedyAction(state, t);
+            getUpperBound()->getUpdateOperator()->update(state, action, t);
+            // Update lower bounds every 'lb_update_frequency' trials
+            if (((trial + 1) % lb_update_frequency) == 0)
+            {
+                getLowerBound()->getUpdateOperator()->update(state, action, t);
+            }
+        }
+        else
+        {
+            // Update lower bounds every 'lb_update_frequency' trials
+            if (((trial + 1) % lb_update_frequency) == 0)
+            {
+                getUpperBound()->updateValueAt(state, t);
+            }
         }
     }
 

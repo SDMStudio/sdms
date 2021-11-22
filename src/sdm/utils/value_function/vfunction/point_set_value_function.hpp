@@ -99,6 +99,16 @@ namespace sdm
         bool is_sawtooth_lp = false;
 
         /**
+         * @brief A data structure to store values of the relaxations.
+         */
+        std::vector<Container> relaxation;
+
+        /**
+         * @brief A data structure to store values of the relaxations.
+         */
+        RecursiveMap<std::shared_ptr<State>, std::shared_ptr<State>, double> ratios;
+
+        /**
          * @brief Point-wise pruning.
          *
          */

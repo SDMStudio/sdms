@@ -15,13 +15,12 @@ namespace sdm
         void TabularUpdate::update(const std::shared_ptr<State> &state, number t)
         {
             auto new_value = this->getValueFunction()->getGreedyActionAndValue(state, t).second;
-            // auto old_value = this->value_function->getValueAt(state, t);
-            // if (new_value > old_value)
-            // {
-            //     std::cout << "-- WRONG VALUE -- " << std::endl;
-            //     std::cout << "old_value=" << old_value << std::endl;
-            //     std::cout << "new_value=" << new_value << std::endl;
-            // }
+            this->getValueFunction()->setValueAt(state, new_value, t);
+        }
+
+        void TabularUpdate::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+        {
+            auto new_value = this->getValueFunction()->getQValueAt(state, action, t);
             this->getValueFunction()->setValueAt(state, new_value, t);
         }
     }
