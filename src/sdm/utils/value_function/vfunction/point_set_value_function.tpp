@@ -171,111 +171,67 @@ namespace sdm
         return min_ratio;
     }
 
-    // **********************
-    // ******* Pruning ******
-    // **********************
-
     template <class Hash, class KeyEqual>
-    Pair<std::unordered_map<std::shared_ptr<State>, std::vector<std::shared_ptr<State>>>, std::map<int, std::vector<std::shared_ptr<State>>>> BasePointSetValueFunction<Hash, KeyEqual>::iterative_pruning(number t)
+    void BasePointSetValueFunction<Hash, KeyEqual>::pairwise_prune(number t, double epsilon)
     {
-        std::unordered_map<std::shared_ptr<State>, std::vector<std::shared_ptr<State>>> support_of_each_point;
-        std::map<int, std::vector<std::shared_ptr<State>>> sort_by_number_of_support;
+        // List of points that are \eps-dominated
+        std::vector<std::shared_ptr<State>> point_to_delete;
+        // List of points that are not dominated
+        std::vector<std::shared_ptr<State>> point_to_keep;
 
-        auto start_representation = this->representation[t];
-
-        // Initialise the map support_of_each_point;
-        for (const auto &point_AND_value : start_representation)
+        // Go over all current points
+        for (const auto &state_i : this->getSupport(t))
         {
-            support_of_each_point.emplace(point_AND_value.first, std::vector<std::shared_ptr<State>>());
-        }
+            bool point_dominated = false;
 
-        // Search for the support of each point
-        for (const auto &point_AND_value : start_representation)
-        {
-            auto evaluate = this->evaluate(point_AND_value.first, t);
-            this->setValueAt(point_AND_value.first, evaluate.second, t);
-            support_of_each_point[evaluate.first].push_back(point_AND_value.first);
-        }
-
-        int count = 0;
-        // Sort the map "support_of_each_point" by the number of time each point is a support
-        for (const auto &element : support_of_each_point)
-        {
-            // Delete the element that aren't useful for any other point
-            if (element.second.size() == 0)
+            // Go over all points in point_to_keep
+            for (auto state_j = point_to_keep.begin(); state_j != point_to_keep.end(); state_j++)
             {
-                count++;
-                this->representation[t].erase(element.first);
+                // If state_j pairwise epsilon-dominates state_i, we add state_i to the set of points to be deleted.
+                if (estimation_i < this->getValueAt(state_i, t) + epsilon)
+                {
+                    point_to_delete.push_back(state_i);
+                    point_dominated = true;
+                    break;
+                }
             }
-            else
+            // If point is dominated, we reject alpha and go to the next iteration of outer loop
+            if (point_dominated)
+                continue;
+
+            // Go over all points in point_to_keep
+            for (auto state_j = point_to_keep.begin(); state_j != point_to_keep.end();)
             {
-                sort_by_number_of_support[element.second.size()].push_back(element.first);
+                // Compute estimation of state_i based upon that of state_j
+                double estimation_j = this->getRelaxedValueAt(*state_j, t) + this->computeRatio(*state_j, state_i) * (this->getValueAt(state_i, t) - this->getRelaxedValueAt(state_i, t));
+
+                // If state_i pairwise epsilon-dominates state_j in point_to_keep, we deleted this state
+                if (estimation_j < this->getValueAt(*state_j, t) + epsilon)
+                {
+                    point_to_delete.push_back(*state_j);
+                    state_j = point_to_keep.erase(state_j);
+                }
+                else
+                {
+                    state_j++;
+                }
             }
+
+            point_to_keep.push_back(state_i);
         }
-        return std::make_pair(support_of_each_point, sort_by_number_of_support);
+
+        // Erase pairwise epsilon-dominated points
+        for (const auto &to_delete : point_to_delete)
+        {
+            this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
+        }
     }
+
 
     template <class Hash, class KeyEqual>
     void BasePointSetValueFunction<Hash, KeyEqual>::prune(number t)
     {
-        if (this->type_of_sawtooth_prunning_ == SawtoothPrunning::BOTH or this->type_of_sawtooth_prunning_ == SawtoothPrunning::GLOBAL)
-        {
-            auto [support_of_each_point, sort_by_number_of_support] = this->iterative_pruning(t);
-
-            // std::vector<std::shared_ptr<State>> to_delete;
-
-            // Container current_representation = this->getRepresentation(t);
-            // Container tempo_representation;
-
-            // double value_without_me;
-            // bool is_useful;
-
-            // // Go over all key_value sorted by the number of time they are the support of other point
-            // for(const auto&key_value : sort_by_number_of_support)
-            // {
-            //     // Go over each state conditionning to a precise  number of time they are support of other point
-            //     for(const auto&state : key_value.second)
-            //     {
-            //         // If the state doesn't support any other point, we can remove it.
-            //         if(key_value.first == 0)
-            //         {
-            //             current_representation.erase(state);
-            //             continue;
-            //         }
-
-            //         // We delete temporaly the current state
-            //         tempo_representation = current_representation;
-            //         tempo_representation.erase(state);
-
-            //         this->representation[t] = tempo_representation;
-
-            //         is_useful = false;
-
-            //         // Go over all point in which the current point is the support
-            //         for(const auto &state_2 : support_of_each_point[state])
-            //         {
-            //             // Test the value without the current point
-            //             value_without_me = this->evaluate(state_2,t).second;
-
-            //             if(value_without_me>this->representation[t][state_2])
-            //             {
-            //                 is_useful = true;
-            //             }
-
-            //             if(is_useful)
-            //                 break;
-            //         }
-
-            //         //If the point isn't useful, we can delete it
-            //         if(!is_useful)
-            //         {
-            //             current_representation.erase(state);
-            //             std::cout<<"Yes The global is useful"<<std::endl;
-            //         }
-            //     }
-            // }
-            // this->representation[t] = current_representation;
-        }
+        this->pairwise_prune(t);
     }
 
     template <class Hash, class KeyEqual>
