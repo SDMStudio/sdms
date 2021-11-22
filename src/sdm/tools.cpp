@@ -9,7 +9,7 @@ namespace sdm
     {
         std::string getPathTo(std::string base_dir, std::string world_name, std::string formalism_name)
         {
-            if (base_dir[base_dir.size()] != '/')
+            if (base_dir[base_dir.size()-1] != '/')
             {
                 base_dir = base_dir + "/";
             }

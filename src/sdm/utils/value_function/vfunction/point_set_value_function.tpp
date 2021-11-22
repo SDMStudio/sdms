@@ -43,6 +43,13 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
+    void BasePointSetValueFunction<Hash, KeyEqual>::setValueAt(const std::shared_ptr<State> &state, double new_value, number t)
+    {
+        assert((getValueAt(state, t) > new_value) && "New value is higher than the old");
+        BaseTabularValueFunction<Hash, KeyEqual>::setValueAt(state, new_value, t);
+    }
+
+    template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::getRelaxedValueAt(const std::shared_ptr<State> &state, number t)
     {
         if (this->getInitFunction())
@@ -108,13 +115,6 @@ namespace sdm
         {
             return 0;
         }
-    }
-
-    template <class Hash, class KeyEqual>
-    void BasePointSetValueFunction<Hash, KeyEqual>::setValueAt(const std::shared_ptr<State> &state, double new_value, number t)
-    {
-        assert((getValueAt(state, t) > new_value) && "New value is higher than the old");
-        BaseTabularValueFunction<Hash, KeyEqual>::setValueAt(state, new_value, t);
     }
 
     template <class Hash, class KeyEqual>

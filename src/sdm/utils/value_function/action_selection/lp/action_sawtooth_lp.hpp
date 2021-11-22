@@ -164,11 +164,6 @@ namespace sdm
         virtual void createInitialConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
         void createOmegaConstraints(const Pair<std::shared_ptr<State>,double> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index);
         // void createUpperBoundLimitConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state,  IloEnv &env,IloRangeArray &con, IloNumVarArray &var,number &index, number t);
-
-        Pair<std::shared_ptr<Action>, double> selectBestActionFull(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
-        Pair<std::shared_ptr<Action>, double> selectBestActionRelaxed(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
-        Pair<std::shared_ptr<Action>, double> selectBestActionRelaxedV2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t);
-
         /**
          * @brief Create all the Omega Variable i.e. \forall k, (o',x') \omega_k(x',o')
          * 
