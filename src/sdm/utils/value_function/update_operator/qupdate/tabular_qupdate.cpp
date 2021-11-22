@@ -20,7 +20,7 @@ namespace sdm
                                           const std::shared_ptr<Action> &next_action,
                                           number t)
         {
-            return (reward + getWorld()->getDiscount(t) * q_value->getQValueAt(next_observation, next_action, t + 1) - q_value->getQValueAt(observation, action, t));
+            return (reward + getWorld()->getDiscount(t) * this->getQValueFunction()->getQValueAt(next_observation, next_action, t + 1) - this->getQValueFunction()->getQValueAt(observation, action, t));
         }
 
         void TabularQUpdate::update(number t)
@@ -29,9 +29,9 @@ namespace sdm
 
             double delta = deltaSARSA(observation, action, reward, next_observation, next_action, t);
 
-            double new_value = q_value->getQValueAt(observation, action, t) + learning_rate * delta;
+            double new_value = this->getQValueFunction()->getQValueAt(observation, action, t) + learning_rate * delta;
 
-            q_value->setQValueAt(observation, action, new_value, t);
+            this->getQValueFunction()->setQValueAt(observation, action, new_value, t);
         }
     }
 }
