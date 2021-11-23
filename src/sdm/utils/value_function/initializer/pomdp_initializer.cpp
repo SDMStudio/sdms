@@ -4,7 +4,7 @@
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 
-#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
@@ -54,7 +54,7 @@ namespace sdm
             lb->setUpdateOperator(std::make_shared<update::PWLCUpdate>(lb));
 
             // Instanciate upper bound
-            ub = std::make_shared<PointSetValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, nullptr, 1, SawtoothPruning::PAIRWISE);
+            ub = std::make_shared<SawtoothValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, nullptr, 1, SawtoothPruning::PAIRWISE);
             ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
         }
 

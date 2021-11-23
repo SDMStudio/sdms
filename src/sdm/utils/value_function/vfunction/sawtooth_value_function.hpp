@@ -20,20 +20,20 @@ namespace sdm
      * @tparam KeyEqual the type of equal function
      */
     template <class Hash = std::hash<std::shared_ptr<State>>, class KeyEqual = std::equal_to<std::shared_ptr<State>>>
-    class BasePointSetValueFunction : public BaseTabularValueFunction<Hash, KeyEqual>,
+    class BaseSawtoothValueFunction : public BaseTabularValueFunction<Hash, KeyEqual>,
                                       public PrunableStructure
     {
     public:
         using Container = typename BaseTabularValueFunction<Hash, KeyEqual>::Container;
 
-        BasePointSetValueFunction(const std::shared_ptr<SolvableByDP> &world,
+        BaseSawtoothValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                   const std::shared_ptr<Initializer> &initializer,
                                   const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                   const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                   int freq_prunning = -1,
                                   SawtoothPruning::Type type_of_sawtooth_prunning = SawtoothPruning::PAIRWISE);
 
-        BasePointSetValueFunction(const BasePointSetValueFunction &copy);
+        BaseSawtoothValueFunction(const BaseSawtoothValueFunction &copy);
 
         /**
          * @brief Evaluate the value at a state.
@@ -78,7 +78,7 @@ namespace sdm
          */
         std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, BasePointSetValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, BaseSawtoothValueFunction &vf)
         {
             os << vf.str();
             return os;
@@ -202,11 +202,11 @@ namespace sdm
     };
 
     /** @brief Point set value function using address comparison */
-    using PointSetValueFunction = BasePointSetValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
+    using SawtoothValueFunction = BaseSawtoothValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
 
     /** @brief Point set value function using state content comparison */
-    using PointSetValueFunction2 = BasePointSetValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
+    using SawtoothValueFunction2 = BaseSawtoothValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
 
 } // namespace sdm
 
-#include <sdm/utils/value_function/vfunction/point_set_value_function.tpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.tpp>

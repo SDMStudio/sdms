@@ -35,7 +35,7 @@ namespace sdm
         }
     }
 
-    void IndividualLP::createConstraints(const std::shared_ptr<ValueFunctionInterface>&,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id)
+    void IndividualLP::createConstraints(const std::shared_ptr<ValueFunctionInterface>&, const std::shared_ptr<State> &state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id)
     {
         auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
@@ -88,3 +88,4 @@ namespace sdm
 
 
 }
+#endif

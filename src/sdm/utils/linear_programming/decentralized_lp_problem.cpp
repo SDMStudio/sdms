@@ -11,10 +11,7 @@ namespace sdm
 
     void DecentralizedLP::createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
-        auto underlying_problem = this->world_->getUnderlyingProblem();
-
         //Create Joint Decentralized Variable
-        auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
 
         //<! tracking variables
@@ -23,7 +20,7 @@ namespace sdm
         //<! 0.a Build variables a(u|o)
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
-            for (const auto &action : *underlying_problem->getActionSpace(t))
+            for (const auto &action : *getWorld()->getUnderlyingProblem()->getActionSpace(t))
             {
                 //< 0.b Build variables a(u|o)
                 VarName = this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history);
@@ -32,19 +29,18 @@ namespace sdm
             }
         }
 
-        for (auto agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
+        for (auto agent = 0; agent < getWorld()->getUnderlyingProblem()->getNumAgents(); ++agent)
         {
             //Create Individual Decentralized Variable
             IndividualLP::createVariables(vf, state, env, var, index, t, agent);
         }
     }
 
-    void DecentralizedLP::createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void DecentralizedLP::createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        auto underlying_problem = this->world_->getUnderlyingProblem();
+        auto underlying_problem = getWorld()->getUnderlyingProblem();
 
         //Create Joint Decentralized Constraints and Control Constraints
-        auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
 
         number recover;
@@ -67,7 +63,7 @@ namespace sdm
                 for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
                 {
                     //<! 3.a.3 get variables a_i(u_i|o_i)
-                    recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent)->toAction(), jhistory->getIndividualHistory(agent), agent));
+                    recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent), jhistory->getIndividualHistory(agent), agent));
                     //<! 3.a.4 set coefficient of variable a_i(u_i|o_i)
                     con[index].setLinearCoef(var[recover], -1.0);
                 } // for all agent
@@ -92,11 +88,11 @@ namespace sdm
                     // set constraint range
                     con.add(IloRange(env, -IloInfinity, 0.0));
                     //<! 3.b.1 get variable a(u|o)
-                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(joint_action->toAction(), jhistory));
+                    recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(joint_action, jhistory));
                     //<! 3.b.2 set coefficient of variable a(u|o)
                     con[index].setLinearCoef(var[recover], +1.0);
                     //<! 3.b.3 get variable a_i(u_i|o_i) action
-                    recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent)->toAction(), jhistory->getIndividualHistory(agent), agent));
+                    recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(joint_action->get(agent), jhistory->getIndividualHistory(agent), agent));
                     //<! 3.b.4 set coefficient of variable a_i(u_i|o_i)
                     con[index].setLinearCoef(var[recover], -1.0);
                     //<! increment constraints
@@ -108,7 +104,7 @@ namespace sdm
         for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
         {
             //Create Individual Decentralized Constraints
-            IndividualLP::createConstraints(vf, state, env, con, var, index, t, agent);
+            IndividualLP::createConstraints(vf, state, env, model, con, var, index, t, agent);
         }
     }
 
@@ -117,9 +113,9 @@ namespace sdm
         std::vector<std::shared_ptr<DeterministicDecisionRule>> actions;
 
         //Determine the element useful for create a JointDeterminiticDecisionRule
-        for (number agent = 0; agent < underlying_problem->getNumAgents(); agent++)
+        for (number agent = 0; agent < this->getWorld()->getUnderlyingProblem()->getNumAgents(); agent++)
         {
-            actions.push_back(IndividualLP::getVariableResult(vf, state, cplex, var, t, agent));
+            actions.push_back(std::dynamic_pointer_cast<DeterministicDecisionRule>(IndividualLP::getVariableResult(vf, state, cplex, var, t, agent)));
         }
         //Create the JointDeterminiticDecisionRule
         return std::make_shared<JointDeterministicDecisionRule>(actions);

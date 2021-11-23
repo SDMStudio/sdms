@@ -3,7 +3,7 @@
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/qfunction/tabular_qvalue_function.hpp>
-#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 #include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
 
@@ -162,9 +162,9 @@ namespace sdm
 
                 // Point set value function
                 if (store_state)
-                    value_function = std::make_shared<PointSetValueFunction>(problem, initializer, action_selection, nullptr, freq_pruning, type_of_pruning);
+                    value_function = std::make_shared<SawtoothValueFunction>(problem, initializer, action_selection, nullptr, freq_pruning, type_of_pruning);
                 else
-                    value_function = std::make_shared<PointSetValueFunction2>(problem, initializer, action_selection, nullptr, freq_pruning, type_of_pruning);
+                    value_function = std::make_shared<SawtoothValueFunction2>(problem, initializer, action_selection, nullptr, freq_pruning, type_of_pruning);
 
                 // Update operator
                 update_operator = std::make_shared<update::TabularUpdate>(value_function);

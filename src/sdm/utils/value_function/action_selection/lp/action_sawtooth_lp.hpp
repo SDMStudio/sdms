@@ -11,8 +11,6 @@ namespace sdm
     class ActionSelectionSawtoothLP : public ActionSelectionBase, public DecentralizedLP
     {
     public:
-        using TData = double;
-
         ActionSelectionSawtoothLP();
         ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP>& world,TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
 

@@ -3,6 +3,7 @@
 
 #include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 
 namespace sdm
 {

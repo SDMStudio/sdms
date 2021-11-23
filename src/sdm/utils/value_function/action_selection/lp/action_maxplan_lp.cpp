@@ -23,7 +23,7 @@ namespace sdm
 
     void ActionSelectionMaxplanLP::createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
     {
-        auto mpomdp = this->getWorld()->getUnderlyingProblem();
+        auto mpomdp = MaxPlanSelectionBase::getWorld()->getUnderlyingProblem();
         auto occupancy_state = state->toOccupancyState();
 
         number recover = 0;

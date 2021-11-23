@@ -9,8 +9,6 @@ namespace sdm
     class ActionSelectionSawtoothLPSerial : public ActionSelectionSawtoothLP
     {
     public:
-        using TData = ActionSelectionSawtoothLP::TData;
-
         ActionSelectionSawtoothLPSerial();
         ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
 

@@ -148,7 +148,7 @@ namespace sdm
         index++;
     }
 
-    void ActionSelectionSawtoothLPSerial::createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLPSerial::createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
         auto underlying_problem = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
@@ -158,7 +158,7 @@ namespace sdm
         this->createDecentralizedVariablesIndividual(vf, state, env, var, index, t, agent_id);
     }
 
-    void ActionSelectionSawtoothLPSerial::createDecentralizedConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLPSerial::createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
         auto underlying_problem = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());

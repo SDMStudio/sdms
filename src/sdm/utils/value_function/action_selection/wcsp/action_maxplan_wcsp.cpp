@@ -28,7 +28,7 @@ namespace sdm
 
         auto occupancy_state = state->toOccupancyState();
 
-        this->determineMaxValue(value_function, occupancy_state, t);
+        this->determineMaxValue(value_function, occupancy_state, hyperplane, t);
 
         number index;
 
@@ -138,7 +138,7 @@ namespace sdm
         return (long)this->offset * (this->max - value);
     }
 
-    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
+    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {
         auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
 
