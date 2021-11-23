@@ -22,10 +22,10 @@
 namespace sdm
 {
     template <class TInit>
-    std::shared_ptr<Initializer> createInstance(std::shared_ptr<SolvableByHSVI> world) { return std::shared_ptr<TInit>(new TInit(world)); }
+    std::shared_ptr<Initializer> createInstance(std::shared_ptr<SolvableByHSVI> world) { return std::make_shared<TInit>(world); }
 
     template <class TInit>
-    std::shared_ptr<Initializer> createInstanceAlgoInit(std::shared_ptr<SolvableByHSVI> world, std::string algo_name) { return std::shared_ptr<TInit>(new TInit(world, algo_name)); }
+    std::shared_ptr<Initializer> createInstanceAlgoInit(std::shared_ptr<SolvableByHSVI> world, std::string algo_name) { return std::make_shared<TInit>(world, algo_name); }
 
     std::shared_ptr<Initializer> createInstanceMdpHsviInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>, world, "HSVI")(); }
 
@@ -35,11 +35,20 @@ namespace sdm
 
     std::shared_ptr<Initializer> createInstancePomdpHsviInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<POMDPInitializer>, world, "HSVI")(); }
 
+    // template <class TInitializer, class... TParams>
+    // std::shared_ptr<Initializer> createInstanceWithParam(std::shared_ptr<SolvableByHSVI> world, const TParams... &params) { return std::make_shared<TInitializer>(world, params...); }
+
+    // template <class TInitializer, const char *name>
+    // std::shared_ptr<Initializer> createInstance(std::shared_ptr<SolvableByHSVI> world)
+    // {
+    //     return boost::bind(createInstanceWithParam<TInitializer>, world, "HSVI")();
+    // }
+
     /**
      * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 
      * Some of the available initializers are : MinInitializer, MaxInitializer, BlindInitializer, ZeroInitializer. For a complete list of initializer, you can use :
      *      std::cout << InitializerFactory::available() << std::endl;
-     * 
+     *
      */
     class InitializerFactory
     {

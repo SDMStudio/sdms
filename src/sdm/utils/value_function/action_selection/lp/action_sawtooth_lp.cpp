@@ -82,7 +82,6 @@ namespace sdm
     void ActionSelectionSawtoothLP::createOmegaVariable(IloEnv &env, IloNumVarArray &var, number &index)
     {
         //<! Define variables \omega_k(x',o')
-
         std::string VarName;
 
         // Go over all Point Set in t+1
@@ -217,7 +216,7 @@ namespace sdm
     void ActionSelectionSawtoothLP::createInitialConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
-        auto under_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+        auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
 
         number recover = 0;
         double Qrelaxation;
@@ -226,7 +225,7 @@ namespace sdm
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
         // Go over all actions
-        for (const auto &action : *under_pb->getActionSpace(t))
+        for (const auto &action : *underlying_pb->getActionSpace(t))
         {
             for (const auto &joint_history : state->toOccupancyState()->getJointHistories())
             {
@@ -244,14 +243,14 @@ namespace sdm
     {
         try
         {
-            auto under_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+            auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
             number recover = 0;
 
             con.add(IloRange(env, -IloInfinity, this->bigM_value_));
             con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
             // Go over all actions
-            for (const auto &action : *under_pb->getActionSpace(t))
+            for (const auto &action : *underlying_pb->getActionSpace(t))
             {
                 for (const auto &joint_history : state->toOccupancyState()->getJointHistories())
                 {
@@ -280,7 +279,7 @@ namespace sdm
     {
         try
         {
-            auto under_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+            auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
             number recover = 0;
 
             IloExpr expr(env);
@@ -288,7 +287,7 @@ namespace sdm
             expr = var[this->getNumber(this->getVarNameWeight(0))];
 
             // Go over all actions
-            for (const auto &action : *under_pb->getActionSpace(t))
+            for (const auto &action : *underlying_pb->getActionSpace(t))
             {
                 for (const auto &joint_history : state->toOccupancyState()->getJointHistories())
                 {
@@ -373,12 +372,12 @@ namespace sdm
             // therefore, we can have the sawtooth ration equivalent to 1.
 
             auto compressed_occupancy_state = state->toOccupancyState();
-            auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionSelectionBase::world_->getUnderlyingProblem());
+            auto underlying_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionSelectionBase::world_->getUnderlyingProblem());
 
             // Go over all hidden state  in a belief conditionning to a joint history
             for (const auto &hidden_state : compressed_occupancy_state->getBeliefAt(joint_history)->getStates())
             {
-                numerator += compressed_occupancy_state->getProbability(joint_history, hidden_state) * under_pb->getDynamics(hidden_state, action, next_hidden_state, next_observation, t);
+                numerator += compressed_occupancy_state->getProbability(joint_history, hidden_state) * underlying_pb->getDynamics(hidden_state, action, next_hidden_state, next_observation, t);
             }
         }
         catch (const std::exception &exc)

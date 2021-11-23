@@ -16,4 +16,5 @@ namespace sdm
             void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
         };
     }
+
 }

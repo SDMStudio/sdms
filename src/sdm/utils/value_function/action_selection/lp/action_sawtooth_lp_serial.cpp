@@ -20,13 +20,13 @@ namespace sdm
 
     std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionSelectionSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
     {
-        auto under_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(ActionSelectionBase::world_->getUnderlyingProblem());
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(ActionSelectionBase::world_->getUnderlyingProblem());
 
         // Check if last agent
         bool last_agent = std::dynamic_pointer_cast<SerialProblemInterface>(ActionSelectionBase::world_)->isLastAgent(t);
 
         // Get next observation
-        auto next_joint_observation = (last_agent) ? std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation()) : under_pb->getDefaultObservation();
+        auto next_joint_observation = (last_agent) ? std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation()) : underlying_pb->getDefaultObservation();
 
         return next_joint_observation;
     }
@@ -36,9 +36,9 @@ namespace sdm
         throw sdm::exception::NotImplementedException();
         // try
         // {
-        //     auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
+        //     auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
 
-        //     auto agent_id = under_pb->getAgentId(t);
+        //     auto agent_id = underlying_pb->getAgentId(t);
         //     // Gets the current individual history conditional on the current joint history
         //     auto indiv_history = joint_history->getIndividualHistory(agent_id);
 
@@ -48,7 +48,7 @@ namespace sdm
         //     con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
         //     // Go over all actions
-        //     for (const auto &action : *under_pb->getActionSpace(t))
+        //     for (const auto &action : *underlying_pb->getActionSpace(t))
         //     {
         //         //<! 1.c.4 get variable a(u|o) and set constant
         //         recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id))
@@ -74,11 +74,11 @@ namespace sdm
 
         try
         {
-            auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+            auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
             auto compressed_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
 
             // Gets the current individual history conditional on the current joint history
-            number agent_id = under_pb->getAgentId(t);
+            number agent_id = underlying_pb->getAgentId(t);
 
             number recover = 0;
             IloExpr expr(env);
@@ -86,7 +86,7 @@ namespace sdm
             expr = var[this->getNumber(this->getVarNameWeight(0))];
 
             // Go over all actions
-            for (const auto &action : *under_pb->getActionSpace(t))
+            for (const auto &action : *underlying_pb->getActionSpace(t))
             {
                 for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
                 {
@@ -117,8 +117,8 @@ namespace sdm
     void ActionSelectionSawtoothLPSerial::createInitialConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
-        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
 
         auto compressed_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
 
@@ -129,7 +129,7 @@ namespace sdm
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
         // Go over all actions
-        for (const auto &action : *under_pb->getActionSpace(t))
+        for (const auto &action : *underlying_pb->getActionSpace(t))
         {
             for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
             {
@@ -151,8 +151,8 @@ namespace sdm
     void ActionSelectionSawtoothLPSerial::createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
 
         //Create Individual Decentralized Variable
         this->createDecentralizedVariablesIndividual(vf, state, env, var, index, t, agent_id);
@@ -161,8 +161,8 @@ namespace sdm
     void ActionSelectionSawtoothLPSerial::createDecentralizedConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
 
         //Create Individual Decentralized Constraints
         this->createDecentralizedConstraintsIndividual(vf, state, env, con, var, index, t, agent_id);
@@ -171,8 +171,8 @@ namespace sdm
     std::shared_ptr<Action> ActionSelectionSawtoothLPSerial::getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
 
         //Determine the element useful for create a DeterminiticDecisionRule
         auto action_and_history_individual = this->getVariableResultIndividual(vf, state, cplex, var, t, agent_id);

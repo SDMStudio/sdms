@@ -23,7 +23,7 @@ namespace sdm
     {
         this->variables.clear();
 
-        auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
+        auto underlying_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->world_);
 
         auto occupancy_state = state->toOccupancyState();
@@ -42,11 +42,11 @@ namespace sdm
         std::shared_ptr<WeightedCSPSolver> wcsp_solver = std::shared_ptr<WeightedCSPSolver>(WeightedCSPSolver::makeWeightedCSPSolver(MAX_COST));
 
         // building variables a^i(u^i|o^i) for each agent i
-        for (number agent = 0; agent < under_pb->getNumAgents(); ++agent)
+        for (number agent = 0; agent < underlying_pb->getNumAgents(); ++agent)
         {
             for (const auto &ihistory : occupancy_state->getIndividualHistories(agent))
             {
-                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory, agent), 0, under_pb->getActionSpace(agent, t)->toDiscreteSpace()->getNumItems() - 1);
+                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory, agent), 0, underlying_pb->getActionSpace(agent, t)->toDiscreteSpace()->getNumItems() - 1);
                 this->variables.emplace(this->getVarNameIndividualHistory(ihistory, agent), index);
             }
         }
@@ -58,7 +58,7 @@ namespace sdm
             std::vector<Cost> costs;
 
             //Go over all joint action
-            for (const auto &joint_action : *under_pb->getActionSpace(t))
+            for (const auto &joint_action : *underlying_pb->getActionSpace(t))
             {
                 costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action->toAction(), t)));
             }
@@ -79,7 +79,7 @@ namespace sdm
             std::vector<std::vector<std::shared_ptr<Item>>> joint_histories;
 
             // Go over each agent
-            for (number agent = 0; agent < under_pb->getNumAgents(); agent++)
+            for (number agent = 0; agent < underlying_pb->getNumAgents(); agent++)
             {
                 std::vector<std::shared_ptr<Item>> indiv_actions;
                 std::vector<std::shared_ptr<Item>> indiv_histories;
@@ -90,9 +90,9 @@ namespace sdm
                     indiv_histories.push_back(indiv_history);
 
                     // Search which action is the solution
-                    for (const auto &indiv_action : *under_pb->getActionSpace(agent, t))
+                    for (const auto &indiv_action : *underlying_pb->getActionSpace(agent, t))
                     {
-                        if (indiv_action->str() == under_pb->getActionSpace(agent, t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history, agent)]])->str())
+                        if (indiv_action->str() == underlying_pb->getActionSpace(agent, t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history, agent)]])->str())
                         {
                             indiv_actions.push_back(indiv_action);
                         }

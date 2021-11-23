@@ -13,6 +13,22 @@
 #include <math.h>
 #include <sdm/types.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
+
+// //  ------------------------------------------------------------------------
+// // |                        Add to the registry                             |
+// //  ------------------------------------------------------------------------
+// #include <sdm/macros.hpp>
+// #include <sdm/utils/value_function/update_operator/registry.hpp>
+
+// SDMS_REGISTRY(update)
+// SDMS_REGISTER("Zero", ZeroInitializer)
+// SDMS_REGISTER("Min", MinInitializer)
+// SDMS_REGISTER("Max", MaxInitializer)
+// SDMS_REGISTER("Mdp", MDPInitializer, "ValueIteration")
+// SDMS_REGISTER("MdpHsvi", MDPInitializer, "HSVI")
+// SDMS_END_REGISTRY()
+
+
 // #include <sdm/utils/value_function/value_function_interface.hpp>
 // #include <sdm/utils/value_function/value_function.hpp>
 // #include <sdm/utils/value_function/qvalue_function.hpp>

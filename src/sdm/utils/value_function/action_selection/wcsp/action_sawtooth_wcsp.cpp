@@ -16,7 +16,7 @@
 //     {
 //         auto value_function = std::static_pointer_cast<TabularValueFunction>(vf);
 
-//         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
+//         auto underlying_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
 
 //         std::shared_ptr<Action> best_action;
 //         double min_value = std::numeric_limits<double>::max();
@@ -128,7 +128,7 @@
 //     {
 //         double sawtooth_ratio = 0.0;
 
-//         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
+//         auto underlying_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
 //         auto belief = occupancy_state->getBeliefAt(joint_history);
 
 //         auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(vf->getInitFunction());
@@ -165,7 +165,7 @@
 
 //             for(const auto &hidden_state : belief->getStates())
 //             {
-//                 numerator +=  occupancy_state->getProbability(joint_history,hidden_state) * under_pb->getDynamics(hidden_state,action,next_hidden_state,next_joint_observation,t);
+//                 numerator +=  occupancy_state->getProbability(joint_history,hidden_state) * underlying_pb->getDynamics(hidden_state,action,next_hidden_state,next_joint_observation,t);
 //             }
 //             sawtooth_ratio = difference*numerator/denominator;
 //         }
@@ -179,14 +179,14 @@
 
 //     void ActionSelectionSawtoothWCSP::determineMaxValue(const std::shared_ptr<ValueFunction>& vf,const std::shared_ptr<State>& state, number t)
 //     {
-//         auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
+//         auto underlying_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
 //         auto occupancy_state = state->toOccupancyState();
 
 //         this->max = std::numeric_limits<double>::lowest();
 
 //         for (const auto& joint_history : occupancy_state->getJointHistories())
 //         {
-//             for (const auto &joint_action : *under_pb->getActionSpace(t))
+//             for (const auto &joint_action : *underlying_pb->getActionSpace(t))
 //             {
 //                 this->max = std::max(max, this->getValueAt(vf,occupancy_state,joint_history,joint_action->toAction(),nullptr,t));
 //             }
@@ -225,17 +225,17 @@
 
 //     void ActionSelectionSawtoothWCSP::createWCSPVariable(std::shared_ptr<WeightedCSPSolver>& wcsp_solver, const std::shared_ptr<State>& state,number t)
 //     {
-//         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
+//         auto underlying_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
 //         auto occupancy_state = state->toOccupancyState();
 
 //         number index;
 
 //         // building variables a^i(u^i|o^i) for each agent i
-//         for (number agent = 0; agent < under_pb->getNumAgents(); ++agent)
+//         for (number agent = 0; agent < underlying_pb->getNumAgents(); ++agent)
 //         {
 //             for(const auto& ihistory : occupancy_state->getIndividualHistories(agent))
 //             {
-//                 index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory,agent), 0, under_pb->getActionSpace(agent,t)->toDiscreteSpace()->getNumItems()-1);
+//                 index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory,agent), 0, underlying_pb->getActionSpace(agent,t)->toDiscreteSpace()->getNumItems()-1);
 //                 this->variables.emplace(this->getVarNameIndividualHistory(ihistory,agent), index);
 //             }
 //         }
@@ -243,14 +243,14 @@
 
 //     void ActionSelectionSawtoothWCSP::createWCSPCostGraph(std::shared_ptr<WeightedCSPSolver>& wcsp_solver,const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state,const std::set<std::shared_ptr<JointHistoryInterface>>& set_joint_history,number t)
 //     {
-//         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
+//         auto underlying_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
 //         auto occupancy_state = state->toOccupancyState();
 
 //         for(const auto &joint_history : set_joint_history)
 //         {      
 //             std::vector<Cost> costs;
 //             //Go over all joint action
-//             for(const auto &joint_action : *under_pb->getActionSpace(t))
+//             for(const auto &joint_action : *underlying_pb->getActionSpace(t))
 //             {
 //                 costs.push_back(this->getCost(this->getValueAt(vf,occupancy_state,joint_history,joint_action->toAction(),nullptr,t)));
 //             }
@@ -260,7 +260,7 @@
 
 //     Pair<std::shared_ptr<Action>,double> ActionSelectionSawtoothWCSP::getWSCPResult(std::shared_ptr<WeightedCSPSolver>& wcsp_solver,const std::shared_ptr<ValueFunction>& vf, const std::shared_ptr<State>& state,const std::set<std::shared_ptr<JointHistoryInterface>>& set_joint_history,number t)
 //     {
-//         auto under_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
+//         auto underlying_pb = std::dynamic_pointer_cast<MPOMDPInterface>(this->world_->getUnderlyingProblem());
 //         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(this->world_);
 
 //         auto occupancy_state = state->toOccupancyState();
@@ -276,7 +276,7 @@
 //         std::vector<std::vector<std::shared_ptr<Item>>> joint_histories;
 
 //         // Go over each agent
-//         for (number agent = 0; agent < under_pb->getNumAgents(); agent++)
+//         for (number agent = 0; agent < underlying_pb->getNumAgents(); agent++)
 //         {
 //             std::vector<std::shared_ptr<Item>> indiv_actions;
 //             std::vector<std::shared_ptr<Item>> indiv_histories;
@@ -287,9 +287,9 @@
 //                 indiv_histories.push_back(indiv_history);
 
 //                 // Search which action is the solution
-//                 for(const auto& indiv_action : *under_pb->getActionSpace(agent,t))
+//                 for(const auto& indiv_action : *underlying_pb->getActionSpace(agent,t))
 //                 {
-//                     if (indiv_action->str() ==  under_pb->getActionSpace(agent,t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history,agent)]])->str())
+//                     if (indiv_action->str() ==  underlying_pb->getActionSpace(agent,t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history,agent)]])->str())
 //                     {
 //                         indiv_actions.push_back(indiv_action);
 //                     }

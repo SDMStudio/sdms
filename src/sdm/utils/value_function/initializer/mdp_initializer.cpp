@@ -24,7 +24,7 @@ namespace sdm
     MDPInitializer::MDPInitializer(std::shared_ptr<SolvableByHSVI> world, std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials), world_(world)
     {
     }
-
+    
     void MDPInitializer::init(std::shared_ptr<ValueFunctionInterface> vf)
     {
         auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);

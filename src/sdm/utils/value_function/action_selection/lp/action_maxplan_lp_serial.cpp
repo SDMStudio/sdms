@@ -15,8 +15,8 @@ namespace sdm
 
     void ActionSelectionMaxplanLPSerial::createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
     {
-        auto under_pb = std::dynamic_pointer_cast<SerialMPOMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMPOMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
         auto occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
 
         number recover = 0;
@@ -26,7 +26,7 @@ namespace sdm
         for (const auto &indiv_history : occupancy_state->getIndividualHistories(agent_id))
         {
             // Go over all action
-            for (const auto &action : *under_pb->getActionSpace(t))
+            for (const auto &action : *underlying_pb->getActionSpace(t))
             {
                 // Compute \sum_{x} s(o,x)* discount * [ r(x,o) + \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
                 weight = 0.0;
@@ -47,8 +47,8 @@ namespace sdm
     void ActionSelectionMaxplanLPSerial::createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
 
         //Create Individual Decentralized Variable
         this->createDecentralizedVariablesIndividual(vf, state, env, var, index, t, agent_id);
@@ -57,8 +57,8 @@ namespace sdm
     void ActionSelectionMaxplanLPSerial::createDecentralizedConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
 
         //Create Individual Decentralized Constraints
         this->createDecentralizedConstraintsIndividual(vf, state, env, con, var, index, t, agent_id);
@@ -67,8 +67,8 @@ namespace sdm
     std::shared_ptr<Action> ActionSelectionMaxplanLPSerial::getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
         //Determine the Agent
-        auto under_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
-        number agent_id = under_pb->getAgentId(t);
+        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDP>(ActionSelectionBase::world_->getUnderlyingProblem());
+        number agent_id = underlying_pb->getAgentId(t);
 
         //Determine the element useful for create a DeterminiticDecisionRule
         auto action_and_history_individual = this->getVariableResultIndividual(vf, state, cplex, var, t, agent_id);
