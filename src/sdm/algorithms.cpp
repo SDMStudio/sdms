@@ -87,6 +87,7 @@ namespace sdm
                                                          std::string value_name,
                                                          std::string init_name,
                                                          bool store_state,
+                                                         bool pessimistic,
                                                          std::string type_of_resolution_name,
                                                          std::string type_of_pruning_name,
                                                          int freq_pruning)
@@ -178,7 +179,7 @@ namespace sdm
                 else
                     value_function = std::make_shared<TabularValueFunction2>(problem, initializer, action_selection);
                 // Update operator
-                update_operator = std::make_shared<update::TabularUpdate>(value_function);
+                update_operator = pessimistic ? std::make_shared<update::LowerBoundTabularUpdate>(value_function) : std::make_shared<update::TabularUpdate>(value_function);
             }
             else
             {
@@ -210,8 +211,8 @@ namespace sdm
                                             std::string ub_type_of_pruning)
         {
             // Instanciate bounds
-            std::shared_ptr<sdm::ValueFunction> lower_bound = makeValueFunction(problem, lower_bound_name, lb_init_name, store_state, lb_type_of_resolution_name, lb_type_of_pruning, lb_freq_pruning);
-            std::shared_ptr<sdm::ValueFunction> upper_bound = makeValueFunction(problem, upper_bound_name, ub_init_name, store_state, ub_type_of_resolution_name, ub_type_of_pruning, ub_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> lower_bound = makeValueFunction(problem, lower_bound_name, lb_init_name, store_state, true, lb_type_of_resolution_name, lb_type_of_pruning, lb_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> upper_bound = makeValueFunction(problem, upper_bound_name, ub_init_name, store_state, true, ub_type_of_resolution_name, ub_type_of_pruning, ub_freq_pruning);
 
             return std::make_shared<HSVI>(problem, lower_bound, upper_bound, error, trials, name, lb_freq_update, ub_freq_update, time_max);
         }
@@ -223,8 +224,8 @@ namespace sdm
                                                                 int vf_freq_pruning, std::string vf_type_of_pruning)
         {
             // Instanciate value function
-            std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
-            std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, true, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, true, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
 
             auto algo = std::make_shared<ValueIteration>(problem, value_function, error, time_max, name);
 
@@ -240,8 +241,8 @@ namespace sdm
         {
 
             // Instanciate value function
-            std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
-            std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, true, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
+            std::shared_ptr<sdm::ValueFunction> tmp_value_function = makeValueFunction(problem, value_function_name, vf_init_name, store_state, true, vf_type_of_resolution_name, vf_type_of_pruning, vf_freq_pruning);
 
             auto algo = std::make_shared<PBVI>(problem, value_function, num_samples, error, time_max, name, type_sampling);
 
@@ -441,7 +442,7 @@ namespace sdm
             {
                 if (isInstanceOf<BeliefMDPInterface>(formalism))
                 {
-                    std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
+                    std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, true, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
                     p_algo = std::make_shared<AlphaStar>(formalism, value_function, name);
                 }
                 else
@@ -467,12 +468,12 @@ namespace sdm
             }
             else if ((algo_name == "dfsvi") || (algo_name == "DFSVI") || (algo_name == "DepthFirstSearchVI") || (algo_name == "DepthFirstSearchValueIteration"))
             {
-                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
+                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, true, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
                 p_algo = std::make_shared<DFSVI>(formalism, value_function, error, time_max, name);
             }
             else if ((algo_name == "perseus") || (algo_name == "PERSEUS") || (algo_name == "Perseus"))
             {
-                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
+                std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, true, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
                 p_algo = std::make_shared<Perseus>(formalism, value_function, error, num_samples, time_max, name);
             }
             else

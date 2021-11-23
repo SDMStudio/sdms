@@ -20,7 +20,10 @@ namespace sdm
     {
         number index = 0;
 
-        //<! greedy decision, initialization
+         // clear the set of variable names
+        this->variables.clear();
+
+       //<! greedy decision, initialization
         std::shared_ptr<Action> action;
         double value;
 

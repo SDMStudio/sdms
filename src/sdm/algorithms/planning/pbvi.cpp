@@ -39,6 +39,8 @@ namespace sdm
                 return candidate_state;
             }
         }
+
+        return candidate_state;
     }
 
     void PBVI::initStateSpace()

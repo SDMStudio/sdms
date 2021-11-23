@@ -2,16 +2,16 @@
 
 #pragma once
 
-#include <sdm/utils/linear_programming/individual_lp_problem.hpp>
+#include <sdm/utils/linear_programming/lp_problem.hpp>
 
 namespace sdm
 {
-    class DecentralizedLP : public IndividualLP
+    class IndividualLP : public LPBase
     {
     public :
 
-        DecentralizedLP();
-        DecentralizedLP(const std::shared_ptr<SolvableByDP>&);
+        IndividualLP();
+        IndividualLP(const std::shared_ptr<SolvableByDP>&);
 
         /**
          * @brief Create the variable which will be used to resolve the LP
@@ -45,6 +45,7 @@ namespace sdm
          * @return std::shared_ptr<Action> 
          */
         std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunctionInterface>&vf, const std::shared_ptr<State> &occupancy_state,const IloCplex &cplex, const IloNumVarArray &var, number t);
+
     };
 }
 
