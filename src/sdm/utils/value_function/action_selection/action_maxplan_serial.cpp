@@ -5,35 +5,39 @@
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/world/serial_mpomdp.hpp>
 
-
 #include <sdm/world/occupancy_mdp.hpp>
 
 namespace sdm
 {
     ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial() {}
 
-    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world) {}
-
-    Pair<std::shared_ptr<Action>,double> ActionSelectionMaxplanSerial::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
+    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world)
     {
-        return this->selectBestDecisionRuleKnowingNextHyperplan(value_function, state, this->tmp_representation, t);
+        if (auto derived = std::dynamic_pointer_cast<SerialMPOMDPInterface>(world))
+            this->serial_mpomdp = derived;
+        else
+            throw sdm::exception::TypeError("Action maxplan serial is only available for worlds inheriting from 'SerialProblemInterface'.");
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)
+    std::shared_ptr<SerialMPOMDPInterface> ActionSelectionMaxplanSerial::getSerialMPOMDP() const
     {
-        auto serial_occupancy_state = state->toOccupancyState();
-        auto underlying_pb = std::dynamic_pointer_cast<SerialMMDPInterface>(this->world_->getUnderlyingProblem());
-        auto agent = underlying_pb->getAgentId(t);
+        return this->serial_mpomdp;
+    }
+
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    {
+        auto serial_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
+        auto agent_id = this->getSerialMPOMDP()->getAgentId(t);
 
         // Definie local Variable
         double decision_rule_value = 0.0;
         std::shared_ptr<DecisionRule> decision_rule = std::make_shared<DeterministicDecisionRule>();
 
         // Go over all Individual Histories in Serial Occupancy State
-        for (const auto &individual_history : serial_occupancy_state->getIndividualHistories(agent))
+        for (const auto &individual_history : serial_occupancy_state->getIndividualHistories(agent_id))
         {
             // Select the best action to execute in this context and get the value
-            auto [best_action, value] = this->selectBestActionKnowingNextHyperplanAndHistory(serial_occupancy_state, next_hyperplan, individual_history, t);
+            auto [best_action, value] = this->selectBestAction(value_function, serial_occupancy_state, hyperplane, individual_history, t);
             // Update the decision rule with new history and action
             decision_rule->setProbability(individual_history, best_action, 1);
             // Increment the total value of the decision rule
@@ -42,24 +46,21 @@ namespace sdm
         return std::make_pair(decision_rule, decision_rule_value);
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestActionKnowingNextHyperplanAndHistory(const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, const std::shared_ptr<HistoryInterface> &ihistory, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &occupancy_state, const std::shared_ptr<BeliefInterface> &next_hyperplane, const std::shared_ptr<HistoryInterface> &ihistory, number t)
     {
-        auto underlying_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->world_->getUnderlyingProblem());
-        
-        auto agent = underlying_pb->getAgentId(t);
-        auto occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
-        std::shared_ptr<PrivateOccupancyState> private_serial_occupancy_state = occupancy_state->getPrivateOccupancyState(underlying_pb->getAgentId(t), ihistory);
-
         std::shared_ptr<Action> best_action;
-        double argmax_local = -std::numeric_limits<double>::max();
+        double action_value, argmax_local = std::numeric_limits<double>::lowest();
 
-        double probability = occupancy_state->getProbabilityOverIndividualHistories(agent, ihistory);
+        auto agent_id = this->getSerialMPOMDP()->getAgentId(t);
+        std::shared_ptr<PrivateOccupancyState> private_serial_occupancy_state = occupancy_state->getPrivateOccupancyState(agent_id, ihistory);
 
-        // Go over all action possible for the current agent
-        for (const auto &private_action : *underlying_pb->getActionSpace(t))
+        double probability = occupancy_state->getProbabilityOverIndividualHistories(agent_id, ihistory);
+
+        // Go over all action possible for the current agent_id
+        for (const auto &private_action : *this->getSerialMPOMDP()->getActionSpace(t))
         {
             // Evaluate the value of executing this action in the given state & history
-            double action_value = probability * this->evaluationOfHyperplanKnowingNextHyperplanAndDiscreteAction(private_serial_occupancy_state, private_action->toAction(), next_hyperplan, t);
+            action_value = this->evaluateAction(value_function, private_serial_occupancy_state, private_action->toAction(), next_hyperplane, t);
 
             // Take the best deterministic decision rule "decision_" for a precise hyperplan
             if (argmax_local < action_value)
@@ -68,54 +69,73 @@ namespace sdm
                 best_action = private_action->toAction();
             }
         }
-        return {best_action, argmax_local};
+        return {best_action, probability * argmax_local};
     }
 
-    double ActionSelectionMaxplanSerial::evaluationOfHyperplanKnowingNextHyperplanAndDiscreteAction(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hyperplan, number t)
+    double ActionSelectionMaxplanSerial::evaluateAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<BeliefInterface> &next_hyperplane, number t)
     {
-        auto occupancy_state = state->toOccupancyState();
-        auto underlying_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->world_->getUnderlyingProblem());
-
         double value = 0.0;
-        double discount = underlying_pb->getDiscount(t);
+        double discount = this->getSerialMPOMDP()->getDiscount(t);
 
         // Go over all joint history in the subsequent private occupancy state (knowing the information individual history)
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
-            // Go over all hidden state in the subsequent private occupancy state (knowing the information individual history and joint history)
-            for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
-            {
-                //Get the probability of the occupancy state
-                auto probability = occupancy_state->getProbability(joint_history, state);
-                
-                // Determine the reward
-                double immediate_reward = underlying_pb->getReward(state, action, t);
-                double next_expected_value = this->evaluateNextExpectedValueAt(next_hyperplan, joint_history, state, action, t);
+            // // Go over all hidden state in the subsequent private occupancy state (knowing the information individual history and joint history)
+            // for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
+            // {
+            //     //Get the probability of the occupancy state
+            //     auto probability = occupancy_state->getProbability(joint_history, state);
 
-                value += probability * (immediate_reward + discount * next_expected_value);
-            }
+            //     // Determine the reward
+            //     double immediate_reward = this->getSerialMPOMDP()->getReward(state, action, t);
+            //     double next_expected_value = this->evaluateNextExpectedValueAt(next_hyperplan, joint_history, state, action, t);
+
+            //     value += probability * (immediate_reward + discount * next_expected_value);
+            // }
+            value += this->getWeight(value_function, occupancy_state, joint_history, action, next_hyperplane, t);
         }
         return value;
     }
 
-    double ActionSelectionMaxplanSerial::evaluateNextExpectedValueAt(const std::shared_ptr<State> &hyperplan, const std::shared_ptr<HistoryInterface> &joint_history, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-    {
-        auto next_hyperplan = hyperplan->toOccupancyState();
-        auto underlying_pb = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->world_->getUnderlyingProblem());
+    // Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)
+    // {
+    //     auto serial_occupancy_state = state->toOccupancyState();
+    //     auto agent_id = this->getSerialMPOMDP()->getAgentId(t);
 
-        // Compute the next value
-        double next_expected_value = 0.0;
+    //     // Definie local Variable
+    //     double decision_rule_value = 0.0;
+    //     std::shared_ptr<DecisionRule> decision_rule = std::make_shared<DeterministicDecisionRule>();
 
-        // Go over all Reachable Serial State
-        for (const auto &next_state : underlying_pb->getReachableStates(state, action, t))
-        {
-            // Go over all Reachable Observation
-            for (const auto &next_observation : underlying_pb->getReachableObservations(state, action, next_state, t))
-            {
-                auto next_joint_history = joint_history->expand(next_observation)->toJointHistory();
-                next_expected_value += next_hyperplan->getProbability(next_joint_history, next_state) * underlying_pb->getDynamics(state, action, next_state, next_observation, t);
-            }
-        }
-        return next_expected_value;
-    }
+    //     // Go over all Individual Histories in Serial Occupancy State
+    //     for (const auto &individual_history : serial_occupancy_state->getIndividualHistories(agent_id))
+    //     {
+    //         // Select the best action to execute in this context and get the value
+    //         auto [best_action, value] = this->selectBestActionKnowingNextHyperplanAndHistory(serial_occupancy_state, next_hyperplan, individual_history, t);
+    //         // Update the decision rule with new history and action
+    //         decision_rule->setProbability(individual_history, best_action, 1);
+    //         // Increment the total value of the decision rule
+    //         decision_rule_value += value;
+    //     }
+    //     return std::make_pair(decision_rule, decision_rule_value);
+    // }
+
+    // double ActionSelectionMaxplanSerial::evaluateNextExpectedValueAt(const std::shared_ptr<State> &hyperplan, const std::shared_ptr<HistoryInterface> &joint_history, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    // {
+    //     auto next_hyperplan = hyperplan->toOccupancyState();
+
+    //     // Compute the next value
+    //     double next_expected_value = 0.0;
+
+    //     // Go over all Reachable Serial State
+    //     for (const auto &next_state : this->getSerialMPOMDP()->getReachableStates(state, action, t))
+    //     {
+    //         // Go over all Reachable Observation
+    //         for (const auto &next_observation : this->getSerialMPOMDP()->getReachableObservations(state, action, next_state, t))
+    //         {
+    //             auto next_joint_history = joint_history->expand(next_observation)->toJointHistory();
+    //             next_expected_value += next_hyperplan->getProbability(next_joint_history, next_state) * this->getSerialMPOMDP()->getDynamics(state, action, next_state, next_observation, t);
+    //         }
+    //     }
+    //     return next_expected_value;
+    // }
 }

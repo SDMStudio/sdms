@@ -12,17 +12,18 @@ namespace sdm
 {
 
     ActionSelectionMaxplanLP::ActionSelectionMaxplanLP() {}
+
     ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world), DecentralizedLP(world) {}
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {
+        this->current_hyperplane = hyperplane;
         return this->createLP(vf, state, t);
     }
 
-
     void ActionSelectionMaxplanLP::createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, IloNumVarArray &var, IloObjective &obj, number t)
     {
-        auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
+        auto mpomdp = this->getWorld()->getUnderlyingProblem();
         auto occupancy_state = state->toOccupancyState();
 
         number recover = 0;
@@ -35,7 +36,7 @@ namespace sdm
             for (const auto &action : *mpomdp->getActionSpace(t))
             {
                 // Compute \sum_{x} s(o,x)* discount * [ r(x,o) + \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
-                weight = this->getWeight(value_function, occupancy_state, joint_history, action->toAction(), t);
+                weight = this->getWeight(value_function, occupancy_state, joint_history, action->toAction(), this->current_hyperplane, t);
 
                 //<! 1.b get variable a(u|o)
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
@@ -45,21 +46,6 @@ namespace sdm
             } // for all u
         }     // for all o
     }
-
- 
-    double ActionSelectionMaxplanLP::getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history, const std::shared_ptr<Action> action, number t)
-    {
-        // Compute \sum_{x} s(o,x)* [ r(x,u) + discount * \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
-        double weight = 0.0;
-
-        // Go over all hidden state in the belief conditionning to a joint history
-        for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
-        {
-            weight += occupancy_state->getProbability(joint_history, state) * std::dynamic_pointer_cast<PWLCValueFunctionInterface>(value_function)->getBeta(this->tmp_representation, state, joint_history, action, t);
-        }
-        return weight;
-    }
-
 }
 
 #endif

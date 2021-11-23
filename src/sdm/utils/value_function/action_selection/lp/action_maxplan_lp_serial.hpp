@@ -33,7 +33,7 @@ namespace sdm
          * @param const number& : index variable
          * @param number : time step
          */
-        void createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
+        void createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Set decentralized constraints 
@@ -44,7 +44,7 @@ namespace sdm
          * @param number&
          * @param number : time step
          */
-        void createDecentralizedConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        void createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Get the result of the variable created
@@ -56,6 +56,14 @@ namespace sdm
          * @return std::shared_ptr<Action> 
          */
         std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t);
+
+        /**
+         * @brief Get the underlying serial MPOMDP problem
+         */
+        std::shared_ptr<SerialMPOMDPInterface> getSerialMPOMDP() const;
+
+    protected:
+        std::shared_ptr<SerialMPOMDPInterface> serial_mpomdp;
     };
 }
 

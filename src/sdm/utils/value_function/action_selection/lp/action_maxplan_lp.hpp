@@ -10,12 +10,8 @@ namespace sdm
     class ActionSelectionMaxplanLP : public MaxPlanSelectionBase, public DecentralizedLP
     {
     public:
-        using TData = std::shared_ptr<State>;
-
         ActionSelectionMaxplanLP();
         ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world);
-
-        Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
 
         /**
@@ -28,11 +24,11 @@ namespace sdm
          */
         void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
 
-
     protected:
         
-        double getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history, const std::shared_ptr<Action> action, number t);
+        Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t);
 
+        std::shared_ptr<BeliefInterface> current_hyperplane; 
     };
 }
 

@@ -31,4 +31,5 @@
 SDMS_REGISTRY(update)
 SDMS_REGISTER("TabularUpdate", TabularUpdate)
 SDMS_REGISTER("PWLCUpdate", PWLCUpdate)
+SDMS_REGISTER("LBTabularUpdate", LowerBoundTabularUpdate)
 SDMS_END_REGISTRY()

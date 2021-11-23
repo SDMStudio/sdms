@@ -61,14 +61,14 @@ namespace sdm
 
     double BoundInitializer::computeValueInfiniteHorizon(std::shared_ptr<ValueFunctionInterface> value_function)
     {
-        auto underlying_pb = world_->getUnderlyingProblem();
+        auto underlying_problem = world_->getUnderlyingProblem();
 
         // long l = log(1 - world_->getDiscount()) * this->error_ / this->reward_->getMaxReward();
         number t = 0;
         double value = this->getValue(value_function, t), factor = 1.;
         do
         {
-            factor *= underlying_pb->getDiscount(t);
+            factor *= underlying_problem->getDiscount(t);
             value += factor * this->getValue(value_function, t + 1);
             t++;
         } while (factor > 1.e-10);
@@ -116,18 +116,18 @@ namespace sdm
 
     void BlindInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
-        auto underlying_pb = this->world_->getUnderlyingProblem();
+        auto underlying_problem = this->world_->getUnderlyingProblem();
         std::vector<double> ra, rt;
 
         for (number t = 0; t < value_function->getHorizon(); t++)
         {
             ra.clear();
-            for (auto &a : *underlying_pb->getActionSpace(t))
+            for (auto &a : *underlying_problem->getActionSpace(t))
             {
                 ra.push_back(std::numeric_limits<double>::max());
-                for (auto &s : *underlying_pb->getStateSpace(t))
+                for (auto &s : *underlying_problem->getStateSpace(t))
                 {
-                    ra.back() = std::min(underlying_pb->getReward(s->toState(), a->toAction(), t), ra.back());
+                    ra.back() = std::min(underlying_problem->getReward(s->toState(), a->toAction(), t), ra.back());
                 }
             }
             rt.push_back(*std::max_element(ra.begin(), ra.end()));

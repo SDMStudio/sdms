@@ -127,7 +127,7 @@
 //             }
 //         }
 //         auto occupancy_mdp = std::static_pointer_cast<OccupancyMDP>(ActionSelectionBase::world_);
-//         auto underlying_pb = std::dynamic_pointer_cast<MPOMDPInterface>(ActionSelectionBase::world_->getUnderlyingProblem());
+//         auto underlying_problem = std::dynamic_pointer_cast<MPOMDPInterface>(ActionSelectionBase::world_->getUnderlyingProblem());
 
 
 //         std::cout<<"Action "<<best_action->str()<<std::endl;
@@ -310,7 +310,7 @@
     
 //     void ActionSelectionSawtoothLPRelaxed::createInitialConstraints(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,  IloEnv &env,IloRangeArray &con, IloNumVarArray &var,number &index, number t)
 //     {
-//         auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+//         auto underlying_problem = ActionSelectionBase::world_->getUnderlyingProblem();
 
 //         number recover = 0;
 //         double Qrelaxation;
@@ -319,7 +319,7 @@
 //         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
 //         // Go over all actions
-//         for (const auto &action : *underlying_pb->getActionSpace(t))
+//         for (const auto &action : *underlying_problem->getActionSpace(t))
 //         {
 //             for(const auto& joint_history : state->toOccupancyState()->getJointHistories())
 //             {
@@ -335,7 +335,7 @@
 
 //     void ActionSelectionSawtoothLPRelaxed::createInitialConstraints2(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state,  IloEnv &env,IloRangeArray &con, IloNumVarArray &var,number &index, number t)
 //     {
-//         auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+//         auto underlying_problem = ActionSelectionBase::world_->getUnderlyingProblem();
 
 //         number recover = 0;
 //         double Qrelaxation;
@@ -343,7 +343,7 @@
 //         con.add(IloRange(env, -IloInfinity, vf->getValueAt(state) - 0.001));
 
 //         // Go over all actions
-//         for (const auto &action : *underlying_pb->getActionSpace(t))
+//         for (const auto &action : *underlying_problem->getActionSpace(t))
 //         {
 //             for(const auto& joint_history : state->toOccupancyState()->getJointHistories())
 //             {
@@ -361,7 +361,7 @@
 //     {
 //         try
 //         {
-//             auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+//             auto underlying_problem = ActionSelectionBase::world_->getUnderlyingProblem();
 
 //             number recover = 0;
 
@@ -369,7 +369,7 @@
 //             con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
 //             // Go over all actions
-//             for (const auto &action : *underlying_pb->getActionSpace(t))
+//             for (const auto &action : *underlying_problem->getActionSpace(t))
 //             {
 //                 for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
 //                 {
@@ -400,7 +400,7 @@
 //     {
 //         try
 //         {
-//             auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+//             auto underlying_problem = ActionSelectionBase::world_->getUnderlyingProblem();
 //             number recover = 0;
 
 //             IloExpr expr(env);
@@ -408,7 +408,7 @@
 //             expr = var[this->getNumber(this->getVarNameWeight(0))];
 
 //             // Go over all actions
-//             for (const auto &action : *underlying_pb->getActionSpace(t))
+//             for (const auto &action : *underlying_problem->getActionSpace(t))
 //             {
 //                 for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
 //                 {
@@ -439,14 +439,14 @@
 //             // v_ + espilon + K >= f() + K * omega_(x',o')
 
 
-//             auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+//             auto underlying_problem = ActionSelectionBase::world_->getUnderlyingProblem();
 
 //             number recover = 0;
 
 //             con.add(IloRange(env, -IloInfinity, vf->getValueAt(state) + 0.01 + this->bigM_value_));
 
 //             // Go over all actions
-//             for (const auto &action : *underlying_pb->getActionSpace(t))
+//             for (const auto &action : *underlying_problem->getActionSpace(t))
 //             {
 //                 for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
 //                 {
@@ -475,13 +475,13 @@
 //     {
 //         try
 //         {
-//             auto underlying_pb = ActionSelectionBase::world_->getUnderlyingProblem();
+//             auto underlying_problem = ActionSelectionBase::world_->getUnderlyingProblem();
 //             number recover = 0;
 
 //             IloExpr expr(env);
 
 //             // Go over all actions
-//             for (const auto &action : *underlying_pb->getActionSpace(t))
+//             for (const auto &action : *underlying_problem->getActionSpace(t))
 //             {
 //                 for(const auto &joint_history : state->toOccupancyState()->getJointHistories())
 //                 {

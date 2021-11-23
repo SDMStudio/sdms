@@ -2,6 +2,7 @@
 #include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
+#include <sdm/core/state/interface/occupancy_state_interface.hpp>
 
 namespace sdm
 {
@@ -24,12 +25,10 @@ namespace sdm
         double max_value = -std::numeric_limits<double>::max();
 
         // Go over all hyperplan in the Support
-        for (const auto &hyperplan : value_function->getHyperplanesAt(state, t + 1))
+        for (const auto &hyperplane : value_function->getHyperplanesAt(state, t + 1))
         {
-            this->tmp_representation = hyperplan->toBelief();
-            
             // Compute the greedy action and value for a given hyperplan
-            auto pair_action_value = this->computeGreedyActionAndValue(value_function, state, t);
+            auto pair_action_value = this->computeGreedyActionAndValue(value_function, state, hyperplane->toBelief(), t);
 
             // Select the Best Action
             if (pair_action_value.second > max_value)
@@ -39,5 +38,18 @@ namespace sdm
             }
         }
         return {max_decision_rule, max_value};
+    }
+
+    double MaxPlanSelectionBase::getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    {
+        // Compute \sum_{x} s(o,x)* [ r(x,u) + discount * \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
+        double weight = 0.0;
+
+        // Go over all hidden state in the belief conditionning to a joint history
+        for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
+        {
+            weight += occupancy_state->getProbability(joint_history, state) * std::dynamic_pointer_cast<PWLCValueFunctionInterface>(value_function)->getBeta(hyperplane, state, joint_history, action, t);
+        }
+        return weight;
     }
 } // namespace sdm

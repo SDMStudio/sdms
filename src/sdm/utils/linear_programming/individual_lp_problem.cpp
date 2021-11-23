@@ -15,7 +15,7 @@ namespace sdm
 
     void IndividualLP::createVariables(const std::shared_ptr<ValueFunctionInterface>&,const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t, number agent_id)
     {
-        auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
+        auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
 
         //<! tracking variables
@@ -25,7 +25,7 @@ namespace sdm
         for (const auto& indiv_history : occupancy_state->getIndividualHistories(agent_id))
         {
             // Go over all Individual Action
-            for (const auto& serial_action : *under_pb->getActionSpace(agent_id,t))
+            for (const auto& serial_action : *underlying_problem->getActionSpace(agent_id,t))
             {
                 //<! 0.c Build variables a_i(u_i|o_i)
                 VarName = this->getVarNameIndividualHistoryDecisionRule(serial_action->toAction(), indiv_history, agent_id);
@@ -37,7 +37,7 @@ namespace sdm
 
     void IndividualLP::createConstraints(const std::shared_ptr<ValueFunctionInterface>&,const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t, number agent_id)
     {
-        auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
+        auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
 
         number recover = 0;
@@ -47,7 +47,7 @@ namespace sdm
         {
             //<! 4.a set constraint  \sum_{u_i} a_i(u_i|o_i) = 1
             con.add(IloRange(env, 1.0, 1.0));
-            for (const auto& serial_action : *under_pb->getActionSpace(agent_id,t))
+            for (const auto& serial_action : *underlying_problem->getActionSpace(agent_id,t))
             {
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action->toAction(), indiv_history, agent_id));
                 con[index].setLinearCoef(var[recover], +1.0);
@@ -63,7 +63,7 @@ namespace sdm
         std::vector<std::shared_ptr<Item>> actions;
         std::vector<std::shared_ptr<Item>> indiv_histories;
 
-        auto under_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
+        auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();
 
         // Go over all individual histories
@@ -72,7 +72,7 @@ namespace sdm
             indiv_histories.push_back(ihistory);
 
             // Go over all individual action
-            for(const auto& action : *under_pb->getActionSpace(agent_id,t))
+            for(const auto& action : *underlying_problem->getActionSpace(agent_id,t))
             {
                 index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), ihistory, agent_id));
                 

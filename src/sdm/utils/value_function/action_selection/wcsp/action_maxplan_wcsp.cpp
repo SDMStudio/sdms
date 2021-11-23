@@ -14,17 +14,17 @@ namespace sdm
 
     ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world) {}
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {
-        return this->createAndSolveWCSP(value_function, state, t);
+        return this->createAndSolveWCSP(value_function, state, hyperplane, t);
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {
         this->variables.clear();
 
-        auto underlying_pb = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
-        auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->world_);
+        auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
+        auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(occupancy_mdp->getUnderlyingMPOMDP());
 
         auto occupancy_state = state->toOccupancyState();
 
@@ -42,11 +42,11 @@ namespace sdm
         std::shared_ptr<WeightedCSPSolver> wcsp_solver = std::shared_ptr<WeightedCSPSolver>(WeightedCSPSolver::makeWeightedCSPSolver(MAX_COST));
 
         // building variables a^i(u^i|o^i) for each agent i
-        for (number agent = 0; agent < underlying_pb->getNumAgents(); ++agent)
+        for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
         {
             for (const auto &ihistory : occupancy_state->getIndividualHistories(agent))
             {
-                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory, agent), 0, underlying_pb->getActionSpace(agent, t)->toDiscreteSpace()->getNumItems() - 1);
+                index = wcsp_solver->getWCSP()->makeEnumeratedVariable(this->getVarNameIndividualHistory(ihistory, agent), 0, underlying_problem->getActionSpace(agent, t)->toDiscreteSpace()->getNumItems() - 1);
                 this->variables.emplace(this->getVarNameIndividualHistory(ihistory, agent), index);
             }
         }
@@ -58,9 +58,9 @@ namespace sdm
             std::vector<Cost> costs;
 
             //Go over all joint action
-            for (const auto &joint_action : *underlying_pb->getActionSpace(t))
+            for (const auto &joint_action : *underlying_problem->getActionSpace(t))
             {
-                costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action->toAction(), t)));
+                costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action->toAction(), hyperplane, t)));
             }
             wcsp_solver->getWCSP()->postBinaryConstraint(this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(0), 0)], this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(1), 1)], costs);
         }
@@ -79,7 +79,7 @@ namespace sdm
             std::vector<std::vector<std::shared_ptr<Item>>> joint_histories;
 
             // Go over each agent
-            for (number agent = 0; agent < underlying_pb->getNumAgents(); agent++)
+            for (number agent = 0; agent < underlying_problem->getNumAgents(); agent++)
             {
                 std::vector<std::shared_ptr<Item>> indiv_actions;
                 std::vector<std::shared_ptr<Item>> indiv_histories;
@@ -90,9 +90,9 @@ namespace sdm
                     indiv_histories.push_back(indiv_history);
 
                     // Search which action is the solution
-                    for (const auto &indiv_action : *underlying_pb->getActionSpace(agent, t))
+                    for (const auto &indiv_action : *underlying_problem->getActionSpace(agent, t))
                     {
-                        if (indiv_action->str() == underlying_pb->getActionSpace(agent, t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history, agent)]])->str())
+                        if (indiv_action->str() == underlying_problem->getActionSpace(agent, t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history, agent)]])->str())
                         {
                             indiv_actions.push_back(indiv_action);
                         }
@@ -109,7 +109,7 @@ namespace sdm
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 auto action = occupancy_mdp->applyDecisionRule(occupancy_state->toOccupancyState(), occupancy_state->toOccupancyState()->getCompressedJointHistory(joint_history), decision_rule, t);
-                value += this->getWeight(value_function, occupancy_state, joint_history, action, t);
+                value += this->getWeight(value_function, occupancy_state, joint_history, action, hyperplane, t);
             }
         }
         else
@@ -120,25 +120,25 @@ namespace sdm
         return std::make_pair(decision_rule, value);
     }
 
-    double ActionSelectionMaxplanWCSP::getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history, const std::shared_ptr<Action> action, number t)
-    {
-        // Compute \sum_{x} s(o,x)* [ r(x,u) + discount * \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
-        double weight = 0.0;
+    // double ActionSelectionMaxplanWCSP::getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history, const std::shared_ptr<Action> action, number t)
+    // {
+    //     // Compute \sum_{x} s(o,x)* [ r(x,u) + discount * \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
+    //     double weight = 0.0;
 
-        // Go over all hidden state in the belief conditionning to a joint history
-        for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
-        {
-            weight += occupancy_state->getProbability(joint_history, state) * std::dynamic_pointer_cast<PWLCValueFunctionInterface>(value_function)->getBeta(this->tmp_representation, state, joint_history, action, t);
-        }
-        return weight;
-    }
+    //     // Go over all hidden state in the belief conditionning to a joint history
+    //     for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
+    //     {
+    //         weight += occupancy_state->getProbability(joint_history, state) * std::dynamic_pointer_cast<PWLCValueFunctionInterface>(value_function)->getBeta(hyperplan, state, joint_history, action, t);
+    //     }
+    //     return weight;
+    // }
 
     long ActionSelectionMaxplanWCSP::getCost(double value)
     {
         return (long)this->offset * (this->max - value);
     }
 
-    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function,const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
+    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, number t)
     {
         auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
 
@@ -148,7 +148,7 @@ namespace sdm
         {
             for (const auto &action : *mpomdp->getActionSpace(t))
             {
-                this->max = std::max(max, this->getWeight(value_function, occupancy_state, joint_history, action->toAction(), t));
+                this->max = std::max(max, this->getWeight(value_function, occupancy_state, joint_history, action->toAction(), hyperplane, t));
             }
         }
     }
