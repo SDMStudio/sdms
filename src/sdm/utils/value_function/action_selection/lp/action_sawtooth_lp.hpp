@@ -77,8 +77,6 @@ namespace sdm
 
         number bigM_value_;
 
-        std::unordered_map<Pair<std::shared_ptr<State>,double>,std::unordered_map<std::shared_ptr<HistoryInterface>,std::vector<std::shared_ptr<State>>>> all_support;
-
         /**
          * @brief Create constraints with the Big M formalim
          * 
@@ -120,7 +118,7 @@ namespace sdm
         virtual void createInitialConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
 
-        void createOmegaConstraints(const Pair<std::shared_ptr<State>,double> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index);
+        void createOmegaConstraints( IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index);
 
     };
 }
