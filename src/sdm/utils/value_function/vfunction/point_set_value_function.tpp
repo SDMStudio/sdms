@@ -39,6 +39,70 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::computeSawtooth(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator, double difference, number t)
+    {
+        double Qrelaxation = this->getQValueRelaxation(state, joint_history, action, t);
+        double SawtoothRatio = 0.0;
+        if (joint_history->expand(next_observation) == next_joint_history)
+        {
+            SawtoothRatio = this->getSawtoothMinimumRatio(state, joint_history, action, next_hidden_state, next_observation, denominator, t);
+        }
+
+        return Qrelaxation + SawtoothRatio * difference;
+    }
+
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::getQValueRelaxation(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t)
+    {
+        // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
+        double weight = 0.0;
+        auto compressed_occupancy_state = state->toOccupancyState();
+
+        // Relaxation of the problem
+        auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
+
+        auto belief = compressed_occupancy_state->getBeliefAt(joint_history);
+        weight = compressed_occupancy_state->getProbability(joint_history) * relaxation->operator()(std::make_pair(belief, action), t);
+
+        return weight;
+    }
+
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::getSawtoothMinimumRatio(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, double denominator, number t)
+    {
+        double numerator = 0.0;
+
+            // Compute the numerator for the Sawtooth Ratio, i.e. we compute the \sum_{x} s(x,o) * T(x,u,x_,z_)
+            // This formulation allow us to tranform the problem at t+1, like the next_one_step_uncompressed_occupancy_state
+            // therefore, we can have the sawtooth ration equivalent to 1.
+
+            auto compressed_occupancy_state = state->toOccupancyState();
+            auto underlying_problem = std::dynamic_pointer_cast<MPOMDPInterface>(ActionSelectionBase::world_->getUnderlyingProblem());
+
+            // Go over all hidden state  in a belief conditionning to a joint history
+            for (const auto &hidden_state : compressed_occupancy_state->getBeliefAt(joint_history)->getStates())
+            {
+                numerator += compressed_occupancy_state->getProbability(joint_history, hidden_state) * underlying_problem->getDynamics(hidden_state, action, next_hidden_state, next_observation, t);
+            }
+
+        return numerator / denominator;
+    }
+
+
+    template <class Hash, class KeyEqual>
+    double BasePointSetValueFunction<Hash, KeyEqual>::computeDifference(const Pair<std::shared_ptr<State>, double> &state_AND_value, number t)
+    {
+
+        double current_upper_bound = state_AND_value.second;                                                                                                 //Get Value for the state at t+1
+        double initial_upper_bound = this->getInitFunction()->operator()(state_AND_value.first->toOccupancyState()->getOneStepUncompressedOccupancy(), t + 1); // Get relaxation value of the state at t+1
+
+        return current_upper_bound - initial_upper_bound;
+    }
+
+
+    template <class Hash, class KeyEqual>
     double BasePointSetValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
         return this->evaluate(state, t).second;

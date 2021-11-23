@@ -80,62 +80,8 @@ namespace sdm
         // Go over all joint history in the subsequent private occupancy state (knowing the information individual history)
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
-            // // Go over all hidden state in the subsequent private occupancy state (knowing the information individual history and joint history)
-            // for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
-            // {
-            //     //Get the probability of the occupancy state
-            //     auto probability = occupancy_state->getProbability(joint_history, state);
-
-            //     // Determine the reward
-            //     double immediate_reward = this->getSerialMPOMDP()->getReward(state, action, t);
-            //     double next_expected_value = this->evaluateNextExpectedValueAt(next_hyperplan, joint_history, state, action, t);
-
-            //     value += probability * (immediate_reward + discount * next_expected_value);
-            // }
-            value += this->getWeight(value_function, occupancy_state, joint_history, action, next_hyperplane, t);
+             value += this->getWeight(value_function, occupancy_state, joint_history, action, next_hyperplane, t);
         }
         return value;
     }
-
-    // Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hyperplan, number t)
-    // {
-    //     auto serial_occupancy_state = state->toOccupancyState();
-    //     auto agent_id = this->getSerialMPOMDP()->getAgentId(t);
-
-    //     // Definie local Variable
-    //     double decision_rule_value = 0.0;
-    //     std::shared_ptr<DecisionRule> decision_rule = std::make_shared<DeterministicDecisionRule>();
-
-    //     // Go over all Individual Histories in Serial Occupancy State
-    //     for (const auto &individual_history : serial_occupancy_state->getIndividualHistories(agent_id))
-    //     {
-    //         // Select the best action to execute in this context and get the value
-    //         auto [best_action, value] = this->selectBestActionKnowingNextHyperplanAndHistory(serial_occupancy_state, next_hyperplan, individual_history, t);
-    //         // Update the decision rule with new history and action
-    //         decision_rule->setProbability(individual_history, best_action, 1);
-    //         // Increment the total value of the decision rule
-    //         decision_rule_value += value;
-    //     }
-    //     return std::make_pair(decision_rule, decision_rule_value);
-    // }
-
-    // double ActionSelectionMaxplanSerial::evaluateNextExpectedValueAt(const std::shared_ptr<State> &hyperplan, const std::shared_ptr<HistoryInterface> &joint_history, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-    // {
-    //     auto next_hyperplan = hyperplan->toOccupancyState();
-
-    //     // Compute the next value
-    //     double next_expected_value = 0.0;
-
-    //     // Go over all Reachable Serial State
-    //     for (const auto &next_state : this->getSerialMPOMDP()->getReachableStates(state, action, t))
-    //     {
-    //         // Go over all Reachable Observation
-    //         for (const auto &next_observation : this->getSerialMPOMDP()->getReachableObservations(state, action, next_state, t))
-    //         {
-    //             auto next_joint_history = joint_history->expand(next_observation)->toJointHistory();
-    //             next_expected_value += next_hyperplan->getProbability(next_joint_history, next_state) * this->getSerialMPOMDP()->getDynamics(state, action, next_state, next_observation, t);
-    //         }
-    //     }
-    //     return next_expected_value;
-    // }
 }
