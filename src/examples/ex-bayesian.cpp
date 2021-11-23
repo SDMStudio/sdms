@@ -9,7 +9,7 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
     std::string bayesian_file = (argc > 1) ? argv[1] :  "/home/sdms/data/world/bayesian_game/ex1.byg";
-    // Instanciate a two players bayesian game from a ".byg" file
+    // Instanciate a two players bayesian game from a ".byg" or ".nfg" file
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "#> Instanciate a two players bayesian game" << std::endl;
     std::cout << "----------------------------------------" << std::endl;

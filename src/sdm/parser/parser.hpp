@@ -32,7 +32,5 @@ namespace sdm
 
     std::shared_ptr<sdm::BayesianGameInterface> parse_file_bayesian(std::string);
 
-    std::shared_ptr<sdm::BayesianGameInterface> parse_file_normal_form(std::string filename);
-
   } // namespace parser
 } // namespace sdm

@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     std::cout << "#> Instanciate a two players normal form game" << std::endl;
     std::cout << "----------------------------------------" << std::endl;
 
-    std::shared_ptr<sdm::BayesianGameInterface> nfGame = parser::parse_file_normal_form(nf_file);
+    std::shared_ptr<sdm::BayesianGameInterface> nfGame = parser::parse_file_bayesian(nf_file);
 
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "#> Initialize the solver" << std::endl;
@@ -27,5 +27,4 @@ int main(int argc, char **argv)
     std::cout << "#> Solve the bayesian game" << std::endl;
     std::cout << "----------------------------------------" << std::endl;
     solver->solve();    
-    //solver->terminate();
 }

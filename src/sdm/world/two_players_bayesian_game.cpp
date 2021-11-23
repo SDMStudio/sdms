@@ -3,15 +3,18 @@
 #include <fstream>
 #include <algorithm>
 #include <sdm/world/two_players_bayesian_game.hpp>
+#include <sdm/types.hpp>
+#include <sdm/core/state/base_state.hpp>
+#include <sdm/core/action/base_action.hpp>
 
 sdm::TwoPlayersBayesianGame::TwoPlayersBayesianGame(){
     gameDimensions = std::vector<int>();
     typesNumbers = std::vector<int>();
-    payoffMatrixes = std::vector<std::vector<float>>();
-    jointTypeProbabilities = std::vector<std::vector<float>>();
+    payoffMatrixes = std::vector<std::vector<double>>();
+    jointTypeProbabilities = std::vector<std::vector<double>>();
 }
 
-int sdm::TwoPlayersBayesianGame::getNombreAgents() {
+sdm::number sdm::TwoPlayersBayesianGame::getNumAgents() const {
     return 2;
 }
 
@@ -37,10 +40,12 @@ void sdm::TwoPlayersBayesianGame::addJointTypeProbabilities(std::vector<std::str
     [](const std::string& str) { return std::stof(str);});
 }
 
-float sdm::TwoPlayersBayesianGame::getJointTypesProba(std::vector<int> types){
+float sdm::TwoPlayersBayesianGame::getJointTypesProba(std::vector<std::shared_ptr<State>> types){
     try
     {
-        return jointTypeProbabilities[types[0]][types[1]];
+        DiscreteState& type1 = dynamic_cast<DiscreteState&>(*types[0]); 
+        DiscreteState& type2 = dynamic_cast<DiscreteState&>(*types[1]); 
+        return jointTypeProbabilities[type1.getState()][type2.getState()];
     }
     catch(const std::exception& e)
     {
@@ -49,13 +54,15 @@ float sdm::TwoPlayersBayesianGame::getJointTypesProba(std::vector<int> types){
     return -1;
 }
 
-float sdm::TwoPlayersBayesianGame::getPayoff(std::vector<int> types, std::vector<int> actions, int whichPlayer){
-    int type1(types[0]); int type2(types[1]);
-    int action1(actions[0]); int action2(actions[1]);
+float sdm::TwoPlayersBayesianGame::getPayoff(std::vector<std::shared_ptr<State>> types, std::vector<std::shared_ptr<Action>> actions, int idAgent){
+    auto type1 = dynamic_cast<DiscreteState&>(*types[0]); 
+    DiscreteState& type2 = dynamic_cast<DiscreteState&>(*types[1]); 
+    DiscreteAction& action1 = dynamic_cast<DiscreteAction&>(*actions[0]);
+    DiscreteAction& action2 = dynamic_cast<DiscreteAction&>(*actions[1]);
     int playerOffset = 0;
-    if (whichPlayer == 1) playerOffset = gameDimensions[0];
+    if (idAgent == 1) playerOffset = gameDimensions[0];
     try {
-        return payoffMatrixes[type1*typesNumbers[1]*gameDimensions[0]*2 + type2*gameDimensions[0]*2 + action1 + playerOffset][action2];
+        return payoffMatrixes[type1.getState()*typesNumbers[1]*gameDimensions[0]*2 + type2.getState()*gameDimensions[0]*2 + action1.getAction() + playerOffset][action2.getAction()];
     }
     catch(const std::exception& e)
     {

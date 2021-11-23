@@ -1,5 +1,8 @@
 #include "sdm/algorithms/bayesian_game_solver.hpp"
 #include <sdm/exception.hpp>
+#include <sdm/core/state/base_state.hpp>
+#include <sdm/core/action/base_action.hpp>
+
 
 
 sdm::TwoPlayersBayesianGameSolver::TwoPlayersBayesianGameSolver(std::shared_ptr <BayesianGameInterface> _game, int _playerIndex) : Algorithm("TwoPlayersBayesianGameSolver") {
@@ -56,15 +59,13 @@ bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(std::shared_ptr<Ba
             for (int opAction = 0; opAction < matrixDimensions[abs(playerIndex -1)]; opAction ++){
                 IloExpr actionConstraint(env);
                 for (int plType = 0; plType < typesNumbers[playerIndex]; plType ++){
-                    float jointTypeProba = game->getJointTypesProba(std::vector<int>{opType, plType});
-                    if (playerIndex == 0) jointTypeProba = game->getJointTypesProba(std::vector<int>{plType, opType});
+                    std::vector<std::shared_ptr<State>> types{std::make_shared<DiscreteState>(DiscreteState(opType) ), std::make_shared<DiscreteState>(DiscreteState(plType))};
+                    if (playerIndex == 0) types = std::vector<std::shared_ptr<State>>{std::make_shared<DiscreteState>(DiscreteState(plType) ), std::make_shared<DiscreteState>(DiscreteState(opType))};
+                    float jointTypeProba = game->getJointTypesProba(types);
                     for(int plAction = 0; plAction < matrixDimensions[playerIndex]; plAction ++){
-                        float coef;
-                        if(playerIndex == 0){
-                            coef = jointTypeProba * game->getPayoff(std::vector<int>{plType, opType}, std::vector<int>{plAction, opAction}, playerIndex);
-                        }else{
-                            coef = jointTypeProba * game->getPayoff(std::vector<int>{opType, plType}, std::vector<int>{opAction, plAction}, playerIndex);
-                        }
+                        std::vector<std::shared_ptr<Action>> actions {std::make_shared<DiscreteAction>(plAction), std::make_shared<DiscreteAction>(opAction)};
+                        if (playerIndex == 1) actions = std::vector<std::shared_ptr<Action>>{std::make_shared<DiscreteAction>(opAction), std::make_shared<DiscreteAction>(plAction)};
+                        float coef = jointTypeProba * game->getPayoff(types, actions, playerIndex);
                         actionConstraint += coef*vars[numberOfOptiVars + plType*matrixDimensions[0] + plAction];
                     }
                 }
