@@ -43,12 +43,6 @@ namespace sdm
         return this->createLP(vf, state, t);
     }
 
-    // ************************************************************************
-    // ************************************************************************
-    // ******************* Create Variable for LP *****************************
-    // ************************************************************************
-    // ************************************************************************
-
     void ActionSelectionSawtoothLP::createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
         try
@@ -167,6 +161,7 @@ namespace sdm
             exit(-1);
         }
     }
+
 
     void ActionSelectionSawtoothLP::createGlobalConstraint(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number)
     {
@@ -388,12 +383,6 @@ namespace sdm
         }
         return numerator / denominator;
     }
-
-    // ************************************************************************
-    // ************************************************************************
-    // ******************* Other Function for LP ***************************
-    // ************************************************************************
-    // ************************************************************************
 
     void ActionSelectionSawtoothLP::createDecentralizedVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {

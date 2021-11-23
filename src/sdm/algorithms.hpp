@@ -28,6 +28,7 @@ namespace sdm
                                                          std::string value_name,
                                                          std::string init_name,
                                                          bool store_state,
+                                                         bool pessimistic,
                                                          std::string type_of_resolution_name,
                                                          std::string type_of_pruning,
                                                          int freq_pruning);

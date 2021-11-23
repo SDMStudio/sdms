@@ -2,12 +2,12 @@
 #pragma once
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/utils/linear_programming/variable_naming.hpp>
 #include <sdm/utils/linear_programming/lp_problem_interface.hpp>
-// #include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
-    class LPBase : public LPInterface
+    class LPBase : public LPInterface, public VarNaming
     {
     public:
         LPBase();
