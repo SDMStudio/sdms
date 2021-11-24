@@ -152,7 +152,6 @@ namespace sdm
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
-
                 con[index].setLinearCoef(var[recover], -occupancy_state->getProbability(joint_history) * relaxation->getQValueAt(occupancy_state->getBeliefAt(joint_history), action, t));
             }
         }

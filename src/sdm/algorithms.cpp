@@ -71,7 +71,7 @@ namespace sdm
 
             if (isInstanceOf<SerialProblemInterface>(problem))
             {
-                action_selection = std::make_shared<ActionSelectionSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
+                action_selection = nullptr; //std::make_shared<ActionSelectionSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
             }
             else
             {
@@ -109,8 +109,9 @@ namespace sdm
                 else if (value_name.find("lp") != string::npos)
                 {
 #ifdef WITH_CPLEX
+                    // action_selection = std::make_shared<ActionSelectionMaxplanLPSerial>(problem);
                     if (isInstanceOf<SerialProblemInterface>(problem))
-                        action_selection = std::make_shared<ActionSelectionMaxplanLPSerial>(problem);
+                        throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
                     else
                         action_selection = std::make_shared<ActionSelectionMaxplanLP>(problem);
 #else
