@@ -104,6 +104,8 @@ namespace sdm
 
             this->createOmegaConstraints(env, con, var, index, t);
         }
+
+        DecentralizedLP::createConstraints(getSawtoothValueFunction(), occupancy_state, env, model, con, var, index, t);
     }
 
     void ActionSelectionSawtoothLP::createOmegaConstraints(IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
