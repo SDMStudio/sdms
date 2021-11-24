@@ -1,18 +1,18 @@
 #ifdef WITH_CPLEX
-
 #pragma once
 
-#include <sdm/utils/value_function/action_selection/action_selection_base.hpp>
 #include <sdm/utils/linear_programming/decentralized_lp_problem.hpp>
+#include <sdm/utils/value_function/action_selection/action_selection_base.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 
-#include <sdm/utils/linear_algebra/mapped_vector.hpp>
 namespace sdm
 {
+
     class ActionSelectionSawtoothLP : public ActionSelectionBase, public DecentralizedLP
     {
     public:
         ActionSelectionSawtoothLP();
-        ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP>& world,TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
+        ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
 
         /**
          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time
@@ -61,8 +61,9 @@ namespace sdm
          * @param double& index
          * @param number t : Time Step 
          */
-        void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
-        
+        virtual void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
+
+        std::shared_ptr<SawtoothValueFunction> getSawtoothValueFunction() const;
 
     protected:
         /**
@@ -75,51 +76,57 @@ namespace sdm
          */
         TypeSawtoothLinearProgram type_of_linear_program_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
 
+        /**
+         * @brief Big M hyperparameter. 
+         * 
+         * See CPLEX documentation for more information about how to use it.
+         * 
+         */
         number bigM_value_;
 
         /**
-         * @brief Create constraints with the Big M formalim
-         * 
-         * @param const std::shared_ptr<ValueFunctionInterface>& vf : Value function
-         * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param const std::shared_ptr<JointHistoryInterface>& joint_history
-         * @param const std::shared_ptr<State> &next_hidden_state
-         * @param const std::shared_ptr<Observation> &next_observation
-         * @param const std::shared_ptr<JointHistoryInterface> &next_joint_history
-         * @param const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state 
-         * @param double probability
-         * @param double difference
-         * @param IloEnv & : env 
-         * @param IloRangeArray &con
-         * @param IloModel & : var 
-         * @param double& index
-         * @param number t : Time Step 
+         * @brief The sawtooth value function 
          */
-        virtual void createSawtoothBigM(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_one_step_uncompressed_occupancy_state, double probability, double difference, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        std::shared_ptr<SawtoothValueFunction> sawtooth_vf;
 
         /**
-         * @brief Create the constraints with IloIfThen formalim specialized
+         * @brief Create constraints based on BigM method.
          * 
-         * @param const std::shared_ptr<ValueFunctionInterface>& vf : Value function
-         * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param IloEnv & : env 
-         * @param IloModel & : var 
-         * @param IloRangeArray& : model 
-         * @param IloRangeArray &con
-         * @param IloNumVarArray &var
-         * @param double& index
-         * @param number t : Time Step 
+         * @param value_function the sawtooth value function
+         * @param occupancy_state the current one step uncompressed occupancy state
+         * @param next_occupancy_state the next one step occupancy state
+         * @param next_state the next state
+         * @param next_joint_history the next history
+         * @param next_observation the next observation
+         * @param env CPLEX environment 
+         * @param con CPLEX constraints
+         * @param var CPLEX variables
+         * @param index index of the constraint
+         * @param t the time step
          */
-        // virtual void createSawtoothIloIfThen(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t);
+        virtual void createSawtoothBigM(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
-        virtual void createSawtoothIloIfThen(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<State> &next_state, double probability, double difference, IloEnv &env, IloModel &model, IloNumVarArray &var, number t);
+        /**
+         * @brief Create constraints based on IloIfThen method
+         * 
+         * @param value_function the sawtooth value function
+         * @param occupancy_state the current one step uncompressed occupancy state
+         * @param next_occupancy_state the next one step occupancy state
+         * @param next_state the next state
+         * @param next_joint_history the next history
+         * @param next_observation the next observation
+         * @param env CPLEX environment 
+         * @param model CPLEX model
+         * @param var CPLEX variables
+         * @param t the time step
+         */
+        virtual void createSawtoothIloIfThen(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloModel &model, IloNumVarArray &var, number t);
 
+        virtual void createInitialConstraints(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
-        virtual void createInitialConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
-
-
-        void createOmegaConstraints( IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index);
-
+        virtual void createOmegaConstraints(IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
+        
+        virtual std::shared_ptr<Joint<std::shared_ptr<Observation>>> determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &, number t);
     };
 }
 

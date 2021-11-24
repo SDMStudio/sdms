@@ -164,9 +164,9 @@ namespace sdm
   }
 
   template <class BaseClass, class MyClass>
-  bool isInstanceOf(std::shared_ptr<MyClass> aPtr)
+  std::shared_ptr<BaseClass> isInstanceOf(std::shared_ptr<MyClass> aPtr)
   {
-    return (std::dynamic_pointer_cast<BaseClass>(aPtr) != nullptr);
+    return std::dynamic_pointer_cast<BaseClass>(aPtr);
   }
 
   // template <typename T>

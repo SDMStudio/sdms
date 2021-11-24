@@ -1,9 +1,7 @@
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
-
-#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
-#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp_serial.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
+#include <sdm/world/base/belief_mdp_interface.hpp>
 
 namespace sdm
 {
@@ -21,12 +19,12 @@ namespace sdm
     {
         this->relaxation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
 
-#ifdef WITH_CPLEX
-        if (isInstanceOf<ActionSelectionSawtoothLP>(action_selection))
-        {
-            this->is_sawtooth_lp = true;
-        }
-#endif
+        // #ifdef WITH_CPLEX
+        //         if (isInstanceOf<ActionSelectionSawtoothLP>(action_selection))
+        //         {
+        //             this->is_sawtooth_lp = true;
+        //         }
+        // #endif
     }
 
     template <class Hash, class KeyEqual>
@@ -73,60 +71,6 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
-    double BaseSawtoothValueFunction<Hash, KeyEqual>::getQValueRelaxation(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t)
-    {
-        // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
-        double weight = 0.0;
-        auto compressed_occupancy_state = state->toOccupancyState();
-
-        // Relaxation of the problem
-        auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
-
-        auto belief = compressed_occupancy_state->getBeliefAt(joint_history);
-        weight = compressed_occupancy_state->getProbability(joint_history) * relaxation->operator()(std::make_pair(belief, action), t);
-
-        return weight;
-    }
-
-    template <class Hash, class KeyEqual>
-    double BaseSawtoothValueFunction<Hash, KeyEqual>::getRelaxedQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
-    {
-        if (this->getInitFunction())
-            relaxed_value = this->getInitFunction()->operator()(state, action, t);
-        else
-            relaxed_value = this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getRelaxedValueAt(state, action, t);
-            relaxed_value = this->getQValueAt()this->representation[t].getDefault();
-        this->relaxation[t].emplace(state, relaxed_value);
-
-
-
-        // \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
-        double weight = 0.0;
-        auto compressed_occupancy_state = state->toOccupancyState();
-
-        // Relaxation of the problem
-        auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
-
-        auto belief = compressed_occupancy_state->getBeliefAt(joint_history);
-        weight = compressed_occupancy_state->getProbability(joint_history) * relaxation->operator()(std::make_pair(belief, action), t);
-
-        return weight;
-    }
-
-    template <class Hash, class KeyEqual>
-    double BaseSawtoothValueFunction<Hash, KeyEqual>::computeSawtooth(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator, double difference, number t)
-    {
-        double Qrelaxation = this->getQValueRelaxation(state, joint_history, action, t);
-        double SawtoothRatio = 0.0;
-        if (joint_history->expand(next_observation) == next_joint_history)
-        {
-            SawtoothRatio = this->getSawtoothMinimumRatio(state, joint_history, action, next_hidden_state, next_observation, denominator, t);
-        }
-
-        return Qrelaxation + SawtoothRatio * difference;
-    }
-
-    template <class Hash, class KeyEqual>
     Pair<std::shared_ptr<State>, double> BaseSawtoothValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state, number t)
     {
 
@@ -163,35 +107,44 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
-    double BaseSawtoothValueFunction<Hash, KeyEqual>::computeDifference(const Pair<std::shared_ptr<State>, double> &point_k, number t)
+    double BaseSawtoothValueFunction<Hash, KeyEqual>::getSawtoothValueAt(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<JointHistoryInterface> joint_history,
+                                                                         const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
+                                                                         const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history,
+                                                                         const std::shared_ptr<Observation> &next_observation, number t)
     {
-        auto [s_k, v_k] = point_k;
+        auto oMDP = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
+        
+        // Compute the first term : Q_relax = Q^{MDP} (b,u)
+        auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
+        double Q_relax = relaxation->getQValueAt(belief, action, t);
 
-        double relaxation_k = this->getRelaxedValueAt(s_k->toOccupancyState()->getOneStepUncompressedOccupancy(), t + 1); // Get relaxation value of the state at t+1
-        double relaxation_k = this->getRelaxedValueAt(s_k, t);
+        auto [next_belief, proba] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, action, next_observation, t);
+        auto next_belief_k = next_occupancy_state->getBeliefAt(next_joint_history);
 
-        return (v_k - relaxation_k);
-    }
-
-    template <class Hash, class KeyEqual>
-    double BaseSawtoothValueFunction<Hash, KeyEqual>::getSawtoothMinimumRatio(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, double denominator, number t)
-    {
-        double numerator = 0.0;
-
-        // Compute the numerator for the Sawtooth Ratio, i.e. we compute the \sum_{x} s(x,o) * T(x,u,x_,z_)
-        // This formulation allow us to tranform the problem at t+1, like the next_one_step_uncompressed_occupancy_state
-        // therefore, we can have the sawtooth ration equivalent to 1.
-
-        auto compressed_occupancy_state = state->toOccupancyState();
-        auto underlying_problem = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
-
-        // Go over all hidden state  in a belief conditionning to a joint history
-        for (const auto &hidden_state : compressed_occupancy_state->getBeliefAt(joint_history)->getStates())
+        // Compute the second term : \delta (o') sum_x b(x) p_{xy}^{uz}
+        double next_expected = 0.0;
+        if ((joint_history->expand(next_observation) == next_joint_history) && (next_belief == next_belief_k))
         {
-            numerator += compressed_occupancy_state->getProbability(joint_history, hidden_state) * underlying_problem->getDynamics(hidden_state, action, next_hidden_state, next_observation, t);
+            // Compute the numerator for the Sawtooth Ratio, i.e. we compute \sum_{x} b(x) * p_{xy}^{uz}
+            // This formulation allow us to tranform the problem at t+1, like the next_one_step_uncompressed_occupancy_state
+            // therefore, we can have the sawtooth ratio equivalent to 1.
+
+            auto underlying_dpomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
+
+            // double ratio = 0.0;
+            // // Go over all hidden state  in a belief conditionning to a joint history
+            // for (const auto &state : belief->getStates())
+            // {
+            //     ratio += belief->getProbability(state) * underlying_dpomdp->getDynamics(state, action, next_state, next_observation, t);
+            // }
+            // ratio = ratio / next_occupancy_state->getProbability(next_joint_history, next_state);
+
+            double ratio = proba / next_occupancy_state->getProbability(next_joint_history);
+
+            next_expected = this->getWorld()->getDiscount(t) * ratio * (this->getValueAt(next_occupancy_state, t + 1) - this->getRelaxedValueAt(next_occupancy_state, t + 1));
         }
 
-        return numerator / denominator;
+        return Q_relax + next_expected;
     }
 
     template <class Hash, class KeyEqual>
@@ -249,18 +202,18 @@ namespace sdm
         // Determine the ratio for the specific case when the state is a Occupancy State
         double min_ratio;
         std::shared_ptr<OccupancyStateInterface> point, occupancy_state;
-        if (!this->is_sawtooth_lp)
-        {
-            min_ratio = 1.0;
-            point = s_k;
-            occupancy_state = s;
-        }
-        else
-        {
-            min_ratio = std::numeric_limits<double>::max();
-            point = s_k->getOneStepUncompressedOccupancy();
-            occupancy_state = s->getOneStepUncompressedOccupancy();
-        }
+        // if (!this->is_sawtooth_lp)
+        // {
+        min_ratio = 1.0;
+        point = s_k;
+        occupancy_state = s;
+        // }
+        // else
+        // {
+        //     min_ratio = std::numeric_limits<double>::max();
+        //     point = s_k->getOneStepUncompressedOccupancy();
+        //     occupancy_state = s->getOneStepUncompressedOccupancy();
+        // }
 
         // Go over all joint history
         for (auto &o : point->getJointHistories())

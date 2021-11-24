@@ -3,7 +3,6 @@
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/state/state.hpp>
 
-
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
@@ -18,7 +17,7 @@ namespace sdm
         using output_type = TOutput;
 
         virtual ~Function() {}
-        
+
         virtual output_type operator()(const input_type &) = 0;
     };
 
@@ -30,7 +29,7 @@ namespace sdm
         using output_type = TOutput;
 
         virtual ~BinaryFunction() {}
-        
+
         virtual output_type operator()(const TInput1 &, const TInput2 &) = 0;
 
         output_type operator()(const input_type &p_input)
@@ -39,34 +38,20 @@ namespace sdm
         }
     };
 
-    class BaseRelaxedValueFunction : public BinaryFunction<std::shared_ptr<State>, number, double>
-    {
-    public :
-        virtual ~BaseRelaxedValueFunction() {}
-
-        virtual double operator()(const std::shared_ptr<State> &ostate, const number &t) = 0;
-
-        virtual bool isPomdpAvailable() = 0;
-        virtual bool isMdpAvailable() = 0;
-
-    };
-
     class ValueFunction;
 
-    class RelaxedValueFunction : public BaseRelaxedValueFunction
+    class RelaxedValueFunction : public BinaryFunction<std::shared_ptr<State>, number, double>,
+                                 public BinaryFunction<Pair<std::shared_ptr<State>, std::shared_ptr<Action>>, number, double>
     {
-    public :
-
+    public:
         virtual ~RelaxedValueFunction() {}
 
-        virtual double operator()(const std::shared_ptr<State> &ostate, const number &t) = 0;
-
-        virtual double operator()(const Pair<std::shared_ptr<State>, std::shared_ptr<Action>> &ostate, const number &t) = 0;
+        virtual double getValueAt(const std::shared_ptr<State> &state, const number &t) = 0;
+        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &t) = 0;
 
         virtual bool isPomdpAvailable() = 0;
         virtual bool isMdpAvailable() = 0;
 
         virtual std::shared_ptr<ValueFunction> getRelaxation() = 0;
-
     };
 } // namespace sdm

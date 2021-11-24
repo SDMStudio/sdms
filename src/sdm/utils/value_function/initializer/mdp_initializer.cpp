@@ -7,7 +7,7 @@
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
 
-#include <sdm/utils/value_function/initializer/state_2_occupancy_vf.hpp>
+#include <sdm/utils/value_function/initializer/mdp_relaxation.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
 
 namespace sdm
@@ -53,7 +53,7 @@ namespace sdm
             value_iteration->initialize();
             value_iteration->solve();
 
-            value_function->setInitFunction(std::make_shared<State2OccupancyValueFunction>(value_iteration->getValueFunction()));
+            value_function->setInitFunction(std::make_shared<MDPRelaxation>(value_iteration->getValueFunction()));
         }
         else
         {
@@ -86,7 +86,7 @@ namespace sdm
             }
 
             auto ubound = algorithm->getUpperBound();
-            value_function->setInitFunction(std::make_shared<State2OccupancyValueFunction>(ubound));
+            value_function->setInitFunction(std::make_shared<MDPRelaxation>(ubound));
         }
         // Set the function that will be used to get interactively upper bounds
     }

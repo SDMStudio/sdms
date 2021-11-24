@@ -1,5 +1,5 @@
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
-#include <sdm/utils/value_function/initializer/belief_2_occupancy_vf.hpp>
+#include <sdm/utils/value_function/initializer/pomdp_relaxation.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
@@ -65,6 +65,6 @@ namespace sdm
 
         auto ubound = algorithm->getUpperBound();
 
-        value_function->setInitFunction(std::make_shared<Belief2OccupancyValueFunction>(ubound));
+        value_function->setInitFunction(std::make_shared<POMDPRelaxation>(ubound));
     }
 } // namespace sdm

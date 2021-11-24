@@ -66,6 +66,12 @@ namespace sdm
          */
         double getRelaxedValueAt(const std::shared_ptr<State> &state, number t);
 
+
+        double getSawtoothValueAt(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<JointHistoryInterface> joint_history,
+                                  const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
+                                  const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history,
+                                  const std::shared_ptr<Observation> &next_observation, number t);
+
         /**
          * @brief Copy the value function and return a reference to the copied object.
          * 
@@ -130,45 +136,6 @@ namespace sdm
          * @return the ratio 
          */
         double computeRatio(const std::shared_ptr<State> &s, const std::shared_ptr<State> &s_k);
-
-        double computeSawtooth(const std::shared_ptr<State> &state, const std::shared_ptr<Action>& action, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, const std::shared_ptr<JointHistoryInterface> &next_joint_history, double denominator , double difference, number t);
-
-        /**
-         * @brief Calculate the Ratio of Sawtooth
-         * 
-         * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param const const std::shared_ptr<JointHistoryInterface>& joint_history
-         * @param const std::shared_ptr<Action>& action
-         * @param const std::shared_ptr<State>& next_hidden_state
-         * @param const std::shared_ptr<Observation>& next_observation
-         * @param double denominator
-         * @param number t : Time Step 
-         */
-        virtual double getSawtoothMinimumRatio(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_hidden_state, const std::shared_ptr<Observation> &next_observation, double denominator, number t);
-
-
-        /**
-         * @brief Calculate the Q Value Relaxation i.e. \sum_{o} a(u|o) \sum_{x} s(x,o) * Q_MDP(x,u)
-
-         * 
-         * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param const std::shared_ptr<JointHistoryInterface> joint_history
-         * @param std::shared_ptr<Action> action
-         * @param number t : Time Step 
-         */
-        virtual double getQValueRelaxation(const std::shared_ptr<State> &state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &action, number t);
-
-
-       /**
-         * @brief Compute the difference v_kappa - V_kappa i.e. the value of point at t+1 minus the relaxation value of the point at t+1
-         * 
-         * @param state_AND_value 
-         * @param t 
-         * @return double 
-         */
-        double computeDifference(const Pair<std::shared_ptr<State>,double>& state_AND_value, number t);
-
-
 
         /**
          * @brief Ratio specialized for the Occupancy case (used for the evaluate function)
