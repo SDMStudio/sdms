@@ -27,5 +27,11 @@ int main(int argc, char **argv)
     std::cout << "#> Solve the bayesian game" << std::endl;
     std::cout << "----------------------------------------" << std::endl;
     solver->solve();    
+
+    std::cout << "----------------------------------------" << std::endl;
+    std::cout << "#> Decision rule :" << std::endl;
+    std::cout << "----------------------------------------" << std::endl;
+
+    std::cout << std::static_pointer_cast<TwoPlayersBayesianGameSolver> (solver)->solution->str() << std::endl;
     //solver->terminate();
 }

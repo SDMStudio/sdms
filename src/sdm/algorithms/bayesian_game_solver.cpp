@@ -1,4 +1,4 @@
-#include "sdm/algorithms/bayesian_game_solver.hpp"
+#include <sdm/algorithms/bayesian_game_solver.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/core/state/base_state.hpp>
 #include <sdm/core/action/base_action.hpp>
@@ -99,6 +99,18 @@ void sdm::TwoPlayersBayesianGameSolver::solve(){
     c.getValues(vals, vars);
     env.out() << "Variables = " << vars << endl;
     env.out() << "Values = " << vals << endl;
+
+    //save solution
+    StochasticDecisionRule sdr = StochasticDecisionRule();
+    int nTypes = game->getTypesNumbers()[playerIndex];
+    for (int i = 0; i < nTypes; i ++)
+    {
+        for (int j = 0; j < game->getGameDimensions()[playerIndex]; j ++){
+            sdr.setProbability(std::make_shared<DiscreteState>(DiscreteState(i)), std::make_shared<DiscreteAction>(DiscreteAction(j)), vals[(i+1)*nTypes+j]);
+        }
+    }
+    solution = std::make_shared<StochasticDecisionRule>(sdr);
+
     terminate(); 
 }
 
@@ -109,6 +121,10 @@ void sdm::TwoPlayersBayesianGameSolver::terminate()
 
 std::string sdm::TwoPlayersBayesianGameSolver::getAlgorithmName() {
     return "TwoPlayersBayesianGameSolver";
+}
+
+std::shared_ptr<sdm::StochasticDecisionRule> sdm::TwoPlayersBayesianGameSolver::getSolution(){
+    return solution;
 }
 
 void sdm::TwoPlayersBayesianGameSolver::test() {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdm/world/bayesian_game_interface.hpp>
+#include <sdm/core/action/stochastic_decision_rule.hpp>
 #include <ilcplex/ilocplex.h>
 #include <sdm/public/algorithm.hpp>
 #include <memory>
@@ -28,7 +29,9 @@ namespace sdm
         void terminate();
 
         std::string getAlgorithmName();
-    
+
+        std::shared_ptr<StochasticDecisionRule> getSolution();
+            
         protected:
     
         IloEnv env; 
@@ -36,5 +39,6 @@ namespace sdm
         IloNumVarArray vars;
         std::shared_ptr<BayesianGameInterface> game;
         int playerIndex;
+        std::shared_ptr<StochasticDecisionRule> solution;
     };
 };
