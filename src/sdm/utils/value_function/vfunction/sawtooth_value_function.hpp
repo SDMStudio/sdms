@@ -69,7 +69,7 @@ namespace sdm
 
         double getSawtoothValueAt(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<JointHistoryInterface> joint_history,
                                   const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
-                                  const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history,
+                                  const std::shared_ptr<JointHistoryInterface> &next_joint_history,
                                   const std::shared_ptr<Observation> &next_observation, number t);
 
         /**

@@ -44,14 +44,10 @@ namespace sdm
             // Go over all Joint History Next
             for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
             {
-                // Go over all Hidden State in the next one step uncomppresed occupancy state
-                for (const auto next_state : next_occupancy_state->getBeliefAt(next_jhistory)->getStates())
-                {
-                    // <! \omega_k(x',o')
-                    VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_jhistory);
-                    var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
-                    this->setNumber(VarName, index++);
-                }
+                // <! \omega_k(x',o')
+                VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_occupancy_state->getBeliefAt(next_jhistory), next_jhistory);
+                var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
+                this->setNumber(VarName, index++);
             }
         }
 
@@ -82,22 +78,18 @@ namespace sdm
                 // Go over all Joint History Next
                 for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
                 {
-                    // Go over all Hidden State in the next one step uncomppresed occupancy state
-                    for (const auto next_state : next_occupancy_state->getBeliefAt(next_jhistory)->getStates())
-                    {
-                        // Determine the next Joint observation thanks to the next joint history
-                        auto next_joint_observation = this->determineNextJointObservation(next_jhistory, t);
+                    // Determine the next Joint observation thanks to the next joint history
+                    auto next_joint_observation = this->determineNextJointObservation(next_jhistory, t);
 
-                        // We search for the joint_history which allow us to obtain the current next_history conditionning to the next joint observation
-                        switch (this->current_type_of_resolution_)
-                        {
-                        case TypeOfResolution::BigM:
-                            this->createSawtoothBigM(compressed_occupancy_state, next_occupancy_state, next_state, next_jhistory, next_joint_observation, env, con, var, index, t);
-                            break;
-                        case TypeOfResolution::IloIfThenResolution:
-                            this->createSawtoothIloIfThen(compressed_occupancy_state, next_occupancy_state, next_state, next_jhistory, next_joint_observation, env, model, var, t);
-                            break;
-                        }
+                    // We search for the joint_history which allow us to obtain the current next_history conditionning to the next joint observation
+                    switch (this->current_type_of_resolution_)
+                    {
+                    case TypeOfResolution::BigM:
+                        this->createSawtoothBigM(compressed_occupancy_state, next_occupancy_state, next_jhistory, next_joint_observation, env, con, var, index, t);
+                        break;
+                    case TypeOfResolution::IloIfThenResolution:
+                        this->createSawtoothIloIfThen(compressed_occupancy_state, next_occupancy_state, next_jhistory, next_joint_observation, env, model, var, t);
+                        break;
                     }
                 }
             }
@@ -122,14 +114,10 @@ namespace sdm
             // Go over all Joint History Next
             for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
             {
-                // Go over all Hidden State in the next one step uncomppresed occupancy state
-                for (const auto next_state : next_occupancy_state->getBeliefAt(next_jhistory)->getStates())
-                {
-                    // <! \omega_k(x',o')
-                    auto VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_jhistory);
-                    recover = this->getNumber(VarName);
-                    con[index].setLinearCoef(var[recover], +1.0);
-                }
+                // <! \omega_k(x',o')
+                auto VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_occupancy_state->getBeliefAt(next_jhistory), next_jhistory);
+                recover = this->getNumber(VarName);
+                con[index].setLinearCoef(var[recover], +1.0);
             }
             index++;
         }
@@ -139,8 +127,8 @@ namespace sdm
     {
         auto underlying_problem = ActionSelectionBase::getWorld()->getUnderlyingProblem();
         auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(getSawtoothValueFunction()->getInitFunction());
-
         number recover = 0;
+        double coef;
 
         con.add(IloRange(env, -IloInfinity, 0));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
@@ -151,16 +139,19 @@ namespace sdm
             auto action = u->toAction();
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
+                // Compute coefficient related to a(u|o)
+                coef = occupancy_state->getProbability(joint_history) * relaxation->getQValueAt(occupancy_state->getBeliefAt(joint_history), action, t);
+
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
-                con[index].setLinearCoef(var[recover], -occupancy_state->getProbability(joint_history) * relaxation->getQValueAt(occupancy_state->getBeliefAt(joint_history), action, t));
+                con[index].setLinearCoef(var[recover], -coef);
             }
         }
         index++;
     }
 
-    void ActionSelectionSawtoothLP::createSawtoothBigM(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    void ActionSelectionSawtoothLP::createSawtoothBigM(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto underlying_problem = ActionSelectionBase::getWorld()->getUnderlyingProblem();
         number recover = 0;
@@ -176,7 +167,7 @@ namespace sdm
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 // Compute coefficient related to a(u|o)
-                coef = occupancy_state->getProbability(joint_history) * getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state->getBeliefAt(joint_history), joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_state, next_joint_history, /* to be kept */ next_observation, t);
+                coef = occupancy_state->getProbability(joint_history) * getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state->getBeliefAt(joint_history), joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t);
 
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
@@ -185,13 +176,13 @@ namespace sdm
             }
         }
         // <! \omega_k(x',o') * BigM
-        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_joint_history));
+        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, occupancy_state->getBeliefAt(next_joint_history), next_joint_history));
         con[index].setLinearCoef(var[recover], this->bigM_value_);
 
         index++;
     }
 
-    void ActionSelectionSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
+    void ActionSelectionSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
     {
         auto underlying_problem = ActionSelectionBase::getWorld()->getUnderlyingProblem();
         number recover = 0;
@@ -209,12 +200,12 @@ namespace sdm
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
-                expr -= var[recover] * occupancy_state->getProbability(joint_history) * getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state->getBeliefAt(joint_history), joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_state, next_joint_history, /* to be kept */ next_observation, t);
+                expr -= var[recover] * occupancy_state->getProbability(joint_history) * getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state->getBeliefAt(joint_history), joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t);
             }
         }
 
         // <! get variable \omega_k(x',o')
-        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_joint_history));
+        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_occupancy_state->getBeliefAt(next_joint_history), next_joint_history));
         model.add(IloIfThen(env, var[recover] > 0, expr <= 0));
     }
 

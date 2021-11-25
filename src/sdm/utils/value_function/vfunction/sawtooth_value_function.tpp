@@ -18,13 +18,6 @@ namespace sdm
           type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
     {
         this->relaxation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
-
-        // #ifdef WITH_CPLEX
-        //         if (isInstanceOf<ActionSelectionSawtoothLP>(action_selection))
-        //         {
-        //             this->is_sawtooth_lp = true;
-        //         }
-        // #endif
     }
 
     template <class Hash, class KeyEqual>
@@ -109,12 +102,12 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BaseSawtoothValueFunction<Hash, KeyEqual>::getSawtoothValueAt(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<JointHistoryInterface> joint_history,
                                                                          const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
-                                                                         const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history,
+                                                                          const std::shared_ptr<JointHistoryInterface> &next_joint_history,
                                                                          const std::shared_ptr<Observation> &next_observation, number t)
     {
         auto oMDP = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
         
-        // Compute the first term : Q_relax = Q^{MDP} (b,u)
+        // Compute the first term : Q_relax = Q^{relax} (b,u)
         auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
         double Q_relax = relaxation->getQValueAt(belief, action, t);
 
@@ -125,22 +118,8 @@ namespace sdm
         double next_expected = 0.0;
         if ((joint_history->expand(next_observation) == next_joint_history) && (next_belief == next_belief_k))
         {
-            // Compute the numerator for the Sawtooth Ratio, i.e. we compute \sum_{x} b(x) * p_{xy}^{uz}
-            // This formulation allow us to tranform the problem at t+1, like the next_one_step_uncompressed_occupancy_state
-            // therefore, we can have the sawtooth ratio equivalent to 1.
-
             auto underlying_dpomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
-
-            // double ratio = 0.0;
-            // // Go over all hidden state  in a belief conditionning to a joint history
-            // for (const auto &state : belief->getStates())
-            // {
-            //     ratio += belief->getProbability(state) * underlying_dpomdp->getDynamics(state, action, next_state, next_observation, t);
-            // }
-            // ratio = ratio / next_occupancy_state->getProbability(next_joint_history, next_state);
-
             double ratio = proba / next_occupancy_state->getProbability(next_joint_history);
-
             next_expected = this->getWorld()->getDiscount(t) * ratio * (this->getValueAt(next_occupancy_state, t + 1) - this->getRelaxedValueAt(next_occupancy_state, t + 1));
         }
 
@@ -200,28 +179,15 @@ namespace sdm
     double BaseSawtoothValueFunction<Hash, KeyEqual>::ratioOccupancy(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_k)
     {
         // Determine the ratio for the specific case when the state is a Occupancy State
-        double min_ratio;
-        std::shared_ptr<OccupancyStateInterface> point, occupancy_state;
-        // if (!this->is_sawtooth_lp)
-        // {
-        min_ratio = 1.0;
-        point = s_k;
-        occupancy_state = s;
-        // }
-        // else
-        // {
-        //     min_ratio = std::numeric_limits<double>::max();
-        //     point = s_k->getOneStepUncompressedOccupancy();
-        //     occupancy_state = s->getOneStepUncompressedOccupancy();
-        // }
+        double min_ratio = 1.0;
 
         // Go over all joint history
-        for (auto &o : point->getJointHistories())
+        for (auto &o : s_k->getJointHistories())
         {
             // Go over all hidden state in the belief conditionning to the joitn history
-            for (const auto &x : point->getBeliefAt(o)->getStates())
+            for (const auto &x : s_k->getBeliefAt(o)->getStates())
             {
-                double ratio_k_o_x = (occupancy_state->getProbability(o, x) / point->getProbability(o, x));
+                double ratio_k_o_x = (s->getProbability(o, x) / s_k->getProbability(o, x));
                 // determine the min int
                 if (ratio_k_o_x < min_ratio)
                 {
