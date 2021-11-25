@@ -6,20 +6,13 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "jdr"
-          << "." << action << "." << joint_history;
+          << "." << action->str() << "." << joint_history->short_str();
       return oss.str();
     }
 
     void VarNaming::setNumber(const std::string &name, number id)
     {
-      if (this->variables.find(name) == this->variables.end())
-      {
-        this->variables.emplace(name, id);
-      }
-      else
-      {
-        this->variables.at(name) = id;
-      }
+        this->variables[name] = id;
     }
 
     std::string VarNaming::getVarNameWeight(number index)
@@ -34,7 +27,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "idr"
-          << "." << action << "." << individual_history << "." << agent_id;
+          << "." << action << "." << individual_history->short_str() << "." << agent_id;
       return oss.str();
     }
 
@@ -53,7 +46,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "wsh"
-          << "." << i << "." << s << "." << jh;
+          << "." << i << "." << s << "." << jh->short_str();
       return oss.str();
     }
     
@@ -61,7 +54,7 @@ namespace sdm
     {
       std::ostringstream oss;
       oss << "ih"
-          << "." << ihistory << "." << agent;
+          << "." << ihistory->short_str() << "." << agent;
       return oss.str();
     }
 
