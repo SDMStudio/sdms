@@ -98,13 +98,6 @@ namespace sdm
         SawtoothPruning::Type type_of_sawtooth_prunning_;
 
         /**
-         * @brief Is set to true if the structure use a linear program
-         * to select the greedy action (should be avoid). 
-         * 
-         */
-        bool is_sawtooth_lp = false;
-
-        /**
          * @brief A data structure to store values of the relaxations.
          */
         std::vector<Container> relaxation;

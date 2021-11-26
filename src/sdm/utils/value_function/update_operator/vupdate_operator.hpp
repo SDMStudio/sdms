@@ -33,6 +33,13 @@ namespace sdm
              * @param t the time step
              */
             virtual void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+
+            /**
+             * @brief Update the value function.
+             *
+             * @param t the time step
+             */
+            virtual void update(const std::shared_ptr<State> &state, double new_value, number t) = 0;
         };
 
         /**

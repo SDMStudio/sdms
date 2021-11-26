@@ -23,6 +23,11 @@ namespace sdm
             auto new_value = this->getValueFunction()->getQValueAt(state, action, t);
             this->getValueFunction()->setValueAt(state, new_value, t);
         }
+
+        void TabularUpdate::update(const std::shared_ptr<State> &state, double new_value, number t)
+        {
+            this->getValueFunction()->setValueAt(state, new_value, t);
+        }
     }
 }
 

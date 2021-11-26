@@ -20,10 +20,10 @@ namespace sdm
     {
         number index = 0;
 
-         // clear the set of variable names
+        // clear the set of variable names
         this->variables.clear();
 
-       //<! greedy decision, initialization
+        //<! greedy decision, initialization
         std::shared_ptr<Action> action;
         double value;
 
@@ -69,9 +69,13 @@ namespace sdm
             {
                 value = cplex.getObjValue();
                 action = this->getVariableResult(vf, state, cplex, variables, t);
-                cplex.exportModel("lb_bellman_op.lp");
-                system("cat lb_bellman_op.lp");
-                std::cout << action->str() << std::endl;
+                if (t == 0)
+                {
+                    cplex.exportModel("lb_bellman_op.lp");
+                    system("cat lb_bellman_op.lp");
+                    std::cout << action->str() << std::endl;
+                    std::cout << "T=" << t << " - V=" << value << std::endl;
+                }
             }
         }
         catch (IloException &e)

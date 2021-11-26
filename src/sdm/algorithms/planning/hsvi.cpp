@@ -99,8 +99,12 @@ namespace sdm
 
     void HSVI::updateValue(const std::shared_ptr<State> &state, number t)
     {
-        auto action = this->getUpperBound()->getGreedyAction(state, t);
-        this->getUpperBound()->getUpdateOperator()->update(state, action, t);
+        if (trial > 10)
+        {
+            exit(1);
+        }
+        auto [action, value] = this->getUpperBound()->getGreedyActionAndValue(state, t);
+        this->getUpperBound()->getUpdateOperator()->update(state, value, t);
         this->getLowerBound()->getUpdateOperator()->update(state, action, t);
     }
 

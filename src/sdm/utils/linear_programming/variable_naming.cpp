@@ -42,11 +42,11 @@ namespace sdm
       return this->variables.at(name);
     }
 
-    std::string VarNaming::getVarNameWeightedStateJointHistory(const std::shared_ptr<State>&i, const std::shared_ptr<State>&s, const std::shared_ptr<JointHistoryInterface> &jh)
+    std::string VarNaming::getVarNameWeightedStateJointHistory(const std::shared_ptr<State>&i,  const std::shared_ptr<JointHistoryInterface> &jh)
     {
       std::ostringstream oss;
       oss << "wsh"
-          << "." << i << "." << s << "." << jh->short_str();
+          << "." << i << "." << jh->short_str();
       return oss.str();
     }
     

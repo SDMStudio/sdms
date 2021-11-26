@@ -12,6 +12,7 @@ namespace sdm
         public:
             LowerBoundTabularUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function);
             void update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+            void update(const std::shared_ptr<State> &state, double new_value, number t){}
         };
     }
 }

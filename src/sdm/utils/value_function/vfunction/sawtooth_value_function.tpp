@@ -25,8 +25,7 @@ namespace sdm
         : ValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
           BaseTabularValueFunction<Hash, KeyEqual>(copy),
           PrunableStructure(copy.world_->getHorizon(), copy.freq_pruning),
-          type_of_sawtooth_prunning_(copy.type_of_sawtooth_prunning_),
-          is_sawtooth_lp(copy.is_sawtooth_lp)
+          type_of_sawtooth_prunning_(copy.type_of_sawtooth_prunning_)
     {
     }
 
@@ -39,7 +38,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     void BaseSawtoothValueFunction<Hash, KeyEqual>::setValueAt(const std::shared_ptr<State> &state, double new_value, number t)
     {
-        assert((getValueAt(state, t) > new_value) && "New value is higher than the old");
+        // assert((getValueAt(state, t) >= new_value) && "New value is higher than the old");
         BaseTabularValueFunction<Hash, KeyEqual>::setValueAt(state, new_value, t);
     }
 
@@ -102,17 +101,19 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BaseSawtoothValueFunction<Hash, KeyEqual>::getSawtoothValueAt(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<JointHistoryInterface> joint_history,
                                                                          const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
-                                                                          const std::shared_ptr<JointHistoryInterface> &next_joint_history,
+                                                                         const std::shared_ptr<JointHistoryInterface> &next_joint_history,
                                                                          const std::shared_ptr<Observation> &next_observation, number t)
     {
         auto oMDP = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
-        
+
         // Compute the first term : Q_relax = Q^{relax} (b,u)
         auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
         double Q_relax = relaxation->getQValueAt(belief, action, t);
 
         auto [next_belief, proba] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, action, next_observation, t);
         auto next_belief_k = next_occupancy_state->getBeliefAt(next_joint_history);
+        // std::cout << "joint_history="<< joint_history->short_str() << std::endl;
+        // std::cout << "action="<< action->str() << std::endl;
 
         // Compute the second term : \delta (o') sum_x b(x) p_{xy}^{uz}
         double next_expected = 0.0;
@@ -120,7 +121,14 @@ namespace sdm
         {
             auto underlying_dpomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
             double ratio = proba / next_occupancy_state->getProbability(next_joint_history);
-            next_expected = this->getWorld()->getDiscount(t) * ratio * (this->getValueAt(next_occupancy_state, t + 1) - this->getRelaxedValueAt(next_occupancy_state, t + 1));
+
+            double v_k = this->getValueAt(next_occupancy_state->getCompressedOccupancy(), t + 1), v_relax = this->getRelaxedValueAt(next_occupancy_state->getCompressedOccupancy(), t + 1);
+
+            next_expected = this->getWorld()->getDiscount(t) * ratio * (v_k - v_relax);
+            if (t == 0)
+            {
+                std::cout << Q_relax << " + " << ratio << "* (" << v_k << "-" << v_relax << ") =" << Q_relax + next_expected << std::endl;
+            }
         }
 
         return Q_relax + next_expected;

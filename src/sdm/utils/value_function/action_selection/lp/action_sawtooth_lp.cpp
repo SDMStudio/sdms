@@ -45,7 +45,7 @@ namespace sdm
             for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
             {
                 // <! \omega_k(x',o')
-                VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_occupancy_state->getBeliefAt(next_jhistory), next_jhistory);
+                VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_jhistory);
                 var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
                 this->setNumber(VarName, index++);
             }
@@ -63,11 +63,11 @@ namespace sdm
 
         auto compressed_occupancy_state = occupancy_state->toOccupancyState();
 
-        if (getSawtoothValueFunction()->getSupport(t + 1).empty())
+        bool is_empty = getSawtoothValueFunction()->getRepresentation(t + 1).empty();
+        if (is_empty)
         {
             this->createInitialConstraints(compressed_occupancy_state, env, con, var, index, t);
         }
-
         else
         {
             // Go over all points in the point set at t+1
@@ -115,7 +115,7 @@ namespace sdm
             for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
             {
                 // <! \omega_k(x',o')
-                auto VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_occupancy_state->getBeliefAt(next_jhistory), next_jhistory);
+                auto VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_jhistory);
                 recover = this->getNumber(VarName);
                 con[index].setLinearCoef(var[recover], +1.0);
             }
@@ -141,7 +141,6 @@ namespace sdm
             {
                 // Compute coefficient related to a(u|o)
                 coef = occupancy_state->getProbability(joint_history) * relaxation->getQValueAt(occupancy_state->getBeliefAt(joint_history), action, t);
-
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
@@ -176,7 +175,7 @@ namespace sdm
             }
         }
         // <! \omega_k(x',o') * BigM
-        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, occupancy_state->getBeliefAt(next_joint_history), next_joint_history));
+        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_joint_history));
         con[index].setLinearCoef(var[recover], this->bigM_value_);
 
         index++;
@@ -205,7 +204,7 @@ namespace sdm
         }
 
         // <! get variable \omega_k(x',o')
-        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_occupancy_state->getBeliefAt(next_joint_history), next_joint_history));
+        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_joint_history));
         model.add(IloIfThen(env, var[recover] > 0, expr <= 0));
     }
 
