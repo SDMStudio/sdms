@@ -64,6 +64,7 @@ namespace sdm
         virtual void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
 
         std::shared_ptr<SawtoothValueFunction> getSawtoothValueFunction() const;
+        std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t);
 
     protected:
         /**

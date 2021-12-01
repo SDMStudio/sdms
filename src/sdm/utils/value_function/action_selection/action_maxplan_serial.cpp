@@ -13,13 +13,13 @@ namespace sdm
 
     ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world)
     {
-        if (auto derived = std::dynamic_pointer_cast<SerialMPOMDPInterface>(world))
+        if (auto derived = std::dynamic_pointer_cast<SerialProblemInterface>(world))
             this->serial_mpomdp = derived;
         else
             throw sdm::exception::TypeError("Action maxplan serial is only available for worlds inheriting from 'SerialProblemInterface'.");
     }
 
-    std::shared_ptr<SerialMPOMDPInterface> ActionSelectionMaxplanSerial::getSerialMPOMDP() const
+    std::shared_ptr<SerialProblemInterface> ActionSelectionMaxplanSerial::getSerialProblem() const
     {
         return this->serial_mpomdp;
     }
@@ -27,7 +27,7 @@ namespace sdm
     Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {
         auto serial_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
-        auto agent_id = this->getSerialMPOMDP()->getAgentId(t);
+        auto agent_id = this->getSerialProblem()->getAgentId(t);
 
         // Definie local Variable
         double decision_rule_value = 0.0;
@@ -51,13 +51,13 @@ namespace sdm
         std::shared_ptr<Action> best_action;
         double action_value, argmax_local = std::numeric_limits<double>::lowest();
 
-        auto agent_id = this->getSerialMPOMDP()->getAgentId(t);
+        auto agent_id = this->getSerialProblem()->getAgentId(t);
         std::shared_ptr<PrivateOccupancyState> private_serial_occupancy_state = occupancy_state->getPrivateOccupancyState(agent_id, ihistory);
 
         double probability = occupancy_state->getProbabilityOverIndividualHistories(agent_id, ihistory);
 
         // Go over all action possible for the current agent_id
-        for (const auto &private_action : *this->getSerialMPOMDP()->getActionSpace(t))
+        for (const auto &private_action : *this->getWorld()->getUnderlyingProblem()->getActionSpace(t))
         {
             // Evaluate the value of executing this action in the given state & history
             action_value = this->evaluateAction(value_function, private_serial_occupancy_state, private_action->toAction(), next_hyperplane, t);
@@ -75,7 +75,7 @@ namespace sdm
     double ActionSelectionMaxplanSerial::evaluateAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<BeliefInterface> &next_hyperplane, number t)
     {
         double value = 0.0;
-        double discount = this->getSerialMPOMDP()->getDiscount(t);
+        double discount = this->getWorld()->getDiscount(t);
 
         // Go over all joint history in the subsequent private occupancy state (knowing the information individual history)
         for (const auto &joint_history : occupancy_state->getJointHistories())

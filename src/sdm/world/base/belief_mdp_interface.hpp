@@ -29,5 +29,7 @@ namespace sdm
          * @return the graph representing a markov decision process 
          */
         virtual std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph() = 0;
+
+        virtual double getObservationProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_belief, const std::shared_ptr<Observation> &obs, number t = 0) const = 0;
     };
 } // namespace sdm

@@ -69,13 +69,17 @@ namespace sdm
             {
                 value = cplex.getObjValue();
                 action = this->getVariableResult(vf, state, cplex, variables, t);
-                if (t == 0)
-                {
-                    cplex.exportModel("lb_bellman_op.lp");
-                    system("cat lb_bellman_op.lp");
-                    std::cout << action->str() << std::endl;
-                    std::cout << "T=" << t << " - V=" << value << std::endl;
-                }
+                cplex.exportModel("lb_bellman_op.lp");
+                // if (t == 1)
+                // {
+                //     if (value > 23)
+                //     {
+                //         cplex.exportModel("lb_bellman_op.lp");
+                //         system("cat lb_bellman_op.lp");
+                //         std::cout << action->str() << std::endl;
+                // std::cout << "T=" << t << " - V=" << value << std::endl;
+                //     }
+                // }
             }
         }
         catch (IloException &e)

@@ -2,7 +2,7 @@
 #include <sdm/utils/global_Test.hpp>
 // #include <sdm/utils/value_function/initializer/initializers.hpp>
 
-#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>

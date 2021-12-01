@@ -117,6 +117,7 @@ namespace sdm
         {
             actions.push_back(std::dynamic_pointer_cast<DeterministicDecisionRule>(IndividualLP::getVariableResult(vf, state, cplex, var, t, agent)));
         }
+        
         //Create the JointDeterminiticDecisionRule
         return std::make_shared<JointDeterministicDecisionRule>(actions);
     }

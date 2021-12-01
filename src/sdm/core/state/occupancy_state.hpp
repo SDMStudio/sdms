@@ -114,6 +114,9 @@ namespace sdm
          */
         void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &);
 
+        /**
+         * @brief Get the compressed occupancy state
+         */
         std::shared_ptr<OccupancyStateInterface> getCompressedOccupancy();
 
         /**
@@ -217,10 +220,12 @@ namespace sdm
 
         /** @brief This representation of occupancy states consists of private occupancy states for each agent */
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> tuple_of_maps_from_histories_to_private_occupancy_states_;
+        
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, double>> weight_of_private_occupancy_state_;
 
         /** @brief Keep in memory the uncompressed occupancy states */
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state;
+        
         std::weak_ptr<OccupancyStateInterface> compressed_occupancy_state;
 
         /** @brief Keep relations between all private ihistories and labels */

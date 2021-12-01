@@ -59,7 +59,10 @@ namespace sdm
     std::shared_ptr<Item> DiscreteSpace::sample() const
     {
         assert(!this->all_items_.empty());
-        return this->all_items_.left.at(rand() % this->all_items_.size());
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> distrib(0, this->all_items_.size()-1);
+        return this->all_items_.left.at(distrib(rng));
     }
 
     number DiscreteSpace::getNumItems() const

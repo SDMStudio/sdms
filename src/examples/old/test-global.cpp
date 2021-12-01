@@ -39,7 +39,7 @@
 // #include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp.hpp>
 
 // #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-// #include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+// #include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 // #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 // #include <sdm/core/state/belief_state.hpp>

@@ -4,7 +4,7 @@
 
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 
-#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 
 		// Instanciate bounds
 		std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<PWLCValueFunction>(horizon,init_lb,maxplan_backup,action_maxplan_wcsp);
-		std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<PointSetValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_wcsp);
+		std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<SawtoothValueFunction>(horizon,init_ub,tabular_backup, action_sawtooth_wcsp);
 
         auto algo = std::make_shared<HSVI>(oMDP, lower_bound, upper_bound, problem->getHorizon(), error, trials);
 

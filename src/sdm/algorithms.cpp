@@ -148,7 +148,15 @@ namespace sdm
             {
                 // Action selection;
                 if (value_name.find("lp") != string::npos)
-                    action_selection = makeActionSawtoothLP(problem, value_name, type_of_resolution_name);
+                {
+                    if (auto omdp = isInstanceOf<OccupancyMDP>(problem))
+                    {
+                        action_selection = makeActionSawtoothLP(problem, value_name, type_of_resolution_name);
+                        omdp->setStateType(ONE_STEP_UNCOMPRESSED);
+                    }
+                    else
+                        throw sdm::exception::Exception("'sawtooth_lp' can only be applied to occupancy MDP classes.");
+                }
                 else
                     action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
 
@@ -345,7 +353,7 @@ namespace sdm
                                                       double discount,
                                                       number horizon,
                                                       int memory,
-                                                      bool compression,
+                                                      StateType state_type,
                                                       bool store_state,
                                                       bool store_action,
                                                       number batch_size)
@@ -369,7 +377,7 @@ namespace sdm
             }
             else if ((formalism == "occupancy-mdp") || (formalism == "OccupancyMDP") || (formalism == "omdp") || (formalism == "oMDP"))
             {
-                formalism_problem = std::make_shared<OccupancyMDP>(problem, memory, compression, store_state, store_action, batch_size);
+                formalism_problem = std::make_shared<OccupancyMDP>(problem, memory, store_state, store_action, batch_size);
             }
             else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP") || (formalism == "ext-MDP") || (formalism == "ext-mdp"))
             {
@@ -384,7 +392,7 @@ namespace sdm
             else if ((formalism == "extensive-occupancy-mdp") || (formalism == "Extensive-OccupancyMDP") || (formalism == "ext-oMDP") || (formalism == "ext-omdp"))
             {
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
-                formalism_problem = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, compression, store_state, store_action, batch_size);
+                formalism_problem = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, store_state, store_action, batch_size);
             }
             else if ((formalism == "hierarchical-mdp") || (formalism == "Hierarchical-MDP") || (formalism == "hMDP") || (formalism == "hmdp"))
             {
@@ -399,7 +407,7 @@ namespace sdm
             else if ((formalism == "hierarchical-occupancy-mdp") || (formalism == "Hierarchical-OccupancyMDP") || (formalism == "hoMDP") || (formalism == "homdp"))
             {
                 auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
-                formalism_problem = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_mpomdp, memory, compression, store_state, store_action, batch_size);
+                formalism_problem = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_mpomdp, memory, store_state, store_action, batch_size);
             }
             else
             {
@@ -409,9 +417,9 @@ namespace sdm
                 res << "#> Available formalisms are : " << std::endl;
                 res << "FORMALISMS\t" << std::endl
                     << "---" << std::endl;
-                for (auto algo : sdm::world::available())
+                for (auto world : sdm::world::available())
                 {
-                    res << algo << std::endl;
+                    res << world << std::endl;
                 }
                 throw sdm::exception::Exception(res.str());
             }
@@ -496,7 +504,7 @@ namespace sdm
         }
 
         std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism_name, number horizon, double discount, double error, int trials, double time_max, std::string name,
-                                        int memory, bool compression, bool store_state, bool store_action, number batch_size, number num_samples, std::string type_sampling,
+                                        int memory, StateType state_type, bool store_state, bool store_action, number batch_size, number num_samples, std::string type_sampling,
                                         std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                         std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
@@ -549,7 +557,7 @@ namespace sdm
             else
             {
                 // Build the formalism
-                auto formalism = makeFormalism(problem_path, formalism_name, discount, horizon, memory, compression, store_state, store_action, batch_size);
+                auto formalism = makeFormalism(problem_path, formalism_name, discount, horizon, memory, state_type, store_state, store_action, batch_size);
 
                 // Build the algorithm
                 return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max, num_samples, type_sampling,

@@ -84,6 +84,11 @@ namespace sdm
         virtual std::shared_ptr<OccupancyStateInterface> getOneStepUncompressedOccupancy() = 0;
 
         /**
+         * @brief Set the one step uncompressed occupancy state
+         */
+        virtual void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &) = 0;
+
+        /**
          * @brief Get the compressed occupancy state. 
          */
         virtual std::shared_ptr<OccupancyStateInterface> getCompressedOccupancy() = 0;
@@ -91,7 +96,7 @@ namespace sdm
         /**
          * @brief Set the one step uncompressed occupancy state
          */
-        virtual void setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &) = 0;
+        virtual void setCompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &) = 0;
 
         /**
          * @brief Get the list of labels that corresponds to the list of ihistories.

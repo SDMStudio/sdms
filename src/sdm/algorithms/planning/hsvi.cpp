@@ -8,6 +8,7 @@
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/utils/value_function/prunable_structure.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 
 namespace sdm
 {
@@ -57,6 +58,41 @@ namespace sdm
         return value_excess;
     }
 
+    void HSVI::explore(const std::shared_ptr<State> &state, double cost_so_far, number t)
+    {
+        try
+        {
+            if (!stop(state, cost_so_far, t))
+            {
+                if (value_function->isInfiniteHorizon())
+                {
+                    // Update the value function (frontward update)
+                    updateValue(state, t);
+                }
+                // Select next action
+                auto [action, value] = getUpperBound()->getGreedyActionAndValue(state, t);
+                // Select next observation
+                for (const auto &observation : selectObservations(state, action, t))
+                {
+                    // Determine the state for a given state, action and observation
+                    auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
+
+                    // Recursive explore
+                    explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
+                }
+
+                // Update the value function (backward update)
+                this->updateValue(state, t);
+            }
+        }
+        catch (const std::exception &exc)
+        {
+            // Catch anything thrown within try block that derives from std::exception
+            std::cerr << "TSVI::explore(..) exception caught: " << exc.what() << std::endl;
+            exit(-1);
+        }
+    }
+
     // SELECT ACTIONS IN HSVI
     std::vector<std::shared_ptr<Action>> HSVI::selectActions(const std::shared_ptr<State> &state, number t)
     {
@@ -99,10 +135,6 @@ namespace sdm
 
     void HSVI::updateValue(const std::shared_ptr<State> &state, number t)
     {
-        if (trial > 10)
-        {
-            exit(1);
-        }
         auto [action, value] = this->getUpperBound()->getGreedyActionAndValue(state, t);
         this->getUpperBound()->getUpdateOperator()->update(state, value, t);
         this->getLowerBound()->getUpdateOperator()->update(state, action, t);

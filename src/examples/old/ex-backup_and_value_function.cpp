@@ -7,7 +7,7 @@
 #include <sdm/parser/parser.hpp>
 
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/backup/tabular_backup.hpp>
@@ -60,8 +60,8 @@ int main(int argc, char **argv)
 
     std::cout<<" ******* Point Value Function ******"<<std::endl;
 
-    ub = std::make_shared<PointSetValueFunction>(horizon,1000,tabular_backup);
-    auto lb = std::make_shared<PointSetValueFunction>(horizon,-1000,tabular_backup);
+    ub = std::make_shared<SawtoothValueFunction>(horizon,1000,tabular_backup);
+    auto lb = std::make_shared<SawtoothValueFunction>(horizon,-1000,tabular_backup);
 
     auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, mdp->getHorizon(), 0.01);
     algorithm->initialize();

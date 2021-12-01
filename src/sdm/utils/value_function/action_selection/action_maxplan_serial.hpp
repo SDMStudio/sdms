@@ -26,12 +26,9 @@ namespace sdm
         Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t);
         Pair<std::shared_ptr<Action>, double> selectBestAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &state, const std::shared_ptr<BeliefInterface> &next_hyperplane, const std::shared_ptr<HistoryInterface> &ihistory, number t);
         double evaluateAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &private_occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<BeliefInterface> &next_hyperplane, number t);
-
-        // Pair<std::shared_ptr<Action>, double> selectBestDecisionRuleKnowingNextHyperplan(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<OccupancyStateInterface> &state, const std::shared_ptr<BeliefInterface> &next_hyperplane, number t);
-        // double evaluateNextExpectedValueAt(const std::shared_ptr<State> &hyperplan, const std::shared_ptr<HistoryInterface> &joint_history, const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
-
+        
     protected:
-        std::shared_ptr<SerialMPOMDPInterface> getSerialMPOMDP() const;
-        std::shared_ptr<SerialMPOMDPInterface> serial_mpomdp;
+        std::shared_ptr<SerialProblemInterface> getSerialProblem() const;
+        std::shared_ptr<SerialProblemInterface> serial_mpomdp;
     };
 }

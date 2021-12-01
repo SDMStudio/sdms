@@ -90,7 +90,7 @@ namespace sdm
     {
         // Set the belief corresponding to a specific joint history
         this->setBeliefAt(joint_history, belief);
-        
+
         // Set the probability of the joint history
         Belief::setProbability(joint_history, proba);
 
@@ -386,12 +386,12 @@ namespace sdm
     void OccupancyState::setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &one_step_uncompress_ostate)
     {
         this->one_step_left_compressed_occupancy_state = one_step_uncompress_ostate;
-        std::dynamic_pointer_cast<OccupancyState>(this->getOneStepUncompressedOccupancy())->setCompressedOccupancy(this->getptr());
+        // std::dynamic_pointer_cast<OccupancyState>(this->getOneStepUncompressedOccupancy())->setCompressedOccupancy(this->getptr());
     }
 
     std::shared_ptr<OccupancyStateInterface> OccupancyState::getCompressedOccupancy()
     {
-        return this->compressed_occupancy_state.lock();
+        return (!this->compressed_occupancy_state.expired()) ? this->compressed_occupancy_state.lock() : this->getptr();
     }
 
     void OccupancyState::setCompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &compress_ostate)

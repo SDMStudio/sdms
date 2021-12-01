@@ -34,8 +34,8 @@ namespace sdm
      */
     template <class TBelief>
     class BaseBeliefMDP : virtual public SolvableByMDP,
-                          virtual public BeliefMDPInterface,
-                          public GymInterface
+                           virtual public BeliefMDPInterface,
+                           public GymInterface
     {
     public:
         BaseBeliefMDP();

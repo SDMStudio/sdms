@@ -80,6 +80,8 @@ namespace sdm
     	 * @return the error
     	 */
 		double excess(const std::shared_ptr<State> &state, double cost_so_far, number h);
+		
+		void explore(const std::shared_ptr<State> &state, double cost_so_far, number t);
 
 		/**
 		 * @brief Log execution variables in output streams.

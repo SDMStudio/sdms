@@ -46,7 +46,7 @@ namespace sdm
 
   typedef typename bimap::value_type name2index;
 
-  enum TState_t
+  enum StateType
   {
     COMPRESSED,
     ONE_STEP_UNCOMPRESSED,

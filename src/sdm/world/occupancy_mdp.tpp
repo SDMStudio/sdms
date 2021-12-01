@@ -15,8 +15,8 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
-        : underlying_mpomdp(underlying_dpomdp), compression_(compression)
+    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool store_states, bool store_actions, int batch_size)
+        : underlying_mpomdp(underlying_dpomdp)
     {
         this->store_states_ = store_states;
         this->store_actions_ = store_actions;
@@ -41,6 +41,7 @@ namespace sdm
 
         this->reward_graph_ = std::make_shared<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>>();
         this->reward_graph_->addNode(0.0);
+
     }
 
     template <class TOccupancyState>
@@ -50,9 +51,9 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    bool BaseOccupancyMDP<TOccupancyState>::doCompression(number) const
+    void BaseOccupancyMDP<TOccupancyState>::setStateType(const StateType &state_type)
     {
-        return this->compression_;
+        this->state_type = state_type;
     }
 
     template <class TOccupancyState>
@@ -240,6 +241,7 @@ namespace sdm
             {
                 // Get p(u_t | o_t)
                 double proba_action = 1; //decision_rule->getProbability(compressed_joint_history, joint_action);
+
                 // For each observation in the space of joint observation
                 for (const auto &jobs : *this->getUnderlyingMPOMDP()->getObservationSpace(t))
                 {
@@ -249,20 +251,19 @@ namespace sdm
                         // Get the next belief and p(z_{t+1} | b_t, u_t)
                         auto [next_belief, proba_observation] = this->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, joint_action, joint_observation, t);
 
-                        // Compute the probability of next history, i.e. p(o') = p(o_t) * p(u_t | o_t) * p(z_{t+1} | b_t, u_t)
                         double next_joint_history_probability = proba_history * proba_action * proba_observation;
 
                         // If the next history probability is not zero
                         if (next_joint_history_probability > 0)
                         {
-                            // Update new fully uncompressed occupancy state
                             std::shared_ptr<JointHistoryInterface> next_joint_history = joint_history->expand(joint_observation /*, joint_action*/)->toJointHistory();
+
+                            // Update new fully uncompressed occupancy state
                             this->updateOccupancyStateProba(next_fully_uncompressed_occupancy_state, next_joint_history, next_belief->toBelief(), next_joint_history_probability);
 
                             // Update new one step uncompressed occupancy state
                             std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(joint_observation /*, joint_action*/)->toJointHistory();
                             this->updateOccupancyStateProba(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief->toBelief(), next_joint_history_probability);
-
 
                             // Update next history labels
                             next_one_step_left_compressed_occupancy_state->updateJointLabels(next_joint_history->getIndividualHistories(), next_compressed_joint_history->getIndividualHistories());
@@ -274,64 +275,6 @@ namespace sdm
 
         return this->finalizeNextState(next_one_step_left_compressed_occupancy_state, next_fully_uncompressed_occupancy_state, t);
     }
-
-    // template <class TOccupancyState>
-    // Pair<std::shared_ptr<State>, std::shared_ptr<State>> BaseOccupancyMDP<TOccupancyState>::computeExactNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &, number t)
-    // {
-    //     auto occupancy_state = ostate->toOccupancyState();
-    //     auto decision_rule = action->toDecisionRule();
-
-    //     BaseOccupancyMDP<TOccupancyState>::PASSAGE_IN_NEXT_STATE++;
-    //     // BaseOccupancyMDP<TOccupancyState>::MEAN_SIZE_STATE += occupancy_state->getFullyUncompressedOccupancy()->getStates().size();
-
-    //     // The new fully uncompressed occupancy state
-    //     std::shared_ptr<OccupancyStateInterface> next_fully_uncompressed_occupancy_state = std::make_shared<TOccupancyState>(this->getUnderlyingMDP()->getNumAgents());
-    //     // The new one step left occupancy state
-    //     std::shared_ptr<OccupancyStateInterface> next_one_step_left_compressed_occupancy_state = std::make_shared<TOccupancyState>(this->getUnderlyingMDP()->getNumAgents());
-
-    //     // For each joint history in the support of the fully uncompressed occupancy state
-    //     for (const auto &joint_history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
-    //     {
-    //         // Apply the joint decision rule at joint_history to get the joint_action
-    //         auto compressed_joint_history = occupancy_state->getCompressedJointHistory(joint_history);
-    //         auto joint_action = this->applyDecisionRule(occupancy_state->toOccupancyState(), compressed_joint_history, decision_rule, t);
-
-    //         // For each accessible belief at joint_history
-    //         auto belief = occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(joint_history);
-
-    //         // For each observation in
-    //         for (auto &joint_observation : *this->getUnderlyingMPOMDP()->getObservationSpace(t))
-    //         {
-    //             // Get the next joint history
-    //             auto next_joint_history = joint_history->expand(joint_observation->toObservation());
-
-    //             // Get the next belief
-    //             auto next_belief = this->getUnderlyingBeliefMDP()->nextBelief(belief, joint_action, joint_observation->toObservation(), t);
-    //             // Compute the probability of next history, i.e. p(o') = p(o) * p(z | b, u)
-    //             double next_joint_history_probability = occupancy_state->getFullyUncompressedOccupancy()->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getObservationProbability(belief, joint_action, next_belief->toBelief(), joint_observation->toObservation(), t);
-
-    //             // If the next history probability is not zero
-    //             if (next_joint_history_probability > 0)
-    //             {
-    //                 // Build fully uncompressed occupancy state
-    //                 next_fully_uncompressed_occupancy_state->addProbability(next_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_probability);
-
-    //                 // Update the probability of being in this next history (for the one step left uncompressed occupancy state)
-
-    //                 auto next_compressed_joint_history = compressed_joint_history->expand(joint_observation->toObservation());
-    //                 next_one_step_left_compressed_occupancy_state->addProbability(next_compressed_joint_history->toJointHistory(), next_belief->toBelief(), next_joint_history_probability);
-
-    //                 // Update next history labels
-    //                 next_one_step_left_compressed_occupancy_state->updateJointLabels(next_joint_history->toJointHistory()->getIndividualHistories(), next_compressed_joint_history->toJointHistory()->getIndividualHistories());
-    //             }
-    //         }
-    //     }
-
-    //     next_fully_uncompressed_occupancy_state->finalize();
-    //     next_one_step_left_compressed_occupancy_state->finalize();
-
-    //     return std::make_pair(next_fully_uncompressed_occupancy_state, next_one_step_left_compressed_occupancy_state);
-    // }
 
     template <class TOccupancyState>
     Pair<std::shared_ptr<State>, double> BaseOccupancyMDP<TOccupancyState>::computeSampledNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
@@ -492,39 +435,87 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    Pair<std::shared_ptr<OccupancyStateInterface>, double> BaseOccupancyMDP<TOccupancyState>::finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &next_one_step_left_compressed_occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_fully_uncompressed_occupancy_state, number t)
+    Pair<std::shared_ptr<OccupancyStateInterface>, double> BaseOccupancyMDP<TOccupancyState>::finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &one_step_occupancy_state, const std::shared_ptr<OccupancyStateInterface> &fully_uncompressed_occupancy_state, number t)
     {
+        // // Finalize and normalize the one step left occupancy state
+        // next_one_step_left_compressed_occupancy_state->finalize();
+        // double norm_one_step = next_one_step_left_compressed_occupancy_state->norm_1();
+        // next_one_step_left_compressed_occupancy_state->normalizeBelief(norm_one_step);
+
+        // // Finalize and normalize the fully uncompressed occupancy state
+        // next_fully_uncompressed_occupancy_state->finalize(false);
+        // double norm_fully = next_fully_uncompressed_occupancy_state->norm_1();
+        // next_fully_uncompressed_occupancy_state->normalizeBelief(norm_fully);
+
+        // if (this->doCompression(t))
+        // {
+        //     // The new compressed occupancy state
+        //     std::shared_ptr<OccupancyStateInterface> next_compressed_occupancy_state;
+        //     // Compress the occupancy state
+        //     next_compressed_occupancy_state = next_one_step_left_compressed_occupancy_state->compress();
+
+        //     double norm_compressed = next_compressed_occupancy_state->norm_1();
+        //     next_compressed_occupancy_state->normalizeBelief(norm_compressed);
+        //     // Set
+        //     next_compressed_occupancy_state->setFullyUncompressedOccupancy(next_fully_uncompressed_occupancy_state);
+        //     next_compressed_occupancy_state->setOneStepUncompressedOccupancy(next_one_step_left_compressed_occupancy_state);
+
+        //     return {next_compressed_occupancy_state, norm_one_step};
+        // }
+        // else
+        // {
+        //     next_one_step_left_compressed_occupancy_state->setFullyUncompressedOccupancy(next_fully_uncompressed_occupancy_state);
+        //     next_one_step_left_compressed_occupancy_state->setOneStepUncompressedOccupancy(next_one_step_left_compressed_occupancy_state);
+        //     return {next_one_step_left_compressed_occupancy_state, norm_one_step};
+        // }
 
         // Finalize and normalize the one step left occupancy state
-        next_one_step_left_compressed_occupancy_state->finalize();
-        double norm_one_step = next_one_step_left_compressed_occupancy_state->norm_1();
-        next_one_step_left_compressed_occupancy_state->normalizeBelief(norm_one_step);
+        one_step_occupancy_state->finalize();
+        double norm_one_step = one_step_occupancy_state->norm_1();
+        one_step_occupancy_state->normalizeBelief(norm_one_step);
 
         // Finalize and normalize the fully uncompressed occupancy state
-        next_fully_uncompressed_occupancy_state->finalize(false);
-        double norm_fully = next_fully_uncompressed_occupancy_state->norm_1();
-        next_fully_uncompressed_occupancy_state->normalizeBelief(norm_fully);
+        fully_uncompressed_occupancy_state->finalize(false);
+        double norm_fully = fully_uncompressed_occupancy_state->norm_1();
+        fully_uncompressed_occupancy_state->normalizeBelief(norm_fully);
 
-        if (this->doCompression(t))
+
+        if (this->state_type == StateType::FULLY_UNCOMPRESSED)
         {
-            // The new compressed occupancy state
-            std::shared_ptr<OccupancyStateInterface> next_compressed_occupancy_state;
-            // Compress the occupancy state
-            next_compressed_occupancy_state = next_one_step_left_compressed_occupancy_state->compress();
-
-            double norm_compressed = next_compressed_occupancy_state->norm_1();
-            next_compressed_occupancy_state->normalizeBelief(norm_compressed);
-            // Set
-            next_compressed_occupancy_state->setFullyUncompressedOccupancy(next_fully_uncompressed_occupancy_state);
-            next_compressed_occupancy_state->setOneStepUncompressedOccupancy(next_one_step_left_compressed_occupancy_state);
-
-            return {next_compressed_occupancy_state, norm_one_step};
+            one_step_occupancy_state->setFullyUncompressedOccupancy(fully_uncompressed_occupancy_state);
+            one_step_occupancy_state->setOneStepUncompressedOccupancy(one_step_occupancy_state);
+            return {one_step_occupancy_state, norm_one_step};
         }
         else
         {
-            // next_one_step_left_compressed_occupancy_state->setFullyUncompressedOccupancy(next_fully_uncompressed_occupancy_state);
-            // next_one_step_left_compressed_occupancy_state->setOneStepUncompressedOccupancy(next_one_step_left_compressed_occupancy_state);
-            return {next_one_step_left_compressed_occupancy_state, norm_one_step};
+            // The new compressed occupancy state
+            std::shared_ptr<OccupancyStateInterface> compressed_occupancy_state;
+
+            // Compress the occupancy state
+            compressed_occupancy_state = one_step_occupancy_state->compress();
+
+            double norm_compressed = compressed_occupancy_state->norm_1();
+            compressed_occupancy_state->normalizeBelief(norm_compressed);
+
+            if (this->state_type == StateType::COMPRESSED)
+            {
+                compressed_occupancy_state->setFullyUncompressedOccupancy(fully_uncompressed_occupancy_state);
+                compressed_occupancy_state->setOneStepUncompressedOccupancy(one_step_occupancy_state);
+                one_step_occupancy_state->setCompressedOccupancy(compressed_occupancy_state);
+                return {compressed_occupancy_state, norm_one_step};
+            }
+            else if (this->state_type == StateType::ONE_STEP_UNCOMPRESSED)
+            {
+                one_step_occupancy_state->setFullyUncompressedOccupancy(fully_uncompressed_occupancy_state);
+                one_step_occupancy_state->setCompressedOccupancy(compressed_occupancy_state);
+                compressed_occupancy_state->setOneStepUncompressedOccupancy(one_step_occupancy_state);
+                compressed_occupancy_state->setFullyUncompressedOccupancy(fully_uncompressed_occupancy_state);
+                return {one_step_occupancy_state, norm_one_step};
+            }
+            else
+            {
+                throw sdm::exception::TypeError("StateType not recognized.");
+            }
         }
     }
 
@@ -565,4 +556,11 @@ namespace sdm
             occupancy_state->setProbability(joint_history, belief, probability);
         }
     }
+
+    template <class TOccupancyState>
+    std::shared_ptr<BaseOccupancyMDP<TOccupancyState>> BaseOccupancyMDP<TOccupancyState>::getptr()
+    {
+        return std::enable_shared_from_this<BaseOccupancyMDP<TOccupancyState>>::shared_from_this();
+    }
+
 } // namespace sdm

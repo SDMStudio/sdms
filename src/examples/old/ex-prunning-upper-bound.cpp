@@ -2,7 +2,7 @@
 // #include <sdm/utils/global_Test.hpp>
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 
-#include <sdm/utils/value_function/vfunction/point_set_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
 #include <sdm/utils/value_function/backup/maxplan_backup.hpp>
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
     // Instanciate bounds
     std::shared_ptr<sdm::ValueFunction> lower_bound = std::make_shared<sdm::TabularValueFunction>(horizon,init_lb,tabular_backup,action_tabular);
-    std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<sdm::PointSetValueFunction>(horizon,init_ub,tabular_backup, action_tabular,freq_prunning);
+    std::shared_ptr<sdm::ValueFunction> upper_bound = std::make_shared<sdm::SawtoothValueFunction>(horizon,init_ub,tabular_backup, action_tabular,freq_prunning);
 
     auto algo = std::make_shared<sdm::HSVI>(oMDP, lower_bound, upper_bound, problem->getHorizon(), error, trials);
 

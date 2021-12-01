@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 		mdp->setDiscount(discount);
 
 		// Instanciate the problem
-		std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, (truncation > 0) ? truncation : horizon, true, true, true);
+		std::shared_ptr<SolvableByHSVI> hsvi_mdp = std::make_shared<OccupancyMDP>(mdp, (truncation > 0) ? truncation : horizon, true, true);
 
 		// Instanciate Initializer
 		auto lb_init = std::make_shared<MinInitializer>(hsvi_mdp);

@@ -62,10 +62,10 @@ int solve(int argv, char **args)
     {
         std::string world, algo_name, formalism, upper_bound, lower_bound, ub_init, lb_init, type_sampling;
         int trials, memory;
-        number horizon, seed, batch_size,num_samples, freq_update_lb, freq_update_ub;
+        number horizon, seed, batch_size,num_samples, freq_update_lb, freq_update_ub, state_type;
         double error, discount;
         double p_b, p_o, p_c;
-        bool compress, store_actions, store_states;
+        bool  store_actions, store_states;
 
         int freq_pruning_v1 = 1, freq_pruning_v2 = 1;
         std::string type_of_resolution_v1, type_of_resolution_v2, type_of_pruning_v1, type_of_pruning_v2;
@@ -89,7 +89,7 @@ int solve(int argv, char **args)
         ("seed,s", po::value<number>(&seed)->default_value(1), "the seed")
         ("batch_size,b", po::value<number>(&batch_size)->default_value(0), "the batch size used in rl")
         ("name,n", po::value<std::string>(&name)->default_value(""), "the name of the experiment")
-        ("compress", po::value<bool>(&compress)->default_value(true), "If true, apply compression.")
+        ("compression", po::value<number>(&state_type)->default_value(0), "The type of occupancy state (COMPRESSED, ONE_STEP, UNCOMPRESSED)")
         ("store_states", po::value<bool>(&store_states)->default_value(true), "If true, store the macro states.")
         ("store_actions", po::value<bool>(&store_actions)->default_value(true), "If true, store the macro actions.")
         ("p_c", po::value<double>(&p_c)->default_value(config::PRECISION_COMPRESSION), "The precision of the compression.")
@@ -184,7 +184,7 @@ int solve(int argv, char **args)
                                     MAX_RUNNING_TIME,
                                     name,
                                     memory,
-                                    compress,
+                                    (StateType) state_type,
                                     store_states,
                                     store_actions,
                                     batch_size,

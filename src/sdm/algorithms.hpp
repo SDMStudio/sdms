@@ -95,7 +95,7 @@ namespace sdm
                                                       double discount,
                                                       number horizon,
                                                       int memory,
-                                                      bool compression,
+                                                      StateType state_type,
                                                       bool store_state,
                                                       bool store_action,
                                                       number batch_size);
@@ -136,7 +136,7 @@ namespace sdm
                                         double time_max = 3600 /* 1h */ * 10,
                                         std::string name = "",
                                         int memory = -1,
-                                        bool compression = true,
+                                        StateType state_type = COMPRESSED,
                                         bool store_state = true,
                                         bool store_action = true,
                                         number batch_size = 0,

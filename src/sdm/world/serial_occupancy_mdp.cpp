@@ -8,8 +8,8 @@ namespace sdm
     {
     }
 
-    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &underlying_dpomdp, number memory, bool compression, bool store_states, bool store_actions, int batch_size)
-        : OccupancyMDP(underlying_dpomdp, memory, compression, store_states, store_actions, batch_size)
+    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &underlying_dpomdp, number memory, bool store_states, bool store_actions, int batch_size)
+        : OccupancyMDP(underlying_dpomdp, memory, store_states, store_actions, batch_size)
     {
     }
 
@@ -63,11 +63,6 @@ namespace sdm
         // Get the selected joint action
         auto action = std::static_pointer_cast<DeterministicDecisionRule>(decision_rule)->act(joint_history->getIndividualHistory(this->getAgentId(t)));
         return action;
-    }
-
-    bool SerialOccupancyMDP::doCompression(number t) const
-    {
-        return (OccupancyMDP::doCompression(t) /* && this->getAgentId(t) == 0*/);
     }
 
     double SerialOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)

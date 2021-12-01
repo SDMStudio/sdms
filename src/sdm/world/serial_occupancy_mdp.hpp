@@ -16,7 +16,7 @@ namespace sdm
         {
         public:
                 SerialOccupancyMDP();
-                SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &dpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &dpomdp, number memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
                 number getAgentId(number t) const;
                 bool isLastAgent(number t) const;
@@ -28,8 +28,5 @@ namespace sdm
                 std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
 
                 double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
-
-        protected:
-                bool doCompression(number t) const;
         };
 } // namespace sdm
