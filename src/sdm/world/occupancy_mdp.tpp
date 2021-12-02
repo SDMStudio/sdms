@@ -16,7 +16,7 @@ namespace sdm
 
     template <class TOccupancyState>
     BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, number memory, bool store_states, bool store_actions, int batch_size)
-        : underlying_mpomdp(underlying_dpomdp)
+        : underlying_mpomdp(underlying_dpomdp), memory(memory)
     {
         this->store_states_ = store_states;
         this->store_actions_ = store_actions;
@@ -27,7 +27,7 @@ namespace sdm
         this->belief_mdp_ = std::make_shared<BeliefMDP>(underlying_dpomdp, batch_size);
 
         // Initialize initial history
-        this->initial_history_ = std::make_shared<JointHistoryTree>(this->getUnderlyingMDP()->getNumAgents(), (memory > 0) ? memory : -1);
+        this->initial_history_ = std::make_shared<JointHistoryTree>(this->getUnderlyingMDP()->getNumAgents(), (this->memory > 0) ? this->memory : -1);
 
         // Initialize initial occupancy state
         this->initial_state_ = std::make_shared<TOccupancyState>(this->getUnderlyingMDP()->getNumAgents());
@@ -41,8 +41,33 @@ namespace sdm
 
         this->reward_graph_ = std::make_shared<Graph<double, Pair<std::shared_ptr<State>, std::shared_ptr<Action>>>>();
         this->reward_graph_->addNode(0.0);
-
     }
+
+    template <class TOccupancyState>
+    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_dpomdp, Config config)
+        : BaseOccupancyMDP<TOccupancyState>(underlying_dpomdp,
+                                            config.get("memory", 0),
+                                            config.get("store_states", true),
+                                            config.get("store_actions", true),
+                                            config.get("batch_size", 0))
+    {
+        auto opt_int = config.getOpt<int>("state_type");
+        auto opt_str = config.getOpt("state_type");
+        if (opt_int.has_value())
+        {
+            this->setStateType((StateType)opt_int.value());
+        }
+        else if (opt_str.has_value())
+        {
+            auto iter = STATE_TYPE_MAP.find(opt_str.value());
+            this->setStateType((iter != STATE_TYPE_MAP.end()) ? iter->second : StateType::COMPRESSED);
+        }
+    }
+
+    // template <class TOccupancyState>
+    // BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(Config config)
+    // {
+    // }
 
     template <class TOccupancyState>
     std::shared_ptr<Space> BaseOccupancyMDP<TOccupancyState>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number)
@@ -237,13 +262,13 @@ namespace sdm
             std::shared_ptr<BeliefInterface> belief = fully_uncompressed_occupancy_state->getBeliefAt(joint_history);
 
             // For each action that is likely to be taken
-            for (const auto &joint_action : {jaction}) //decision_rule->getDistribution(compressed_joint_history)->getSupport())
+            for (const auto &joint_action : {jaction}) // decision_rule->getDistribution(compressed_joint_history)->getSupport())
             {
                 // Get p(u_t | o_t)
-                double proba_action = 1; //decision_rule->getProbability(compressed_joint_history, joint_action);
+                double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
-                for (const auto &jobs : *this->getUnderlyingMPOMDP()->getObservationSpace(t))
+                for (auto jobs : *this->getUnderlyingMPOMDP()->getObservationSpace(t))
                 {
                     auto joint_observation = jobs->toObservation();
                     if (this->checkCompatibility(joint_observation, observation))
@@ -478,7 +503,6 @@ namespace sdm
         fully_uncompressed_occupancy_state->finalize(false);
         double norm_fully = fully_uncompressed_occupancy_state->norm_1();
         fully_uncompressed_occupancy_state->normalizeBelief(norm_fully);
-
 
         if (this->state_type == StateType::FULLY_UNCOMPRESSED)
         {

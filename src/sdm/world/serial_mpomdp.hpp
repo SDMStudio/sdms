@@ -11,6 +11,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/config.hpp>
 
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
@@ -27,7 +28,7 @@ namespace sdm
     class SerialMPOMDP : public SerialMPOMDPInterface, public SerialMMDP
     {
     public:
-        SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp);
+        SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp, Config config = Config());
 
         /**
          * @brief Get the reachable next states

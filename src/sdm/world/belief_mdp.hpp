@@ -11,6 +11,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/config.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
@@ -39,6 +40,7 @@ namespace sdm
     {
     public:
         BaseBeliefMDP();
+        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, Config config);
         BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
         ~BaseBeliefMDP();
 

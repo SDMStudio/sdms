@@ -3,7 +3,7 @@
 
 namespace sdm
 {
-    SerialMPOMDP::SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp) : SerialMMDP(mpomdp)
+    SerialMPOMDP::SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp, Config) : SerialMMDP(mpomdp)
     {
         setupObservationSpace(mpomdp);
         setReachableObservationSpace(mpomdp);

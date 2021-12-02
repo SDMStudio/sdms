@@ -39,10 +39,11 @@ namespace sdm
         // ----------------- PATH PARAMETERS ----------------
         // --------------------------------------------------
 
-        /** @brief Path to the directory where problems are saved. */
+        /** @brief Path to the directory where problems are stored. */
         const std::string PROBLEM_PATH = "/usr/local/share/sdms/world/";
 
-
+        /** @brief Path to the directory where configuration files are stored. */
+        const std::string CONFIG_PATH = "/usr/local/share/sdms/config/";
 
 
         // --------------------------------------------------

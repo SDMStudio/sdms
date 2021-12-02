@@ -16,6 +16,12 @@ namespace sdm
     {
     }
 
+    // ValueFunctionInterface::ValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world, Config configs) : horizon_(world->getHorizon()), world_(world)
+    // {
+    //     this->initializer_ = sdm::initializer::make(configs.get("initializer", "Zero"), world);
+    //     this->action_selection_ = sdm::action_selection::make(configs.get("action_selection", "Exhaustive"), world);
+    // }
+
     ValueFunctionInterface::~ValueFunctionInterface() {}
 
     void ValueFunctionInterface::initialize()
@@ -83,12 +89,11 @@ namespace sdm
         return this->action_selection_;
     }
 
-
     std::shared_ptr<ValueFunction> ValueFunctionInterface::toValueFunction()
     {
         return std::dynamic_pointer_cast<ValueFunction>(this->getptr());
     }
-   
+
     std::shared_ptr<QValueFunction> ValueFunctionInterface::toQValueFunction()
     {
         return std::dynamic_pointer_cast<QValueFunction>(this->getptr());

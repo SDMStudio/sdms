@@ -40,6 +40,11 @@ namespace sdm
     }
 
     template <class TBelief>
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, Config config) : BaseBeliefMDP<TBelief>(pomdp, config.get("batch_size", 0))
+    {
+    }
+    
+    template <class TBelief>
     BaseBeliefMDP<TBelief>::~BaseBeliefMDP()
     {
     }

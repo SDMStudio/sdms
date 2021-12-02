@@ -14,6 +14,11 @@ namespace sdm
         this->low_level_agent_id_ = 0;
     }
 
+    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config): OccupancyMDP(dpomdp, config)
+    {
+        this->low_level_agent_id_ = 0;
+    }
+
     number HierarchicalOccupancyMDP::getLowLevelAgentID()
     {
         return this->low_level_agent_id_;

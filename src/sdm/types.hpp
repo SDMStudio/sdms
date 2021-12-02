@@ -53,9 +53,15 @@ namespace sdm
     FULLY_UNCOMPRESSED
   };
 
+  const std::unordered_map<std::string, StateType> STATE_TYPE_MAP = {
+    {"COMPRESSED", StateType::COMPRESSED}, 
+    {"ONE_STEP_UNCOMPRESSED", StateType::ONE_STEP_UNCOMPRESSED},
+    {"FULLY_UNCOMPRESSED", StateType::FULLY_UNCOMPRESSED},
+    };
+
   /**
-  * Enumerator for the types of statistics that can be plotted.
-  */
+   * Enumerator for the types of statistics that can be plotted.
+   */
   enum Metric
   {
     CUMULATIVE_REWARD_PER_STEP,
@@ -68,8 +74,8 @@ namespace sdm
   };
 
   /**
-  * Enumerator for the types of statistics that can be recorded.
-  */
+   * Enumerator for the types of statistics that can be recorded.
+   */
   enum Statistic
   {
     MIN,
@@ -149,7 +155,7 @@ namespace sdm
     JSON
   };
 
-  //using boost::hash_combine
+  // using boost::hash_combine
   template <class T>
   inline void hash_combine(std::size_t &seed, T const &v)
   {
@@ -233,13 +239,13 @@ namespace std
   };
 
   /* Trick to allow multiple inheritance of objects
- * inheriting shared_from_this.
- * cf. https://stackoverflow.com/a/12793989/587407
- */
+   * inheriting shared_from_this.
+   * cf. https://stackoverflow.com/a/12793989/587407
+   */
 
   /* First a common base class
- * of course, one should always virtually inherit from it.
- */
+   * of course, one should always virtually inherit from it.
+   */
   class MultipleInheritableEnableSharedFromThis : public std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis>
   {
   public:
@@ -283,7 +289,7 @@ namespace std
       sysinfo(&memInfo);
 
       long long physMemUsed = memInfo.totalram - memInfo.freeram;
-      //Multiply in next statement to avoid int overflow on right hand side...
+      // Multiply in next statement to avoid int overflow on right hand side...
       physMemUsed *= memInfo.mem_unit;
 
       return physMemUsed / 1024 / 1024;
@@ -294,7 +300,7 @@ namespace std
       sysinfo(&memInfo);
 
       long long totalPhysMem = memInfo.totalram;
-      //Multiply in next statement to avoid int overflow on right hand side...
+      // Multiply in next statement to avoid int overflow on right hand side...
       totalPhysMem *= memInfo.mem_unit;
 
       return totalPhysMem / 1024 / 1024;

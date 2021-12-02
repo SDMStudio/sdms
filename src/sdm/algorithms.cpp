@@ -364,6 +364,8 @@ namespace sdm
             problem->setHorizon(horizon);
             problem->setDiscount(discount);
 
+            // return sdm::world::make(formalism, problem, config);
+
             // Build the transformed problem
             std::shared_ptr<SolvableByHSVI> formalism_problem;
 
@@ -417,7 +419,7 @@ namespace sdm
                 res << "#> Available formalisms are : " << std::endl;
                 res << "FORMALISMS\t" << std::endl
                     << "---" << std::endl;
-                for (auto world : sdm::world::available())
+                for (auto world : sdm::world::registry::available())
                 {
                     res << world << std::endl;
                 }

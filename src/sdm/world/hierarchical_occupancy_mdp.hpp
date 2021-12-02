@@ -12,18 +12,19 @@
 namespace sdm
 {
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      */
     class HierarchicalOccupancyMDP : public OccupancyMDP
     {
     public:
         HierarchicalOccupancyMDP();
+        HierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
         HierarchicalOccupancyMDP(const std::shared_ptr<HierarchicalMPOMDP> &hierarchical_mpomdp, number memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
         /**
-         * @brief Get the identifier of the agent at the bottom of the hierarchy 
-         * 
+         * @brief Get the identifier of the agent at the bottom of the hierarchy
+         *
          * @return number the id of the agent
          */
         number getLowLevelAgentID();
@@ -34,6 +35,6 @@ namespace sdm
 
     protected:
         /** @brief the identifier of the agent at the last level of the hierarchy */
-        number low_level_agent_id_;        
-      };
+        number low_level_agent_id_;
+    };
 } // namespace sdm

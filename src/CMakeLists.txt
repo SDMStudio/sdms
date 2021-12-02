@@ -39,6 +39,7 @@ file(
 	${INCLUDE_DIR}/public/**
 	${INCLUDE_DIR}/utils/struct/**
 	${INCLUDE_DIR}/utils/linear_algebra/**
+	${INCLUDE_DIR}/utils/toml/**
 	${INCLUDE_DIR}/core/**
 )
 # this is the "object library" target: compiles the sources only once
@@ -73,7 +74,6 @@ target_link_libraries(value_function_static core_static ${CPLEX_LIBRARIES})
 file(
 	GLOB_RECURSE
 	lib_world_src
-	${INCLUDE_DIR}/worlds.cpp
 	${INCLUDE_DIR}/world/**
 )
 # this is the "object library" target: compiles the sources only once

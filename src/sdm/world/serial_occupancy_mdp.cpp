@@ -13,6 +13,10 @@ namespace sdm
     {
     }
 
+    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config): OccupancyMDP(dpomdp, config)
+    {
+    }
+
     number SerialOccupancyMDP::getAgentId(number t) const
     {
         return this->getUnderlyingSerialMMDP()->getAgentId(t);

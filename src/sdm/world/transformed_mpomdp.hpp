@@ -73,6 +73,7 @@ namespace sdm
         double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
 
         double getMinReward(number t) const;
+
         double getMaxReward(number t) const;
 
         /**
@@ -193,6 +194,7 @@ namespace sdm
          * @return the information produced. Include : next observation, rewards, episode done  
          */
         std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+        
         std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
 
     protected:
