@@ -76,6 +76,95 @@ namespace sdm
                 {
                     // Determine the state for a given state, action and observation
                     auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
+                    // if (t == 2)
+                    // {
+                    //     if ((this->trial > 13) && (this->trial < 15))
+                    //     {
+                    //         auto relax_vf = std::dynamic_pointer_cast<RelaxedValueFunction>(getUpperBound()->getInitFunction());
+                    //         double Q_relax = 0., diff = 0., min_k = std::numeric_limits<double>::max(), tmp, Q_Sawtooth;
+                    //         auto oMDP = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
+                    //         auto sawtooth_vf = std::dynamic_pointer_cast<SawtoothValueFunction>(getUpperBound());
+                    //         auto [computed_next_state, proba] = std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->computeNextStateAndProbability(state, action, observation, t);
+                    //         auto s = state->toOccupancyState(), s_ = next_state->toOccupancyState();
+                    //         for (auto o : s->getJointHistories())
+                    //         {
+                    //             auto belief = s->getBeliefAt(o);
+                    //             auto u = oMDP->applyDecisionRule(s, o, action, t);
+                    //             // std::cout << "p(o)="<< s->getProbability(o) << std::endl;
+                    //             // std::cout << "Q^relax(b,u)="<< relax_vf->getQValueAt(belief, u, t) << std::endl;
+                    //             Q_relax += s->getProbability(o) * relax_vf->getQValueAt(belief, u, t);
+                    //         }
+
+                    //         for (const auto &point_k : sawtooth_vf->getRepresentation(t + 1))
+                    //         {
+                    //             auto [s_k, v_k] = point_k;
+
+                    //             diff = (v_k - relax_vf->getValueAt(s_k, t + 1));
+
+                    //             double min_int = std::numeric_limits<double>::max(), tmp_int;
+                    //             for (const auto &o_ : s_k->toOccupancyState()->getJointHistories())
+                    //             {
+                    //                 for (const auto &y : s_k->toOccupancyState()->getBeliefAt(o_)->getStates())
+                    //                 {
+                    //                     tmp_int = 0;
+                    //                     for (const auto &o : s->getJointHistories())
+                    //                     {
+                    //                         auto u = oMDP->applyDecisionRule(s, o, action, t);
+                    //                         auto z = o_->getLastObservation();
+                    //                         if (o->expand(z) == o_)
+                    //                         {
+                    //                             for (const auto &x : s->getBeliefAt(o)->getStates())
+                    //                             {
+                    //                                 tmp_int += s->getProbability(o, x) * oMDP->getUnderlyingMPOMDP()->getDynamics(x, u, y, z, t);
+                    //                             }
+                    //                         }
+                    //                     }
+                    //                     tmp_int /= s_k->toOccupancyState()->getProbability(o_, y);
+
+                    //                     // If the "value" of k-th point is minimal, keep it
+                    //                     if (tmp_int < min_int)
+                    //                     {
+                    //                         min_int = tmp_int;
+                    //                     }
+                    //                 }
+                    //             }
+
+                    //             tmp = min_int * diff;
+                    //             // If the "value" of k-th point is minimal, keep it
+                    //             if (tmp < min_k)
+                    //             {
+                    //                 min_k = tmp;
+                    //             }
+                    //             std::cout << "diff=" << diff << std::endl;
+                    //             std::cout << "min_int=" << min_int << std::endl;
+                    //         }
+
+                    //         std::cout << "Q_relax=" << Q_relax << std::endl;
+                    //         std::cout << "min_k=" << min_k << std::endl;
+                    //         Q_Sawtooth = Q_relax + min_k;
+
+                    //         std::cout << "\n--- Computed Next State --- " << computed_next_state << std::endl;
+                    //         std::cout << *computed_next_state << std::endl;
+                    //         std::cout << "\n--- Computed Next State (Compressed) ---" << std::endl;
+                    //         std::cout << *computed_next_state->toOccupancyState()->getCompressedOccupancy() << std::endl;
+
+                    //         std::cout << "\n--- Next State ---" << next_state << std::endl;
+                    //         std::cout << *next_state << std::endl;
+
+                    //         std::cout << "\n--- Next State (Compressed) ---" << std::endl;
+                    //         std::cout << *next_state->toOccupancyState()->getCompressedOccupancy() << std::endl;
+
+                    //         std::cout << "Q_LP=" << value << std::endl;
+                    //         std::cout << "Q_Sawtooth=" << Q_Sawtooth << std::endl;
+                    //         std::cout << "R + V=" << getWorld()->getReward(state, action, t) + getUpperBound()->getValueAt(next_state, t + 1) << std::endl;
+                    //         // std::cout << "Q_Exhaus=" << getUpperBound()->getQValueAt(state, action, t) << std::endl;
+                    //     }
+                    //     if (this->trial == 14)
+                    //     {
+                    //         std::cout << getUpperBound()->str() << std::endl;
+                    //     //     exit(1);
+                    //     }
+                    // }
 
                     // Recursive explore
                     explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);

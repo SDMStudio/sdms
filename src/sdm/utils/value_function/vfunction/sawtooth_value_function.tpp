@@ -104,7 +104,7 @@ namespace sdm
                                                                          const std::shared_ptr<JointHistoryInterface> &next_joint_history,
                                                                          const std::shared_ptr<Observation> &next_observation, number t, bool display)
     {
-        // Compute the value : Q^{relax}(b,u) + min_{x'} [ p(b') * b'(x') / s^{k}(x', o')] (v^{k} - v^{relax}(s^{k})) 
+        // Compute the value : Q^{relax}(b,u) + min_{x'} [ p(b') * b'(x') / s^{k}(x', o')] (v^{k} - v^{relax}(s^{k}))
         // --> Q_relax + min_ratio * (v_k - v_relax)
         // This value will be multiplied by p(o) to produce the coefficient of the corresponding decision rule for the LP
 
@@ -122,6 +122,10 @@ namespace sdm
             // Compute the next belief
             auto [next_b, proba_next_belief] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, action, next_observation, t);
             auto next_belief = next_b->toBelief();
+            if (display)
+            {
+                std::cout << "--- next_belief=" << next_belief->str() << " - proba=" << proba_next_belief << std::endl;
+            }
 
             // Compute the min ratio : min_{x'} [ p(b') * b'(x') / s^{(k)}(x', o')]
             min_ratio = std::numeric_limits<double>::max();
@@ -134,8 +138,13 @@ namespace sdm
                     min_ratio = tmp;
                 }
             }
-            v_k = this->getValueAt(next_occupancy_state->getCompressedOccupancy(), t + 1); // Get v^k
+            v_k = this->getValueAt(next_occupancy_state->getCompressedOccupancy(), t + 1);            // Get v^k
             v_relax = this->getRelaxedValueAt(next_occupancy_state->getCompressedOccupancy(), t + 1); // Get v^relax(s^k)
+        }
+        if (display)
+        {
+            std::cout << "--- joint_history=" << joint_history->short_str() << " - action=" << action->str() << std::endl;
+            std::cout << "#> [" << Q_relax << " + " << min_ratio << " * (" << v_k << " - " << v_relax << ")] * ";
         }
         return Q_relax + min_ratio * (v_k - v_relax);
     }
