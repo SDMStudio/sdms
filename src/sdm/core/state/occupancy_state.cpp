@@ -16,14 +16,10 @@ namespace sdm
 
     OccupancyState::OccupancyState() : OccupancyState(2)
     {
-        // std::cout << "Create OccupancyState() - "<< NUM_CREATE << std::endl;
-        // NUM_CREATE++;
     }
 
     OccupancyState::OccupancyState(number num_agents) : Belief(), num_agents_(num_agents), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
     {
-        // NUM_CREATE++;
-        // std::cout << "Create OccupancyState(num_agents) - "<< NUM_CREATE << std::endl;
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
         {
             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
@@ -54,8 +50,6 @@ namespace sdm
           individual_hierarchical_history_vector_map_vector(occupancy_state.individual_hierarchical_history_vector_map_vector),
           joint_history_map_vector(occupancy_state.joint_history_map_vector)
     {
-        // NUM_CREATE++;
-        // std::cout << "Create OccupancyState(occupancy_state) - "<< NUM_CREATE << std::endl;
     }
 
     OccupancyState::~OccupancyState()

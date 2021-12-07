@@ -50,13 +50,17 @@ namespace sdm
   {
     COMPRESSED,
     ONE_STEP_UNCOMPRESSED,
-    FULLY_UNCOMPRESSED
+    FULLY_UNCOMPRESSED,
+    COMPRESSED_KEEP_ALL,
+    ONE_STEP_KEEP_ALL,
   };
 
   const std::unordered_map<std::string, StateType> STATE_TYPE_MAP = {
     {"COMPRESSED", StateType::COMPRESSED}, 
     {"ONE_STEP_UNCOMPRESSED", StateType::ONE_STEP_UNCOMPRESSED},
     {"FULLY_UNCOMPRESSED", StateType::FULLY_UNCOMPRESSED},
+    {"COMPRESSED_KEEP_ALL", StateType::COMPRESSED_KEEP_ALL},
+    {"ONE_STEP_KEEP_ALL", StateType::ONE_STEP_KEEP_ALL},
     };
 
   /**

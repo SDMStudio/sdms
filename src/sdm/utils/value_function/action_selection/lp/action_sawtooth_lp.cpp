@@ -18,6 +18,7 @@ namespace sdm
     Pair<std::shared_ptr<Action>, double> ActionSelectionSawtoothLP::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &one_step_uncompressed_state, number t)
     {
         this->sawtooth_vf = std::dynamic_pointer_cast<SawtoothValueFunction>(vf);
+
         auto result = this->createLP(vf, one_step_uncompressed_state->toOccupancyState()->getCompressedOccupancy(), t);
         return result;
     }
@@ -170,7 +171,7 @@ namespace sdm
             {
 
                 // Compute coefficient related to a(u|o)
-                coef = occupancy_state->getProbability(joint_history) * getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t, false);
+                coef = getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t, false);
                 // std::cout << occupancy_state->getProbability(joint_history) << " = " << coef << std::endl;
 
                 //<! 1.c.4 get variable a(u|o) and set constant
@@ -204,8 +205,8 @@ namespace sdm
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
-                std::cout << "#> p(" << joint_history->short_str() << ")=" << occupancy_state->getProbability(joint_history) << std::endl;
-                double coef = occupancy_state->getProbability(joint_history) * getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t, true);
+                // std::cout << "#> p(" << joint_history->short_str() << ")=" << occupancy_state->getProbability(joint_history) << std::endl;
+                double coef = getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t, false);
                 expr -= var[recover] * coef;
             }
         }

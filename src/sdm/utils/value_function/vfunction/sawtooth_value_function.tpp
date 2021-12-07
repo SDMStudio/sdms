@@ -99,54 +99,54 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
-    double BaseSawtoothValueFunction<Hash, KeyEqual>::getSawtoothValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history,
-                                                                         const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
-                                                                         const std::shared_ptr<JointHistoryInterface> &next_joint_history,
-                                                                         const std::shared_ptr<Observation> &next_observation, number t, bool display)
+    double BaseSawtoothValueFunction<Hash, KeyEqual>::getSawtoothValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> o,
+                                                                         const std::shared_ptr<Action> &u, const std::shared_ptr<OccupancyStateInterface> &s_k,
+                                                                         const std::shared_ptr<JointHistoryInterface> &o_,
+                                                                         const std::shared_ptr<Observation> &z, number t, bool display)
     {
         // Compute the value : Q^{relax}(b,u) + min_{x'} [ p(b') * b'(x') / s^{k}(x', o')] (v^{k} - v^{relax}(s^{k}))
         // --> Q_relax + min_ratio * (v_k - v_relax)
         // This value will be multiplied by p(o) to produce the coefficient of the corresponding decision rule for the LP
 
+        auto oMDP = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
         auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
-        auto belief = occupancy_state->getBeliefAt(joint_history);
+        auto b = s->getBeliefAt(o);
 
         // Compute the first term : Q_relax = Q^{relax} (b,u)
-        double Q_relax = relaxation->getQValueAt(belief, action, t);
+        double Q_relax = relaxation->getQValueAt(b, u, t);
         double v_k = 0., v_relax = 0., min_ratio = 0., tmp;
 
-        if (joint_history->expand(next_observation) == next_joint_history)
+        if (o->expand(z) == o_)
         {
-            auto oMDP = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
 
             // Compute the next belief
-            auto [next_b, proba_next_belief] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, action, next_observation, t);
-            auto next_belief = next_b->toBelief();
+            auto [next_belief, proba_next_b] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(b, u, z, t);
+            auto next_b = next_belief->toBelief();
             if (display)
             {
-                std::cout << "--- next_belief=" << next_belief->str() << " - proba=" << proba_next_belief << std::endl;
+                std::cout << "--- next_b=" << next_b->str() << " - proba=" << proba_next_b << std::endl;
             }
 
             // Compute the min ratio : min_{x'} [ p(b') * b'(x') / s^{(k)}(x', o')]
             min_ratio = std::numeric_limits<double>::max();
-            for (auto &next_state : next_occupancy_state->getBeliefAt(next_joint_history)->getStates())
+            for (auto &y : s_k->getBeliefAt(o_)->getStates())
             {
-                tmp = proba_next_belief * next_belief->getProbability(next_state) / next_occupancy_state->getProbability(next_joint_history, next_state);
+                tmp = proba_next_b * next_b->getProbability(y) / s_k->getProbability(o_, y);
 
                 if (tmp < min_ratio)
                 {
                     min_ratio = tmp;
                 }
             }
-            v_k = this->getValueAt(next_occupancy_state->getCompressedOccupancy(), t + 1);            // Get v^k
-            v_relax = this->getRelaxedValueAt(next_occupancy_state->getCompressedOccupancy(), t + 1); // Get v^relax(s^k)
+            v_k = this->getValueAt(s_k, t + 1);            // Get v^k
+            v_relax = this->getRelaxedValueAt(s_k, t + 1); // Get v^relax(s^k)
         }
         if (display)
         {
-            std::cout << "--- joint_history=" << joint_history->short_str() << " - action=" << action->str() << std::endl;
+            std::cout << "--- o=" << o->short_str() << " - u=" << u->str() << std::endl;
             std::cout << "#> [" << Q_relax << " + " << min_ratio << " * (" << v_k << " - " << v_relax << ")] * ";
         }
-        return Q_relax + min_ratio * (v_k - v_relax);
+        return s->getProbability(o) * (Q_relax + min_ratio * (v_k - v_relax));
     }
 
     template <class Hash, class KeyEqual>
@@ -305,7 +305,7 @@ namespace sdm
                 // res << "\t\t<state id=\"" << pair_st_val.first << "\">" << std::endl;
                 // res << "\t\t</state>" << std::endl;
                 std::ostringstream state_str;
-                state_str << pair_st_val.first->str();
+                state_str << pair_st_val.first /* ->str() */;
                 res << "\t\t<state>" << std::endl;
                 res << tools::addIndent(state_str.str(), 3) << std::endl;
                 res << "\t\t</state>" << std::endl;

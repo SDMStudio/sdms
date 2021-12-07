@@ -34,11 +34,11 @@ namespace sdm
                 BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
                 BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1,
                                  bool store_states = true, bool store_actions = true, int batch_size = 0);
-                                 
+
                 ~BaseOccupancyMDP();
 
                 void initialize(number memory);
-                
+
                 void setStateType(const StateType &state_type);
 
                 /** @brief Get the address of the underlying MPOMDP */
@@ -110,7 +110,7 @@ namespace sdm
 
                 /**
                  * @brief Compute the state transition in order to return next state and associated probability.
-                 * 
+                 *
                  * This function can be modified in an inherited class to define a belief MDP with a different representation of the belief state.
                  * (i.e. BaseOccupancyMDP inherits from BaseBeliefMDP with TBelief = OccupancyState)
                  *
@@ -121,6 +121,9 @@ namespace sdm
                  * @return the couple (next state, transition probability in the next state)
                  */
                 virtual Pair<std::shared_ptr<State>, double> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                virtual Pair<std::shared_ptr<State>, double> computeExactNextCompressedState(const std::shared_ptr<OccupancyStateInterface> &compressed_occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, const std::shared_ptr<Observation> &observation, number t);
+                virtual Pair<std::shared_ptr<State>, double> computeExactNextUncompressedState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+
                 virtual Pair<std::shared_ptr<State>, double> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
                 virtual Pair<std::shared_ptr<OccupancyStateInterface>, double> finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &next_one_step_left_compressed_occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_fully_uncompressed_occupancy_state, number t);
 
