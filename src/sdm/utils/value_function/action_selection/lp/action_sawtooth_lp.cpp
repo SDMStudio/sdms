@@ -47,10 +47,15 @@ namespace sdm
             // Go over all Joint History Next
             for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
             {
-                // <! \omega_k(x',o')
-                VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_jhistory);
-                var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
-                this->setNumber(VarName, index++);
+
+                // Go over all next states
+                for (const auto &next_state : next_occupancy_state->getBeliefAt(next_jhistory)->getStates())
+                {
+                    // <! \omega_k(x',o')
+                    VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_jhistory);
+                    var.add(IloBoolVar(env, 0, 1, VarName.c_str()));
+                    this->setNumber(VarName, index++);
+                }
             }
         }
 
@@ -85,15 +90,19 @@ namespace sdm
                     // Determine the next Joint observation thanks to the next joint history
                     auto next_joint_observation = this->determineNextJointObservation(next_jhistory, t);
 
-                    // We search for the joint_history which allow us to obtain the current next_history conditionning to the next joint observation
-                    switch (this->current_type_of_resolution_)
+                    // Go over all next states
+                    for (const auto &next_state : next_occupancy_state->getBeliefAt(next_jhistory)->getStates())
                     {
-                    case TypeOfResolution::BigM:
-                        this->createSawtoothBigM(compressed_occupancy_state, next_occupancy_state, next_jhistory, next_joint_observation, env, con, var, index, t);
-                        break;
-                    case TypeOfResolution::IloIfThenResolution:
-                        this->createSawtoothIloIfThen(compressed_occupancy_state, next_occupancy_state, next_jhistory, next_joint_observation, env, model, var, t);
-                        break;
+                        // We search for the joint_history which allow us to obtain the current next_history conditionning to the next joint observation
+                        switch (this->current_type_of_resolution_)
+                        {
+                        case TypeOfResolution::BigM:
+                            this->createSawtoothBigM(compressed_occupancy_state, next_occupancy_state, next_state, next_jhistory, next_joint_observation, env, con, var, index, t);
+                            break;
+                        case TypeOfResolution::IloIfThenResolution:
+                            this->createSawtoothIloIfThen(compressed_occupancy_state, next_occupancy_state, next_state, next_jhistory, next_joint_observation, env, model, var, t);
+                            break;
+                        }
                     }
                 }
             }
@@ -118,10 +127,14 @@ namespace sdm
             // Go over all Joint History Next
             for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
             {
-                // <! \omega_k(x',o')
-                auto VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_jhistory);
-                recover = this->getNumber(VarName);
-                con[index].setLinearCoef(var[recover], +1.0);
+                // Go over all next states
+                for (const auto &next_state : next_occupancy_state->getBeliefAt(next_jhistory)->getStates())
+                {
+                    // <! \omega_k(x',o')
+                    auto VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_jhistory);
+                    recover = this->getNumber(VarName);
+                    con[index].setLinearCoef(var[recover], +1.0);
+                }
             }
             index++;
         }
@@ -154,7 +167,12 @@ namespace sdm
         index++;
     }
 
-    void ActionSelectionSawtoothLP::createSawtoothBigM(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
+    // double getQRelaxation()
+    // {
+    //     return oMDP->getReward(state, action, t) + oMDP->getDiscount(t) * sawtooth_vf->getInitFunction()->operator()(next_state, t + 1);
+    // }
+
+    void ActionSelectionSawtoothLP::createSawtoothBigM(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
         auto underlying_problem = ActionSelectionBase::getWorld()->getUnderlyingProblem();
         number recover = 0;
@@ -169,10 +187,8 @@ namespace sdm
             auto action = u->toAction();
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
-
                 // Compute coefficient related to a(u|o)
-                coef = getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t, false);
-                // std::cout << occupancy_state->getProbability(joint_history) << " = " << coef << std::endl;
+                coef = getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_state, next_joint_history, /* to be kept */ next_observation, t, false);
 
                 //<! 1.c.4 get variable a(u|o) and set constant
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
@@ -181,13 +197,13 @@ namespace sdm
             }
         }
         // <! \omega_k(x',o') * BigM
-        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_joint_history));
+        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_joint_history));
         con[index].setLinearCoef(var[recover], this->bigM_value_);
 
         index++;
     }
 
-    void ActionSelectionSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
+    void ActionSelectionSawtoothLP::createSawtoothIloIfThen(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloModel &model, IloNumVarArray &var, number t)
     {
         auto underlying_problem = ActionSelectionBase::getWorld()->getUnderlyingProblem();
         number recover = 0;
@@ -206,13 +222,13 @@ namespace sdm
                 recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
                 // std::cout << "#> p(" << joint_history->short_str() << ")=" << occupancy_state->getProbability(joint_history) << std::endl;
-                double coef = getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_joint_history, /* to be kept */ next_observation, t, false);
+                double coef = getSawtoothValueFunction()->getSawtoothValueAt(/* support from current point */ occupancy_state, joint_history, action, /* witness point */ next_occupancy_state, /* support of witness point */ next_state, next_joint_history, /* to be kept */ next_observation, t, false);
                 expr -= var[recover] * coef;
             }
         }
 
         // <! get variable \omega_k(x',o')
-        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_joint_history));
+        recover = this->getNumber(this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_state, next_joint_history));
         model.add(IloIfThen(env, var[recover] > 0, expr <= 0));
     }
 
@@ -224,29 +240,6 @@ namespace sdm
     std::shared_ptr<SawtoothValueFunction> ActionSelectionSawtoothLP::getSawtoothValueFunction() const
     {
         return this->sawtooth_vf;
-    }
-
-    std::shared_ptr<Action> ActionSelectionSawtoothLP::getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
-    {
-        number recover = 0;
-        // Go over all points in the point set at t+1
-        for (const auto &point_k : this->getSawtoothValueFunction()->getRepresentation(t + 1))
-        {
-            const auto &next_occupancy_state = point_k.first->toOccupancyState();
-
-            // Go over all Joint History Next
-            for (const auto &next_jhistory : next_occupancy_state->getJointHistories())
-            {
-                // <! \omega_k(x',o')
-                auto VarName = this->getVarNameWeightedStateJointHistory(next_occupancy_state, next_jhistory);
-                recover = this->getNumber(VarName);
-
-                // Add the variable in the vector only if the variable is true
-            }
-        }
-
-        // Create the JointDeterminiticDecisionRule
-        return DecentralizedLP::getVariableResult(vf, state, cplex, var, t);
     }
 }
 

@@ -38,9 +38,7 @@ namespace sdm
 
         for (number agent = 0; agent < joint_state_->size(); agent++)
         {
-            auto individual_decision_rule = this->get(agent);
-            auto individual_state = joint_state_->get(agent);
-            auto individual_action = individual_decision_rule->act(individual_state);
+            auto individual_action = this->get(agent)->act(joint_state_->get(agent));
             joint_action->push_back(individual_action->toAction());
         }
         return joint_action;

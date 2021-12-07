@@ -28,16 +28,8 @@ namespace sdm
 
     std::shared_ptr<Action> DeterministicDecisionRule::act(const std::shared_ptr<State> &state) const
     {
-        try
-        {
-            auto iter = this->map_state_to_action_.find(state);
-            return (iter != this->map_state_to_action_.end()) ? iter->second : nullptr;
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "State not found in the DeterministicDecisionRule, error :" << e.what() << '\n';
-            exit(-1);
-        }
+        auto iter = this->map_state_to_action_.find(state);
+        return (iter != this->map_state_to_action_.end()) ? iter->second : nullptr;
     }
 
     // std::shared_ptr<Action> DeterministicDecisionRule::operator()(const std::shared_ptr<State> &s)
@@ -76,11 +68,9 @@ namespace sdm
         return this->map_state_to_action_;
     }
 
-    bool DeterministicDecisionRule::elementExist(const std::shared_ptr<State>& state)
+    bool DeterministicDecisionRule::elementExist(const std::shared_ptr<State> &state)
     {
         return (this->map_state_to_action_.find(state) != this->map_state_to_action_.end()) ? true : false;
     }
 
-
 } // namespace sdm
-

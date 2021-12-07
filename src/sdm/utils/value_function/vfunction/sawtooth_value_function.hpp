@@ -10,12 +10,12 @@
 namespace sdm
 {
     /**
-     * @brief The value function that is represented using a set of points 
+     * @brief The value function that is represented using a set of points
      * ([See Tutorials](https://sdmstudio.github.io/tutorials/value_function/v/#point-set-value)).
-     * 
-     * Similar to the tabular rerpresentation, the point set representation keep points ( i.e. state/value pairs ) 
+     *
+     * Similar to the tabular rerpresentation, the point set representation keep points ( i.e. state/value pairs )
      * but add a way to generalize over new states using an interpolation over existing points in the structure.
-     * 
+     *
      * @tparam Hash the type of hash function
      * @tparam KeyEqual the type of equal function
      */
@@ -56,24 +56,24 @@ namespace sdm
 
         /**
          * @brief Get the relaxed value at a given state
-         * 
-         * Usually, the relaxation correspond to the underlying MDP value or belief MDP value. 
+         *
+         * Usually, the relaxation correspond to the underlying MDP value or belief MDP value.
          * However, we could use other types of relaxations such as the hierarchical value, etc.
-         * 
+         *
          * @param state the state the evaluate
          * @param t the time step
-         * @return the relaxed value 
+         * @return the relaxed value
          */
         double getRelaxedValueAt(const std::shared_ptr<State> &state, number t);
 
         double getSawtoothValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history,
                                   const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
-                                  const std::shared_ptr<JointHistoryInterface> &next_joint_history,
+                                  const std::shared_ptr<State> &y, const std::shared_ptr<JointHistoryInterface> &next_joint_history,
                                   const std::shared_ptr<Observation> &next_observation, number t, bool display = false);
 
         /**
          * @brief Copy the value function and return a reference to the copied object.
-         * 
+         *
          * @return the address of the value function copied
          */
         std::shared_ptr<ValueFunctionInterface> copy();
@@ -114,9 +114,9 @@ namespace sdm
 
         /**
          * @brief This method prunes dominated points, known as Pairwise pruning.
-         * 
-         * @param t the timestep 
-         * @param epsilon the epsilon used to check dominance between states 
+         *
+         * @param t the timestep
+         * @param epsilon the epsilon used to check dominance between states
          */
         void pairwise_prune(number t, double epsilon = 0.);
 
@@ -125,7 +125,7 @@ namespace sdm
          *
          * @param s the state
          * @param s_k the k-th state stored in the map
-         * @return the ratio 
+         * @return the ratio
          */
         double computeRatio(const std::shared_ptr<State> &s, const std::shared_ptr<State> &s_k);
 
@@ -134,7 +134,7 @@ namespace sdm
          *
          * @param s the new occupancy state
          * @param s_k the k-th occupancy state stored in the map
-         * @return the minimum ratio between s(x,o)/s^k(x,o)  
+         * @return the minimum ratio between s(x,o)/s^k(x,o)
          */
         double ratioOccupancy(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<OccupancyStateInterface> &s_k);
 
@@ -143,7 +143,7 @@ namespace sdm
          *
          * @param b the new belief
          * @param b_k the k-th belief stored in the map
-         * @return the minimum ratio between b(x)/b^k(x)  
+         * @return the minimum ratio between b(x)/b^k(x)
          */
         double ratioBelief(const std::shared_ptr<BeliefInterface> &b, const std::shared_ptr<BeliefInterface> &b_k);
 
