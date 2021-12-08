@@ -8,7 +8,7 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-    std::string bayesian_file = (argc > 1) ? argv[1] :  "/home/sdms/data/world/bayesian_game/ex1.byg";
+    std::string bayesian_file = (argc > 1) ? argv[1] :  "/home/sdms/data/world/bayesian_game/ex1.nfg";
     // Instanciate a two players bayesian game from a ".byg" or ".nfg" file
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "#> Instanciate a two players bayesian game" << std::endl;
@@ -26,12 +26,11 @@ int main(int argc, char **argv)
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "#> Solve the bayesian game" << std::endl;
     std::cout << "----------------------------------------" << std::endl;
-    solver->solve();    
+    solver->solve();
 
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "#> Decision rule :" << std::endl;
     std::cout << "----------------------------------------" << std::endl;
 
-    std::cout << std::static_pointer_cast<TwoPlayersBayesianGameSolver> (solver)->solution->str() << std::endl;
-    //solver->terminate();
+    std::cout << std::static_pointer_cast<TwoPlayersBayesianGameSolver> (solver)->getSolution()->str() << std::endl;
 }

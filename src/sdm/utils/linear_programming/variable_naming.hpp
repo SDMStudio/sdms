@@ -55,6 +55,19 @@ namespace sdm
          */
         std::string getVarNameWeightedStateJointHistory(const std::shared_ptr<State>&, const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryInterface> &);
 
+
+        /**
+         * @brief Get the Var Name from a State and an Action 
+         * @return std::string 
+         */
+        std::string getVarNameStateAction(const std::shared_ptr<State>&, const std::shared_ptr<Action>&);
+
+        /**
+         * @brief Get the Var Name from a State
+         * @return std::string 
+         */
+        std::string getVarNameState(const std::shared_ptr<State>&);
+
     protected:
         /**
          * @brief mapping from variable names to variable identifiers 

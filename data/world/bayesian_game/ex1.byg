@@ -1,20 +1,38 @@
+# number of types for each agent 
 2 2
+# game dimensions i.e. #actions for each agent
 2 2
+#payoff values :
+#   for joint_type = (0,0) 
+#       for agent 1
 2 0
 0 2
+#       for agent 2
 0 2
 2 0
+#   for joint_type = (0,1) 
+#       for agent 1
 2 0
 3 1
+#       for agent 2
 2 3
 0 1
+#   for joint_type = (1,0) 
+#       for agent 1
 2 0
 0 1
+#       for agent 2
 2 0
 0 1
+#   for joint_type = (1,1) 
+#       for agent 1
 2 0
 0 1
+#       for agent 2
 1 0
 0 2
+# joint types probabilities 
+#   for joint_type = (0,0) and (0,1)
 0.3 0.1
+#   for joint_type = (1,0) and (1,1)
 0.2 0.4

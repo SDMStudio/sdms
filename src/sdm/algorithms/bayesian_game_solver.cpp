@@ -2,6 +2,8 @@
 #include <sdm/exception.hpp>
 #include <sdm/core/state/base_state.hpp>
 #include <sdm/core/action/base_action.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
+#include <sdm/core/joint.hpp>
 
 
 
@@ -21,60 +23,93 @@ void sdm::TwoPlayersBayesianGameSolver::initialize(){
 }
 
 bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(std::shared_ptr<BayesianGameInterface> game, int playerIndex){
+
+    /***
+     *  - make a map JState -> alpha_i
+     *  - make a function to name a var after its state & action
+     *  - get good var from the name
+    ***/
+
     try {
-        std::vector<int> typesNumbers(game->getTypesNumbers());
-        std::vector<int> matrixDimensions(game->getGameDimensions());
+
+        std::shared_ptr<MultiDiscreteSpace> typeSpace = game->getTypeSpace()->toMultiDiscreteSpace();
+        std::shared_ptr<MultiDiscreteSpace> actionSpace = game->getActionSpace()->toMultiDiscreteSpace();
+
+        auto actionsOpPlayer = actionSpace->getSpace(abs(playerIndex-1));
+        auto actionsPlayer = actionSpace->getSpace(playerIndex);
+        auto typesOpPlayer = typeSpace->getSpace(abs(playerIndex-1));
+        auto typesPlayer = typeSpace->getSpace(playerIndex);
+
+
 
         /* CONSTRUCT LP */
 
         // add alpha_i variables
-        int numberOfOptiVars = typesNumbers[abs(playerIndex - 1)];
         IloExpr obj(env);
-        for (int i = 0; i < numberOfOptiVars; i ++){
-            string varName = "alpha" + to_string(i);
-            vars.add(IloNumVar(env, -IloInfinity, IloInfinity, ILOFLOAT, varName.c_str()));
-            obj += vars[i];
-        }
 
+        int inserted = 0;
+        for (const auto &opType: *typesOpPlayer)
+        {
+            string varName = vn.getVarNameState(opType->toState());
+            vars.add(IloNumVar(env, -IloInfinity, IloInfinity, ILOFLOAT, varName.c_str()));
+            obj += vars[inserted];
+            vn.setNumber(varName, inserted);
+            inserted++;
+        }
         // add objective to model
         model.add(IloMaximize(env,obj));
         obj.end();
 
         // add types conditional probas & proba equals to 1 constraints
-        for (int t = 0; t < typesNumbers[playerIndex]; t ++){
+        for (const auto &type: *typesPlayer)
+        {
             IloExpr probaSum(env); 
-            for (int a = 0; a < matrixDimensions[playerIndex]; a++){
-                string varName = "p" + to_string(t) + to_string(a);
-
+            for (const auto &action: *actionsPlayer)
+            {
+                string varName = vn.getVarNameStateAction(type->toState(), action->toAction());
                 vars.add(IloNumVar(env, 0, 1, ILOFLOAT, varName.c_str()));
-                probaSum += vars[numberOfOptiVars + t*matrixDimensions[playerIndex] + a];
+                probaSum += vars[inserted];
+                vn.setNumber(varName, inserted);
+                inserted++;
             }
             model.add(IloRange(env, 1, probaSum, 1));
             probaSum.end();
         }
 
         // write game constraints
-        int opposingPlayerTypes = typesNumbers[abs(playerIndex -1)];
-        for (int opType = 0; opType < opposingPlayerTypes; opType++){
-            for (int opAction = 0; opAction < matrixDimensions[abs(playerIndex -1)]; opAction ++){
+
+        for (const auto &opType: *typesOpPlayer)
+        {
+
+            for (const auto &opAction: *actionsOpPlayer)
+            {
                 IloExpr actionConstraint(env);
-                for (int plType = 0; plType < typesNumbers[playerIndex]; plType ++){
-                    std::vector<std::shared_ptr<State>> types{std::make_shared<DiscreteState>(DiscreteState(opType) ), std::make_shared<DiscreteState>(DiscreteState(plType))};
-                    if (playerIndex == 0) types = std::vector<std::shared_ptr<State>>{std::make_shared<DiscreteState>(DiscreteState(plType) ), std::make_shared<DiscreteState>(DiscreteState(opType))};
-                    float jointTypeProba = game->getJointTypesProba(types);
-                    for(int plAction = 0; plAction < matrixDimensions[playerIndex]; plAction ++){
-                        std::vector<std::shared_ptr<Action>> actions {std::make_shared<DiscreteAction>(plAction), std::make_shared<DiscreteAction>(opAction)};
-                        if (playerIndex == 1) actions = std::vector<std::shared_ptr<Action>>{std::make_shared<DiscreteAction>(opAction), std::make_shared<DiscreteAction>(plAction)};
-                        float coef = jointTypeProba * game->getPayoff(types, actions, playerIndex);
-                        actionConstraint += coef*vars[numberOfOptiVars + plType*matrixDimensions[0] + plAction];
+                for (const auto &plType: *typesPlayer)
+                {
+                    Joint<std::shared_ptr<Item>> jointType(std::vector<std::shared_ptr<Item>>{opType, plType});
+                    if (playerIndex == 0) jointType = Joint<std::shared_ptr<Item>>(std::vector<std::shared_ptr<Item>>{plType, opType->toState()});
+                    auto jointState = typeSpace->getItemAddress(jointType)->toState(); // cast à vérifier
+                    double jointTypeProba = game->getJointTypesProba(jointState);
+                    for (const auto &plAction: *actionsPlayer)
+                    {
+
+                        Joint<std::shared_ptr<Item>> jAction(std::vector<std::shared_ptr<Item>>{opAction, plAction});
+                        if (playerIndex == 0) jAction = Joint<std::shared_ptr<Item>>(std::vector<std::shared_ptr<Item>>{plAction, opAction});
+                        auto jointAction = actionSpace->getItemAddress(jAction)->toAction();
+
+                        double coef = jointTypeProba * game->getPayoff(jointState, jointAction, playerIndex);
+                        string varName = vn.getVarNameStateAction(plType->toState(), plAction->toAction());
+
+                        actionConstraint += coef * vars[vn.getNumber(varName)];
                     }
                 }
-                actionConstraint -= vars[opType];
-                string constraintName = "c" + to_string(opType) + to_string(opAction);
-                model.add(IloRange(env, 0, actionConstraint, IloInfinity, constraintName.c_str()));
+                int optiIndex = vn.getNumber(vn.getVarNameState(opType->toState()));
+                actionConstraint -= vars[optiIndex];
+                model.add(IloRange(env, 0, actionConstraint, IloInfinity));
                 actionConstraint.end();
             }
         }
+
         return true;
     }
     catch (IloException& e) {
@@ -125,6 +160,16 @@ std::string sdm::TwoPlayersBayesianGameSolver::getAlgorithmName() {
 
 std::shared_ptr<sdm::StochasticDecisionRule> sdm::TwoPlayersBayesianGameSolver::getSolution(){
     return solution;
+}
+
+void sdm::TwoPlayersBayesianGameSolver::exportLP(const char *filename)
+{
+    IloCplex cplex(model);
+    try{
+        cplex.exportModel(filename);
+    }catch (IloException& e) {
+        cerr << "Concert exception caught in export model: " << e << endl;
+    }
 }
 
 void sdm::TwoPlayersBayesianGameSolver::test() {

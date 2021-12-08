@@ -5,6 +5,7 @@
 #include <ilcplex/ilocplex.h>
 #include <sdm/public/algorithm.hpp>
 #include <memory>
+#include <sdm/utils/linear_programming/variable_naming.hpp>
 
 ILOSTLBEGIN
 
@@ -28,6 +29,8 @@ namespace sdm
 
         void terminate();
 
+        void exportLP(const char *filename);
+
         std::string getAlgorithmName();
 
         std::shared_ptr<StochasticDecisionRule> getSolution();
@@ -40,5 +43,6 @@ namespace sdm
         std::shared_ptr<BayesianGameInterface> game;
         int playerIndex;
         std::shared_ptr<StochasticDecisionRule> solution;
+        VarNaming vn;
     };
 };

@@ -1,7 +1,11 @@
+# game dimensions i.e. #actions for each agent
 3 3
+#payoff values :
+#   for agent 1
 0 -1 1
 1 0 -1
 -1 1 0
+#    for agent 2
 0 1 -1
 -1 0 1
 0 -1 1

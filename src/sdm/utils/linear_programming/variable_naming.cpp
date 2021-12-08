@@ -65,4 +65,20 @@ namespace sdm
       return oss.str();
     }
 
+    std::string VarNaming::getVarNameStateAction(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& action)
+    {
+      std::ostringstream oss;
+      oss << "sa"
+          << "." << state << "." << action;
+      return oss.str();
+    }
+
+    std::string VarNaming::getVarNameState(const std::shared_ptr<State>& state)
+    {
+      std::ostringstream oss;
+      oss << "ws"
+          << "." << state << "." << state;
+      return oss.str();
+    }
+
 }

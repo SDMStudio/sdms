@@ -109,6 +109,7 @@ namespace sdm
           }
           return elements;
       };
+
       std::shared_ptr<sdm::BayesianGameInterface> game;
       bool isBayesian = false;
       if (regex_match(filename, std::regex(".*\\.byg$")) || regex_match(filename, std::regex(".*\\.BYG$"))) {
@@ -119,6 +120,7 @@ namespace sdm
       } else{
         throw sdm::exception::Exception("File format not supported by parse_file_bayesian");
       }
+      
       std::ifstream inputFile(filename);
       if (!inputFile)
       {
@@ -128,7 +130,8 @@ namespace sdm
       std::vector<std::string> lineElements;
       // get problem dimensions
       if (isBayesian) {
-         getline(inputFile, line);
+        getline(inputFile, line);
+        while (line[0] == '#') getline(inputFile, line);
         lineElements = split(line,' ');
         std::static_pointer_cast<TwoPlayersBayesianGame> (game)->setTypeNumbers(lineElements);
       }
@@ -136,32 +139,45 @@ namespace sdm
       std::vector<int> typesNumbers = game->getTypesNumbers();
 
 
-      getline(inputFile, line); lineElements = split(line, ' ');
+      getline(inputFile, line);
+      while (line[0] == '#') getline(inputFile, line);
+      lineElements = split(line, ' ');
+
       if (isBayesian) {
         std::static_pointer_cast<TwoPlayersBayesianGame> (game)->setGameDimensions(lineElements);
       } else { // is normal form game
         std::static_pointer_cast<TwoPlayersNormalFormGame> (game)->setGameDimensions(lineElements);
       }
       std::vector<int> matrixDimensions = game->getGameDimensions();
-
+      std::vector<std::vector<std::string>> tmp_values;
       // get payoffMatrix
       for (int i = 0; i < typesNumbers[0]*typesNumbers[1]*matrixDimensions[0]*2; i++)
       {
-          getline(inputFile, line); lineElements = split(line, ' ');
-          if (isBayesian) {
-            std::static_pointer_cast<TwoPlayersBayesianGame> (game)->addPayoffLine(lineElements);
-          } else { // is normal form game
-            std::static_pointer_cast<TwoPlayersNormalFormGame> (game)->addPayoffLine(lineElements);
-          }
+          getline(inputFile, line);
+          while (line[0] == '#') getline(inputFile, line);
+          lineElements = split(line, ' ');
+          tmp_values.push_back(lineElements);
       }
+      if (isBayesian) {
+        std::static_pointer_cast<TwoPlayersBayesianGame> (game)->setPayoffs(tmp_values);
+      } else { // is a normal form fame 
+
+        std::static_pointer_cast<TwoPlayersNormalFormGame> (game)->setPayoffs(tmp_values);
+      }
+
+      tmp_values.clear();
 
       // get joint probabilities
       if (isBayesian){
         for (int i = 0; i < typesNumbers[0]; i++)
         {
-            getline(inputFile, line); lineElements = split(line, ' ');
-            std::static_pointer_cast<TwoPlayersBayesianGame> (game) -> addJointTypeProbabilities(lineElements);
+          getline(inputFile, line);
+          while (line[0] == '#') getline(inputFile, line); 
+          lineElements = split(line, ' ');
+
+          tmp_values.push_back(lineElements);
         }
+        std::static_pointer_cast<TwoPlayersBayesianGame> (game) -> setJointTypeProbabilities(tmp_values);
       }
 
 
