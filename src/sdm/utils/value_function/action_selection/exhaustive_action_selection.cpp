@@ -5,7 +5,7 @@ namespace sdm
 {
     ExhaustiveActionSelection::ExhaustiveActionSelection() {}
 
-    ExhaustiveActionSelection::ExhaustiveActionSelection(const std::shared_ptr<SolvableByDP> &world) : ActionSelectionBase(world) {}
+    ExhaustiveActionSelection::ExhaustiveActionSelection(const std::shared_ptr<SolvableByDP> &world, Config config) : ActionSelectionBase(world) {}
 
     Pair<std::shared_ptr<Action>, double> ExhaustiveActionSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {

@@ -1,8 +1,10 @@
 
 #pragma once
 
+#include <sdm/utils/config.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/utils/value_function/action_selection/action_selection_base.hpp>
+
 
 namespace sdm
 {

@@ -11,18 +11,23 @@
 namespace sdm
 {
     ActionSelectionSawtoothLPSerial::ActionSelectionSawtoothLPSerial() {}
+
+    ActionSelectionSawtoothLPSerial::ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByDP> &world, Config config) : ActionSelectionSawtoothLP(world, config)
+    {
+        if (auto derived = std::dynamic_pointer_cast<SerialOccupancyMDP>(world))
+            this->serial_oMDP = derived;
+        else
+            throw sdm::exception::TypeError("Action sawtooth lp serial is only available for worlds inheriting from 'SerialProblemInterface'.");
+    }
+
     ActionSelectionSawtoothLPSerial::ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution,
                                                                      number bigM_value, TypeSawtoothLinearProgram type_of_linear_programm)
         : ActionSelectionSawtoothLP(world, current_type_of_resolution, bigM_value, type_of_linear_programm)
     {
         if (auto derived = std::dynamic_pointer_cast<SerialOccupancyMDP>(world))
-        {
             this->serial_oMDP = derived;
-        }
         else
-        {
             throw sdm::exception::TypeError("Action sawtooth lp serial is only available for worlds inheriting from 'SerialProblemInterface'.");
-        }
     }
 
     std::shared_ptr<SerialOccupancyMDP> ActionSelectionSawtoothLPSerial::getSerialOccupancyMDP() const

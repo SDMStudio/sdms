@@ -10,6 +10,25 @@
 namespace sdm
 {
     ActionSelectionSawtoothLP::ActionSelectionSawtoothLP() {}
+
+    ActionSelectionSawtoothLP::ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP> &world, Config config) : ActionSelectionBase(world), DecentralizedLP(world)
+    {
+        // TYPE OF RESOLUTION
+        auto type_of_resolution_name = config.get("type_of_resolution", std::string("IloIfThen"));
+        TypeOfResolution type_of_resolution;
+        number BigM;
+
+        if (type_of_resolution_name.find("BigM") != std::string::npos)
+        {
+            this->current_type_of_resolution_ = TypeOfResolution::BigM;
+            this->bigM_value_ = std::stoi(type_of_resolution_name.substr(std::string("BigM").size() + 1));
+        }
+        else
+        {
+            this->current_type_of_resolution_ = TypeOfResolution::IloIfThenResolution;
+        }
+    }
+
     ActionSelectionSawtoothLP::ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program) : ActionSelectionBase(world), DecentralizedLP(world), current_type_of_resolution_(current_type_of_resolution), type_of_linear_program_(type_of_linear_program)
     {
         this->bigM_value_ = bigM_value;
@@ -177,7 +196,8 @@ namespace sdm
         auto oMDP = std::dynamic_pointer_cast<BeliefMDPInterface>(ActionSelectionBase::getWorld());
         auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(sawtooth_vf->getInitFunction());
         number recover = 0;
-        double coef, ratio, difference = this->sawtooth_vf->getValueAt(s_k, t + 1) - this->sawtooth_vf->getRelaxedValueAt(s_k, t + 1);;
+        double coef, ratio, difference = this->sawtooth_vf->getValueAt(s_k, t + 1) - this->sawtooth_vf->getRelaxedValueAt(s_k, t + 1);
+        ;
 
         con.add(IloRange(env, -IloInfinity, this->bigM_value_));
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);

@@ -11,7 +11,7 @@ namespace sdm
 {
     ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial() {}
 
-    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world)
+    ActionSelectionMaxplanSerial::ActionSelectionMaxplanSerial(const std::shared_ptr<SolvableByDP> &world, Config config) : MaxPlanSelectionBase(world)
     {
         if (auto derived = std::dynamic_pointer_cast<SerialProblemInterface>(world))
             this->serial_mpomdp = derived;

@@ -12,7 +12,7 @@ namespace sdm
 {
     ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP() {}
 
-    ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world) {}
+    ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world, Config config) : MaxPlanSelectionBase(world) {}
 
     Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {

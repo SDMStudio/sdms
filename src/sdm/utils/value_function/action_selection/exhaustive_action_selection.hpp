@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sdm/utils/config.hpp>
 #include <sdm/utils/value_function/action_selection/action_selection_base.hpp>
 
 namespace sdm
@@ -8,11 +9,11 @@ namespace sdm
     {
     public:
         ExhaustiveActionSelection();
-        ExhaustiveActionSelection(const std::shared_ptr<SolvableByDP> &world);
+        ExhaustiveActionSelection(const std::shared_ptr<SolvableByDP> &world, Config config = {});
 
         /**
          * @brief Select the best action for a state at a precise time
-         * 
+         *
          * @param const std::shared_ptr<ValueFunction>& vf : Value function
          * @param const std::shared_ptr<State>& state : current state
          * @param number t : time step

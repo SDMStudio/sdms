@@ -13,7 +13,7 @@ namespace sdm
 
     ActionSelectionMaxplanLP::ActionSelectionMaxplanLP() {}
 
-    ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world) : MaxPlanSelectionBase(world), DecentralizedLP(world) {}
+    ActionSelectionMaxplanLP::ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world, Config config) : MaxPlanSelectionBase(world), DecentralizedLP(world) {}
 
     Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanLP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {

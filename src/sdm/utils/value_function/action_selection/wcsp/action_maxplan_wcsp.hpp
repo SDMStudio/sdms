@@ -2,8 +2,8 @@
 
 #include "toulbar2lib.hpp"
 
-#include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 #include <sdm/utils/linear_programming/variable_naming.hpp>
+#include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 
 namespace sdm
 {
@@ -13,7 +13,7 @@ namespace sdm
         using TData = std::shared_ptr<State>;
 
         ActionSelectionMaxplanWCSP();
-        ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world);
+        ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world, Config config = {});
 
         /**
          * @brief Compute the greedy action and corresponding value for a specific next hyperplan (saved in the temporary representation).

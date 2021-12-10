@@ -11,7 +11,7 @@ namespace sdm
     {
     public:
         ActionSelectionSawtoothLPSerial();
-
+        ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByDP> &world, Config config);
         ActionSelectionSawtoothLPSerial(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
 
         void createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t);

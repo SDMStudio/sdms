@@ -12,6 +12,7 @@ namespace sdm
     {
     public:
         ActionSelectionSawtoothLP();
+        ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP> &world, Config config);
         ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP> &world, TypeOfResolution current_type_of_resolution, number bigM_value, TypeSawtoothLinearProgram type_of_linear_program);
 
         /**

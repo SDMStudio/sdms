@@ -11,7 +11,7 @@ namespace sdm
     {
     public:
         ActionSelectionMaxplanLP();
-        ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world);
+        ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world, Config config = {});
 
 
         /**
