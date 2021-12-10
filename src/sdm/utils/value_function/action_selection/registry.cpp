@@ -1,6 +1,6 @@
 #include <sdm/macros.hpp>
-#include <sdm/utils/value_function/action_selection.hpp>
 #include <sdm/utils/value_function/action_selection/registry.hpp>
+#include <sdm/utils/value_function/action_selection.hpp>
 
 SDMS_REGISTRY(action_selection)
 SDMS_REGISTER("Exhaustive", ExhaustiveActionSelection)

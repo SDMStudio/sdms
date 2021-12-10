@@ -25,9 +25,7 @@ namespace sdm
         std::shared_ptr<SolvableByHSVI> createInstance(std::shared_ptr<MPOMDPInterface> mpomdp, Config config)
         {
             if (mpomdp == nullptr)
-            {
                 return std::make_shared<TFormalism>(config);
-            }
             else
                 return std::make_shared<TFormalism>(mpomdp, config);
         }

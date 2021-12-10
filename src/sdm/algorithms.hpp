@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sdm/utils/config.hpp>
 #include <sdm/algorithms/planning/value_iteration.hpp>
 #include <sdm/algorithms/planning/pbvi.hpp>
 
@@ -90,6 +91,8 @@ namespace sdm
         /**
          * @brief Build a problem.
          */
+        std::shared_ptr<SolvableByHSVI> makeFormalism(Config config);
+
         std::shared_ptr<SolvableByHSVI> makeFormalism(std::string problem_path,
                                                       std::string formalism,
                                                       double discount,

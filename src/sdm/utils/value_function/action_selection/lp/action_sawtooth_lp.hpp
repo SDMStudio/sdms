@@ -83,7 +83,7 @@ namespace sdm
          * See CPLEX documentation for more information about how to use it.
          *
          */
-        number bigM_value_;
+        number bigM_value_ = 100;
 
         /**
          * @brief The sawtooth value function

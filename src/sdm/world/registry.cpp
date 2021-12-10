@@ -1,7 +1,7 @@
+#include <sdm/world/registry.hpp>
 #include <sdm/config.hpp>
 #include <sdm/macros.hpp>
 #include <sdm/worlds.hpp>
-#include <sdm/world/registry.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/tools.hpp>
 #include <sstream>

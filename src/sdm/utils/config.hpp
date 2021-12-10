@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <iomanip>
 #include <unordered_map>
 #include <any>
 #include <string>
@@ -108,7 +109,7 @@ namespace sdm
                 if (opt_int.has_value())
                     str_toml << key << " = " << opt_int.value() << std::endl;
                 if (opt_double.has_value())
-                    str_toml << key << " = " << opt_double.value() << std::endl;
+                    str_toml << std::setprecision(10) << std::fixed << key << " = " << opt_double.value() << std::endl;
                 if (opt_str.has_value())
                     str_toml << key << " = \"" << opt_str.value() << "\"" << std::endl;
                 if (opt_bool.has_value())

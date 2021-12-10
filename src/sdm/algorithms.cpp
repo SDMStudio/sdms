@@ -1,5 +1,9 @@
 #include <sdm/algorithms.hpp>
 
+#include <sdm/worlds.hpp>
+#include <sdm/utils/value_function/action_selection.hpp>
+#include <sdm/utils/value_function/update_operator.hpp>
+
 #include <sdm/utils/value_function/initializer/initializers.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/qfunction/tabular_qvalue_function.hpp>
@@ -7,28 +11,7 @@
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 #include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
 
-#include <sdm/utils/value_function/update_operator.hpp>
-
-#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
-#include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
-#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp.hpp>
-#include <sdm/utils/value_function/action_selection/lp/action_sawtooth_lp_serial.hpp>
-
-#include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp.hpp>
-// #include <sdm/utils/value_function/action_selection/lp/action_maxplan_lp_serial.hpp>
-#include <sdm/utils/value_function/action_selection/action_maxplan_serial.hpp>
-#include <sdm/utils/value_function/action_selection/wcsp/action_maxplan_wcsp.hpp>
-
 #include <sdm/parser/parser.hpp>
-
-#include <sdm/worlds.hpp>
-#include <sdm/world/solvable_by_mdp.hpp>
-#include <sdm/world/belief_mdp.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/world/serial_mpomdp.hpp>
-#include <sdm/world/hierarchical_mpomdp.hpp>
-#include <sdm/world/hierarchical_occupancy_mdp.hpp>
 
 #include <sdm/utils/rl/eps_greedy.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
@@ -44,39 +27,13 @@ namespace sdm
         {
             std::shared_ptr<ActionSelectionInterface> action_selection;
 #ifdef WITH_CPLEX
-            // Get the type of resolution to use (for CPLEX)
-            TypeOfResolution type_of_resolution;
-            number BigM;
-
-            if (type_of_resolution_name.find("BigM") != string::npos)
-            {
-                type_of_resolution = TypeOfResolution::BigM;
-                BigM = std::stoi(type_of_resolution_name.substr(std::string("BigM").size() + 1));
-            }
-            else
-            {
-                type_of_resolution = TypeOfResolution::IloIfThenResolution;
-            }
-
-            // Get the type of sawtooth linear program
-            TypeSawtoothLinearProgram type_of_sawtooth_linear_program;
-            if (value_name.find("relaxed") != string::npos)
-            {
-                type_of_sawtooth_linear_program = TypeSawtoothLinearProgram::RELAXED_SAWTOOTH_LINER_PROGRAMMING;
-            }
-            else
-            {
-                type_of_sawtooth_linear_program = TypeSawtoothLinearProgram::PLAIN_SAWTOOTH_LINER_PROGRAMMING;
-            }
+            Config config = {{"type_of_resolution", type_of_resolution_name},
+                             {"value_name", value_name}};
 
             if (isInstanceOf<SerialProblemInterface>(problem))
-            {
-                action_selection = std::make_shared<ActionSelectionSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
-            }
+                action_selection = sdm::action_selection::registry::make("SawtoothLPSerial", problem, config);
             else
-            {
-                action_selection = std::make_shared<ActionSelectionSawtoothLP>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
-            }
+                action_selection = sdm::action_selection::registry::make("SawtoothLP", problem, config);
 #else
             throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
 #endif
@@ -346,6 +303,11 @@ namespace sdm
             std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, batch_size, num_episodes, name);
 
             return algorithm;
+        }
+
+        std::shared_ptr<SolvableByHSVI> makeFormalism(Config config)
+        {
+            return sdm::formalism::registry::make(config.get("name"), config);
         }
 
         std::shared_ptr<SolvableByHSVI> makeFormalism(std::string problem_path,

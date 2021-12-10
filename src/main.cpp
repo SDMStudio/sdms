@@ -98,7 +98,7 @@ int main_sdms(int argv, char **args)
     {
       std::cout << "FORMALISMS\t" << std::endl
                 << "---" << std::endl;
-      for (auto world : sdm::world::registry::available())
+      for (auto world : sdm::formalism::registry::available())
       {
         std::cout << world << std::endl;
       }
