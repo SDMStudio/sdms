@@ -1,0 +1,38 @@
+# This file contains a basic configuration of HSVI 
+name = "HSVI"
+p_b = 0.001
+p_o = 0.01
+p_c = 0.1
+
+error = 0.01
+
+[lower_bound]
+name = "PWLC"
+initializer = "Min"
+action_selection = "MaxplanWCSP"
+freq_pruning = 10
+pruning_type = "pairwise"
+
+[upper_bound]
+name = "Sawtooth"
+initializer = "Pomdp"
+action_selection = "SawtoothLP"
+freq_pruning = 10
+pruning_type = "pairwise"
+
+[formalism]
+name = "OccupancyMDP"
+
+memory = 1
+store_states = true
+store_actions = true
+state_type = "COMPRESSED"
+batch_size = 0
+
+[formalism.world]
+name = "SerialMPOMDP"
+
+[formalism.world.world]
+name = "mabc.dpomdp"
+horizon = 10
+discount = 1.0
