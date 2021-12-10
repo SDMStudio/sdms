@@ -1,6 +1,7 @@
 #include <sdm/world/solvable_by_mdp.hpp>
 #include <sdm/world/mdp.hpp>
 #include <sdm/core/observation/default_observation.hpp>
+#include <sdm/world/registry.hpp>
 
 namespace sdm
 {
@@ -9,9 +10,14 @@ namespace sdm
     {
     }
 
-    SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp) : underlying_problem_(mdp)
+    SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp, Config config) : underlying_problem_(mdp)
     {
         this->initial_state_ = (*this->getUnderlyingProblem()->getStateSpace(0)->begin())->toState();
+    }
+
+    SolvableByMDP::SolvableByMDP(Config config)
+        : SolvableByMDP(sdm::world::createFromConfig(config), config)
+    {
     }
 
     void SolvableByMDP::setInitialState(const std::shared_ptr<State> &state)

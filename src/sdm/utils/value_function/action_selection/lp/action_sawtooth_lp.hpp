@@ -16,7 +16,7 @@ namespace sdm
 
         /**
          * @brief Select the best action and the hyperplan at t+1 associated for a state at a precise time
-         * 
+         *
          * @param const std::shared_ptr<ValueFunction>& vf : Value function
          * @param const std::shared_ptr<State>& state : current state
          * @param number t : time step
@@ -26,40 +26,40 @@ namespace sdm
 
         /**
          * @brief Create the variable which will be used to resolve the LP
-         * 
+         *
          * @param const std::shared_ptr<ValueFunction>& vf : Value function
          * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param IloEnv & : env 
-         * @param IloNumVarArray & : var 
+         * @param IloEnv & : env
+         * @param IloNumVarArray & : var
          * @param double& index
-         * @param number t : Time Step 
+         * @param number t : Time Step
          */
         virtual void createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Create the constraints of the LP
-         * 
+         *
          * @param const std::shared_ptr<ValueFunction>& vf : Value function
          * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param IloEnv & : env 
-         * @param IloModel & : var 
-         * @param IloRangeArray& : model 
+         * @param IloEnv & : env
+         * @param IloModel & : var
+         * @param IloRangeArray& : model
          * @param IloRangeArray &con
          * @param IloNumVarArray &var
          * @param double& index
-         * @param number t : Time Step 
+         * @param number t : Time Step
          */
         virtual void createConstraints(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloEnv &env, IloModel &model, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         /**
          * @brief Create a Objective Constraint of the LP
-         * 
+         *
          * @param const std::shared_ptr<ValueFunctionInterface>& vf : Value function
          * @param const std::shared_ptr<State> & occupancy_state : current state
-         * @param IloModel & : var 
-         * @param IloObjective& : obj 
+         * @param IloModel & : var
+         * @param IloObjective& : obj
          * @param double& index
-         * @param number t : Time Step 
+         * @param number t : Time Step
          */
         virtual void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
 
@@ -77,28 +77,28 @@ namespace sdm
         TypeSawtoothLinearProgram type_of_linear_program_ = PLAIN_SAWTOOTH_LINER_PROGRAMMING;
 
         /**
-         * @brief Big M hyperparameter. 
-         * 
+         * @brief Big M hyperparameter.
+         *
          * See CPLEX documentation for more information about how to use it.
-         * 
+         *
          */
         number bigM_value_;
 
         /**
-         * @brief The sawtooth value function 
+         * @brief The sawtooth value function
          */
         std::shared_ptr<SawtoothValueFunction> sawtooth_vf;
 
         /**
          * @brief Create constraints based on BigM method.
-         * 
+         *
          * @param value_function the sawtooth value function
          * @param occupancy_state the current one step uncompressed occupancy state
          * @param next_occupancy_state the next one step occupancy state
          * @param next_state the next state
          * @param next_joint_history the next history
          * @param next_observation the next observation
-         * @param env CPLEX environment 
+         * @param env CPLEX environment
          * @param con CPLEX constraints
          * @param var CPLEX variables
          * @param index index of the constraint
@@ -108,14 +108,14 @@ namespace sdm
 
         /**
          * @brief Create constraints based on IloIfThen method
-         * 
+         *
          * @param value_function the sawtooth value function
          * @param occupancy_state the current one step uncompressed occupancy state
          * @param next_occupancy_state the next one step occupancy state
          * @param next_state the next state
          * @param next_joint_history the next history
          * @param next_observation the next observation
-         * @param env CPLEX environment 
+         * @param env CPLEX environment
          * @param model CPLEX model
          * @param var CPLEX variables
          * @param t the time step
@@ -127,6 +127,12 @@ namespace sdm
         virtual void createOmegaConstraints(IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
         virtual std::shared_ptr<Joint<std::shared_ptr<Observation>>> determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &, number t);
+
+        double computeRatio(const std::shared_ptr<BeliefMDPInterface> &oMDP,
+                            const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<JointHistoryInterface> joint_history,
+                            const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &s_k,
+                            const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history,
+                            const std::shared_ptr<Observation> &observation, number t);
     };
 }
 

@@ -97,69 +97,7 @@ namespace sdm
             return std::make_pair(argmin_k, v_relax + min_k);
         }
     }
-
-    template <class Hash, class KeyEqual>
-    double BaseSawtoothValueFunction<Hash, KeyEqual>::getSawtoothValueAt(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<JointHistoryInterface> o,
-                                                                         const std::shared_ptr<Action> &u, const std::shared_ptr<OccupancyStateInterface> &s_k,
-                                                                         const std::shared_ptr<State> &y, const std::shared_ptr<JointHistoryInterface> &o_,
-                                                                         const std::shared_ptr<Observation> &z, number t, bool display)
-    {
-        // Compute the value : Q^{relax}(b,u) +  p(b') * b'(x') / s^{k}(x', o')] (v^{k} - v^{relax}(s^{k}))
-        // --> Q_relax + min_ratio * (v_k - v_relax)
-        // This value will be multiplied by p(o) to produce the coefficient of the corresponding decision rule for the LP
-
-        auto oMDP = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
-        auto relaxation = std::static_pointer_cast<RelaxedValueFunction>(this->getInitFunction());
-        auto b = s->getBeliefAt(o);
-
-        double coef = 0.;
-        if (o->expand(z) == o_)
-        {
-
-            auto [next_belief, proba_next_b] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(b, u, z, t);
-            auto next_b = next_belief->toBelief();
-            coef = (getValueAt(s_k, t + 1) - getRelaxedValueAt(s_k, t + 1)) * (proba_next_b * next_b->getProbability(y) / s_k->toOccupancyState()->getProbability(o_, y));
-        }
-
-        return s->getProbability(o) * (relaxation->getQValueAt(b, u, t) + coef);
-
-        // // Compute the first term : Q_relax = Q^{relax} (b,u)
-        // double Q_relax = relaxation->getQValueAt(b, u, t);
-        // double v_k = 0., v_relax = 0., min_ratio = 0., tmp;
-
-        // if (o->expand(z) == o_)
-        // {
-
-        //     // Compute the next belief
-        //     auto [next_belief, proba_next_b] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(b, u, z, t);
-        //     auto next_b = next_belief->toBelief();
-        //     if (display)
-        //     {
-        //         std::cout << "--- next_b=" << next_b->str() << " - proba=" << proba_next_b << std::endl;
-        //     }
-
-        //     // Compute the min ratio : min_{x'} [ p(b') * b'(x') / s^{(k)}(x', o')]
-        //     min_ratio = std::numeric_limits<double>::max();
-        //     for (auto &y : s_k->getBeliefAt(o_)->getStates())
-        //     {
-        //         tmp = proba_next_b * next_b->getProbability(y) / s_k->getProbability(o_, y);
-
-        //         if (tmp < min_ratio)
-        //         {
-        //             min_ratio = tmp;
-        //         }
-        //     }
-        //     v_k = this->getValueAt(s_k, t + 1);            // Get v^k
-        //     v_relax = this->getRelaxedValueAt(s_k, t + 1); // Get v^relax(s^k)
-        // }
-        // if (display)
-        // {
-        //     std::cout << "--- o=" << o->short_str() << " - u=" << u->str() << std::endl;
-        //     std::cout << "#> [" << Q_relax << " + " << min_ratio << " * (" << v_k << " - " << v_relax << ")] * ";
-        // }
-        // return s->getProbability(o) * (Q_relax + min_ratio * (v_k - v_relax));
-    }
-
+    
     template <class Hash, class KeyEqual>
     double BaseSawtoothValueFunction<Hash, KeyEqual>::computeRatio(const std::shared_ptr<State> &s, const std::shared_ptr<State> &s_k)
     {

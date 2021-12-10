@@ -19,6 +19,10 @@ namespace sdm
         this->low_level_agent_id_ = 0;
     }
 
+    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(Config config): OccupancyMDP(config)
+    {
+    }
+
     number HierarchicalOccupancyMDP::getLowLevelAgentID()
     {
         return this->low_level_agent_id_;

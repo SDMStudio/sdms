@@ -28,7 +28,7 @@ namespace sdm
 
     std::shared_ptr<sdm::DecPOMDP> parse_file(char const *);
     
-    std::shared_ptr<sdm::DecPOMDP> parse_file(std::string);
+    std::shared_ptr<sdm::DecPOMDP> parse_file(std::string, Config = {});
 
     std::shared_ptr<sdm::BayesianGameInterface> parse_file_bayesian(std::string);
 

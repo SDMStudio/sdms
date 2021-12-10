@@ -11,6 +11,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/config.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/dynamics/observation_dynamics_interface.hpp>

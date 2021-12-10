@@ -83,7 +83,7 @@ namespace sdm
       return parsed_model;
     }
 
-    std::shared_ptr<sdm::DecPOMDP> parse_file(std::string filename)
+    std::shared_ptr<sdm::DecPOMDP> parse_file(std::string filename, Config config)
     {
       if (regex_match(filename, std::regex(".*\\.ndpomdp$")) || regex_match(filename, std::regex(".*\\.NDPOMDP$")))
       {
@@ -91,7 +91,9 @@ namespace sdm
       }
       else
       {
-        return parse_file(filename.c_str());
+        std::shared_ptr<sdm::DecPOMDP> dpomdp= parse_file(filename.c_str());
+        dpomdp->configure(config);
+        return dpomdp;
       }
     }
 

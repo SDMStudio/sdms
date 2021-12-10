@@ -40,6 +40,7 @@ namespace sdm
     {
     public:
         BaseBeliefMDP();
+        BaseBeliefMDP(Config config);
         BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, Config config);
         BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
         ~BaseBeliefMDP();

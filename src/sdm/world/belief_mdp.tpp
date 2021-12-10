@@ -1,5 +1,6 @@
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/utils/struct/graph.hpp>
+#include <sdm/world/registry.hpp>
 
 namespace sdm
 {
@@ -10,7 +11,8 @@ namespace sdm
     }
 
     template <class TBelief>
-    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size) : SolvableByMDP(pomdp), underlying_pomdp(pomdp), batch_size_(batch_size)
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size)
+        : SolvableByMDP(pomdp), underlying_pomdp(pomdp), batch_size_(batch_size)
     {
         auto initial_state = std::make_shared<TBelief>();
 
@@ -40,10 +42,17 @@ namespace sdm
     }
 
     template <class TBelief>
-    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, Config config) : BaseBeliefMDP<TBelief>(pomdp, config.get("batch_size", 0))
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, Config config)
+        : BaseBeliefMDP<TBelief>(pomdp, config.get("batch_size", 0))
     {
     }
-    
+
+    template <class TBelief>
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(Config config)
+        : BaseBeliefMDP<TBelief>(std::dynamic_pointer_cast<POMDPInterface>(sdm::world::createFromConfig(config)), config.get("batch_size", 0))
+    {
+    }
+
     template <class TBelief>
     BaseBeliefMDP<TBelief>::~BaseBeliefMDP()
     {

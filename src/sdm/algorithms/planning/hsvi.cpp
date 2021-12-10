@@ -9,6 +9,7 @@
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/utils/value_function/prunable_structure.hpp>
 #include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
+#include <sdm/utils/value_function/initializer/pomdp_relaxation.hpp>
 
 namespace sdm
 {
@@ -76,26 +77,39 @@ namespace sdm
                 {
                     // Determine the state for a given state, action and observation
                     auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
-                    // if (t == 2)
+                    // if (t == 1)
                     // {
                     //     if ((this->trial > 10) && (this->trial < 19))
                     //     {
                     //         double Q_Sawtooth, Q_Sawtooth2;
                     //         {
-                    //             auto relax_vf = std::dynamic_pointer_cast<RelaxedValueFunction>(getUpperBound()->getInitFunction());
+                    //             auto relax_vf = std::dynamic_pointer_cast<POMDPRelaxation>(getUpperBound()->getInitFunction());
                     //             auto oMDP = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
                     //             auto sawtooth_vf = std::dynamic_pointer_cast<SawtoothValueFunction>(getUpperBound());
                     //             auto [computed_next_state, proba] = std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->computeNextStateAndProbability(state, action, observation, t);
-                    //             auto s = state->toOccupancyState(), s_ = next_state->toOccupancyState(), compressed_s = s->getCompressedOccupancy();
+                    //             auto s = state->toOccupancyState(), s_ = next_state->toOccupancyState();
+                    //             auto compressed_s = state->toOccupancyState()->getCompressedOccupancy();
 
-                    //             double Q_relax = oMDP->getReward(state, action, t) + oMDP->getDiscount(t) * sawtooth_vf->getInitFunction()->operator()(next_state, t + 1);
-                    //             double Q_relax2 = oMDP->getReward(compressed_s, action, t) + oMDP->getDiscount(t) * sawtooth_vf->getInitFunction()->operator()(next_state, t + 1);
+                    //             std::cout << "COMPRESSED - " << compressed_s << std::endl;
+                    //             std::cout << *compressed_s << std::endl;
+                    //             std::cout << "ONE STEP - " << state << std::endl;
+                    //             std::cout << *state << std::endl;
+
+                    //             std::cout << "NEXT ONE STEP - " << next_state << std::endl;
+                    //             std::cout << *next_state << std::endl;
+
+                    //             double Q_relax = oMDP->getReward(state, action, t) + oMDP->getDiscount(t) * relax_vf->getValueAt(next_state, t + 1);
+                    //             double v_pomdp = relax_vf->getValueAtOccupancy(getWorld()->getNextStateAndProba(state, action, observation, t).first->toOccupancyState(), t + 1, true);
+                    //             double Q_relax2 = oMDP->getReward(compressed_s, action, t) + oMDP->getDiscount(t) * v_pomdp;
+                    //             std::cout << "Q_RELAX_2 -- R(" << oMDP->getReward(compressed_s, action, t) << ") + 1 * V_pomdp(" << v_pomdp << ")=" << Q_relax2 << std::endl;
 
                     //             double Q_relax3 = 0.0;
                     //             for (auto &jhistory : compressed_s->getJointHistories())
                     //             {
                     //                 auto u = oMDP->applyDecisionRule(compressed_s, jhistory, action, t);
-                    //                 Q_relax3 += compressed_s->getProbability(jhistory) * relax_vf->getQValueAt(compressed_s->getBeliefAt(jhistory), u, t);
+                    //                 double Q_b = relax_vf->getQValueAtBelief(compressed_s->getBeliefAt(jhistory), u, t, true);
+                    //                 std::cout << "Q_RELAX_3 -- p(" << jhistory->short_str() << ")(" << compressed_s->getProbability(jhistory) << ") * Q_pomdp(" << *compressed_s->getBeliefAt(jhistory) << ", " << u->str() << ")(" << Q_b << ")=" << compressed_s->getProbability(jhistory) * Q_b << std::endl;
+                    //                 Q_relax3 += compressed_s->getProbability(jhistory) * Q_b;
                     //             }
 
                     //             std::cout << "Q_relax=" << Q_relax << std::endl;
@@ -197,7 +211,7 @@ namespace sdm
                     //                                     sum_x += (b->getProbability(x) * oMDP->getUnderlyingMPOMDP()->getDynamics(x, u, y, z, t));
                     //                             }
                     //                             double coef = diff * (sum_x / s_k->toOccupancyState()->getProbability(o_, y));
-                    //                             tmp_int += compressed_s->getProbability(o) * (/* relax_vf->getQValueAt(b, u, t) */Q_relax + coef);
+                    //                             tmp_int += compressed_s->getProbability(o) * (/* relax_vf->getQValueAt(b, u, t) */ Q_relax + coef);
                     //                         }
                     //                         tmp_int = tmp_int;
                     //                         if (tmp_int > max_int)

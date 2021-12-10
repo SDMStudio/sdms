@@ -1,8 +1,11 @@
 #include <iostream>
 
+#include <sdm/config.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/parser/parser.hpp>
+#include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
 
@@ -25,50 +28,41 @@ int main(int argc, char **argv)
 
 	try
 	{
-		int depth = 0, limit = 2, memory = 2;
+		int t = 0, horizon = 4, memory = 1;
 		bool done = false;
 		// Construct OccupancyMDP using parser
-		std::cout << "#> Parsing file \"" << filename << "\"\n";
+		std::cout << "#> Parsing file \"" << filename << "\"\n\n";
 		auto mpomdp = parser::parse_file(filename);
-		auto omdp_world = std::make_shared<OccupancyMDP>(mpomdp, memory);
+		mpomdp->setHorizon(horizon);
 
-		while (!done)
+		auto serial_mpomdp = std::make_shared<SerialMPOMDP>(mpomdp);
+		std::shared_ptr<SolvableByDP> omdp_world = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory);
+
+		// We will show how to expand an initial occupancy state and generate next ones using compression
+		auto ostate = omdp_world->getInitialState();
+
+		std::cout << "\033[1;31m#> TIMESTEP = " << t << "\033[0m\n";
+		std::cout << "\033[1;34m#> COMPRESSED INITIAL OCCUPANCY STATE \033[0m\n" << *ostate << "\n";
+		do
 		{
-			std::cout << "\n\n\n-----------------------------------\n\n\n";
-			// We will show how to expand an initial occupancy state and generate next ones using compression
-			auto ostate = omdp_world->getInitialState();
-			auto oaction = omdp_world->getActionSpaceAt(ostate)->sample()->toAction();
+			std::cout << "\n\033[1;31m#> TIMESTEP = " << t + 1 << "\033[0m\n";
 
-			std::cout << "#> Print depth \"" << depth << "\"\n";
-			std::cout << "#> Print occupancy state \n"
-					  << *ostate << "\n";
-			std::cout << "#> Print joint decision rule \n"
-					  << *oaction << "\n";
-			depth = 0;
-			do
-			{
-				std::cout << "#> Print depth \"" << depth + 1 << "\"\n";
+			auto oaction = omdp_world->getActionSpaceAt(ostate, t)->sample()->toAction();
+			std::cout << "\n\033[1;34m#> ACTION \033[0m\n" << *oaction << "\n\n";
 
-				// Compute the next compressed occupancy state
-				ostate = omdp_world->getNextStateAndProba(ostate, oaction, NO_OBSERVATION, depth).first;
-				for (auto jhist : ostate->toOccupancyState()->getOneStepUncompressedOccupancy()->getJointHistories())
-				{
-					if ((ostate->toOccupancyState()->getOneStepUncompressedOccupancy()->getProbability(jhist) > 0.749) && (ostate->toOccupancyState()->getOneStepUncompressedOccupancy()->getProbability(jhist) < 0.751))
-						done = true;
-				}
-				std::cout << "#> Print compressed occupancy state \n"
-						  << *ostate << "\n";
-				std::cout << "#> Print one step left occupancy state \n"
-						  << *ostate->toOccupancyState()->getOneStepUncompressedOccupancy() << "\n";
-				// std::cout << "#> Print fully uncompressed occupancy state \n" << *ostate->toOccupancyState()->getFullyUncompressedOccupancy() << "\n";
+			auto oobservation = omdp_world->getObservationSpaceAt(ostate, oaction, t)->sample()->toObservation();
+			std::cout << "\n\033[1;34m#> OBSERVATION \033[0m\n" << *oobservation << "\n\n";
 
-				// Sample a decision rule
-				oaction = omdp_world->getActionSpaceAt(ostate)->sample()->toAction();
-				std::cout << "#> Print joint decision rule \n"
-						  << *oaction << "\n";
-				depth++;
-			} while (depth < limit);
-		}
+			// Compute the next compressed occupancy state;
+			ostate = omdp_world->getNextStateAndProba(ostate, oaction, oobservation, t).first;
+			std::cout << "\n\033[1;34m#> COMPRESSED OCCUPANCY STATE \033[0m\n"
+					  << *ostate << "\n\n";
+			std::cout << "\n\033[1;34m#> ONE STEP UNCOMPRESSED OCCUPANCY STATE \033[0m\n"
+					  << *ostate->toOccupancyState()->getOneStepUncompressedOccupancy() << "\n\n";
+			// std::cout << "#> Print fully uncompressed occupancy state \n" << *ostate->toOccupancyState()->getFullyUncompressedOccupancy() << "\n";
+
+			t++;
+		} while (t < omdp_world->getHorizon());
 	}
 	catch (exception::Exception &e)
 	{

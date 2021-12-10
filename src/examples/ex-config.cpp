@@ -2,104 +2,68 @@
 #include <sdm/parser/parser.hpp>
 #include <sdm/utils/config.hpp>
 #include <sdm/worlds.hpp>
+#include <sdm/world/gym.hpp>
 #include <sdm/utils/value_function/update_operator.hpp>
+
+#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 using namespace sdm;
 
 int main(int argc, char **argv)
 {
 
-    Config lb_config = {
-        {"name", "PWLCValueFunction"},
-        {"initializer", "Min"},
-        {"selection", "WCSP"},
-        {"freq_pruning", 10},
-        {"pruning_type", MaxplanPruning::PAIRWISE},
-    };
-
-    // std::cout << lb_config.get("name") << std::endl;
-    // std::cout << lb_config.get("initializer") << std::endl;
-    // std::cout << lb_config.get("selection") << std::endl;
-    // std::cout << lb_config.get("pruning_type", MaxplanPruning::NONE) << std::endl;
-    // std::cout << lb_config.get("freq_upate", 100) << std::endl;
+	double error = 0.00001;
 
     std::string config_file = (argc > 1) ? argv[1] : sdm::config::CONFIG_PATH + "config/hsvi.toml";
 
-    Config algo_config(config_file);
+    Config formalism_config(config_file);
+    // Config gym_config(config_file);
 
-    Config world_config = {
-        {"memory", 3},
-        {"batch_size", 100},
-        {"state_type", 120},
-    };
+    auto formalism = sdm::formalism::registry::make(formalism_config.get("name"), formalism_config);
 
-    std::shared_ptr<MPOMDPInterface> mpomdp = sdm::parser::parse_file(sdm::config::PROBLEM_PATH + "dpomdp/tiger.dpomdp");
-    std::shared_ptr<SolvableByDP> world;
+    // std::cout << sdm::update::registry::available() << std::endl;
+    // std::cout << sdm::formalism::registry::available() << std::endl;
+    // std::cout << sdm::world::registry::available() << std::endl;
+    // std::cout << sdm::world::gym::registry::available() << std::endl;
 
-    std::cout << sdm::update::registry::available() << std::endl;
+    // Instanciate Initializer
+    // auto lb_init = sdm::makeInitializer("MinInitializer", formalism);
+    auto lb_init = std::make_shared<MinInitializer>(formalism);
+    auto ub_init = std::make_shared<MaxInitializer>(formalism);
 
-    std::cout << sdm::world::registry::available() << std::endl;
-    world = sdm::world::registry::make("SerialOccupancyMDP", std::make_shared<SerialMPOMDP>(mpomdp), world_config);
+    // Instanciate action selection
+    auto action_tabular = std::make_shared<ExhaustiveActionSelection>(formalism);
 
-    auto opt_int = world_config.getOpt<int>("state_type");
-    auto opt_str = world_config.getOpt("state_type");
-    if (opt_int.has_value())
-    {
-        std::cout << "int : " << opt_int.value() << std::endl;
-    }
-    else if (opt_str.has_value())
-    {
-        std::cout << "str : " << opt_str.value() << std::endl;
-    }
+    // Declare bounds
+    std::shared_ptr<ValueFunction> lb, ub;
 
-    // auto algo = sdm::algo::make(algo_config.get("name"), algo_config);
+    // Instanciate lower bound
+    lb = std::make_shared<TabularValueFunction>(formalism, lb_init, action_tabular);
 
-    // std::cout << test.get<Config>("contacts").get<Config>("contact1").get("age", 0) << std::endl;
-    // std::cout << test.get<Config>("contacts").get<Config>("contact2").get("name", "Unknown") << std::endl;
-    // std::cout << test.get<Config>("contacts").get<Config>("contact2").get("age", 0) << std::endl;
+    // Instanciate lower bound update operator
+    // auto lb_update_operator = sdm::update::registry::make(lb_config.get("name"), lb);
+    auto lb_update_operator = std::make_shared<TabularUpdate>(lb);
+    lb->setUpdateOperator(lb_update_operator);
 
-    // Config algo_config = {
-    //     {"type", "HSVI"},
-    //     {"horizon", 10},
-    //     {"discount", 0.9},
-    //     {"num_max_trials", 10000},
-    // };
+    // Instanciate upper bound
+    ub = std::make_shared<TabularValueFunction>(formalism, ub_init, action_tabular);
 
-    // Config world_config = {
-    //     {"name", "tiger.dpomdp"},
-    // };
+    // Instanciate upper bound update operator
+    // auto lb_update_operator = sdm::update::registry::make(ub_config.get("name"), ub);
+    auto ub_update_operator = std::make_shared<TabularUpdate>(ub);
+    ub->setUpdateOperator(ub_update_operator);
 
-    // Config formalism_config = {
-    //     {"type", "OccupancyMDP"},
-    //     {"world_config", world_config},
-    //     {"state_type", sdm::COMPRESSED},
-    //     {"store_states", true},
-    //     {"store_actions", true},
-    // };
+    // Instanciate HSVI
+    auto algo = std::make_shared<HSVI>(formalism, lb, ub, error, 10000, "", 1, 1);
 
-    // Config omdp_hsvi_config = {
-    //     {"p_b", 0.001},
-    //     {"p_o", 0.01},
-    //     {"p_c", 0.1},
-    //     {"algo_config", algo_config},
-    //     {"formalism_config", formalism_config},
-    // };
-
-    // std::cout << omdp_hsvi_config.get<double>("p_b") << std::endl;
-    // std::cout << omdp_hsvi_config.get<double>("p_o") << std::endl;
-    // std::cout << omdp_hsvi_config.get<Config>("algo_config").get("name", "QLearning") << std::endl;
-    // std::cout << omdp_hsvi_config.get<Config>("algo_config").get("type") << std::endl;
-    // std::cout << omdp_hsvi_config.get<Config>("algo_config").get("lower_bound", "maxplan") << std::endl;
-
-    // auto value_function = sdm::update::registry::make("TabularUpdate", );
-    // sdm::update::registry::make("TabularUpdate", );
-    // sdm::algo::make(algo_config.get("type"), algo_config);
-
-    // sdm::algo::make("HSVI", algo_config);
-    // sdm::algo::make(algo_config.get("type"), algo_config);
-
-    // sdm::world::make(formalism_config.get("type"), formalism_config);
-    // sdm::world::make("OccupancyMDP", formalism_config);
+    // Initialize and solve the problem
+    algo->initialize();
+    algo->solve();
 
     return 0;
 } // END main

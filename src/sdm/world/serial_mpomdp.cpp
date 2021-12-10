@@ -1,8 +1,18 @@
 #include <sdm/world/serial_mpomdp.hpp>
 #include <sdm/core/observation/default_observation.hpp>
+#include <sdm/world/registry.hpp>
 
 namespace sdm
 {
+    SerialMPOMDP::SerialMPOMDP()
+    {
+    }
+
+    SerialMPOMDP::SerialMPOMDP(Config config)
+        : SerialMPOMDP(std::dynamic_pointer_cast<MPOMDPInterface>(sdm::world::createFromConfig(config)), config)
+    {
+    }
+
     SerialMPOMDP::SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp, Config) : SerialMMDP(mpomdp)
     {
         setupObservationSpace(mpomdp);
@@ -93,7 +103,7 @@ namespace sdm
         std::shared_ptr<DiscreteSpace> space;
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
-            //If it's the last agent, then the serial observation space correspond to the mpomdp observation space, else it's the empty observation
+            // If it's the last agent, then the serial observation space correspond to the mpomdp observation space, else it's the empty observation
             if (this->isLastAgent(ag_id))
             {
                 space = std::static_pointer_cast<DiscreteSpace>(mpomdp->getObservationSpace(0));
@@ -129,7 +139,7 @@ namespace sdm
                     {
                         auto next_serial_state = next_state->toSerial();
 
-                        //Update action
+                        // Update action
                         auto joint_action(serial_state->getAction());
                         joint_action.push_back(serial_action);
 

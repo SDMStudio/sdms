@@ -58,32 +58,3 @@
 //  ------------------------------------------------------------------------
 
 #include <sdm/world/registry.hpp>
-
-
-// namespace sdm
-// {
-
-//     /**
-//      * @brief Namespace grouping functions to manipulate problems.
-//      */
-//     namespace world
-//     {
-//         /**
-//          * @brief Get the list of available worlds.
-//          *
-//          * Usage :
-//          *
-//          * ```cpp
-//          * std::cout << sdm::world::available() << std::endl;
-//          * ```
-//          *
-//          * @return the list of available worlds.
-//          */
-//         std::vector<std::string> available()
-//         {
-//             return {"MDP", "BeliefMDP", "OccupancyMDP", "Extensive-MDP", "Extensive-BeliefMDP", "Extensive-OccupancyMDP", "Hierarchical-MDP", "Hierarchical-BeliefMDP", "Hierarchical-OccupancyMDP"};
-//         }
-
-//     } // namespace world
-
-// } // namespace sdm

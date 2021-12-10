@@ -1,5 +1,6 @@
 #include <memory>
 #include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/registry.hpp>
 
 namespace sdm
 {
@@ -52,7 +53,7 @@ namespace sdm
                                             config.get("batch_size", 0))
     {
         auto opt_int = config.getOpt<int>("state_type");
-        auto opt_str = config.getOpt("state_type");
+        auto opt_str = config.getOpt<std::string>("state_type");
         if (opt_int.has_value())
         {
             this->setStateType((StateType)opt_int.value());
@@ -62,6 +63,12 @@ namespace sdm
             auto iter = STATE_TYPE_MAP.find(opt_str.value());
             this->setStateType((iter != STATE_TYPE_MAP.end()) ? iter->second : StateType::COMPRESSED);
         }
+    }
+
+    template <class TOccupancyState>
+    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(Config config)
+        : BaseOccupancyMDP<TOccupancyState>(std::dynamic_pointer_cast<MPOMDPInterface>(sdm::world::createFromConfig(config)), config)
+    {
     }
 
     // template <class TOccupancyState>

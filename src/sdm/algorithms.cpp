@@ -71,7 +71,7 @@ namespace sdm
 
             if (isInstanceOf<SerialProblemInterface>(problem))
             {
-                action_selection = nullptr; //std::make_shared<ActionSelectionSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
+                action_selection = std::make_shared<ActionSelectionSawtoothLPSerial>(problem, type_of_resolution, BigM, type_of_sawtooth_linear_program);
             }
             else
             {
@@ -419,7 +419,7 @@ namespace sdm
                 res << "#> Available formalisms are : " << std::endl;
                 res << "FORMALISMS\t" << std::endl
                     << "---" << std::endl;
-                for (auto world : sdm::world::registry::available())
+                for (auto world : sdm::formalism::registry::available())
                 {
                     res << world << std::endl;
                 }

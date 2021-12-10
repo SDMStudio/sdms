@@ -9,7 +9,7 @@ namespace sdm
     {
         std::string getPathTo(std::string base_dir, std::string world_name, std::string formalism_name)
         {
-            if (base_dir[base_dir.size()-1] != '/')
+            if (base_dir[base_dir.size() - 1] != '/')
             {
                 base_dir = base_dir + "/";
             }
@@ -91,6 +91,29 @@ namespace sdm
                 stream << str;
             }
             return stream.str();
+        }
+
+        std::string exec(const char *cmd)
+        {
+            char buffer[128];
+            std::string result = "";
+            FILE *pipe = popen(cmd, "r");
+            if (!pipe)
+                throw std::runtime_error("popen() failed!");
+            try
+            {
+                while (fgets(buffer, sizeof buffer, pipe) != NULL)
+                {
+                    result += buffer;
+                }
+            }
+            catch (...)
+            {
+                pclose(pipe);
+                throw;
+            }
+            pclose(pipe);
+            return result;
         }
 
     } // namespace tools

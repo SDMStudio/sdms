@@ -75,6 +75,7 @@ file(
 	GLOB_RECURSE
 	lib_world_src
 	${INCLUDE_DIR}/world/**
+	${INCLUDE_DIR}/parser/**
 )
 # this is the "object library" target: compiles the sources only once
 add_library(world_obj OBJECT ${lib_world_src})
@@ -87,23 +88,24 @@ add_library(world SHARED $<TARGET_OBJECTS:world_obj>)
 target_link_libraries(world core)
 add_library(world_static STATIC $<TARGET_OBJECTS:world_obj>)
 target_link_libraries(world_static core_static)
-# LIB PARSER
-file(
-	GLOB_RECURSE
-	lib_parser_src
-	${INCLUDE_DIR}/parser/**
-)
-# this is the "object library" target: compiles the sources only once
-add_library(parser_obj OBJECT ${lib_parser_src})
 
-# shared libraries need PIC
-set_property(TARGET parser_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
+# # LIB PARSER
+# file(
+# 	GLOB_RECURSE
+# 	lib_parser_src
+# 	${INCLUDE_DIR}/parser/**
+# )
+# # this is the "object library" target: compiles the sources only once
+# add_library(parser_obj OBJECT ${lib_parser_src})
 
-# shared and static libraries built from the same object files
-add_library(parser SHARED $<TARGET_OBJECTS:parser_obj>)
-target_link_libraries(parser world)
-add_library(parser_static STATIC $<TARGET_OBJECTS:parser_obj>)
-target_link_libraries(parser_static world_static)
+# # shared libraries need PIC
+# set_property(TARGET parser_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+# # shared and static libraries built from the same object files
+# add_library(parser SHARED $<TARGET_OBJECTS:parser_obj>)
+# target_link_libraries(parser world)
+# add_library(parser_static STATIC $<TARGET_OBJECTS:parser_obj>)
+# target_link_libraries(parser_static world_static)
 
 # LIB PLANNING (=DynamicProgramming)
 file(
@@ -160,7 +162,7 @@ set_property(TARGET sdms_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 add_library(${LIB_SDMS} SHARED $<TARGET_OBJECTS:sdms_obj>)
 target_link_libraries(${LIB_SDMS} value_function parser planning rl)
 add_library(${LIB_SDMS_STATIC} STATIC $<TARGET_OBJECTS:sdms_obj>)
-target_link_libraries(${LIB_SDMS_STATIC} value_function_static parser_static planning_static rl_static)
+target_link_libraries(${LIB_SDMS_STATIC} value_function_static world_static planning_static rl_static)
 install(TARGETS ${LIB_SDMS} DESTINATION lib)
 install(TARGETS ${LIB_SDMS_STATIC} DESTINATION lib)
 

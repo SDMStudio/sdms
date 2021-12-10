@@ -4,29 +4,38 @@
  * @brief The file that contains the MDP class.
  * @version 1.0
  * @date 02/02/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
 #include <sdm/world/serial_mmdp.hpp>
 #include <sdm/core/state/interface/serial_interface.hpp>
-
-#include <sdm/exception.hpp>
+#include <sdm/world/registry.hpp>
 
 namespace sdm
 {
-    SerialMMDP::SerialMMDP(const std::shared_ptr<MMDPInterface> &mmdp) : mmdp_(mmdp)
+    SerialMMDP::SerialMMDP()
     {
-        //Initialize the Serial MMDP
+    }
 
-        //Create Serial State Space
+    SerialMMDP::SerialMMDP(Config config)
+        : SerialMMDP(std::dynamic_pointer_cast<MMDPInterface>(sdm::world::createFromConfig(config)), config)
+    {
+    }
+
+    SerialMMDP::SerialMMDP(const std::shared_ptr<MMDPInterface> &mmdp, Config config) : mmdp_(mmdp)
+    {
+        // Initialize the Serial MMDP
+
+        // Create Serial State Space
         this->createInitSerialStateSpace();
 
-        //Create distribution for the case Serial MMDP
+        // Create distribution for the case Serial MMDP
         this->createDistribution();
 
-        //Create Reachable State
+        // Create Reachable State
         this->createInitReachableStateSpace();
     }
 
@@ -49,13 +58,13 @@ namespace sdm
 
     double SerialMMDP::getDiscount(number t) const
     {
-        //The discount has a value of 1 if it's not the last agent and the mmdp discount if it's.
+        // The discount has a value of 1 if it's not the last agent and the mmdp discount if it's.
         return this->isLastAgent(t) ? this->mmdp_->getDiscount(this->getAgentId(t)) : 1.0;
     }
 
     number SerialMMDP::getHorizon() const
     {
-        //In serial case, the number of horizon is the number of agent multiplie by the mmdp horizon
+        // In serial case, the number of horizon is the number of agent multiplie by the mmdp horizon
         return this->mmdp_->getHorizon() * this->getNumAgents();
     }
 
@@ -66,13 +75,13 @@ namespace sdm
 
     void SerialMMDP::createDistribution()
     {
-        //Create the distribution of the serial State
+        // Create the distribution of the serial State
 
         auto discrete_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         auto mmdp_distribution = this->mmdp_->getStartDistribution();
 
         // The Serial state at 0 are the same state of the mmdp without the vector null of action
-        //Consequently, we just take the distrubution of the mmdp to the new serial state
+        // Consequently, we just take the distrubution of the mmdp to the new serial state
         for (const auto &state : *this->getStateSpace(0))
         {
             discrete_distribution->setProbability(state->toState(), mmdp_distribution->getProbability(state->toState()->toSerial()->getHiddenState(), nullptr));
@@ -102,7 +111,7 @@ namespace sdm
 
     double SerialMMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &serial_action, number t) const
     {
-        //If the agent t is not the last agent, the reward is 0 else this value is the same as the value of the mmdp.
+        // If the agent t is not the last agent, the reward is 0 else this value is the same as the value of the mmdp.
         if (!this->isLastAgent(t))
         {
             return 0;
@@ -110,7 +119,7 @@ namespace sdm
         else
         {
             auto serial_state = state->toSerial();
-            auto joint_action = this->addNewAction(state,serial_action);
+            auto joint_action = this->addNewAction(state, serial_action);
 
             return this->mmdp_->getReward(serial_state->getHiddenState(), this->getPointeurJointAction(joint_action), t);
         }
@@ -121,7 +130,7 @@ namespace sdm
         auto serial_state = state->toSerial();
         auto next_serial_state = next_state->toSerial();
 
-        auto all_action = this->addNewAction(state,action);
+        auto all_action = this->addNewAction(state, action);
 
         if (!this->isLastAgent(t))
         {
@@ -152,7 +161,7 @@ namespace sdm
             // All possible vector of actions
             std::vector<Joint<std::shared_ptr<Action>>> all_new_action;
 
-            //Creation of all possible vector of actions
+            // Creation of all possible vector of actions
 
             if (i > 0)
             {
@@ -162,9 +171,9 @@ namespace sdm
                     // Add new action to current serial state
                     for (const auto &action_agent_i : *this->getActionSpace(i - 1))
                     {
-                        //Current action
+                        // Current action
                         auto temp_action = action;
-                        //Add new action
+                        // Add new action
                         temp_action.push_back(action_agent_i->toAction());
                         // Add new possibility in the vector
                         all_new_action.push_back(temp_action);
@@ -176,7 +185,7 @@ namespace sdm
                 all_new_action.push_back({});
             }
 
-            //Go over all state
+            // Go over all state
 
             for (const auto &state : *this->mmdp_->getStateSpace(0))
             {
@@ -202,7 +211,7 @@ namespace sdm
         }
         this->serial_state_space_ = Joint<std::shared_ptr<DiscreteSpace>>(all_serial_state);
 
-        //Create the vector of joint action and the pointer associated
+        // Create the vector of joint action and the pointer associated
         std::vector<Joint<std::shared_ptr<Action>>> vector_joint_action;
         for (const auto &element : *this->mmdp_->getActionSpace(0))
         {
@@ -216,22 +225,22 @@ namespace sdm
     {
         auto dynamics = std::make_shared<TabularStateDynamics>();
 
-        //Create the Reachable State
-        //FOr that, we go over all serial state, action and add the next state only if the probability is >0
+        // Create the Reachable State
+        // FOr that, we go over all serial state, action and add the next state only if the probability is >0
         for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
         {
-            //GO over all state
+            // GO over all state
             for (const auto &state : *this->getStateSpace(agent_id))
             {
                 auto serial_state = state->toState()->toSerial();
                 auto hidden_state = serial_state->getHiddenState();
                 auto action = serial_state->getAction();
-                
-                //GO over all action
+
+                // GO over all action
                 for (auto action_tmp : *this->getActionSpace(agent_id))
                 {
                     auto serial_action = action_tmp->toAction();
-                    auto next_action = this->addNewAction(serial_state,serial_action);
+                    auto next_action = this->addNewAction(serial_state, serial_action);
 
                     // If the next agent is the last agent, the next serial state is (mmdp state , vector of add nul)
                     if (this->isLastAgent(agent_id))
@@ -284,7 +293,7 @@ namespace sdm
         }
     }
 
-    Joint<std::shared_ptr<Action>> SerialMMDP::addNewAction(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& new_action) const
+    Joint<std::shared_ptr<Action>> SerialMMDP::addNewAction(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &new_action) const
     {
         auto all_action = state->toSerial()->getAction();
         all_action.push_back(new_action);

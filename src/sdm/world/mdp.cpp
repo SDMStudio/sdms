@@ -27,6 +27,18 @@ namespace sdm
 
     MDP::~MDP() {}
 
+
+    void MDP::configure(Config config)
+    {
+        double discount = config.get<double>("discount", -1.);
+        if (discount >= 0)
+            this->setDiscount(discount);
+
+        int horizon = config.get("horizon", -1);
+        if (horizon >= 0)
+            this->setHorizon(horizon);
+    }
+
     number MDP::getNumAgents() const
     {
         return this->num_agents_;

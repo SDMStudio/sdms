@@ -45,6 +45,8 @@ namespace sdm
         /** @brief Path to the directory where configuration files are stored. */
         const std::string CONFIG_PATH = "/usr/local/share/sdms/config/";
 
+        /** @brief The name of the default world. */
+        const std::string DEFAULT_WORLD = "mabc.dpomdp";
 
         // --------------------------------------------------
         // ---------------- THEME PARAMETERS ----------------

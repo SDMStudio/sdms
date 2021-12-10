@@ -4,9 +4,9 @@
  * @brief The file to transforme a MPOMDP in a hierarchical MPOMDP
  * @version 1.0
  * @date 27/07/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
@@ -19,26 +19,27 @@
 namespace sdm
 {
     /**
-     * @brief The Hierarchical MPOMDP is a transformation of a standard MPOMDP assuming there exists a hierarchy among agents. 
-     * 
+     * @brief The Hierarchical MPOMDP is a transformation of a standard MPOMDP assuming there exists a hierarchy among agents.
+     *
      * More precisely, each agent receive observations of its surbordinates in addition to its own observation.
-     * 
-     * Example - tiger problem : 
-     * 
+     *
+     * Example - tiger problem :
+     *
      * (hear-left, hear-left) --> ((hear-left), (hear-left, hear-left))
      * (hear-left, hear-right) --> ((hear-left), (hear-left, hear-right))
      * (hear-right, hear-left) --> ((hear-right), (hear-right, hear-left))
      * (hear-right, hear-right) --> ((hear-right), (hear-right, hear-right))
-     * 
+     *
      */
     class HierarchicalMPOMDP : public TransformedMPOMDP
     {
     public:
-        HierarchicalMPOMDP(const std::shared_ptr<MPOMDPInterface> &mpomdp);
+        HierarchicalMPOMDP(Config config);
+        HierarchicalMPOMDP(const std::shared_ptr<MPOMDPInterface> &mpomdp, Config = {});
 
         /**
          * @brief Get the reachable next states
-         * 
+         *
          * @param state the state
          * @param action the action
          * @return the set of reachable states
@@ -47,8 +48,8 @@ namespace sdm
 
         /**
          * @brief Get ths observation space of agent i at timestep t.
-         * 
-         * @param agent_id the identifier of the agent 
+         *
+         * @param agent_id the identifier of the agent
          * @param t the timestep
          * @return the observation space
          */
@@ -56,30 +57,30 @@ namespace sdm
 
         /**
          * @brief Get the Reachablel Observations object
-         * 
-         * @param state 
-         * @param action 
+         *
+         * @param state
+         * @param action
          * @param next_state
-         * @param t 
-         * @return std::set<std::shared_ptr<Observation>> 
+         * @param t
+         * @return std::set<std::shared_ptr<Observation>>
          */
         std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
 
         /**
          * @brief Get the Obs Probability object
-         * 
+         *
          * @param state
-         * @param action 
-         * @param next_state 
-         * @param observation 
-         * @param t 
-         * @return double 
+         * @param action
+         * @param next_state
+         * @param observation
+         * @param t
+         * @return double
          */
         double getObservationProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
 
         /**
          * @brief Get ths action space at timestep t.
-         * 
+         *
          * @param t the timestep
          * @return the action space
          */

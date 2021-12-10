@@ -1,5 +1,4 @@
 #include <sdm/algorithms/q_learning.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
 
 namespace sdm
 {

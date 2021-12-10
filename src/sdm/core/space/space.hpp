@@ -60,6 +60,7 @@ namespace sdm
     virtual std::vector<number> getDim() const = 0;
 
     std::shared_ptr<DiscreteSpace> toDiscreteSpace();
+    
     std::shared_ptr<MultiDiscreteSpace> toMultiDiscreteSpace();
 
     /**

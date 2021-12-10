@@ -66,11 +66,6 @@ namespace sdm
          */
         double getRelaxedValueAt(const std::shared_ptr<State> &state, number t);
 
-        double getSawtoothValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> joint_history,
-                                  const std::shared_ptr<Action> &action, const std::shared_ptr<OccupancyStateInterface> &next_occupancy_state,
-                                  const std::shared_ptr<State> &y, const std::shared_ptr<JointHistoryInterface> &next_joint_history,
-                                  const std::shared_ptr<Observation> &next_observation, number t, bool display = false);
-
         /**
          * @brief Copy the value function and return a reference to the copied object.
          *

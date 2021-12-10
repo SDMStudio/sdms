@@ -11,6 +11,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/config.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
@@ -25,7 +26,6 @@ namespace sdm
 {
     /**
      * @brief The class for Discrete Markov Decision Processes. 
-     * 
      */
     class MDP : virtual public MDPInterface,
                 virtual public GymInterface
@@ -42,6 +42,8 @@ namespace sdm
             Criterion criterion = Criterion::REW_MAX);
 
         virtual ~MDP();
+
+        virtual void configure(Config config);
 
         /**
          * @brief Get the number of agents

@@ -12,6 +12,7 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/utils/config.hpp>
 
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/serial_state.hpp>
@@ -32,7 +33,9 @@ namespace sdm
     class SerialMMDP : virtual public SerialMMDPInterface
     {
     public:
-        SerialMMDP(const std::shared_ptr<MMDPInterface> &mmdp);
+        SerialMMDP();
+        SerialMMDP(Config config);
+        SerialMMDP(const std::shared_ptr<MMDPInterface> &mmdp, Config config = {});
 
         virtual ~SerialMMDP();
 

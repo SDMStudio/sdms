@@ -1,8 +1,16 @@
+#include <sdm/utils/config.hpp>
+#include <sdm/world/registry.hpp>
 #include <sdm/world/hierarchical_mpomdp.hpp>
 
 namespace sdm
 {
-    HierarchicalMPOMDP::HierarchicalMPOMDP(const std::shared_ptr<MPOMDPInterface> &mpomdp) : TransformedMPOMDP(mpomdp)
+
+    HierarchicalMPOMDP::HierarchicalMPOMDP(Config config)
+        : HierarchicalMPOMDP(std::dynamic_pointer_cast<MPOMDPInterface>(sdm::world::createFromConfig(config)))
+    {
+    }
+
+    HierarchicalMPOMDP::HierarchicalMPOMDP(const std::shared_ptr<MPOMDPInterface> &mpomdp, Config) : TransformedMPOMDP(mpomdp)
     {
         this->setupObservationSpace();
     }
@@ -40,7 +48,6 @@ namespace sdm
     // std::shared_ptr<Space> HierarchicalMPOMDP::getSubordinateActionSpace(number agent_id) const
     // {
     // }
-
 
     std::tuple<std::shared_ptr<State>, std::vector<double>, bool> HierarchicalMPOMDP::step(std::shared_ptr<Action> action)
     {

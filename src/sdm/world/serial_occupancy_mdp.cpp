@@ -17,6 +17,10 @@ namespace sdm
     {
     }
 
+    SerialOccupancyMDP::SerialOccupancyMDP(Config config): OccupancyMDP(config)
+    {
+    }
+
     number SerialOccupancyMDP::getAgentId(number t) const
     {
         return this->getUnderlyingSerialMMDP()->getAgentId(t);
@@ -60,10 +64,6 @@ namespace sdm
 
     std::shared_ptr<Action> SerialOccupancyMDP::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
-
-        // Transform in serial occupancy state
-        auto serial_ostate = std::dynamic_pointer_cast<OccupancyState>(ostate);
-
         // Get the selected joint action
         auto action = std::static_pointer_cast<DeterministicDecisionRule>(decision_rule)->act(joint_history->getIndividualHistory(this->getAgentId(t)));
         return action;
