@@ -29,7 +29,11 @@ namespace sdm
         BaseSawtoothValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                   const std::shared_ptr<Initializer> &initializer,
                                   const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                                  const std::shared_ptr<TabularUpdateOperator> &update_operator,
+                                  Config config);
+                                  
+        BaseSawtoothValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                  const std::shared_ptr<Initializer> &initializer,
+                                  const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                   int freq_prunning = -1,
                                   SawtoothPruning::Type type_of_sawtooth_prunning = SawtoothPruning::PAIRWISE);
 

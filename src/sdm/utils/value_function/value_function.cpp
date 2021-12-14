@@ -10,14 +10,15 @@ namespace sdm
 
     ValueFunction::ValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                  const std::shared_ptr<Initializer> &initializer,
-                                 const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                                 const std::shared_ptr<UpdateOperatorInterface> &update_operator)
-        : ValueFunctionInterface(world, initializer, action_selection), update_operator_(update_operator)
+                                 const std::shared_ptr<ActionSelectionInterface> &action_selection)
+        : ValueFunctionInterface(world, initializer, action_selection)
     {
     }
 
-    ValueFunction::ValueFunction(const ValueFunction &copy) : ValueFunction(copy.world_, copy.initializer_, copy.action_selection_, copy.update_operator_)
+    ValueFunction::ValueFunction(const ValueFunction &copy)
+        : ValueFunction(copy.world_, copy.initializer_, copy.action_selection_)
     {
+        this->update_operator_ = copy.update_operator_;
     }
 
     double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)

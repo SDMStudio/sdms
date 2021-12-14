@@ -1,9 +1,13 @@
 #include <sdm/utils/value_function/registry.hpp>
+#include <sdm/utils/value_functions.hpp>
 #include <sdm/config.hpp>
 #include <sdm/macros.hpp>
 #include <sdm/worlds.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/tools.hpp>
+#include <sdm/utils/value_function/initializer/initializers.hpp>
+#include <sdm/utils/value_function/action_selection/registry.hpp>
+#include <sdm/utils/value_function/update_operator/registry.hpp>
 #include <sstream>
 
 SDMS_REGISTRY(value)
@@ -26,25 +30,42 @@ namespace sdm
             return available_init;
         }
 
-        std::shared_ptr<ValueFunction> registry::make(std::string name, std::shared_ptr<SolvableByDP> world, Config config)
+        std::shared_ptr<ValueFunction> registry::make(std::string name, std::shared_ptr<SolvableByHSVI> world, Config config)
         {
             typename map_type::iterator it = registry::container.find(name);
             if (it == registry::container.end())
             {
                 std::string names = "{";
                 for (auto &v : registry::available())
-                {
                     names = names + "\"" + v + "\" ";
-                }
                 throw sdm::exception::Exception(name + " not registered. Available worlds are : " + names + "}");
             }
-            return it->second(world, nullptr, nullptr, nullptr, config);
+
+            std::shared_ptr<Initializer> initializer;
+            auto init_opt_config = config.getOpt<Config>("initializer");
+            auto init_opt_str = config.getOpt<std::string>("initializer");
+            if (init_opt_config.has_value())
+                initializer = sdm::makeInitializer(init_opt_config.value().get<std::string>("name"), world);
+            else if (init_opt_str.has_value())
+                initializer = sdm::makeInitializer(init_opt_str.value(), world);
+
+            std::shared_ptr<ActionSelectionInterface> action_selection;
+            auto act_opt_config = config.getOpt<Config>("action_selection");
+            auto act_opt_str = config.getOpt<std::string>("action_selection");
+            if (act_opt_config.has_value())
+                action_selection = sdm::action_selection::registry::make(act_opt_config.value().get<std::string>("name"), world, act_opt_config.value());
+            else if (act_opt_str.has_value())
+                action_selection = sdm::action_selection::registry::make(act_opt_str.value(), world);
+
+            auto vf = it->second(world, initializer, action_selection, config);
+            auto update_operator = sdm::update::registry::make(config.get("update_operator", std::string("TabularUpdate")), vf);
+            vf->setUpdateOperator(update_operator);
+            return vf;
         }
 
-        std::shared_ptr<ValueFunction> registry::make(std::string name, const std::shared_ptr<SolvableByDP> &mpomdp,
+        std::shared_ptr<ValueFunction> registry::make(std::string name, const std::shared_ptr<SolvableByHSVI> &world,
                                                       const std::shared_ptr<Initializer> &intializer,
                                                       const std::shared_ptr<ActionSelectionInterface> &action,
-                                                      const std::shared_ptr<UpdateOperatorInterface> &update_operator,
                                                       Config config)
         {
             typename map_type::iterator it = registry::container.find(name);
@@ -52,12 +73,10 @@ namespace sdm
             {
                 std::string names = "{";
                 for (auto &v : registry::available())
-                {
                     names = names + "\"" + v + "\" ";
-                }
                 throw sdm::exception::Exception(name + " not registered. Available worlds are : " + names + "}");
             }
-            return it->second(mpomdp, intializer, action, update_operator, config);
+            return it->second(world, intializer, action, config);
         }
     }
 }

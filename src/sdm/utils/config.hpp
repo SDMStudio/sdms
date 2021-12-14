@@ -68,11 +68,13 @@ namespace sdm
         std::optional<T> getOpt(const std::string &key) const
         {
             auto it = this->find(key);
-            const T *v = std::any_cast<T>(&it->second);
-            if ((it != this->end()) && (v))
-                return std::optional<T>(*v);
-            else
-                return std::nullopt;
+            if (it != this->end())
+            {
+                const T *v = std::any_cast<T>(&it->second);
+                if (v)
+                    return std::optional<T>(*v);
+            }
+            return std::nullopt;
         };
 
         template <typename T>

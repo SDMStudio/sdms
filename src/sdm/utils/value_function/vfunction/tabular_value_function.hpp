@@ -1,5 +1,7 @@
+
 #pragma once
 
+#include <sdm/utils/config.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_vf_interface.hpp>
@@ -26,8 +28,8 @@ namespace sdm
 
         BaseTabularValueFunction(const std::shared_ptr<SolvableByDP> &world = nullptr,
                                  const std::shared_ptr<Initializer> &initialize = nullptr,
-                                 const std::shared_ptr<ActionSelectionInterface> &action_selectionr = nullptr,
-                                 const std::shared_ptr<TabularUpdateOperator> &update_operator = nullptr);
+                                 const std::shared_ptr<ActionSelectionInterface> &action_selection = nullptr,
+                                 Config config = {});
 
         BaseTabularValueFunction(const BaseTabularValueFunction &copy);
 

@@ -18,11 +18,10 @@ namespace sdm
     PWLCValueFunction::PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                          const std::shared_ptr<Initializer> &initializer,
                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                                         const std::shared_ptr<PWLCUpdateOperator> &update_operator,
                                          int freq_pruning,
                                          MaxplanPruning::Type type_of_maxplan_prunning)
         : ValueFunctionInterface(world, initializer, action_selection),
-          ValueFunction(world, initializer, action_selection_, update_operator),
+          ValueFunction(world, initializer, action_selection_),
           PWLCValueFunctionInterface(world, initializer, action_selection_, freq_pruning),
           type_of_maxplan_prunning_(type_of_maxplan_prunning)
     {
@@ -32,9 +31,28 @@ namespace sdm
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, 0);
     }
 
+    PWLCValueFunction::PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                         const std::shared_ptr<Initializer> &initializer,
+                                         const std::shared_ptr<ActionSelectionInterface> &action_selection,
+                                         Config config)
+        : PWLCValueFunction(world, initializer, action_selection, config.get("freq_pruning", -1))
+    {
+        auto opt_int = config.getOpt<int>("pruning_type");
+        auto opt_str = config.getOpt<std::string>("pruning_type");
+        if (opt_int.has_value())
+        {
+            this->type_of_maxplan_prunning_ = (MaxplanPruning::Type)opt_int.value();
+        }
+        else if (opt_str.has_value())
+        {
+            auto iter = MaxplanPruning::TYPE_MAP.find(opt_str.value());
+            this->type_of_maxplan_prunning_ = (iter != MaxplanPruning::TYPE_MAP.end()) ? iter->second : MaxplanPruning::PAIRWISE;
+        }
+    }
+
     PWLCValueFunction::PWLCValueFunction(const PWLCValueFunction &copy)
         : ValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_),
-          ValueFunction(copy.world_, copy.initializer_, copy.action_selection_, copy.update_operator_),
+          ValueFunction(copy.world_, copy.initializer_, copy.action_selection_),
           PWLCValueFunctionInterface(copy.world_, copy.initializer_, copy.action_selection_, copy.freq_pruning),
           representation(copy.representation),
           default_values_per_horizon(copy.default_values_per_horizon),
@@ -272,7 +290,7 @@ namespace sdm
         std::unordered_map<std::shared_ptr<State>, number> refCount;
         auto all_hyperplanes = this->representation[t];
 
-        // Initialize the count 
+        // Initialize the count
         for (const auto &hyperplane : all_hyperplanes)
         {
             refCount[hyperplane] = 0;

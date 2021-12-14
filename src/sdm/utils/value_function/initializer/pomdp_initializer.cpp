@@ -50,11 +50,11 @@ namespace sdm
         else
         {
             // Instanciate lower bound
-            lb = std::make_shared<PWLCValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection, nullptr, 1);
+            lb = std::make_shared<PWLCValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection, 1, MaxplanPruning::PAIRWISE);
             lb->setUpdateOperator(std::make_shared<update::PWLCUpdate>(lb));
 
             // Instanciate upper bound
-            ub = std::make_shared<SawtoothValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, nullptr, 1, SawtoothPruning::PAIRWISE);
+            ub = std::make_shared<SawtoothValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, 1, SawtoothPruning::PAIRWISE);
             ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
         }
 

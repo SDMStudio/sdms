@@ -96,7 +96,7 @@ namespace sdm
                     throw sdm::exception::Exception("Unrecognized maxplan pruning name.");
 
                 // PWLC value function
-                value_function = std::make_shared<PWLCValueFunction>(problem, initializer, action_selection, nullptr, freq_pruning, type_of_pruning);
+                value_function = std::make_shared<PWLCValueFunction>(problem, initializer, action_selection, freq_pruning, type_of_pruning);
 
                 // Update operator
                 update_operator = std::make_shared<update::PWLCUpdate>(value_function);
@@ -128,9 +128,9 @@ namespace sdm
 
                 // Point set value function
                 if (store_state)
-                    value_function = std::make_shared<SawtoothValueFunction>(problem, initializer, action_selection, nullptr, freq_pruning, type_of_pruning);
+                    value_function = std::make_shared<SawtoothValueFunction>(problem, initializer, action_selection, freq_pruning, type_of_pruning);
                 else
-                    value_function = std::make_shared<SawtoothValueFunction2>(problem, initializer, action_selection, nullptr, freq_pruning, type_of_pruning);
+                    value_function = std::make_shared<SawtoothValueFunction2>(problem, initializer, action_selection, freq_pruning, type_of_pruning);
 
                 // Update operator
                 update_operator = std::make_shared<update::TabularUpdate>(value_function);

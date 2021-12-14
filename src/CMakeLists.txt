@@ -152,6 +152,11 @@ file(
 	lib_sdms_src
 	${INCLUDE_DIR}/algorithms.cpp
 )
+
+target_link_libraries(value_function planning_static rl_static)
+target_link_libraries(value_function_static planning_static rl_static)
+
+
 # this is the "object library" target: compiles the sources only once
 add_library(sdms_obj OBJECT ${lib_sdms_src})
 

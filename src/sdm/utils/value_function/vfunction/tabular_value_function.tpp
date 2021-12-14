@@ -13,9 +13,9 @@ namespace sdm
     BaseTabularValueFunction<Hash, KeyEqual>::BaseTabularValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                                                        const std::shared_ptr<Initializer> &initializer,
                                                                        const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                                                                       const std::shared_ptr<TabularUpdateOperator> &update_operator)
+                                                                       Config config)
         : ValueFunctionInterface(world, initializer, action_selection),
-          ValueFunction(world, initializer, action_selection, update_operator),
+          ValueFunction(world, initializer, action_selection),
           TabularValueFunctionInterface(world, initializer, action_selection)
     {
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());

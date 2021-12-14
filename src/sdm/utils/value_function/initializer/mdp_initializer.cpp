@@ -1,7 +1,7 @@
 
-#include <sdm/algorithms/planning/hsvi.hpp>
-#include <sdm/algorithms/planning/value_iteration.hpp>
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
+#include <sdm/algorithms/planning/value_iteration.hpp>
+#include <sdm/algorithms/planning/hsvi.hpp>
 
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>

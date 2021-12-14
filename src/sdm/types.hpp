@@ -56,12 +56,12 @@ namespace sdm
   };
 
   const std::unordered_map<std::string, StateType> STATE_TYPE_MAP = {
-    {"COMPRESSED", StateType::COMPRESSED}, 
-    {"ONE_STEP_UNCOMPRESSED", StateType::ONE_STEP_UNCOMPRESSED},
-    {"FULLY_UNCOMPRESSED", StateType::FULLY_UNCOMPRESSED},
-    {"COMPRESSED_KEEP_ALL", StateType::COMPRESSED_KEEP_ALL},
-    {"ONE_STEP_KEEP_ALL", StateType::ONE_STEP_KEEP_ALL},
-    };
+      {"COMPRESSED", StateType::COMPRESSED},
+      {"ONE_STEP_UNCOMPRESSED", StateType::ONE_STEP_UNCOMPRESSED},
+      {"FULLY_UNCOMPRESSED", StateType::FULLY_UNCOMPRESSED},
+      {"COMPRESSED_KEEP_ALL", StateType::COMPRESSED_KEEP_ALL},
+      {"ONE_STEP_KEEP_ALL", StateType::ONE_STEP_KEEP_ALL},
+  };
 
   /**
    * Enumerator for the types of statistics that can be plotted.
@@ -125,6 +125,12 @@ namespace sdm
       BOUNDED,
       NONE
     };
+
+    const std::unordered_map<std::string, MaxplanPruning::Type> TYPE_MAP = {
+        {"PAIRWISE", MaxplanPruning::PAIRWISE},
+        {"BOUNDED", MaxplanPruning::BOUNDED},
+        {"NONE", MaxplanPruning::NONE},
+    };
   }
 
   namespace SawtoothPruning
@@ -133,6 +139,11 @@ namespace sdm
     {
       PAIRWISE,
       NONE
+    };
+
+    const std::unordered_map<std::string, SawtoothPruning::Type> TYPE_MAP = {
+        {"PAIRWISE", SawtoothPruning::PAIRWISE},
+        {"NONE", SawtoothPruning::NONE},
     };
   }
 

@@ -55,9 +55,7 @@ namespace sdm
         auto opt_int = config.getOpt<int>("state_type");
         auto opt_str = config.getOpt<std::string>("state_type");
         if (opt_int.has_value())
-        {
             this->setStateType((StateType)opt_int.value());
-        }
         else if (opt_str.has_value())
         {
             auto iter = STATE_TYPE_MAP.find(opt_str.value());
@@ -70,11 +68,6 @@ namespace sdm
         : BaseOccupancyMDP<TOccupancyState>(std::dynamic_pointer_cast<MPOMDPInterface>(sdm::world::createFromConfig(config)), config)
     {
     }
-
-    // template <class TOccupancyState>
-    // BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(Config config)
-    // {
-    // }
 
     template <class TOccupancyState>
     std::shared_ptr<Space> BaseOccupancyMDP<TOccupancyState>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number)

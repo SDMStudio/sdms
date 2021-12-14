@@ -5,19 +5,39 @@
 
 namespace sdm
 {
+
     template <class Hash, class KeyEqual>
     BaseSawtoothValueFunction<Hash, KeyEqual>::BaseSawtoothValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                                                          const std::shared_ptr<Initializer> &initializer,
                                                                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                                                                         const std::shared_ptr<TabularUpdateOperator> &update_operator,
                                                                          int freq_pruning,
-                                                                         SawtoothPruning::Type type_of_sawtooth_prunning)
+                                                                         SawtoothPruning::Type type_of_sawtooth_pruning)
         : ValueFunctionInterface(world, initializer, action_selection),
-          BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection, update_operator),
+          BaseTabularValueFunction<Hash, KeyEqual>(world, initializer, action_selection),
           PrunableStructure(world->getHorizon(), freq_pruning),
-          type_of_sawtooth_prunning_(type_of_sawtooth_prunning)
+          type_of_sawtooth_prunning_(type_of_sawtooth_pruning)
     {
         this->relaxation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
+    }
+
+    template <class Hash, class KeyEqual>
+    BaseSawtoothValueFunction<Hash, KeyEqual>::BaseSawtoothValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                                                         const std::shared_ptr<Initializer> &initializer,
+                                                                         const std::shared_ptr<ActionSelectionInterface> &action_selection,
+                                                                         Config config)
+        : BaseSawtoothValueFunction(world, initializer, action_selection, config.get("freq_pruning", -1))
+    {
+        auto opt_int = config.getOpt<int>("pruning_type");
+        auto opt_str = config.getOpt<std::string>("pruning_type");
+        if (opt_int.has_value())
+        {
+            this->type_of_sawtooth_prunning_ = (SawtoothPruning::Type)opt_int.value();
+        }
+        else if (opt_str.has_value())
+        {
+            auto iter = SawtoothPruning::TYPE_MAP.find(opt_str.value());
+            this->type_of_sawtooth_prunning_ = (iter != SawtoothPruning::TYPE_MAP.end()) ? iter->second : SawtoothPruning::PAIRWISE;
+        }
     }
 
     template <class Hash, class KeyEqual>
@@ -97,7 +117,7 @@ namespace sdm
             return std::make_pair(argmin_k, v_relax + min_k);
         }
     }
-    
+
     template <class Hash, class KeyEqual>
     double BaseSawtoothValueFunction<Hash, KeyEqual>::computeRatio(const std::shared_ptr<State> &s, const std::shared_ptr<State> &s_k)
     {

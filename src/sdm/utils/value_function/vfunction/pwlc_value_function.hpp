@@ -2,6 +2,7 @@
 
 #include <bits/stdc++.h>
 #include <sdm/config.hpp>
+#include <sdm/utils/config.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
@@ -16,7 +17,11 @@ namespace sdm
         PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
                           const std::shared_ptr<Initializer> &initializer,
                           const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                          const std::shared_ptr<PWLCUpdateOperator> &update_operator,
+                          Config config);
+
+        PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                          const std::shared_ptr<Initializer> &initializer,
+                          const std::shared_ptr<ActionSelectionInterface> &action_selection,
                           int freq_prunning = -1,
                           MaxplanPruning::Type type_of_maxplan_prunning = MaxplanPruning::PAIRWISE);
 

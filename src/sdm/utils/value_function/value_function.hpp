@@ -30,8 +30,7 @@ namespace sdm
 
         ValueFunction(const std::shared_ptr<SolvableByDP> &world,
                       const std::shared_ptr<Initializer> &intializer = nullptr,
-                      const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
-                      const std::shared_ptr<UpdateOperatorInterface> &update_operator = nullptr);
+                      const std::shared_ptr<ActionSelectionInterface> &action = nullptr);
 
         /**
          * @brief Copy constructor
