@@ -1,11 +1,8 @@
-#include <sdm/utils/value_function/registry.hpp>
-#include <sdm/utils/value_functions.hpp>
-#include <sdm/config.hpp>
 #include <sdm/macros.hpp>
-#include <sdm/worlds.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/tools.hpp>
-#include <sdm/utils/value_function/initializer/initializers.hpp>
+#include <sdm/utils/value_function.hpp>
+#include <sdm/utils/value_function/registry.hpp>
+#include <sdm/utils/value_function/initializer/registry.hpp>
 #include <sdm/utils/value_function/action_selection/registry.hpp>
 #include <sdm/utils/value_function/update_operator/registry.hpp>
 #include <sstream>
@@ -30,7 +27,7 @@ namespace sdm
             return available_init;
         }
 
-        std::shared_ptr<ValueFunction> registry::make(std::string name, std::shared_ptr<SolvableByHSVI> world, Config config)
+        std::shared_ptr<ValueFunction> registry::make(std::string name, std::shared_ptr<SolvableByDP> world, Config config)
         {
             typename map_type::iterator it = registry::container.find(name);
             if (it == registry::container.end())
@@ -45,9 +42,9 @@ namespace sdm
             auto init_opt_config = config.getOpt<Config>("initializer");
             auto init_opt_str = config.getOpt<std::string>("initializer");
             if (init_opt_config.has_value())
-                initializer = sdm::makeInitializer(init_opt_config.value().get<std::string>("name"), world);
+                initializer = sdm::initializer::registry::make(init_opt_config.value().get<std::string>("name"), world, init_opt_config.value());
             else if (init_opt_str.has_value())
-                initializer = sdm::makeInitializer(init_opt_str.value(), world);
+                initializer = sdm::initializer::registry::make(init_opt_str.value(), world);
 
             std::shared_ptr<ActionSelectionInterface> action_selection;
             auto act_opt_config = config.getOpt<Config>("action_selection");
@@ -63,7 +60,7 @@ namespace sdm
             return vf;
         }
 
-        std::shared_ptr<ValueFunction> registry::make(std::string name, const std::shared_ptr<SolvableByHSVI> &world,
+        std::shared_ptr<ValueFunction> registry::make(std::string name, const std::shared_ptr<SolvableByDP> &world,
                                                       const std::shared_ptr<Initializer> &intializer,
                                                       const std::shared_ptr<ActionSelectionInterface> &action,
                                                       Config config)

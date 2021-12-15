@@ -14,7 +14,6 @@ namespace sdm
     ActionSelectionSawtoothLP::ActionSelectionSawtoothLP(const std::shared_ptr<SolvableByDP> &world, Config config) : ActionSelectionBase(world), DecentralizedLP(world)
     {
         // TYPE OF RESOLUTION
-        std::cout << config.str() << std::endl;
         auto type_of_resolution_name = config.get("type_of_resolution", std::string("IloIfThen"));
         TypeOfResolution type_of_resolution;
         number BigM;

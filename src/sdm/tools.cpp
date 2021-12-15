@@ -51,7 +51,9 @@ namespace sdm
 
         bool hasExtension(std::string filename, std::string extension)
         {
-            return regex_match(filename, std::regex(".*\\" + extension + "$"));
+            std::string dot = (extension[0] == '.') ? "" : ".";
+            std::string str_expr = ".*\\" + dot + extension + "$";
+            return regex_match(filename, std::regex(str_expr));
         }
 
         void indentedOutput(std::ostream &outStream, const char *message, int num_indents)

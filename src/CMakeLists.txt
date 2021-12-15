@@ -37,10 +37,11 @@ file(
 	${INCLUDE_DIR}/common.cpp
 	${INCLUDE_DIR}/exception.cpp
 	${INCLUDE_DIR}/public/**
+	${INCLUDE_DIR}/core/**
 	${INCLUDE_DIR}/utils/struct/**
 	${INCLUDE_DIR}/utils/linear_algebra/**
 	${INCLUDE_DIR}/utils/toml/**
-	${INCLUDE_DIR}/core/**
+	${INCLUDE_DIR}/utils/config.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(core_obj OBJECT ${lib_core_src})
@@ -165,7 +166,7 @@ set_property(TARGET sdms_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(${LIB_SDMS} SHARED $<TARGET_OBJECTS:sdms_obj>)
-target_link_libraries(${LIB_SDMS} value_function parser planning rl)
+target_link_libraries(${LIB_SDMS} value_function world planning rl)
 add_library(${LIB_SDMS_STATIC} STATIC $<TARGET_OBJECTS:sdms_obj>)
 target_link_libraries(${LIB_SDMS_STATIC} value_function_static world_static planning_static rl_static)
 install(TARGETS ${LIB_SDMS} DESTINATION lib)
@@ -194,6 +195,9 @@ install(DIRECTORY ${SDMS_MAN_DIR} DESTINATION share)
 
 # Install data
 install(DIRECTORY ${SDMS_WORLD_DIR} DESTINATION share/sdms)
+
+# Install config
+install(DIRECTORY ${SDMS_CONFIG_DIR} DESTINATION share/sdms)
 
 add_subdirectory(examples)
 add_subdirectory(programs)

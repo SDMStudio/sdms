@@ -14,7 +14,7 @@ namespace sdm
         class registry
         {
         protected:
-            typedef std::map<std::string, std::shared_ptr<ValueFunction> (*)(std::shared_ptr<SolvableByHSVI> world,
+            typedef std::map<std::string, std::shared_ptr<ValueFunction> (*)(std::shared_ptr<SolvableByDP> world,
                                                                              const std::shared_ptr<Initializer> &intializer,
                                                                              const std::shared_ptr<ActionSelectionInterface> &action,
                                                                              Config config)>
@@ -24,15 +24,15 @@ namespace sdm
 
         public:
             static std::vector<std::string> available();
-            static std::shared_ptr<ValueFunction> make(std::string name, std::shared_ptr<SolvableByHSVI> world, Config config = {});
-            static std::shared_ptr<ValueFunction> make(std::string name, const std::shared_ptr<SolvableByHSVI> &world,
+            static std::shared_ptr<ValueFunction> make(std::string name, std::shared_ptr<SolvableByDP> world, Config config = {});
+            static std::shared_ptr<ValueFunction> make(std::string name, const std::shared_ptr<SolvableByDP> &world,
                                                        const std::shared_ptr<Initializer> &intializer = nullptr,
                                                        const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
                                                        Config config = {});
         };
 
         template <class TFormalism>
-        std::shared_ptr<ValueFunction> createInstance(std::shared_ptr<SolvableByHSVI> world,
+        std::shared_ptr<ValueFunction> createInstance(std::shared_ptr<SolvableByDP> world,
                                                       const std::shared_ptr<Initializer> &intializer,
                                                       const std::shared_ptr<ActionSelectionInterface> &action,
                                                       Config config)

@@ -3,7 +3,7 @@
 #include <sdm/config.hpp>
 #include <sdm/worlds.hpp>
 #include <sdm/world/gym.hpp>
-#include <sdm/utils/value_functions.hpp>
+#include <sdm/utils/value_function.hpp>
 #include <sdm/utils/value_function/update_operator.hpp>
 #include <sdm/utils/value_function/action_selection.hpp>
 

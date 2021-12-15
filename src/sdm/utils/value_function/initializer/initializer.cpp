@@ -1,6 +1,6 @@
 #include <sdm/exception.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
-#include <sdm/world/solvable_by_hsvi.hpp>
+#include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
@@ -12,6 +12,8 @@ namespace sdm
     // Value Initializer
     // ******************
     ValueInitializer::ValueInitializer(double v) : value(v) {}
+    ValueInitializer::ValueInitializer(const std::shared_ptr<SolvableByDP> &, Config config)
+        : ValueInitializer(config.get("value", 0)) {}
 
     void ValueInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
@@ -34,7 +36,7 @@ namespace sdm
     // ******************
     BoundInitializer::BoundInitializer() {}
 
-    BoundInitializer::BoundInitializer(std::shared_ptr<SolvableByHSVI> world, double value) : value_(value), world_(world) {}
+    BoundInitializer::BoundInitializer(std::shared_ptr<SolvableByDP> world, double value) : value_(value), world_(world) {}
 
     void BoundInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
     {
@@ -79,7 +81,7 @@ namespace sdm
     // ******************
     // Min Initializer
     // ******************
-    MinInitializer::MinInitializer(std::shared_ptr<SolvableByHSVI> world)
+    MinInitializer::MinInitializer(std::shared_ptr<SolvableByDP> world, Config)
     {
         this->world_ = world;
     }
@@ -94,7 +96,7 @@ namespace sdm
     // ******************
     // Max Initializer
     // ******************
-    MaxInitializer::MaxInitializer(std::shared_ptr<SolvableByHSVI> world)
+    MaxInitializer::MaxInitializer(std::shared_ptr<SolvableByDP> world, Config)
     {
         this->world_ = world;
     }
@@ -109,7 +111,7 @@ namespace sdm
     // ******************
     // Blind Initializer
     // ******************
-    BlindInitializer::BlindInitializer(std::shared_ptr<SolvableByHSVI> world)
+    BlindInitializer::BlindInitializer(std::shared_ptr<SolvableByDP> world, Config)
     {
         this->world_ = world;
     }

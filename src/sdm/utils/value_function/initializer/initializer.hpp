@@ -4,43 +4,26 @@
  * @brief File that contains definition of different initializers.
  * @version 1.0
  * @date 24/03/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
 #include <math.h>
 #include <sdm/types.hpp>
+#include <sdm/utils/config.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
-
-// //  ------------------------------------------------------------------------
-// // |                        Add to the registry                             |
-// //  ------------------------------------------------------------------------
-// #include <sdm/macros.hpp>
-// #include <sdm/utils/value_function/update_operator/registry.hpp>
-
-// SDMS_REGISTRY(update)
-// SDMS_REGISTER("Zero", ZeroInitializer)
-// SDMS_REGISTER("Min", MinInitializer)
-// SDMS_REGISTER("Max", MaxInitializer)
-// SDMS_REGISTER("Mdp", MDPInitializer, "ValueIteration")
-// SDMS_REGISTER("MdpHsvi", MDPInitializer, "HSVI")
-// SDMS_END_REGISTRY()
-
-
-// #include <sdm/utils/value_function/value_function_interface.hpp>
-// #include <sdm/utils/value_function/value_function.hpp>
-// #include <sdm/utils/value_function/qvalue_function.hpp>
+#include <sdm/world/base/mdp_interface.hpp>
 
 namespace sdm
 {
-    class SolvableByHSVI;
+    class SolvableByDP;
     class ValueFunctionInterface;
 
     /**
-     * @brief Abstract class for state value function initializer. 
-     * 
+     * @brief Abstract class for state value function initializer.
+     *
      */
     class Initializer
     {
@@ -48,10 +31,10 @@ namespace sdm
         virtual ~Initializer() {}
         virtual void init(std::shared_ptr<ValueFunctionInterface> vf) = 0;
     };
-    
+
     /**
      * @brief This initializer initializes a value function to a constant value.
-     * 
+     *
      */
     class ValueInitializer : public Initializer
     {
@@ -60,33 +43,34 @@ namespace sdm
 
     public:
         ValueInitializer(double v);
+        ValueInitializer(const std::shared_ptr<SolvableByDP> &, Config config);
         void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
     /**
      * @brief This initializer initializes a value function to zero.
-     * 
+     *
      */
     class ZeroInitializer : public ValueInitializer
     {
     public:
-        ZeroInitializer(std::shared_ptr<SolvableByHSVI> = nullptr) : ValueInitializer(0) {}
+        ZeroInitializer(std::shared_ptr<SolvableByDP> = nullptr, Config config = {}) : ValueInitializer(0) {}
     };
 
     /**
      * @brief This initializer initializes a value function to the estimation of the value if we get a constant reward at every timestep.
-     * 
+     *
      */
     class BoundInitializer : public Initializer
     {
     protected:
         double value_;
         double (MDPInterface::*callback_value)(number) const = nullptr;
-        std::shared_ptr<SolvableByHSVI> world_;
+        std::shared_ptr<SolvableByDP> world_;
 
     public:
         BoundInitializer();
-        BoundInitializer(std::shared_ptr<SolvableByHSVI> world, double value);
+        BoundInitializer(std::shared_ptr<SolvableByDP> world, double value);
 
         void init(std::shared_ptr<ValueFunctionInterface> vf);
         double getValue(std::shared_ptr<ValueFunctionInterface> vf, number t);
@@ -95,38 +79,38 @@ namespace sdm
 
     /**
      * @brief This initializer initializes a value function to the worst value. This is a pessimistic initialization.
-     * 
+     *
      */
     class MinInitializer : public BoundInitializer
     {
     public:
-        MinInitializer(std::shared_ptr<SolvableByHSVI> world);
+        MinInitializer(std::shared_ptr<SolvableByDP> world, Config config = {});
 
         void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
     /**
      * @brief This initializer initializes a value function to the best value. This is an optimistic initialization.
-     * 
+     *
      */
     class MaxInitializer : public BoundInitializer
     {
     public:
-        MaxInitializer(std::shared_ptr<SolvableByHSVI> world);
+        MaxInitializer(std::shared_ptr<SolvableByDP> world, Config config = {});
 
         void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
     /**
-     * @brief This initializer calculates the initial lower bound $\bar{V}_0$ using the blind  policy method [Hauskrecht, 1997]. 
-     * 
-     * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf . 
-     * 
+     * @brief This initializer calculates the initial lower bound $\bar{V}_0$ using the blind  policy method [Hauskrecht, 1997].
+     *
+     * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf .
+     *
      */
     class BlindInitializer : public BoundInitializer
     {
     public:
-        BlindInitializer(std::shared_ptr<SolvableByHSVI> world);
+        BlindInitializer(std::shared_ptr<SolvableByDP> world, Config config = {});
 
         void init(std::shared_ptr<ValueFunctionInterface> vf);
     };

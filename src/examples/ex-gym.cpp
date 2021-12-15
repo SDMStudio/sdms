@@ -6,13 +6,14 @@
 #include <sdm/world/gym/RobotBin.hpp>
 
 using namespace sdm;
+using namespace sdm::world::gym;
 
 int main(int argc, char **argv)
 {
     int sizeX = (argc > 1) ? std::stoi(argv[1]) : 3;
     int sizeY = (argc > 2) ? std::stoi(argv[2]) : sizeX;
 
-    std::shared_ptr<GymInterface> env = std::make_shared<gym::RobotBin>(sizeX, sizeY);
+    std::shared_ptr<GymInterface> env = std::make_shared<RobotBin>(sizeX, sizeY);
     // TEST GRAPH
     std::cout << "\n--------- Usage : class GymInterface ( sdm/world/gym_interface.hpp ) ---------\n\n";
 

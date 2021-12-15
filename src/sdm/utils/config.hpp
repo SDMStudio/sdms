@@ -11,39 +11,40 @@
 #include <fstream>
 #include <sdm/utils/toml/tomlcpp.hpp>
 #include <sdm/exception.hpp>
-
-#define CHECK_AND_SET_ITEM(GetTYPE, VARIABLE)          \
-    {                                                  \
-        auto [okay, value] = table->GetTYPE(VARIABLE); \
-        if (okay)                                      \
-        {                                              \
-            config.set(VARIABLE, value);               \
-            continue;                                  \
-        }                                              \
-    }
+#include <sdm/tools.hpp>
 
 namespace sdm
 {
+    /**
+     * @brief The standard configuration object used in SDMS.
+     *
+     * SDM'Studio is a high level library requiring low level
+     * configuration of its algorithms. This class is a simple
+     * maneer to maintain control over these parameters.
+     *
+     */
     class Config : public std::unordered_map<std::string, std::any>
     {
     public:
         using value_type = std::pair<const std::string, std::any>;
         using value_list_type = value_type;
 
-        Config() {}
-        Config(std::initializer_list<value_type> vals) : std::unordered_map<std::string, std::any>(vals)
-        {
-            for (const auto &pair_key_value : vals)
-            {
-                this->ordered_key_list.push_back(pair_key_value.first);
-            }
-        }
+        Config();
+        Config(std::initializer_list<value_type> vals);
+        Config(const std::string &toml_filename);
 
-        Config(const std::string &toml_filename)
-        {
-            (*this) = Config::parseTOML(toml_filename);
-        }
-
+        /**
+         * @brief Get the configuration value. If no such configuration is set,
+         * return default value.
+         *
+         * This functions can be seen as equivalent to the function get
+         * in python dictionnary.
+         *
+         * @tparam the configuration type
+         * @param key the key
+         * @param defaultValue the default value
+         * @return the value of the configuration
+         */
         template <typename T>
         T get(const std::string &key, T defaultValue) const
         {
@@ -54,6 +55,16 @@ namespace sdm
             return std::any_cast<T>(it->second);
         };
 
+        /**
+         * @brief Get the configuration value.
+         *
+         * The key must exists in the object,
+         * otherwise an error will be raised.
+         *
+         * @tparam the configuration type
+         * @param key the key
+         * @return the value of the configuration
+         */
         template <typename T = std::string>
         T get(const std::string &key) const
         {
@@ -77,86 +88,48 @@ namespace sdm
             return std::nullopt;
         };
 
+        /**
+         * @brief Set a new configuration.
+         *
+         * A configuration can be seen as a pair (key/value).
+         *
+         * @tparam the configuration type
+         * @param key the key
+         * @param value the value of the configuration
+         */
         template <typename T>
         void set(const std::string &key, T value)
         {
-            this->ordered_key_list.push_back(key);
+            if (std::find(this->ordered_key_list.begin(), this->ordered_key_list.end(), key) == this->ordered_key_list.end())
+                this->ordered_key_list.push_back(key);
             (*this)[key] = value;
         };
 
-        static Config parseTOML(const std::string &toml_filename)
-        {
-            auto res = toml::parseFile(toml_filename);
-            auto res_parsing = toml::parseFile(toml_filename);
-            auto table = res_parsing.table;
-            if (!table)
-                throw sdm::exception::ParsingException(res_parsing.errmsg);
-            else
-                return Config::parseTable(table);
-        }
+        /**
+         * @brief Parse a configuration file (TOML format)
+         * into a configuration object.
+         *
+         * @param toml_filename the configuration file
+         * @return the resulting configuration object
+         */
+        static Config parseTOML(const std::string &toml_filename);
 
-        std::string str(std::string name = "") const
-        {
-            std::ostringstream str_toml;
-            std::string key;
-            if (name != "")
-                str_toml << "\n[" << name << "]" << std::endl;
-            for (const auto &key : this->ordered_key_list)
-            {
-                auto opt_int = this->getOpt<int>(key);
-                auto opt_double = this->getOpt<double>(key);
-                auto opt_str = this->getOpt<std::string>(key);
-                auto opt_bool = this->getOpt<bool>(key);
-                auto opt_config = this->getOpt<Config>(key);
-                if (opt_int.has_value())
-                    str_toml << key << " = " << opt_int.value() << std::endl;
-                if (opt_double.has_value())
-                    str_toml << std::setprecision(10) << std::fixed << key << " = " << opt_double.value() << std::endl;
-                if (opt_str.has_value())
-                    str_toml << key << " = \"" << opt_str.value() << "\"" << std::endl;
-                if (opt_bool.has_value())
-                {
-                    std::string boolean = opt_bool.value() ? "true" : "false";
-                    str_toml << key << " = " << boolean << std::endl;
-                }
-                if (opt_config.has_value())
-                {
-                    if (name != "")
-                        str_toml << opt_config.value().str(name + "." + key);
-                    else
-                        str_toml << opt_config.value().str(key);
-                }
-            }
-            return str_toml.str();
-        }
+        std::string str(std::string name = "") const;
 
-        int size()
+        friend std::ostream &operator<<(std::ostream &os, const Config &config)
         {
-            return this->ordered_key_list.size();
+            os << config.str();
+            return os;
         }
-
+        
     protected:
-        static Config parseTable(const std::shared_ptr<toml::Table> &table)
-        {
-            Config config;
-            for (const auto &key : table->keys())
-            {
-                CHECK_AND_SET_ITEM(getString, key)
-                CHECK_AND_SET_ITEM(getBool, key)
-                CHECK_AND_SET_ITEM(getInt, key)
-                CHECK_AND_SET_ITEM(getDouble, key)
-                CHECK_AND_SET_ITEM(getTimestamp, key)
-
-                auto sub_table = table->getTable(key);
-                if (sub_table)
-                {
-                    config.set(key, Config::parseTable(sub_table));
-                    continue;
-                }
-                throw sdm::exception::Exception("ParsingTable failed at " + key);
-            }
-            return config;
-        }
+        /**
+         * @brief Parse a toml::Table into a configuration object.
+         *
+         * @param table the toml::Table
+         * @return the resulting configuration object
+         */
+        static Config parseTable(const std::shared_ptr<toml::Table> &table);
 
         std::vector<std::string> ordered_key_list;
     };

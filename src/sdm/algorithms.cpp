@@ -1,10 +1,10 @@
 #include <sdm/algorithms.hpp>
 
 #include <sdm/worlds.hpp>
+#include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/action_selection.hpp>
 #include <sdm/utils/value_function/update_operator.hpp>
 
-#include <sdm/utils/value_function/initializer/initializers.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/qfunction/tabular_qvalue_function.hpp>
 #include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
@@ -55,7 +55,7 @@ namespace sdm
             std::shared_ptr<UpdateOperatorInterface> update_operator;
 
             // Instanciate initializer
-            initializer = sdm::makeInitializer(init_name, std::dynamic_pointer_cast<SolvableByHSVI>(problem));
+            initializer = sdm::initializer::registry::make(init_name, problem);
 
             // Build value function based on parameters
             if (value_name.find("maxplan") != string::npos)
@@ -224,7 +224,7 @@ namespace sdm
             std::shared_ptr<QUpdateOperatorInterface> q_update_operator;
 
             // Instanciate initializer
-            q_init = sdm::makeInitializer(q_init_name, std::dynamic_pointer_cast<SolvableByHSVI>(problem));
+            q_init = sdm::initializer::registry::make(q_init_name, problem);
 
             if (qvalue_name.find("maxplan") != string::npos)
             {

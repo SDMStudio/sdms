@@ -14,31 +14,37 @@
 
 namespace sdm
 {
-    namespace algo
+    POMDPInitializer::POMDPInitializer(std::shared_ptr<SolvableByDP> world, Config config) : algo_config(config), world(world)
     {
-        // std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming);
+        // this->algorithm = sdm::algo::registry::make(config.get<std::string>("algo_name", "HSVI"), config);
     }
-}
 
-namespace sdm
-{
-    POMDPInitializer::POMDPInitializer(std::shared_ptr<SolvableByHSVI> world, std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials), world_(world)
+    POMDPInitializer::POMDPInitializer(std::shared_ptr<SolvableByDP> world, std::string algo_name, double error, int trials) : world(world)
     {
+        this->algo_config = {
+            {"algo_name", algo_name},
+            {"error", error},
+            {"trials", trials},
+        };
     }
 
     void POMDPInitializer::init(std::shared_ptr<ValueFunctionInterface> vf)
     {
         auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
-        // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
-        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::dynamic_pointer_cast<BeliefMDPInterface>(this->world_)->getUnderlyingBeliefMDP();
+        // Get relaxed belief MDP
+        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::dynamic_pointer_cast<BeliefMDPInterface>(this->world)->getUnderlyingBeliefMDP();
 
         auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(hsvi_pomdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp, "ValueIteration");
 
+        std::string algo_name = this->algo_config.get("algo_name", std::string("HSVI"));
+        double error = this->algo_config.get("error", 0.01), time_max = this->algo_config.get("time_max", 3600);
+        int trials = this->algo_config.get("trials", 100);
+
         std::shared_ptr<ValueFunction> lb, ub;
-        if (this->algo_name_ == "TabHSVI")
+        if (algo_name == "TabHSVI")
         {
             // Instanciate lower bound
             lb = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection);
@@ -58,7 +64,7 @@ namespace sdm
             ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
         }
 
-        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, this->error_, this->trials_, "PomdpHsvi_Init", 1, 1, 3600);
+        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, error, trials, "PomdpHsvi_Init", 1, 1, time_max);
 
         algorithm->initialize();
         algorithm->solve();

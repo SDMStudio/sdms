@@ -18,10 +18,10 @@ namespace sdm
             static std::shared_ptr<ActionSelectionInterface> make(std::string name, std::shared_ptr<SolvableByDP> world, Config config = {});
         };
 
-        template <class TUpdate>
+        template <class TSelection>
         std::shared_ptr<ActionSelectionInterface> createInstance(std::shared_ptr<SolvableByDP> world, Config config)
         {
-            return std::make_shared<TUpdate>(world, config);
+            return std::make_shared<TSelection>(world, config);
         }
     }
 }
