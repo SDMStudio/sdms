@@ -29,6 +29,7 @@ namespace sdm
         this->representation = std::vector<HyperplanSet>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, HyperplanSet({}));
         this->all_state_updated_so_far = std::vector<std::unordered_set<std::shared_ptr<State>>>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, std::unordered_set<std::shared_ptr<State>>());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, 0);
+        this->pomdp = std::dynamic_pointer_cast<POMDPInterface>(world->getUnderlyingProblem());
     }
 
     PWLCValueFunction::PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
@@ -146,13 +147,13 @@ namespace sdm
 
     double PWLCValueFunction::getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t)
     {
-        if (sdm::isInstanceOf<OccupancyStateInterface>(alpha))
+        if (auto oalpha = sdm::isInstanceOf<OccupancyStateInterface>(alpha))
         {
-            return getNextAlphaValueOccupancy(alpha, state, history, action, next_state, observation, t);
+            return getNextAlphaValueOccupancy(oalpha, state, history, action, next_state, observation, t);
         }
-        else if (sdm::isInstanceOf<BeliefInterface>(alpha))
+        else if (auto balpha = sdm::isInstanceOf<BeliefInterface>(alpha))
         {
-            return getNextAlphaValueBelief(alpha, state, history, action, next_state, observation, t);
+            return getNextAlphaValueBelief(balpha, state, history, action, next_state, observation, t);
         }
         else
         {
@@ -160,37 +161,49 @@ namespace sdm
         }
     }
 
-    double PWLCValueFunction::getNextAlphaValueBelief(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number)
+    double PWLCValueFunction::getNextAlphaValueBelief(const std::shared_ptr<BeliefInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number)
     {
-        return alpha->toBelief()->getVectorInferface()->getValueAt(next_state);
+        return alpha->getProbability(next_state);
     }
 
-    double PWLCValueFunction::getNextAlphaValueOccupancy(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number)
+    double PWLCValueFunction::getNextAlphaValueOccupancy(const std::shared_ptr<OccupancyStateInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number)
     {
-        return alpha->toOccupancyState()->getProbability(history->expand(observation)->toJointHistory(), next_state);
+        return alpha->getProbability(std::dynamic_pointer_cast<JointHistoryInterface>(history->expand(observation)), next_state);
     }
 
     double PWLCValueFunction::getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
     {
-        // Compute \beta_t(x,o,u) = R(x,u) + \gamma \sum_{y, z} p^{uz}_{xy} \alpha_{t+1}(y, (o,u,z))
-        auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
+        bool is_occupancy;
+        std::shared_ptr<OccupancyStateInterface> oalpha;
+        std::shared_ptr<BeliefInterface> balpha;
+        if ((oalpha = sdm::isInstanceOf<OccupancyStateInterface>(alpha)))
+            is_occupancy = true;
+        else if ((balpha = sdm::isInstanceOf<BeliefInterface>(alpha)))
+            is_occupancy = false;
+        else
+            throw sdm::exception::TypeError("TypeError : state must derived from belief");
 
+        // Compute \beta_t(x,o,u) = R(x,u) + \gamma \sum_{y, z} p^{uz}_{xy} \alpha_{t+1}(y, (o,u,z))
         double next_expected_value = 0.0;
 
         // Go over all hidden state reachable next state
-        for (const auto &next_state : pomdp->getReachableStates(state, action, t))
+        for (const auto &next_state : this->pomdp->getReachableStates(state, action, t))
         {
             // Go over all observation reachable observation
-            for (const auto &observation : pomdp->getReachableObservations(state, action, next_state, t))
+            for (const auto &observation : this->pomdp->getReachableObservations(state, action, next_state, t))
             {
                 // Get the next value of an hyperplane
-                double alpha_ = this->getNextAlphaValue(alpha, state, history, action, next_state, observation, t);
+                double alpha_;
+                if (is_occupancy)
+                    alpha_ = this->getNextAlphaValueOccupancy(oalpha, state, history, action, next_state, observation, t);
+                else
+                    alpha_ = this->getNextAlphaValueBelief(balpha, state, history, action, next_state, observation, t);
 
                 // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
-                next_expected_value += alpha_ * pomdp->getDynamics(state, action, next_state, observation, t);
+                next_expected_value += alpha_ * this->pomdp->getDynamics(state, action, next_state, observation, t);
             }
         }
-        return pomdp->getReward(state, action, t) + this->getWorld()->getDiscount(t) * next_expected_value;
+        return this->pomdp->getReward(state, action, t) + this->getWorld()->getDiscount(t) * next_expected_value;
     }
 
     std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(const std::shared_ptr<State> &, number t)

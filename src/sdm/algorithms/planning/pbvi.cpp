@@ -3,7 +3,7 @@
 
 namespace sdm
 {
-    PBVI::PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, number num_sample_states, double error, double time_max, std::string name, std::string type_sampling)
+    PBVI::PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, unsigned long num_sample_states, double error, double time_max, std::string name, std::string type_sampling)
         : ValueIteration(world, value_function, error, time_max, name), num_sample_states(num_sample_states), type_sampling(type_sampling)
     {
     }

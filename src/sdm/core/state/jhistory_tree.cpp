@@ -39,7 +39,6 @@ namespace sdm
     void JointHistoryTree::addIndividualHistory(std::shared_ptr<HistoryInterface> ihist)
     {
         this->push_back(ihist);
-        // this->is_origin = false;
     }
 
     std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, const std::shared_ptr<Joint<std::shared_ptr<Action>>> &joint_action, bool backup)
@@ -55,11 +54,11 @@ namespace sdm
                 {
                     if (joint_action != nullptr)
                     {
-                        h_joint->addIndividualHistory(std::dynamic_pointer_cast<HistoryTree>(this->getIndividualHistory(i)->expand(joint_observation->get(i), joint_action->get(i), backup)));
+                        h_joint->addIndividualHistory(this->getIndividualHistory(i)->expand(joint_observation->get(i), joint_action->get(i), backup));
                     }
                     else
                     {
-                        h_joint->addIndividualHistory(std::dynamic_pointer_cast<HistoryTree>(this->getIndividualHistory(i)->expand(joint_observation->get(i), joint_action, backup)));
+                        h_joint->addIndividualHistory(this->getIndividualHistory(i)->expand(joint_observation->get(i), joint_action, backup));
                     }
                 }
             }
@@ -117,6 +116,7 @@ namespace sdm
 
     std::shared_ptr<JointHistoryTree> JointHistoryTree::getptr()
     {
+        // Slow
         return Tree<Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>>>::downcasted_shared_from_this<JointHistoryTree>();
     }
 

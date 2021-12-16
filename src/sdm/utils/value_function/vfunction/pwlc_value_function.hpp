@@ -6,6 +6,7 @@
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
+#include <sdm/world/base/pomdp_interface.hpp>
 
 namespace sdm
 {
@@ -138,6 +139,11 @@ namespace sdm
         std::vector<std::unordered_set<std::shared_ptr<State>>> all_state_updated_so_far;
 
         /**
+         * @brief 
+         */
+        std::shared_ptr<POMDPInterface> pomdp;
+
+        /**
          * @brief Prune dominated hyperplanes of the value function.
          * 
          * @param t the time step
@@ -168,8 +174,8 @@ namespace sdm
         void pairwise_prune(number t);
 
         double getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
-        double getNextAlphaValueBelief(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number t);
-        double getNextAlphaValueOccupancy(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
+        double getNextAlphaValueBelief(const std::shared_ptr<BeliefInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number t);
+        double getNextAlphaValueOccupancy(const std::shared_ptr<OccupancyStateInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
     };
 
 } // namespace sdm
