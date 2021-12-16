@@ -1,4 +1,4 @@
-#include <iostream>
+#include <sdm/utils/struct/vector.hpp>
 #include <sdm/types.hpp>
 #include <sdm/config.hpp>
 #include <sdm/worlds.hpp>
