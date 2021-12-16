@@ -1,0 +1,4 @@
+[server]
+host = "example.com"
+port = [120, 144]
+is_active = true

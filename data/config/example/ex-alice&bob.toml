@@ -1,0 +1,13 @@
+# This file contains a basic configuration of HSVI 
+num_agents = 2
+
+[agent1]
+name = "Alice"
+sexe = "F"
+height = 1.73
+
+
+[agent2]
+name = "Bob"
+sexe = "M"
+height = 1.92

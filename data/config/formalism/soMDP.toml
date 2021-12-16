@@ -1,4 +1,5 @@
-name = "oMDP"
+
+name = "soMDP"
 
 memory = 1
 store_states = true
@@ -7,6 +8,9 @@ state_type = "COMPRESSED"
 batch_size = 0
 
 [world]
+name = "SerialMPOMDP"
+
+[world.world]
 name = "mabc.dpomdp"
 horizon = 10
 discount = 1.0

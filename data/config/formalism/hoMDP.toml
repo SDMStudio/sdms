@@ -1,4 +1,4 @@
-name = "oMDP"
+name = "hoMDP"
 
 memory = 1
 store_states = true
@@ -7,6 +7,9 @@ state_type = "COMPRESSED"
 batch_size = 0
 
 [world]
-name = "mabc.dpomdp"
+name = "HierarchicalMPOMDP"
+
+[world.world]
+name = "tiger.dpomdp"
 horizon = 10
 discount = 1.0

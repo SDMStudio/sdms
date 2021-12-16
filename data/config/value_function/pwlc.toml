@@ -1,0 +1,8 @@
+
+name = "PWLCValueFunction"
+
+initializer = "Min"
+action_selection = "Exhaustive"
+update_operator = "PWLCUpdate"
+freq_pruning = 10
+pruning_type = "pairwise"
