@@ -19,7 +19,7 @@ namespace sdm
     
         void initialize(); 
     
-        bool getLPFromBayesianGame(std::shared_ptr<BayesianGameInterface> game, int playerIndex);
+        bool getLPFromBayesianGame();
     
         void solve();
 

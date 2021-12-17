@@ -16,19 +16,13 @@ void sdm::TwoPlayersBayesianGameSolver::initialize(){
     env = IloEnv();
     model = env;
     vars = env;
-    bool loadedLP = getLPFromBayesianGame(game, playerIndex);
+    bool loadedLP = getLPFromBayesianGame();
     if (!loadedLP) {
         std::cerr << "Coul not load game LP in bayesian game solver" << std::endl;
     }
 }
 
-bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(std::shared_ptr<BayesianGameInterface> game, int playerIndex){
-
-    /***
-     *  - make a map JState -> alpha_i
-     *  - make a function to name a var after its state & action
-     *  - get good var from the name
-    ***/
+bool sdm::TwoPlayersBayesianGameSolver::getLPFromBayesianGame(){
 
     try {
 
