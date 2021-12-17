@@ -13,22 +13,20 @@ namespace sdm
         ActionSelectionMaxplanLP();
         ActionSelectionMaxplanLP(const std::shared_ptr<SolvableByDP> &world, Config config = {});
 
-
         /**
          * @brief Create a Objective Constraint of the LP
-         * 
-         * @param occupancy_state 
-         * @param var 
-         * @param obj 
-         * @param t 
+         *
+         * @param occupancy_state
+         * @param var
+         * @param obj
+         * @param t
          */
         void createObjectiveFunction(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, IloNumVarArray &var, IloObjective &obj, number t);
 
     protected:
-        
         Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t);
 
-        std::shared_ptr<BeliefInterface> current_hyperplane; 
+        std::shared_ptr<BeliefInterface> current_hyperplane;
     };
 }
 

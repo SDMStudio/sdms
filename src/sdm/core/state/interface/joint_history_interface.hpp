@@ -25,8 +25,6 @@ namespace sdm
 
         virtual std::shared_ptr<Joint<std::shared_ptr<Observation>>> getDefaultObs() = 0;
 
-        virtual void isNotOrigin() = 0;
-
         virtual std::string str() const = 0;
     };
 }

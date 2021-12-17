@@ -66,7 +66,7 @@ namespace sdm
                                                                 int vf_freq_pruning, std::string vf_type_of_pruning);
 
         std::shared_ptr<sdm::PBVI> makePBVI(std::shared_ptr<SolvableByHSVI> problem,
-                                            std::string value_function_name, std::string vf_init_name, number num_samples, std::string type_sampling, double error,
+                                            std::string value_function_name, std::string vf_init_name, unsigned long long num_samples, std::string type_sampling, double error,
                                             bool store_state, std::string name, double time_max,
                                             std::string vf_type_of_resolution_name,
                                             int vf_freq_pruning, std::string vf_type_of_pruning);
@@ -85,7 +85,7 @@ namespace sdm
                                                       double discount = 0.9,
                                                       double lr = 0.01,
                                                       double batch_size = 1,
-                                                      unsigned long num_episodes = 10000,
+                                                      unsigned long long num_episodes = 10000,
                                                       std::string name = "qlearning");
 
         /**
@@ -107,7 +107,7 @@ namespace sdm
          * @brief Build an algorithm.
          */
         std::shared_ptr<Algorithm> makeAlgorithm(std::string algo_name, std::shared_ptr<SolvableByHSVI> formalism, double discount,
-                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max, number num_samples, std::string type_sampling,
+                                                 double error, int trials, bool store_state, bool store_action, std::string name, double time_max, unsigned long long num_samples, std::string type_sampling,
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2);
 
@@ -143,7 +143,7 @@ namespace sdm
                                         bool store_state = true,
                                         bool store_action = true,
                                         number batch_size = 0,
-                                        number num_samples = 10,
+                                        unsigned long long num_samples = 10,
                                         std::string type_sampling = "",
                                         std::string value_function_1 = "tabular",
                                         std::string init_v1 = "Min",

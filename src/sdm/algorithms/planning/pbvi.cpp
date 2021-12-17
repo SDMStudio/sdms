@@ -3,7 +3,7 @@
 
 namespace sdm
 {
-    PBVI::PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, unsigned long num_sample_states, double error, double time_max, std::string name, std::string type_sampling)
+    PBVI::PBVI(std::shared_ptr<SolvableByHSVI> world, std::shared_ptr<ValueFunction> value_function, unsigned long long num_sample_states, double error, double time_max, std::string name, std::string type_sampling)
         : ValueIteration(world, value_function, error, time_max, name), num_sample_states(num_sample_states), type_sampling(type_sampling)
     {
     }
@@ -50,13 +50,13 @@ namespace sdm
         std::shared_ptr<State> initial_state = getWorld()->getInitialState();
         list_states[0].insert(initial_state);
 
-        for (int i = 0; i < num_sample_states; i++)
+        for (unsigned long long i = 0; i < num_sample_states; i++)
         {
             std::shared_ptr<State> current_state = initial_state;
 
             for (number t = 1; t < getWorld()->getHorizon(); t++)
             {
-                current_state = sampleNextState(current_state, t-1);
+                current_state = sampleNextState(current_state, t - 1);
                 list_states[t].insert(current_state);
             }
         }
@@ -71,7 +71,7 @@ namespace sdm
         for (number t = 0; t < getWorld()->getHorizon(); t++)
         {
             std::set<std::shared_ptr<State>> list_states;
-            for (int i = 0; i < num_sample_states; i++)
+            for (unsigned long long i = 0; i < num_sample_states; i++)
             {
                 list_states.insert(selectOneState(t));
             }

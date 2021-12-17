@@ -12,7 +12,7 @@ namespace sdm
     /**
      * @brief A public interface for actions, states and observations.
      */
-    class Item : public std::inheritable_enable_shared_from_this<Item>
+    class Item : public std::enable_shared_from_this<Item>
     {
     public:
 

@@ -34,6 +34,12 @@ namespace sdm
         return this->expand<HistoryTree>(observation, action, backup);
     }
 
+
+    std::shared_ptr<HistoryTree> HistoryTree::expandHistoryTree(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action, bool backup)
+    {
+        return this->expand<HistoryTree>(observation, action, backup);
+    }
+
     std::string HistoryTree::short_str() const
     {
         std::ostringstream res;
@@ -81,14 +87,10 @@ namespace sdm
         return res.str();
     }
 
-    std::shared_ptr<Item> HistoryTree::getPointer()
-    {
-        return this->getptr();
-    }
-
     std::shared_ptr<HistoryTree> HistoryTree::getptr()
     {
-        return Tree<Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>>>::downcasted_shared_from_this<HistoryTree>();
+        return std::dynamic_pointer_cast<HistoryTree>(Item::getPointer());
+        // return Tree<Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>>>::downcasted_shared_from_this<HistoryTree>();
     }
 
     std::shared_ptr<HistoryTree> HistoryTree::getParent() const

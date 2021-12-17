@@ -168,6 +168,7 @@ namespace sdm
 
     double PWLCValueFunction::getNextAlphaValueOccupancy(const std::shared_ptr<OccupancyStateInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number)
     {
+        // Dynamic cast is slow
         return alpha->getProbability(std::dynamic_pointer_cast<JointHistoryInterface>(history->expand(observation)), next_state);
     }
 

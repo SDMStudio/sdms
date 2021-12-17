@@ -2,7 +2,6 @@
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 
 #include <sdm/core/state/interface/occupancy_state_interface.hpp>
-#include <sdm/world/base/mmdp_interface.hpp>
 #include <sdm/world/base/mpomdp_interface.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 
@@ -12,7 +11,11 @@ namespace sdm
 {
     ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP() {}
 
-    ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world, Config config) : MaxPlanSelectionBase(world) {}
+    ActionSelectionMaxplanWCSP::ActionSelectionMaxplanWCSP(const std::shared_ptr<SolvableByDP> &world, Config config) : MaxPlanSelectionBase(world)
+    {
+        this->occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
+        this->underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->occupancy_mdp->getUnderlyingMPOMDP());
+    }
 
     Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {
@@ -22,9 +25,6 @@ namespace sdm
     Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
     {
         this->variables.clear();
-
-        auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
-        auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(occupancy_mdp->getUnderlyingMPOMDP());
 
         auto occupancy_state = state->toOccupancyState();
 
@@ -57,7 +57,7 @@ namespace sdm
         {
             std::vector<Cost> costs;
 
-            //Go over all joint action
+            // Go over all joint action
             for (const auto &joint_action : *underlying_problem->getActionSpace(t))
             {
                 costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action->toAction(), hyperplane, t)));
@@ -73,7 +73,7 @@ namespace sdm
             std::vector<Value> sol;        // show optimal solution
             wcsp_solver->getSolution(sol); // cost optimum
 
-            //Creation of the joint decision rule
+            // Creation of the joint decision rule
 
             std::vector<std::vector<std::shared_ptr<Item>>> actions;
             std::vector<std::vector<std::shared_ptr<Item>>> joint_histories;
@@ -103,7 +103,7 @@ namespace sdm
                 joint_histories.push_back(indiv_histories);
             }
 
-            //Create JOint Deterministic Decision Rule
+            // Create JOint Deterministic Decision Rule
             decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories, actions);
 
             for (const auto &joint_history : occupancy_state->getJointHistories())

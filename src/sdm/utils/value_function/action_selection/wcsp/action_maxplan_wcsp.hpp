@@ -5,6 +5,8 @@
 #include <sdm/utils/linear_programming/variable_naming.hpp>
 #include <sdm/utils/value_function/action_selection/action_maxplan_base.hpp>
 
+#include <sdm/world/occupancy_mdp.hpp>
+#include <sdm/world/base/mpomdp_interface.hpp>
 namespace sdm
 {
     class ActionSelectionMaxplanWCSP : public MaxPlanSelectionBase, public VarNaming
@@ -28,6 +30,10 @@ namespace sdm
         Pair<std::shared_ptr<Action>, double> createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t);
 
     protected:
+        
+        std::shared_ptr<OccupancyMDP> occupancy_mdp;
+        std::shared_ptr<MMDPInterface> underlying_problem;
+
         /**
          * @brief defines the maximum value in the domain of the payoff function
          * 
