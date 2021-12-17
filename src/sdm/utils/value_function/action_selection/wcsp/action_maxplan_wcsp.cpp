@@ -92,7 +92,7 @@ namespace sdm
                     // Search which action is the solution
                     for (const auto &indiv_action : *underlying_problem->getActionSpace(agent, t))
                     {
-                        if (indiv_action->str() == underlying_problem->getActionSpace(agent, t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history, agent)]])->str())
+                        if (indiv_action == underlying_problem->getActionSpace(agent, t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history, agent)]]))
                         {
                             indiv_actions.push_back(indiv_action);
                         }

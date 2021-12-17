@@ -24,13 +24,13 @@ namespace sdm
 
         void PWLCUpdate::update(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
         {
-            if (sdm::isInstanceOf<OccupancyStateInterface>(state))
+            if (auto ostate = sdm::isInstanceOf<OccupancyStateInterface>(state))
             {
-                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(state->toOccupancyState(), action, t), t);
+                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(ostate, action, t), t);
             }
-            else if (sdm::isInstanceOf<BeliefInterface>(state))
+            else if (auto bstate = sdm::isInstanceOf<BeliefInterface>(state))
             {
-                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(state->toBelief(), t), t);
+                this->getValueFunction()->addHyperplaneAt(state, this->computeNewHyperplane(bstate, t), t);
             }
         }
 

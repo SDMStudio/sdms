@@ -18,17 +18,17 @@ namespace sdm
     Pair<std::shared_ptr<Action>, double> MaxPlanSelectionBase::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
         // Cast the generic value function into a piece-wise linear convex value function.
-        auto value_function = std::dynamic_pointer_cast<PWLCValueFunctionInterface>(vf);
+        this->pwlc_vf = std::dynamic_pointer_cast<PWLCValueFunctionInterface>(vf);
 
         // Instanciate return variables
         std::shared_ptr<Action> max_decision_rule;
         double max_value = -std::numeric_limits<double>::max();
 
         // Go over all hyperplan in the Support
-        for (const auto &hyperplane : value_function->getHyperplanesAt(state, t + 1))
+        for (const auto &hyperplane : this->pwlc_vf->getHyperplanesAt(state, t + 1))
         {
             // Compute the greedy action and value for a given hyperplan
-            auto pair_action_value = this->computeGreedyActionAndValue(value_function, state, hyperplane->toBelief(), t);
+            auto pair_action_value = this->computeGreedyActionAndValue(this->pwlc_vf, state, hyperplane->toBelief(), t);
 
             // Select the Best Action
             if (pair_action_value.second > max_value)
@@ -48,7 +48,7 @@ namespace sdm
         // Go over all hidden state in the belief conditionning to a joint history
         for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
         {
-            weight += occupancy_state->getProbability(joint_history, state) * std::dynamic_pointer_cast<PWLCValueFunctionInterface>(value_function)->getBeta(hyperplane, state, joint_history, action, t);
+            weight += occupancy_state->getProbability(joint_history, state) * this->pwlc_vf->getBeta(hyperplane, state, joint_history, action, t);
         }
         return weight;
     }

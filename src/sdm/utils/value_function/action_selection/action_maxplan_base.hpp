@@ -4,6 +4,7 @@
 #include <sdm/utils/config.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/utils/value_function/action_selection/action_selection_base.hpp>
+#include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 
 
 namespace sdm
@@ -26,6 +27,8 @@ namespace sdm
         Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
     protected:
+        std::shared_ptr<PWLCValueFunctionInterface> pwlc_vf;
+
         /**
          * @brief Compute the greedy action and corresponding value for a specific next hyperplan (saved in the temporary representation).
          *
