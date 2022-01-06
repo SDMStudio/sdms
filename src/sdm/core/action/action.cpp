@@ -11,7 +11,7 @@ namespace sdm
 
     std::shared_ptr<DecisionRule> Action::toDecisionRule()
     {
-        return std::dynamic_pointer_cast<DecisionRule>(this->getPointer());
+        return std::static_pointer_cast<DecisionRule>(this->getPointer());
     }
 
     std::shared_ptr<JointDeterministicDecisionRule> Action::toJointDeterministicDecisionRule()

@@ -1,4 +1,6 @@
+#include <sdm/types.hpp>
 #include <sdm/algorithms/q_learning.hpp>
+#include <sdm/world/belief_mdp.hpp>
 
 namespace sdm
 {
@@ -24,12 +26,31 @@ namespace sdm
 
     void QLearning::initLogger()
     {
-        std::string format = config::LOG_SDMS + "Episode {:>8}/" + std::to_string(this->num_episodes_) + "    Step {:<14} Value {:<12.4f} T(s) {:<12.4f} Eps {:<6.2f}\n";
+        // ************* Global Logger ****************
+        // Text Format for standard output stream
+        std::string format = config::LOG_SDMS + "Episode {:>8}/" + std::to_string(this->num_episodes_) + "    Step {:<14} Value {:<12.4f} T(s) {:<12.4f} Eps {:<6.2f}";
 
+        // Titles of logs
+        std::vector<std::string> list_logs{"Episode", "Step", "Value", "Time", "Epsilon"};
+
+        // Specific logs for belief MDPs
+        if (sdm::isInstanceOf<BeliefMDPInterface>(getEnv()))
+        {
+            format = format + " NumState {:<8}";
+            list_logs.push_back("NumState");
+        }
+        format = format + "\n";
+
+        // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);
-        auto file_logger = std::make_shared<sdm::FileLogger>(name_ + ".txt", format);
-        auto csv_logger = std::make_shared<sdm::CSVLogger>(name_, std::vector<std::string>{"Episode", "Step", "Value", "Time", "Epsilon"});
 
+        // Build a logger that stores data in a CSV file
+        auto file_logger = std::make_shared<sdm::FileLogger>(this->getName() + ".txt", format);
+
+        // Build a multi logger that combines previous loggers
+        auto csv_logger = std::make_shared<sdm::CSVLogger>(this->getName(), list_logs);
+
+        // Build a multi logger that combines previous loggers
         logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
     }
 
@@ -45,16 +66,33 @@ namespace sdm
 
     void QLearning::logging()
     {
-        this->logger_->log(this->episode,
-                           this->global_step,
-                           this->q_value_->getValueAt(getEnv()->reset(), 0),
-                           (float)(clock() - t_begin) / CLOCKS_PER_SEC,
-                           this->exploration_process->getEpsilon());
+
+        if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getEnv()))
+        {
+            // Print in loggers some execution variables
+            this->logger_->log(this->episode,
+                               this->global_step,
+                               this->q_value_->getValueAt(getEnv()->reset(), 0),
+                               getExecutionTime(),
+                               this->exploration_process->getEpsilon(),
+                               derived->getMDPGraph()->getNumNodes());
+        }
+        else
+        {
+            // Print in loggers some execution variables
+            this->logger_->log(this->episode,
+                               this->global_step,
+                               this->q_value_->getValueAt(getEnv()->reset(), 0),
+                               getExecutionTime(),
+                               this->exploration_process->getEpsilon());
+        }
     }
 
     void QLearning::solve()
     {
-        t_begin = clock();
+
+        printStartInfo();
+        startExecutionTime();
 
         // Run N episodes
         while (episode < num_episodes_)
@@ -65,6 +103,7 @@ namespace sdm
             // Do one episode
             doEpisode();
         }
+        printEndInfo();
     }
 
     void QLearning::doEpisode()
@@ -141,7 +180,7 @@ namespace sdm
 
     void QLearning::save()
     {
-        q_value_->save(name_ + "_qvalue.bin");
+        q_value_->save(this->getName() + "_qvalue.bin");
     }
 
     void QLearning::test()
@@ -176,6 +215,20 @@ namespace sdm
     std::string QLearning::getAlgorithmName()
     {
         return "QLearning";
+    }
+
+    void QLearning::printStartInfo()
+    {
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "START LEARNING (" << this->getAlgorithmName() << ")" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
+    }
+
+    void QLearning::printEndInfo()
+    {
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << config::LOG_SDMS << "END LEARNING (" << this->getAlgorithmName() << ")" << std::endl;
+        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
     }
 
 } // namespace sdm

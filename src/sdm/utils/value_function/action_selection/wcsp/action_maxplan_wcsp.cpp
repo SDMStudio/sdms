@@ -41,6 +41,7 @@ namespace sdm
         // create a problem with multiple variables
         std::shared_ptr<WeightedCSPSolver> wcsp_solver = std::shared_ptr<WeightedCSPSolver>(WeightedCSPSolver::makeWeightedCSPSolver(MAX_COST));
 
+
         // building variables a^i(u^i|o^i) for each agent i
         for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
         {
@@ -51,6 +52,7 @@ namespace sdm
             }
         }
         // Creation of the cost network
+
 
         // Go over all joint histories
         for (const auto &joint_history : occupancy_state->getJointHistories())
@@ -103,12 +105,15 @@ namespace sdm
                 joint_histories.push_back(indiv_histories);
             }
 
+
             // Create JOint Deterministic Decision Rule
             decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories, actions);
 
+
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
-                auto action = occupancy_mdp->applyDecisionRule(occupancy_state->toOccupancyState(), occupancy_state->toOccupancyState()->getCompressedJointHistory(joint_history), decision_rule, t);
+                auto cjhist = joint_history;//occupancy_state->getCompressedJointHistory(joint_history);
+                auto action = occupancy_mdp->applyDecisionRule(occupancy_state, cjhist, decision_rule, t);
                 value += this->getWeight(value_function, occupancy_state, joint_history, action, hyperplane, t);
             }
         }

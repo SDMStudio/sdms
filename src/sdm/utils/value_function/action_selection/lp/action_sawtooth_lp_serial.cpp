@@ -75,7 +75,6 @@ namespace sdm
         {
             this->createInitialConstraints(compressed_occupancy_state, env, con, var, index, t);
         }
-
         else
         {
             // Go over all points in the point set at t+1
@@ -145,8 +144,7 @@ namespace sdm
                 {
                     Qrelaxation += compressed_occupancy_state->getProbability(joint_history) * relaxation->getQValueAt(compressed_occupancy_state->getBeliefAt(joint_history), action, t);
                 }
-
-                con[index].setLinearCoef(var[recover], -Qrelaxation * compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history));
+                con[index].setLinearCoef(var[recover], -Qrelaxation);
             }
         }
         index++;
@@ -219,41 +217,8 @@ namespace sdm
                 {
                     auto belief = compressed_occupancy_state->getBeliefAt(joint_history);
                     ratio = this->computeRatio(this->getSerialOccupancyMDP(), belief, joint_history, action, /* witness point */ s_k, /* support of witness point */ next_state, next_joint_history, /* to be kept */ next_observation, t);
-                    coef += (relaxation->getQValueAt(belief, action, t) + difference * ratio);
-                    // if (std::abs((relaxation->getQValueAt(belief, action, t) + difference * ratio)) > 2)
-                    // {
-                    //     std::cout << "joint_history=" << joint_history->short_str() << std::endl;
-                    //     std::cout << "next_joint_history=" << next_joint_history->short_str() << std::endl;
-                    //     std::cout << "expanded_history=" << joint_history->expand(next_observation)->short_str() << std::endl;
-                    //     std::cout << "occupancy_state - " << occupancy_state << std::endl;
-                    //     std::cout << *occupancy_state << std::endl;
-                    //     std::cout << "s_k - " << s_k << std::endl;
-                    //     std::cout << *s_k << std::endl;
-                    //     std::cout << "\tQ(b,u)=" << relaxation->getQValueAt(belief, action, t) << std::endl;
-                    //     std::cout << "\tdifference=" << difference << std::endl;
-                    //     std::cout << "\tratio=" << ratio << std::endl;
-                    //     std::cout << "\taddToCoef=" << (relaxation->getQValueAt(belief, action, t) + difference * ratio) << std::endl;
-                    //     double ratio_int = 0.;
-                    //     if (joint_history->expand(next_observation) == next_joint_history)
-                    //     {
-                    //         double numerator = 0.;
-                    //         for (const auto &hidden_state : belief->getStates())
-                    //         {
-                    //             numerator += compressed_occupancy_state->getProbability(joint_history, hidden_state) * serial_mpomdp->getDynamics(hidden_state, action, next_state, next_observation, t);
-                    //         }
-
-                    //         auto [next_belief, proba_next_b] = this->getSerialOccupancyMDP()->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, action, next_observation, t);
-                    //         ratio_int = (proba_next_b * next_belief->toBelief()->getProbability(next_state)) / s_k->getProbability(next_joint_history, next_state);
-                    //         std::cout << "ratio_int=" << proba_next_b << " * " << next_belief->toBelief()->getProbability(next_state) << " / " << s_k->getProbability(next_joint_history, next_state) << " = " << ratio_int << std::endl;
-                    //         std::cout << "ratio_2=" << numerator << " / " << s_k->getProbability(next_joint_history, next_state) << " = " << numerator / s_k->getProbability(next_joint_history, next_state) << std::endl;
-                    //     }
-                    //     std::cout << "coef=" << coef << " * " << compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history) << std::endl;
-                    //     exit(1);
-                    // }
+                    coef += compressed_occupancy_state->getProbability(joint_history) * (relaxation->getQValueAt(belief, action, t) + difference * ratio);
                 }
-                std::cout << "coef=" << coef << std::endl;
-                coef *= compressed_occupancy_state->getProbabilityOverIndividualHistories(agent_id, indiv_history);
-                std::cout << "coefFinal=" << coef << std::endl;
                 //<! 1.c.4 get variable a(u|o) and set constant
                 expr -= var[recover] * coef;
             }

@@ -213,9 +213,7 @@ namespace sdm
         static RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> jhistory_map_;
 
     protected:
-        /**
-         * @brief the number of agents 
-         */
+        /** @brief the number of agents */
         number num_agents_ = 2;
 
         /** @brief This representation of occupancy states consists of private occupancy states for each agent */

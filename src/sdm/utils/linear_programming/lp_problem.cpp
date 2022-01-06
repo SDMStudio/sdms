@@ -69,16 +69,10 @@ namespace sdm
             {
                 value = cplex.getObjValue();
                 action = this->getVariableResult(vf, state, cplex, variables, t);
-                // cplex.exportModel("lb_bellman_op.lp");
-                // if (t == 2)
+                // if (t >= 2)
                 // {
-                //     if (value > 24)
-                //     {
-                //         cplex.exportModel("lb_bellman_op.lp");
-                //         std::cout << action->str() << std::endl;
-                //         std::cout << "T=" << t << " - V=" << value << std::endl;
-                //         system("cat lb_bellman_op.lp");
-                //     }
+                //     cplex.exportModel("lb_bellman_op.lp");
+                //     system("cat lb_bellman_op.lp");
                 // }
             }
         }

@@ -41,14 +41,10 @@ namespace sdm
     double PWLCQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         // Update the hyperplane of the ball that include the sampled state
-        if (sdm::isInstanceOf<OccupancyStateInterface>(state))
-        {
-            return this->getQValueAt(state->toOccupancyState(), action->toDecisionRule(), t);
-        }
+        if (auto ostate = sdm::isInstanceOf<OccupancyStateInterface>(state))
+            return this->getQValueAt(ostate, action->toDecisionRule(), t);
         else
-        {
             throw sdm::exception::TypeError("TypeError: state must derive from OccupancyStateInterface");
-        }
     }
 
     double PWLCQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, number t)

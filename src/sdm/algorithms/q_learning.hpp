@@ -159,6 +159,10 @@ namespace sdm
 
     void logging();
 
+    void printStartInfo();
+    
+    void printEndInfo();
+
   protected:
     /** @brief The problem to be solved */
     std::shared_ptr<GymInterface> env_;
@@ -181,8 +185,6 @@ namespace sdm
     number horizon_, step;
 
     unsigned long global_step, num_episodes_, episode;
-
-    std::string name_ = "qlearning";
 
   private:
     std::shared_ptr<State> observation;
