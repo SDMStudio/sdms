@@ -9,6 +9,8 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
     std::string bayesian_file = (argc > 1) ? argv[1] :  "/home/sdms/data/world/bayesian_game/ex1.nfg";
+    int solveForAgent = (argc > 2) ? std::stoi(argv[2]) : 0;
+
     // Instanciate a two players bayesian game from a ".byg" or ".nfg" file
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "#> Instanciate a two players bayesian game" << std::endl;
@@ -20,7 +22,7 @@ int main(int argc, char **argv)
     std::cout << "#> Initialize the solver" << std::endl;
     std::cout << "----------------------------------------" << std::endl;
 
-    std::shared_ptr<Algorithm> solver = std::make_shared<TwoPlayersBayesianGameSolver>(bayesian_game, 1);
+    std::shared_ptr<Algorithm> solver = std::make_shared<TwoPlayersBayesianGameSolver>(bayesian_game, solveForAgent);
     solver->initialize();
 
     std::cout << "----------------------------------------" << std::endl;
