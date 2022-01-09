@@ -130,16 +130,17 @@ void sdm::TwoPlayersBayesianGameSolver::solve(){
     env.out() << "Values = " << vals << endl;
 
     //save solution
-    StochasticDecisionRule sdr = StochasticDecisionRule();
-    int nTypes = game->getTypesNumbers()[playerIndex];
-    int opposingTypes = game->getTypesNumbers()[abs(playerIndex-1)];
-    for (int i = 0; i < nTypes; i ++)
-    {
-        for (int j = 0; j < game->getGameDimensions()[playerIndex]; j ++){
-            sdr.setProbability(std::make_shared<DiscreteState>(DiscreteState(i)), std::make_shared<DiscreteAction>(DiscreteAction(j)), vals[opposingTypes + (i)*nTypes+j]);
-        }
-    }
-    solution = std::make_shared<StochasticDecisionRule>(sdr);
+    // StochasticDecisionRule sdr = StochasticDecisionRule();
+    // int nTypes = game->getTypesNumbers()[playerIndex];
+    // int opposingTypes = game->getTypesNumbers()[abs(playerIndex-1)];
+    // int plActions = game->getGameDimensions()[playerIndex];
+    // for (int i = 0; i < nTypes; i ++)
+    // {
+    //     for (int j = 0; j < plActions; j ++){
+    //         sdr.setProbability(std::make_shared<DiscreteState>(DiscreteState(i)), std::make_shared<DiscreteAction>(DiscreteAction(j)), vals[opposingTypes + (i)*plActions + j]);
+    //     }
+    // }
+    // solution = std::make_shared<StochasticDecisionRule>(sdr);
 
     terminate(); 
 }
