@@ -72,184 +72,12 @@ namespace sdm
                 }
                 // Select next action
                 auto [action, value] = getUpperBound()->getGreedyActionAndValue(state, t);
+                
                 // Select next observation
                 for (const auto &observation : selectObservations(state, action, t))
                 {
                     // Determine the state for a given state, action and observation
                     auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
-                    // if (t == 1)
-                    // {
-                    //     if ((this->trial > 10) && (this->trial < 19))
-                    //     {
-                    //         double Q_Sawtooth, Q_Sawtooth2;
-                    //         {
-                    //             auto relax_vf = std::dynamic_pointer_cast<POMDPRelaxation>(getUpperBound()->getInitFunction());
-                    //             auto oMDP = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
-                    //             auto sawtooth_vf = std::dynamic_pointer_cast<SawtoothValueFunction>(getUpperBound());
-                    //             auto [computed_next_state, proba] = std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->computeNextStateAndProbability(state, action, observation, t);
-                    //             auto s = state->toOccupancyState(), s_ = next_state->toOccupancyState();
-                    //             auto compressed_s = state->toOccupancyState()->getCompressedOccupancy();
-
-                    //             std::cout << "COMPRESSED - " << compressed_s << std::endl;
-                    //             std::cout << *compressed_s << std::endl;
-                    //             std::cout << "ONE STEP - " << state << std::endl;
-                    //             std::cout << *state << std::endl;
-
-                    //             std::cout << "NEXT ONE STEP - " << next_state << std::endl;
-                    //             std::cout << *next_state << std::endl;
-
-                    //             double Q_relax = oMDP->getReward(state, action, t) + oMDP->getDiscount(t) * relax_vf->getValueAt(next_state, t + 1);
-                    //             double v_pomdp = relax_vf->getValueAtOccupancy(getWorld()->getNextStateAndProba(state, action, observation, t).first->toOccupancyState(), t + 1, true);
-                    //             double Q_relax2 = oMDP->getReward(compressed_s, action, t) + oMDP->getDiscount(t) * v_pomdp;
-                    //             std::cout << "Q_RELAX_2 -- R(" << oMDP->getReward(compressed_s, action, t) << ") + 1 * V_pomdp(" << v_pomdp << ")=" << Q_relax2 << std::endl;
-
-                    //             double Q_relax3 = 0.0;
-                    //             for (auto &jhistory : compressed_s->getJointHistories())
-                    //             {
-                    //                 auto u = oMDP->applyDecisionRule(compressed_s, jhistory, action, t);
-                    //                 double Q_b = relax_vf->getQValueAtBelief(compressed_s->getBeliefAt(jhistory), u, t, true);
-                    //                 std::cout << "Q_RELAX_3 -- p(" << jhistory->short_str() << ")(" << compressed_s->getProbability(jhistory) << ") * Q_pomdp(" << *compressed_s->getBeliefAt(jhistory) << ", " << u->str() << ")(" << Q_b << ")=" << compressed_s->getProbability(jhistory) * Q_b << std::endl;
-                    //                 Q_relax3 += compressed_s->getProbability(jhistory) * Q_b;
-                    //             }
-
-                    //             std::cout << "Q_relax=" << Q_relax << std::endl;
-                    //             std::cout << "Q_relax2=" << Q_relax2 << std::endl;
-                    //             std::cout << "Q_relax3=" << Q_relax3 << std::endl;
-
-                    //             double diff = 0., min_k = std::numeric_limits<double>::max(), tmp;
-                    //             for (const auto &point_k : sawtooth_vf->getRepresentation(t + 1))
-                    //             {
-
-                    //                 auto [s_k, v_k] = point_k;
-                    //                 diff = (v_k - relax_vf->getValueAt(s_k, t + 1));
-
-                    //                 double min_int = std::numeric_limits<double>::max(), tmp_int;
-                    //                 for (const auto &o_ : s_k->toOccupancyState()->getJointHistories())
-                    //                 {
-                    //                     for (const auto &y : s_k->toOccupancyState()->getBeliefAt(o_)->getStates())
-                    //                     {
-                    //                         tmp_int = 0;
-                    //                         for (const auto &o : compressed_s->getJointHistories())
-                    //                         {
-                    //                             auto u = oMDP->applyDecisionRule(compressed_s, o, action, t);
-                    //                             auto z = o_->getLastObservation();
-                    //                             if (o->expand(z) == o_)
-                    //                             {
-                    //                                 for (const auto &x : compressed_s->getBeliefAt(o)->getStates())
-                    //                                 {
-                    //                                     // std::cout << "+ " << (s->getCompressedJointHistory(o)->expand(z) == o_) << " * s(" << o << ", " << x->str() << ")[" << s->getProbability(o, x) << "] * p(" << *x << *u << *y << *z << ")[" << oMDP->getUnderlyingMPOMDP()->getTransitionProbability(x, u, y, t) << "x" << oMDP->getUnderlyingMPOMDP()->getObservationProbability(x, u, y, z, t) << "] (" << (o->expand(z) == o_) * s->getProbability(o, x) * oMDP->getUnderlyingMPOMDP()->getDynamics(x, u, y, z, t) << ") " << std::endl;
-                    //                                     tmp_int += compressed_s->getProbability(o, x) * oMDP->getUnderlyingMPOMDP()->getDynamics(x, u, y, z, t);
-                    //                                 }
-                    //                             }
-                    //                         }
-                    //                         tmp_int /= s_k->toOccupancyState()->getProbability(o_, y);
-
-                    //                         // If the "value" of k-th point is minimal, keep it
-                    //                         if (tmp_int < min_int)
-                    //                         {
-                    //                             min_int = tmp_int;
-                    //                         }
-                    //                     }
-                    //                 }
-
-                    //                 tmp = min_int * diff;
-                    //                 // If the "value" of k-th point is minimal, keep it
-                    //                 if (tmp < min_k)
-                    //                 {
-                    //                     min_k = tmp;
-                    //                 }
-                    //             }
-
-                    //             std::cout << "min_k=" << min_k << std::endl;
-                    //             Q_Sawtooth = Q_relax + min_k;
-                    //         }
-
-                    //         {
-
-                    //             auto relax_vf = std::dynamic_pointer_cast<RelaxedValueFunction>(getUpperBound()->getInitFunction());
-                    //             auto oMDP = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
-                    //             auto sawtooth_vf = std::dynamic_pointer_cast<SawtoothValueFunction>(getUpperBound());
-                    //             auto [computed_next_state, proba] = std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->computeNextStateAndProbability(state, action, observation, t);
-                    //             auto s = state->toOccupancyState(), s_ = next_state->toOccupancyState(), compressed_s = s->getCompressedOccupancy();
-
-                    //             double Q_relax = oMDP->getReward(state, action, t) + oMDP->getDiscount(t) * sawtooth_vf->getInitFunction()->operator()(next_state, t + 1);
-                    //             double Q_relax2 = oMDP->getReward(compressed_s, action, t) + oMDP->getDiscount(t) * sawtooth_vf->getInitFunction()->operator()(next_state, t + 1);
-
-                    //             double Q_relax3 = 0.0;
-                    //             for (auto &jhistory : compressed_s->getJointHistories())
-                    //             {
-                    //                 auto u = oMDP->applyDecisionRule(compressed_s, jhistory, action, t);
-                    //                 Q_relax3 += compressed_s->getProbability(jhistory) * relax_vf->getQValueAt(compressed_s->getBeliefAt(jhistory), u, t);
-                    //             }
-
-                    //             std::cout << "Q_relax=" << Q_relax << std::endl;
-                    //             std::cout << "Q_relax2=" << Q_relax2 << std::endl;
-                    //             std::cout << "Q_relax3=" << Q_relax3 << std::endl;
-
-                    //             double diff = 0., min_k = std::numeric_limits<double>::max(), tmp;
-                    //             for (const auto &point_k : sawtooth_vf->getRepresentation(t + 1))
-                    //             {
-
-                    //                 auto [s_k, v_k] = point_k;
-                    //                 diff = (v_k - relax_vf->getValueAt(s_k, t + 1));
-
-                    //                 double max_int = -std::numeric_limits<double>::max(), tmp_int;
-                    //                 for (const auto &o_ : s_k->toOccupancyState()->getJointHistories())
-                    //                 {
-                    //                     auto z = o_->getLastObservation();
-                    //                     for (const auto &y : s_k->toOccupancyState()->getBeliefAt(o_)->getStates())
-                    //                     {
-                    //                         tmp_int = 0;
-                    //                         for (const auto &o : compressed_s->getJointHistories())
-                    //                         {
-                    //                             auto u = oMDP->applyDecisionRule(compressed_s, o, action, t);
-                    //                             auto b = compressed_s->getBeliefAt(o);
-                    //                             double sum_x = 0.;
-                    //                             if (o->expand(z) == o_)
-                    //                             {
-                    //                                 for (const auto &x : compressed_s->getBeliefAt(o)->getStates())
-                    //                                     sum_x += (b->getProbability(x) * oMDP->getUnderlyingMPOMDP()->getDynamics(x, u, y, z, t));
-                    //                             }
-                    //                             double coef = diff * (sum_x / s_k->toOccupancyState()->getProbability(o_, y));
-                    //                             tmp_int += compressed_s->getProbability(o) * (/* relax_vf->getQValueAt(b, u, t) */ Q_relax + coef);
-                    //                         }
-                    //                         tmp_int = tmp_int;
-                    //                         if (tmp_int > max_int)
-                    //                         {
-                    //                             max_int = tmp_int;
-                    //                         }
-                    //                     }
-                    //                 }
-
-                    //                 // If the "value" of k-th point is minimal, keep it
-                    //                 if (max_int < min_k)
-                    //                 {
-                    //                     min_k = max_int;
-                    //                 }
-                    //             }
-
-                    //             std::cout << "min_k=" << min_k << std::endl;
-                    //             Q_Sawtooth2 = min_k;
-                    //         }
-
-                    //         double exact = getWorld()->getReward(state, action, t) + getUpperBound()->getValueAt(next_state, t + 1);
-                    //         // if ((Q_Sawtooth != exact) || (value != exact) || (value != Q_Sawtooth))
-                    //         {
-                    //             std::cout << "trial=" << trial << ", t=" << t << std::endl;
-                    //             std::cout << "Q_LP=" << value << std::endl;
-                    //             std::cout << "Q_Sawtooth=" << Q_Sawtooth << std::endl;
-                    //             std::cout << "Q_Sawtooth2=" << Q_Sawtooth2 << std::endl;
-                    //             std::cout << "R + V=" << exact << std::endl;
-                    //         }
-                    //         // std::cout << "Q_Exhaus=" << getUpperBound()->getQValueAt(state, action, t) << std::endl;
-                    //     }
-                    //     if (this->trial == 18)
-                    //     {
-                    //         std::cout << getUpperBound()->str() << std::endl;
-                    //         // exit(1);
-                    //     }
-                    // }
-
                     // Recursive explore
                     explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
                 }
@@ -329,6 +157,7 @@ namespace sdm
         // ************* Global Logger ****************
         // Text Format for standard output stream
         std::string format = config::LOG_SDMS + "Trial {:<8} Error {:<12.4f} Value_LB {:<12.4f} Value_UB {:<12.4f} Size_LB {:<10} Size_UB {:<10} Time {:<12.4f}";
+
         // Titles of logs
         std::vector<std::string> list_logs{"Trial", "Error", "Value_LB", "Value_UB", "Size_LB", "Size_UB", "Time"};
 
