@@ -88,6 +88,8 @@ namespace sdm
         std::shared_ptr<Joint<std::shared_ptr<Observation>>> getDefaultObservation() const;
 
     protected:
+        std::shared_ptr<MPOMDPInterface> mpomdp;
+
         std::shared_ptr<Observation> empty_serial_observation;
 
         /**

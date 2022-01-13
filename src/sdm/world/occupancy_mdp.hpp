@@ -90,6 +90,8 @@ namespace sdm
                 virtual std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
                 virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
 
+                virtual std::shared_ptr<State> getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &history, number t);
+
         protected:
                 /** @brief The underlying well defined MPOMDP */
                 std::shared_ptr<MPOMDPInterface> underlying_mpomdp;

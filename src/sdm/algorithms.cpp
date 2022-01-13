@@ -78,7 +78,7 @@ namespace sdm
                 }
                 else
                 {
-                    if (isInstanceOf<SerialProblemInterface>(problem))
+                    if (value_name.find("serial") != string::npos)
                         action_selection = std::make_shared<ActionSelectionMaxplanSerial>(problem);
                     else
                         action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
@@ -242,7 +242,10 @@ namespace sdm
                 }
                 else
                 {
-                    action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
+                    if (qvalue_name.find("serial") != string::npos)
+                        action_selection = std::make_shared<ActionSelectionMaxplanSerial>(problem);
+                    else
+                        action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
                 }
                 qvalue = std::make_shared<PWLCQValueFunction>(problem, q_init, action_selection);
             }
@@ -275,9 +278,6 @@ namespace sdm
 
             // Instanciate the memory
             std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
-
-            // Instanciate initializer
-            std::shared_ptr<ZeroInitializer> initializer = std::make_shared<sdm::ZeroInitializer>();
 
             // Instanciate qvalue function
             std::shared_ptr<QValueFunction> qvalue = makeQValueFunction(problem, qvalue_name, q_init_name);

@@ -27,7 +27,7 @@ namespace sdm
      * @brief A common interface for serial states. 
      * 
      */
-    class BaseSerialInterface : public SerialInterface, virtual public State
+    class BaseSerialInterface : public SerialInterface
     {
     public:
         /**

@@ -184,7 +184,6 @@ namespace sdm
         // If we store data in the graph
         if (this->store_states_ && this->store_actions_)
         {
-
             // Get the successor
             auto successor = this->getMDPGraph()->getSuccessor(belief, action_observation);
             // auto successor = this->mdp_graph_->getSuccessor(belief, action_observation);
@@ -234,7 +233,6 @@ namespace sdm
         }
         else
         {
-
             // Return next belief without storing its value in the graph
             return this->computeNextStateAndProbability(belief, action, observation, t);
         }

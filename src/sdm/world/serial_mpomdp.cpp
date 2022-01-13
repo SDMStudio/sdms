@@ -13,7 +13,7 @@ namespace sdm
     {
     }
 
-    SerialMPOMDP::SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp, Config) : SerialMMDP(mpomdp)
+    SerialMPOMDP::SerialMPOMDP(std::shared_ptr<MPOMDPInterface> mpomdp, Config) : SerialMMDP(mpomdp), mpomdp(mpomdp)
     {
         setupObservationSpace(mpomdp);
         setReachableObservationSpace(mpomdp);
@@ -49,7 +49,7 @@ namespace sdm
         if (index != -1 && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1 && discrete_space->getItem(index))
         {
             // The probability is the same of the decpomdp, if the condition are verified
-            return std::dynamic_pointer_cast<MPOMDPInterface>(this->mmdp_)->getObservationProbability(serial_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serial_state->getHiddenState(), observation, t);
+            return this->mpomdp->getObservationProbability(serial_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serial_state->getHiddenState(), observation, t);
         }
         else
         {
@@ -74,7 +74,7 @@ namespace sdm
         if (index != -1 && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1 && discrete_space->getItem(index))
         {
             // The probability is the same of the decpomdp, if the condition are verified
-            return std::dynamic_pointer_cast<MPOMDPInterface>(this->mmdp_)->getDynamics(serial_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serial_state->getHiddenState(), observation, t);
+            return this->mpomdp->getDynamics(serial_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serial_state->getHiddenState(), observation, t);
         }
         else
         {

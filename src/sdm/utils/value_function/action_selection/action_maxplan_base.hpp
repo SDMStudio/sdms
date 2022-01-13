@@ -27,7 +27,7 @@ namespace sdm
         Pair<std::shared_ptr<Action>, double> getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t);
 
     protected:
-        std::shared_ptr<PWLCValueFunctionInterface> pwlc_vf;
+        std::weak_ptr<PWLCValueFunctionInterface> pwlc_vf;
 
         /**
          * @brief Compute the greedy action and corresponding value for a specific next hyperplan (saved in the temporary representation).

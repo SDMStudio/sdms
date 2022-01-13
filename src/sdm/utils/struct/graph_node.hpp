@@ -67,11 +67,6 @@ namespace sdm
         number getNumSuccessors() const;
 
         /**
-         * @brief Get the number of predecessors
-         */
-        number getNumPredecessors() const;
-
-        /**
          * @brief Get the successor following a given edge 
          * 
          * @param edge a specific edge
@@ -80,26 +75,12 @@ namespace sdm
         std::shared_ptr<GraphNode> getSuccessor(const TEdge &edge) const;
 
         /**
-         * @brief Get the set of all predecessors
-         * 
-         * @return the set of predecessors 
-         */
-        std::shared_ptr<GraphNode> getPredecessor(const TEdge &edge) const;
-
-        /**
          * @brief Add a successor node.
          * 
          * @param edge the edge
          * @param node the successor node value
          */
         void addSuccessor(const TEdge &edge_value, const std::shared_ptr<GraphNode> &node_value);
-
-        /**
-         * @brief Add a predecessor to the current node.
-         * 
-         * @param node_value the predecessor node value
-         */
-        void addPredecessor(const TEdge &edge_value, const std::shared_ptr<GraphNode> &node_value);
 
         std::string str() const;
 
@@ -120,9 +101,6 @@ namespace sdm
 
         /** @brief The map from edge value to successor */
         std::unordered_map<TEdge, std::weak_ptr<GraphNode>> successors;
-
-        /** @brief List of predecessors */
-        std::unordered_map<TEdge, std::weak_ptr<GraphNode>> predecessors;
     };
 
 } // namespace sdm

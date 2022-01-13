@@ -72,15 +72,15 @@ namespace sdm
         return {best_action, probability * argmax_local};
     }
 
-    double ActionSelectionMaxplanSerial::evaluateAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<BeliefInterface> &next_hyperplane, number t)
+    double ActionSelectionMaxplanSerial::evaluateAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &private_occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<BeliefInterface> &next_hyperplane, number t)
     {
         double value = 0.0;
         double discount = this->getWorld()->getDiscount(t);
 
         // Go over all joint history in the subsequent private occupancy state (knowing the information individual history)
-        for (const auto &joint_history : occupancy_state->getJointHistories())
+        for (const auto &joint_history : private_occupancy_state->getJointHistories())
         {
-             value += this->getWeight(value_function, occupancy_state, joint_history, action, next_hyperplane, t);
+             value += this->getWeight(value_function, private_occupancy_state, joint_history, action, next_hyperplane, t);
         }
         return value;
     }

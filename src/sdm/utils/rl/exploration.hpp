@@ -7,8 +7,8 @@ namespace sdm
 
     class Exploration
     {
-        public:
-        virtual ~Exploration(){}
+    public:
+        virtual ~Exploration() {}
         virtual void reset(unsigned long) = 0;
         virtual void update(unsigned long) = 0;
         // virtual Space getAction(std::shared_ptr<QValueFunction>, std::shared_ptr<Space>, number) = 0;
@@ -22,9 +22,17 @@ namespace sdm
         unsigned long init_expl_step, final_expl_step;
 
     public:
-        EpsGreedy(double eps_deb = 1.0, double eps_fin = 0.0, double deb_expl = 0.1, double fin_expl = 0.9) : eps_(eps_deb), eps_deb_(eps_deb), eps_fin_(eps_fin), deb_expl_(deb_expl), fin_expl_(fin_expl)
+        EpsGreedy(double eps_deb = 1.0, double eps_fin = 0.1, double deb_expl = 0.1, double fin_expl = 0.9) : eps_(eps_deb), eps_deb_(eps_deb), eps_fin_(eps_fin), deb_expl_(deb_expl), fin_expl_(fin_expl)
         {
-            assert(fin_expl > deb_expl);
+            assert(fin_expl >= deb_expl);
+        }
+
+        EpsGreedy(Config config) : EpsGreedy(config.get("eps_deb", 1.0),
+                                             config.get("eps_fin", 0.1),
+                                             config.get("deb_expl", 0.1),
+                                             config.get("fin_expl", 0.9))
+        {
+            assert(this->fin_expl_ >= this->deb_expl_);
         }
 
         void reset(unsigned long nb_timesteps)

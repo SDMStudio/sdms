@@ -32,7 +32,7 @@ namespace sdm
    * 
    */
   template <typename TState>
-  class BaseState : virtual public State
+  class BaseState : public State
   // public BaseItem<TState>
   {
   public:

@@ -64,6 +64,8 @@ namespace sdm
             {
                 costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action->toAction(), hyperplane, t)));
             }
+
+            // ATTENTION : CETTE FONCTION (postBinaryConstraint) ENGENDRE UNE FUITE DE MEMOIRE
             wcsp_solver->getWCSP()->postBinaryConstraint(this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(0), 0)], this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(1), 1)], costs);
         }
 

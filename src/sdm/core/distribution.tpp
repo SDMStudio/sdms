@@ -45,7 +45,8 @@ namespace sdm
         {
             if (this->bimap_item_to_index_.left.find(item) == this->bimap_item_to_index_.left.end())
             {
-                this->bimap_item_to_index_.insert(bimap_pair(item, this->probabilities_.size()));
+                auto idx = this->probabilities_.size();
+                this->bimap_item_to_index_.insert(bimap_pair(item, idx));
                 this->probabilities_.push_back(proba);
             }
             else

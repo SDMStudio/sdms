@@ -25,10 +25,10 @@ namespace sdm
         double max_value = -std::numeric_limits<double>::max();
 
         // Go over all hyperplan in the Support
-        for (const auto &hyperplane : this->pwlc_vf->getHyperplanesAt(state, t + 1))
+        for (const auto &hyperplane : this->pwlc_vf.lock()->getHyperplanesAt(state, t + 1))
         {
             // Compute the greedy action and value for a given hyperplan
-            auto pair_action_value = this->computeGreedyActionAndValue(this->pwlc_vf, state, hyperplane->toBelief(), t);
+            auto pair_action_value = this->computeGreedyActionAndValue(this->pwlc_vf.lock(), state, hyperplane->toBelief(), t);
 
             // Select the Best Action
             if (pair_action_value.second > max_value)
@@ -48,7 +48,7 @@ namespace sdm
         // Go over all hidden state in the belief conditionning to a joint history
         for (const auto &state : occupancy_state->getBeliefAt(joint_history)->getStates())
         {
-            weight += occupancy_state->getProbability(joint_history, state) * this->pwlc_vf->getBeta(hyperplane, state, joint_history, action, t);
+            weight += occupancy_state->getProbability(joint_history, state) * this->pwlc_vf.lock()->getBeta(hyperplane, state, joint_history, action, t);
         }
         return weight;
     }

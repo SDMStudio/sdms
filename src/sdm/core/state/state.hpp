@@ -21,7 +21,8 @@ namespace sdm
     class OccupancyStateInterface;
     class HistoryInterface;
     class JointHistoryInterface;
-    class BaseSerialInterface;
+    // class BaseSerialInterface;
+    class SerialState;
     class SerialOccupancyInterface;
 
     template <class BaseClass, class MyClass>
@@ -57,7 +58,7 @@ namespace sdm
         virtual std::shared_ptr<HistoryInterface> toHistory();
 
         /** @brief Cast the state into a serial interface */
-        virtual std::shared_ptr<BaseSerialInterface> toSerial();
+        virtual std::shared_ptr<SerialState> toSerial();
 
         /**
          * @brief Get the hash of the state. 

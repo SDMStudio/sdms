@@ -1,6 +1,7 @@
 #include <sdm/types.hpp>
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/world/belief_mdp.hpp>
+#include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
 
 namespace sdm
 {
@@ -36,7 +37,7 @@ namespace sdm
         // Specific logs for belief MDPs
         if (sdm::isInstanceOf<BeliefMDPInterface>(getEnv()))
         {
-            format = format + " NumState {:<8}";
+            format = format + " NumState {}";
             list_logs.push_back("NumState");
         }
         format = format + "\n";
@@ -69,13 +70,42 @@ namespace sdm
 
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getEnv()))
         {
-            // Print in loggers some execution variables
-            this->logger_->log(this->episode,
-                               this->global_step,
-                               this->q_value_->getValueAt(getEnv()->reset(), 0),
-                               getExecutionTime(),
-                               this->exploration_process->getEpsilon(),
-                               derived->getMDPGraph()->getNumNodes());
+            if (auto pwlc = sdm::isInstanceOf<PWLCQValueFunction>(this->q_value_))
+            {
+
+                std::ostringstream output_nstates;
+                output_nstates << "[ ";
+
+                for (const auto &pwlc_q_t : pwlc->representation)
+                {
+                    output_nstates << "\033[1m" << config::SDMS_THEME_1 << pwlc_q_t.size() << "\033[0m(";
+                    unsigned long size_support = 0;
+                    for (const auto &pwlc_q_t_tuple : pwlc_q_t)
+                    {
+                        size_support += pwlc_q_t_tuple.second->getState().size();
+                    }
+                    output_nstates << size_support << ")  ";
+                }
+                output_nstates << "]";
+
+                // Print in loggers some execution variables
+                this->logger_->log(this->episode,
+                                   this->global_step,
+                                   this->q_value_->getValueAt(getEnv()->reset(), 0),
+                                   getExecutionTime(),
+                                   this->exploration_process->getEpsilon(),
+                                   output_nstates.str());
+            }
+            else
+            {
+                // Print in loggers some execution variables
+                this->logger_->log(this->episode,
+                                   this->global_step,
+                                   this->q_value_->getValueAt(getEnv()->reset(), 0),
+                                   getExecutionTime(),
+                                   this->exploration_process->getEpsilon(),
+                                   derived->getMDPGraph()->getNumNodes());
+            }
         }
         else
         {
@@ -128,6 +158,8 @@ namespace sdm
         episode++;
         this->is_done = false;
 
+        do_log_ = (episode % log_freq == 0);
+
         // Test current policy and write logs
         if (do_log_)
         {
@@ -174,7 +206,6 @@ namespace sdm
 
         // Save the model
         do_save_ = (global_step % save_freq == 0);
-        do_log_ = (global_step % log_freq == 0);
         do_test_ = (global_step % test_freq == 0);
     }
 
@@ -219,16 +250,10 @@ namespace sdm
 
     void QLearning::printStartInfo()
     {
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
-        std::cout << config::LOG_SDMS << "START LEARNING (" << this->getAlgorithmName() << ")" << std::endl;
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
     }
 
     void QLearning::printEndInfo()
     {
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
-        std::cout << config::LOG_SDMS << "END LEARNING (" << this->getAlgorithmName() << ")" << std::endl;
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
     }
 
 } // namespace sdm

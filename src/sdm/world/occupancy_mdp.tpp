@@ -324,6 +324,7 @@ namespace sdm
     template <class TOccupancyState>
     Pair<std::shared_ptr<State>, double> BaseOccupancyMDP<TOccupancyState>::computeExactNextCompressedState(const std::shared_ptr<OccupancyStateInterface> &compressed_occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, const std::shared_ptr<Observation> &observation, number t)
     {
+
         // The new one step left occupancy state
         std::shared_ptr<OccupancyStateInterface> next_one_step_left_compressed_occupancy_state = std::make_shared<TOccupancyState>(this->getUnderlyingMDP()->getNumAgents());
 
@@ -622,6 +623,12 @@ namespace sdm
     std::shared_ptr<BaseOccupancyMDP<TOccupancyState>> BaseOccupancyMDP<TOccupancyState>::getptr()
     {
         return std::enable_shared_from_this<BaseOccupancyMDP<TOccupancyState>>::shared_from_this();
+    }
+
+    template <class TOccupancyState>
+    std::shared_ptr<State> BaseOccupancyMDP<TOccupancyState>::getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number)
+    {
+        return jhistory->getIndividualHistories().toJoint<State>();
     }
 
 } // namespace sdm

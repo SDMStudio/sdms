@@ -5,6 +5,7 @@
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
@@ -45,7 +46,7 @@ namespace sdm
             }
         };
 
-        using Hyperplane = BaseState<MappedVector<Tuple<std::shared_ptr<State>, std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>>>>;
+        using Hyperplane = BaseState<MappedVector<std::tuple<std::shared_ptr<State>, std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>>>>;
         using Container = std::unordered_map<std::shared_ptr<State>, std::shared_ptr<Hyperplane>, Hash, Equal>;
 
 
@@ -133,12 +134,13 @@ namespace sdm
             os << vf.str();
             return os;
         }
-
-    protected:
+        
         /**
          * @brief The data structure storing the value function representation.
          */
         std::vector<Container> representation;
+
+    protected:
 
         /**
          * @brief The value by default.
@@ -149,6 +151,8 @@ namespace sdm
          * @brief the default values, one for each decision epoch.
          */
         std::vector<double> default_values_per_horizon;
+
+        std::shared_ptr<OccupancyMDP> oMDP;
     };
 
 } // namespace sdm

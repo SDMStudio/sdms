@@ -6,7 +6,7 @@
 
 namespace sdm
 {
-    double PWLCQValueFunction::GRANULARITY = 0.1;
+    double PWLCQValueFunction::GRANULARITY = 0.5;
 
     PWLCQValueFunction::PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                            const std::shared_ptr<Initializer> &initializer,
@@ -20,6 +20,7 @@ namespace sdm
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->getHorizon() + 1, Container());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, 0);
         this->default_hyperplane = std::vector<std::shared_ptr<Hyperplane>>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, nullptr);
+        this->oMDP = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
     }
 
     void PWLCQValueFunction::initialize(double value, number t)
@@ -50,6 +51,9 @@ namespace sdm
     double PWLCQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, number t)
     {
         double qvalue = 0;
+        // std::cout << occupancy_state->str() << std::endl;
+        // std::cout << decision_rule->str() << std::endl;
+
         auto hyperplane = this->getHyperplaneAt(occupancy_state, t);
         if (hyperplane == this->default_hyperplane[t])
         {
@@ -59,12 +63,14 @@ namespace sdm
         {
             for (auto history : occupancy_state->getJointHistories())
             {
-                auto action = std::dynamic_pointer_cast<OccupancyMDP>(getWorld())->applyDecisionRule(occupancy_state, history, decision_rule, this->isInfiniteHorizon() ? 0 : t);
+                auto action = this->oMDP->applyDecisionRule(occupancy_state, history, decision_rule, this->isInfiniteHorizon() ? 0 : t);
+                auto dr_input = this->oMDP->getDecisionRuleInput(history, t);
+                double proba_a = decision_rule->getProbability(dr_input, action);
 
                 for (auto state : occupancy_state->getBeliefAt(history)->getStates())
                 {
-                    double proba_a = decision_rule->getProbability(history->getIndividualHistories().toJoint<State>(), std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action));
-                    qvalue += occupancy_state->getProbability(history, state) * proba_a * this->getBeta(hyperplane, state, history, action, t);
+                    double beta = this->getBeta(hyperplane, state, history, action, t);
+                    qvalue += occupancy_state->getProbability(history, state) * proba_a * beta;
                 }
             }
         }
@@ -73,6 +79,9 @@ namespace sdm
 
     void PWLCQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t)
     {
+        // auto support = std::dynamic_pointer_cast<Hyperplane>(new_hyperplane)->getState().getIndexes();
+        // if (support.size()>0)
+        //     std::cout << "\n\nNEW HYPERPLANE=" << std::get<1>(support[0])->str() << std::endl;
         this->representation[t][state] = std::dynamic_pointer_cast<Hyperplane>(new_hyperplane);
     }
 
@@ -82,14 +91,16 @@ namespace sdm
         return (tmp_it != this->representation[t].end()) ? tmp_it->second : this->default_hyperplane[t];
     }
 
-    std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(const std::shared_ptr<State>& state, number t)
+    std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(const std::shared_ptr<State> &state, number t)
     {
-        return {getHyperplaneAt(state, t-1)};
+        return {getHyperplaneAt(state, t - 1)};
     }
 
     double PWLCQValueFunction::getBeta(const std::shared_ptr<State> &hyperplane, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
     {
-        return std::dynamic_pointer_cast<Hyperplane>(hyperplane)->getState().getValueAt(std::tuple(state, history, action));
+        auto create_tuple = std::tuple(state, history, action);
+        auto get_value = std::static_pointer_cast<Hyperplane>(hyperplane)->state.getValueAt(create_tuple);
+        return get_value;
     }
 
     double PWLCQValueFunction::getDefaultValue(number t)

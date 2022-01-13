@@ -70,7 +70,7 @@ namespace sdm
     {
         // Get the probability p(x,o) = p(o) * b(x | o)
         auto belief = this->getBeliefAt(joint_history);
-        auto output = (belief == nullptr or !belief->isStateExist(state)) ? this->getDefault() : this->getProbability(joint_history) * belief->getProbability(state);
+        auto output = (belief == nullptr) ? this->getDefault() : Belief::getProbability(joint_history) * belief->getProbability(state);
 
         return output;
     }
@@ -368,7 +368,8 @@ namespace sdm
 
     void OccupancyState::setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &fully_uncompressed_ostate)
     {
-        this->fully_uncompressed_occupancy_state = fully_uncompressed_ostate;
+        if (fully_uncompressed_ostate != this->getptr())
+            this->fully_uncompressed_occupancy_state = fully_uncompressed_ostate;
     }
 
     std::shared_ptr<OccupancyStateInterface> OccupancyState::getOneStepUncompressedOccupancy()
@@ -379,7 +380,8 @@ namespace sdm
 
     void OccupancyState::setOneStepUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &one_step_uncompress_ostate)
     {
-        this->one_step_left_compressed_occupancy_state = one_step_uncompress_ostate;
+        if (one_step_uncompress_ostate != this->getptr())
+            this->one_step_left_compressed_occupancy_state = one_step_uncompress_ostate;
         // std::dynamic_pointer_cast<OccupancyState>(this->getOneStepUncompressedOccupancy())->setCompressedOccupancy(this->getptr());
     }
 

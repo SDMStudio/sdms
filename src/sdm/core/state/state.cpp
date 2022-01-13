@@ -4,6 +4,7 @@
 #include <sdm/core/state/interface/history_interface.hpp>
 #include <sdm/core/state/interface/joint_history_interface.hpp>
 #include <sdm/core/state/interface/serial_interface.hpp>
+#include <sdm/core/state/serial_state.hpp>
 
 namespace sdm
 {
@@ -23,9 +24,9 @@ namespace sdm
         return std::static_pointer_cast<HistoryInterface>(this->getPointer());
     }
 
-    std::shared_ptr<BaseSerialInterface> State::toSerial()
+    std::shared_ptr<SerialState> State::toSerial()
     {
-        return std::dynamic_pointer_cast<BaseSerialInterface>(this->getPointer());
+        return std::static_pointer_cast<SerialState>(this->getPointer());
     }
 
     TypeState State::getTypeState() const
