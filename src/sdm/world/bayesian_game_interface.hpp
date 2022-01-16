@@ -28,5 +28,7 @@ namespace sdm
         virtual float getPayoff(std::shared_ptr<State> types, std::shared_ptr<Action> actions, int idAgent) = 0;
 
         virtual double getJointTypesProba(std::shared_ptr<State> joint_type) = 0;
+
+        virtual double getIndivTypeProba(std::shared_ptr<State> type, int agentId) = 0;
     };
 }

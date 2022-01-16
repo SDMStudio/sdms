@@ -104,6 +104,27 @@ double sdm::TwoPlayersBayesianGame::getJointTypesProba(std::shared_ptr<State> jo
     return 0;
 }
 
+double sdm::TwoPlayersBayesianGame::getIndivTypeProba(std::shared_ptr<State> type, int agentId){
+    try {
+        double proba = 0;
+        auto opTypes = types->toMultiDiscreteSpace()->getSpace(abs(agentId-1));
+        for (const auto &opType: *typesOpPlayer)
+        {
+            Joint<std::shared_ptr<Item>> jointType(std::vector<std::shared_ptr<Item>>{opType, type});
+            if (agentId == 0) jointType = Joint<std::shared_ptr<Item>>(std::vector<std::shared_ptr<Item>>{type, opType});
+            auto jointState = types->toMultiDiscreteSpace()->getItemAddress(jointType)->toState();
+            proba += getJointTypesProba(jointState);        
+        }
+        return proba;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return 0;
+};
+
+
 float sdm::TwoPlayersBayesianGame::getPayoff(std::shared_ptr<State> types, std::shared_ptr<Action> actions, int idAgent){
     try {
         return payoffs[types][actions][idAgent];
