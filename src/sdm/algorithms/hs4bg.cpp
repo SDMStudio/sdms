@@ -175,19 +175,15 @@ double sdm::HS4BG::getActionProbability(std::shared_ptr<State> type, std::shared
 
 std::shared_ptr<sdm::State> sdm::HS4BG::naiveHS(int agentId){
     auto agentTypes = game->getTypeSpace()->toMultiDiscreteSpace()->getSpace(agentId);
-    double maxProba = 0;
-    int mostLikelyStateIndex;
+    double sumProba = 0;
     int i = 0;
+    double r = (double) rand() / (RAND_MAX);
     for (const auto &t: *agentTypes){
-        double typeProba = game->getIndivTypeProba(t->toState(), agentId);
-        if (typeProba > maxProba){
-            maxProba = typeProba;
-            mostLikelyStateIndex = i;
-        }
+        sumProba += game->getIndivTypeProba(t->toState(), agentId);
+        if (r < sumProba) return agentTypes->toMultiDiscreteSpace()->getItem(i)->toState();
         i++;
     }
-    std::cout << "proba of selected type : " << maxProba << std::endl;
-    return agentTypes->toMultiDiscreteSpace()->getItem(mostLikelyStateIndex)->toState();
+    return nullptr;
 }
 
 std::shared_ptr<sdm::Action> sdm::HS4BG::bestResponse(std::shared_ptr<State> type, int agentId, int step){
@@ -310,10 +306,10 @@ void sdm::HS4BG::updateStrategies(){
 
 void sdm::HS4BG::solve(){
     float EPSILON = 0.1;
-    float vSup = 1;
-    float vInf = 0;
+    float v1 = 1;
+    float v2 = 0;
     int step = 0;
-    while (abs(vSup - vInf) > EPSILON)
+    while (abs(abs(v1) - abs(v2)) > EPSILON)
     {
         auto chosenType1 = naiveHS(0);
         auto chosenType2 = naiveHS(1);
@@ -323,17 +319,11 @@ void sdm::HS4BG::solve(){
         updateLP(chosenType1, chosenAction1, chosenType2, chosenAction2);
 
         updateStrategies();
-        std::cout << "updateStrategies performed" << std::endl;
 
-        vSup = cplex1.getObjValue();
-        vInf = cplex2.getObjValue();
+        v1 = cplex1.getObjValue();
+        v2 = cplex2.getObjValue();
 
-        std::cout << "vSup = " << vSup << std::endl;
-        std::cout << "vInf = " << vInf << std::endl;
-
-        std::cout << "chosen type 1 : " << chosenType1 << std::endl;
-        std::cout << "chosen action 1 : " << chosenAction1 << std::endl;
-        std::cout << "num of constraints for LP 1 : " << cplex1.getNrows() << std::endl;
+        std::cout << "[HS4BG] LP difference : " << abs(abs(v1) - abs(v2)) << std::endl;
 
         step++;
     }
