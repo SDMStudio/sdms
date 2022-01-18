@@ -2,6 +2,7 @@
 
 #include <sdm/world/bayesian_game_interface.hpp>
 #include <sdm/core/action/stochastic_decision_rule.hpp>
+#include <sdm/core/action/det_decision_rule.hpp>
 #include <ilcplex/ilocplex.h>
 #include <sdm/public/algorithm.hpp>
 #include <memory>
@@ -43,19 +44,24 @@ namespace sdm
 
         std::shared_ptr<Action> bestResponse(std::shared_ptr<State> type, int agentId, int step);
 
-        void updateLP(std::shared_ptr<StochasticDecisionRule> pi1, std::shared_ptr<StochasticDecisionRule> pi2);
+        void updateLP(std::shared_ptr<State> type1, std::shared_ptr<Action> action1, std::shared_ptr<State> type2, std::shared_ptr<Action> action2, int lpIndex);
     
         void updateStrategies();
         
         IloEnv env; 
         IloModel model1; 
         IloNumVarArray vars1;
+        IloCplex cplex1;
         IloModel model2; 
         IloNumVarArray vars2;
+        IloCplex cplex2;
+
         std::shared_ptr<BayesianGameInterface> game;
         std::shared_ptr<StochasticDecisionRule> strategy1;
         std::shared_ptr<StochasticDecisionRule> strategy2;
         VarNaming vn1;
         VarNaming vn2;
+        std::shared_ptr<DeterministicDecisionRule> pureStrategy1; 
+        std::shared_ptr<DeterministicDecisionRule> pureStrategy2; 
     };
 };

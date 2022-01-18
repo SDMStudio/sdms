@@ -108,7 +108,7 @@ double sdm::TwoPlayersBayesianGame::getIndivTypeProba(std::shared_ptr<State> typ
     try {
         double proba = 0;
         auto opTypes = types->toMultiDiscreteSpace()->getSpace(abs(agentId-1));
-        for (const auto &opType: *typesOpPlayer)
+        for (const auto &opType: *opTypes)
         {
             Joint<std::shared_ptr<Item>> jointType(std::vector<std::shared_ptr<Item>>{opType, type});
             if (agentId == 0) jointType = Joint<std::shared_ptr<Item>>(std::vector<std::shared_ptr<Item>>{type, opType});

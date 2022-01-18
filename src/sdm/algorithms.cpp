@@ -547,6 +547,9 @@ namespace sdm
             {
                 auto formalism = parser::parse_file_bayesian(problem_path);
                 return std::make_shared<TwoPlayersBayesianGameSolver>(formalism, batch_size);
+            }else if (algo_name == "HS4BG") {
+                auto formalism = parser::parse_file_bayesian(problem_path);
+                return std::make_shared<HS4BG>(formalism);
             }
             else
             {
@@ -562,7 +565,7 @@ namespace sdm
 
         std::vector<std::string> available()
         {
-            return {"A*", "BackwardInduction", "BayesianGameSolver", "DFSVI", "HSVI", "PBVI", "Perseus", "QLearning", "ValueIteration"};
+            return {"A*", "BackwardInduction", "BayesianGameSolver", "HS4BG", "DFSVI", "HSVI", "PBVI", "Perseus", "QLearning", "ValueIteration"};
         }
 
     }

@@ -83,6 +83,11 @@ double sdm::TwoPlayersNormalFormGame::getJointTypesProba(std::shared_ptr<State> 
     return 0;
 }
 
+double sdm::TwoPlayersNormalFormGame::getIndivTypeProba(std::shared_ptr<State> type, int agentId){
+    return 1;
+}
+
+
 float sdm::TwoPlayersNormalFormGame::getPayoff(std::shared_ptr<State> types, std::shared_ptr<Action> actions, int idAgent){
     try {
         return payoffs[types][actions][idAgent];

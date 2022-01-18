@@ -11,6 +11,7 @@
 #include <sdm/algorithms/alpha_star.hpp>
 #include <sdm/algorithms/backward_induction.hpp>
 #include <sdm/algorithms/bayesian_game_solver.hpp>
+#include <sdm/algorithms/hs4bg.hpp>
 
 namespace sdm
 {

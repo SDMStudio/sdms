@@ -32,6 +32,8 @@ namespace sdm
 
         double getJointTypesProba(std::shared_ptr<State> joint_type);
 
+        double getIndivTypeProba(std::shared_ptr<State> type, int agentId);
+
         float getPayoff(std::shared_ptr<State> types, std::shared_ptr<Action> actions, int idAgent);
 
         protected:

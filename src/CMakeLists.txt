@@ -113,6 +113,7 @@ file(
 	${INCLUDE_DIR}/algorithms/backward_induction.cpp
 	${INCLUDE_DIR}/algorithms/alpha_star.cpp
 	${INCLUDE_DIR}/algorithms/bayesian_game_solver.cpp
+	${INCLUDE_DIR}/algorithms/hs4bg.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(planning_obj OBJECT ${lib_planning_src})

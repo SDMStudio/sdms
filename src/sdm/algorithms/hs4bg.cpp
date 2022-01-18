@@ -45,30 +45,35 @@ void sdm::HS4BG::initLP() {
             vn1.setNumber(varName, inserted1);
             inserted1++;
         }
+
         // add objective to model
         model1.add(IloMaximize(env,obj));
         obj.end();
 
+        IloExpr obj2(env);
         int inserted2 = 0;
         for (const auto &t1: *types1)
         {
             string varName = vn2.getVarNameState(t1->toState());
             vars2.add(IloNumVar(env, -IloInfinity, IloInfinity, ILOFLOAT, varName.c_str()));
-            obj += vars2[inserted2];
+            obj2 += vars2[inserted2];
             vn2.setNumber(varName, inserted2);
             inserted2++;
         }
         // add objective to model
-        model2.add(IloMaximize(env,obj));
-        obj.end();
+        model2.add(IloMaximize(env,obj2));
+        obj2.end();
 
         /* --------- ADD SDR OPTI VARS AND CORRESPONDING CONSTRAINTS FOR BOTH LP ------------ */
+        // TODO : initialiser dnegi en prenant la première action à chaque fois
         StochasticDecisionRule sdr1 = StochasticDecisionRule();
+        DeterministicDecisionRule ddr1 = DeterministicDecisionRule();
         double distributionTotal;
         for (const auto &type: *types1)
         {
             IloExpr probaSum(env); 
             distributionTotal = 0;
+            ddr1.setProbability(type->toState(), actions1->toMultiDiscreteSpace()->getItem(0)->toAction());
             for (const auto &action: *actions1)
             {
                 string varName = vn1.getVarNameStateAction(type->toState(), action->toAction());
@@ -78,7 +83,7 @@ void sdm::HS4BG::initLP() {
                 inserted1++;
                 // init strategy1
                 double r = (double) rand() / (RAND_MAX);
-                sdr1.setProbability(type, action, r);
+                sdr1.setProbability(type->toState(), action->toAction(), r);
                 distributionTotal += r;
             }
             model1.add(IloRange(env, 1, probaSum, 1));
@@ -86,16 +91,20 @@ void sdm::HS4BG::initLP() {
 
             //make initial distribution sum equal to 1
             for (const auto &action: *actions1){
-                sdr1.setProbability(type, action, sdr1.getProbability(type, action) / distributionTotal);
+                sdr1.setProbability(type->toState(), action->toAction(), sdr1.getProbability(type->toState(), action->toAction()) / distributionTotal);
             }
         }
         strategy1 = std::make_shared<StochasticDecisionRule>(sdr1);
+        pureStrategy1 = std::make_shared<DeterministicDecisionRule>(ddr1);
 
         StochasticDecisionRule sdr2 = StochasticDecisionRule();
+        DeterministicDecisionRule ddr2 = DeterministicDecisionRule();
+
         for (const auto &type: *types2)
         {
             IloExpr probaSum(env); 
             distributionTotal = 0;
+            ddr2.setProbability(type->toState(), actions2->toMultiDiscreteSpace()->getItem(0)->toAction());
             for (const auto &action: *actions2)
             {
                 string varName = vn2.getVarNameStateAction(type->toState(), action->toAction());
@@ -105,7 +114,7 @@ void sdm::HS4BG::initLP() {
                 inserted2++;
                 // init strategy2
                 double r = (double) rand() / (RAND_MAX);
-                sdr2.setProbability(type, action, r);
+                sdr2.setProbability(type->toState(), action->toAction(), r);
                 distributionTotal += r;
             }
             model2.add(IloRange(env, 1, probaSum, 1));
@@ -113,14 +122,24 @@ void sdm::HS4BG::initLP() {
             
             //make initial distribution sum equal to 1
             for (const auto &action: *actions2){
-                sdr2.setProbability(type, action, sdr2.getProbability(type, action) / distributionTotal);
+                sdr2.setProbability(type->toState(), action->toAction(), sdr2.getProbability(type->toState(), action->toAction()) / distributionTotal);
             }
         }
         strategy2 = std::make_shared<StochasticDecisionRule>(sdr2);
+        pureStrategy2 = std::make_shared<DeterministicDecisionRule>(ddr2);
 
+        /* -------- ADD INITIAL CONSTRAINTS ----------- */
+        for (const auto &t1: *types1){
+            auto a1 = pureStrategy1->act(t1->toState());
+            updateLP(t1->toState(), a1->toAction(),nullptr, nullptr, 1);
+        } 
+        for (const auto &t2: *types2){
+            auto a2 = pureStrategy2->act(t2->toState());
+            updateLP(nullptr, nullptr, t2->toState(), a2->toAction(), 0);
+        } 
     }
     catch (IloException& e) {
-        cerr << "Concert exception caught: " << e << endl;
+        cerr << "[HS4BG->initLP()] Concert exception caught: " << e << endl;
     }
     catch (...) {
         cerr << "Unknown exception caught" << endl;
@@ -139,47 +158,49 @@ double sdm::HS4BG::getActionProbability(std::shared_ptr<State> type, std::shared
     {
         if (agentId == 0){
             auto varName = vn1.getVarNameStateAction(type, action);
-            IloCplex c(model1);
-            return c.getValue(vals1[vn1.getNumber(varName)]);
+            return cplex1.getValue(vars1[vn1.getNumber(varName)]);
         } else {
             auto varName = vn2.getVarNameStateAction(type, action);
-            IloCplex c(model2);
-            return c.getValue(vals2[vn2.getNumber(varName)]);
+            return cplex2.getValue(vars2[vn2.getNumber(varName)]);
         }    
     }
     catch (IloException& e) {
-        cerr << "Concert exception caught: " << e << endl;
+        cerr << "[HS4BG->getActionProbability(...)] Concert exception caught: " << e << endl;
     }
    catch (...) {
         cerr << "Unknown exception caught" << endl;
     }
-    
-    
+    return 0;
 }
 
-std::shared_ptr<State> sdm::HS4BG::naiveHS(int agentId){
+std::shared_ptr<sdm::State> sdm::HS4BG::naiveHS(int agentId){
     auto agentTypes = game->getTypeSpace()->toMultiDiscreteSpace()->getSpace(agentId);
     double maxProba = 0;
-    std::shared_ptr<State> mostLikelyState;
+    int mostLikelyStateIndex;
+    int i = 0;
     for (const auto &t: *agentTypes){
-        double typeProba = game->getIndivTypeProba(t, agentId);
+        double typeProba = game->getIndivTypeProba(t->toState(), agentId);
         if (typeProba > maxProba){
             maxProba = typeProba;
-            mostLikelyState = t;
+            mostLikelyStateIndex = i;
         }
+        i++;
     }
-    return mostLikelyState;
+    return agentTypes->toMultiDiscreteSpace()->getItem(mostLikelyStateIndex)->toState();
 }
 
-std::shared_ptr<Action> sdm::HS4BG::bestResponse(std::shared_ptr<State> type, int agentId, int step){
+std::shared_ptr<sdm::Action> sdm::HS4BG::bestResponse(std::shared_ptr<State> type, int agentId, int step){
 
-    auto opTypes = game->getTypeSpace()->toMultiDiscreteSpace()->getSpace(abs(agentId-1));
+    std::shared_ptr<MultiDiscreteSpace> typeSpace = game->getTypeSpace()->toMultiDiscreteSpace();
+    auto opTypes = typeSpace->getSpace(abs(agentId-1));
+
     std::shared_ptr<MultiDiscreteSpace> actionSpace = game->getActionSpace()->toMultiDiscreteSpace();
     auto opActions = actionSpace->getSpace(abs(agentId-1));
     auto agentActions = actionSpace->getSpace(agentId);
 
     float minPayoff = std::numeric_limits<float>::max();
-    std::shared_ptr<Action> bestResponse;
+    int bestResponseIndex;
+    int i = 0;
     for (const auto &agentAction: *agentActions){
         float actionPayoff = 0;
         for (const auto &opType: *opTypes){
@@ -191,19 +212,25 @@ std::shared_ptr<Action> sdm::HS4BG::bestResponse(std::shared_ptr<State> type, in
                 Joint<std::shared_ptr<Item>> jAction(std::vector<std::shared_ptr<Item>>{opAction, agentAction});
                 if (agentId == 0) jAction = Joint<std::shared_ptr<Item>>(std::vector<std::shared_ptr<Item>>{agentAction, opAction});
                 auto jointAction = actionSpace->getItemAddress(jAction)->toAction();
-                double opposingProbability = getActionProbability(opType, opAction, abs(agentId-1), step == 0);
+                double opposingProbability = getActionProbability(opType->toState(), opAction->toAction(), abs(agentId-1), step == 0);
                 actionPayoff += jointTypeProba*opposingProbability*(game->getPayoff(jointState, jointAction, abs(agentId-1)));
             }
         }
         if (actionPayoff < minPayoff){
             minPayoff = actionPayoff;
-            bestResponse = agentAction;
+            bestResponseIndex = i;
         }
+        i++;
     }
-    return agentActions;
+    return agentActions->toMultiDiscreteSpace()->getItem(bestResponseIndex)->toAction();
 }
 
-void sdm::HS4BG::updateLP(std::shared_ptr<State> type1, std::shared_ptr<Action> action1, std::shared_ptr<State> type2, std::shared_ptr<Action> action2){
+
+// TODO
+// les LP doivent contenir au moins une contrainte pour chaque type du joueur opposé mais pas chaque action.
+// C'est justement au fur et à mesure des itération qu'on rajoute des contraintes pour ces actions
+// :param lpIndex: 0 update only LP1 | 1 update only LP2 | 2 update both LP
+void sdm::HS4BG::updateLP(std::shared_ptr<State> type1, std::shared_ptr<Action> action1, std::shared_ptr<State> type2, std::shared_ptr<Action> action2, int lpIndex = 2){
     std::shared_ptr<MultiDiscreteSpace> typeSpace = game->getTypeSpace()->toMultiDiscreteSpace();
     std::shared_ptr<MultiDiscreteSpace> actionSpace = game->getActionSpace()->toMultiDiscreteSpace();
     
@@ -212,63 +239,67 @@ void sdm::HS4BG::updateLP(std::shared_ptr<State> type1, std::shared_ptr<Action> 
     auto actions1 = actionSpace->getSpace(0);
     auto actions2 = actionSpace->getSpace(1);
     
-    IloExpr actionConstraint(env);  
     // LP Agent 1
-    for (const auto &t1: *types1)
-    {
-        Joint<std::shared_ptr<Item>> jointType(std::vector<std::shared_ptr<Item>>{t1, type2});
-        auto jointState = typeSpace->getItemAddress(jointType)->toState(); // cast à vérifier
-        double jointTypeProba = game->getJointTypesProba(jointState);
-        for (const auto &a1: *actions1)
+    if (lpIndex == 0 || lpIndex == 2){
+        IloExpr actionConstraint(env);
+        for (const auto &t1: *types1)
         {
+            Joint<std::shared_ptr<Item>> jointType(std::vector<std::shared_ptr<Item>>{t1, type2});
+            auto jointState = typeSpace->getItemAddress(jointType)->toState(); // cast à vérifier
+            double jointTypeProba = game->getJointTypesProba(jointState);
+            for (const auto &a1: *actions1)
+            {
+                Joint<std::shared_ptr<Item>> jAction(std::vector<std::shared_ptr<Item>>{a1, action2});
+                auto jointAction = actionSpace->getItemAddress(jAction)->toAction();
+                double coef = jointTypeProba * game->getPayoff(jointState, jointAction, 0);
+                string varName = vn1.getVarNameStateAction(t1->toState(), a1->toAction());
 
-            Joint<std::shared_ptr<Item>> jAction(std::vector<std::shared_ptr<Item>>{a1, action2});
-            auto jointAction = actionSpace->getItemAddress(jAction)->toAction();
-
-            double coef = jointTypeProba * game->getPayoff(jointState, jointAction, 0);
-            string varName = vn1.getVarNameStateAction(jointState->toState(), jointAction->toAction());
-
-            actionConstraint += coef * vars1[vn1.getNumber(varName)];
-        };
+                actionConstraint += coef * vars1[vn1.getNumber(varName)];
+            };
+        }
+        int optiIndex = vn1.getNumber(vn1.getVarNameState(type2->toState()));
+        actionConstraint -= vars1[optiIndex];
+        model1.add(IloRange(env, 0, actionConstraint, IloInfinity));
+        actionConstraint.end();
     }
-    int optiIndex = vn1.getNumber(vn1.getVarNameState(type2->toState()));
-    actionConstraint -= vars1[optiIndex];
-    model1.add(IloRange(env, 0, actionConstraint, IloInfinity));
-    actionConstraint.end();
-
-    // LP Agent 2
-    for (const auto &t2: *types2)
-    {
-        Joint<std::shared_ptr<Item>> jointType(std::vector<std::shared_ptr<Item>>{type1, t2});
-        auto jointState = typeSpace->getItemAddress(jointType)->toState(); // cast à vérifier
-        double jointTypeProba = game->getJointTypesProba(jointState);
-        for (const auto &a2: *actions2)
+    
+    if (lpIndex == 1  || lpIndex == 2){
+        IloExpr actionConstraint2(env);
+        // LP Agent 2
+        for (const auto &t2: *types2)
         {
+            Joint<std::shared_ptr<Item>> jointType(std::vector<std::shared_ptr<Item>>{type1, t2});
+            auto jointState = typeSpace->getItemAddress(jointType)->toState();
+            double jointTypeProba = game->getJointTypesProba(jointState);
+            for (const auto &a2: *actions2)
+            {
 
-            Joint<std::shared_ptr<Item>> jAction(std::vector<std::shared_ptr<Item>>{action1, a2});
-            auto jointAction = actionSpace->getItemAddress(jAction)->toAction();
+                Joint<std::shared_ptr<Item>> jAction(std::vector<std::shared_ptr<Item>>{action1, a2});
+                auto jointAction = actionSpace->getItemAddress(jAction)->toAction();
 
-            double coef = jointTypeProba * game->getPayoff(jointState, jointAction, 1);
-            string varName = vn2.getVarNameStateAction(jointState->toState(), jointAction->toAction());
+                double coef = jointTypeProba * game->getPayoff(jointState, jointAction, 1);
+                string varName = vn2.getVarNameStateAction(t2->toState(), a2->toAction());
 
-            actionConstraint += coef * vars2[vn2.getNumber(varName)];
-        };
+                actionConstraint2 += coef * vars2[vn2.getNumber(varName)];
+            };
+        }
+        int optiIndex = vn2.getNumber(vn2.getVarNameState(type1->toState()));
+        actionConstraint2 -= vars2[optiIndex];
+        model2.add(IloRange(env, 0, actionConstraint2, IloInfinity));
+        actionConstraint2.end();
     }
-    optiIndex = vn2.getNumber(vn2.getVarNameState(type1->toState()));
-    actionConstraint -= vars2[optiIndex];
-    model2.add(IloRange(env, 0, actionConstraint, IloInfinity));
-    actionConstraint.end();
+    
 
 }
 
 void sdm::HS4BG::updateStrategies(){
-    IloCplex c1(model1);
-    if ( !c1.solve() ) {
+    cplex1 = IloCplex(model1);
+    if ( !cplex1.solve() ) {
         cout << "HS4BG : could not solve LP for Agent 1" << endl;
         throw(-1);
     }
-    IloCplex c2(model2);
-    if ( !c2.solve() ) {
+    cplex2 = IloCplex(model2);
+    if ( !cplex2.solve() ) {
         cout << "HS4BG : could not solve LP for Agent 2" << endl;
         throw(-1);
     }
@@ -284,20 +315,23 @@ void sdm::HS4BG::solve(){
         auto chosenType1 = naiveHS(0);
         auto chosenType2 = naiveHS(1);
         auto chosenAction1 = bestResponse(chosenType1, 0, step);
-        auto chosenAction2 = bestResponse(chosenType2, 1), step;        
+        auto chosenAction2 = bestResponse(chosenType2, 1, step);    
 
         updateLP(chosenType1, chosenAction1, chosenType2, chosenAction2);
 
         updateStrategies();
+        std::cout << "updateStrategies performed" << std::endl;
 
-        IloCplex c1(model1);
-        IloCplex c2(model2);
-        
-        vSup = c1.getValue(vals1[0]);
-        vInf = c2.getValues(vals2[0]);
+        vSup = cplex1.getObjValue();
+        vInf = cplex2.getObjValue();
+
+        std::cout << "vSup = " << vSup << std::endl;
+        std::cout << "vInf = " << vInf << std::endl;
+
+
         step++;
     }
-    
+    std::cout << "[HS4BG] solved in " << step << "steps" << std::endl;
 }
 
 void sdm::HS4BG::terminate(){
@@ -316,6 +350,11 @@ void sdm::HS4BG::save() {
 
 void sdm::HS4BG::saveSolution(){
     
+    IloNumArray vals1(env);
+    cplex1.getValues(vals1, vars1);
+    IloNumArray vals2(env);
+    cplex2.getValues(vals2, vars2);
+
     StochasticDecisionRule sdr1 = StochasticDecisionRule();
     int nTypes = game->getTypesNumbers()[0];
     int opposingTypes = game->getTypesNumbers()[1];
@@ -323,7 +362,7 @@ void sdm::HS4BG::saveSolution(){
     for (int i = 0; i < nTypes; i ++)
     {
         for (int j = 0; j < plActions; j ++){
-            sdr1.setProbability(std::make_shared<DiscreteState>(DiscreteState(i)), std::make_shared<DiscreteAction>(DiscreteAction(j)), vals1[opposingTypes + (i)*plActions + j + 1]);
+            sdr1.setProbability(std::make_shared<DiscreteState>(DiscreteState(i)), std::make_shared<DiscreteAction>(DiscreteAction(j)), vals1[opposingTypes + (i)*plActions + j]);
         }
     }
     strategy1 = std::make_shared<StochasticDecisionRule>(sdr1);
@@ -335,13 +374,13 @@ void sdm::HS4BG::saveSolution(){
     for (int i = 0; i < nTypes; i ++)
     {
         for (int j = 0; j < plActions; j ++){
-            sdr2.setProbability(std::make_shared<DiscreteState>(DiscreteState(i)), std::make_shared<DiscreteAction>(DiscreteAction(j)), vals2[opposingTypes + (i)*plActions + j + 1]);
+            sdr2.setProbability(std::make_shared<DiscreteState>(DiscreteState(i)), std::make_shared<DiscreteAction>(DiscreteAction(j)), vals2[opposingTypes + (i)*plActions + j]);
         }
     }
     strategy2 = std::make_shared<StochasticDecisionRule>(sdr2);
 
 }
 
-std::vector<std::shared_ptr<StochasticDecisionRule>> sdm::HS4BG::getSolution(){
+std::vector<std::shared_ptr<sdm::StochasticDecisionRule>> sdm::HS4BG::getSolution(){
     return std::vector<std::shared_ptr<StochasticDecisionRule>>{strategy1, strategy2};
 }
