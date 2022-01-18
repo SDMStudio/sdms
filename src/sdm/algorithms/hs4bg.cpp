@@ -186,6 +186,7 @@ std::shared_ptr<sdm::State> sdm::HS4BG::naiveHS(int agentId){
         }
         i++;
     }
+    std::cout << "proba of selected type : " << maxProba << std::endl;
     return agentTypes->toMultiDiscreteSpace()->getItem(mostLikelyStateIndex)->toState();
 }
 
@@ -294,11 +295,13 @@ void sdm::HS4BG::updateLP(std::shared_ptr<State> type1, std::shared_ptr<Action> 
 
 void sdm::HS4BG::updateStrategies(){
     cplex1 = IloCplex(model1);
+    cplex1.setOut(env.getNullStream());
     if ( !cplex1.solve() ) {
         cout << "HS4BG : could not solve LP for Agent 1" << endl;
         throw(-1);
     }
     cplex2 = IloCplex(model2);
+    cplex2.setOut(env.getNullStream());
     if ( !cplex2.solve() ) {
         cout << "HS4BG : could not solve LP for Agent 2" << endl;
         throw(-1);
@@ -310,7 +313,7 @@ void sdm::HS4BG::solve(){
     float vSup = 1;
     float vInf = 0;
     int step = 0;
-    while (vSup - vInf > EPSILON)
+    while (abs(vSup - vInf) > EPSILON)
     {
         auto chosenType1 = naiveHS(0);
         auto chosenType2 = naiveHS(1);
@@ -328,6 +331,9 @@ void sdm::HS4BG::solve(){
         std::cout << "vSup = " << vSup << std::endl;
         std::cout << "vInf = " << vInf << std::endl;
 
+        std::cout << "chosen type 1 : " << chosenType1 << std::endl;
+        std::cout << "chosen action 1 : " << chosenAction1 << std::endl;
+        std::cout << "num of constraints for LP 1 : " << cplex1.getNrows() << std::endl;
 
         step++;
     }

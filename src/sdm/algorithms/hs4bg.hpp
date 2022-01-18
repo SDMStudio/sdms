@@ -47,7 +47,7 @@ namespace sdm
         void updateLP(std::shared_ptr<State> type1, std::shared_ptr<Action> action1, std::shared_ptr<State> type2, std::shared_ptr<Action> action2, int lpIndex);
     
         void updateStrategies();
-        
+    
         IloEnv env; 
         IloModel model1; 
         IloNumVarArray vars1;
