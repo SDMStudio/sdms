@@ -316,7 +316,6 @@ namespace sdm
     {
         if (this->v_indexes.size() > 0)
         {
-            assert((this->v_indexes.size() == this->size()));
             return this->v_indexes;
         }
         else

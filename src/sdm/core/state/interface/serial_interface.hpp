@@ -42,7 +42,7 @@ namespace sdm
          * p
          * @return std::vector<std::shared_ptr<Action>> 
          */
-        virtual Joint<std::shared_ptr<Action>> getAction() const = 0;
+        virtual JointAction getAction() const = 0;
 
         /**
          * @brief Set the Agent Id of the object

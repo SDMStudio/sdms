@@ -10,6 +10,7 @@
 #include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 #include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
+#include <sdm/utils/value_function/qfunction/parametric_qvalue_function.hpp>
 
 #include <sdm/parser/parser.hpp>
 
@@ -221,37 +222,45 @@ namespace sdm
             std::shared_ptr<sdm::QValueFunction> qvalue;
             std::shared_ptr<sdm::Initializer> q_init;
             std::shared_ptr<ActionSelectionInterface> action_selection;
-            std::shared_ptr<QUpdateOperatorInterface> q_update_operator;
 
             // Instanciate initializer
             q_init = sdm::initializer::registry::make(q_init_name, problem);
 
+            if (qvalue_name.find("wcsp") != string::npos)
+            {
+                std::cout << "wcsp"<<std::endl;
+                action_selection = std::make_shared<ActionSelectionMaxplanWCSP>(problem);
+            }
+            else if (qvalue_name.find("lp") != string::npos)
+            {
+#ifdef WITH_CPLEX
+                action_selection = std::make_shared<ActionSelectionMaxplanLP>(problem);
+#else
+                throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
+#endif
+            }
+            else if (qvalue_name.find("serial") != string::npos)
+            {
+                std::cout << "serial"<<std::endl;
+                action_selection = std::make_shared<ActionSelectionMaxplanSerial>(problem);
+            }
+            else
+            {
+                action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
+            }
+
             if (qvalue_name.find("maxplan") != string::npos)
             {
-                if (qvalue_name.find("wcsp") != string::npos)
-                {
-                    action_selection = std::make_shared<ActionSelectionMaxplanWCSP>(problem);
-                }
-                else if (qvalue_name.find("lp") != string::npos)
-                {
-#ifdef WITH_CPLEX
-                    action_selection = std::make_shared<ActionSelectionMaxplanLP>(problem);
-#else
-                    throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
-#endif
-                }
-                else
-                {
-                    if (qvalue_name.find("serial") != string::npos)
-                        action_selection = std::make_shared<ActionSelectionMaxplanSerial>(problem);
-                    else
-                        action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
-                }
+                std::cout << "maxplan"<<std::endl;
                 qvalue = std::make_shared<PWLCQValueFunction>(problem, q_init, action_selection);
+            }
+            else if (qvalue_name.find("oneplan") != string::npos)
+            {
+                std::cout << "oneplan"<<std::endl;
+                qvalue = std::make_shared<ParametricQValueFunction>(problem, q_init, action_selection);
             }
             else if (qvalue_name.find("tabular") != string::npos)
             {
-                action_selection = std::make_shared<ExhaustiveActionSelection>(problem);
                 qvalue = std::make_shared<TabularQValueFunction>(problem, q_init, action_selection);
             }
             else
@@ -261,20 +270,22 @@ namespace sdm
             return qvalue;
         }
 
-        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<SolvableByDP> problem,
-                                                      std::string qvalue_name,
-                                                      std::string q_init_name,
-                                                      number horizon,
-                                                      double discount,
-                                                      double lr,
-                                                      double batch_size,
-                                                      unsigned long long num_episodes,
-                                                      std::string name)
+        std::shared_ptr<sdm::QLearning> makeRL(std::shared_ptr<SolvableByDP> problem,
+                                               std::string algo_name,
+                                               std::string qvalue_name,
+                                               std::string q_init_name,
+                                               number horizon,
+                                               double discount,
+                                               double rate_start, double rate_end, double rate_decay,
+                                               double eps_start, double eps_end, double eps_decay,
+                                               double batch_size,
+                                               unsigned long long num_episodes,
+                                               std::string name)
         {
             assert(((discount < 1) || (horizon > 0)));
 
             // Instanciate exploration process
-            std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
+            std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedyDecay>(eps_start, eps_end, eps_decay);
 
             // Instanciate the memory
             std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
@@ -287,21 +298,32 @@ namespace sdm
 
             // Instanciate udpate operator
             std::shared_ptr<QUpdateOperatorInterface> update_operator;
-            if (qvalue_name.find("maxplan") != string::npos)
+            if (qvalue_name.find("tabular") != string::npos)
             {
-                update_operator = std::make_shared<update::PWLCQUpdate>(experience_memory, qvalue, target_qvalue, lr);
+                update_operator = std::make_shared<update::TabularQUpdate>(experience_memory, qvalue, target_qvalue);
             }
             else
             {
-                update_operator = std::make_shared<update::TabularQUpdate>(experience_memory, qvalue, target_qvalue, lr);
+                update_operator = std::make_shared<update::PWLCQUpdate>(experience_memory, qvalue, target_qvalue);
             }
 
             // Set update operator
             qvalue->setUpdateOperator(update_operator);
 
             // Instanciate algorithme
-            std::shared_ptr<QLearning> algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, batch_size, num_episodes, name);
+            std::shared_ptr<QLearning> algorithm;
 
+            std::transform(algo_name.begin(), algo_name.end(), algo_name.begin(), [](unsigned char c)
+                           { return std::tolower(c); });
+                           
+            if (algo_name == "qlearning")
+            {
+                algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+            }
+            else if (algo_name == "sarsa")
+            {
+                algorithm = std::make_shared<SARSA>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+            }
             return algorithm;
         }
 
@@ -392,6 +414,7 @@ namespace sdm
 
         std::shared_ptr<Algorithm> makeAlgorithm(std::string algo_name, std::shared_ptr<SolvableByHSVI> formalism, double discount,
                                                  double error, int trials, bool store_state, bool store_action, std::string name, double time_max, unsigned long long num_samples, std::string type_sampling,
+                                                 double rate_start, double rate_end, double rate_decay, double eps_start, double eps_end, double eps_decay,
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
@@ -406,10 +429,11 @@ namespace sdm
                                   value_function_1, value_function_2, init_v1, init_v2, freq_update_v1, freq_update_v2,
                                   type_of_resolution_v1, type_of_resolution_v2, freq_pruning_v1, freq_pruning_v2, type_of_pruning_v1, type_of_pruning_v2);
             }
-            else if ((algo_name == "qlearning") || (algo_name == "QLearning") || (algo_name == "QLEARNING"))
+            else if ((algo_name == "qlearning") || (algo_name == "QLearning") || (algo_name == "QLEARNING") ||
+                     (algo_name == "sarsa") || (algo_name == "Sarsa") || (algo_name == "SARSA"))
             {
                 // std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism);
-                p_algo = makeQLearning(formalism, value_function_1, init_v1, formalism->getHorizon(), discount, error, 1, trials, name);
+                p_algo = makeRL(formalism, algo_name, value_function_1, init_v1, formalism->getHorizon(), discount, rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay, 1, trials, name);
             }
             else if ((algo_name == "Alpha*") || (algo_name == "A*") || (algo_name == "a*"))
             {
@@ -469,6 +493,7 @@ namespace sdm
 
         std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism_name, number horizon, double discount, double error, int trials, double time_max, std::string name,
                                         int memory, StateType state_type, bool store_state, bool store_action, number batch_size, unsigned long long num_samples, std::string type_sampling,
+                                        double rate_start, double rate_end, double rate_decay, double eps_start, double eps_end, double eps_decay,
                                         std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                         std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
@@ -525,6 +550,7 @@ namespace sdm
 
                 // Build the algorithm
                 return makeAlgorithm(algo_name, formalism, discount, error, trials, store_state, store_action, name, time_max, num_samples, type_sampling,
+                                     rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay,
                                      value_function_1, init_v1, freq_update_v1, type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1,
                                      value_function_2, init_v2, freq_update_v2, type_of_resolution_v2, freq_pruning_v2, type_of_pruning_v2);
             }

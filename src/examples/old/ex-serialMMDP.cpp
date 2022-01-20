@@ -39,8 +39,8 @@ int main(int argc, char **argv)
     auto action_3 = std::make_shared<DiscreteAction>(3);
     
     // Creation of a Serial State
-    auto joint_serial_action = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2}));
-    auto serial_state = std::make_shared<SerialState>(state_0,joint_serial_action);
+    auto joint_serial_action = JointAction({action_2});
+    auto serial_state = std::make_shared<SerialState>(state_0, joint_serial_action);
 
     // Some Function of Serial State
     std::cout<<serial_state->str()<<std::endl;

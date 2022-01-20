@@ -25,13 +25,13 @@ int main(int, char **)
     // Here, we will suppose an example with 3 agents
     JointDeterministicDecisionRule joint_det_dr;
 
-    auto joint_state_1 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_3,state_4,state_5}));
-    auto joint_state_2 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_1,state_1,state_1}));
-    auto joint_state_3 = Joint<std::shared_ptr<State>>(std::vector<std::shared_ptr<State>>({state_3,state_1,state_5}));
+    auto joint_state_1 = JointState(std::vector<std::shared_ptr<State>>({state_3,state_4,state_5}));
+    auto joint_state_2 = JointState(std::vector<std::shared_ptr<State>>({state_1,state_1,state_1}));
+    auto joint_state_3 = JointState(std::vector<std::shared_ptr<State>>({state_3,state_1,state_5}));
 
-    auto joint_action_1 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_2,action_1,action_3}));
-    auto joint_action_2 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_3,action_2,action_3}));
-    auto joint_action_3 = Joint<std::shared_ptr<Action>>(std::vector<std::shared_ptr<Action>>({action_0,action_5,action_1}));
+    auto joint_action_1 = JointAction(std::vector<std::shared_ptr<Action>>({action_2,action_1,action_3}));
+    auto joint_action_2 = JointAction(std::vector<std::shared_ptr<Action>>({action_3,action_2,action_3}));
+    auto joint_action_3 = JointAction(std::vector<std::shared_ptr<Action>>({action_0,action_5,action_1}));
 
     // Create the joint deterministic decision rule
     joint_det_dr.setProbability(joint_state_1, joint_action_1);

@@ -26,7 +26,7 @@ namespace sdm
              *
              * @param t the time step
              */
-            virtual void update(number t) = 0;
+            virtual void update(double learning_rate, number t) = 0;
         };
 
         /**
@@ -45,8 +45,8 @@ namespace sdm
              */
             QUpdateOperator(std::shared_ptr<ExperienceMemory> experience_memory,
                             std::shared_ptr<ValueFunctionInterface> q_value,
-                            std::shared_ptr<ValueFunctionInterface> target_q_value,
-                            double learning_rate) : experience_memory(experience_memory), learning_rate(learning_rate)
+                            std::shared_ptr<ValueFunctionInterface> target_q_value)
+                : experience_memory(experience_memory)
             {
                 auto derived = std::dynamic_pointer_cast<TQValueFunction>(q_value);
                 auto derived_target = std::dynamic_pointer_cast<TQValueFunction>(target_q_value);
@@ -68,12 +68,12 @@ namespace sdm
              *
              * @param t the time step
              */
-            virtual void update(number t) = 0;
+            virtual void update(double learning_rate, number t) = 0;
 
             /**
-             * @brief Get the updatable q-value function 
-             * 
-             * 
+             * @brief Get the updatable q-value function
+             *
+             *
              * @return the q-value function
              */
             inline std::shared_ptr<TQValueFunction> getQValueFunction() const
@@ -83,7 +83,7 @@ namespace sdm
 
             /**
              * @brief Set the updatable q-value function
-             * 
+             *
              * @param q_value the q-value function
              */
             void setQValueFunction(const std::shared_ptr<TQValueFunction> &q_value) const
@@ -93,8 +93,8 @@ namespace sdm
 
             /**
              * @brief Get the world
-             * 
-             * @return the world 
+             *
+             * @return the world
              */
             inline std::shared_ptr<SolvableByDP> getWorld() const
             {
@@ -111,8 +111,6 @@ namespace sdm
              * @brief the Q-value function
              */
             std::weak_ptr<TQValueFunction> q_value, target_q_value;
-
-            double learning_rate;
         };
 
         using TabularQUpdateOperator = QUpdateOperator<TabularQValueFunctionInterface>;

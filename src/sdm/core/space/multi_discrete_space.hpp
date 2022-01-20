@@ -36,7 +36,7 @@ namespace sdm
                                public Joint<std::shared_ptr<Space>>
     {
     public:
-        using value_type = Joint<std::shared_ptr<Item>>;
+        using value_type = JointItem;
         using iterator_type = DiscreteSpace::iterator_type;
 
         /**
@@ -116,7 +116,7 @@ namespace sdm
          * @param jitem the joint item we want to get the index
          * @return the corresponding index
          */
-        number getJointItemIndex(std::shared_ptr<Joint<std::shared_ptr<Item>>> &jitem) const;
+        number getJointItemIndex(std::shared_ptr<JointItem> &jitem) const;
         // number getJointItemIndex(const std::vector<std::shared_ptr<Item>> &) const;
 
         /*!
@@ -134,7 +134,7 @@ namespace sdm
         bool operator!=(const MultiDiscreteSpace &other) const;
 
         /**
-         * @brief Verify is the multi discrete space contains the Joint<std::shared_ptr<Item>>;
+         * @brief Verify is the multi discrete space contains the JointItem;
          * 
          * @return true 
          * @return false 

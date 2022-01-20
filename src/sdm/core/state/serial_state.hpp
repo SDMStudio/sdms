@@ -16,12 +16,12 @@ namespace sdm
    * of the classic state plus the list of actions chosen by the previous agents.
    *
    */
-  class SerialState : public BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>,
+  class SerialState : public BaseState<Pair<std::shared_ptr<State>, JointAction>>,
                       public BaseSerialInterface
   {
   public:
     SerialState();
-    SerialState(std::shared_ptr<State> state, Joint<std::shared_ptr<Action>> actions);
+    SerialState(std::shared_ptr<State> state, JointAction actions);
     SerialState(const SerialState &v);
     virtual ~SerialState();
 
@@ -43,7 +43,7 @@ namespace sdm
      *
      * @return the list of (previous) actions
      */
-    Joint<std::shared_ptr<Action>> getAction() const;
+    JointAction getAction() const;
 
     /**
      * @brief Get the agent ID corresponding to the current state.

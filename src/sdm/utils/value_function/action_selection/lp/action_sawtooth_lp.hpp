@@ -127,7 +127,7 @@ namespace sdm
 
         virtual void createOmegaConstraints(IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t);
 
-        virtual std::shared_ptr<Joint<std::shared_ptr<Observation>>> determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &, number t);
+        virtual std::shared_ptr<JointObservation> determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &, number t);
 
         double computeRatio(const std::shared_ptr<BeliefMDPInterface> &oMDP,
                             const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<JointHistoryInterface> joint_history,

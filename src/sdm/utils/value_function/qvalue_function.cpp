@@ -20,9 +20,9 @@ namespace sdm
         return this->getActionSelection()->getGreedyActionAndValue(this->getptr(), state, t).second;
     }
 
-    void QValueFunction::updateValueAt(number t)
+    void QValueFunction::updateValueAt(double learning_rate, number t)
     {
-        this->getUpdateOperator()->update(t);
+        this->getUpdateOperator()->update(learning_rate, t);
     }
 
     std::shared_ptr<QUpdateOperatorInterface> QValueFunction::getUpdateOperator() const

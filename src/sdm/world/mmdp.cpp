@@ -60,7 +60,7 @@ namespace sdm
                         res << "T: ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                            auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
                             res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                         }
                         res << ": " << state_space->getItemIndex(state)
@@ -78,7 +78,7 @@ namespace sdm
                     res << "R: ";
                     for (number agent = 0; agent < n_agents; ++agent)
                     {
-                        auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                        auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
                         res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                     }
                     res << ": " << state_space->getItemIndex(state)

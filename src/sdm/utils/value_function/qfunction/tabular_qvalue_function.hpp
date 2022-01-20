@@ -12,11 +12,11 @@ namespace sdm
 {
     /**
      * @brief Q-value function instance represented by a mapping function.
-     * 
+     *
      * This representation can be used with all types of states and actions. A value is assign
      * to each pair (state, action) where the state must inherit from the `State` interface and
      * the action must inherit from the `Action` interface.
-     * 
+     *
      */
     class TabularQValueFunction : public QValueFunction, public TabularQValueFunctionInterface
     {
@@ -42,11 +42,11 @@ namespace sdm
 
         /**
          * @brief Get the q-value at a specific state, action and time step.
-         * 
+         *
          * @param state the state
          * @param action the action
          * @param t the time step
-         * @return the q-value 
+         * @return the q-value
          */
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
@@ -61,9 +61,9 @@ namespace sdm
 
         /**
          * @brief Get the q-value at a state
-         * 
+         *
          * @param state the state
-         * @return the action value vector 
+         * @return the action value vector
          */
         std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
 
@@ -83,7 +83,7 @@ namespace sdm
     protected:
         /**
          * @brief The Q value function represention.
-         * 
+         *
          * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          *
          */

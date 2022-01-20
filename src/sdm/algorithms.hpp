@@ -9,6 +9,7 @@
 #include <sdm/algorithms/planning/perseus.hpp>
 
 #include <sdm/algorithms/q_learning.hpp>
+#include <sdm/algorithms/sarsa.hpp>
 #include <sdm/algorithms/alpha_star.hpp>
 #include <sdm/algorithms/backward_induction.hpp>
 #include <sdm/algorithms/bayesian_game_solver.hpp>
@@ -34,7 +35,7 @@ namespace sdm
                                                          std::string type_of_pruning,
                                                          int freq_pruning);
         /**
-         * @brief Build HSVI algorithm. 
+         * @brief Build HSVI algorithm.
          */
         std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem,
                                             double error = 0.01,
@@ -78,12 +79,14 @@ namespace sdm
         /**
          * @brief Build QLearning algorithm.
          */
-        std::shared_ptr<sdm::QLearning> makeQLearning(std::shared_ptr<SolvableByDP> problem,
+        std::shared_ptr<sdm::QLearning> makeRL(std::shared_ptr<SolvableByDP> problem,
+                                                      std::string algo_name = "qlearning",
                                                       std::string qvalue_name = "tabular",
                                                       std::string q_init_name = "Zero",
                                                       number horizon = 0,
                                                       double discount = 0.9,
-                                                      double lr = 0.01,
+                                                      double rate_start = 1.0, double rate_end = 0.001, double rate_decay = 10000,
+                                                      double eps_start = 1.0, double eps_end = 0.001, double eps_decay = 10000,
                                                       double batch_size = 1,
                                                       unsigned long long num_episodes = 10000,
                                                       std::string name = "qlearning");
@@ -108,12 +111,13 @@ namespace sdm
          */
         std::shared_ptr<Algorithm> makeAlgorithm(std::string algo_name, std::shared_ptr<SolvableByHSVI> formalism, double discount,
                                                  double error, int trials, bool store_state, bool store_action, std::string name, double time_max, unsigned long long num_samples, std::string type_sampling,
+                                                 double rate_start, double rate_end, double rate_decay, double eps_start, double eps_end, double eps_decay,
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2);
 
         /**
-         * @brief Build an algorithm given his name and the configurations required. 
-         * 
+         * @brief Build an algorithm given his name and the configurations required.
+         *
          * @param algo_name the name of the algorithm to be built
          * @param problem_path the path to the problem to be solved
          * @param formalism_name the name of the formalism to consider to solve the problem
@@ -124,9 +128,9 @@ namespace sdm
          * @param discount the discount factor
          * @param error the accuracy
          * @param horizon the planning horizon
-         * @param trials the maximum number of trials 
-         * @param memory if greater than 0, specify the max size of the history  
-         * @param batch_size for learning algorithms only  
+         * @param trials the maximum number of trials
+         * @param memory if greater than 0, specify the max size of the history
+         * @param batch_size for learning algorithms only
          * @return pointer on algorithm instance
          */
         std::shared_ptr<Algorithm> make(std::string algo_name,
@@ -145,6 +149,8 @@ namespace sdm
                                         number batch_size = 0,
                                         unsigned long long num_samples = 10,
                                         std::string type_sampling = "",
+                                        double rate_start = 1.0, double rate_end = 0.001, double rate_decay = 1000,
+                                        double eps_start = 1.0, double eps_end = 0.001, double eps_decay = 10000,
                                         std::string value_function_1 = "tabular",
                                         std::string init_v1 = "Min",
                                         number freq_update_v1 = 1,
@@ -159,21 +165,21 @@ namespace sdm
                                         std::string type_of_pruning_v2 = "none");
 
         /**
-         * @brief Get the list of available algorithms. 
-         * 
+         * @brief Get the list of available algorithms.
+         *
          * Usage:
          * ```cpp
          * #include <sdm/algorithms.hpp>
-         * 
-         * int main() 
+         *
+         * int main()
          * {
          *     std::cout << sdm::algo::available() << std::endl;
          *     return 0;
          * }
          * ```
-         * 
+         *
          * @return the list of available algorithms.
-         * 
+         *
          */
         std::vector<std::string> available();
 

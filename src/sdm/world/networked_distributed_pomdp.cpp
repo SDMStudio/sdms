@@ -307,11 +307,11 @@ namespace sdm
                         double joint_reward = 0.0;
                         for (number agent_id1 = 0; agent_id1 < this->getNumAgents(); agent_id1++)
                         {
-                            auto action_ag1 = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action->toAction())->get(agent_id1);
+                            auto action_ag1 = std::static_pointer_cast<JointAction>(joint_action->toAction())->get(agent_id1);
                             number idx_action_ag1 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id1)->toDiscreteSpace()->getItemIndex(action_ag1);
                             for (number agent_id2 = 0; agent_id2 < this->getNumAgents(); agent_id2++)
                             {
-                                auto action_ag2 = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action->toAction())->get(agent_id2);
+                                auto action_ag2 = std::static_pointer_cast<JointAction>(joint_action->toAction())->get(agent_id2);
                                 number idx_action_ag2 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id2)->toDiscreteSpace()->getItemIndex(action_ag2);
 
                                 joint_reward += this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2);
@@ -404,10 +404,10 @@ namespace sdm
                             proba = 1.;
                             for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
                             {
-                                auto iobservation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_obs)->get(agent_id);
+                                auto iobservation = std::static_pointer_cast<JointObservation>(joint_obs)->get(agent_id);
                                 number idx_obs_ag = this->getObservationSpace()->toMultiDiscreteSpace()->get(agent_id)->toDiscreteSpace()->getItemIndex(iobservation);
 
-                                auto iaction = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action)->get(agent_id);
+                                auto iaction = std::static_pointer_cast<JointAction>(joint_action)->get(agent_id);
                                 number idx_action_ag = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id)->toDiscreteSpace()->getItemIndex(iaction);
 
                                 // Compute probability
@@ -517,8 +517,8 @@ namespace sdm
         if (this->n[id1].rewardFunction.count(s1) == 1)
             return this->n[id1].rewardFunction[s1];
 
-        return -5;
-        // return 0;
+        // return -5;
+        return 0;
     }
 
     double NetworkedDistributedPOMDP::getInitialBelief(std::shared_ptr<State> x)

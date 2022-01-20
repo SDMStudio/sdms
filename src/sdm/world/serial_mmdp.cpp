@@ -150,7 +150,7 @@ namespace sdm
         // Vector of all serial state
         std::vector<std::shared_ptr<DiscreteSpace>> all_serial_state;
 
-        std::vector<Joint<std::shared_ptr<Action>>> all_past_action;
+        std::vector<JointAction> all_past_action;
 
         // Go over all agent
         for (int i = 0; i < this->getNumAgents(); i++)
@@ -159,7 +159,7 @@ namespace sdm
             std::vector<std::shared_ptr<Item>> serial_state_i;
 
             // All possible vector of actions
-            std::vector<Joint<std::shared_ptr<Action>>> all_new_action;
+            std::vector<JointAction> all_new_action;
 
             // Creation of all possible vector of actions
 
@@ -212,10 +212,10 @@ namespace sdm
         this->serial_state_space_ = Joint<std::shared_ptr<DiscreteSpace>>(all_serial_state);
 
         // Create the vector of joint action and the pointer associated
-        std::vector<Joint<std::shared_ptr<Action>>> vector_joint_action;
+        std::vector<JointAction> vector_joint_action;
         for (const auto &element : *this->mmdp_->getActionSpace(0))
         {
-            auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(element);
+            auto joint_action = std::static_pointer_cast<JointAction>(element);
             std::shared_ptr<Action> jaction = joint_action;
             this->map_joint_action_to_pointeur[*joint_action] = jaction;
         }
@@ -247,7 +247,7 @@ namespace sdm
                     {
                         for (const auto next_hidden_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action), agent_id + 1))
                         {
-                            auto next_state = SerialState(next_hidden_state, Joint<std::shared_ptr<Action>>());
+                            auto next_state = SerialState(next_hidden_state, JointAction());
                             dynamics->setReachablesStates(serial_state, serial_action, this->getPointeurState(next_state));
                         }
                     }
@@ -272,7 +272,7 @@ namespace sdm
         return this->isLastAgent(t) ? this->mmdp_->getMaxReward(t) : 0;
     }
 
-    const std::shared_ptr<Action> SerialMMDP::getPointeurJointAction(Joint<std::shared_ptr<Action>> &joint_action) const
+    const std::shared_ptr<Action> SerialMMDP::getPointeurJointAction(JointAction &joint_action) const
     {
         return this->map_joint_action_to_pointeur.at(joint_action);
     }
@@ -282,18 +282,18 @@ namespace sdm
         return this->map_serial_state_to_pointeur.at(serial_state);
     }
 
-    void SerialMMDP::setJointActionToPointeur(std::vector<Joint<std::shared_ptr<Action>>> vecteur_of_joint_action)
+    void SerialMMDP::setJointActionToPointeur(std::vector<JointAction> vecteur_of_joint_action)
     {
 
         // Go over all element in the vector of joint action
         for (auto &new_joint_action : vecteur_of_joint_action)
         {
-            std::shared_ptr<Action> jaction = std::make_shared<Joint<std::shared_ptr<Action>>>(new_joint_action);
+            std::shared_ptr<Action> jaction = std::make_shared<JointAction>(new_joint_action);
             this->map_joint_action_to_pointeur[new_joint_action] = jaction;
         }
     }
 
-    Joint<std::shared_ptr<Action>> SerialMMDP::addNewAction(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &new_action) const
+    JointAction SerialMMDP::addNewAction(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &new_action) const
     {
         auto all_action = state->toSerial()->getAction();
         all_action.push_back(new_action);

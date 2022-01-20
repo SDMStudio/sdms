@@ -3,16 +3,16 @@
 namespace sdm
 {
 
-    SerialState::SerialState(): BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>()
+    SerialState::SerialState(): BaseState<Pair<std::shared_ptr<State>, JointAction>>()
     {
     }
     
-    SerialState::SerialState(std::shared_ptr<State> state, Joint<std::shared_ptr<Action>> actions) : BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>(std::make_pair(state, actions))
+    SerialState::SerialState(std::shared_ptr<State> state, JointAction actions) : BaseState<Pair<std::shared_ptr<State>, JointAction>>(std::make_pair(state, actions))
     {
         this->setAgentId(actions.size());
     }
 
-    SerialState::SerialState(const SerialState &copy) : BaseState<Pair<std::shared_ptr<State>, Joint<std::shared_ptr<Action>>>>(copy)
+    SerialState::SerialState(const SerialState &copy) : BaseState<Pair<std::shared_ptr<State>, JointAction>>(copy)
     {
         this->setAgentId(copy.getCurrentAgentId());
     }
@@ -24,7 +24,7 @@ namespace sdm
         return this->state.first;
     }
 
-    Joint<std::shared_ptr<Action>> SerialState::getAction()const 
+    JointAction SerialState::getAction()const 
     {
         return this->state.second;
     }

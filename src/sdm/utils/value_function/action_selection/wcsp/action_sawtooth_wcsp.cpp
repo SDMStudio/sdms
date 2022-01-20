@@ -159,7 +159,7 @@
 //             double denominator = next_one_step_uncompressed_occupancy_state->getProbability(next_joint_history,next_hidden_state);
 
 //             // Determine the next joint observation thinks to the Next joint history of the support
-//             auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation());
+//             auto next_joint_observation = std::static_pointer_cast<JointObservation>(next_joint_history->getLastObservation());
 
 //             double numerator = 0.0;
 
@@ -201,7 +201,7 @@
 //         {
 //             std::set<std::shared_ptr<JointHistoryInterface>> joint_histories;
 
-//             auto next_joint_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(this->support_of_the_next_history->getLastObservation());
+//             auto next_joint_observation = std::static_pointer_cast<JointObservation>(this->support_of_the_next_history->getLastObservation());
 
 //             //Determine all Joing History which respect the fact that the next joint history can be create by the current joint history and the next joint observation
 //             for(const auto &joint_history : compressed_occupancy_state->getJointHistories())

@@ -34,4 +34,25 @@ int main(int argc, char **argv)
     std::cout << "\033[1;31m#> OBSERVATION SPACE (standard version)\033[0m" << std::endl;
     std::cout << *mpomdp_from_ndpomdp->getObservationSpace(0) << std::endl;
 
+    std::cout << "----------------------------------------" << std::endl;
+    std::cout << "\033[1;31m#> REWARD (standard version)\033[0m" << std::endl;
+    for (const auto &s : *mpomdp_from_ndpomdp->getStateSpace(0))
+    {
+        for (const auto &a : *mpomdp_from_ndpomdp->getActionSpace(0))
+        {
+            std::cout << "R(" << *s << ", " << *a << ")=" << mpomdp_from_ndpomdp->getReward(s->toState(), a->toAction()) << std::endl;
+        }
+    }
+
+
+    // std::cout << "----------------------------------------" << std::endl;
+    // std::cout << "\033[1;31m#> TRANSITION (standard version)\033[0m" << std::endl;
+    // for (const auto &s : *mpomdp_from_ndpomdp->getStateSpace(0))
+    // {
+    //     for (const auto &a : *mpomdp_from_ndpomdp->getActionSpace(0))
+    //     {
+    //         std::cout << "R(" << *s << ", " << *a << ")=" << mpomdp_from_ndpomdp->getReward(s->toState(), a->toAction()) << std::endl;
+    //     }
+    // }
+
 } // END main

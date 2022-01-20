@@ -85,7 +85,7 @@ namespace sdm
          */
         double getDynamics(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
 
-        std::shared_ptr<Joint<std::shared_ptr<Observation>>> getDefaultObservation() const;
+        std::shared_ptr<JointObservation> getDefaultObservation() const;
 
     protected:
         std::shared_ptr<MPOMDPInterface> mpomdp;
@@ -121,9 +121,9 @@ namespace sdm
         /**
          * @brief Get the Pointeur object of a precise Joint Action
          *
-         * @return std::shared_ptr<Joint<std::shared_ptr<Action>>>
+         * @return std::shared_ptr<JointAction>
          */
-        const std::shared_ptr<Observation> getPointeurObservation(Joint<std::shared_ptr<Observation>> &) const;
+        const std::shared_ptr<Observation> getPointeurObservation(JointObservation &) const;
     };
 
 } // namespace sdm

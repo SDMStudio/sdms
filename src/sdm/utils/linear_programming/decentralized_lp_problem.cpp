@@ -51,7 +51,7 @@ namespace sdm
             // Go over all action
             for (const auto &action : *underlying_problem->getActionSpace(t))
             {
-                auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action->toAction());
+                auto joint_action = std::static_pointer_cast<JointAction>(action->toAction());
 
                 //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
                 con.add(IloRange(env, 1 - underlying_problem->getNumAgents(), +IloInfinity));
@@ -80,7 +80,7 @@ namespace sdm
             // Go over all action
             for (const auto &action : *underlying_problem->getActionSpace(t))
             {
-                auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action->toAction());
+                auto joint_action = std::static_pointer_cast<JointAction>(action->toAction());
 
                 // Go over agent
                 for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)

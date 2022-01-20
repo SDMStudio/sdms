@@ -23,7 +23,7 @@ namespace sdm
 
     JointDeterministicDecisionRule::JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr)
     {
-        auto joint_indiv_dr = list_indiv_dr[0]->to<Joint<std::shared_ptr<Item>>>();
+        auto joint_indiv_dr = list_indiv_dr[0]->to<JointItem>();
         for (const auto indiv_dr : *joint_indiv_dr)
         {
             this->push_back(indiv_dr->to<DeterministicDecisionRule>());
@@ -32,31 +32,23 @@ namespace sdm
 
     std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::shared_ptr<State> &joint_state) const
     {
-        std::shared_ptr<Joint<std::shared_ptr<Action>>> joint_action = std::make_shared<Joint<std::shared_ptr<Action>>>();
-        // List of states
-        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        return this->act(std::static_pointer_cast<JointState>(joint_state));
+    }
 
-        for (number agent = 0; agent < joint_state_->size(); agent++)
+    std::shared_ptr<JointAction> JointDeterministicDecisionRule::act(const std::shared_ptr<JointState> &joint_state) const
+    {
+        std::shared_ptr<JointAction> joint_action = std::make_shared<JointAction>();
+        for (number agent = 0; agent < joint_state->size(); agent++)
         {
-            auto individual_action = this->get(agent)->act(joint_state_->get(agent));
-            joint_action->push_back(individual_action->toAction());
+            auto individual_action = this->get(agent)->act(joint_state->get(agent));
+            joint_action->push_back(individual_action);
         }
+        
         return joint_action;
     }
 
-    // Joint<std::shared_ptr<Action>> JointDeterministicDecisionRule::act(const Joint<std::shared_ptr<HistoryInterface>> &s)
-    // {
-    // Joint<std::shared_ptr<Action>> joint_action;
-    // for (number ag_id = 0; ag_id < joint_state_->size(); ag_id++)
-    // {
-    //     //
-    //     joint_action.push_back(this->get(ag_id)->act(joint_state_.get(ag_id))->toAction());
-    // }
-    //     return joint_action;
-    // }
-
     // Get probabilities of decision a(u | o)
-    double JointDeterministicDecisionRule::getProbability(const Joint<std::shared_ptr<State>> &states, const Joint<std::shared_ptr<Action>> &actions) const
+    double JointDeterministicDecisionRule::getProbability(const JointState &states, const JointAction &actions) const
     {
         assert((this->size() == states.size()) && (this->size() == actions.size()));
 
@@ -70,8 +62,8 @@ namespace sdm
 
     double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &joint_state, const std::shared_ptr<Action> &joint_action) const
     {
-        std::shared_ptr<Joint<std::shared_ptr<State>>> joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
-        std::shared_ptr<Joint<std::shared_ptr<Action>>> joint_action_ = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action);
+        std::shared_ptr<JointState> joint_state_ = std::static_pointer_cast<JointState>(joint_state);
+        std::shared_ptr<JointAction> joint_action_ = std::static_pointer_cast<JointAction>(joint_action);
 
         double probability = 1.;
         for (number agent_id = 0; agent_id < this->size(); agent_id++)
@@ -87,7 +79,7 @@ namespace sdm
         return this->get(agent_id)->getProbability(state, action);
     }
 
-    void JointDeterministicDecisionRule::setProbability(const Joint<std::shared_ptr<State>> &states, const Joint<std::shared_ptr<Action>> &actions, double probability)
+    void JointDeterministicDecisionRule::setProbability(const JointState &states, const JointAction &actions, double probability)
     {
         assert(probability == 1 || probability == 0);
 
@@ -128,7 +120,7 @@ namespace sdm
 
     bool JointDeterministicDecisionRule::elementExist(const std::shared_ptr<State> &joint_state)
     {
-        auto joint_state_ = std::static_pointer_cast<Joint<std::shared_ptr<State>>>(joint_state);
+        auto joint_state_ = std::static_pointer_cast<JointState>(joint_state);
 
         for (number agent = 0; agent < joint_state_->size(); agent++)
         {

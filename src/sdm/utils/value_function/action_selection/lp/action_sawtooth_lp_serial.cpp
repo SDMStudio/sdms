@@ -229,9 +229,9 @@ namespace sdm
         model.add(IloIfThen(env, var[recover] > 0, expr <= 0));
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionSelectionSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
+    std::shared_ptr<JointObservation> ActionSelectionSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
     {
-        return (this->getSerialOccupancyMDP()->isLastAgent(t)) ? std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation()) : this->getSerialOccupancyMDP()->getUnderlyingSerialMPOMDP()->getDefaultObservation();
+        return (this->getSerialOccupancyMDP()->isLastAgent(t)) ? std::static_pointer_cast<JointObservation>(next_joint_history->getLastObservation()) : this->getSerialOccupancyMDP()->getUnderlyingSerialMPOMDP()->getDefaultObservation();
     }
 }
 

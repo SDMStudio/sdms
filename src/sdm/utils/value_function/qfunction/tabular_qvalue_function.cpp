@@ -2,6 +2,7 @@
 
 namespace sdm
 {
+
     TabularQValueFunction::TabularQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                                  const std::shared_ptr<Initializer> &initializer,
                                                  const std::shared_ptr<ActionSelectionInterface> &action_selection,

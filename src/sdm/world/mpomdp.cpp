@@ -81,7 +81,7 @@ namespace sdm
                         res << "T: ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                            auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
                             res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                         }
                         res << ": " << state_space->getItemIndex(state)
@@ -101,13 +101,13 @@ namespace sdm
                         res << "O: ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                            auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
                             res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                         }
                         res << ": " << state_space->getItemIndex(next_state) << " : ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto obs_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(observation)->get(agent);
+                            auto obs_agent_i = std::static_pointer_cast<JointItem>(observation)->get(agent);
                             res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
                         }
                         res << ": " << this->getObservationProbability(next_state->toState(), action->toAction(), next_state->toState(), observation->toObservation(), 0) << std::endl;
@@ -122,7 +122,7 @@ namespace sdm
                     res << "R: ";
                     for (number agent = 0; agent < n_agents; ++agent)
                     {
-                        auto action_agent_i = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(action)->get(agent);
+                        auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
                         res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                     }
                     res << ": " << state_space->getItemIndex(state)

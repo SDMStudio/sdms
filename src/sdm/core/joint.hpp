@@ -68,5 +68,10 @@ namespace sdm
     }
   };
 
+  using JointItem = Joint<std::shared_ptr<Item>>;
+  using JointAction = Joint<std::shared_ptr<Action>>;
+  using JointState = Joint<std::shared_ptr<State>>;
+  using JointObservation = Joint<std::shared_ptr<Observation>>;
+
 } // namespace sdm
 #include <sdm/core/joint.tpp>

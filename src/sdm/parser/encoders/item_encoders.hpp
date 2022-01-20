@@ -69,7 +69,7 @@ namespace sdm
                 }
                 else
                 {
-                    auto joint_item = std::make_shared<Joint<std::shared_ptr<Item>>>();
+                    auto joint_item = std::make_shared<JointItem>();
                     for (number ag = 0; ag < this->ag_space_->getNumItems(); ++ag)
                     {
                         item_encode a_encoder(this->joint_item_space_, ag);

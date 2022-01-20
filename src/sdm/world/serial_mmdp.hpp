@@ -196,7 +196,7 @@ namespace sdm
          * @brief Map the joint_action to a precise pointeur of Action
          * 
          */
-        std::unordered_map<Joint<std::shared_ptr<Action>>, std::shared_ptr<Action>> map_joint_action_to_pointeur;
+        std::unordered_map<JointAction, std::shared_ptr<Action>> map_joint_action_to_pointeur;
 
         /**
          * @brief Map the serialState to a precise pointeur of State
@@ -221,16 +221,16 @@ namespace sdm
         /**
          * @brief Get the Pointeur object of a precise Joint Action
          * 
-         * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
+         * @return std::shared_ptr<JointAction> 
          */
-        const std::shared_ptr<Action> getPointeurJointAction(Joint<std::shared_ptr<Action>> &) const;
+        const std::shared_ptr<Action> getPointeurJointAction(JointAction &) const;
 
-        void setJointActionToPointeur(std::vector<Joint<std::shared_ptr<Action>>>);
+        void setJointActionToPointeur(std::vector<JointAction>);
 
         /**
          * @brief Get the Pointeur object of a precise Joint Action
          * 
-         * @return std::shared_ptr<Joint<std::shared_ptr<Action>>> 
+         * @return std::shared_ptr<JointAction> 
          */
         const std::shared_ptr<State> getPointeurState(SerialState &) const;
 
@@ -241,9 +241,9 @@ namespace sdm
          * 
          * @param const std::shared_ptr<State>& : current serial state
          * @param const std::shared_ptr<Action>& : action to add
-         * @return Joint<std::shared_ptr<Action>> : vector of action of the current serial state + the action to add
+         * @return JointAction : vector of action of the current serial state + the action to add
          */
-        Joint<std::shared_ptr<Action>> addNewAction(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& new_action) const;
+        JointAction addNewAction(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& new_action) const;
     };
 
 } // namespace sdm

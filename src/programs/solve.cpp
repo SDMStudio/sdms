@@ -29,7 +29,8 @@ std::shared_ptr<Algorithm> algorithm;
 void leave()
 {
     algorithm->logging();
-    std::cout << config::LOG_SDMS << "Exit process" << std::endl;
+    std::cout << "\n"
+              << config::LOG_SDMS << "Exit process" << std::endl;
     algorithm = nullptr;
     exit(0);
 }
@@ -37,21 +38,6 @@ void leave()
 void handler(int)
 {
     leave();
-}
-
-void thread_sdms_sleep()
-{
-    unsigned int interval_millisecs = 100, total_time_millisecs = 0, max_time_millisecs = MAX_RUNNING_TIME * 1000;
-    while ((!quit_flag) && (total_time_millisecs < max_time_millisecs))
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(interval_millisecs));
-        total_time_millisecs += interval_millisecs;
-    }
-    if (total_time_millisecs >= max_time_millisecs)
-    {
-        std::cout << config::LOG_SDMS << "Out of time : MAX_RUNNING_TIME=" << MAX_RUNNING_TIME << std::endl;
-        raise(SIGINT);
-    }
 }
 
 int solve(int argv, char **args)
@@ -64,7 +50,7 @@ int solve(int argv, char **args)
         std::string world, algo_name, formalism, upper_bound, lower_bound, ub_init, lb_init, type_sampling;
         int trials, memory;
         number horizon, seed, batch_size, freq_update_lb, freq_update_ub, state_type;
-        double error, discount, granularity;
+        double error, discount, granularity, rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay;
         double p_b, p_o, p_c;
         bool store_actions, store_states;
         unsigned long long num_samples;
@@ -128,7 +114,12 @@ int solve(int argv, char **args)
         po::options_description qlearning_config("Q-learning configuration");
         qlearning_config.add_options()
         ("qvalue_function", po::value<string>(&lower_bound), "the q-value function representation")
-        ("lr", po::value<double>(&error), "the leraning rate")
+        ("eps_start", po::value<double>(&eps_start)->default_value(1.0), "the starting epsilon")
+        ("eps_end", po::value<double>(&eps_end)->default_value(0.001), "the final epsilon")
+        ("eps_decay", po::value<double>(&eps_decay)->default_value(10000), "the decaying epsilon factor")
+        ("rate_start", po::value<double>(&rate_start)->default_value(1.0), "the starting learning rate")
+        ("rate_end", po::value<double>(&rate_end)->default_value(0.001), "the final learning rate")
+        ("rate_decay", po::value<double>(&rate_decay)->default_value(10000), "the decaying factor")
         ("q_init", po::value<string>(&lb_init), "the q-value function initialization method")
         ("granularity,g", po::value<double>(&granularity)->default_value(PWLCQValueFunction::GRANULARITY), "The granularity...");
 
@@ -193,6 +184,12 @@ int solve(int argv, char **args)
                                     batch_size,
                                     num_samples,
                                     type_sampling,
+                                    rate_start,
+                                    rate_end,
+                                    rate_decay,
+                                    eps_start,
+                                    eps_end,
+                                    eps_decay,
                                     lower_bound,
                                     lb_init,
                                     freq_update_lb,
@@ -209,17 +206,8 @@ int solve(int argv, char **args)
         // Initialize algorithm
         algorithm->initialize();
 
-        // Launch a thread that will sleep during the max time allowed and kill the process afterward
-        std::thread thread_sleep(thread_sdms_sleep);
-
         // Solve the problem
         algorithm->solve();
-
-        quit_flag = true; // pogram ending; set the quit flag
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // algorithm->saveResults(name);
-
-        thread_sleep.join();
 
         if (vm.count("test"))
         {

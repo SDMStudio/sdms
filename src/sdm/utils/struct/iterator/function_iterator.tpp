@@ -76,7 +76,7 @@ namespace sdm
             }
             else
             {
-                auto outputs = std::static_pointer_cast<Joint<std::shared_ptr<Item>>>(output_iter);
+                auto outputs = std::static_pointer_cast<JointItem>(output_iter);
                 this->temporary_item = std::make_shared<TFunction>(this->possible_inputs_, *outputs);
             }
             return this->temporary_item;

@@ -135,6 +135,7 @@ file(
 	lib_rl_src
 	${INCLUDE_DIR}/utils/rl/**
 	${INCLUDE_DIR}/algorithms/q_learning.cpp
+	${INCLUDE_DIR}/algorithms/sarsa.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(rl_obj OBJECT ${lib_rl_src})

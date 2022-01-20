@@ -51,7 +51,7 @@ namespace sdm
                                   virtual public MPOMDPInterface
     {
     public:
-        virtual std::shared_ptr<Joint<std::shared_ptr<Observation>>> getDefaultObservation() const = 0;
+        virtual std::shared_ptr<JointObservation> getDefaultObservation() const = 0;
     };
 
 } // namespace sdm

@@ -63,7 +63,7 @@ namespace sdm
     void HierarchicalMPOMDP::setupObservationSpace()
     {
 
-        using obs_type = Joint<std::shared_ptr<Observation>>;
+        using obs_type = JointObservation;
         // For each agent, keep all possible individual hierarchical observations
         Joint<std::unordered_map<obs_type, std::shared_ptr<obs_type>>> map_new_obs_to_ptr;
 
@@ -79,18 +79,18 @@ namespace sdm
         for (const auto &joint_observation : *this->mpomdp_->getObservationSpace(0))
         {
             // Instanciate new joint observation
-            auto joint_hierarchical_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>();
+            auto joint_hierarchical_observation = std::make_shared<JointObservation>();
             // Instanciate temporary joint observation of agent 0:i
-            Joint<std::shared_ptr<Observation>> tmp;
+            JointObservation tmp;
             for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
             {
                 // Get observation of agent i
-                auto indiv_observation = std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(agent_id);
+                auto indiv_observation = std::static_pointer_cast<JointObservation>(joint_observation)->get(agent_id);
                 // Add it to the temporary structure
                 tmp.push_back(indiv_observation);
                 if (map_new_obs_to_ptr.at(agent_id).find(tmp) == map_new_obs_to_ptr.at(agent_id).end())
                 {
-                    auto indiv_h_obs = std::make_shared<Joint<std::shared_ptr<Observation>>>(tmp);
+                    auto indiv_h_obs = std::make_shared<JointObservation>(tmp);
                     map_new_obs_to_ptr.at(agent_id).emplace(tmp, indiv_h_obs);
                 }
                 // Add indiv hierarchical observation of agent i in the joint observation

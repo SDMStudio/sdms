@@ -16,7 +16,7 @@ namespace sdm
 
     void DynamicProgramming::printEndInfo()
     {
-        std::cout << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << "\n" << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
         std::cout << config::LOG_SDMS << "END PLANNING (" << this->getAlgorithmName() << ")" << std::endl;
         std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
     }

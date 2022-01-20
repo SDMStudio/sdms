@@ -30,7 +30,7 @@ namespace sdm
         {
             this->default_values_per_horizon[t] = value;
             // Setup default hyperplane
-            this->default_hyperplane[t] = std::make_shared<Hyperplane>(MappedVector<Tuple<std::shared_ptr<State>, std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>>>(value));
+            this->default_hyperplane[t] = std::make_shared<Hyperplane>(value);
         }
     }
 
@@ -51,8 +51,6 @@ namespace sdm
     double PWLCQValueFunction::getQValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, number t)
     {
         double qvalue = 0;
-        // std::cout << occupancy_state->str() << std::endl;
-        // std::cout << decision_rule->str() << std::endl;
 
         auto hyperplane = this->getHyperplaneAt(occupancy_state, t);
         if (hyperplane == this->default_hyperplane[t])
@@ -79,16 +77,22 @@ namespace sdm
 
     void PWLCQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t)
     {
-        // auto support = std::dynamic_pointer_cast<Hyperplane>(new_hyperplane)->getState().getIndexes();
-        // if (support.size()>0)
-        //     std::cout << "\n\nNEW HYPERPLANE=" << std::get<1>(support[0])->str() << std::endl;
         this->representation[t][state] = std::dynamic_pointer_cast<Hyperplane>(new_hyperplane);
     }
 
     std::shared_ptr<State> PWLCQValueFunction::getHyperplaneAt(const std::shared_ptr<State> &state, number t)
     {
         auto tmp_it = this->representation[t].find(state);
-        return (tmp_it != this->representation[t].end()) ? tmp_it->second : this->default_hyperplane[t];
+        if (tmp_it == this->representation[t].end())
+        {
+            auto new_hyperplane = std::make_shared<Hyperplane>(this->default_values_per_horizon[t]);
+            this->addHyperplaneAt(state, new_hyperplane, t);
+            return new_hyperplane;
+        }
+        else
+        {
+            return tmp_it->second;
+        }
     }
 
     std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(const std::shared_ptr<State> &state, number t)
@@ -96,11 +100,9 @@ namespace sdm
         return {getHyperplaneAt(state, t - 1)};
     }
 
-    double PWLCQValueFunction::getBeta(const std::shared_ptr<State> &hyperplane, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
+    double PWLCQValueFunction::getBeta(const std::shared_ptr<State> &hyperplane, const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
-        auto create_tuple = std::tuple(state, history, action);
-        auto get_value = std::static_pointer_cast<Hyperplane>(hyperplane)->state.getValueAt(create_tuple);
-        return get_value;
+        return std::static_pointer_cast<Hyperplane>(hyperplane)->getValueAt(o, x, u);
     }
 
     double PWLCQValueFunction::getDefaultValue(number t)
@@ -129,7 +131,11 @@ namespace sdm
                 tools::indentedOutput(res, pair_state_hyperplane.first->str().c_str(), 3);
                 res << "\t\t</state>" << std::endl;
                 res << "\t\t<plan>" << std::endl;
-                tools::indentedOutput(res, pair_state_hyperplane.second->getState().str().c_str(), 3);
+
+                std::ostringstream hyperplan_str;
+                hyperplan_str << pair_state_hyperplane.second->getState();
+                tools::indentedOutput(res, hyperplan_str.str().c_str(), 3);
+
                 res << "\n\t\t</plan>" << std::endl;
             }
             res << "\t</value>" << std::endl;

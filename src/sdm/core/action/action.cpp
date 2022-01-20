@@ -4,9 +4,9 @@
 
 namespace sdm
 {
-    // std::shared_ptr<Joint<std::shared_ptr<Action>>> Action::toJointAction()
+    // std::shared_ptr<JointAction> Action::toJointAction()
     // {
-    //     return std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(this->getPointer());
+    //     return std::static_pointer_cast<JointAction>(this->getPointer());
     // }
 
     std::shared_ptr<DecisionRule> Action::toDecisionRule()
@@ -19,9 +19,9 @@ namespace sdm
         return std::dynamic_pointer_cast<JointDeterministicDecisionRule>(this->getPointer());
     }
 
-    // std::shared_ptr<Joint<std::shared_ptr<Action>>> Action::toJointAction()
+    // std::shared_ptr<JointAction> Action::toJointAction()
     // {
-    //     return std::dynamic_pointer_cast<Joint<std::shared_ptr<Action>>>(this->getPointer());
+    //     return std::dynamic_pointer_cast<JointAction>(this->getPointer());
     // }
 
     TypeAction Action::getTypeAction() const

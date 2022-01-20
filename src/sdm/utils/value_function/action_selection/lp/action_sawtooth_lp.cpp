@@ -278,9 +278,9 @@ namespace sdm
         return coef;
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> ActionSelectionSawtoothLP::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number)
+    std::shared_ptr<JointObservation> ActionSelectionSawtoothLP::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number)
     {
-        return std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(next_joint_history->getLastObservation());
+        return std::static_pointer_cast<JointObservation>(next_joint_history->getLastObservation());
     }
 
     std::shared_ptr<SawtoothValueFunction> ActionSelectionSawtoothLP::getSawtoothValueFunction() const

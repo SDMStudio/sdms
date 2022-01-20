@@ -14,8 +14,7 @@ namespace sdm
         PWLCQUpdate::PWLCQUpdate(
             std::shared_ptr<ExperienceMemory> experience_memory,
             std::shared_ptr<ValueFunctionInterface> q_value,
-            std::shared_ptr<ValueFunctionInterface> target_q_value,
-            double learning_rate) : PWLCQUpdateOperator(experience_memory, q_value, target_q_value, learning_rate)
+            std::shared_ptr<ValueFunctionInterface> target_q_value) : PWLCQUpdateOperator(experience_memory, q_value, target_q_value)
         {
         }
 
@@ -41,64 +40,61 @@ namespace sdm
             return delta;
         }
 
-        void PWLCQUpdate::update(number t)
+        void PWLCQUpdate::update(double learning_rate, number t)
         {
             auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
             double delta = this->delta(state, action, reward, next_state, next_action, t);
-
-            // Update the hyperplane of the ball that include the sampled state
-            if (sdm::isInstanceOf<OccupancyStateInterface>(state))
-            {
-                auto new_hyperplane = this->computeNewHyperplane(state->toOccupancyState(), action->toDecisionRule(), delta, t);
-                this->getQValueFunction()->addHyperplaneAt(state, new_hyperplane, t);
-            }
-            else
-            {
-                throw sdm::exception::TypeError("TypeError: state must derive from OccupancyStateInterface");
-            }
-            // else if (sdm::isInstanceOf<BeliefInterface>(state))
-            // {
-            //     this->qvalue_function->addHyperplaneAt(state, this->computeNewHyperplane(state->toBelief(), action,delta, t), t);
-            // }
+            this->updateHyperplane(state->toOccupancyState(), action->toDecisionRule(), delta, learning_rate, t);
         }
 
-        std::shared_ptr<State> PWLCQUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, double delta, number t)
+        // {
+
+        //     auto hyperplane = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(s, t));
+        //     auto hyperplane_ = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(next_state, t + 1));
+
+
+        //     delta_xou = occupancy_mdp->getUnderlyingProblem()->getReward(x, u, t);
+
+
+        //     if (t + 1 < occupancy_mdp->getHorizon())
+        //     {
+        //         for (z = 0; z < common::model->getNumObservations(); ++z)
+        //         {
+        //             // set next-step history h' = h + u + z
+        //             auto o_ = o->expand(u, z));
+        //             if (qf.find(O) == qf.end() or sPtr_->find(O) == sPtr_->end())
+        //                 continue;
+
+        //             u_ = aPtr_->getActionAt(O);
+        //             for (x_ = 0; x_ < common::model->getNumStates(); ++x_)
+        //             {
+        //                 Qxhu += common::model->getDiscount() * common::model->getDynamics(x, u, z, x_) * qf.at(O).getQValueAt(u_, x_);
+        //             }
+        //         }
+        //     }
+        //     delat += getWorld()->getDiscount(t) *
+        // }
+
+        void PWLCQUpdate::updateHyperplane(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<DecisionRule> &a, double delta, double learning_rate, number t)
         {
+
             // \beta(x,o,u) =  \beta(x,o,u) + \alpha * \delta * \xi(x,o) * a(u | o)
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
             auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
 
-            // Get old hyperplane
-            auto old_hyperplane = std::dynamic_pointer_cast<PWLCQValueFunction::Hyperplane>(this->getQValueFunction()->getHyperplaneAt(occupancy_state, t));
+            auto hyperplane = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(s, t));
 
-            // Instanciate new hyperplane
-            auto new_hyperplane = std::make_shared<PWLCQValueFunction::Hyperplane>(*old_hyperplane);
-            new_hyperplane->state.setDefault(this->getQValueFunction()->getDefaultValue(t));
-
-            // Go over all joint history for the occupancy state
-            for (const auto &history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
+            for (auto o : s->getJointHistories())
             {
-                auto &&compressed_history = occupancy_state->getCompressedJointHistory(history);
-                auto compressed_as_state = occupancy_mdp->getDecisionRuleInput(compressed_history, t);
+                auto u = occupancy_mdp->applyDecisionRule(s, o, a, t);
+                auto dr_input = occupancy_mdp->getDecisionRuleInput(o, t);
+                double proba_a = a->getProbability(dr_input, u);
 
-                // Select the joint action
-                auto action = occupancy_mdp->applyDecisionRule(occupancy_state, compressed_history, decision_rule, t);
-
-                // Go over all states in the belief
-                for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(history)->getStates())
+                for (auto x : s->getBeliefAt(o)->getStates())
                 {
-                    // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
-                    double beta = this->getQValueFunction()->getBeta(old_hyperplane, state, history, action, t),
-                           proba_o = occupancy_state->getProbability(history, state),
-                           proba_a = decision_rule->toDecisionRule()->getProbability(compressed_as_state, action);
-
-                    double new_value = beta + learning_rate * delta * proba_o * proba_a;
-                    new_hyperplane->state.setValueAt(std::tuple(state, history, action), new_value);
+                    hyperplane->setValueAt(o, x, u, hyperplane->getValueAt(o, x, u) + learning_rate * delta * s->getProbability(o, x) * proba_a);
                 }
             }
-            new_hyperplane->state.finalize();
-
-            return new_hyperplane;
         }
     }
 }

@@ -13,8 +13,7 @@ namespace sdm
         public:
             TabularQUpdate(std::shared_ptr<ExperienceMemory> experience_memory,
                            std::shared_ptr<ValueFunctionInterface> q_value_table,
-                           std::shared_ptr<ValueFunctionInterface> target_q_value_table,
-                           double learning_rate);
+                           std::shared_ptr<ValueFunctionInterface> target_q_value_table);
 
             double deltaSARSA(const std::shared_ptr<State> &observation,
                                               const std::shared_ptr<Action> &action,
@@ -23,7 +22,7 @@ namespace sdm
                                               const std::shared_ptr<Action> &next_action,
                                               number t);
 
-            void update(number t);
+            void update(double learning_rate, number t);
         };
 
     } // namespace update

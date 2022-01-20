@@ -375,14 +375,15 @@ namespace sdm
     template <class TOccupancyState>
     std::shared_ptr<Action> BaseOccupancyMDP<TOccupancyState>::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
     {
+        // auto joint_action = decision_rule->toDecisionRule()->act(joint_history);
         // Get the selected joint action
-        auto action = std::static_pointer_cast<JointDeterministicDecisionRule>(decision_rule)->act(joint_history->getIndividualHistories().toJoint<State>());
+        auto action = decision_rule->toDecisionRule()->act(this->getDecisionRuleInput(joint_history, t));
 
         // Transform the selected joint action into joint action address
-        auto joint_action = std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(action);
+        auto joint_action = std::static_pointer_cast<JointAction>(action);
 
         // Get the adress of the joint action object from the space of available joint action object.
-        auto joint_action_address = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingMPOMDP()->getActionSpace(t))->getItemAddress(*joint_action->toJoint<Item>());
+        auto joint_action_address = std::static_pointer_cast<MultiDiscreteSpace>(this->getUnderlyingMPOMDP()->getActionSpace(t))->getItemAddress(*(joint_action->template toJoint<Item>()));
         return joint_action_address->toAction();
     }
 
@@ -626,7 +627,7 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    std::shared_ptr<State> BaseOccupancyMDP<TOccupancyState>::getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number)
+    std::shared_ptr<State> BaseOccupancyMDP<TOccupancyState>::getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number) const
     {
         return jhistory->getIndividualHistories().toJoint<State>();
     }

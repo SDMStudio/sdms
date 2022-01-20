@@ -31,7 +31,7 @@ namespace sdm
                 std::shared_ptr<Action> computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t);
 
                 double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
-                std::shared_ptr<State> getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number t);
+                std::shared_ptr<State> getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number t) const;
 
         protected:
                 /** @brief The underlying well defined MPOMDP */

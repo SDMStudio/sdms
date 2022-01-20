@@ -36,7 +36,7 @@ namespace sdm
 
     bool HierarchicalOccupancyMDP::checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation)
     {
-        return (std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation)->get(this->getLowLevelAgentID()) == observation);
+        return (std::static_pointer_cast<JointObservation>(joint_observation)->get(this->getLowLevelAgentID()) == observation);
     }
 
     std::tuple<std::shared_ptr<State>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)

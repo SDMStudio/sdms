@@ -76,7 +76,7 @@ namespace sdm
         JointHistoryTree(const Joint<std::shared_ptr<HistoryInterface>> &ihistories);
 
         std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action = nullptr, bool backup = true);
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, const std::shared_ptr<Joint<std::shared_ptr<Action>>> &joint_action = nullptr, bool = true);
+        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action = nullptr, bool = true);
 
         /**
          * @brief Get the address of the individual history of agent 'agent_id'
@@ -100,8 +100,8 @@ namespace sdm
         template <class Archive>
         void serialize(Archive &archive, const unsigned int);
 
-        std::shared_ptr<Joint<std::shared_ptr<Observation>>> getDefaultObs();
-        void setDefaultObs(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &default_observation);
+        std::shared_ptr<JointObservation> getDefaultObs();
+        void setDefaultObs(const std::shared_ptr<JointObservation> &default_observation);
 
         std::shared_ptr<JointHistoryTree> getParent() const;
         std::shared_ptr<JointHistoryTree> getOrigin();
@@ -118,7 +118,7 @@ namespace sdm
         void addIndividualHistory(std::shared_ptr<HistoryInterface> ihist);
 
         void setupDefaultObs(number num_agents, const std::shared_ptr<Observation> &default_observation = sdm::NO_OBSERVATION);
-        std::shared_ptr<Joint<std::shared_ptr<Observation>>> default_observation_;
+        std::shared_ptr<JointObservation> default_observation_;
 
         /*!
          *  @brief  Expands the tree
@@ -130,7 +130,7 @@ namespace sdm
          *  current leaf of the tree and creating if necessary a corresponding
          *  child. The constructed child is returned.
          */
-        std::shared_ptr<JointHistoryTree> expandJointHistoryTree(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, const std::shared_ptr<Joint<std::shared_ptr<Action>>> &joint_action = nullptr, bool backup = true);
+        std::shared_ptr<JointHistoryTree> expandJointHistoryTree(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action = nullptr, bool backup = true);
         virtual std::shared_ptr<HistoryTree> expandHistoryTree(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action, bool backup);
     };
 

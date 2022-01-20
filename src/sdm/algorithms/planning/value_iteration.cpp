@@ -24,7 +24,7 @@ namespace sdm
     void ValueIteration::initLogger()
     {
         // ************* Global Logger ****************
-        std::string format = config::LOG_SDMS + "Trial {:<8} Value {:<12.4f} Size {:<10} Time {:<12.4f}\n";
+        std::string format = "\r" + config::LOG_SDMS + "Trial {:<8} Value {:<12.4f} Size {:<10} Time {:<12.4f}";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);

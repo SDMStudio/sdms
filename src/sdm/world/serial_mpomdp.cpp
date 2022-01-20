@@ -87,7 +87,7 @@ namespace sdm
     void SerialMPOMDP::setupObservationSpace(std::shared_ptr<MPOMDPInterface> mpomdp)
     {
         // Set default joint observation : "No Observation"
-        auto empty_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>();
+        auto empty_observation = std::make_shared<JointObservation>();
 
         // Create the Default Joint Observation
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
@@ -166,9 +166,9 @@ namespace sdm
         this->obs_dynamics_ = observation_dynamics;
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> SerialMPOMDP::getDefaultObservation() const
+    std::shared_ptr<JointObservation> SerialMPOMDP::getDefaultObservation() const
     {
-        return std::dynamic_pointer_cast<Joint<std::shared_ptr<Observation>>>(this->empty_serial_observation);
+        return std::dynamic_pointer_cast<JointObservation>(this->empty_serial_observation);
     }
 
 }

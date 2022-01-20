@@ -8,8 +8,7 @@ namespace sdm
         TabularQUpdate::TabularQUpdate(
             std::shared_ptr<ExperienceMemory> experience_memory,
             std::shared_ptr<ValueFunctionInterface> q_value_table,
-            std::shared_ptr<ValueFunctionInterface> target_q_value_table,
-            double learning_rate) : TabularQUpdateOperator(experience_memory, q_value_table, target_q_value_table, learning_rate)
+            std::shared_ptr<ValueFunctionInterface> target_q_value_table) : TabularQUpdateOperator(experience_memory, q_value_table, target_q_value_table)
         {
         }
 
@@ -23,7 +22,7 @@ namespace sdm
             return (reward + getWorld()->getDiscount(t) * this->getQValueFunction()->getQValueAt(next_observation, next_action, t + 1) - this->getQValueFunction()->getQValueAt(observation, action, t));
         }
 
-        void TabularQUpdate::update(number t)
+        void TabularQUpdate::update(double learning_rate, number t)
         {
             auto [observation, action, reward, next_observation, next_action] = experience_memory->sample(t)[0];
 

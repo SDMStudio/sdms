@@ -92,7 +92,7 @@ namespace sdm
             }
             else
             {
-                auto joint_items = std::make_shared<Joint<std::shared_ptr<Item>>>();
+                auto joint_items = std::make_shared<JointItem>();
                 for (const auto &iter : this->current_iterators_)
                 {
                     joint_items->push_back(iter->operator*());

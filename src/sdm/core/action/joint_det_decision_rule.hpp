@@ -24,6 +24,7 @@ namespace sdm
         JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr);
 
         std::shared_ptr<Action> act(const std::shared_ptr<State> &joint_state) const;
+        std::shared_ptr<JointAction> act(const std::shared_ptr<JointState> &joint_state) const;
 
         /**
          * @brief Get the probability of joint action 'action' in joint state 'state'
@@ -32,7 +33,7 @@ namespace sdm
          * @param action the joint action
          * @param proba the probability
          */
-        double getProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action) const;
+        double getProbability(const JointState &state, const JointAction &action) const;
 
         /**
          * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
@@ -60,7 +61,7 @@ namespace sdm
          * @param action the joint action
          * @param proba the probability
          */
-        void setProbability(const Joint<std::shared_ptr<State>> &state, const Joint<std::shared_ptr<Action>> &action, double proba = 0);
+        void setProbability(const JointState &state, const JointAction &action, double proba = 0);
 
         /**
          * @brief Set the probability of selecting action a in state s.

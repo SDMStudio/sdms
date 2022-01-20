@@ -156,7 +156,7 @@ namespace sdm
     {
         // ************* Global Logger ****************
         // Text Format for standard output stream
-        std::string format = config::LOG_SDMS + "Trial {:<8} Error {:<12.4f} Value_LB {:<12.4f} Value_UB {:<12.4f} Size_LB {:<10} Size_UB {:<10} Time {:<12.4f}";
+        std::string format = "\r" + config::LOG_SDMS + "Trial {:<8} Error {:<12.4f} Value_LB {:<12.4f} Value_UB {:<12.4f} Size_LB {:<10} Size_UB {:<10} Time {:<12.4f}";
 
         // Titles of logs
         std::vector<std::string> list_logs{"Trial", "Error", "Value_LB", "Value_UB", "Size_LB", "Size_UB", "Time"};
@@ -167,7 +167,7 @@ namespace sdm
             format = format + " NumState {:<8}";
             list_logs.push_back("NumState");
         }
-        format = format + "\n";
+        format = format + "";
 
         // Build a logger that prints logs on the standard output stream
         auto std_logger = std::make_shared<sdm::StdLogger>(format);

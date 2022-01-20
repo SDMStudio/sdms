@@ -43,20 +43,20 @@ namespace sdm
 
     std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action, bool backup)
     {
-        return this->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation), std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action), backup);
+        return this->expand(std::static_pointer_cast<JointObservation>(joint_observation), std::static_pointer_cast<JointAction>(joint_action), backup);
     }
 
     std::shared_ptr<HistoryTree> JointHistoryTree::expandHistoryTree(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action, bool backup)
     {
-        return this->expandJointHistoryTree(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation), std::static_pointer_cast<Joint<std::shared_ptr<Action>>>(joint_action), backup);
+        return this->expandJointHistoryTree(std::static_pointer_cast<JointObservation>(joint_observation), std::static_pointer_cast<JointAction>(joint_action), backup);
     }
 
-    std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, const std::shared_ptr<Joint<std::shared_ptr<Action>>> &joint_action, bool backup)
+    std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action, bool backup)
     {
         return this->expandJointHistoryTree(joint_observation, joint_action, backup);
     }
 
-    std::shared_ptr<JointHistoryTree> JointHistoryTree::expandJointHistoryTree(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &joint_observation, const std::shared_ptr<Joint<std::shared_ptr<Action>>> &joint_action, bool backup)
+    std::shared_ptr<JointHistoryTree> JointHistoryTree::expandJointHistoryTree(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action, bool backup)
     {
         std::shared_ptr<JointHistoryTree> h_joint;
 
@@ -100,14 +100,14 @@ namespace sdm
         return res.str();
     }
 
-    void JointHistoryTree::setDefaultObs(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &default_observation)
+    void JointHistoryTree::setDefaultObs(const std::shared_ptr<JointObservation> &default_observation)
     {
         this->default_observation_ = default_observation;
     }
 
     void JointHistoryTree::setupDefaultObs(number n_agents, const std::shared_ptr<Observation> &default_observation)
     {
-        auto default_joint_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>();
+        auto default_joint_observation = std::make_shared<JointObservation>();
         for (number i = 0; i < n_agents; i++)
         {
             default_joint_observation->push_back(default_observation);
@@ -115,7 +115,7 @@ namespace sdm
         this->setDefaultObs(default_joint_observation);
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> JointHistoryTree::getDefaultObs()
+    std::shared_ptr<JointObservation> JointHistoryTree::getDefaultObs()
     {
         return this->default_observation_;
     }

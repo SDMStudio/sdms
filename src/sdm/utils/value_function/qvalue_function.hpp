@@ -57,12 +57,12 @@ namespace sdm
          * @param action the action
          * @return the q-value
          */
-        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) = 0;
 
         /**
          * @brief Update the value at a given time step
          */
-        void updateValueAt(number t = 0);
+        void updateValueAt(double learning_rate, number t = 0);
 
         /**
          * @brief Get the update operator
