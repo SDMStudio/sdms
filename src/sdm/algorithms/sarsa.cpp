@@ -46,12 +46,6 @@ namespace sdm
 
         this->cumul_reward += pow(/* this->getEnv()->getDiscount() */ 1, t) * rewards[0];
 
-        // Compute next greedy action
-        auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation, t + 1);
-
-        // Push experience to memory
-        this->experience_memory_->push(obs, action, rewards[0], next_observation, next_greedy_action, t);
-
         this->doEpisodeRecursive(next_observation, t + 1);
 
         // greedy joint decision rule
@@ -60,6 +54,9 @@ namespace sdm
             this->actors[t] = action;
             this->current = this->cumul_reward;
         }
+
+        // Push experience to memory
+        this->experience_memory_->push(obs, action, rewards[0], next_observation, this->actors[t+1], t);
 
         // Backup and get Q Value Error
         this->q_value_->updateValueAt(this->learning_rate, t);
