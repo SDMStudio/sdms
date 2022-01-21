@@ -379,6 +379,9 @@ namespace sdm
         // Get the selected joint action
         auto action = decision_rule->toDecisionRule()->act(this->getDecisionRuleInput(joint_history, t));
 
+        if (action==nullptr)
+            return nullptr;
+
         // Transform the selected joint action into joint action address
         auto joint_action = std::static_pointer_cast<JointAction>(action);
 

@@ -41,6 +41,8 @@ namespace sdm
         for (number agent = 0; agent < joint_state->size(); agent++)
         {
             auto individual_action = this->get(agent)->act(joint_state->get(agent));
+            if (individual_action == nullptr)
+                return nullptr;
             joint_action->push_back(individual_action);
         }
         

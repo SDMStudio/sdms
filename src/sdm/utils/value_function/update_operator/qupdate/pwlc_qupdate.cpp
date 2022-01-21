@@ -42,38 +42,61 @@ namespace sdm
 
         void PWLCQUpdate::update(double learning_rate, number t)
         {
-            auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
-            double delta = this->delta(state, action, reward, next_state, next_action, t);
-            this->updateHyperplane(state->toOccupancyState(), action->toDecisionRule(), delta, learning_rate, t);
+            // auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
+            // double delta = this->delta(state, action, reward, next_state, next_action, t);
+            // this->updateHyperplane(state->toOccupancyState(), action->toDecisionRule(), delta, learning_rate, t);
+            this->updateHyperplane(learning_rate, t);
         }
 
-        // {
+        void PWLCQUpdate::updateHyperplane(double learning_rate, number t)
+        {
+            auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
 
-        //     auto hyperplane = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(s, t));
-        //     auto hyperplane_ = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(next_state, t + 1));
+            auto s = state->toOccupancyState();
+            auto s_ = std::dynamic_pointer_cast<OccupancyState>(next_state);
+            auto a = action->toDecisionRule(), a_ = next_action->toDecisionRule();
 
+            auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
+            auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
 
-        //     delta_xou = occupancy_mdp->getUnderlyingProblem()->getReward(x, u, t);
+            auto hyperplane = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(state, t));
+            auto hyperplane_ = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(next_state, t + 1));
 
+            for (auto o : s->getJointHistories())
+            {
+                // auto &&c_o = s->getCompressedJointHistory(o);
 
-        //     if (t + 1 < occupancy_mdp->getHorizon())
-        //     {
-        //         for (z = 0; z < common::model->getNumObservations(); ++z)
-        //         {
-        //             // set next-step history h' = h + u + z
-        //             auto o_ = o->expand(u, z));
-        //             if (qf.find(O) == qf.end() or sPtr_->find(O) == sPtr_->end())
-        //                 continue;
+                auto u = occupancy_mdp->applyDecisionRule(s, o, a, t);
 
-        //             u_ = aPtr_->getActionAt(O);
-        //             for (x_ = 0; x_ < common::model->getNumStates(); ++x_)
-        //             {
-        //                 Qxhu += common::model->getDiscount() * common::model->getDynamics(x, u, z, x_) * qf.at(O).getQValueAt(u_, x_);
-        //             }
-        //         }
-        //     }
-        //     delat += getWorld()->getDiscount(t) *
-        // }
+                for (auto x : s->getBeliefAt(o)->getStates())
+                {
+                    double delta_xou = pomdp->getReward(x, u, t);
+
+                    if (t + 1 < pomdp->getHorizon())
+                    {
+                        for (const auto &x_ : pomdp->getReachableStates(x, u, t))
+                        {
+                            for (const auto &z : pomdp->getReachableObservations(x, u, x_, t))
+                            {
+                                // set next-step history h' = h + u + z
+                                auto o_ = o->expand(z)->toJointHistory();
+                                auto &&c_o_ = s_->getCompressedJointHistory(o_);
+
+                                if (s_->find(c_o_) == s_->end())
+                                    continue;
+
+                                auto u_ = occupancy_mdp->applyDecisionRule(s_, c_o_, a_, t + 1);
+
+                                if (u_ == nullptr)
+                                    continue;
+                                delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, u, x_, z, t) * hyperplane_->getValueAt(c_o_, x_, u_);
+                            }
+                        }
+                    }
+                    hyperplane->setValueAt(o, x, u, hyperplane->getValueAt(o, x, u) + learning_rate * (delta_xou - hyperplane->getValueAt(o, x, u)));
+                }
+            }
+        }
 
         void PWLCQUpdate::updateHyperplane(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<DecisionRule> &a, double delta, double learning_rate, number t)
         {
@@ -96,5 +119,44 @@ namespace sdm
                 }
             }
         }
+
+        // std::shared_ptr<State> PWLCQUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, double delta, number t)
+        // {
+        //     // \beta(x,o,u) =  \beta(x,o,u) + \alpha * \delta * \xi(x,o) * a(u | o)
+        //     auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
+        //     auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
+
+        //     // Get old hyperplane
+        //     auto old_hyperplane = std::dynamic_pointer_cast<PWLCQValueFunction::Hyperplane>(this->getQValueFunction()->getHyperplaneAt(occupancy_state, t));
+
+        //     // Instanciate new hyperplane
+        //     auto new_hyperplane = std::make_shared<PWLCQValueFunction::Hyperplane>(*old_hyperplane);
+        //     new_hyperplane->state.setDefault(this->getQValueFunction()->getDefaultValue(t));
+
+        //     // Go over all joint history for the occupancy state
+        //     for (const auto &history : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
+        //     {
+        //         auto &&compressed_history = occupancy_state->getCompressedJointHistory(history);
+        //         auto compressed_as_state = occupancy_mdp->getDecisionRuleInput(compressed_history, t);
+
+        //         // Select the joint action
+        //         auto action = occupancy_mdp->applyDecisionRule(occupancy_state, compressed_history, decision_rule, t);
+
+        //         // Go over all states in the belief
+        //         for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(history)->getStates())
+        //         {
+        //             // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
+        //             double beta = this->getQValueFunction()->getBeta(old_hyperplane, state, history, action, t),
+        //                    proba_o = occupancy_state->getProbability(history, state),
+        //                    proba_a = decision_rule->toDecisionRule()->getProbability(compressed_as_state, action);
+
+        //             double new_value = beta + learning_rate * delta * proba_o * proba_a;
+        //             new_hyperplane->state.setValueAt(std::tuple(state, history, action), new_value);
+        //         }
+        //     }
+        //     new_hyperplane->state.finalize();
+
+        //     return new_hyperplane;
+        // }
     }
 }

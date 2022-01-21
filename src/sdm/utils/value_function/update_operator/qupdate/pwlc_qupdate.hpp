@@ -31,6 +31,7 @@ namespace sdm
             void update(double learning_rate, number t);
 
             // std::shared_ptr<State> computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, double delta, double learning_rate, number t);
+            void updateHyperplane(double learning_rate, number t);
             void updateHyperplane(const std::shared_ptr<OccupancyStateInterface> &s, const std::shared_ptr<DecisionRule> &a, double delta, double learning_rate, number t);
         };
 

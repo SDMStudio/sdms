@@ -363,7 +363,9 @@ namespace sdm
             }
             else if ((formalism == "occupancy-mdp") || (formalism == "OccupancyMDP") || (formalism == "omdp") || (formalism == "oMDP"))
             {
-                formalism_problem = std::make_shared<OccupancyMDP>(problem, memory, store_state, store_action, batch_size);
+                auto omdp = std::make_shared<OccupancyMDP>(problem, memory, store_state, store_action, batch_size);
+                omdp->setStateType(state_type);
+                formalism_problem = omdp;
             }
             else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP") || (formalism == "ext-MDP") || (formalism == "ext-mdp"))
             {
@@ -378,7 +380,10 @@ namespace sdm
             else if ((formalism == "extensive-occupancy-mdp") || (formalism == "Extensive-OccupancyMDP") || (formalism == "ext-oMDP") || (formalism == "ext-omdp"))
             {
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
-                formalism_problem = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, store_state, store_action, batch_size);
+
+                auto serial_omdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, store_state, store_action, batch_size);
+                serial_omdp->setStateType(state_type);
+                formalism_problem = serial_omdp;
             }
             else if ((formalism == "hierarchical-mdp") || (formalism == "Hierarchical-MDP") || (formalism == "hMDP") || (formalism == "hmdp"))
             {
