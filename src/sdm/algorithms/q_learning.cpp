@@ -242,7 +242,7 @@ namespace sdm
         auto csv_logger = std::make_shared<sdm::CSVLogger>(this->getName(), list_logs);
 
         // Build a multi logger that combines previous loggers
-        logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, file_logger, csv_logger});
+        logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, /* file_logger,  */csv_logger});
     }
 
     void QLearning::logging()
