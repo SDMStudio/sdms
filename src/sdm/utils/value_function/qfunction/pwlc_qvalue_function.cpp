@@ -1,3 +1,4 @@
+#include <math.h>
 #include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
 #include <sdm/core/action/decision_rule.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
@@ -6,7 +7,8 @@
 
 namespace sdm
 {
-    double PWLCQValueFunction::GRANULARITY = 0.5;
+    double PWLCQValueFunction::GRANULARITY = 0.1;
+    double PWLCQValueFunction::G = PWLCQValueFunction::GRANULARITY;
 
     PWLCQValueFunction::PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                            const std::shared_ptr<Initializer> &initializer,
@@ -21,6 +23,15 @@ namespace sdm
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, 0);
         this->default_hyperplane = std::vector<std::shared_ptr<Hyperplane>>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, nullptr);
         this->oMDP = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
+
+        for (int t = 0; t < this->oMDP->getHorizon(); t++)
+        {
+            double granul_t = PWLCQValueFunction::GRANULARITY + sqrt(float(t) / (this->oMDP->getHorizon() - 1)) * (1 - PWLCQValueFunction::GRANULARITY);
+            // double granul_t = PWLCQValueFunction::GRANULARITY + t * (1. - PWLCQValueFunction::GRANULARITY) / (this->oMDP->getHorizon() - 1); // LINEAIRE
+            std::cout << "t " << t << " - g " << granul_t << std::endl;
+            granularity_per_horizon.push_back(granul_t);
+        }
+        granularity_per_horizon.push_back(1);
     }
 
     void PWLCQValueFunction::initialize(double value, number t)
@@ -77,11 +88,13 @@ namespace sdm
 
     void PWLCQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t)
     {
+        PWLCQValueFunction::G = this->granularity_per_horizon[t];
         this->representation[t][state] = std::dynamic_pointer_cast<Hyperplane>(new_hyperplane);
     }
 
     std::shared_ptr<State> PWLCQValueFunction::getHyperplaneAt(const std::shared_ptr<State> &state, number t)
     {
+        PWLCQValueFunction::G = this->granularity_per_horizon[t];
         auto tmp_it = this->representation[t].find(state);
         if (tmp_it == this->representation[t].end())
         {

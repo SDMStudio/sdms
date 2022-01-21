@@ -285,7 +285,8 @@ namespace sdm
             assert(((discount < 1) || (horizon > 0)));
 
             // Instanciate exploration process
-            std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedyDecay>(eps_start, eps_end, eps_decay);
+            // std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedyDecay>(eps_start, eps_end, eps_decay);
+            std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
 
             // Instanciate the memory
             std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);

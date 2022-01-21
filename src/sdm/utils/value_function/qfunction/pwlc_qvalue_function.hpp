@@ -27,28 +27,32 @@ namespace sdm
          * @brief The precision used to assign a representant to occupancy states.
          */
         static double GRANULARITY;
+        static double G;
 
         struct Equal
         {
             virtual bool operator()(const std::shared_ptr<State> &left, const std::shared_ptr<State> &right) const
             {
                 // if left or right is a nullptr, then return false
-                if ((left == nullptr) ^ (right == nullptr))
-                    return false;
-                return ((left == right) || left->isEqual(right, PWLCQValueFunction::GRANULARITY));
+                // if ((left == nullptr) ^ (right == nullptr))
+                //     return false;
+                // return ((left == right) || left->isEqual(right, PWLCQValueFunction::GRANULARITY));
 
-                // double norm_1 = 0.;
-                // auto ostate_left = left->toOccupancyState(), ostate_right = right->toOccupancyState();
-                // // For all points in the support
-                // for (const auto &jhistory : ostate_left->getJointHistories())
-                // {
-                //     // For all states in the corresponding belief
-                //     for (const auto &state : ostate_left->getBeliefAt(jhistory)->getStates())
-                //     {
-                //         norm_1 += std::abs(ostate_left->getProbability(jhistory, state) - ostate_right->getProbability(jhistory, state));
-                //     }
-                // }
-                // return (norm_1 < PWLCQValueFunction::GRANULARITY);
+                double norm_1 = 0., additional = 1., proba_right;
+                auto ostate_left = left->toOccupancyState(), ostate_right = right->toOccupancyState();
+                // For all points in the support
+                for (const auto &jhistory : ostate_left->getJointHistories())
+                {
+                    // For all states in the corresponding belief
+                    for (const auto &state : ostate_left->getBeliefAt(jhistory)->getStates())
+                    {
+                        proba_right = ostate_right->getProbability(jhistory, state);
+                        additional -= proba_right;
+                        norm_1 += std::abs(ostate_left->getProbability(jhistory, state) - proba_right);
+                    }
+                }
+
+                return (((norm_1 + additional) / 2) - 1e-5 <= PWLCQValueFunction::G);
             }
         };
 
@@ -56,8 +60,8 @@ namespace sdm
         {
             virtual size_t operator()(const std::shared_ptr<State> &state) const
             {
-                return (state) ? 0 : state->hash(PWLCQValueFunction::GRANULARITY);
-                // size_t seed = 0;
+                // return (state) ? 0 : state->hash(PWLCQValueFunction::GRANULARITY);
+                size_t seed = 0;
                 // double inverse_of_precision = 1. / PWLCQValueFunction::GRANULARITY;
                 // std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
                 // std::vector<int> rounded;
@@ -76,7 +80,7 @@ namespace sdm
                 //     // Combine the hash of the current vector with the hashes of the previous ones
                 //     sdm::hash_combine(seed, v);
                 // }
-                // return seed;
+                return seed;
             }
         };
 
@@ -178,6 +182,9 @@ namespace sdm
          * @brief The value by default.
          */
         std::vector<std::shared_ptr<Hyperplane>> default_hyperplane;
+
+        std::vector<double> granularity_per_horizon;
+
 
         /**
          * @brief the default values, one for each decision epoch.
