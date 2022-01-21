@@ -228,7 +228,7 @@ namespace sdm
 
             if (qvalue_name.find("wcsp") != string::npos)
             {
-                std::cout << "wcsp"<<std::endl;
+                std::cout << "wcsp" << std::endl;
                 action_selection = std::make_shared<ActionSelectionMaxplanWCSP>(problem);
             }
             else if (qvalue_name.find("lp") != string::npos)
@@ -241,7 +241,7 @@ namespace sdm
             }
             else if (qvalue_name.find("serial") != string::npos)
             {
-                std::cout << "serial"<<std::endl;
+                std::cout << "serial" << std::endl;
                 action_selection = std::make_shared<ActionSelectionMaxplanSerial>(problem);
             }
             else
@@ -251,12 +251,12 @@ namespace sdm
 
             if (qvalue_name.find("maxplan") != string::npos)
             {
-                std::cout << "maxplan"<<std::endl;
+                std::cout << "maxplan" << std::endl;
                 qvalue = std::make_shared<PWLCQValueFunction>(problem, q_init, action_selection);
             }
             else if (qvalue_name.find("oneplan") != string::npos)
             {
-                std::cout << "oneplan"<<std::endl;
+                std::cout << "oneplan" << std::endl;
                 qvalue = std::make_shared<ParametricQValueFunction>(problem, q_init, action_selection);
             }
             else if (qvalue_name.find("tabular") != string::npos)
@@ -285,8 +285,11 @@ namespace sdm
             assert(((discount < 1) || (horizon > 0)));
 
             // Instanciate exploration process
-            // std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedyDecay>(eps_start, eps_end, eps_decay);
-            std::shared_ptr<EpsGreedy> exploration = std::make_shared<EpsGreedy>();
+            std::shared_ptr<EpsGreedy> exploration;
+            if (eps_decay > 0)
+                exploration = std::make_shared<EpsGreedyDecay>(eps_start, eps_end, eps_decay);
+            else
+                exploration = std::make_shared<EpsGreedy>(eps_start, eps_end);
 
             // Instanciate the memory
             std::shared_ptr<ExperienceMemory> experience_memory = std::make_shared<ExperienceMemory>(horizon);
@@ -316,7 +319,7 @@ namespace sdm
 
             std::transform(algo_name.begin(), algo_name.end(), algo_name.begin(), [](unsigned char c)
                            { return std::tolower(c); });
-                           
+
             if (algo_name == "qlearning")
             {
                 algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
