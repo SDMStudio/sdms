@@ -22,14 +22,14 @@ namespace sdm
     PrivateOccupancyState::PrivateOccupancyState(const PrivateOccupancyState &v)
         : OccupancyState(v),
           agent_id_(v.getAgentId()),
-          bimap_jhist_partial_jhist(v.bimap_jhist_partial_jhist)
+          map_jhist_to_partial(v.map_jhist_to_partial),
+          map_partial_to_jhist(v.map_partial_to_jhist)
     {
     }
 
     PrivateOccupancyState::PrivateOccupancyState(const OccupancyState &occupancy_state)
         : OccupancyState(occupancy_state),
-          agent_id_(0),
-          bimap_jhist_partial_jhist()
+          agent_id_(0)
     {
     }
 
@@ -37,28 +37,6 @@ namespace sdm
     {
         return this->agent_id_;
     }
-
-    // template <typename TState, typename TJointHistory_p>
-    // std::string PrivateOccupancyState::str() const
-    // {
-    //     std::ostringstream res, tmp;
-    //     res << "<private-occupancy-state horizon='?'>" << std::endl;
-    //     for (const auto &pair_x_o_p : *this)
-    //     {
-    //         auto joint_hist = pair_x_o_p.first.second;
-
-    //         res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
-    //         for (auto ihist : pair_x_o_p.first.second->getIndividualHistories())
-    //         {
-    //             res << tools::addIndent(ihist->str(), 2);
-    //         }
-    //         res << "\t\t" << pair_x_o_p.second << std::endl;
-    //         res << "\t<probability>" << std::endl;
-    //     }
-    //     res << "</private-occupancy-state>" << std::endl;
-
-    //     return res.str();
-    // }
 
     std::string PrivateOccupancyState::str() const
     {
@@ -94,12 +72,12 @@ namespace sdm
 
     const std::vector<std::shared_ptr<HistoryInterface>> &PrivateOccupancyState::getPartialJointHistory(const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
-        return bimap_jhist_partial_jhist.left.at(joint_history);
+        return this->map_jhist_to_partial.at(joint_history);
     }
 
     std::shared_ptr<JointHistoryInterface> PrivateOccupancyState::getJointHistoryFromPartial(const std::vector<std::shared_ptr<HistoryInterface>> &partial_joint_history) const
     {
-        return bimap_jhist_partial_jhist.right.at(partial_joint_history);
+        return this->map_partial_to_jhist.at(partial_joint_history);
     }
 
     void PrivateOccupancyState::finalize()
@@ -124,7 +102,8 @@ namespace sdm
             // Get partial joint history
             const auto &partial_jhist = this->getPartialJointHistory(joint_history->getIndividualHistories());
             //
-            this->bimap_jhist_partial_jhist.insert(bimap_value(joint_history, partial_jhist));
+            this->map_partial_to_jhist[partial_jhist] = joint_history;
+            this->map_jhist_to_partial[joint_history] = partial_jhist;
         }
     }
 
@@ -136,14 +115,14 @@ namespace sdm
             return false;
         }
         // Go over all partial joint histories and associated joint history
-        for (const auto &pair_partial_joint_history_joint_history : this->bimap_jhist_partial_jhist.right)
+        for (const auto &pair_partial_jhistory : this->map_partial_to_jhist)
         {
-            const auto &partial_joint_history = pair_partial_joint_history_joint_history.first;
-            const auto &current_joint_history = pair_partial_joint_history_joint_history.second;
+            const auto &partial_joint_history = pair_partial_jhistory.first;
+            const auto &current_joint_history = pair_partial_jhistory.second;
 
             // Get an iterator on the first partial joint history that is similar in "other"
-            auto iterator = other.bimap_jhist_partial_jhist.right.find(partial_joint_history);
-            if (iterator == other.bimap_jhist_partial_jhist.right.end())
+            auto iterator = other.map_partial_to_jhist.find(partial_joint_history);
+            if (iterator == other.map_partial_to_jhist.end())
             {
                 return false;
             }

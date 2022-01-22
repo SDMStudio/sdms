@@ -155,6 +155,10 @@ namespace sdm
 
         /** @brief the list of possible items in the space with their index **/
         items_bimap all_items_;
+        // items_bimap all_items_;
+
+
+        // std::unordered_map<std::shared_ptr<Item>, number> map_item_to_int;
 
         /** @brief the list of possible items without their index **/
         std::vector<std::shared_ptr<Item>> list_items_;
