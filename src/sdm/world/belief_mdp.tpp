@@ -11,8 +11,8 @@ namespace sdm
     }
 
     template <class TBelief>
-    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size)
-        : SolvableByMDP(pomdp), underlying_pomdp(pomdp), batch_size_(batch_size)
+    BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size, bool store_states, bool store_actions)
+        : SolvableByMDP(pomdp), underlying_pomdp(pomdp), batch_size_(batch_size), store_states_(store_states), store_actions_(store_actions)
     {
         auto initial_state = std::make_shared<TBelief>();
 

@@ -42,7 +42,7 @@ namespace sdm
         BaseBeliefMDP();
         BaseBeliefMDP(Config config);
         BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, Config config);
-        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0);
+        BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size = 0, bool store_states = true, bool store_actions = true);
         ~BaseBeliefMDP();
 
         /** @brief Get the address of the underlying POMDP */

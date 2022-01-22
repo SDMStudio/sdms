@@ -535,8 +535,8 @@ namespace sdm
             current_compact_ostate->clear();
         }
 
-        previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
-        previous_compact_ostate->setOneStepUncompressedOccupancy(this->getptr());
+        // previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
+        // previous_compact_ostate->setOneStepUncompressedOccupancy(this->getptr());
 
         return previous_compact_ostate;
     }

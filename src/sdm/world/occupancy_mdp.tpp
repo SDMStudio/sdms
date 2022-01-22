@@ -25,7 +25,7 @@ namespace sdm
         this->underlying_problem_ = underlying_dpomdp;
 
         // Initialize underlying belief mdp
-        this->belief_mdp_ = std::make_shared<BeliefMDP>(underlying_dpomdp, batch_size);
+        this->belief_mdp_ = std::make_shared<BeliefMDP>(underlying_dpomdp, batch_size, false, false);
 
         // Initialize initial history
         this->initial_history_ = std::make_shared<JointHistoryTree>(this->getUnderlyingMDP()->getNumAgents(), (this->memory > 0) ? this->memory : -1);
@@ -379,7 +379,7 @@ namespace sdm
         // Get the selected joint action
         auto action = decision_rule->toDecisionRule()->act(this->getDecisionRuleInput(joint_history, t));
 
-        if (action==nullptr)
+        if (action == nullptr)
             return nullptr;
 
         // Transform the selected joint action into joint action address
@@ -491,23 +491,30 @@ namespace sdm
 
             // Aggregate beliefs
             std::shared_ptr<Belief> aggregated_belief = belief1->add(belief2, proba_belief1, proba_belief2);
+            
+            std::shared_ptr<BeliefInterface> ptr_belief;
 
             // Normalize the resulting belief
             aggregated_belief->normalizeBelief(aggregated_belief->norm_1());
 
-            // Check if the belief already exists in the belief space
-            if (this->belief_mdp_->state_space_.find(*aggregated_belief) == this->belief_mdp_->state_space_.end())
+            ptr_belief = aggregated_belief;
+
+            if (this->store_states_)
             {
-                // Store the belief in the graph
-                this->belief_mdp_->getMDPGraph()->addNode(aggregated_belief);
-                // Store the belief in the belief space
-                this->belief_mdp_->state_space_[*aggregated_belief] = aggregated_belief;
+                // Check if the belief already exists in the belief space
+                if (this->belief_mdp_->state_space_.find(*aggregated_belief) == this->belief_mdp_->state_space_.end())
+                {
+                    // Store the belief in the graph
+                    this->belief_mdp_->getMDPGraph()->addNode(aggregated_belief);
+                    // Store the belief in the belief space
+                    this->belief_mdp_->state_space_[*aggregated_belief] = aggregated_belief;
+                }
+                // Get the address of the belief
+                ptr_belief = this->belief_mdp_->state_space_.at(*aggregated_belief)->toBelief();
             }
-            // Get the address of the belief
-            auto ptr_belief = this->belief_mdp_->state_space_.at(*aggregated_belief);
 
             // Build fully uncompressed occupancy state
-            occupancy_state->setProbability(joint_history, ptr_belief->toBelief(), occupancy_state->getProbability(joint_history) + probability);
+            occupancy_state->setProbability(joint_history, ptr_belief, occupancy_state->getProbability(joint_history) + probability);
         }
         else
         {
