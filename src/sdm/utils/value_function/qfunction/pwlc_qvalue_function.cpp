@@ -30,7 +30,7 @@ namespace sdm
         for (int t = 0; t < this->oMDP->getHorizon(); t++)
         {
             number real_current_horizon = t / num_serial_agents;
-            double granul_t = PWLCQValueFunction::GRANULARITY_START + sqrt(float(real_current_horizon) / (real_horizon - 1)) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction::GRANULARITY_START);
+            double granul_t = PWLCQValueFunction::GRANULARITY_START + float(real_current_horizon) / (real_horizon - 1) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction::GRANULARITY_START);
             std::cout << "t " << t << " - g " << granul_t << std::endl;
             granularity_per_horizon.push_back(granul_t);
         }

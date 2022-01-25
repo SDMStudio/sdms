@@ -66,10 +66,6 @@ namespace sdm
     {
         observation = getEnv()->reset(); // Reset the environment
 
-        if (episode %  10000 == 0)
-        {
-            std::cout << this->q_value_->str() << std::endl;
-        }
         doEpisodeRecursive(observation, 0);
         // number max_num_steps_by_ep = (horizon_ > 0) ? horizon_ : max_num_steps_by_ep_;
         // unsigned long last_step = global_step + max_num_steps_by_ep; // Compute the last step of the episode
