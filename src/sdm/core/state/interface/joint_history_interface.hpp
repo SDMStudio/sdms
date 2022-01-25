@@ -19,7 +19,7 @@ namespace sdm
 
         virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &observation, const std::shared_ptr<Action> &action = nullptr, bool backup = true) = 0;
 
-        virtual std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action = nullptr, bool = true) = 0;
+        virtual std::shared_ptr<JointHistoryInterface> expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action = nullptr, bool = true) = 0;
 
         virtual void addIndividualHistory(std::shared_ptr<HistoryInterface> ihist) = 0;
 

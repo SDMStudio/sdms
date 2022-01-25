@@ -76,7 +76,7 @@ namespace sdm
         JointHistoryTree(const Joint<std::shared_ptr<HistoryInterface>> &ihistories);
 
         std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action = nullptr, bool backup = true);
-        std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action = nullptr, bool = true);
+        std::shared_ptr<JointHistoryInterface> expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action = nullptr, bool = true);
 
         /**
          * @brief Get the address of the individual history of agent 'agent_id'

@@ -52,8 +52,8 @@ namespace sdm
          * @brief Add a hyperplane in the hyperplane set.
          *
          * This fonction will addd the hyperplane called new_hyperplane in the
-         * set of plans at a specific time step. 
-         * 
+         * set of plans at a specific time step.
+         *
          * @param state the state
          * @param new_hyperplane the new hyperplane
          * @param t the timestep
@@ -65,16 +65,16 @@ namespace sdm
          *
          * @return the list of hyperplanes
          */
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State> &state, number t);
+        std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> state, number t);
 
         /**
          * @brief Get the best hyperplane resulting to the higher value when evaluated at a given state.
-         * 
+         *
          * @param state the state
          * @param t the time step
-         * @return the max hyperplane 
+         * @return the max hyperplane
          */
-        std::shared_ptr<State> getHyperplaneAt(const std::shared_ptr<State> &state, number t);
+        std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> state, number t);
 
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
@@ -110,7 +110,7 @@ namespace sdm
 
         /**
          * @brief Copy the value function and return a reference to the copied object.
-         * 
+         *
          * @return the address of the value function copied
          */
         std::shared_ptr<ValueFunctionInterface> copy();
@@ -121,7 +121,7 @@ namespace sdm
 
         /**
          * @brief The value function represention.
-         * 
+         *
          * The default representation is a MappedVector but every class implementing VectorInterface interface can be used.
          */
         std::vector<HyperplanSet> representation;
@@ -139,13 +139,13 @@ namespace sdm
         std::vector<std::unordered_set<std::shared_ptr<State>>> all_state_updated_so_far;
 
         /**
-         * @brief 
+         * @brief
          */
         std::shared_ptr<POMDPInterface> pomdp;
 
         /**
          * @brief Prune dominated hyperplanes of the value function.
-         * 
+         *
          * @param t the time step
          */
         void prune(number t);

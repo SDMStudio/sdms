@@ -27,7 +27,8 @@ namespace sdm
          * @brief The precision used to assign a representant to occupancy states.
          */
         static double GRANULARITY;
-        static double G;
+        static double GRANULARITY_START;
+        static double GRANULARITY_END;
 
         struct Equal
         {
@@ -52,7 +53,7 @@ namespace sdm
                     }
                 }
 
-                return (((norm_1 + additional) / 2) - 1e-5 <= PWLCQValueFunction::G);
+                return (((norm_1 + additional) / 2) - 1e-5 <= PWLCQValueFunction::GRANULARITY);
             }
         };
 
@@ -142,9 +143,9 @@ namespace sdm
 
         void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t);
 
-        std::shared_ptr<State> getHyperplaneAt(const std::shared_ptr<State> &state, number t);
+        std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> state, number t);
 
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State> &state, number t);
+        std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> state, number t);
 
         double getBeta(const std::shared_ptr<State> &belief_state, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
 
@@ -184,7 +185,6 @@ namespace sdm
         std::vector<std::shared_ptr<Hyperplane>> default_hyperplane;
 
         std::vector<double> granularity_per_horizon;
-
 
         /**
          * @brief the default values, one for each decision epoch.

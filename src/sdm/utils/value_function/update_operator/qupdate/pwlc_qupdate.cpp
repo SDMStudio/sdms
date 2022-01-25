@@ -52,15 +52,15 @@ namespace sdm
         {
             auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
 
+            auto hyperplane = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(state, t));
+            auto hyperplane_ = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(next_state, t + 1));
+
             auto s = state->toOccupancyState();
             auto s_ = std::dynamic_pointer_cast<OccupancyState>(next_state);
             auto a = action->toDecisionRule(), a_ = next_action->toDecisionRule();
 
             auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
-
-            auto hyperplane = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(state, t));
-            auto hyperplane_ = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(next_state, t + 1));
 
             for (auto o : s->getJointHistories())
             {
@@ -79,7 +79,7 @@ namespace sdm
                             for (const auto &z : pomdp->getReachableObservations(x, u, x_, t))
                             {
                                 // set next-step history h' = h + u + z
-                                auto o_ = o->expand(z)->toJointHistory();
+                                auto o_ = o->expand(std::static_pointer_cast<JointObservation>(z));
                                 auto &&c_o_ = s_->getCompressedJointHistory(o_);
 
                                 if (s_->find(c_o_) == s_->end())

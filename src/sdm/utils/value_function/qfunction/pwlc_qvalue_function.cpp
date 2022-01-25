@@ -7,8 +7,9 @@
 
 namespace sdm
 {
-    double PWLCQValueFunction::GRANULARITY = 0.1;
-    double PWLCQValueFunction::G = PWLCQValueFunction::GRANULARITY;
+    double PWLCQValueFunction::GRANULARITY_START = 0.1;
+    double PWLCQValueFunction::GRANULARITY_END = 1.0;
+    double PWLCQValueFunction::GRANULARITY = PWLCQValueFunction::GRANULARITY_START;
 
     PWLCQValueFunction::PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                            const std::shared_ptr<Initializer> &initializer,
@@ -24,10 +25,12 @@ namespace sdm
         this->default_hyperplane = std::vector<std::shared_ptr<Hyperplane>>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, nullptr);
         this->oMDP = std::dynamic_pointer_cast<OccupancyMDP>(getWorld());
 
+        number num_serial_agents = (sdm::isInstanceOf<SerialProblemInterface>(this->oMDP->getUnderlyingMPOMDP())) ? this->oMDP->getUnderlyingMPOMDP()->getNumAgents() : 1;
+        number real_horizon = this->oMDP->getHorizon() / num_serial_agents;
         for (int t = 0; t < this->oMDP->getHorizon(); t++)
         {
-            double granul_t = PWLCQValueFunction::GRANULARITY + sqrt(float(t) / (this->oMDP->getHorizon() - 1)) * (1 - PWLCQValueFunction::GRANULARITY);
-            // double granul_t = PWLCQValueFunction::GRANULARITY + t * (1. - PWLCQValueFunction::GRANULARITY) / (this->oMDP->getHorizon() - 1); // LINEAIRE
+            number real_current_horizon = t / num_serial_agents;
+            double granul_t = PWLCQValueFunction::GRANULARITY_START + sqrt(float(real_current_horizon) / (real_horizon - 1)) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction::GRANULARITY_START);
             std::cout << "t " << t << " - g " << granul_t << std::endl;
             granularity_per_horizon.push_back(granul_t);
         }
@@ -88,13 +91,13 @@ namespace sdm
 
     void PWLCQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t)
     {
-        PWLCQValueFunction::G = this->granularity_per_horizon[t];
+        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[t];
         this->representation[t][state] = std::dynamic_pointer_cast<Hyperplane>(new_hyperplane);
     }
 
-    std::shared_ptr<State> PWLCQValueFunction::getHyperplaneAt(const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<State> PWLCQValueFunction::getHyperplaneAt(std::shared_ptr<State> state, number t)
     {
-        PWLCQValueFunction::G = this->granularity_per_horizon[t];
+        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[t];
         auto tmp_it = this->representation[t].find(state);
         if (tmp_it == this->representation[t].end())
         {
@@ -104,12 +107,14 @@ namespace sdm
         }
         else
         {
+            state = tmp_it->first;
             return tmp_it->second;
         }
     }
 
-    std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(const std::shared_ptr<State> &state, number t)
+    std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(std::shared_ptr<State> state, number t)
     {
+
         return {getHyperplaneAt(state, t - 1)};
     }
 
@@ -146,7 +151,15 @@ namespace sdm
                 res << "\t\t<plan>" << std::endl;
 
                 std::ostringstream hyperplan_str;
-                hyperplan_str << pair_state_hyperplane.second->getState();
+                for (const auto &hist_map : pair_state_hyperplane.second->getState())
+                {
+                    auto copy = hist_map.second;
+                    hyperplan_str << hist_map.first->short_str() << std::endl;
+                    for (const auto &state_action : copy.getIndexes())
+                    {
+                        hyperplan_str << "\t--- ("<<state_action.first->str() << ", "<< state_action.second->str() << ") = " << pair_state_hyperplane.second->getValueAt(hist_map.first, state_action.first, state_action.second) << std::endl;
+                    }
+                }
                 tools::indentedOutput(res, hyperplan_str.str().c_str(), 3);
 
                 res << "\n\t\t</plan>" << std::endl;

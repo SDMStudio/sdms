@@ -207,12 +207,12 @@ namespace sdm
         return this->pomdp->getReward(state, action, t) + this->getWorld()->getDiscount(t) * next_expected_value;
     }
 
-    std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(const std::shared_ptr<State> &, number t)
+    std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(std::shared_ptr<State> , number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
 
-    std::shared_ptr<State> PWLCValueFunction::getHyperplaneAt(const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<State> PWLCValueFunction::getHyperplaneAt(std::shared_ptr<State> state, number t)
     {
         return this->evaluate(state, t).first;
     }

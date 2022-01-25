@@ -67,7 +67,7 @@ namespace sdm
         this->representation[t] = std::static_pointer_cast<Hyperplane>(new_hyperplane);
     }
 
-    std::shared_ptr<State> ParametricQValueFunction::getHyperplaneAt(const std::shared_ptr<State> &, number t)
+    std::shared_ptr<State> ParametricQValueFunction::getHyperplaneAt(std::shared_ptr<State>, number t)
     {
         return this->representation[t];
     }
@@ -77,7 +77,7 @@ namespace sdm
         return this->representation[t];
     }
 
-    std::vector<std::shared_ptr<State>> ParametricQValueFunction::getHyperplanesAt(const std::shared_ptr<State> &, number t)
+    std::vector<std::shared_ptr<State>> ParametricQValueFunction::getHyperplanesAt(std::shared_ptr<State>, number t)
     {
         return {getHyperplaneAt(nullptr, t - 1)};
     }

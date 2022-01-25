@@ -66,6 +66,10 @@ namespace sdm
     {
         observation = getEnv()->reset(); // Reset the environment
 
+        if (episode %  10000 == 0)
+        {
+            std::cout << this->q_value_->str() << std::endl;
+        }
         doEpisodeRecursive(observation, 0);
         // number max_num_steps_by_ep = (horizon_ > 0) ? horizon_ : max_num_steps_by_ep_;
         // unsigned long last_step = global_step + max_num_steps_by_ep; // Compute the last step of the episode
@@ -85,22 +89,28 @@ namespace sdm
             return;
 
         // Action selection following policy and exploration process
+        // std::cout << "SelectAction" << std::endl;
         auto action = this->selectAction(obs, t);
 
+        // std::cout << "Step" << std::endl;
         // Execute one step in env and get next observation and rewards
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
         this->is_done = is_done;
 
         // Compute next greedy action
+        // std::cout << "Greedy Action" << std::endl;
         auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation, t + 1);
 
+        // std::cout << "Push memory" << std::endl;
         // Push experience to memory
         this->experience_memory_->push(obs, action, rewards[0], next_observation, next_greedy_action, t);
 
         this->doEpisodeRecursive(next_observation, t + 1);
 
+        // std::cout << "Update" << std::endl;
         // Backup and get Q Value Error
         this->q_value_->updateValueAt(this->learning_rate, t);
+        // std::cout << "EndStep" << std::endl;
 
         endStep();
     }
@@ -210,7 +220,8 @@ namespace sdm
     void QLearning::printEndInfo()
     {
 
-        std::cout << "\n" << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
+        std::cout << "\n"
+                  << config::SDMS_THEME_1 << "------------------------------------" << std::endl;
         std::cout << config::LOG_SDMS << "END LEARNING (" << this->getAlgorithmName() << ")" << std::endl;
         std::cout << config::SDMS_THEME_1 << "------------------------------------" << config::NO_COLOR << std::endl;
     }
@@ -242,7 +253,7 @@ namespace sdm
         auto csv_logger = std::make_shared<sdm::CSVLogger>(this->getName(), list_logs);
 
         // Build a multi logger that combines previous loggers
-        logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, /* file_logger,  */csv_logger});
+        logger_ = std::make_shared<sdm::MultiLogger>(std::vector<std::shared_ptr<Logger>>{std_logger, /* file_logger,  */ csv_logger});
     }
 
     void QLearning::logging()

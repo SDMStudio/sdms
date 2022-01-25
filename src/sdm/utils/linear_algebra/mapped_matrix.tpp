@@ -95,7 +95,7 @@ namespace sdm
     {
         std::vector<Pair<TLig,TCol>> indexes;
 
-        for(const auto&lig_AND_col_AND_Value : this)
+        for(const auto&lig_AND_col_AND_Value : *this)
         {
             for(const auto&col_AND_Value : lig_AND_col_AND_Value.second)
             {
@@ -110,7 +110,7 @@ namespace sdm
     {
         std::vector<std::tuple<TLig,TCol,TValue>> all_element;
 
-        for(const auto&lig_AND_col_AND_Value : this)
+        for(const auto&lig_AND_col_AND_Value : *this)
         {
             for(const auto&col_AND_Value : lig_AND_col_AND_Value.second)
             {

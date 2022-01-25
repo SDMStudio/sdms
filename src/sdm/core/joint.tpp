@@ -156,12 +156,7 @@ namespace std
         typedef std::size_t result_type;
         result_type operator()(argument_type const &in) const
         {
-            size_t size = in.size();
-            size_t seed = 0;
-            for (size_t i = 0; i < size; i++)
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, in[i]);
-            return seed;
+            return std::hash<std::vector<T>>()(in);
         }
     };
 }

@@ -35,13 +35,12 @@ namespace sdm
          */
         virtual void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplan, number t) = 0;
 
-        virtual std::shared_ptr<State> getHyperplaneAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> state, number t) = 0;
 
-        virtual std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State>& state, number t) = 0;
+        virtual std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> state, number t) = 0;
 
         virtual double getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t) = 0;
 
         virtual double getDefaultValue(number t) = 0;
-
     };
 }

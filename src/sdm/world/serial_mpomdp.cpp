@@ -39,7 +39,9 @@ namespace sdm
         auto serial_state = state->toSerial();
         auto next_serial_state = next_state->toSerial();
 
-        auto all_action = this->addNewAction(serial_state, action);
+        auto all_action = serial_state->getAction();
+        all_action.push_back(action);
+
 
         std::shared_ptr<Item> item = observation;
         auto discrete_space = std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serial_state->getCurrentAgentId()));
@@ -64,14 +66,14 @@ namespace sdm
         auto serial_state = state->toSerial();
         auto next_serial_state = next_state->toSerial();
 
-        auto all_action = this->addNewAction(serial_state, action);
+        auto all_action = serial_state->getAction();
+        all_action.push_back(action);
 
-        std::shared_ptr<Item> item = observation;
-        auto discrete_space = std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serial_state->getCurrentAgentId()));
+        // auto&& observation_space = this->serial_observation_space_.at(serial_state->getCurrentAgentId()); 
 
-        auto index = discrete_space->find(item);
+        // auto&& index = observation_space->find(observation);
 
-        if (index != -1 && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1 && discrete_space->getItem(index))
+        if (this->serial_observation_space_.at(serial_state->getCurrentAgentId())->contains(observation) && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1/*  && observation_space->getItem(index) */)
         {
             // The probability is the same of the decpomdp, if the condition are verified
             return this->mpomdp->getDynamics(serial_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serial_state->getHiddenState(), observation, t);
@@ -80,7 +82,7 @@ namespace sdm
         {
             // If it is a intermediate agent, the probability is worth 1 only if : the joint_obs is the empty observation,
             // the currentand next hidden state are equal, the action of the next serial state is equal to the action of current serial state + serial action
-            return (this->empty_serial_observation == observation && serial_state->getHiddenState() == next_serial_state->getHiddenState() && next_serial_state->getAction() == all_action) ? 1 : 0;
+            return (this->empty_serial_observation == observation && serial_state->getHiddenState() == next_serial_state->getHiddenState() && next_serial_state->getAction() == all_action) ? 1. : 0.;
         }
     }
 

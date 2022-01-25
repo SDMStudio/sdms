@@ -51,7 +51,7 @@ namespace sdm
         return this->expandJointHistoryTree(std::static_pointer_cast<JointObservation>(joint_observation), std::static_pointer_cast<JointAction>(joint_action), backup);
     }
 
-    std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action, bool backup)
+    std::shared_ptr<JointHistoryInterface> JointHistoryTree::expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action, bool backup)
     {
         return this->expandJointHistoryTree(joint_observation, joint_action, backup);
     }

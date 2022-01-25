@@ -14,6 +14,7 @@
 #include <sdm/public/algorithm.hpp>
 #include <sdm/algorithms/q_learning.hpp>
 #include <sdm/world/gym_interface.hpp>
+#include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/rl/exploration.hpp>
 #include <sdm/utils/logging/logger.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
@@ -83,5 +84,7 @@ namespace sdm
     double cumul_reward, current;
 
     std::shared_ptr<Action> default_decision_rule(number t) const;
+    
+    std::shared_ptr<SolvableByDP> mdp;
   };
 } // namespace sdm

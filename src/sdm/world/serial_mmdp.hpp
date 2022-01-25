@@ -236,14 +236,6 @@ namespace sdm
 
         void createDistribution();
 
-        /**
-         * @brief A serial state is composed by a vector of action, in this function, we add a new action to the current vector of action/
-         * 
-         * @param const std::shared_ptr<State>& : current serial state
-         * @param const std::shared_ptr<Action>& : action to add
-         * @return JointAction : vector of action of the current serial state + the action to add
-         */
-        JointAction addNewAction(const std::shared_ptr<State>& state, const std::shared_ptr<Action>& new_action) const;
     };
 
 } // namespace sdm

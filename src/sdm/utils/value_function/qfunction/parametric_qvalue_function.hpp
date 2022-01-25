@@ -83,9 +83,9 @@ namespace sdm
 
         void addHyperplaneAt(const std::shared_ptr<State> &, const std::shared_ptr<State> &new_hyperplane, number t);
 
-        std::shared_ptr<State> getHyperplaneAt(const std::shared_ptr<State> &, number t);
+        std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> , number t);
         
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(const std::shared_ptr<State> &, number t);
+        std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> , number t);
 
         double getBeta(const std::shared_ptr<State> &belief_state, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
 

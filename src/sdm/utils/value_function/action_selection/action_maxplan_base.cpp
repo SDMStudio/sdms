@@ -19,16 +19,17 @@ namespace sdm
     {
         // Cast the generic value function into a piece-wise linear convex value function.
         this->pwlc_vf = std::dynamic_pointer_cast<PWLCValueFunctionInterface>(vf);
+        std::shared_ptr<State> ref_state = state;
 
         // Instanciate return variables
         std::shared_ptr<Action> max_decision_rule;
         double max_value = -std::numeric_limits<double>::max();
 
         // Go over all hyperplan in the Support
-        for (const auto &hyperplane : this->pwlc_vf.lock()->getHyperplanesAt(state, t + 1))
+        for (const auto &hyperplane : this->pwlc_vf.lock()->getHyperplanesAt(ref_state, t + 1))
         {
             // Compute the greedy action and value for a given hyperplan
-            auto pair_action_value = this->computeGreedyActionAndValue(this->pwlc_vf.lock(), state, hyperplane->toBelief(), t);
+            auto pair_action_value = this->computeGreedyActionAndValue(this->pwlc_vf.lock(), ref_state, hyperplane->toBelief(), t);
 
             // Select the Best Action
             if (pair_action_value.second > max_value)

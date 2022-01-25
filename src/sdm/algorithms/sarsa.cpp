@@ -18,6 +18,7 @@ namespace sdm
                  unsigned long num_episodes,
                  std::string name) : QLearning(env, experience_memory, q_value, q_target, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name)
     {
+        this->mdp = std::dynamic_pointer_cast<SolvableByDP>(this->getEnv());
     }
 
     void SARSA::initialize()
@@ -44,7 +45,7 @@ namespace sdm
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
         this->is_done = is_done;
 
-        this->cumul_reward += pow(/* this->getEnv()->getDiscount() */ 1, t) * rewards[0];
+        this->cumul_reward += pow(this->mdp->getUnderlyingProblem()->getDiscount(t) , t) * rewards[0];
 
         this->doEpisodeRecursive(next_observation, t + 1);
 
@@ -63,7 +64,7 @@ namespace sdm
 
         endStep();
     }
-
+    
     void SARSA::endEpisode()
     {
         QLearning::endEpisode();
@@ -74,8 +75,7 @@ namespace sdm
 
     std::shared_ptr<Action> SARSA::default_decision_rule(number t) const
     {
-        auto solvable_by_dp = std::dynamic_pointer_cast<SolvableByDP>(this->getEnv());
-        return std::make_shared<RandomDecisionRule>(solvable_by_dp->getUnderlyingProblem()->getActionSpace(t));
+        return std::make_shared<RandomDecisionRule>(this->mdp->getUnderlyingProblem()->getActionSpace(t));
     }
 
     std::string SARSA::getAlgorithmName()

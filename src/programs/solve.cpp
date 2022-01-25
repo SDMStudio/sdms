@@ -50,7 +50,7 @@ int solve(int argv, char **args)
         std::string world, algo_name, formalism, upper_bound, lower_bound, ub_init, lb_init, type_sampling;
         int trials, memory;
         number horizon, seed, batch_size, freq_update_lb, freq_update_ub, state_type;
-        double error, discount, granularity, rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay;
+        double error, discount, granularity_start, granularity_end, rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay;
         double p_b, p_o, p_c;
         bool store_actions, store_states;
         unsigned long long num_samples;
@@ -121,7 +121,9 @@ int solve(int argv, char **args)
         ("rate_end", po::value<double>(&rate_end)->default_value(0.001), "the final learning rate")
         ("rate_decay", po::value<double>(&rate_decay)->default_value(10000), "the decaying factor")
         ("q_init", po::value<string>(&lb_init), "the q-value function initialization method")
-        ("granularity,g", po::value<double>(&granularity)->default_value(PWLCQValueFunction::GRANULARITY), "The granularity...");
+        ("g_start", po::value<double>(&granularity_start)->default_value(PWLCQValueFunction::GRANULARITY_START), "The granularity...")
+        ("g_end", po::value<double>(&granularity_end)->default_value(PWLCQValueFunction::GRANULARITY_END), "The granularity...")
+        ;
 
         po::options_description byg_config("Bayesian game solver configuration");
         byg_config.add_options()
@@ -163,7 +165,8 @@ int solve(int argv, char **args)
         Belief::PRECISION = p_b;
         OccupancyState::PRECISION = p_o;
         PrivateOccupancyState::PRECISION_COMPRESSION = p_c;
-        PWLCQValueFunction::GRANULARITY = granularity;
+        PWLCQValueFunction::GRANULARITY_START = granularity_start;
+        PWLCQValueFunction::GRANULARITY_END = granularity_end;
 
         common::logo();
 
