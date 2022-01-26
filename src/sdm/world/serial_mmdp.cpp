@@ -62,6 +62,15 @@ namespace sdm
         return this->isLastAgent(t) ? this->mmdp_->getDiscount(this->getAgentId(t)) : 1.0;
     }
 
+    double SerialMMDP::getWeightedDiscount(number t) const
+    {
+        return pow(this->getDiscount(t), this->getSimultaneousTime(t));
+    }
+
+    number SerialMMDP::getSimultaneousTime(number t) const {
+        return (t / this->getNumAgents());
+    }
+
     number SerialMMDP::getHorizon() const
     {
         // In serial case, the number of horizon is the number of agent multiplie by the mmdp horizon

@@ -59,6 +59,7 @@ namespace sdm
          * @return the discount factor
          */
         double getDiscount(number t = 0) const;
+        double getWeightedDiscount(number t = 0) const;
 
         /**
          * @brief Set the discount factor

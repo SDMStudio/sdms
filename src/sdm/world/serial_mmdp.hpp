@@ -1,12 +1,12 @@
 /**
  * @file serial_mmdp.hpp
- * @author Jérôme ARJONILLA 
+ * @author Jérôme ARJONILLA
  * @brief Defines the Serial MMDP.
  * @version 0.1
  * @date 17/08/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #pragma once
@@ -41,60 +41,70 @@ namespace sdm
 
         /**
          * @brief Get the number of agents
-         * 
+         *
          * @return the number of agents
          */
         number getNumAgents() const;
 
         /**
          * @brief Get the identifier of the current agent.
-         * 
+         *
          * @param t the timestep
          * @return number the agent id
          */
         number getAgentId(number t) const;
 
         /**
-         * @brief 
-         * 
-         * @param t 
-         * @return true 
-         * @return false 
+         * @brief Get the simultaneous timestep.
+         *
+         * @param t_sequential the sequential timestep
+         * @return number the corresponding simultaneous timestep
+         */
+        inline number getSimultaneousTime(number t_sequential) const;
+
+        /**
+         * @brief
+         *
+         * @param t
+         * @return true
+         * @return false
          */
         bool isLastAgent(number t) const;
 
         /**
          * @brief Get the discount factor at timestep t.
-         * 
+         *
          * @param t the timestep
          * @return the discount factor
          */
         double getDiscount(number t = 0) const;
 
+        inline double getWeightedDiscount(number t) const;
+
         /**
          * @brief Get the number of agents
-         * 
+         *
          * @return the number of agents
          */
         number getHorizon() const;
 
         /**
          * @brief Get the initial distribution over states.
-         * 
+         *
          * @return the initial distribution over states
          */
         std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
 
         /**
          * @brief Get all states
-         * 
-         * @return the set of states 
+         *
+         * @return the set of states
          */
         std::shared_ptr<Space> getStateSpace(number t = 0) const;
 
         /**
          * @brief Get the reachable next states
-         * 
+         *
          * @param state the state
          * @param action the action
          * @return the set of reachable states
@@ -103,27 +113,27 @@ namespace sdm
 
         /**
          * @brief Get all actions at a specific time step
-         * 
-         * @return the set of actions 
+         *
+         * @return the set of actions
          */
         std::shared_ptr<Space> getActionSpace(number t = 0) const;
 
         /**
          * @brief Get the Action Space at a specific time step and a precise agent
-         * 
-         * @param agent_id 
-         * @param t 
-         * @return std::shared_ptr<Space> 
+         *
+         * @param agent_id
+         * @param t
+         * @return std::shared_ptr<Space>
          */
-        std::shared_ptr<Space> getActionSpace(number agent_id, number t ) const;
+        std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
 
         /**
          * @brief Get the reward
-         * 
-         * @param state 
-         * @param action 
-         * @param t 
-         * @return double 
+         *
+         * @param state
+         * @param action
+         * @param t
+         * @return double
          */
         double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) const;
 
@@ -132,12 +142,12 @@ namespace sdm
         double getMaxReward(number t = 0) const;
         /**
          * @brief Get the Transition Probability object
-         * 
-         * @param state 
-         * @param action 
-         * @param next_state 
-         * @param t 
-         * @return double 
+         *
+         * @param state
+         * @param action
+         * @param next_state
+         * @param t
+         * @return double
          */
         double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
@@ -147,7 +157,7 @@ namespace sdm
          * @brief Get the action space.
          * @param observation the observation in consideration
          * @param t time step
-         * @return the action space. 
+         * @return the action space.
          */
         std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
 
@@ -160,7 +170,7 @@ namespace sdm
         /**
          * @brief Do a step on the environment.
          * @param action the action to execute
-         * @return the information produced. Include : next observation, rewards, episode done  
+         * @return the information produced. Include : next observation, rewards, episode done
          */
         std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
 
@@ -171,18 +181,17 @@ namespace sdm
         std::shared_ptr<State> getInternalState() const;
 
         std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &, number t);
-        
-    protected:
 
+    protected:
         /**
          * @brief The mmpdp associated to the problem
-         * 
+         *
          */
         std::shared_ptr<MMDPInterface> mmdp_;
 
         /**
          * @brief Refer to the Serial State Space
-         * 
+         *
          */
         Joint<std::shared_ptr<DiscreteSpace>> serial_state_space_;
 
@@ -194,13 +203,13 @@ namespace sdm
 
         /**
          * @brief Map the joint_action to a precise pointeur of Action
-         * 
+         *
          */
         std::unordered_map<JointAction, std::shared_ptr<Action>> map_joint_action_to_pointeur;
 
         /**
          * @brief Map the serialState to a precise pointeur of State
-         * 
+         *
          */
         std::unordered_map<SerialState, std::shared_ptr<State>> map_serial_state_to_pointeur;
 
@@ -208,20 +217,20 @@ namespace sdm
 
         /**
          * @brief Initialize Serial State Space
-         * 
+         *
          */
         void createInitSerialStateSpace();
 
         /**
          * @brief Initialize "serial_state_space_"
-         * 
+         *
          */
         void createInitReachableStateSpace();
 
         /**
          * @brief Get the Pointeur object of a precise Joint Action
-         * 
-         * @return std::shared_ptr<JointAction> 
+         *
+         * @return std::shared_ptr<JointAction>
          */
         const std::shared_ptr<Action> getPointeurJointAction(JointAction &) const;
 
@@ -229,13 +238,12 @@ namespace sdm
 
         /**
          * @brief Get the Pointeur object of a precise Joint Action
-         * 
-         * @return std::shared_ptr<JointAction> 
+         *
+         * @return std::shared_ptr<JointAction>
          */
         const std::shared_ptr<State> getPointeurState(SerialState &) const;
 
         void createDistribution();
-
     };
 
 } // namespace sdm

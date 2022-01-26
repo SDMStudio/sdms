@@ -19,6 +19,11 @@ namespace sdm
         return this->mpomdp_->getDiscount(t);
     }
 
+    double TransformedMPOMDP::getWeightedDiscount(number t) const
+    {
+        return this->mpomdp_->getWeightedDiscount(t);
+    }
+
     std::shared_ptr<Distribution<std::shared_ptr<State>>> TransformedMPOMDP::getStartDistribution() const
     {
         return this->mpomdp_->getStartDistribution();

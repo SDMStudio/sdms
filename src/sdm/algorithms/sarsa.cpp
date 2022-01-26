@@ -45,7 +45,7 @@ namespace sdm
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
         this->is_done = is_done;
 
-        this->cumul_reward += pow(this->mdp->getUnderlyingProblem()->getDiscount(t) , t) * rewards[0];
+        this->cumul_reward += this->mdp->getUnderlyingProblem()->getWeightedDiscount(t) * rewards[0];
 
         this->doEpisodeRecursive(next_observation, t + 1);
 
@@ -57,14 +57,14 @@ namespace sdm
         }
 
         // Push experience to memory
-        this->experience_memory_->push(obs, action, rewards[0], next_observation, this->actors[t+1], t);
+        this->experience_memory_->push(obs, action, rewards[0], next_observation, this->actors[t + 1], t);
 
         // Backup and get Q Value Error
         this->q_value_->updateValueAt(this->learning_rate, t);
 
         endStep();
     }
-    
+
     void SARSA::endEpisode()
     {
         QLearning::endEpisode();

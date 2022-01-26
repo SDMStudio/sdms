@@ -49,6 +49,14 @@ namespace sdm
         virtual double getDiscount(number t = 0) const = 0;
 
         /**
+         * @brief Get the weighted discount factor at timestep t.
+         *
+         * @param t the timestep
+         * @return the discount factor
+         */
+        virtual double getWeightedDiscount(number t = 0) const = 0;
+
+        /**
          * @brief Get the initial distribution over states.
          *
          * @return the initial distribution over states

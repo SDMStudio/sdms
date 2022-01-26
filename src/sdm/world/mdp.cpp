@@ -4,7 +4,7 @@
 
 namespace sdm
 {
-    MDP::MDP(){}
+    MDP::MDP() {}
 
     MDP::MDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
@@ -27,7 +27,6 @@ namespace sdm
 
     MDP::~MDP() {}
 
-
     void MDP::configure(Config config)
     {
         double discount = config.get<double>("discount", -1.);
@@ -47,6 +46,11 @@ namespace sdm
     double MDP::getDiscount(number) const
     {
         return this->discount_;
+    }
+
+    double MDP::getWeightedDiscount(number t) const
+    {
+        return pow(this->getDiscount(t), t);
     }
 
     void MDP::setDiscount(double discount)

@@ -167,6 +167,8 @@ namespace sdm
 
     virtual void printEndInfo();
 
+    static double RATE_DECAY_START_TIME, DURATION_RATE_DECAY;
+
   protected:
     /** @brief The problem to be solved */
     std::shared_ptr<GymInterface> env_;

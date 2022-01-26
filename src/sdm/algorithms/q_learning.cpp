@@ -5,6 +5,8 @@
 
 namespace sdm
 {
+    double QLearning::RATE_DECAY_START_TIME = 0, QLearning::DURATION_RATE_DECAY = 0;
+
 
     QLearning::QLearning(const std::shared_ptr<GymInterface> &env,
                          std::shared_ptr<ExperienceMemoryInterface> experience_memory,
@@ -51,7 +53,11 @@ namespace sdm
         // Run N episodes
         while (episode < num_episodes_)
         {
-            this->learning_rate = this->rate_end + (this->rate_start - this->rate_end) * exp(-1.0 * this->episode / this->rate_decay);
+            auto current_time = getExecutionTime();
+            if (current_time > QLearning::RATE_DECAY_START_TIME)
+            {
+                this->learning_rate = this->rate_start - (this->rate_start - this->rate_end) * std::min(1.0, (current_time - QLearning::RATE_DECAY_START_TIME) / QLearning::DURATION_RATE_DECAY);
+            }
 
             // Update exploration process at each episode
             exploration_process->update(episode);
@@ -85,28 +91,22 @@ namespace sdm
             return;
 
         // Action selection following policy and exploration process
-        // std::cout << "SelectAction" << std::endl;
         auto action = this->selectAction(obs, t);
 
-        // std::cout << "Step" << std::endl;
         // Execute one step in env and get next observation and rewards
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
         this->is_done = is_done;
 
+        this->doEpisodeRecursive(next_observation, t + 1);
+
         // Compute next greedy action
-        // std::cout << "Greedy Action" << std::endl;
         auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation, t + 1);
 
-        // std::cout << "Push memory" << std::endl;
         // Push experience to memory
         this->experience_memory_->push(obs, action, rewards[0], next_observation, next_greedy_action, t);
 
-        this->doEpisodeRecursive(next_observation, t + 1);
-
-        // std::cout << "Update" << std::endl;
         // Backup and get Q Value Error
         this->q_value_->updateValueAt(this->learning_rate, t);
-        // std::cout << "EndStep" << std::endl;
 
         endStep();
     }
