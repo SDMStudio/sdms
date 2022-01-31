@@ -129,24 +129,51 @@ namespace sdm
         return this->isEqual(other);
     }
 
+    bool OccupancyState::isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const
+    {
+        // return sdm::Norm1Equality(left, right, PWLCQValueFunction::GRANULARITY);
+        double norm_1 = 0., additional = 1., proba_right;
+        auto other_copy = other->toOccupancyState();
+        // For all points in the support
+        for (const auto &jhistory : this->getJointHistories())
+        {
+            // For all states in the corresponding belief
+            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
+            {
+                proba_right = other_copy->getProbability(jhistory, state);
+                additional -= proba_right;
+                norm_1 += std::abs(this->getProbability(jhistory, state) - proba_right);
+                if (norm_1 > precision)
+                    return false;
+            }
+        }
+
+        return (((norm_1 + additional) / 2) - 1e-5 <= precision);
+    }
+
+    bool OccupancyState::isEqualNormInf(const std::shared_ptr<BeliefInterface> &other, double precision) const
+    {
+    }
+
     bool OccupancyState::isEqual(const OccupancyState &other, double precision) const
     {
+        // return this->isEqualNormInf(other, precision);
+
         if (precision < 0)
         {
             precision = Belief::PRECISION;
         }
 
-        if (this->size() != other.size())
-        {
-            return false;
-        }
+        // if (this->size() != other.size())
+        // {
+        //     return false;
+        // // }
 
-        if (std::abs(this->getDefault() - other.getDefault()) > precision)
-        {
-            return false;
-        }
+        // if (std::abs(this->getDefault() - other.getDefault()) > precision)
+        // {
+        //     return false;
+        // }
 
-        // For all points in the support
         for (const auto &jhistory : this->getJointHistories())
         {
             // For all states in the corresponding belief
@@ -455,10 +482,10 @@ namespace sdm
     }
 
     /**
-     * @brief 
-     * 
-     * https://gitlab.inria.fr/maintenance/maintenance.html?appli=GITLAB 
-     * @return std::shared_ptr<OccupancyStateInterface> 
+     * @brief
+     *
+     * https://gitlab.inria.fr/maintenance/maintenance.html?appli=GITLAB
+     * @return std::shared_ptr<OccupancyStateInterface>
      */
     std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
     {

@@ -16,15 +16,15 @@ namespace sdm
 
     /**
      * @brief An occupancy state refers to the complete knowledge the central planner have access to take decisions.
-     * 
-     * Occupancy states are firstly defined by Dibangoye, Amato, Buffet and Charpillet 
+     *
+     * Occupancy states are firstly defined by Dibangoye, Amato, Buffet and Charpillet
      * in [Optimally Solving Dec-POMDPs as Continuous-State MDPs](https://hal.inria.fr/hal-01279444/document).
-     * An occupancy state is defined as a posterior distribution over states and histories, given a complete information state 
+     * An occupancy state is defined as a posterior distribution over states and histories, given a complete information state
      * (i.e. \$\\xi_t (x_{t}, o_{t} ) = p(x_{t}, o_t \\mid i_{t})\$ ) .
-     * 
+     *
      */
-    class OccupancyState : virtual public OccupancyStateInterface,
-                           virtual public Belief
+    class OccupancyState : public OccupancyStateInterface,
+                           public Belief
     {
     public:
         static double PRECISION;
@@ -39,6 +39,8 @@ namespace sdm
         bool operator==(const OccupancyState &other) const;
         bool isEqual(const OccupancyState &other, double precision = PRECISION) const;
         bool isEqual(const std::shared_ptr<State> &other, double precision = PRECISION) const;
+        bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision = PRECISION) const;
+        bool isEqualNormInf(const std::shared_ptr<BeliefInterface> &other, double precision = PRECISION) const;
 
         double getProbability(const std::shared_ptr<State> &joint_history) const;
         double getProbability(const std::shared_ptr<JointHistoryInterface> &joint_history) const;
@@ -74,9 +76,9 @@ namespace sdm
 
         /**
          * @brief Set the belief corresponding to the given joint historiy.
-         * 
+         *
          * @param jhistory the joint history
-         * @param belief the corresponding belief 
+         * @param belief the corresponding belief
          */
         void setBeliefAt(const std::shared_ptr<JointHistoryInterface> &jhistory, const std::shared_ptr<BeliefInterface> &belief);
 
@@ -105,7 +107,7 @@ namespace sdm
         void setFullyUncompressedOccupancy(const std::shared_ptr<OccupancyStateInterface> &);
 
         /**
-         * @brief Get the one step uncompressed occupancy state. 
+         * @brief Get the one step uncompressed occupancy state.
          */
         std::shared_ptr<OccupancyStateInterface> getOneStepUncompressedOccupancy();
 
@@ -136,7 +138,7 @@ namespace sdm
 
         /**
          * @brief Get the probability over individual histories and precise agent
-         * 
+         *
          * @param number Agent Id
          * @param typename jhistory_type::element_type::ihistory_type : Individual History
          */
@@ -153,39 +155,39 @@ namespace sdm
         void updateJointLabels(const Joint<std::shared_ptr<HistoryInterface>> &, const Joint<std::shared_ptr<HistoryInterface>> &);
 
         /**
-         * @brief Get the Compressed Joint History. 
+         * @brief Get the Compressed Joint History.
          */
         std::shared_ptr<JointHistoryInterface> getCompressedJointHistory(const std::shared_ptr<JointHistoryInterface> &) const;
 
         /**
          * @brief Check probabilistic equivalence
-         * 
+         *
          * @return true if histories are equivalent
          * @return false else
          */
         bool areIndividualHistoryLPE(const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<HistoryInterface> &, number);
 
         /**
-         * @brief Compression for occupancy states based on belief state representation. 
-         * To be in this representation, the type 'TState' have to be a derivation of the interface BeliefState.  
-         * 
-         * @return the compressed occupancy state 
+         * @brief Compression for occupancy states based on belief state representation.
+         * To be in this representation, the type 'TState' have to be a derivation of the interface BeliefState.
+         *
+         * @return the compressed occupancy state
          */
         std::shared_ptr<OccupancyStateInterface> compress();
 
         /**
          * @brief Get the Private Occupancy States object
-         * 
-         * @return const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>>& 
+         *
+         * @return const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>>&
          */
         const Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> &getPrivateOccupancyStates() const;
 
         /**
-         * @brief Get the 
-         * 
-         * @param agent_id 
-         * @param ihistory 
-         * @return const std::shared_ptr<PrivateOccupancyState>& 
+         * @brief Get the
+         *
+         * @param agent_id
+         * @param ihistory
+         * @return const std::shared_ptr<PrivateOccupancyState>&
          */
         const std::shared_ptr<PrivateOccupancyState> &getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const;
 
@@ -218,12 +220,12 @@ namespace sdm
 
         /** @brief This representation of occupancy states consists of private occupancy states for each agent */
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> tuple_of_maps_from_histories_to_private_occupancy_states_;
-        
+
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, double>> weight_of_private_occupancy_state_;
 
         /** @brief Keep in memory the uncompressed occupancy states */
         std::shared_ptr<OccupancyStateInterface> fully_uncompressed_occupancy_state, one_step_left_compressed_occupancy_state;
-        
+
         std::weak_ptr<OccupancyStateInterface> compressed_occupancy_state;
 
         /** @brief Keep relations between all private ihistories and labels */
@@ -254,7 +256,7 @@ namespace sdm
         std::unordered_map<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> map_joint_history_to_belief_;
 
         /**
-         * @brief 
+         * @brief
          */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
 
@@ -293,7 +295,7 @@ namespace std
             }
             for (const auto &v : rounded)
             {
-                //Combine the hash of the current vector with the hashes of the previous ones
+                // Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
             return seed;

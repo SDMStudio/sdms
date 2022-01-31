@@ -19,18 +19,6 @@ namespace sdm
     return std::static_pointer_cast<T>(item);
   }
 
-  // namespace ptr
-  // {
-  //   template <typename T>
-  //   using shared = std::shared_ptr<T>;
-
-  //   template <typename T>
-  //   using unique = std::unique_ptr<T>;
-
-  //   template <typename T>
-  //   using weak = std::weak_ptr<T>;
-  // } // namespace ptr
-
   const size_t SUCCESS = 0;
   const size_t ERROR_IN_COMMAND_LINE = 1;
   const size_t ERROR_UNHANDLED_EXCEPTION = 2;
@@ -190,27 +178,6 @@ namespace sdm
     return std::dynamic_pointer_cast<BaseClass>(aPtr);
   }
 
-  // template <typename T>
-  // struct equal_from_ptr
-  // {
-  //   virtual bool operator()(const std::shared_ptr<void> &left, const std::shared_ptr<void> &right) const
-  //   {
-  //     auto casted_left = std::static_pointer_cast<T>(left);
-  //     auto casted_right = std::static_pointer_cast<T>(right);
-  //     return ((left == right) || std::equal_to<T>()(*casted_left, *casted_right));
-  //   }
-  // };
-
-  // template <typename T>
-  // struct hash_from_ptr
-  // {
-  //   virtual size_t operator()(const std::shared_ptr<void> &item) const
-  //   {
-  //     auto casted_item = std::static_pointer_cast<T>(item);
-  //     return std::hash<T>()(*casted_item);
-  //   }
-  // };
-
   template <typename T>
   struct equal_from_ptr
   {
@@ -232,6 +199,15 @@ namespace sdm
     }
   };
 
+
+  template <typename T>
+  struct NullHash
+  {
+    virtual size_t operator()(const std::shared_ptr<T> &item) const
+    {
+      return 0;
+    }
+  };
 } // namespace sdm
 
 namespace std

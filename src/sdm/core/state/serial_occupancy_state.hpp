@@ -15,8 +15,8 @@ namespace sdm
 
         /**
          * @brief Get the current Agent Id of the object
-         * 
-         * @return number 
+         *
+         * @return number
          */
         number getCurrentAgentId() const;
         TypeState getTypeState() const;

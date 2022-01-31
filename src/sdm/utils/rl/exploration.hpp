@@ -17,42 +17,42 @@ namespace sdm
     class EpsGreedy : public Exploration
     {
     protected:
-        double epsilon, eps_deb_, eps_fin_, deb_expl_, fin_expl_;
+        double epsilon, eps_deb_, eps_end_, start_expl_, end_expl_;
 
         unsigned long init_expl_step, final_expl_step;
 
     public:
-        EpsGreedy(double eps_deb = 1.0, double eps_fin = 0.1, double deb_expl = 0.1, double fin_expl = 0.9) : epsilon(eps_deb), eps_deb_(eps_deb), eps_fin_(eps_fin), deb_expl_(deb_expl), fin_expl_(fin_expl)
+        EpsGreedy(double eps_deb = 1.0, double eps_end = 0.1, double start_expl = 0.3, double end_expl = 0.9) : epsilon(eps_deb), eps_deb_(eps_deb), eps_end_(eps_end), start_expl_(start_expl), end_expl_(end_expl)
         {
-            assert(fin_expl >= deb_expl);
+            assert(end_expl >= start_expl);
         }
 
         EpsGreedy(Config config) : EpsGreedy(config.get("eps_deb", 1.0),
-                                             config.get("eps_fin", 0.1),
-                                             config.get("deb_expl", 0.1),
-                                             config.get("fin_expl", 0.9))
+                                             config.get("eps_end", 0.1),
+                                             config.get("start_expl", 0.1),
+                                             config.get("end_expl", 0.9))
         {
-            assert(this->fin_expl_ >= this->deb_expl_);
+            assert(this->end_expl_ >= this->start_expl_);
         }
 
         void reset(unsigned long nb_timesteps)
         {
             this->epsilon = this->eps_deb_;
-            this->init_expl_step = (long)(this->deb_expl_ * nb_timesteps);
-            this->final_expl_step = (long)(this->fin_expl_ * nb_timesteps);
+            this->init_expl_step = (long)(this->start_expl_ * nb_timesteps);
+            this->final_expl_step = (long)(this->end_expl_ * nb_timesteps);
         }
 
         void update(unsigned long t)
         {
             if (t > this->init_expl_step && t < this->final_expl_step)
             {
-                if (this->eps_deb_ >= this->eps_fin_)
+                if (this->eps_deb_ >= this->eps_end_)
                 {
-                    this->epsilon = std::max(this->eps_fin_, this->eps_deb_ - (t - this->init_expl_step) * (this->eps_deb_ - this->eps_fin_) / (this->final_expl_step - this->init_expl_step));
+                    this->epsilon = std::max(this->eps_end_, this->eps_deb_ - (t - this->init_expl_step) * (this->eps_deb_ - this->eps_end_) / (this->final_expl_step - this->init_expl_step));
                 }
                 else
                 {
-                    this->epsilon = std::min(this->eps_fin_, this->eps_deb_ - (t - this->init_expl_step) * (this->eps_deb_ - this->eps_fin_) / (this->final_expl_step - this->init_expl_step));
+                    this->epsilon = std::min(this->eps_end_, this->eps_deb_ - (t - this->init_expl_step) * (this->eps_deb_ - this->eps_end_) / (this->final_expl_step - this->init_expl_step));
                 }
             }
         }

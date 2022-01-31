@@ -114,7 +114,6 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> PWLCQValueFunction::getHyperplanesAt(std::shared_ptr<State> state, number t)
     {
-
         return {getHyperplaneAt(state, t - 1)};
     }
 

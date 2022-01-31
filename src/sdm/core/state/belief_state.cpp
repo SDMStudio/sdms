@@ -92,7 +92,24 @@ namespace sdm
     }
     return std::hash<Belief>()(*this, precision);
   }
-  
+
+  bool Belief::isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const
+  {
+    // return sdm::Norm1Equality(left, right, PWLCQValueFunction::GRANULARITY);
+    double norm_1 = 0., additional = 1., proba_other;
+    // For all points in the support
+    for (const auto &state : this->getStates())
+    {
+      proba_other = other->getProbability(state);
+      additional -= proba_other;
+      norm_1 += std::abs(this->getProbability(state) - proba_other);
+      if (norm_1 > precision)
+        return false;
+    }
+
+    return (((norm_1 + additional) / 2) - 1e-5 <= precision);
+  }
+
   bool Belief::operator==(const Belief &other) const
   {
     return this->isEqual(other);
