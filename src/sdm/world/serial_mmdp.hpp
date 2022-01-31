@@ -60,7 +60,7 @@ namespace sdm
          * @param t_sequential the sequential timestep
          * @return number the corresponding simultaneous timestep
          */
-        inline number getSimultaneousTime(number t_sequential) const;
+        number getSimultaneousTime(number t_sequential) const;
 
         /**
          * @brief
@@ -79,7 +79,7 @@ namespace sdm
          */
         double getDiscount(number t = 0) const;
 
-        inline double getWeightedDiscount(number t) const;
+        double getWeightedDiscount(number t) const;
 
         /**
          * @brief Get the number of agents

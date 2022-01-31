@@ -2,8 +2,8 @@
  * @file hsvi.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
  * @brief HSVI algorithm
- * @version 0.1
- * @date 22/12/2020
+ * @version 0.1 
+ * @date 22/12/2020 
  *
  * @copyright Copyright (c) 2020
  *

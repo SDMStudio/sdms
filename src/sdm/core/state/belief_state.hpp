@@ -55,6 +55,7 @@ namespace sdm
 
     std::string str() const;
     
+    bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const;
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
 
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;

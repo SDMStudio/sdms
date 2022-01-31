@@ -7,7 +7,6 @@ namespace sdm
 {
     double QLearning::RATE_DECAY_START_TIME = 0, QLearning::DURATION_RATE_DECAY = 0;
 
-
     QLearning::QLearning(const std::shared_ptr<GymInterface> &env,
                          std::shared_ptr<ExperienceMemoryInterface> experience_memory,
                          std::shared_ptr<QValueFunction> q_value,
@@ -53,11 +52,12 @@ namespace sdm
         // Run N episodes
         while (episode < num_episodes_)
         {
-            auto current_time = getExecutionTime();
-            if (current_time > QLearning::RATE_DECAY_START_TIME)
-            {
-                this->learning_rate = this->rate_start - (this->rate_start - this->rate_end) * std::min(1.0, (current_time - QLearning::RATE_DECAY_START_TIME) / QLearning::DURATION_RATE_DECAY);
-            }
+            // auto current_time = getExecutionTime();
+            // if (current_time > QLearning::RATE_DECAY_START_TIME)
+            // {
+            // this->learning_rate = this->rate_start - (this->rate_start - this->rate_end) * std::min(1.0, (current_time - QLearning::RATE_DECAY_START_TIME) / QLearning::DURATION_RATE_DECAY);
+            // }
+            this->learning_rate = this->rate_start - (this->rate_start - this->rate_end) * std::min(1.0, this->episode / this->rate_decay); // td::min(1.0, (current_time - QLearning::RATE_DECAY_START_TIME) / QLearning::DURATION_RATE_DECAY);
 
             // Update exploration process at each episode
             exploration_process->update(episode);

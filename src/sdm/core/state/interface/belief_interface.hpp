@@ -31,13 +31,16 @@ namespace sdm
         virtual void normalizeBelief(double norm_1) = 0;
 
         virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
+        virtual bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const = 0;
         virtual double operator^(const std::shared_ptr<BeliefInterface> &other) const = 0;
         virtual double operator<(const std::shared_ptr<BeliefInterface> &other) const = 0;
 
         virtual double norm_1() const = 0;
 
         virtual void setDefaultValue(double) = 0;
+        
         virtual double getDefaultValue() const = 0;
+
         virtual void finalize() = 0;
 
         virtual std::shared_ptr<Vector> getVectorInferface() = 0;
