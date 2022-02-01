@@ -285,7 +285,7 @@ namespace std
         {
             size_t seed = 0;
             double inverse_of_precision = 1. / precision;
-            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
+            std::map<std::shared_ptr<sdm::State>, double> ordered(in.container.begin(), in.container.end());
             std::vector<int> rounded;
             for (const auto &pair_jhist_proba : ordered)
             {

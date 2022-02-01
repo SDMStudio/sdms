@@ -4,9 +4,9 @@
  * @brief The file for state class
  * @version 0.1
  * @date 11/12/2020
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #pragma once
 
@@ -37,10 +37,10 @@ namespace sdm
         return sdm::to<BeliefInterface>(aPtr);
     }
     /**
-     * @brief A public interface for states. 
-     * 
+     * @brief A public interface for states.
+     *
      * Any class inheriting from this interface will be considered as generic state for algorithms.
-     * Consider sections [ Theoritical Background](/tutorials/theory.html) and [ Algorithms](/tutorials/algorithms/) for more information.   
+     * Consider sections [ Theoritical Background](/tutorials/theory.html) and [ Algorithms](/tutorials/algorithms/) for more information.
      *
      */
     class State : public Observation
@@ -61,20 +61,20 @@ namespace sdm
         virtual std::shared_ptr<SerialState> toSerial();
 
         /**
-         * @brief Get the hash of the state. 
-         * 
-         * The hash is used in tabular value functions in order to compare efficiently two states. 
-         * This function must be reimplemented in inherited classes. 
-         * 
+         * @brief Get the hash of the state.
+         *
+         * The hash is used in tabular value functions in order to compare efficiently two states.
+         * This function must be reimplemented in inherited classes.
+         *
          * @return size_t the hash code
          */
         virtual size_t hash(double precision = -1) const;
 
         /**
-         * @brief Check equality between two states. 
-         * 
-         * This function must be implemented in inherited classes. 
-         * 
+         * @brief Check equality between two states.
+         *
+         * This function must be implemented in inherited classes.
+         *
          * @param other the state to be compared to current state
          * @return true if states are equal
          * @return false if they are different

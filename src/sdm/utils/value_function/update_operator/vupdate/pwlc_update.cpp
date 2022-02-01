@@ -72,7 +72,7 @@ namespace sdm
                         {
 
                             // Get the next value of an hyperplane
-                            double next_alpha_value = alpha_ao[action->toAction()][observation]->getVectorInferface()->getValueAt(next_state);
+                            double next_alpha_value = alpha_ao[action->toAction()][observation]->getProbability(next_state);
 
                             // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
                             next_expected_value += next_alpha_value * pomdp->getDynamics(state, action->toAction(), next_state, observation, t);

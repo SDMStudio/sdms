@@ -110,14 +110,7 @@ namespace sdm
 
                 if (proba > 0)
                 {
-                    if (!next_belief->isStateExist(next_state))
-                    {
-                        next_belief->setProbability(next_state, proba);
-                    }
-                    else
-                    {
-                        next_belief->addProbability(next_state, proba);
-                    }
+                    next_belief->addProbability(next_state, proba);
                 }
             }
         }

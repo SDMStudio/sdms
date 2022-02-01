@@ -38,9 +38,6 @@ namespace sdm
         virtual void setProbability(const T &item, double proba);
 
     protected:
-        // typedef typename bimap_item_index<T>::value_type bimap_pair;
-        // bimap_item_index<T> bimap_item_to_index_;
-        // std::vector<double> probabilities_;
         std::unordered_map<T, double> probabilities;
     };
 } // namespace sdm

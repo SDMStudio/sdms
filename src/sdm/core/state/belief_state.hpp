@@ -1,18 +1,19 @@
 /**
  * @file belief_state.cpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief
  * @version 1.0
  * @date 29/03/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
 #include <algorithm>
 
 #include <sdm/types.hpp>
+#include <sdm/macros.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/interface/belief_interface.hpp>
@@ -22,8 +23,8 @@
 
 namespace sdm
 {
-  class Belief : virtual public BeliefInterface,
-                 public MappedVector<std::shared_ptr<State>>
+  class Belief : public BeliefInterface,
+                 public Distribution<std::shared_ptr<State>>
   {
   public:
     static double PRECISION;
@@ -33,46 +34,47 @@ namespace sdm
     Belief(const Belief &);
     Belief(const MappedVector<std::shared_ptr<State>> &);
     Belief(const std::vector<std::shared_ptr<State>> &list_states, const std::vector<double> &list_proba);
+
     virtual ~Belief();
 
-    size_t hash(double precision = PRECISION) const;
-    bool operator==(const Belief &other) const;
-    bool isEqual(const Belief &other, double precision = PRECISION) const;
-    bool isEqual(const std::shared_ptr<State> &other, double precision = PRECISION) const;
-
     std::vector<std::shared_ptr<State>> getStates() const;
+
     double getProbability(const std::shared_ptr<State> &state) const;
+    double getProbability(const std::shared_ptr<State> &begin, const std::shared_ptr<State> &) const;
+
     void setProbability(const std::shared_ptr<State> &state, double proba);
     void addProbability(const std::shared_ptr<State> &state, double proba);
 
+    std::shared_ptr<State> sample() const;
     std::shared_ptr<State> sampleState();
 
     void normalizeBelief(double norm_1);
 
-    bool isStateExist(const std::shared_ptr<State> &state_tmp) const;
-    static std::shared_ptr<State> getState(const std::shared_ptr<State> &);
-    size_t size() const { return MappedVector<std::shared_ptr<State>>::size(); }
+    size_t hash(double precision = PRECISION) const;
 
-    std::string str() const;
-    
-    bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const;
+    bool isEqual(const Belief &other, double precision = PRECISION) const;
+    bool isEqual(const std::shared_ptr<State> &other, double precision = PRECISION) const;
+
+    bool operator==(const BeliefInterface &other) const;
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
 
+    double operator^(const Belief &other) const;
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
 
-    double operator<(const std::shared_ptr<BeliefInterface> &other) const;
     double operator<(const Belief &other) const;
+    double operator<(const std::shared_ptr<BeliefInterface> &other) const;
 
     double norm_1() const;
+    bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const;
 
     TypeState getTypeState() const;
 
     void setDefaultValue(double);
     double getDefaultValue() const;
 
-    std::shared_ptr<BeliefInterface::Vector> getVectorInferface();
-
     void finalize();
+
+    std::string str() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Belief &belief)
     {
@@ -87,25 +89,8 @@ namespace sdm
     }
 
   protected:
-    DiscreteDistribution<std::shared_ptr<State>> distribution_;
+    MappedVector<std::shared_ptr<State>> container;
   };
 } // namespace sdm
 
-namespace std
-{
-  template <>
-  struct hash<sdm::Belief>
-  {
-    typedef sdm::Belief argument_type;
-    typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in, double precision) const
-    {
-      return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, precision);
-    }
-
-    inline result_type operator()(const argument_type &in) const
-    {
-      return std::hash<sdm::Belief>()(in, sdm::Belief::PRECISION);
-    }
-  };
-}
+DEFINE_STD_HASH(sdm::Belief, sdm::Belief::PRECISION);

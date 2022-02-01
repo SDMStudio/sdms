@@ -7,11 +7,11 @@ namespace sdm
 {
   double Belief::PRECISION = config::PRECISION_BELIEF;
 
-  Belief::Belief() : MappedVector<std::shared_ptr<State>>(0.)
+  Belief::Belief() : container(0.)
   {
   }
 
-  Belief::Belief(std::size_t size) : MappedVector<std::shared_ptr<State>>(size, 0.)
+  Belief::Belief(std::size_t size) : container(size, 0.)
   {
   }
 
@@ -24,11 +24,11 @@ namespace sdm
     }
   }
 
-  Belief::Belief(const Belief &v) : MappedVector<std::shared_ptr<State>>(v), distribution_(v.distribution_)
+  Belief::Belief(const Belief &v) : container(v.container)
   {
   }
 
-  Belief::Belief(const MappedVector<std::shared_ptr<State>> &v) : MappedVector<std::shared_ptr<State>>(v)
+  Belief::Belief(const MappedVector<std::shared_ptr<State>> &container) : container(container)
   {
     this->finalize();
   }
@@ -39,33 +39,50 @@ namespace sdm
 
   std::vector<std::shared_ptr<State>> Belief::getStates() const
   {
-    return this->getIndexes();
-  }
-
-  bool Belief::isStateExist(const std::shared_ptr<State> &state_tmp) const
-  {
-    return MappedVector<std::shared_ptr<State>, double>::isExist(state_tmp);
+    return this->container.getIndexes();
   }
 
   void Belief::setProbability(const std::shared_ptr<State> &state, double proba)
   {
     // Set the new occupancy measure
-    this->setValueAt(state, proba);
+    this->container.setValueAt(state, proba);
   }
 
   double Belief::getProbability(const std::shared_ptr<State> &state) const
   {
-    return this->getValueAt(state);
+    return this->container.getValueAt(state);
+  }
+
+  double Belief::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<State> &) const
+  {
+    return this->getProbability(state);
   }
 
   void Belief::addProbability(const std::shared_ptr<State> &state, double proba)
   {
-    this->setValueAt(state, this->getProbability(state) + proba);
+    this->container.setValueAt(state, this->getProbability(state) + proba);
   }
 
   std::shared_ptr<State> Belief::sampleState()
   {
-    return this->distribution_.sample();
+    return this->sample();
+  }
+
+  std::shared_ptr<State> Belief::sample() const
+  {
+    // Get a random number between 0 and 1
+    double epsilon = std::rand() / (double(RAND_MAX)), cumul;
+
+    for (auto pair_item_proba : this->container)
+    {
+      cumul += pair_item_proba.second;
+      if (epsilon < cumul)
+      {
+        return pair_item_proba.first;
+        break;
+      }
+    }
+    throw sdm::exception::Exception("Incomplete Distribution");
   }
 
   void Belief::normalizeBelief(double norm_1)
@@ -79,18 +96,13 @@ namespace sdm
     }
   }
 
-  std::shared_ptr<State> Belief::getState(const std::shared_ptr<State> &state)
-  {
-    return state;
-  }
-
   size_t Belief::hash(double precision) const
   {
     if (precision < 0)
     {
       precision = Belief::PRECISION;
     }
-    return std::hash<Belief>()(*this, precision);
+    return std::hash<MappedVector<std::shared_ptr<State>>>()(this->container, precision);
   }
 
   bool Belief::isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const
@@ -110,23 +122,30 @@ namespace sdm
     return (((norm_1 + additional) / 2) - 1e-5 <= precision);
   }
 
-  bool Belief::operator==(const Belief &other) const
-  {
-    return this->isEqual(other);
-  }
-
   bool Belief::isEqual(const Belief &other, double precision) const
   {
     if (precision < 0)
     {
       precision = Belief::PRECISION;
     }
-    return MappedVector<std::shared_ptr<State>, double>::isEqual(other, precision);
+    return this->container.isEqual(other.container, precision);
   }
 
   bool Belief::isEqual(const std::shared_ptr<State> &other, double precision) const
   {
-    return this->isEqual(*std::dynamic_pointer_cast<Belief>(other), precision);
+    return this->isEqual(*std::static_pointer_cast<Belief>(other), precision);
+  }
+
+  bool Belief::operator==(const Belief &other) const
+  {
+    for (const auto &item : this->container)
+    {
+      if (item.second != other.getProbability(item.first))
+      {
+        return false;
+      }
+    }
+    return true;
   }
 
   bool Belief::operator==(const std::shared_ptr<BeliefInterface> &other) const
@@ -146,11 +165,22 @@ namespace sdm
     return true;
   }
 
+  double Belief::operator^(const Belief &other) const
+  {
+    double product = 0.0;
+
+    for (const auto &item : this->container)
+    {
+      product += item.second * other.getProbability(item.first);
+    }
+    return product;
+  }
+
   double Belief::operator^(const std::shared_ptr<BeliefInterface> &other) const
   {
     double product = 0.0;
 
-    for (const auto &item : *this)
+    for (const auto &item : this->container)
     {
       product += item.second * other->getProbability(item.first);
     }
@@ -159,17 +189,17 @@ namespace sdm
 
   double Belief::operator<(const Belief &other) const
   {
-    return MappedVector<std::shared_ptr<State>, double>::operator<(other);
+    return this->container.operator<(other.container);
   }
 
   double Belief::operator<(const std::shared_ptr<BeliefInterface> &other) const
   {
-    return MappedVector<std::shared_ptr<State>, double>::operator<(*std::dynamic_pointer_cast<Belief>(other));
+    return this->operator<(*std::static_pointer_cast<Belief>(other));
   }
 
   double Belief::norm_1() const
   {
-    return MappedVector<std::shared_ptr<State>, double>::norm_1();
+    return this->container.norm_1();
   }
 
   TypeState Belief::getTypeState() const
@@ -179,26 +209,17 @@ namespace sdm
 
   void Belief::setDefaultValue(double default_value)
   {
-    this->setDefault(default_value);
+    this->container.setDefault(default_value);
   }
 
   double Belief::getDefaultValue() const
   {
-    return this->getDefault();
-  }
-
-  std::shared_ptr<BeliefInterface::Vector> Belief::getVectorInferface()
-  {
-    return std::dynamic_pointer_cast<MappedVector<std::shared_ptr<State>>>(this->getPointer());
+    return this->container.getDefault();
   }
 
   void Belief::finalize()
   {
-    MappedVector<std::shared_ptr<State>>::finalize();
-    for (const auto &state : this->getStates())
-    {
-      this->distribution_.setProbability(state, this->getProbability(state));
-    }
+    this->container.finalize();
   }
 
   std::string Belief::str() const
@@ -206,9 +227,9 @@ namespace sdm
     std::ostringstream res;
     res << std::setprecision(config::BELIEF_DECIMAL_PRINT) << std::fixed;
 
-    res << "BeliefState[" << MappedVector<std::shared_ptr<State>>::size() << "]( ";
+    res << "BeliefState[" << this->container.size() << "]( ";
     int i = 0;
-    for (const auto &pair_state_proba : *this)
+    for (const auto &pair_state_proba : this->container)
     {
       res << ((i == 0) ? "" : " | ");
       res << pair_state_proba.first->str() << " : " << pair_state_proba.second;
