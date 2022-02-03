@@ -4,17 +4,21 @@ namespace sdm
 {
     DeterministicDecisionRule::DeterministicDecisionRule() {}
 
-    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions)
+    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions, const std::shared_ptr<Space> &action_space)
     {
         assert(acc_states.size() == n_actions.size());
+        if (action_space != nullptr)
+            this->action_space = action_space->toDiscreteSpace();
         for (std::size_t i = 0; i < acc_states.size(); i++)
         {
             this->setProbability(acc_states[i]->toState(), n_actions[i]->toAction(), 1);
         }
     }
 
-    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<State>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions)
+    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<State>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<Space> &action_space) 
     {
+        if (action_space != nullptr)
+            this->action_space = action_space->toDiscreteSpace();
         assert(acc_states.size() == n_actions.size());
         for (std::size_t i = 0; i < acc_states.size(); i++)
         {
@@ -24,6 +28,7 @@ namespace sdm
 
     DeterministicDecisionRule::DeterministicDecisionRule(const DeterministicDecisionRule &copy) : map_state_to_action_(copy.map_state_to_action_)
     {
+        this->action_space = copy.action_space;
     }
 
     std::shared_ptr<Action> DeterministicDecisionRule::act(const std::shared_ptr<State> &state) const

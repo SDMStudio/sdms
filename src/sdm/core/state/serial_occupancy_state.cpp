@@ -28,8 +28,8 @@ namespace sdm
         std::ostringstream res;
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
-        res << "<serial-occupancy-state agent_id=\"" << this->getCurrentAgentId() << "\t size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
-        for (const auto &history_as_state : this->getIndexes())
+        res << "<serial-occupancy-state agent_id=\"" << this->getCurrentAgentId() << "\t size=\"" << this->size() << "\">\n";
+        for (const auto &history_as_state : this->getStates())
         {
             auto joint_history = history_as_state->toHistory()->toJointHistory();
             res << "\t<probability";

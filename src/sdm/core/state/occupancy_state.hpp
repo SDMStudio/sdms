@@ -1,5 +1,6 @@
 #pragma once
 #include <sdm/types.hpp>
+#include <sdm/macros.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/state/belief_state.hpp>
@@ -23,12 +24,11 @@ namespace sdm
      * (i.e. \$\\xi_t (x_{t}, o_{t} ) = p(x_{t}, o_t \\mid i_{t})\$ ) .
      *
      */
-    class OccupancyState : public OccupancyStateInterface,
-                           public Belief
+    class OccupancyState : public Belief,
+                           public OccupancyStateInterface
     {
     public:
         static double PRECISION;
-        static int NUM_CREATE, NUM_DESTROY;
 
         OccupancyState();
         OccupancyState(number num_agents);
@@ -198,6 +198,9 @@ namespace sdm
         std::string str() const;
 
         double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+        double product(const std::shared_ptr<AlphaVector> &alpha) const;
+        double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const;
+
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
         double operator<(const OccupancyState &other) const;
         double operator<(const std::shared_ptr<BeliefInterface> &other) const;
@@ -274,36 +277,4 @@ namespace sdm
     };
 } // namespace sdm
 
-namespace std
-{
-    template <>
-    struct hash<sdm::OccupancyState>
-    {
-        typedef sdm::OccupancyState argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in, double precision) const
-        {
-            size_t seed = 0;
-            double inverse_of_precision = 1. / precision;
-            std::map<std::shared_ptr<sdm::State>, double> ordered(in.container.begin(), in.container.end());
-            std::vector<int> rounded;
-            for (const auto &pair_jhist_proba : ordered)
-            {
-                sdm::hash_combine(seed, pair_jhist_proba.first);
-                // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
-                rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
-            }
-            for (const auto &v : rounded)
-            {
-                // Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, v);
-            }
-            return seed;
-        }
-
-        inline result_type operator()(const argument_type &in) const
-        {
-            return std::hash<sdm::OccupancyState>()(in, sdm::OccupancyState::PRECISION);
-        }
-    };
-}
+DEFINE_STD_HASH(sdm::OccupancyState, sdm::OccupancyState::PRECISION);

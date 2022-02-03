@@ -133,7 +133,7 @@ namespace sdm
 
   bool Belief::isEqual(const std::shared_ptr<State> &other, double precision) const
   {
-    return this->isEqual(*std::static_pointer_cast<Belief>(other), precision);
+    return this->isEqual(*std::dynamic_pointer_cast<Belief>(other), precision);
   }
 
   bool Belief::operator==(const Belief &other) const
@@ -165,6 +165,14 @@ namespace sdm
     return true;
   }
 
+  Belief Belief::add(const Belief &other, double coef_this, double coef_other) const
+  {
+    Belief res;
+    res.container = this->container.add(other.container, coef_this, coef_other);
+    res.finalize();
+    return res;
+  }
+
   double Belief::operator^(const Belief &other) const
   {
     double product = 0.0;
@@ -187,6 +195,28 @@ namespace sdm
     return product;
   }
 
+  double Belief::product(const std::shared_ptr<AlphaVector> &alpha) const
+  {
+    double product = 0.0;
+
+    for (const auto &item : this->container)
+    {
+      product += item.second * alpha->getValueAt(item.first, nullptr);
+    }
+    return product;
+  }
+
+  double Belief::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const
+  {
+    double product = 0.0;
+
+    for (const auto &item : this->container)
+    {
+      product += item.second * beta->getValueAt(item.first, nullptr, action);
+    }
+    return product;
+  }
+
   double Belief::operator<(const Belief &other) const
   {
     return this->container.operator<(other.container);
@@ -194,7 +224,7 @@ namespace sdm
 
   double Belief::operator<(const std::shared_ptr<BeliefInterface> &other) const
   {
-    return this->operator<(*std::static_pointer_cast<Belief>(other));
+    return this->operator<(*std::dynamic_pointer_cast<Belief>(other));
   }
 
   double Belief::norm_1() const
@@ -220,6 +250,11 @@ namespace sdm
   void Belief::finalize()
   {
     this->container.finalize();
+  }
+
+  size_t Belief::size() const
+  {
+    return this->container.size();
   }
 
   std::string Belief::str() const

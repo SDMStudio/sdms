@@ -79,7 +79,7 @@ namespace sdm
                         }
                     }
                     // For each hidden state with associate the value \beta^{new}(x) = r(x,u) + \gamma * \sum_{x_,z_} p(x,u,z_,x_) * best_next_hyperplan(x_);
-                    alpha_a->setValueAt(state, pomdp->getReward(state, action->toAction(), t) + this->getWorld()->getDiscount(t) * next_expected_value);
+                    alpha_a->setProbability(state, pomdp->getReward(state, action->toAction(), t) + this->getWorld()->getDiscount(t) * next_expected_value);
                 }
                 alpha_a->finalize();
 

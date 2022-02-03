@@ -23,7 +23,7 @@
 
 namespace sdm
 {
-  class Belief : public BeliefInterface,
+  class Belief : virtual public BeliefInterface,
                  public Distribution<std::shared_ptr<State>>
   {
   public:
@@ -55,11 +55,15 @@ namespace sdm
     bool isEqual(const Belief &other, double precision = PRECISION) const;
     bool isEqual(const std::shared_ptr<State> &other, double precision = PRECISION) const;
 
-    bool operator==(const BeliefInterface &other) const;
+    bool operator==(const Belief &other) const;
     bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
+
+    Belief add(const Belief &other, double coef_this = 1., double coef_other = 1.) const;
 
     double operator^(const Belief &other) const;
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
+    double product(const std::shared_ptr<AlphaVector> &alpha) const;
+    double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const;
 
     double operator<(const Belief &other) const;
     double operator<(const std::shared_ptr<BeliefInterface> &other) const;
@@ -73,6 +77,7 @@ namespace sdm
     double getDefaultValue() const;
 
     void finalize();
+    size_t size() const;
 
     std::string str() const;
 

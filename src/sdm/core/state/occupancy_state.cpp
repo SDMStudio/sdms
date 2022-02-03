@@ -1,12 +1,12 @@
 #include <iomanip>
+#include <algorithm>
+
 #include <sdm/config.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/state/private_occupancy_state.hpp>
-
 #include <sdm/core/state/jhistory_tree.hpp>
-
-#include <algorithm>
+#include <sdm/core/state/private_occupancy_state.hpp>
+#include <sdm/core/action/decision_rule.hpp>
 
 namespace sdm
 {
@@ -70,8 +70,7 @@ namespace sdm
     {
         // Get the probability p(x,o) = p(o) * b(x | o)
         auto belief = this->getBeliefAt(joint_history);
-        auto output = (belief == nullptr) ? this->getDefault() : Belief::getProbability(joint_history) * belief->getProbability(state);
-
+        auto output = (belief == nullptr) ? 0. : Belief::getProbability(joint_history) * belief->getProbability(state);
         return output;
     }
 
@@ -111,7 +110,7 @@ namespace sdm
 
     Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> OccupancyState::sampleJointHistoryBelief()
     {
-        auto sampled_joint_history = this->distribution_.sample()->toHistory()->toJointHistory();
+        auto sampled_joint_history = this->sampleState()->toHistory()->toJointHistory();
         return std::make_pair(sampled_joint_history, this->getBeliefAt(sampled_joint_history));
     }
 
@@ -121,7 +120,22 @@ namespace sdm
         {
             precision = OccupancyState::PRECISION;
         }
-        return std::hash<OccupancyState>()(*this, precision);
+
+        size_t seed = 0;
+        double inverse_of_precision = 1. / precision;
+        std::map<std::shared_ptr<sdm::State>, double> ordered(this->container.begin(), this->container.end());
+        std::vector<int> rounded;
+        for (const auto &pair_jhist_proba : ordered)
+        {
+            sdm::hash_combine(seed, pair_jhist_proba.first);
+            rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
+        }
+        for (const auto &v : rounded)
+        {
+            // Combine the hash of the current vector with the hashes of the previous ones
+            sdm::hash_combine(seed, v);
+        }
+        return seed;
     }
 
     bool OccupancyState::operator==(const OccupancyState &other) const
@@ -167,7 +181,7 @@ namespace sdm
         // if (this->size() != other.size())
         // {
         //     return false;
-        // // }
+        // }
 
         // if (std::abs(this->getDefault() - other.getDefault()) > precision)
         // {
@@ -290,6 +304,38 @@ namespace sdm
             for (const auto &state : this->getBeliefAt(jhistory)->getStates())
             {
                 product += this->getProbability(jhistory, state) * other->toOccupancyState()->getProbability(jhistory, state);
+            }
+        }
+        return product;
+    }
+
+    double OccupancyState::product(const std::shared_ptr<AlphaVector> &alpha) const
+    {
+        double product = 0.0;
+
+        for (const auto &jhistory : this->getJointHistories())
+        {
+            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
+            {
+                product += this->getProbability(jhistory, state) * alpha->getValueAt(state, jhistory);
+            }
+        }
+        return product;
+    }
+
+    double OccupancyState::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const
+    {
+        double product = 0.0;
+
+        auto decision_rule = action->toDecisionRule();
+        for (auto history : this->getJointHistories())
+        {
+            auto action = decision_rule->act(history);
+            double proba_a = decision_rule->getProbability(history, action);
+
+            for (auto state : this->getBeliefAt(history)->getStates())
+            {
+                product += this->getProbability(history, state) * proba_a * beta->getValueAt(state, history, action);
             }
         }
         return product;
@@ -466,7 +512,6 @@ namespace sdm
         }
     }
 
-
     // #############################################
     // ######### MANIPULATE COMPRESSION ############
     // #############################################
@@ -560,7 +605,7 @@ namespace sdm
             *previous_compact_ostate = *current_compact_ostate;
             previous_compact_ostate->private_ihistory_map_ = this->private_ihistory_map_;
             previous_compact_ostate->finalize();
-            current_compact_ostate->clear();
+            current_compact_ostate->container.clear();
         }
 
         // previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());
@@ -655,8 +700,8 @@ namespace sdm
         std::ostringstream res;
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
-        res << "<occupancy-state defaut=\"" << this->getDefault() << "\" \t size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
-        for (const auto &history_as_state : this->getIndexes())
+        res << "<occupancy-state size=\"" << this->size() << "\">\n";
+        for (const auto &history_as_state : this->getStates())
         {
             auto joint_history = history_as_state->toHistory()->toJointHistory();
             res << "\t<probability";
@@ -684,9 +729,9 @@ namespace sdm
             {
                 // Compute the probability of the individual history of agent i
                 double prob = 0.0;
-                for (const auto &pair_hidden_state_history_proba : *this->getPrivateOccupancyState(ag_id, ihistory))
+                for (const auto &jhistory : this->getPrivateOccupancyState(ag_id, ihistory)->getStates())
                 {
-                    prob += this->getProbability(pair_hidden_state_history_proba.first);
+                    prob += this->getProbability(jhistory);
                 }
                 this->probability_ihistories[ag_id][ihistory] = prob;
             }

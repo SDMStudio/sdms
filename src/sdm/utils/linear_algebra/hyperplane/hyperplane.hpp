@@ -8,7 +8,8 @@
 
 namespace sdm
 {
-    class Hyperplane : public BaseState<RecursiveMap<std::shared_ptr<HistoryInterface>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>>>
+    class Hyperplane : public BetaVector,
+                       public BaseState<RecursiveMap<std::shared_ptr<HistoryInterface>, MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double>>>
     {
     public:
         Hyperplane(double default_value) : default_value(default_value)

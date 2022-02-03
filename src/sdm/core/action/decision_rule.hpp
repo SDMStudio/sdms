@@ -7,6 +7,7 @@
 #include <sdm/core/function.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
+#include <sdm/core/space/discrete_space.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -21,8 +22,8 @@ namespace sdm
     {
     public:
         /**
-         * @brief Get the action deducted from a given state 
-         * 
+         * @brief Get the action deducted from a given state
+         *
          * @param state the generic state
          * @return the corresponding action
          */
@@ -30,7 +31,7 @@ namespace sdm
 
         /***
          * @brief Apply the DecisionRule function (similar to `act`)
-         * 
+         *
          * @param state the generic states
          * @return the corresponding action
          */
@@ -38,7 +39,7 @@ namespace sdm
 
         /**
          * @brief Get the probability of action 'action' in state 'state'
-         * 
+         *
          * @param state the state
          * @param action the action
          * @param proba the probability
@@ -47,7 +48,7 @@ namespace sdm
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
-         * 
+         *
          * @param state the state
          * @param action the action
          * @param proba the probability
@@ -58,7 +59,7 @@ namespace sdm
 
         virtual TypeAction getTypeAction() const { return TypeAction::DECISION_RULE; }
 
-        virtual bool elementExist(const std::shared_ptr<State>&)  =0;
+        virtual bool elementExist(const std::shared_ptr<State> &) = 0;
     };
 
 } // namespace sdm

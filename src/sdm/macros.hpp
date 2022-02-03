@@ -66,4 +66,4 @@
                 return in.hash(DEFAULT_PRECISION);                                      \
             }                                                                           \
         };                                                                              \
-    }                                                                                   \
+    }

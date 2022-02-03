@@ -242,7 +242,6 @@ namespace sdm
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getReward(const std::shared_ptr<State> &b, const std::shared_ptr<Action> &action, number t)
     {
-
         auto state_action = std::make_pair(b, action);
         auto successor = this->reward_graph_->getSuccessor(0.0, state_action);
         if (successor != nullptr)

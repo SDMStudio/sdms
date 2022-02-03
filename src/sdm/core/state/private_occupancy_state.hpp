@@ -69,3 +69,5 @@ namespace sdm
         std::unordered_map<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> map_partial_to_jhist;
     };
 } // namespace sdm
+
+DEFINE_STD_HASH(sdm::PrivateOccupancyState, sdm::OccupancyState::PRECISION);

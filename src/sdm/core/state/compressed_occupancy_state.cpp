@@ -120,51 +120,51 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, double> CompressedOccupancyState::nextStateAndProba(const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        // The new one step left occupancy state
-        std::shared_ptr<OccupancyStateInterface> next_one_step_left_compressed_occupancy_state = std::make_shared<OccupancyState>(this->num_agents_);
+        // // The new one step left occupancy state
+        // std::shared_ptr<OccupancyStateInterface> next_one_step_left_compressed_occupancy_state = std::make_shared<OccupancyState>(this->num_agents_);
 
-        // For each joint history in the support of the fully uncompressed occupancy state
-        for (const auto &compressed_joint_history : this->getJointHistories())
-        {
-            // Get p(o_t)
-            double proba_history = this->getProbability(compressed_joint_history);
+        // // For each joint history in the support of the fully uncompressed occupancy state
+        // for (const auto &compressed_joint_history : this->getJointHistories())
+        // {
+        //     // Get p(o_t)
+        //     double proba_history = this->getProbability(compressed_joint_history);
 
-            // Get the corresponding belief
-            auto belief = this->getBeliefAt(compressed_joint_history);
+        //     // Get the corresponding belief
+        //     auto belief = this->getBeliefAt(compressed_joint_history);
 
-            // Apply decision rule and get action
-            auto jaction = oMDP->applyDecisionRule(compressed_occupancy_state, compressed_joint_history, decision_rule, t);
+        //     // Apply decision rule and get action
+        //     auto jaction = oMDP->applyDecisionRule(compressed_occupancy_state, compressed_joint_history, decision_rule, t);
 
-            // For each action that is likely to be taken
-            for (const auto &joint_action : {jaction}) // decision_rule->getDistribution(compressed_joint_history)->getSupport())
-            {
-                // Get p(u_t | o_t)
-                double proba_action = 1.0; // decision_rule->getProbability(compressed_joint_history, joint_action);
+        //     // For each action that is likely to be taken
+        //     for (const auto &joint_action : {jaction}) // decision_rule->getDistribution(compressed_joint_history)->getSupport())
+        //     {
+        //         // Get p(u_t | o_t)
+        //         double proba_action = 1.0; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
-                // For each observation in the space of joint observation
-                for (auto jobs : *oMDP->getUnderlyingMPOMDP()->getObservationSpace(t))
-                {
-                    auto joint_observation = jobs->toObservation();
-                    if (this->checkCompatibility(joint_observation, observation))
-                    {
-                        // Get the next belief and p(z_{t+1} | b_t, u_t)
-                        auto [next_belief, proba_observation] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, joint_action, joint_observation, t);
+        //         // For each observation in the space of joint observation
+        //         for (auto jobs : *oMDP->getUnderlyingMPOMDP()->getObservationSpace(t))
+        //         {
+        //             auto joint_observation = jobs->toObservation();
+        //             if (this->checkCompatibility(joint_observation, observation))
+        //             {
+        //                 // Get the next belief and p(z_{t+1} | b_t, u_t)
+        //                 auto [next_belief, proba_observation] = oMDP->getUnderlyingBeliefMDP()->getNextStateAndProba(belief, joint_action, joint_observation, t);
 
-                        double next_joint_history_probability = proba_history * proba_action * proba_observation;
+        //                 double next_joint_history_probability = proba_history * proba_action * proba_observation;
 
-                        // If the next history probability is not zero
-                        if (next_joint_history_probability > 0)
-                        {
-                            // Update new one step uncompressed occupancy state
-                            std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(joint_observation /*, joint_action*/)->toJointHistory();
-                            oMDP->updateOccupancyStateProba(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief->toBelief(), next_joint_history_probability);
-                        }
-                    }
-                }
-            }
-        }
+        //                 // If the next history probability is not zero
+        //                 if (next_joint_history_probability > 0)
+        //                 {
+        //                     // Update new one step uncompressed occupancy state
+        //                     std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(joint_observation /*, joint_action*/)->toJointHistory();
+        //                     oMDP->updateOccupancyStateProba(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief->toBelief(), next_joint_history_probability);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
-        return oMDP->finalizeNextState(next_one_step_left_compressed_occupancy_state, nullptr, t);
+        // return oMDP->finalizeNextState(next_one_step_left_compressed_occupancy_state, nullptr, t);
     }
 
     // #############################################
@@ -260,7 +260,7 @@ namespace sdm
             *previous_compact_ostate = *current_compact_ostate;
             previous_compact_ostate->private_ihistory_map_ = this->private_ihistory_map_;
             previous_compact_ostate->finalize();
-            current_compact_ostate->clear();
+            current_compact_ostate->container.clear();
         }
 
         // previous_compact_ostate->setFullyUncompressedOccupancy(this->getFullyUncompressedOccupancy());

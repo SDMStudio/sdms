@@ -119,7 +119,7 @@ namespace sdm
         }
         
         //Create the JointDeterminiticDecisionRule
-        return std::make_shared<JointDeterministicDecisionRule>(actions);
+        return std::make_shared<JointDeterministicDecisionRule>(actions, this->getWorld()->getUnderlyingProblem()->getActionSpace(t));
     }
 }
 

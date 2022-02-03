@@ -39,6 +39,7 @@ namespace sdm
 
     void TSVI::explore(const std::shared_ptr<State> &state, double cost_so_far, number t)
     {
+
         try
         {
             if (!stop(state, cost_so_far, t))

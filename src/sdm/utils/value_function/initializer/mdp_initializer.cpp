@@ -37,7 +37,7 @@ namespace sdm
 
         std::string algo_name = this->algo_config.get("algo_name", std::string("ValueIteration"));
         double error = this->algo_config.get("error", 0.01);
-        int trials = this->algo_config.get("trials", 100);
+        int trials = this->algo_config.get("trials", 10000);
 
         if (algo_name == "ValueIteration")
         {

@@ -171,7 +171,7 @@ int solve(int argv, char **args)
         PWLCQValueFunction::GRANULARITY_END = granularity_end;
 
         common::logo();
-
+        
         // Build algorithm
         algorithm = sdm::algo::make(algo_name,
                                     world,

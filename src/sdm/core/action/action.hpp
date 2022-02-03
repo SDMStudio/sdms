@@ -4,9 +4,9 @@
  * @brief The file for interface action class
  * @version 0.1
  * @date 11/12/2020
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #pragma once
 
@@ -17,25 +17,31 @@ namespace sdm
 {
     class DecisionRule;
     class JointDeterministicDecisionRule;
+    template <typename T>
+    class Joint;
+    using JointAction = Joint<std::shared_ptr<Action>>;
 
     /**
-     * @brief A public interface for actions. 
-     * 
+     * @brief A public interface for actions.
+     *
      * Any class inheriting from this interface will be considered as generic action for algorithms.
-     * Consider sections [Theoritical Background](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/theory.html) and [Algorithms](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/algorithms/) for more information.   
+     * Consider sections [Theoritical Background](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/theory.html) and [Algorithms](https://aldavid.gitlabpages.inria.fr/sdms/tutorials/algorithms/) for more information.
      *
      */
     class Action : public Item
     {
     public:
         virtual ~Action() {}
-        
+
         /** @brief Cast the action into a decision rule. */
         virtual std::shared_ptr<DecisionRule> toDecisionRule();
-        
+
         /** @brief Cast the action into a joint decision rule. */
         virtual std::shared_ptr<JointDeterministicDecisionRule> toJointDeterministicDecisionRule();
-        
+
+        /** @brief Cast the action into a joint decision rule. */
+        std::shared_ptr<JointAction> toJointAction();
+
         virtual std::string str() const = 0;
         virtual TypeAction getTypeAction() const;
     };

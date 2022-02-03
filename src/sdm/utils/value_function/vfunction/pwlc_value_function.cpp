@@ -75,10 +75,12 @@ namespace sdm
 
             if (sdm::isInstanceOf<OccupancyStateInterface>(initial_state))
             {
+                // default_hyperplane = std::make_shared<OccupancyAlphaVector>();
                 default_hyperplane = std::make_shared<OccupancyState>();
             }
             else if (sdm::isInstanceOf<BeliefInterface>(initial_state))
             {
+                // default_hyperplane = std::make_shared<BeliefAlphaVector>();
                 default_hyperplane = std::make_shared<Belief>();
             }
             else
@@ -118,6 +120,7 @@ namespace sdm
                 auto belief_plan = plan->toBelief();
 
                 // Determine the best hyperplan which give the best value for the current state
+                // if (max < (current = belief_state->product(alpha)))
                 if (max < (current = belief_state->operator^(belief_plan)))
                 {
                     max = current;

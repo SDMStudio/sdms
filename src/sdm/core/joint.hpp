@@ -7,6 +7,8 @@
 #include <sdm/core/function.hpp>
 #include <sdm/core/item.hpp>
 #include <sdm/utils/struct/vector.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/core/state/state.hpp>
 
 namespace sdm
 {

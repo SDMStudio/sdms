@@ -3,6 +3,8 @@
 #include <sdm/types.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/linear_algebra/vector_interface.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 
 namespace sdm
 {
@@ -26,8 +28,10 @@ namespace sdm
 
         virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
         virtual double operator^(const std::shared_ptr<BeliefInterface> &other) const = 0;
-        virtual double operator<(const std::shared_ptr<BeliefInterface> &other) const = 0;
+        virtual double product(const std::shared_ptr<AlphaVector> &alpha) const = 0;
+        virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const = 0;
 
+        virtual double operator<(const std::shared_ptr<BeliefInterface> &other) const = 0;
         virtual double norm_1() const = 0;
         virtual bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const = 0;
 

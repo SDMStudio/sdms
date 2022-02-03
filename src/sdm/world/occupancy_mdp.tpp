@@ -184,7 +184,7 @@ namespace sdm
             }
             a.push_back(std::make_shared<DeterministicDecisionRule>(inputs, outputs));
         }
-        return std::make_shared<JointDeterministicDecisionRule>(a);
+        return std::make_shared<JointDeterministicDecisionRule>(a, this->getUnderlyingProblem()->getActionSpace(t));
     }
 
     template <class TOccupancyState>
@@ -211,7 +211,8 @@ namespace sdm
         std::shared_ptr<Space> joint_ddr_space = std::make_shared<FunctionSpace<JointDeterministicDecisionRule>>(
             std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>{nullptr}),
             std::make_shared<MultiDiscreteSpace>(individual_ddr_spaces, this->store_actions_),
-            this->store_actions_);
+            this->store_actions_,
+            this->getUnderlyingMPOMDP()->getActionSpace(t));
 
         return joint_ddr_space;
     }
@@ -338,7 +339,7 @@ namespace sdm
             std::shared_ptr<BeliefInterface> belief = compressed_occupancy_state->getBeliefAt(compressed_joint_history);
 
             // Apply decision rule and get action
-            auto jaction = this->applyDecisionRule(compressed_occupancy_state, compressed_joint_history, decision_rule, t);
+            auto jaction = decision_rule->act(this->getDecisionRuleInput(compressed_joint_history, t)); // this->applyDecisionRule(compressed_occupancy_state, compressed_joint_history, decision_rule, t);
 
             // For each action that is likely to be taken
             for (const auto &joint_action : {jaction}) // decision_rule->getDistribution(compressed_joint_history)->getSupport())
@@ -393,6 +394,7 @@ namespace sdm
     template <class TOccupancyState>
     double BaseOccupancyMDP<TOccupancyState>::getReward(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &decision_rule, number t)
     {
+
         auto state_action = std::make_pair(ostate, decision_rule);
         auto successor = this->reward_graph_->getSuccessor(0.0, state_action);
         double reward = 0.0;
@@ -410,7 +412,7 @@ namespace sdm
                 // Get the belief corresponding to this history
                 auto belief = occupancy_state->getBeliefAt(joint_history);
                 // Get the action from decision rule
-                auto joint_action = this->applyDecisionRule(occupancy_state, joint_history, decision_rule, t);
+                auto joint_action = decision_rule->toDecisionRule()->act(this->getDecisionRuleInput(joint_history, t));
                 // Update the expected reward
                 reward += occupancy_state->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
             }
@@ -490,8 +492,8 @@ namespace sdm
             std::shared_ptr<Belief> belief1 = std::dynamic_pointer_cast<Belief>(occupancy_state->getBeliefAt(joint_history)), belief2 = std::dynamic_pointer_cast<Belief>(belief);
 
             // Aggregate beliefs
-            std::shared_ptr<Belief> aggregated_belief = belief1->add(belief2, proba_belief1, proba_belief2);
-            
+            std::shared_ptr<Belief> aggregated_belief = std::make_shared<Belief>(belief1->add(*belief2, proba_belief1, proba_belief2));
+
             std::shared_ptr<BeliefInterface> ptr_belief;
 
             // Normalize the resulting belief
@@ -548,7 +550,7 @@ namespace sdm
             // Sample state.
             auto state = belief->sampleState();
             // Get joint action.
-            auto joint_action = this->applyDecisionRule(ostate->toOccupancyState()->toOccupancyState(), joint_history, action, t);
+            auto joint_action = action->toDecisionRule()->act(joint_history);
             // Set state.
             this->getUnderlyingProblem()->setInternalState(state);
             // Sample next observation.

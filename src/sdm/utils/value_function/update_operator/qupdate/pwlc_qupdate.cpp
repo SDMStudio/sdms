@@ -82,7 +82,7 @@ namespace sdm
                                 auto o_ = o->expand(std::static_pointer_cast<JointObservation>(z));
                                 auto &&c_o_ = s_->getCompressedJointHistory(o_);
 
-                                if (s_->find(c_o_) == s_->end())
+                                if (s_->getProbability(c_o_) == 0)
                                     continue;
 
                                 auto u_ = occupancy_mdp->applyDecisionRule(s_, c_o_, a_, t + 1);

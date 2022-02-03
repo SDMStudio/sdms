@@ -7,23 +7,28 @@ namespace sdm
 {
     JointDeterministicDecisionRule::JointDeterministicDecisionRule() {}
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const Joint<std::shared_ptr<DeterministicDecisionRule>> &idr_list)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const Joint<std::shared_ptr<DeterministicDecisionRule>> &idr_list, const std::shared_ptr<Space> &action_space)
         : Joint<std::shared_ptr<DeterministicDecisionRule>>(idr_list)
     {
+        this->action_space = action_space->toDiscreteSpace();
     }
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions, const std::shared_ptr<Space> &action_space)
     {
         assert(acc_states.size() == actions.size());
+        if (action_space != nullptr)
+            this->action_space = action_space->toDiscreteSpace();
         for (std::size_t agent = 0; agent < acc_states.size(); agent++)
         {
             this->push_back(std::make_shared<DeterministicDecisionRule>(acc_states[agent], actions[agent]));
         }
     }
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr, const std::shared_ptr<Space> &action_space)
     {
         auto joint_indiv_dr = list_indiv_dr[0]->to<JointItem>();
+        if (action_space != nullptr)
+            this->action_space = action_space->toDiscreteSpace();
         for (const auto indiv_dr : *joint_indiv_dr)
         {
             this->push_back(indiv_dr->to<DeterministicDecisionRule>());
@@ -37,16 +42,16 @@ namespace sdm
 
     std::shared_ptr<JointAction> JointDeterministicDecisionRule::act(const std::shared_ptr<JointState> &joint_state) const
     {
-        std::shared_ptr<JointAction> joint_action = std::make_shared<JointAction>();
+        JointAction joint_action;
         for (number agent = 0; agent < joint_state->size(); agent++)
         {
             auto individual_action = this->get(agent)->act(joint_state->get(agent));
             if (individual_action == nullptr)
                 return nullptr;
-            joint_action->push_back(individual_action);
+            joint_action.push_back(individual_action);
         }
-        
-        return joint_action;
+
+        return this->action_space->getItemAddress(joint_action)->toAction()->toJointAction();
     }
 
     // Get probabilities of decision a(u | o)

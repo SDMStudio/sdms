@@ -122,11 +122,11 @@ int main(int argc, char **argv)
 # 5. TO DO
 
 ### Serial PWLCQ
-- garder état simultané lié à l'état séquentialisé
-- faire équivalence sur l'état simultané
-- stocker a^{\kappa} lié au s^{\kappa}_{t} et le s^{\kappa}_{t+1} qui en résulte
-- ne mettre à jour le a^kappa qu'à une fréquence fixé
-- troncature = m donc à horizon infini on a que m+1 pas de temps 
+- Garder état simultané lié à l'état séquentialisé
+- Faire équivalence sur l'état simultané
+- Stocker a^{\kappa} lié au s^{\kappa}_{t} et le s^{\kappa}_{t+1} qui en résulte
+- Ne mettre à jour le a^kappa qu'à une fréquence fixé
+- Troncature = m donc à horizon infini on a que m+1 pas de temps 
 - 
 
 ### NDPOMDP

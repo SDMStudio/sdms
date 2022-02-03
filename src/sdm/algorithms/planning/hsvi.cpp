@@ -182,7 +182,6 @@ namespace sdm
     void HSVI::logging()
     {
         auto initial_state = getWorld()->getInitialState();
-
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getWorld()))
         {
             // Print in loggers some execution variables

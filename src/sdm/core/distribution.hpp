@@ -16,7 +16,7 @@
 namespace sdm
 {
     template <typename T>
-    class Distribution : public std::enable_shared_from_this<Distribution<T>>
+    class Distribution
     {
     public:
         virtual T sample() const = 0;

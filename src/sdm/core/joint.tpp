@@ -1,5 +1,3 @@
-#include <sdm/core/action/action.hpp>
-#include <sdm/core/state/state.hpp>
 
 #define DEFINE_JOINT(CLASS)                                                                                                                            \
     /* This macro allow to define a specific joint on std::shared_ptr<CLASS> that inherites from CLASS. */                                             \

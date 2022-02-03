@@ -110,7 +110,7 @@ namespace sdm
 
 
             // Create JOint Deterministic Decision Rule
-            decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories, actions);
+            decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories, actions, this->underlying_problem->getActionSpace(t));
 
 
             for (const auto &joint_history : occupancy_state->getJointHistories())

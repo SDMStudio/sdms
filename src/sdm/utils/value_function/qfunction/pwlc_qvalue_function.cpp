@@ -73,6 +73,7 @@ namespace sdm
         }
         else
         {
+            // qvalue = occupancy_state->product(hyperplane);
             for (auto history : occupancy_state->getJointHistories())
             {
                 auto action = this->oMDP->applyDecisionRule(occupancy_state, history, decision_rule, this->isInfiniteHorizon() ? 0 : t);
