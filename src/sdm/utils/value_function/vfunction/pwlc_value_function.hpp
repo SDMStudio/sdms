@@ -16,6 +16,8 @@ namespace sdm
     public:
         static double PRECISION;
 
+        using HyperplanSet = std::unordered_set<std::shared_ptr<AlphaVector>, sdm::hash_from_ptr<AlphaVector>, sdm::equal_from_ptr<AlphaVector>>;
+
         PWLCValueFunction(const std::shared_ptr<SolvableByDP> &world,
                           const std::shared_ptr<Initializer> &initializer,
                           const std::shared_ptr<ActionSelectionInterface> &action_selection,
@@ -117,9 +119,6 @@ namespace sdm
         std::shared_ptr<ValueFunctionInterface> copy();
 
     protected:
-        using HyperplanSet = std::vector<std::shared_ptr<AlphaVector>>;
-        // using HyperplanSet = std::unordered_set<std::shared_ptr<State>, Hash, KeyEqual>;
-
         /**
          * @brief The value function represention.
          *
@@ -137,6 +136,12 @@ namespace sdm
          */
         MaxplanPruning::Type type_of_maxplan_prunning_;
 
+        /**
+         * @brief Keep all state updated for each timestep
+         * 
+         * This structure is only used when using bounded pruning.
+         * 
+         */
         std::vector<std::unordered_set<std::shared_ptr<State>>> all_state_updated_so_far;
 
         /**
@@ -144,20 +149,14 @@ namespace sdm
          */
         std::shared_ptr<POMDPInterface> pomdp;
 
+        bool is_occupancy;
+
         /**
          * @brief Prune dominated hyperplanes of the value function.
          *
          * @param t the time step
          */
         void prune(number t);
-
-        /**
-         * @brief Determine if the state is already stocked.
-         *
-         * @param t
-         * @param precision
-         */
-        bool exist(const std::shared_ptr<BeliefInterface> &, number t, double precision = PRECISION);
 
         /*!
          * @brief This method prunes dominated points, known as bounded pruning by Trey Smith.
@@ -174,9 +173,9 @@ namespace sdm
          */
         void pairwise_prune(number t);
 
-        double getNextAlphaValue(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
-        double getNextAlphaValueBelief(const std::shared_ptr<BeliefInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number t);
-        double getNextAlphaValueOccupancy(const std::shared_ptr<OccupancyStateInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
+        HyperplanSet& getAlphaHyperplanesAt(number t);
+
+
     };
 
 } // namespace sdm

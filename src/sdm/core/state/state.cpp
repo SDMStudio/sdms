@@ -5,6 +5,8 @@
 #include <sdm/core/state/interface/joint_history_interface.hpp>
 #include <sdm/core/state/interface/serial_interface.hpp>
 #include <sdm/core/state/serial_state.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 
 namespace sdm
 {
@@ -42,6 +44,16 @@ namespace sdm
     bool State::isEqual(const std::shared_ptr<State> &, double) const
     {
         throw exception::Exception("Equal Operator (i.e. bool X::operator==() const ) is not implemented for this class");
+    }
+
+    double State::product(const std::shared_ptr<AlphaVector> &alpha)
+    {
+        return alpha->getValueAt(this->toState(), nullptr);
+    }
+
+    double State::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action)
+    {
+        return beta->getValueAt(this->toState(), nullptr, action);
     }
 
 } // namespace sdm

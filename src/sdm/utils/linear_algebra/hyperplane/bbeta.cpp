@@ -6,7 +6,20 @@ namespace sdm
     {
     }
 
-    double bBeta::getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &u)
+    bool bBeta::isDominated(const Hyperplane &other) const
+    {
+        for (const auto &x_u_v : this->repr)
+        {
+            for (const auto &u_v : x_u_v.second)
+            {
+                if (u_v.second > other.getValueAt(x_u_v.first, nullptr, u_v.first))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    double bBeta::getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &u) const
     {
         return this->repr.getValueAt(x, u);
     }

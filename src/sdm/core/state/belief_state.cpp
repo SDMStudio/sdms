@@ -2,6 +2,8 @@
 #include <sdm/config.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/core/state/belief_state.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 
 namespace sdm
 {
@@ -195,7 +197,7 @@ namespace sdm
     return product;
   }
 
-  double Belief::product(const std::shared_ptr<AlphaVector> &alpha) const
+  double Belief::product(const std::shared_ptr<AlphaVector> &alpha) 
   {
     double product = 0.0;
 
@@ -206,7 +208,7 @@ namespace sdm
     return product;
   }
 
-  double Belief::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const
+  double Belief::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) 
   {
     double product = 0.0;
 
@@ -215,16 +217,6 @@ namespace sdm
       product += item.second * beta->getValueAt(item.first, nullptr, action);
     }
     return product;
-  }
-
-  double Belief::operator<(const Belief &other) const
-  {
-    return this->container.operator<(other.container);
-  }
-
-  double Belief::operator<(const std::shared_ptr<BeliefInterface> &other) const
-  {
-    return this->operator<(*std::dynamic_pointer_cast<Belief>(other));
   }
 
   double Belief::norm_1() const

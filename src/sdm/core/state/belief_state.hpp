@@ -62,11 +62,8 @@ namespace sdm
 
     double operator^(const Belief &other) const;
     double operator^(const std::shared_ptr<BeliefInterface> &other) const;
-    double product(const std::shared_ptr<AlphaVector> &alpha) const;
-    double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const;
-
-    double operator<(const Belief &other) const;
-    double operator<(const std::shared_ptr<BeliefInterface> &other) const;
+    double product(const std::shared_ptr<AlphaVector> &alpha);
+    double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
     double norm_1() const;
     bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const;

@@ -40,13 +40,13 @@ namespace sdm
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
 
             // Compute \alpha_ao (\beta_ao in the paper of Trey Smith)
-            RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, std::shared_ptr<BeliefInterface>> alpha_ao;
+            RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, std::shared_ptr<AlphaVector>> alpha_ao;
             for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
             {
                 for (const auto &observation : *getWorld()->getObservationSpaceAt(belief_state, action->toAction(), t))
                 {
                     auto next_belief_state = getWorld()->getNextStateAndProba(belief_state, action->toAction(), observation->toObservation(), t).first;
-                    alpha_ao[action->toAction()][observation->toObservation()] = this->getValueFunction()->getHyperplaneAt(next_belief_state, t + 1)->toBelief();
+                    alpha_ao[action->toAction()][observation->toObservation()] = std::static_pointer_cast<AlphaVector>(this->getValueFunction()->getHyperplaneAt(next_belief_state, t + 1));
                 }
             }
 
@@ -57,7 +57,7 @@ namespace sdm
             for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
             {
                 // Creation of a new belief
-                std::shared_ptr<AlphaVector> alpha_a = std::make_shared<bAlpha>((this->getValueFunction()->getDefaultValue(t));
+                std::shared_ptr<AlphaVector> alpha_a = std::make_shared<bAlpha>(this->getValueFunction()->getDefaultValue(t));
 
                 // Go over all state in the current belief
                 for (const auto &state : belief_state->getStates())
@@ -72,7 +72,7 @@ namespace sdm
                         {
 
                             // Get the next value of an hyperplane
-                            double next_alpha_value = alpha_ao[action->toAction()][observation]->getProbability(next_state);
+                            double next_alpha_value = alpha_ao[action->toAction()][observation]->getValueAt(next_state, nullptr);
 
                             // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
                             next_expected_value += next_alpha_value * pomdp->getDynamics(state, action->toAction(), next_state, observation, t);

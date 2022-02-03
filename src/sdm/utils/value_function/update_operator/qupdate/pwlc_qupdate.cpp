@@ -115,7 +115,7 @@ namespace sdm
 
                 for (auto x : s->getBeliefAt(o)->getStates())
                 {
-                    hyperplane->setValueAt(o, x, u, hyperplane->getValueAt(o, x, u) + learning_rate * delta * s->getProbability(o, x) * proba_a);
+                    hyperplane->setValueAt(x, o, u, hyperplane->getValueAt(x, o, u) + learning_rate * delta * s->getProbability(o, x) * proba_a);
                 }
             }
         }

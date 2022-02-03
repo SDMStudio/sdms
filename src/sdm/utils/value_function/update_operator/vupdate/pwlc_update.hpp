@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <sdm/utils/linear_algebra/hyperplane/hyperplane.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
 
 namespace sdm

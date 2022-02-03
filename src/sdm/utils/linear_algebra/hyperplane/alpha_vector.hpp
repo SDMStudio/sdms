@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sdm/macros.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/utils/linear_algebra/hyperplane/hyperplane.hpp>
 
@@ -8,12 +9,16 @@ namespace sdm
     class AlphaVector : public Hyperplane
     {
     public:
+        static double PRECISION;
+
         AlphaVector(double default_value) : Hyperplane(default_value) {}
 
-        virtual double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o) = 0;
+        virtual double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o) const = 0;
         virtual void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, double value) = 0;
 
-        double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u);
+        double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u) const;
         void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, double value);
     };
 }
+
+DEFINE_STD_HASH(sdm::AlphaVector, sdm::AlphaVector::PRECISION);

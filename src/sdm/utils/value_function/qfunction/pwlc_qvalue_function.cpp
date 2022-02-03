@@ -23,7 +23,7 @@ namespace sdm
         // Create all different structure in order to use the hyperplan q-value function.
         this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->getHorizon() + 1, Container());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, 0);
-        this->default_hyperplane = std::vector<std::shared_ptr<Hyperplane>>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, nullptr);
+        this->default_hyperplane = std::vector<std::shared_ptr<BetaVector>>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, nullptr);
 
         number num_serial_agents = (sdm::isInstanceOf<SerialProblemInterface>(getWorld()->getUnderlyingProblem())) ? getWorld()->getUnderlyingProblem()->getNumAgents() : 1;
         number real_horizon = getWorld()->getHorizon() / num_serial_agents;
@@ -67,7 +67,6 @@ namespace sdm
         }
         else
         {
-            state = hyperplane_iter->first;
             qvalue = state->product(hyperplane_iter->second, action);
             // for (auto history : occupancy_state->getJointHistories())
             // {
@@ -82,12 +81,13 @@ namespace sdm
             //     }
             // }
         }
+        return qvalue;
     }
 
     void PWLCQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplane, number t)
     {
         PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[t];
-        this->representation[t][state] = new_hyperplane;
+        this->representation[t][state] = std::static_pointer_cast<BetaVector>(new_hyperplane);
     }
 
     std::shared_ptr<Hyperplane> PWLCQValueFunction::getHyperplaneAt(std::shared_ptr<State> state, number t)
@@ -114,7 +114,7 @@ namespace sdm
 
     double PWLCQValueFunction::getBeta(const std::shared_ptr<Hyperplane> &hyperplane, const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
-        return hyperplane->getValueAt(o, x, u);
+        return hyperplane->getValueAt(x, o, u);
     }
 
     double PWLCQValueFunction::getDefaultValue(number t)
@@ -142,21 +142,10 @@ namespace sdm
                 res << "\t\t<state>" << std::endl;
                 tools::indentedOutput(res, pair_state_hyperplane.first->str().c_str(), 3);
                 res << "\t\t</state>" << std::endl;
-                res << "\t\t<plan>" << std::endl;
-
                 std::ostringstream hyperplan_str;
-                for (const auto &hist_map : pair_state_hyperplane.second->getState())
-                {
-                    auto copy = hist_map.second;
-                    hyperplan_str << hist_map.first->short_str() << std::endl;
-                    for (const auto &state_action : copy.getIndexes())
-                    {
-                        hyperplan_str << "\t--- (" << state_action.first->str() << ", " << state_action.second->str() << ") = " << pair_state_hyperplane.second->getValueAt(hist_map.first, state_action.first, state_action.second) << std::endl;
-                    }
-                }
-                tools::indentedOutput(res, hyperplan_str.str().c_str(), 3);
+                hyperplan_str << pair_state_hyperplane.second;
+                tools::indentedOutput(res, hyperplan_str.str().c_str(), 2);
 
-                res << "\n\t\t</plan>" << std::endl;
             }
             res << "\t</value>" << std::endl;
         }

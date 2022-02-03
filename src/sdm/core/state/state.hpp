@@ -11,11 +11,10 @@
 #pragma once
 
 #include <sdm/types.hpp>
+#include <sdm/exception.hpp>
 #include <sdm/core/item.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/observation/observation.hpp>
-#include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
-#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 
 namespace sdm
 {
@@ -25,6 +24,8 @@ namespace sdm
     class JointHistoryInterface;
     class SerialState;
     class SerialOccupancyInterface;
+    class AlphaVector;
+    class BetaVector;
     // class BaseSerialInterface;
 
     template <class BaseClass, class MyClass>
@@ -50,8 +51,8 @@ namespace sdm
     public:
         virtual ~State() {}
 
-        virtual double product(const std::shared_ptr<AlphaVector> &alpha) const {}
-        virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const {}
+        virtual double product(const std::shared_ptr<AlphaVector> &alpha);
+        virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
         /** @brief Cast the state into a belief */
         virtual std::shared_ptr<BeliefInterface> toBelief();

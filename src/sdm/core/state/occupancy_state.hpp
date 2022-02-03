@@ -198,12 +198,10 @@ namespace sdm
         std::string str() const;
 
         double operator^(const std::shared_ptr<BeliefInterface> &other) const;
-        double product(const std::shared_ptr<AlphaVector> &alpha) const;
-        double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const;
+        double product(const std::shared_ptr<AlphaVector> &alpha);
+        double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
-        double operator<(const OccupancyState &other) const;
-        double operator<(const std::shared_ptr<BeliefInterface> &other) const;
         double operator-(const std::shared_ptr<BeliefInterface> &other) const;
         double minus(const std::shared_ptr<BeliefInterface> &other) const;
 

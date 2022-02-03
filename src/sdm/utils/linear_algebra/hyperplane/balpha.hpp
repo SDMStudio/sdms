@@ -11,8 +11,13 @@ namespace sdm
     public:
         bAlpha(double default_value);
 
-        double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &);
+        bool isDominated(const Hyperplane &other) const;
+
+        double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &) const;
         void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &, double value);
+
+        virtual size_t hash(double precision = -1) const;
+        virtual bool isEqual(const std::shared_ptr<Hyperplane> &other, double precision = -1) const;
 
     protected:
         MappedVector<std::shared_ptr<State>, double> repr;

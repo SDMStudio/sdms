@@ -48,7 +48,7 @@ namespace sdm
         };
 
         // using Hyperplane = BaseState<MappedVector<std::tuple<std::shared_ptr<State>, std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>>>>;
-        using Container = std::unordered_map<std::shared_ptr<State>, std::shared_ptr<Beta>, Hash, Equal>;
+        using Container = std::unordered_map<std::shared_ptr<State>, std::shared_ptr<BetaVector>, Hash, Equal>;
 
         /**
          * @brief Construct a piece-wise linear convex q-value function
@@ -143,7 +143,7 @@ namespace sdm
         /**
          * @brief The value by default.
          */
-        std::vector<std::shared_ptr<Beta>> default_hyperplane;
+        std::vector<std::shared_ptr<BetaVector>> default_hyperplane;
 
         std::vector<double> granularity_per_horizon;
 

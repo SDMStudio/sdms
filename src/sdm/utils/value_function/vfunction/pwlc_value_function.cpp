@@ -1,4 +1,6 @@
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/balpha.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/oalpha.hpp>
 
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/core/state/belief_state.hpp>
@@ -71,25 +73,23 @@ namespace sdm
         if (this->representation[t].size() == 0)
         {
             // Create the default state
-            std::shared_ptr<BeliefInterface> default_hyperplane;
+            std::shared_ptr<AlphaVector> default_hyperplane;
 
             if (sdm::isInstanceOf<OccupancyStateInterface>(initial_state))
             {
-                // default_hyperplane = std::make_shared<OccupancyAlphaVector>();
-                default_hyperplane = std::make_shared<OccupancyState>();
+                this->is_occupancy = true;
+                default_hyperplane = std::make_shared<oAlpha>(value);
             }
             else if (sdm::isInstanceOf<BeliefInterface>(initial_state))
             {
                 // default_hyperplane = std::make_shared<BeliefAlphaVector>();
-                default_hyperplane = std::make_shared<Belief>();
+                this->is_occupancy = false;
+                default_hyperplane = std::make_shared<bAlpha>(value);
             }
             else
             {
                 throw sdm::exception::TypeError("TypeError : state must derived from belief");
             }
-
-            // Add default value of the default state
-            default_hyperplane->setDefaultValue(value);
 
             this->addHyperplaneAt(initial_state, default_hyperplane, t);
         }
@@ -107,73 +107,34 @@ namespace sdm
 
     Pair<std::shared_ptr<Hyperplane>, double> PWLCValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
     {
-            double current, max = -std::numeric_limits<double>::max();
-            std::shared_ptr<AlphaVector> alpha_vector = nullptr;
+        double current, max = -std::numeric_limits<double>::max();
+        std::shared_ptr<AlphaVector> alpha_vector = nullptr;
 
-            // Go over all hyperplan in the support
-            for (const auto &plan : this->representation[this->isInfiniteHorizon() ? 0 : t])
+        // Go over all hyperplan in the support
+        for (const auto &plan : this->representation[this->isInfiniteHorizon() ? 0 : t])
+        {
+            // Determine the best hyperplan which give the best value for the current state
+            if (max < (current = state->product(plan)))
             {
-                // Determine the best hyperplan which give the best value for the current state
-                if (max < (current = state->product(plan)))
-                {
-                    max = current;
-                    alpha_vector = plan;
-                }
+                max = current;
+                alpha_vector = plan;
             }
-            return {alpha_vector, max};
+        }
+        return {alpha_vector, max};
     }
 
     void PWLCValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplan, number t)
     {
-        if (!this->exist(new_hyperplan->toBelief(), t))
-        {
-            this->representation[t].push_back(new_hyperplan);
-        }
+        // Add hyperplane in the hyperplane set
+        this->representation[t].insert(std::static_pointer_cast<AlphaVector>(new_hyperplan));
 
         // Add state to all state update so far, only if the prunning used is Bounded
         if (this->type_of_maxplan_prunning_ == MaxplanPruning::Type::BOUNDED)
             this->all_state_updated_so_far[t].insert(state);
     }
 
-    double PWLCValueFunction::getNextAlphaValue(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t)
-    {
-        if (auto oalpha = sdm::isInstanceOf<OccupancyStateInterface>(alpha))
-        {
-            return getNextAlphaValueOccupancy(oalpha, state, history, action, next_state, observation, t);
-        }
-        else if (auto balpha = sdm::isInstanceOf<BeliefInterface>(alpha))
-        {
-            return getNextAlphaValueBelief(balpha, state, history, action, next_state, observation, t);
-        }
-        else
-        {
-            throw sdm::exception::TypeError("TypeError : state must derived from belief");
-        }
-    }
-
-    double PWLCValueFunction::getNextAlphaValueBelief(const std::shared_ptr<BeliefInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number)
-    {
-        return alpha->getProbability(next_state);
-    }
-
-    double PWLCValueFunction::getNextAlphaValueOccupancy(const std::shared_ptr<OccupancyStateInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number)
-    {
-        // Dynamic cast is slow
-        return alpha->getProbability(std::dynamic_pointer_cast<JointHistoryInterface>(history->expand(observation)), next_state);
-    }
-
     double PWLCValueFunction::getBeta(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
     {
-        bool is_occupancy;
-        std::shared_ptr<OccupancyStateInterface> oalpha;
-        std::shared_ptr<BeliefInterface> balpha;
-        if ((oalpha = sdm::isInstanceOf<OccupancyStateInterface>(alpha)))
-            is_occupancy = true;
-        else if ((balpha = sdm::isInstanceOf<BeliefInterface>(alpha)))
-            is_occupancy = false;
-        else
-            throw sdm::exception::TypeError("TypeError : state must derived from belief");
-
         // Compute \beta_t(x,o,u) = R(x,u) + \gamma \sum_{y, z} p^{uz}_{xy} \alpha_{t+1}(y, (o,u,z))
         double next_expected_value = 0.0;
 
@@ -185,10 +146,10 @@ namespace sdm
             {
                 // Get the next value of an hyperplane
                 double alpha_;
-                if (is_occupancy)
-                    alpha_ = this->getNextAlphaValueOccupancy(oalpha, state, history, action, next_state, observation, t);
+                if (this->is_occupancy)
+                    alpha_ = alpha->getValueAt(next_state, nullptr);
                 else
-                    alpha_ = this->getNextAlphaValueBelief(balpha, state, history, action, next_state, observation, t);
+                    alpha_ = alpha->getValueAt(next_state, history->expand(observation));
 
                 // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
                 next_expected_value += alpha_ * this->pomdp->getDynamics(state, action, next_state, observation, t);
@@ -197,7 +158,13 @@ namespace sdm
         return this->pomdp->getReward(state, action, t) + this->getWorld()->getDiscount(t) * next_expected_value;
     }
 
-    std::vector<std::shared_ptr<Hyperplane>> PWLCValueFunction::getHyperplanesAt(std::shared_ptr<State> , number t)
+    std::vector<std::shared_ptr<Hyperplane>> PWLCValueFunction::getHyperplanesAt(std::shared_ptr<State>, number t)
+    {
+        auto set = this->representation[this->isInfiniteHorizon() ? 0 : t];
+        return std::vector<std::shared_ptr<Hyperplane>>(set.begin(), set.end());
+    }
+
+    PWLCValueFunction::HyperplanSet& PWLCValueFunction::getAlphaHyperplanesAt(number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
@@ -209,7 +176,8 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> PWLCValueFunction::getSupport(number t)
     {
-        return this->getHyperplanesAt(nullptr, t);
+        throw sdm::exception::NotImplementedException();
+        // return this->getHyperplanesAt(nullptr, t);
     }
 
     std::shared_ptr<ValueFunctionInterface> PWLCValueFunction::copy()
@@ -240,12 +208,14 @@ namespace sdm
     void PWLCValueFunction::pairwise_prune(number t)
     {
         // List of hyperplanes that are \eps-dominated
-        std::vector<std::shared_ptr<BeliefInterface>> hyperplan_to_delete;
+        std::vector<std::shared_ptr<AlphaVector>> hyperplan_to_delete;
         // List of hyperplanes that are not dominated
-        std::vector<std::shared_ptr<BeliefInterface>> hyperplan_to_keep;
+        std::vector<std::shared_ptr<AlphaVector>> hyperplan_to_keep;
+
+        auto& all_hyperplanes = this->getAlphaHyperplanesAt(t);
 
         // Go over all current hyperplanes
-        for (const auto &alpha : this->getSupport(t))
+        for (const auto &alpha : all_hyperplanes)
         {
             bool alpha_dominated = false;
 
@@ -253,9 +223,9 @@ namespace sdm
             for (auto beta_iter = hyperplan_to_keep.begin(); beta_iter != hyperplan_to_keep.end(); beta_iter++)
             {
                 // If beta dominate alpha, we add alpha to the set of hyperplanes to delete
-                if (alpha->toBelief()->operator<(*beta_iter))
+                if (alpha->isDominated(**beta_iter))
                 {
-                    hyperplan_to_delete.push_back(alpha->toBelief());
+                    hyperplan_to_delete.push_back(alpha);
                     alpha_dominated = true;
                     break;
                 }
@@ -268,7 +238,7 @@ namespace sdm
             for (auto beta_iter = hyperplan_to_keep.begin(); beta_iter != hyperplan_to_keep.end();)
             {
                 // If alpha dominate a vector in hyperplan_to_keep, we deleted this vector
-                if ((*beta_iter)->operator<(alpha->toBelief()))
+                if (alpha->dominate(**beta_iter))
                 {
                     hyperplan_to_delete.push_back(*beta_iter);
                     beta_iter = hyperplan_to_keep.erase(beta_iter);
@@ -279,20 +249,20 @@ namespace sdm
                 }
             }
 
-            hyperplan_to_keep.push_back(alpha->toBelief());
+            hyperplan_to_keep.push_back(alpha);
         }
 
         // Erase dominated hyperplanes
         for (const auto &to_delete : hyperplan_to_delete)
         {
-            this->representation[t].erase(std::find(this->representation[t].begin(), this->representation[t].end(), to_delete));
+            all_hyperplanes.erase(std::find(all_hyperplanes.begin(), all_hyperplanes.end(), to_delete));
         }
     }
 
     void PWLCValueFunction::bounded_prune(number t)
     {
-        std::unordered_map<std::shared_ptr<State>, number> refCount;
-        auto all_hyperplanes = this->representation[t];
+        std::unordered_map<std::shared_ptr<Hyperplane>, number> refCount;
+        auto& all_hyperplanes = this->getAlphaHyperplanesAt(t);
 
         // Initialize the count
         for (const auto &hyperplane : all_hyperplanes)
@@ -301,13 +271,13 @@ namespace sdm
         }
 
         // Update the count depending on visited beliefs
-        std::shared_ptr<State> max_alpha;
+        std::shared_ptr<Hyperplane> max_alpha;
         double max_value = -std::numeric_limits<double>::max(), value;
         for (const auto &hyperplane : this->all_state_updated_so_far[t])
         {
             for (const auto &alpha : all_hyperplanes)
             {
-                if (max_value < (value = (hyperplane->toBelief()->operator^(alpha->toBelief()))))
+                if (max_value < (value = (hyperplane->product(alpha))))
                 {
                     max_value = value;
                     max_alpha = alpha;
@@ -317,27 +287,13 @@ namespace sdm
         }
 
         // Delete hyperplanes with a count of 0
-        for (auto hyperplane_iter = this->representation[t].begin(); hyperplane_iter != this->representation[t].end();)
+        for (auto hyperplane_iter = all_hyperplanes.begin(); hyperplane_iter != all_hyperplanes.end();)
         {
             if (refCount.at(*hyperplane_iter) == 0)
-                hyperplane_iter = this->representation[t].erase(hyperplane_iter);
+                hyperplane_iter = all_hyperplanes.erase(hyperplane_iter);
             else
                 hyperplane_iter++;
         }
-    }
-
-    bool PWLCValueFunction::exist(const std::shared_ptr<BeliefInterface> &new_vector, number t, double)
-    {
-        // Go over all element in the Support
-        for (const auto &hyperplane : this->representation[t])
-        {
-            // Test if the new vector is equal to the hyperplane
-            if (new_vector->operator==(hyperplane->toBelief()))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     std::string PWLCValueFunction::str() const

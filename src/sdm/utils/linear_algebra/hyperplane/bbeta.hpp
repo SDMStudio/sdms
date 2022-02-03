@@ -11,7 +11,9 @@ namespace sdm
     public:
         bBeta(double default_value);
 
-        double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u);
+        bool isDominated(const Hyperplane &other) const;
+
+        double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u) const;
         void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, double value);
 
     protected:

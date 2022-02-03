@@ -7,6 +7,8 @@
 #include <sdm/core/state/jhistory_tree.hpp>
 #include <sdm/core/state/private_occupancy_state.hpp>
 #include <sdm/core/action/decision_rule.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 
 namespace sdm
 {
@@ -213,40 +215,35 @@ namespace sdm
         return this->isEqual(*std::dynamic_pointer_cast<OccupancyState>(other));
     }
 
-    double OccupancyState::operator<(const OccupancyState &other) const
-    {
+    // double OccupancyState::operator<(const OccupancyState &other) const
+    // {
 
-        for (const auto &jhistory : this->getJointHistories())
-        {
-            // For all states in the corresponding belief
-            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
-            {
-                if (this->getProbability(jhistory, state) > other.getProbability(jhistory, state))
-                {
-                    return false;
-                }
-            }
-        }
+    //     for (const auto &jhistory : this->getJointHistories())
+    //     {
+    //         // For all states in the corresponding belief
+    //         for (const auto &state : this->getBeliefAt(jhistory)->getStates())
+    //         {
+    //             if (this->getProbability(jhistory, state) > other.getProbability(jhistory, state))
+    //             {
+    //                 return false;
+    //             }
+    //         }
+    //     }
 
-        for (const auto &jhistory : other.getJointHistories())
-        {
-            // For all states in the corresponding belief
-            for (const auto &state : other.getBeliefAt(jhistory)->getStates())
-            {
-                if (other.getProbability(jhistory, state) < this->getProbability(jhistory, state))
-                {
-                    return false;
-                }
-            }
-        }
+    //     for (const auto &jhistory : other.getJointHistories())
+    //     {
+    //         // For all states in the corresponding belief
+    //         for (const auto &state : other.getBeliefAt(jhistory)->getStates())
+    //         {
+    //             if (other.getProbability(jhistory, state) < this->getProbability(jhistory, state))
+    //             {
+    //                 return false;
+    //             }
+    //         }
+    //     }
 
-        return true;
-    }
-
-    double OccupancyState::operator<(const std::shared_ptr<BeliefInterface> &other) const
-    {
-        return this->operator<(*std::dynamic_pointer_cast<OccupancyState>(other->toOccupancyState()));
-    }
+    //     return true;
+    // }
 
     double OccupancyState::operator-(const std::shared_ptr<BeliefInterface> &other) const
     {
@@ -309,7 +306,7 @@ namespace sdm
         return product;
     }
 
-    double OccupancyState::product(const std::shared_ptr<AlphaVector> &alpha) const
+    double OccupancyState::product(const std::shared_ptr<AlphaVector> &alpha)
     {
         double product = 0.0;
 
@@ -323,7 +320,7 @@ namespace sdm
         return product;
     }
 
-    double OccupancyState::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const
+    double OccupancyState::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action)
     {
         double product = 0.0;
 
