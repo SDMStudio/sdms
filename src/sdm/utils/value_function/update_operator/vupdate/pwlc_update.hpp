@@ -17,8 +17,8 @@ namespace sdm
             void update(const std::shared_ptr<State> &state, double new_value, number t){}
 
         protected:
-            std::shared_ptr<State> computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, number t);
-            std::shared_ptr<State> computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
+            std::shared_ptr<Hyperplane> computeNewHyperplane(const std::shared_ptr<BeliefInterface> &belief_state, number t);
+            std::shared_ptr<Hyperplane> computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
         };
     }
 }

@@ -3,11 +3,10 @@
 #include <sdm/types.hpp>
 #include <sdm/utils/struct/tuple.hpp>
 #include <sdm/core/state/base_state.hpp>
-#include <sdm/utils/linear_algebra/hyperplane.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
  * @namespace  sdm
@@ -49,7 +48,7 @@ namespace sdm
         };
 
         // using Hyperplane = BaseState<MappedVector<std::tuple<std::shared_ptr<State>, std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>>>>;
-        using Container = std::unordered_map<std::shared_ptr<State>, std::shared_ptr<Hyperplane>, Hash, Equal>;
+        using Container = std::unordered_map<std::shared_ptr<State>, std::shared_ptr<Beta>, Hash, Equal>;
 
         /**
          * @brief Construct a piece-wise linear convex q-value function
@@ -74,15 +73,6 @@ namespace sdm
         void initialize(double v, number t = 0);
 
         /**
-         * @brief Get the q-value at a specific state and time step.
-         *
-         * @param state the state
-         * @param t the time step
-         * @return the action value vector
-         */
-        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
-
-        /**
          * @brief Get the q-value at a specific state, action and time step.
          *
          * @param state the state
@@ -91,7 +81,6 @@ namespace sdm
          * @return the q-value
          */
         double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
-        double getQValueAt(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, number t);
 
         /**
          * @brief Get the q-value.
@@ -104,13 +93,22 @@ namespace sdm
          */
         double getQValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o, const std::shared_ptr<Action> &u, number t);
 
-        void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t);
+        void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplane, number t);
 
-        std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> state, number t);
+        std::shared_ptr<Hyperplane> getHyperplaneAt(std::shared_ptr<State> state, number t);
 
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> state, number t);
+        std::vector<std::shared_ptr<Hyperplane>> getHyperplanesAt(std::shared_ptr<State> state, number t);
 
-        double getBeta(const std::shared_ptr<State> &belief_state, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
+        double getBeta(const std::shared_ptr<Hyperplane> &belief_state, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
+
+        /**
+         * @brief Get the q-value at a specific state and time step.
+         *
+         * @param state the state
+         * @param t the time step
+         * @return the action value vector
+         */
+        std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Prune unecessary components of the value function.
@@ -145,7 +143,7 @@ namespace sdm
         /**
          * @brief The value by default.
          */
-        std::vector<std::shared_ptr<Hyperplane>> default_hyperplane;
+        std::vector<std::shared_ptr<Beta>> default_hyperplane;
 
         std::vector<double> granularity_per_horizon;
 
@@ -153,8 +151,9 @@ namespace sdm
          * @brief the default values, one for each decision epoch.
          */
         std::vector<double> default_values_per_horizon;
-
-        std::shared_ptr<OccupancyMDP> oMDP;
     };
+
+    // using oPWLCQ = PWLCQValueFunction<oBeta>;
+    // using bPWLCQ = PWLCQValueFunction<bBeta>;
 
 } // namespace sdm

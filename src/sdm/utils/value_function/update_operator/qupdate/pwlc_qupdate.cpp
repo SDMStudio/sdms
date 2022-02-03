@@ -52,8 +52,8 @@ namespace sdm
         {
             auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
 
-            auto hyperplane = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(state, t));
-            auto hyperplane_ = std::static_pointer_cast<Hyperplane>(this->getQValueFunction()->getHyperplaneAt(next_state, t + 1));
+            auto hyperplane = this->getQValueFunction()->getHyperplaneAt(state, t);
+            auto hyperplane_ = this->getQValueFunction()->getHyperplaneAt(next_state, t + 1);
 
             auto s = state->toOccupancyState();
             auto s_ = std::dynamic_pointer_cast<OccupancyState>(next_state);
@@ -89,11 +89,11 @@ namespace sdm
 
                                 if (u_ == nullptr)
                                     continue;
-                                delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, u, x_, z, t) * hyperplane_->getValueAt(c_o_, x_, u_);
+                                delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, u, x_, z, t) * hyperplane_->getValueAt(x_, c_o_, u_);
                             }
                         }
                     }
-                    hyperplane->setValueAt(o, x, u, hyperplane->getValueAt(o, x, u) + learning_rate * (delta_xou - hyperplane->getValueAt(o, x, u)));
+                    hyperplane->setValueAt(x, o, u, hyperplane->getValueAt(x, o, u) + learning_rate * (delta_xou - hyperplane->getValueAt(x, o, u)));
                 }
             }
         }

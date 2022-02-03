@@ -330,7 +330,7 @@ namespace sdm
         auto decision_rule = action->toDecisionRule();
         for (auto history : this->getJointHistories())
         {
-            auto action = decision_rule->act(history);
+            auto action = decision_rule->act(history->getIndividualHistories().toJoint<State>());
             double proba_a = decision_rule->getProbability(history, action);
 
             for (auto state : this->getBeliefAt(history)->getStates())

@@ -14,6 +14,8 @@
 #include <sdm/core/item.hpp>
 #include <sdm/utils/struct/pair.hpp>
 #include <sdm/core/observation/observation.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 
 namespace sdm
 {
@@ -21,9 +23,9 @@ namespace sdm
     class OccupancyStateInterface;
     class HistoryInterface;
     class JointHistoryInterface;
-    // class BaseSerialInterface;
     class SerialState;
     class SerialOccupancyInterface;
+    // class BaseSerialInterface;
 
     template <class BaseClass, class MyClass>
     std::shared_ptr<BaseClass> to(std::shared_ptr<MyClass> aPtr)
@@ -47,6 +49,9 @@ namespace sdm
     {
     public:
         virtual ~State() {}
+
+        virtual double product(const std::shared_ptr<AlphaVector> &alpha) const {}
+        virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) const {}
 
         /** @brief Cast the state into a belief */
         virtual std::shared_ptr<BeliefInterface> toBelief();

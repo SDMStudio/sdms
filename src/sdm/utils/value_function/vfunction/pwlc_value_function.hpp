@@ -6,6 +6,7 @@
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
 
 namespace sdm
@@ -58,14 +59,14 @@ namespace sdm
          * @param new_hyperplane the new hyperplane
          * @param t the timestep
          */
-        void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplane, number t);
+        void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplane, number t);
 
         /**
          * @brief Get the set of hyperplanes at a time step
          *
          * @return the list of hyperplanes
          */
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> state, number t);
+        std::vector<std::shared_ptr<Hyperplane>> getHyperplanesAt(std::shared_ptr<State> state, number t);
 
         /**
          * @brief Get the best hyperplane resulting to the higher value when evaluated at a given state.
@@ -74,11 +75,11 @@ namespace sdm
          * @param t the time step
          * @return the max hyperplane
          */
-        std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> state, number t);
+        std::shared_ptr<Hyperplane> getHyperplaneAt(std::shared_ptr<State> state, number t);
 
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
-        double getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
+        double getBeta(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
 
         /**
          * @brief Get the Default Value at time step t
@@ -96,7 +97,7 @@ namespace sdm
          * @param t the time step
          * @return the maximum value and hyperplane at a specific state
          */
-        Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t);
+        Pair<std::shared_ptr<Hyperplane>, double> evaluate(const std::shared_ptr<State> &state, number t);
 
         /**
          * @brief Get the size of the value function at timestep t
@@ -116,7 +117,7 @@ namespace sdm
         std::shared_ptr<ValueFunctionInterface> copy();
 
     protected:
-        using HyperplanSet = std::vector<std::shared_ptr<State>>;
+        using HyperplanSet = std::vector<std::shared_ptr<AlphaVector>>;
         // using HyperplanSet = std::unordered_set<std::shared_ptr<State>, Hash, KeyEqual>;
 
         /**
@@ -173,7 +174,7 @@ namespace sdm
          */
         void pairwise_prune(number t);
 
-        double getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
+        double getNextAlphaValue(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
         double getNextAlphaValueBelief(const std::shared_ptr<BeliefInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &, number t);
         double getNextAlphaValueOccupancy(const std::shared_ptr<OccupancyStateInterface> &alpha, const std::shared_ptr<State> &, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t);
     };

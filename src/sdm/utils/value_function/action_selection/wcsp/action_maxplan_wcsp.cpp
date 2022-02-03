@@ -17,12 +17,12 @@ namespace sdm
         this->underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->occupancy_mdp->getUnderlyingMPOMDP());
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &hyperplane, number t)
     {
         return this->createAndSolveWCSP(value_function, state, hyperplane, t);
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &hyperplane, number t)
     {
         this->variables.clear();
 
@@ -146,7 +146,7 @@ namespace sdm
         return (long)this->offset * (this->max - value);
     }
 
-    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Hyperplane> &hyperplane, number t)
     {
         auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
 

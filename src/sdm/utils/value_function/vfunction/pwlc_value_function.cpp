@@ -105,38 +105,25 @@ namespace sdm
         return this->evaluate(state, t).second;
     }
 
-    Pair<std::shared_ptr<State>, double> PWLCValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
+    Pair<std::shared_ptr<Hyperplane>, double> PWLCValueFunction::evaluate(const std::shared_ptr<State> &state, number t)
     {
-        try
-        {
             double current, max = -std::numeric_limits<double>::max();
-            std::shared_ptr<BeliefInterface> alpha_vector = nullptr;
-
-            auto belief_state = state->toBelief();
+            std::shared_ptr<AlphaVector> alpha_vector = nullptr;
 
             // Go over all hyperplan in the support
-            for (const auto &plan : this->getHyperplanesAt(state, t))
+            for (const auto &plan : this->representation[this->isInfiniteHorizon() ? 0 : t])
             {
-                auto belief_plan = plan->toBelief();
-
                 // Determine the best hyperplan which give the best value for the current state
-                // if (max < (current = belief_state->product(alpha)))
-                if (max < (current = belief_state->operator^(belief_plan)))
+                if (max < (current = state->product(plan)))
                 {
                     max = current;
-                    alpha_vector = belief_plan;
+                    alpha_vector = plan;
                 }
             }
             return {alpha_vector, max};
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "PWLCValueFunction::evaluate error" << e.what() << '\n';
-            exit(-1);
-        }
     }
 
-    void PWLCValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplan, number t)
+    void PWLCValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplan, number t)
     {
         if (!this->exist(new_hyperplan->toBelief(), t))
         {
@@ -148,7 +135,7 @@ namespace sdm
             this->all_state_updated_so_far[t].insert(state);
     }
 
-    double PWLCValueFunction::getNextAlphaValue(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t)
+    double PWLCValueFunction::getNextAlphaValue(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t)
     {
         if (auto oalpha = sdm::isInstanceOf<OccupancyStateInterface>(alpha))
         {
@@ -175,7 +162,7 @@ namespace sdm
         return alpha->getProbability(std::dynamic_pointer_cast<JointHistoryInterface>(history->expand(observation)), next_state);
     }
 
-    double PWLCValueFunction::getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
+    double PWLCValueFunction::getBeta(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
     {
         bool is_occupancy;
         std::shared_ptr<OccupancyStateInterface> oalpha;
@@ -210,12 +197,12 @@ namespace sdm
         return this->pomdp->getReward(state, action, t) + this->getWorld()->getDiscount(t) * next_expected_value;
     }
 
-    std::vector<std::shared_ptr<State>> PWLCValueFunction::getHyperplanesAt(std::shared_ptr<State> , number t)
+    std::vector<std::shared_ptr<Hyperplane>> PWLCValueFunction::getHyperplanesAt(std::shared_ptr<State> , number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
 
-    std::shared_ptr<State> PWLCValueFunction::getHyperplaneAt(std::shared_ptr<State> state, number t)
+    std::shared_ptr<Hyperplane> PWLCValueFunction::getHyperplaneAt(std::shared_ptr<State> state, number t)
     {
         return this->evaluate(state, t).first;
     }
