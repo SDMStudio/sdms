@@ -25,7 +25,7 @@ namespace sdm
         this->underlying_problem_ = underlying_dpomdp;
 
         // Initialize underlying belief mdp
-        this->belief_mdp_ = std::make_shared<BeliefMDP>(underlying_dpomdp, batch_size, false, false);
+        this->belief_mdp_ = std::make_shared<BeliefMDP>(underlying_dpomdp, batch_size/* , false, false */);
 
         // Initialize initial history
         this->initial_history_ = std::make_shared<JointHistoryTree>(this->getUnderlyingMDP()->getNumAgents(), (this->memory > 0) ? this->memory : -1);
@@ -278,8 +278,9 @@ namespace sdm
             auto compressed_joint_history = compressed_occupancy_state->getCompressedJointHistory(joint_history);
 
             // Apply decision rule and get action
-            auto jaction = this->applyDecisionRule(compressed_occupancy_state, compressed_joint_history, decision_rule, t);
-            // Get the corresponding belief
+            auto jaction = decision_rule->act(compressed_joint_history); 
+            
+             // Get the corresponding belief
             std::shared_ptr<BeliefInterface> belief = fully_uncompressed_occupancy_state->getBeliefAt(joint_history);
 
             // For each action that is likely to be taken
@@ -339,8 +340,8 @@ namespace sdm
             std::shared_ptr<BeliefInterface> belief = compressed_occupancy_state->getBeliefAt(compressed_joint_history);
 
             // Apply decision rule and get action
-            auto jaction = decision_rule->act(this->getDecisionRuleInput(compressed_joint_history, t)); // this->applyDecisionRule(compressed_occupancy_state, compressed_joint_history, decision_rule, t);
-
+            auto jaction = decision_rule->act(compressed_joint_history); 
+            
             // For each action that is likely to be taken
             for (const auto &joint_action : {jaction}) // decision_rule->getDistribution(compressed_joint_history)->getSupport())
             {
@@ -374,12 +375,6 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    std::shared_ptr<Action> BaseOccupancyMDP<TOccupancyState>::applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const
-    {
-        return decision_rule->toDecisionRule()->act(this->getDecisionRuleInput(joint_history, t));
-    }
-
-    template <class TOccupancyState>
     double BaseOccupancyMDP<TOccupancyState>::getReward(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &decision_rule, number t)
     {
 
@@ -400,7 +395,7 @@ namespace sdm
                 // Get the belief corresponding to this history
                 auto belief = occupancy_state->getBeliefAt(joint_history);
                 // Get the action from decision rule
-                auto joint_action = decision_rule->toDecisionRule()->act(this->getDecisionRuleInput(joint_history, t));
+                auto joint_action = decision_rule->toDecisionRule()->act(joint_history);
                 // Update the expected reward
                 reward += occupancy_state->getProbability(joint_history) * this->getUnderlyingBeliefMDP()->getReward(belief, joint_action, t);
             }
@@ -624,12 +619,6 @@ namespace sdm
     std::shared_ptr<BaseOccupancyMDP<TOccupancyState>> BaseOccupancyMDP<TOccupancyState>::getptr()
     {
         return std::enable_shared_from_this<BaseOccupancyMDP<TOccupancyState>>::shared_from_this();
-    }
-
-    template <class TOccupancyState>
-    std::shared_ptr<State> BaseOccupancyMDP<TOccupancyState>::getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number) const
-    {
-        return jhistory->getIndividualHistories().toJoint<State>();
     }
 
 } // namespace sdm

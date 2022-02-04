@@ -44,22 +44,43 @@ namespace sdm
         return 0;
     }
 
-    bool oBeta::isEqual(const std::shared_ptr<Hyperplane> &other, double precision) const
+    bool oBeta::isEqual(const oBeta &other, double precision) const
     {
+        if (other.size() > this->size())
+        {
+            return other.isEqual(*this, precision);
+        }
+
         if (precision < 0)
             precision = oBeta::PRECISION;
 
-        for (const auto &o_matrix : this->repr)
+         for (const auto &o_matrix : this->repr)
         {
             for (const auto &state_vector : o_matrix.second)
             {
                 for (const auto &action_value : state_vector.second)
                 {
-                    if (std::abs(action_value.second - other->getValueAt(state_vector.first, o_matrix.first, action_value.first)) > precision)
+                    if (std::abs(action_value.second - other.getValueAt(state_vector.first, o_matrix.first, action_value.first)) > precision)
                         return false;
                 }
             }
         }
         return true;
     }
+
+    bool oBeta::isEqual(const std::shared_ptr<Hyperplane> &other, double precision) const
+    {
+        auto other_oalpha = std::static_pointer_cast<oBeta>(other);
+        if (other_oalpha == nullptr)
+            return false;
+        else
+            return this->isEqual(*other_oalpha, precision);
+    }
+
+
+    size_t oBeta::size() const
+    {
+        return this->repr.size();
+    }
+
 } // namespace sdm

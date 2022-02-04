@@ -86,9 +86,4 @@ namespace sdm
         return std::make_shared<DeterministicDecisionRule>(inputs, outputs);
     }
 
-    std::shared_ptr<State> SerialOccupancyMDP::getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number t) const
-    {
-        return jhistory->getIndividualHistory(this->getAgentId(t));
-    }
-
 } // namespace sdm

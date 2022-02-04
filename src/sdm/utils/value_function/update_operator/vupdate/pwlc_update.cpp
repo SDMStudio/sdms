@@ -109,7 +109,7 @@ namespace sdm
             for (const auto &jhistory : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
             {
                 // Select the joint action
-                auto action = decision_rule->toDecisionRule()->act(occupancy_state->getCompressedJointHistory(jhistory)->getIndividualHistories().toJoint<State>());
+                auto action = decision_rule->toDecisionRule()->act(occupancy_state->getCompressedJointHistory(jhistory));
 
                 // Create new belief
                 for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())

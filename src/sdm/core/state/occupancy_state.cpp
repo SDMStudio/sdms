@@ -322,12 +322,12 @@ namespace sdm
 
     double OccupancyState::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action)
     {
-        double product = 0.0;
 
+        double product = 0.0;
         auto decision_rule = action->toDecisionRule();
         for (auto history : this->getJointHistories())
         {
-            auto action = decision_rule->act(history->getIndividualHistories().toJoint<State>());
+            auto action = decision_rule->act(history);
             double proba_a = decision_rule->getProbability(history, action);
 
             for (auto state : this->getBeliefAt(history)->getStates())

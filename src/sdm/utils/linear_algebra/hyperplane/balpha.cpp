@@ -2,7 +2,7 @@
 
 namespace sdm
 {
-    bAlpha::bAlpha(double default_value) : AlphaVector(default_value)
+    bAlpha::bAlpha(double default_value) : AlphaVector(default_value), repr(default_value)
     {
     }
 
@@ -26,7 +26,7 @@ namespace sdm
         this->repr.setValueAt(x, value);
     }
 
-    double bAlpha::getBetaValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action>& u, const std::shared_ptr<POMDPInterface>& pomdp, number t)
+    double bAlpha::getBetaValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &u, const std::shared_ptr<POMDPInterface> &pomdp, number t)
     {
         // Compute \beta_t(x,o,u) = R(x,u) + \gamma \sum_{y, z} p^{uz}_{xy} \alpha_{t+1}(y, (o,u,z))
         double next_expected_value = 0.0;
@@ -57,6 +57,19 @@ namespace sdm
         if (precision < 0)
             precision = bAlpha::PRECISION;
         return this->repr.isEqual(alpha_other->repr, precision);
+    }
+
+    std::string bAlpha::str() const
+    {
+        std::ostringstream res;
+        res << "<plan default="<< this->repr.getDefault() <<">" << std::endl;
+        for (const auto &state_value : this->repr)
+        {
+            res << "\t" << state_value.first->str() << " : " << state_value.second << std::endl;
+        }
+
+        res << "</plan>" << std::endl;
+        return res.str();
     }
 
 } // namespace sdm

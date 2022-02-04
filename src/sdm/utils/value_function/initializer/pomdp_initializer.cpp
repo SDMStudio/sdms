@@ -40,7 +40,7 @@ namespace sdm
         auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp, "ValueIteration");
 
         std::string algo_name = this->algo_config.get("algo_name", std::string("HSVI"));
-        double error = this->algo_config.get("error", 0.01), time_max = this->algo_config.get("time_max", 3600);
+        double error = this->algo_config.get("error", 0.001), time_max = this->algo_config.get("time_max", 3600);
         int trials = this->algo_config.get("trials", 10000);
 
         std::shared_ptr<ValueFunction> lb, ub;

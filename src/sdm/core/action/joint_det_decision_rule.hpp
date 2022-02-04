@@ -20,57 +20,41 @@ namespace sdm
 
         JointDeterministicDecisionRule();
         JointDeterministicDecisionRule(const Joint<std::shared_ptr<DeterministicDecisionRule>> &individual_decision_rules, const std::shared_ptr<Space> &action_space);
-        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions, const std::shared_ptr<Space> &action_space);
+        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_histories, std::vector<std::vector<std::shared_ptr<Item>>> actions, const std::shared_ptr<Space> &action_space);
         JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr, const std::shared_ptr<Space> &action_space);
 
-        std::shared_ptr<Action> act(const std::shared_ptr<State> &joint_state) const;
-        std::shared_ptr<JointAction> act(const std::shared_ptr<JointState> &joint_state) const;
+        std::shared_ptr<Action> act(const std::shared_ptr<HistoryInterface> &joint_history) const;
+        virtual std::shared_ptr<Action> act(const std::vector<std::shared_ptr<HistoryInterface>> &joint_histories) const;
+        virtual std::shared_ptr<JointAction> act(const std::shared_ptr<JointHistoryInterface> &joint_history) const;
 
         /**
-         * @brief Get the probability of joint action 'action' in joint state 'state'
+         * @brief Get the probability of selecting action a in history s. This should return 0 if the action that corresponds to the history is a.
          *
-         * @param state the joint state
-         * @param action the joint action
-         * @param proba the probability
-         */
-        double getProbability(const JointState &state, const JointAction &action) const;
-
-        /**
-         * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
-         *
-         * @param s the state
-         * @param a the action
+         * @param history the history
+         * @param action the action
          * @return the probability
          */
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
+        double getProbability(const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action) const;
+        virtual double getProbability(const std::vector<std::shared_ptr<HistoryInterface>> &histories, const std::shared_ptr<JointAction> &actions) const;
 
         /**
-         * @brief Get the probability of action 'action' in state 'state' for agent id
+         * @brief Get the probability of action 'action' in history 'history' for agent id
          *
          * @param agent_id the agent identifier
-         * @param state the state
+         * @param history the history
          * @param action the action
-         * @return the probability selecting action 'action' in state 'state'
+         * @return the probability selecting action 'action' in history 'history'
          */
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const;
+        double getProbability(const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const number &agent_id) const;
 
         /**
-         * @brief Sets the probability of selecting action a when observing state s.
+         * @brief Set the probability of selecting action a in history s.
          *
-         * @param state the joint state
-         * @param action the joint action
-         * @param proba the probability
-         */
-        void setProbability(const JointState &state, const JointAction &action, double proba = 0);
-
-        /**
-         * @brief Set the probability of selecting action a in state s.
-         *
-         * @param s the state
+         * @param s the history
          * @param a the action
          * @param proba the probability
          */
-        void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba = 1);
+        void setProbability(const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, double proba = 1);
 
         std::string str() const;
 
@@ -79,8 +63,6 @@ namespace sdm
             os << joint_dr.str();
             return os;
         }
-
-        bool elementExist(const std::shared_ptr<State> &);
     };
 
 } // namespace sdm

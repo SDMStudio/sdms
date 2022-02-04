@@ -2,7 +2,7 @@
 
 namespace sdm
 {
-    bBeta::bBeta(double default_value) : BetaVector(default_value)
+    bBeta::bBeta(double default_value) : BetaVector(default_value), repr(default_value)
     {
     }
 
@@ -34,8 +34,13 @@ namespace sdm
         return 0;
     }
 
-    bool bBeta::isEqual(const std::shared_ptr<Hyperplane> &other, double precision) const
+    bool bBeta::isEqual(const bBeta &other, double precision) const
     {
+        if (other.size() > this->size())
+        {
+            return other.isEqual(*this, precision);
+        }
+
         if (precision < 0)
             precision = bBeta::PRECISION;
 
@@ -43,10 +48,24 @@ namespace sdm
         {
             for (const auto &action_value : state_vector.second)
             {
-                if (std::abs(action_value.second - other->getValueAt(state_vector.first, nullptr, action_value.first)) > precision)
+                if (std::abs(action_value.second - other.getValueAt(state_vector.first, nullptr, action_value.first)) > precision)
                     return false;
             }
         }
         return true;
+    }
+
+    bool bBeta::isEqual(const std::shared_ptr<Hyperplane> &other, double precision) const
+    {
+        auto other_oalpha = std::static_pointer_cast<bBeta>(other);
+        if (other_oalpha == nullptr)
+            return false;
+        else
+            return true;
+    }
+
+    size_t bBeta::size() const
+    {
+        return this->repr.size();
     }
 } // namespace sdm

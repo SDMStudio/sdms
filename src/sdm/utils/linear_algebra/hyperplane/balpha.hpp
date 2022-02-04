@@ -20,6 +20,8 @@ namespace sdm
         virtual size_t hash(double precision = -1) const;
         virtual bool isEqual(const std::shared_ptr<Hyperplane> &other, double precision = -1) const;
 
+        std::string str() const;
+
     protected:
         MappedVector<std::shared_ptr<State>, double> repr;
     };

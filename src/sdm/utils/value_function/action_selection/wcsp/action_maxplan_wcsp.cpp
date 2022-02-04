@@ -33,7 +33,7 @@ namespace sdm
         number index;
 
         double value;
-        std::shared_ptr<Action> decision_rule;
+        std::shared_ptr<DecisionRule> decision_rule;
 
         tb2init();              // must be call before setting specific ToulBar2 options and creating a model
         ToulBar2::verbose = -1; // change to 0 or higher values to see more trace information
@@ -115,8 +115,7 @@ namespace sdm
 
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
-                auto cjhist = joint_history;//occupancy_state->getCompressedJointHistory(joint_history);
-                auto action = occupancy_mdp->applyDecisionRule(occupancy_state, cjhist, decision_rule, t);
+                auto action = decision_rule->act(joint_history);
                 value += this->getWeight(value_function, occupancy_state, joint_history, action, hyperplane, t);
             }
         }

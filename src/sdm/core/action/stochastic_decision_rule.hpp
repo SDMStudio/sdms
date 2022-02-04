@@ -65,9 +65,6 @@ namespace sdm
             os << stoch_decision_rule.str();
             return os;        
         }
-
-        bool elementExist(const std::shared_ptr<State>& joint_state);
-
     };
 
 } // namespace sdm

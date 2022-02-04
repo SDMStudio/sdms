@@ -10,8 +10,7 @@ namespace sdm
      * @brief A common interface for objects that represent a joint history.
      *
      */
-    class JointHistoryInterface : virtual public HistoryInterface
-    {
+    class JointHistoryInterface : virtual public HistoryInterface    {
     public:
         virtual std::shared_ptr<HistoryInterface> getIndividualHistory(number agent_id) const = 0;
 

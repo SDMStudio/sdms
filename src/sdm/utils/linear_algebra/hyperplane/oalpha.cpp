@@ -119,7 +119,7 @@ namespace sdm
             res << "\t<" << hist_belief.first->short_str() << ">" << std::endl;
             for (const auto &b_value : hist_belief.second)
             {
-                res << "\t\t" << b_value.first->str() << " - " << b_value.second << std::endl;
+                res << "\t\t" << b_value.first->str() << " : " << b_value.second << std::endl;
             }
             res << "\t</>" << std::endl;
         }
