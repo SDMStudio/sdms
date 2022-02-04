@@ -72,7 +72,7 @@ namespace sdm
                 }
                 // Select next action
                 auto [action, value] = getUpperBound()->getGreedyActionAndValue(state, t);
-                
+
                 // Select next observation
                 for (const auto &observation : selectObservations(state, action, t))
                 {

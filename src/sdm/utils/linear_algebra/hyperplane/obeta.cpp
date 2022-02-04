@@ -38,4 +38,28 @@ namespace sdm
         else
             this->repr.at(o).setValueAt(x, u, value);
     }
+
+    size_t oBeta::hash(double precision) const
+    {
+        return 0;
+    }
+
+    bool oBeta::isEqual(const std::shared_ptr<Hyperplane> &other, double precision) const
+    {
+        if (precision < 0)
+            precision = oBeta::PRECISION;
+
+        for (const auto &o_matrix : this->repr)
+        {
+            for (const auto &state_vector : o_matrix.second)
+            {
+                for (const auto &action_value : state_vector.second)
+                {
+                    if (std::abs(action_value.second - other->getValueAt(state_vector.first, o_matrix.first, action_value.first)) > precision)
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
 } // namespace sdm

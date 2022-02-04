@@ -28,4 +28,25 @@ namespace sdm
     {
         this->repr.setValueAt(x, u, value);
     }
+
+    size_t bBeta::hash(double precision) const
+    {
+        return 0;
+    }
+
+    bool bBeta::isEqual(const std::shared_ptr<Hyperplane> &other, double precision) const
+    {
+        if (precision < 0)
+            precision = bBeta::PRECISION;
+
+        for (const auto &state_vector : this->repr)
+        {
+            for (const auto &action_value : state_vector.second)
+            {
+                if (std::abs(action_value.second - other->getValueAt(state_vector.first, nullptr, action_value.first)) > precision)
+                    return false;
+            }
+        }
+        return true;
+    }
 } // namespace sdm

@@ -47,7 +47,6 @@ namespace sdm
             }
         };
 
-        // using Hyperplane = BaseState<MappedVector<std::tuple<std::shared_ptr<State>, std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>>>>;
         using Container = std::unordered_map<std::shared_ptr<State>, std::shared_ptr<BetaVector>, Hash, Equal>;
 
         /**
@@ -145,6 +144,10 @@ namespace sdm
          */
         std::vector<std::shared_ptr<BetaVector>> default_hyperplane;
 
+        /**
+         * @brief Keep the granularity to apply to each time step.
+         * 
+         */
         std::vector<double> granularity_per_horizon;
 
         /**

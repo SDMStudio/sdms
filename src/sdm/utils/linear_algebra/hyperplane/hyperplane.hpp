@@ -25,8 +25,8 @@ namespace sdm
         virtual void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, double value) = 0;
         virtual void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, double value) = 0;
 
-        virtual size_t hash(double precision = -1) const { return 0;}
-        virtual bool isEqual(const std::shared_ptr<Hyperplane> &other, double precision = -1) const { return this == other.get();}
+        virtual size_t hash(double precision = -1) const = 0;
+        virtual bool isEqual(const std::shared_ptr<Hyperplane> &other, double precision = -1) const = 0;
 
         virtual std::string str() const
         {

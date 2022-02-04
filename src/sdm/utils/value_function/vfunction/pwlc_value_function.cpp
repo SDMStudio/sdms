@@ -133,29 +133,10 @@ namespace sdm
             this->all_state_updated_so_far[t].insert(state);
     }
 
-    double PWLCValueFunction::getBeta(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t)
+    double PWLCValueFunction::getBeta(const std::shared_ptr<Hyperplane> &hyperplane, const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
-        // Compute \beta_t(x,o,u) = R(x,u) + \gamma \sum_{y, z} p^{uz}_{xy} \alpha_{t+1}(y, (o,u,z))
-        double next_expected_value = 0.0;
-
-        // Go over all hidden state reachable next state
-        for (const auto &next_state : this->pomdp->getReachableStates(state, action, t))
-        {
-            // Go over all observation reachable observation
-            for (const auto &observation : this->pomdp->getReachableObservations(state, action, next_state, t))
-            {
-                // Get the next value of an hyperplane
-                double alpha_;
-                if (this->is_occupancy)
-                    alpha_ = alpha->getValueAt(next_state, nullptr);
-                else
-                    alpha_ = alpha->getValueAt(next_state, history->expand(observation));
-
-                // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
-                next_expected_value += alpha_ * this->pomdp->getDynamics(state, action, next_state, observation, t);
-            }
-        }
-        return this->pomdp->getReward(state, action, t) + this->getWorld()->getDiscount(t) * next_expected_value;
+        auto alpha = std::static_pointer_cast<AlphaVector>(hyperplane);
+        return alpha->getBetaValueAt(x, o, u, this->pomdp, t);
     }
 
     std::vector<std::shared_ptr<Hyperplane>> PWLCValueFunction::getHyperplanesAt(std::shared_ptr<State>, number t)
@@ -164,7 +145,7 @@ namespace sdm
         return std::vector<std::shared_ptr<Hyperplane>>(set.begin(), set.end());
     }
 
-    PWLCValueFunction::HyperplanSet& PWLCValueFunction::getAlphaHyperplanesAt(number t)
+    PWLCValueFunction::HyperplanSet &PWLCValueFunction::getAlphaHyperplanesAt(number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
@@ -212,7 +193,7 @@ namespace sdm
         // List of hyperplanes that are not dominated
         std::vector<std::shared_ptr<AlphaVector>> hyperplan_to_keep;
 
-        auto& all_hyperplanes = this->getAlphaHyperplanesAt(t);
+        auto &all_hyperplanes = this->getAlphaHyperplanesAt(t);
 
         // Go over all current hyperplanes
         for (const auto &alpha : all_hyperplanes)
@@ -262,7 +243,7 @@ namespace sdm
     void PWLCValueFunction::bounded_prune(number t)
     {
         std::unordered_map<std::shared_ptr<Hyperplane>, number> refCount;
-        auto& all_hyperplanes = this->getAlphaHyperplanesAt(t);
+        auto &all_hyperplanes = this->getAlphaHyperplanesAt(t);
 
         // Initialize the count
         for (const auto &hyperplane : all_hyperplanes)
@@ -304,11 +285,11 @@ namespace sdm
         for (number i = 0; i < this->representation.size(); i++)
         {
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
-            for (auto plan : this->representation[i])
+            for (const auto &plan : this->representation[i])
             {
-                res << "\t\t<plan>" << std::endl;
-                res << "\t\t\t" << plan->str() << std::endl;
-                res << "\t\t</plan>" << std::endl;
+                std::ostringstream hyperplan_str;
+                hyperplan_str << plan->str();
+                tools::indentedOutput(res, hyperplan_str.str().c_str(), 2);
             }
             res << "\t</value>" << std::endl;
         }

@@ -174,8 +174,13 @@ namespace sdm
         void pairwise_prune(number t);
 
         HyperplanSet& getAlphaHyperplanesAt(number t);
-
-
     };
+
+    // template <typename THyperplane>;
+    // using PWLC = PWLCValueFunction<THyperplane>;
+    // using bmdpPWLC = PWLC<bAlpha>;
+    // using omdpPWLC = PWLC<oAlpha>;
+    // using ndbmdpPWLC = PWLC<ndbAlpha>;
+    // using ndomdpPWLC = PWLC<ndoAlpha>;
 
 } // namespace sdm

@@ -8,7 +8,6 @@
 #include <sdm/utils/linear_algebra/hyperplane/balpha.hpp>
 #include <sdm/utils/linear_algebra/hyperplane/oalpha.hpp>
 
-
 namespace sdm
 {
 
@@ -110,10 +109,9 @@ namespace sdm
             for (const auto &jhistory : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
             {
                 // Select the joint action
-                auto action = occupancy_mdp->applyDecisionRule(occupancy_state, occupancy_state->getCompressedJointHistory(jhistory), decision_rule, t);
+                auto action = decision_rule->toDecisionRule()->act(occupancy_state->getCompressedJointHistory(jhistory)->getIndividualHistories().toJoint<State>());
 
                 // Create new belief
-                auto new_belief = std::make_shared<Belief>();
                 for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())
                 {
                     // For each hidden state with associate the value r(x,u) + discount* \sum_{x_,z_} p(x,u,z_,x_)* best_next_hyperplan(x_);
@@ -122,6 +120,5 @@ namespace sdm
             }
             return new_hyperplane;
         }
-
     }
 }

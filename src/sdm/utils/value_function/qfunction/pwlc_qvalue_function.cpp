@@ -31,7 +31,6 @@ namespace sdm
         {
             number real_current_horizon = t / num_serial_agents;
             double granul_t = PWLCQValueFunction::GRANULARITY_START + float(real_current_horizon) / (real_horizon - 1) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction::GRANULARITY_START);
-            std::cout << "t " << t << " - g " << granul_t << std::endl;
             granularity_per_horizon.push_back(granul_t);
         }
         granularity_per_horizon.push_back(1);
@@ -39,7 +38,6 @@ namespace sdm
 
     void PWLCQValueFunction::initialize(double value, number t)
     {
-        // If there are not element at time t, we have to create the default State
         if (this->representation[t].size() == 0)
         {
             this->default_values_per_horizon[t] = value;
@@ -68,18 +66,6 @@ namespace sdm
         else
         {
             qvalue = state->product(hyperplane_iter->second, action);
-            // for (auto history : occupancy_state->getJointHistories())
-            // {
-            //     auto action = this->oMDP->applyDecisionRule(occupancy_state, history, decision_rule, this->isInfiniteHorizon() ? 0 : t);
-            //     auto dr_input = this->oMDP->getDecisionRuleInput(history, t);
-            //     double proba_a = decision_rule->getProbability(dr_input, action);
-
-            //     for (auto state : occupancy_state->getBeliefAt(history)->getStates())
-            //     {
-            //         double beta = this->getBeta(hyperplane, state, history, action, t);
-            //         qvalue += occupancy_state->getProbability(history, state) * proba_a * beta;
-            //     }
-            // }
         }
         return qvalue;
     }
@@ -145,7 +131,6 @@ namespace sdm
                 std::ostringstream hyperplan_str;
                 hyperplan_str << pair_state_hyperplane.second;
                 tools::indentedOutput(res, hyperplan_str.str().c_str(), 2);
-
             }
             res << "\t</value>" << std::endl;
         }
