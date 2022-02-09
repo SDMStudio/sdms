@@ -61,14 +61,12 @@ namespace sdm
 
     double POMDPRelaxation::getValueAtOccupancy(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const number &t, bool display)
     {
-        std::cout << "Q_relax2 --" << std::endl;
         double value = 0.0;
 
         // $sum_{o_{t}} p(o_{t} \mid s_{t} v_{t}^{pomdp}\left( x_{t} \mid o_{t} \right))$
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
             auto belief = occupancy_state->getBeliefAt(joint_history);
-            std::cout << "\tp(" << joint_history->short_str() << ")(" << occupancy_state->getProbability(joint_history) << ") * V_pomdp(" << *belief << ")(" << getValueAtBelief(belief, t) << ")=" << occupancy_state->getProbability(joint_history) * getValueAtBelief(belief, t) << std::endl;
             value += occupancy_state->getProbability(joint_history) * getValueAtBelief(belief, t);
         }
         return value;
@@ -112,7 +110,6 @@ namespace sdm
     double POMDPRelaxation::getQValueAtBelief(const std::shared_ptr<BeliefInterface> &belief, const std::shared_ptr<Action> &action, const number &t, bool display)
     {
         double r_b = this->getPOMDPValueFunction()->getWorld()->getReward(belief, action, t);
-        std::cout << "Q_relax3 -- r(" << r_b << ")" << std::endl;
 
         double exp_next_v = 0.0;
         // For all observations from the controller point of view
@@ -123,10 +120,8 @@ namespace sdm
             auto [next_state, state_transition_proba] = this->getPOMDPValueFunction()->getWorld()->getNextStateAndProba(belief, action, observation->toObservation(), t);
 
             // Update the next expected value at the next state
-            std::cout << "\t+ p("<< *observation <<")(" << state_transition_proba << ") * V_t+1("<<*next_state<<")(" << this->getPOMDPValueFunction()->getValueAt(next_state, t + 1) << ") = " << state_transition_proba * this->getPOMDPValueFunction()->getValueAt(next_state, t + 1) << std::endl;
             exp_next_v += state_transition_proba * this->getPOMDPValueFunction()->getValueAt(next_state, t + 1);
         }
-        std::cout << "Q_relax3 -- r(" << r_b << ") + 1 * ExpNext(" << exp_next_v << ")=" << r_b + this->getPOMDPValueFunction()->getWorld()->getDiscount(t) * exp_next_v << std::endl;
         return r_b + this->getPOMDPValueFunction()->getWorld()->getDiscount(t) * exp_next_v;
     }
 

@@ -45,6 +45,9 @@ namespace sdm
     void setProbability(const std::shared_ptr<State> &state, double proba);
     void addProbability(const std::shared_ptr<State> &state, double proba);
 
+    Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+    double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
+
     std::shared_ptr<State> sample() const;
     std::shared_ptr<State> sampleState();
 
@@ -60,8 +63,6 @@ namespace sdm
 
     Belief add(const Belief &other, double coef_this = 1., double coef_other = 1.) const;
 
-    double operator^(const Belief &other) const;
-    double operator^(const std::shared_ptr<BeliefInterface> &other) const;
     double product(const std::shared_ptr<AlphaVector> &alpha);
     double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 

@@ -9,16 +9,16 @@ namespace sdm
     }
 
     SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &underlying_mpomdp, number memory, bool store_states, bool store_actions, int batch_size)
-        : OccupancyMDP(underlying_mpomdp, memory, store_states, store_actions, batch_size), underlying_serial_mpomdp(underlying_mpomdp)
+        : BaseOccupancyMDP<SerialOccupancyState>(underlying_mpomdp, memory, store_states, store_actions, batch_size), underlying_serial_mpomdp(underlying_mpomdp)
     {
     }
 
-    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config) : OccupancyMDP(dpomdp, config)
+    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config) : BaseOccupancyMDP<SerialOccupancyState>(dpomdp, config)
     {
         this->underlying_serial_mpomdp = std::dynamic_pointer_cast<SerialMPOMDPInterface>(dpomdp);
     }
 
-    SerialOccupancyMDP::SerialOccupancyMDP(Config config) : OccupancyMDP(config)
+    SerialOccupancyMDP::SerialOccupancyMDP(Config config) : BaseOccupancyMDP<SerialOccupancyState>(config)
     {
         this->underlying_serial_mpomdp = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->getUnderlyingMPOMDP());
     }
@@ -53,7 +53,7 @@ namespace sdm
         // Transform in serial occupancy state
         auto serial_ostate = ostate->toOccupancyState();
         // Get individual histories of agent i.
-        std::set<std::shared_ptr<HistoryInterface>> individual_histories = serial_ostate->toOccupancyState()->getIndividualHistories(this->getAgentId(t));
+        std::set<std::shared_ptr<HistoryInterface>> individual_histories = serial_ostate->getIndividualHistories(this->getAgentId(t));
         // Get individual history space of agent i.
         std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
         // Get action space of agent i.
@@ -63,10 +63,10 @@ namespace sdm
 
         return individual_ddr_space;
     }
-    
+
     double SerialOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
-        return (!this->isLastAgent(t)) ? 0. : OccupancyMDP::getReward(occupancy_state, decision_rule, t);
+        return (!this->isLastAgent(t)) ? 0. : BaseOccupancyMDP<SerialOccupancyState>::getReward(occupancy_state, decision_rule, t);
     }
 
     std::shared_ptr<Action> SerialOccupancyMDP::computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t)

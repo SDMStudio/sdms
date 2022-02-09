@@ -11,7 +11,7 @@
  */
 namespace sdm
 {
-        class SerialOccupancyMDP : public OccupancyMDP,
+        class SerialOccupancyMDP : public BaseOccupancyMDP<SerialOccupancyState>,
                                    public SerialProblemInterface
         {
         public:

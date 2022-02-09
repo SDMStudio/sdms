@@ -39,6 +39,47 @@ namespace sdm
   {
   }
 
+  Pair<std::shared_ptr<State>, double> Belief::next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
+  {
+    // Create next belief.
+    auto next_belief = std::make_shared<Belief>();
+    auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(mdp);
+    for (const auto &pair_state_proba : this->container)
+    {
+      for (const auto &next_state : pomdp->getReachableStates(pair_state_proba.first, action, t))
+      {
+        double proba = pomdp->getDynamics(pair_state_proba.first, action, next_state, observation, t) * pair_state_proba.second;
+
+        if (proba > 0)
+        {
+          next_belief->addProbability(next_state, proba);
+        }
+      }
+    }
+
+    next_belief->finalize();
+
+    // Compute the coefficient of normalization (eta)
+    double eta = next_belief->norm_1();
+
+    // Normalize to belief
+    next_belief->normalizeBelief(eta);
+
+    // Return next belief.
+    return std::make_pair(next_belief, eta);
+  }
+
+  double Belief::getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t)
+  {
+    // Compute reward : \sum_{s} b(s)r(s,a)
+    double reward = 0.0;
+    for (const auto &state : this->getStates())
+    {
+      reward += this->getProbability(state) * mdp->getReward(state, action, t);
+    }
+    return reward;
+  }
+
   std::vector<std::shared_ptr<State>> Belief::getStates() const
   {
     return this->container.getIndexes();
@@ -175,29 +216,7 @@ namespace sdm
     return res;
   }
 
-  double Belief::operator^(const Belief &other) const
-  {
-    double product = 0.0;
-
-    for (const auto &item : this->container)
-    {
-      product += item.second * other.getProbability(item.first);
-    }
-    return product;
-  }
-
-  double Belief::operator^(const std::shared_ptr<BeliefInterface> &other) const
-  {
-    double product = 0.0;
-
-    for (const auto &item : this->container)
-    {
-      product += item.second * other->getProbability(item.first);
-    }
-    return product;
-  }
-
-  double Belief::product(const std::shared_ptr<AlphaVector> &alpha) 
+  double Belief::product(const std::shared_ptr<AlphaVector> &alpha)
   {
     double product = 0.0;
 
@@ -208,7 +227,7 @@ namespace sdm
     return product;
   }
 
-  double Belief::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action) 
+  double Belief::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action)
   {
     double product = 0.0;
 

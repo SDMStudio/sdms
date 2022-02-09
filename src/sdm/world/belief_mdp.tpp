@@ -85,46 +85,17 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        std::cout << "bMDP::computeNextState&Proba" << std::endl;
         // Compute next state
         if (this->batch_size_ == 0)
         {
-            return this->computeExactNextState(belief, action, observation, t);
+            return belief->next(this->getUnderlyingProblem(), action, observation, t);
+            // return this->computeExactNextState(belief, action, observation, t);
         }
         else
         {
             return this->computeSampledNextState(belief, action, observation, t);
         }
-    }
-
-    template <class TBelief>
-    Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeExactNextState(const std::shared_ptr<State> &b, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        // Create next belief.
-        auto next_belief = std::make_shared<TBelief>();
-        auto belief = b->toBelief();
-        for (const auto &state : belief->getStates())
-        {
-            for (const auto &next_state : this->getUnderlyingProblem()->getReachableStates(state, action, t))
-            {
-                double proba = this->getUnderlyingPOMDP()->getDynamics(state, action, next_state, observation, t) * belief->getProbability(state);
-
-                if (proba > 0)
-                {
-                    next_belief->addProbability(next_state, proba);
-                }
-            }
-        }
-
-        next_belief->finalize();
-
-        // Compute the coefficient of normalization (eta)
-        double eta = next_belief->norm_1();
-
-        // Normalize to belief
-        next_belief->normalizeBelief(eta);
-
-        // Return next belief.
-        return std::make_pair(next_belief, eta);
     }
 
     template <class TBelief>
@@ -172,6 +143,7 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
+        std::cout << "bMDP::NextState&Proba" << std::endl;
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
@@ -240,29 +212,33 @@ namespace sdm
     }
 
     template <class TBelief>
-    double BaseBeliefMDP<TBelief>::getReward(const std::shared_ptr<State> &b, const std::shared_ptr<Action> &action, number t)
+    double BaseBeliefMDP<TBelief>::getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
     {
-        auto state_action = std::make_pair(b, action);
-        auto successor = this->reward_graph_->getSuccessor(0.0, state_action);
-        if (successor != nullptr)
+        double reward = 0.;
+
+        if (this->store_states_ && this->store_actions_)
         {
-            // Return the successor node
-            return successor->getData();
+            auto belief_action = std::make_pair(belief, action);
+            auto successor = this->reward_graph_->getSuccessor(0.0, belief_action);
+            if (successor != nullptr)
+            {
+                // Return the successor node
+                reward = successor->getData();
+            }
+            else
+            {
+                // Return the reward
+                reward = belief->getReward(this->getUnderlyingProblem(), action, t);
+                if (this->store_states_ && this->store_actions_)
+                    this->reward_graph_->addSuccessor(0.0, belief_action, reward);
+            }
         }
         else
         {
-            // Compute reward : \sum_{s} b(s)r(s,a)
-            double reward = 0.0;
-            auto belief = b->toBelief();
-            for (const auto &state : belief->getStates())
-            {
-                reward += belief->getProbability(state) * this->getUnderlyingProblem()->getReward(state, action, t);
-            }
-            if (this->store_states_ && this->store_actions_)
-                this->reward_graph_->addSuccessor(0.0, state_action, reward);
-
-            return reward;
+            reward = belief->getReward(this->getUnderlyingProblem(), action, t);
         }
+
+        return reward;
     }
 
     template <class TBelief>
@@ -274,6 +250,7 @@ namespace sdm
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
     {
+        std::cout << "bMDP::ExpNextValue" << std::endl;
         double exp_next_v = 0.0;
         // For all observations from the controller point of view
         auto accessible_observation_space = this->getObservationSpaceAt(belief, action, t);

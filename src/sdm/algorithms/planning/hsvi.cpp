@@ -34,7 +34,9 @@ namespace sdm
 
     void HSVI::initialize()
     {
+        std::cout << "Init" << std::endl;
         TSVI::initialize();
+        std::cout << "Init UB" << std::endl;
         getUpperBound()->initialize();
     }
 
@@ -70,20 +72,26 @@ namespace sdm
                     // Update the value function (frontward update)
                     updateValue(state, t);
                 }
+                std::cout << "Action Greedy" << std::endl;
                 // Select next action
                 auto [action, value] = getUpperBound()->getGreedyActionAndValue(state, t);
 
                 // Select next observation
                 for (const auto &observation : selectObservations(state, action, t))
                 {
+                    std::cout << "Next State" << std::endl;
                     // Determine the state for a given state, action and observation
                     auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
+                    std::cout << "Explore" << std::endl;
                     // Recursive explore
                     explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
+                    std::cout << "End Exploration" << std::endl;
                 }
 
+                std::cout << "Update" << std::endl;
                 // Update the value function (backward update)
                 this->updateValue(state, t);
+                std::cout << "End Update" << std::endl;
             }
         }
         catch (const std::exception &exc)

@@ -20,14 +20,17 @@ namespace sdm
         startExecutionTime();
 
         trial = 0;
+        std::cout << "Get Initial" << std::endl;
         auto initial_state = getWorld()->getInitialState(); // Get the initial node
 
         do
         {
             initTrial(); // Initialize the trial
 
+            std::cout << "Logging" << std::endl;
             logging(); // Print execution variables in logging output streams
 
+            std::cout << "Explore" << std::endl;
             explore(initial_state, 0, 0); // Explore the tree
 
             trial++; // At the end of the exploration, go to the next trial

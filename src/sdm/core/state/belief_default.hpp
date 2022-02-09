@@ -30,7 +30,6 @@ namespace sdm
         void addProbability(const std::shared_ptr<State> &, double proba);
 
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
-        double operator^(const std::shared_ptr<BeliefInterface> &other) const;
         double norm_1() const;
 
         std::string str() const;

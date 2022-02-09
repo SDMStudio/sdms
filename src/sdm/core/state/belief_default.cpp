@@ -51,11 +51,6 @@ namespace sdm
         return this->getDefaultValue() == other->getDefaultValue() ;
     }
 
-    double BeliefDefault::operator^(const std::shared_ptr<BeliefInterface> &other) const
-    {
-        return this->getDefaultValue() * other->getDefaultValue();
-    }
-
     double BeliefDefault::norm_1() const
     {
         return 0;

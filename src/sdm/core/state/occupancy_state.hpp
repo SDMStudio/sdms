@@ -32,8 +32,14 @@ namespace sdm
 
         OccupancyState();
         OccupancyState(number num_agents);
+        OccupancyState(number num_agents, StateType stateType);
         OccupancyState(const OccupancyState &copy);
         ~OccupancyState();
+
+        std::shared_ptr<OccupancyState> make();
+        std::shared_ptr<OccupancyState> copy();
+
+        void setStateType(const StateType &state_type);
 
         size_t hash(double precision = PRECISION) const;
         bool operator==(const OccupancyState &other) const;
@@ -51,6 +57,14 @@ namespace sdm
 
         void addProbability(const std::shared_ptr<State> &joint_history, double proba);
         void addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba);
+        std::shared_ptr<Action> applyDR(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history, number t);
+
+        bool checkCompatibility(const std::shared_ptr<Observation> &, const std::shared_ptr<Observation> &);
+        Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+        void updateOccupancyStateProba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
+        Pair<std::shared_ptr<OccupancyStateInterface>, double> finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &one_step_occupancy_state, number t);
+
+        double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
 
         Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> sampleJointHistoryBelief();
 
@@ -197,7 +211,6 @@ namespace sdm
 
         std::string str() const;
 
-        double operator^(const std::shared_ptr<BeliefInterface> &other) const;
         double product(const std::shared_ptr<AlphaVector> &alpha);
         double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
@@ -218,6 +231,8 @@ namespace sdm
     protected:
         /** @brief the number of agents */
         number num_agents_ = 2;
+
+        StateType state_type = COMPRESSED;
 
         /** @brief This representation of occupancy states consists of private occupancy states for each agent */
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> tuple_of_maps_from_histories_to_private_occupancy_states_;

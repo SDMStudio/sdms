@@ -12,21 +12,26 @@ namespace sdm
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
 
-        //Go over all actions
+        std::cout << "Exhaus::state\n"
+                  << state->str() << std::endl;
+
+        // Go over all actions
         auto action_space = this->getWorld()->getActionSpaceAt(state, t);
         for (const auto &action : *action_space)
         {
             // Cast the action
             auto casted_action = action->toAction();
 
-            //Determine the value of the backup for a precise action
+            std::cout << "Exhaus::action\n"
+                      << casted_action->str() << std::endl;
+            // Determine the value of the backup for a precise action
             if (max < (tmp = value_function->getQValueAt(state, casted_action, t)))
             {
                 best_action = casted_action;
                 max = tmp;
             }
         }
-        //Return the best action and the value associated
+        // Return the best action and the value associated
         return {best_action, max};
     }
 }

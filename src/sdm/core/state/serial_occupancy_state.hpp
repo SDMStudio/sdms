@@ -10,8 +10,15 @@ namespace sdm
     public:
         SerialOccupancyState();
         SerialOccupancyState(number num_agents);
+        SerialOccupancyState(number num_agents, StateType stateType);
         SerialOccupancyState(const SerialOccupancyState &copy);
-        SerialOccupancyState(const OccupancyState &copy);
+
+        std::shared_ptr<OccupancyState> make();
+        std::shared_ptr<OccupancyState> copy();
+
+        // Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+        // double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
+        std::shared_ptr<Action> applyDR(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history, number t);
 
         /**
          * @brief Get the current Agent Id of the object

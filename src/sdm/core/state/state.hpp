@@ -26,7 +26,7 @@ namespace sdm
     class SerialOccupancyInterface;
     class AlphaVector;
     class BetaVector;
-    // class BaseSerialInterface;
+    class MDPInterface;
 
     template <class BaseClass, class MyClass>
     std::shared_ptr<BaseClass> to(std::shared_ptr<MyClass> aPtr)
@@ -51,8 +51,42 @@ namespace sdm
     public:
         virtual ~State() {}
 
+        /**
+         * @brief Compute the dot product operation with an alpha vector.
+         *
+         * @param alpha the alpha vector
+         * @return double the resulting product
+         */
         virtual double product(const std::shared_ptr<AlphaVector> &alpha);
+
+        /**
+         * @brief Compute the dot product operation with a beta vector.
+         *
+         * @param beta the beta vector
+         * @param action the action
+         * @return double the resulting product
+         */
         virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
+
+        /**
+         * @brief Compute the following state given an action a.
+         * 
+         * @param mdp the Markov Decision Process
+         * @param action the action 
+         * @param t the timestep
+         * @return std::shared_ptr<State> the next state
+         */
+        virtual Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+
+        /**
+         * @brief Compute the reward of being in the current state and execute action a.
+         * 
+         * @param mdp the Markov Decision Process
+         * @param action the action 
+         * @param t the timestep
+         * @return double the reward
+         */
+        virtual double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
 
         /** @brief Cast the state into a belief */
         virtual std::shared_ptr<BeliefInterface> toBelief();

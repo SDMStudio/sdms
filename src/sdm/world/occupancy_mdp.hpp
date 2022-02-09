@@ -59,7 +59,6 @@ namespace sdm
                  */
                 virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
                 virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
-                virtual double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t = 0);
                 virtual bool checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation);
 
                 // **********************
@@ -120,16 +119,16 @@ namespace sdm
                  * @param t the timestep
                  * @return the couple (next state, transition probability in the next state)
                  */
-                virtual Pair<std::shared_ptr<State>, double> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-                virtual Pair<std::shared_ptr<State>, double> computeExactNextCompressedState(const std::shared_ptr<OccupancyStateInterface> &compressed_occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, const std::shared_ptr<Observation> &observation, number t);
-                virtual Pair<std::shared_ptr<State>, double> computeExactNextUncompressedState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+                // virtual Pair<std::shared_ptr<State>, double> computeExactNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                // virtual Pair<std::shared_ptr<State>, double> computeExactNextCompressedState(const std::shared_ptr<OccupancyStateInterface> &compressed_occupancy_state, const std::shared_ptr<DecisionRule> &decision_rule, const std::shared_ptr<Observation> &observation, number t);
+                // virtual Pair<std::shared_ptr<State>, double> computeExactNextUncompressedState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
 
-                virtual Pair<std::shared_ptr<State>, double> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-                virtual Pair<std::shared_ptr<OccupancyStateInterface>, double> finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &next_one_step_left_compressed_occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_fully_uncompressed_occupancy_state, number t);
+                // virtual Pair<std::shared_ptr<State>, double> computeSampledNextState(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
+                // virtual Pair<std::shared_ptr<OccupancyStateInterface>, double> finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &next_one_step_left_compressed_occupancy_state, const std::shared_ptr<OccupancyStateInterface> &next_fully_uncompressed_occupancy_state, number t);
 
                 virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
 
-                virtual void updateOccupancyStateProba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
+                // virtual void updateOccupancyStateProba(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double probability);
         };
 
         using OccupancyMDP = BaseOccupancyMDP<OccupancyState>;
