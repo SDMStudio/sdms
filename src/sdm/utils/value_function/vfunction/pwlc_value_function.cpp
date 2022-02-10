@@ -77,13 +77,11 @@ namespace sdm
 
             if (sdm::isInstanceOf<OccupancyStateInterface>(initial_state))
             {
-                this->is_occupancy = true;
                 default_hyperplane = std::make_shared<oAlpha>(value);
             }
             else if (sdm::isInstanceOf<BeliefInterface>(initial_state))
             {
                 // default_hyperplane = std::make_shared<BeliefAlphaVector>();
-                this->is_occupancy = false;
                 default_hyperplane = std::make_shared<bAlpha>(value);
             }
             else

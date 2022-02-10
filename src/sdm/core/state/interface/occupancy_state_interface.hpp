@@ -34,6 +34,9 @@ namespace sdm
 
         virtual double minus(const std::shared_ptr<BeliefInterface> &other) const = 0;
 
+        virtual std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) = 0;
+
+
         virtual Pair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>> sampleJointHistoryBelief() = 0;
 
         /**

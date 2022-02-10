@@ -59,7 +59,6 @@ namespace sdm
     bool isEqual(const std::shared_ptr<State> &other, double precision = PRECISION) const;
 
     bool operator==(const Belief &other) const;
-    bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
 
     Belief add(const Belief &other, double coef_this = 1., double coef_other = 1.) const;
 

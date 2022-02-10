@@ -85,7 +85,6 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        std::cout << "bMDP::computeNextState&Proba" << std::endl;
         // Compute next state
         if (this->batch_size_ == 0)
         {
@@ -143,7 +142,6 @@ namespace sdm
     template <class TBelief>
     Pair<std::shared_ptr<State>, double> BaseBeliefMDP<TBelief>::getNextStateAndProba(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        std::cout << "bMDP::NextState&Proba" << std::endl;
         auto action_observation = std::make_pair(action, observation);
 
         // If we store data in the graph
@@ -250,7 +248,6 @@ namespace sdm
     template <class TBelief>
     double BaseBeliefMDP<TBelief>::getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t)
     {
-        std::cout << "bMDP::ExpNextValue" << std::endl;
         double exp_next_v = 0.0;
         // For all observations from the controller point of view
         auto accessible_observation_space = this->getObservationSpaceAt(belief, action, t);

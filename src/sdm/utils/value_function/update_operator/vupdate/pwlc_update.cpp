@@ -94,7 +94,7 @@ namespace sdm
         std::shared_ptr<Hyperplane> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
         {
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
-            auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
+            auto occupancy_mdp = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
 
             // Create the new hyperplan
             std::shared_ptr<AlphaVector> new_hyperplane = std::make_shared<oAlpha>(this->getValueFunction()->getDefaultValue(t));
@@ -109,7 +109,7 @@ namespace sdm
             for (const auto &jhistory : occupancy_state->getFullyUncompressedOccupancy()->getJointHistories())
             {
                 // Select the joint action
-                auto action = decision_rule->toDecisionRule()->act(occupancy_state->getCompressedJointHistory(jhistory));
+                auto action = occupancy_state->applyDR(decision_rule->toDecisionRule(), occupancy_state->getCompressedJointHistory(jhistory));
 
                 // Create new belief
                 for (const auto &state : occupancy_state->getFullyUncompressedOccupancy()->getBeliefAt(jhistory)->getStates())

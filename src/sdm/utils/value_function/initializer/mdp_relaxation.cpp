@@ -106,7 +106,7 @@ namespace sdm
         double value = 0.0;
         for (auto &jhistory : occupancy_state->getJointHistories())
         {
-            auto action = decision_rule->act(jhistory);
+            auto action = occupancy_state->applyDR(decision_rule, jhistory);
             double belief_value = this->getQValueAtBelief(occupancy_state->getBeliefAt(jhistory), action, t);
             value += occupancy_state->getProbability(jhistory) * belief_value;
         }

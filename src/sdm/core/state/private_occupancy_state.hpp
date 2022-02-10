@@ -15,8 +15,8 @@ namespace sdm
         static double PRECISION_COMPRESSION;
 
         PrivateOccupancyState();
-        PrivateOccupancyState(number num_agents);
-        PrivateOccupancyState(number agent_id, number num_agents);
+        PrivateOccupancyState(number num_agents, number h);
+        PrivateOccupancyState(number agent_id, number num_agents, number h);
         PrivateOccupancyState(const PrivateOccupancyState &);
         PrivateOccupancyState(const OccupancyState &);
 

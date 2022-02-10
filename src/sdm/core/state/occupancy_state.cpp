@@ -16,13 +16,13 @@ namespace sdm
 
     RecursiveMap<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> OccupancyState::jhistory_map_ = {};
 
-    OccupancyState::OccupancyState() : OccupancyState(2)
+    OccupancyState::OccupancyState() : OccupancyState(2, 0)
     {
     }
 
-    OccupancyState::OccupancyState(number num_agents) : OccupancyState(num_agents, COMPRESSED) {}
+    OccupancyState::OccupancyState(number num_agents, number h) : OccupancyState(num_agents, h, COMPRESSED) {}
 
-    OccupancyState::OccupancyState(number num_agents, StateType stateType) : Belief(), state_type(stateType), num_agents_(num_agents), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
+    OccupancyState::OccupancyState(number num_agents, number h, StateType stateType) : Belief(), state_type(stateType), num_agents_(num_agents), h(h), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
 
     {
         for (number agent_id = 0; agent_id < num_agents; agent_id++)
@@ -39,6 +39,7 @@ namespace sdm
     OccupancyState::OccupancyState(const OccupancyState &occupancy_state)
         : Belief(occupancy_state),
           num_agents_(occupancy_state.num_agents_),
+          h(occupancy_state.h),
           state_type(occupancy_state.state_type),
           tuple_of_maps_from_histories_to_private_occupancy_states_(occupancy_state.tuple_of_maps_from_histories_to_private_occupancy_states_),
           weight_of_private_occupancy_state_(occupancy_state.weight_of_private_occupancy_state_),
@@ -62,9 +63,9 @@ namespace sdm
     {
     }
 
-    std::shared_ptr<OccupancyState> OccupancyState::make()
+    std::shared_ptr<OccupancyState> OccupancyState::make(number h)
     {
-        return std::make_shared<OccupancyState>(this->num_agents_, this->state_type);
+        return std::make_shared<OccupancyState>(this->num_agents_, h, this->state_type);
     }
 
     std::shared_ptr<OccupancyState> OccupancyState::copy()
@@ -134,85 +135,67 @@ namespace sdm
         return true;
     }
 
-    std::shared_ptr<Action> OccupancyState::applyDR(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history, number t)
+    std::shared_ptr<Action> OccupancyState::applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history)
     {
         return dr->act(joint_history);
     }
 
     Pair<std::shared_ptr<State>, double> OccupancyState::next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        std::cout << "next" << std::endl;
         // The new one step left occupancy state
-        auto next_one_step_left_compressed_occupancy_state = this->make();
+        auto next_one_step_left_compressed_occupancy_state = this->make(t + 1);
         auto decision_rule = action->toDecisionRule();
         auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(mdp);
 
-        std::cout << "1" << std::endl;
         // For each joint history in the support of the fully uncompressed occupancy state
         for (const auto &compressed_joint_history : this->getJointHistories())
         {
             // Get p(o_t)
             double proba_history = this->getProbability(compressed_joint_history);
 
-            std::cout << "2" << std::endl;
             // Get the corresponding belief
             auto belief = this->getBeliefAt(compressed_joint_history);
 
-            std::cout << "3" << std::endl;
             // Apply decision rule and get action
-            auto jaction = this->applyDR(mdp, decision_rule, compressed_joint_history, t); // this->act(compressed_joint_history);
+            auto jaction = this->applyDR(decision_rule, compressed_joint_history); // this->act(compressed_joint_history);
 
-            std::cout << "4" << std::endl;
             // For each action that is likely to be taken
             for (const auto &joint_action : {jaction}) // decision_rule->getDistribution(compressed_joint_history)->getSupport())
             {
-                std::cout << "5" << std::endl;
                 // Get p(u_t | o_t)
                 double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
                 for (auto jobs : *pomdp->getObservationSpace(t))
                 {
-                    std::cout << "6" << std::endl;
                     auto joint_observation = jobs->toObservation();
                     if (this->checkCompatibility(joint_observation, observation))
                     {
-                        std::cout << "7" << std::endl;
                         // Get the next belief and p(z_{t+1} | b_t, u_t)
-                        auto [next_belief, proba_observation] = belief->next(mdp, jaction, joint_observation, t);
+                        auto [next_belief, proba_observation] = belief->next(mdp, joint_action, joint_observation, t);
 
-                        std::cout << "8" << std::endl;
-                        std::cout << "proba_observation=" << proba_observation << std::endl;
-                        std::cout << "proba_action=" << proba_action << std::endl;
-                        std::cout << "proba_history=" << proba_history << std::endl;
                         double next_joint_history_probability = proba_history * proba_action * proba_observation;
 
-                        std::cout << "9" << std::endl;
                         // If the next history probability is not zero
                         if (next_joint_history_probability > 0)
                         {
                             // Update new one step uncompressed occupancy state
                             std::shared_ptr<JointHistoryInterface> next_compressed_joint_history = compressed_joint_history->expand(joint_observation /*, joint_action*/)->toJointHistory();
                             this->updateOccupancyStateProba(next_one_step_left_compressed_occupancy_state, next_compressed_joint_history, next_belief->toBelief(), next_joint_history_probability);
-                            std::cout << "10" << std::endl;
                         }
                     }
                 }
             }
         }
-        std::cout << "11" << std::endl;
 
         return this->finalizeNextState(next_one_step_left_compressed_occupancy_state, t);
     }
 
     Pair<std::shared_ptr<OccupancyStateInterface>, double> OccupancyState::finalizeNextState(const std::shared_ptr<OccupancyStateInterface> &one_step_occupancy_state, number t)
     {
-        std::cout << "fin:0 - " << *one_step_occupancy_state << std::endl;
         // Finalize and normalize the one step left occupancy state
         one_step_occupancy_state->finalize();
-        std::cout << "fin:0.1" << std::endl;
         double norm_one_step = one_step_occupancy_state->norm_1();
-        std::cout << "fin:0.2" << std::endl;
         one_step_occupancy_state->normalizeBelief(norm_one_step);
 
         if (this->state_type == StateType::FULLY_UNCOMPRESSED)
@@ -224,20 +207,14 @@ namespace sdm
             // The new compressed occupancy state
             std::shared_ptr<OccupancyStateInterface> compressed_occupancy_state;
 
-            std::cout << "fin:1" << std::endl;
             // Compress the occupancy state
             compressed_occupancy_state = one_step_occupancy_state->compress();
-            std::cout << "fin:2" << std::endl;
 
             double norm_compressed = compressed_occupancy_state->norm_1();
-            std::cout << "fin:3" << std::endl;
             compressed_occupancy_state->normalizeBelief(norm_compressed);
-            std::cout << "fin:4" << std::endl;
             compressed_occupancy_state->setOneStepUncompressedOccupancy(one_step_occupancy_state);
-            std::cout << "fin:5" << std::endl;
             one_step_occupancy_state->setCompressedOccupancy(compressed_occupancy_state);
 
-            std::cout << "ICI" << std::endl;
             switch (this->state_type)
             {
             case StateType::COMPRESSED:
@@ -286,7 +263,7 @@ namespace sdm
             // Get the belief corresponding to this history
             auto belief = this->getBeliefAt(jhist);
             // Get the action from decision rule
-            auto joint_action = this->applyDR(mdp, decision_rule, jhist, t); // decision_rule->act(jhist);
+            auto joint_action = this->applyDR(decision_rule, jhist); // decision_rule->act(jhist);
 
             // Update the expected reward
             reward += this->getProbability(jhist) * belief->getReward(mdp, joint_action, t);
@@ -326,7 +303,7 @@ namespace sdm
 
     bool OccupancyState::operator==(const OccupancyState &other) const
     {
-        return this->isEqual(other);
+        return this->isEqual(other, OccupancyState::PRECISION);
     }
 
     bool OccupancyState::isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const
@@ -467,8 +444,8 @@ namespace sdm
         auto decision_rule = action->toDecisionRule();
         for (auto history : this->getJointHistories())
         {
-            auto action = decision_rule->act(history);
-            double proba_a = decision_rule->getProbability(history, action);
+            auto action = this->applyDR(decision_rule, history);
+            double proba_a = 1;
 
             for (auto state : this->getBeliefAt(history)->getStates())
             {
@@ -673,7 +650,7 @@ namespace sdm
     std::shared_ptr<OccupancyStateInterface> OccupancyState::compress()
     {
 
-        auto current_compact_ostate = this->make();
+        auto current_compact_ostate = this->make(this->h);
         auto previous_compact_ostate = this->copy();
 
         for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
@@ -771,7 +748,7 @@ namespace sdm
                 // Instanciation empty private occupancy state associated to ihistory and agent i if not exists
                 if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
                 {
-                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState>(agent_id, this->num_agents_));
+                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState>(agent_id, this->num_agents_, this->h));
                 }
                 // Set private occupancy measure
                 this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id][jhist->getIndividualHistory(agent_id)]->addProbability(jhist, belief, proba);

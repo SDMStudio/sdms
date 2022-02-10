@@ -21,7 +21,7 @@ namespace sdm
         static double PRECISION;
 
         CompressedOccupancyState();
-        CompressedOccupancyState(number num_agents);
+        CompressedOccupancyState(number num_agents, number h);
         CompressedOccupancyState(const CompressedOccupancyState &copy);
         ~CompressedOccupancyState();
 

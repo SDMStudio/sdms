@@ -68,4 +68,23 @@ namespace sdm
     {
         return this->repr.size();
     }
+
+    std::string bBeta::str() const
+    {
+        std::ostringstream res;
+        res << "<plan>" << std::endl;
+
+        for (const auto &state_vector : this->repr)
+        {
+            for (const auto &action_value : state_vector.second)
+            {
+                res << "\t\t" << state_vector.first->str() << ", " << action_value.first << " : " << action_value.second << std::endl;
+            }
+        }
+        res << "\t</>" << std::endl;
+
+        res << "</plan>" << std::endl;
+        return res.str();
+    }
+
 } // namespace sdm

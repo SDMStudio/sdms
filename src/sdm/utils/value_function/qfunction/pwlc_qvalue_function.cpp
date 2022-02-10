@@ -31,6 +31,7 @@ namespace sdm
         {
             number real_current_horizon = t / num_serial_agents;
             double granul_t = PWLCQValueFunction::GRANULARITY_START + float(real_current_horizon) / (real_horizon - 1) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction::GRANULARITY_START);
+            std::cout << "t "<< t << " - g " << granul_t << std::endl;
             granularity_per_horizon.push_back(granul_t);
         }
         granularity_per_horizon.push_back(1);

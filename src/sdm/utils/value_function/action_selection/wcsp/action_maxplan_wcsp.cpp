@@ -115,7 +115,7 @@ namespace sdm
 
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
-                auto action = decision_rule->act(joint_history);
+                auto action = occupancy_state->applyDR(decision_rule, joint_history);
                 value += this->getWeight(value_function, occupancy_state, joint_history, action, hyperplane, t);
             }
         }

@@ -22,6 +22,7 @@ namespace sdm
         bool isEqual(const std::shared_ptr<Hyperplane> &other, double precision) const;
 
         size_t size() const;
+        std::string str() const;
 
     protected:
         MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, double> repr;

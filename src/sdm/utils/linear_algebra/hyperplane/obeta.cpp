@@ -54,7 +54,7 @@ namespace sdm
         if (precision < 0)
             precision = oBeta::PRECISION;
 
-         for (const auto &o_matrix : this->repr)
+        for (const auto &o_matrix : this->repr)
         {
             for (const auto &state_vector : o_matrix.second)
             {
@@ -77,10 +77,31 @@ namespace sdm
             return this->isEqual(*other_oalpha, precision);
     }
 
-
     size_t oBeta::size() const
     {
         return this->repr.size();
+    }
+
+    std::string oBeta::str() const
+    {
+        std::ostringstream res;
+        res << "<plan>" << std::endl;
+
+        for (const auto &hist_matrix : this->repr)
+        {
+            res << "\t<" << hist_matrix.first->short_str() << ">" << std::endl;
+            for (const auto &state_vector : hist_matrix.second)
+            {
+                for (const auto &action_value : state_vector.second)
+                {
+                    res << "\t\t" << state_vector.first->str() << ", " << action_value.first << " : " << action_value.second << std::endl;
+                }
+            }
+            res << "\t</>" << std::endl;
+        }
+
+        res << "</plan>" << std::endl;
+        return res.str();
     }
 
 } // namespace sdm

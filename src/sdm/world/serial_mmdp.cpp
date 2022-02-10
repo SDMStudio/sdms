@@ -67,7 +67,8 @@ namespace sdm
         return pow(this->getDiscount(t), this->getSimultaneousTime(t));
     }
 
-    number SerialMMDP::getSimultaneousTime(number t) const {
+    number SerialMMDP::getSimultaneousTime(number t) const
+    {
         return (t / this->getNumAgents());
     }
 

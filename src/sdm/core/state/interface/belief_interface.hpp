@@ -23,9 +23,7 @@ namespace sdm
         virtual std::shared_ptr<State> sampleState() = 0;
 
         virtual void normalizeBelief(double norm_1) = 0;
-
-        virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
-
+        
         virtual double norm_1() const = 0;
         virtual bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const = 0;
 

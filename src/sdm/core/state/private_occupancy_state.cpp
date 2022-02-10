@@ -11,11 +11,11 @@ namespace sdm
     {
     }
 
-    PrivateOccupancyState::PrivateOccupancyState(number num_agents) : OccupancyState(num_agents)
+    PrivateOccupancyState::PrivateOccupancyState(number num_agents, number h) : OccupancyState(num_agents, h)
     {
     }
 
-    PrivateOccupancyState::PrivateOccupancyState(number agent_id, number num_agents) : OccupancyState(num_agents), agent_id_(agent_id)
+    PrivateOccupancyState::PrivateOccupancyState(number agent_id, number num_agents, number h) : OccupancyState(num_agents, h), agent_id_(agent_id)
     {
     }
 
@@ -62,7 +62,7 @@ namespace sdm
     {
         // Copy full joint history
         auto partial_jhist = joint_history;
-        
+
         // Erase the component associated to the agent
         partial_jhist.erase(partial_jhist.begin() + this->getAgentId());
 

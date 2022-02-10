@@ -38,7 +38,7 @@ namespace sdm
         this->repr.at(o).setValueAt(x, value);
     }
 
-    double oAlpha::getBetaValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action>& u, const std::shared_ptr<POMDPInterface>& pomdp, number t)
+    double oAlpha::getBetaValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, const std::shared_ptr<POMDPInterface> &pomdp, number t)
     {
         // Compute \beta_t(x,o,u) = R(x,u) + \gamma \sum_{y, z} p^{uz}_{xy} \alpha_{t+1}(y, (o,u,z))
         double next_expected_value = 0.0;
@@ -53,7 +53,9 @@ namespace sdm
                 next_expected_value += this->getValueAt(y, o->expand(z)) * pomdp->getDynamics(x, u, y, z, t);
             }
         }
-        return pomdp->getReward(x, u, t) + pomdp->getDiscount(t) * next_expected_value;
+        auto res = pomdp->getReward(x, u, t) + pomdp->getDiscount(t) * next_expected_value;
+
+        return res;
     }
 
     size_t oAlpha::hash(double precision) const

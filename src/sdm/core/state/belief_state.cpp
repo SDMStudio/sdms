@@ -181,31 +181,7 @@ namespace sdm
 
   bool Belief::operator==(const Belief &other) const
   {
-    for (const auto &item : this->container)
-    {
-      if (item.second != other.getProbability(item.first))
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  bool Belief::operator==(const std::shared_ptr<BeliefInterface> &other) const
-  {
-    if (this->size() != other->size())
-    {
-      return false;
-    }
-
-    for (const auto &state : this->getStates())
-    {
-      if (this->getProbability(state) != other->getProbability(state))
-      {
-        return false;
-      }
-    }
-    return true;
+    return this->isEqual(other, Belief::PRECISION);
   }
 
   Belief Belief::add(const Belief &other, double coef_this, double coef_other) const

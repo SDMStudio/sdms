@@ -149,8 +149,6 @@ namespace sdm
          */
         std::shared_ptr<POMDPInterface> pomdp;
 
-        bool is_occupancy;
-
         /**
          * @brief Prune dominated hyperplanes of the value function.
          *

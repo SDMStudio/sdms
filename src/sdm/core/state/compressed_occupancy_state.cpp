@@ -8,11 +8,11 @@ namespace sdm
 {
     double CompressedOccupancyState::PRECISION = config::PRECISION_OCCUPANCY_STATE;
 
-    CompressedOccupancyState::CompressedOccupancyState() : CompressedOccupancyState(2)
+    CompressedOccupancyState::CompressedOccupancyState() : CompressedOccupancyState(2, 0)
     {
     }
 
-    CompressedOccupancyState::CompressedOccupancyState(number num_agents) : OccupancyState(num_agents)
+    CompressedOccupancyState::CompressedOccupancyState(number num_agents, number h) : OccupancyState(num_agents, h)
     {
     }
 
@@ -191,7 +191,7 @@ namespace sdm
     std::shared_ptr<OccupancyStateInterface> CompressedOccupancyState::compress()
     {
 
-        auto current_compact_ostate = std::make_shared<CompressedOccupancyState>(this->num_agents_);
+        auto current_compact_ostate = std::make_shared<CompressedOccupancyState>(this->num_agents_, this->h);
         auto previous_compact_ostate = std::make_shared<CompressedOccupancyState>(*this);
 
         for (int agent_id = 0; agent_id < this->num_agents_; ++agent_id)
@@ -289,7 +289,7 @@ namespace sdm
                 // Instanciation empty private occupancy state associated to ihistory and agent i if not exists
                 if (this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].find(jhist->getIndividualHistory(agent_id)) == this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].end())
                 {
-                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState>(agent_id, this->num_agents_));
+                    this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id].emplace(jhist->getIndividualHistory(agent_id), std::make_shared<PrivateOccupancyState>(agent_id, this->num_agents_, this->h));
                 }
                 // Set private occupancy measure
                 this->tuple_of_maps_from_histories_to_private_occupancy_states_[agent_id][jhist->getIndividualHistory(agent_id)]->addProbability(jhist, belief, proba);
