@@ -12,7 +12,7 @@ namespace sdm
 
     template <class TBelief>
     BaseBeliefMDP<TBelief>::BaseBeliefMDP(const std::shared_ptr<POMDPInterface> &pomdp, int batch_size, bool store_states, bool store_actions)
-        : SolvableByMDP(pomdp), underlying_pomdp(pomdp), batch_size_(batch_size), store_states_(store_states), store_actions_(store_actions)
+        : SolvableByMDP(pomdp), pomdp(pomdp), batch_size_(batch_size), store_states_(store_states), store_actions_(store_actions)
     {
         auto initial_state = std::make_shared<TBelief>();
 
@@ -61,19 +61,19 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
     {
-        return this->getUnderlyingPOMDP()->getObservationSpace(t);
+        return this->pomdp->getObservationSpace(t);
     }
 
     template <class TBelief>
     std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
-        return this->getUnderlyingMDP()->getActionSpace(t);
+        return this->mdp->getActionSpace(t);
     }
 
     template <class TBelief>
     std::shared_ptr<POMDPInterface> BaseBeliefMDP<TBelief>::getUnderlyingPOMDP() const
     {
-        return underlying_pomdp;
+        return pomdp;
     }
 
     template <class TBelief>
@@ -88,7 +88,7 @@ namespace sdm
         // Compute next state
         if (this->batch_size_ == 0)
         {
-            return belief->next(this->getUnderlyingProblem(), action, observation, t);
+            return belief->next(this->mdp, action, observation, t);
             // return this->computeExactNextState(belief, action, observation, t);
         }
         else
@@ -103,24 +103,24 @@ namespace sdm
         // Create next belief.
         auto next_belief = std::make_shared<TBelief>();
         //
-        std::shared_ptr<State> true_state = this->getUnderlyingProblem()->getInternalState();
+        std::shared_ptr<State> true_state = this->mdp->getInternalState();
         //
         int k = 0;
         // while
         while (k < this->batch_size_)
         {
             std::shared_ptr<State> state = belief->toBelief()->sampleState();
-            this->getUnderlyingProblem()->setInternalState(state);
-            auto [possible_observation, rewards, is_done] = this->getUnderlyingProblem()->step(action, false);
+            this->mdp->setInternalState(state);
+            auto [possible_observation, rewards, is_done] = this->mdp->step(action, false);
             if (observation == possible_observation)
             {
-                std::shared_ptr<State> next_state = this->getUnderlyingProblem()->getInternalState();
+                std::shared_ptr<State> next_state = this->mdp->getInternalState();
                 next_belief->addProbability(next_state, 1.0 / double(this->batch_size_));
                 k++;
             }
         }
         //
-        this->getUnderlyingProblem()->setInternalState(true_state);
+        this->mdp->setInternalState(true_state);
 
         // Finalize belief
         next_belief->finalize();
@@ -226,14 +226,14 @@ namespace sdm
             else
             {
                 // Return the reward
-                reward = belief->getReward(this->getUnderlyingProblem(), action, t);
+                reward = belief->getReward(this->mdp, action, t);
                 if (this->store_states_ && this->store_actions_)
                     this->reward_graph_->addSuccessor(0.0, belief_action, reward);
             }
         }
         else
         {
-            reward = belief->getReward(this->getUnderlyingProblem(), action, t);
+            reward = belief->getReward(this->mdp, action, t);
         }
 
         return reward;
@@ -300,13 +300,13 @@ namespace sdm
                 break;
             }
         }
-        return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingProblem()->getNumAgents(), belief_reward), (this->step_ > this->getUnderlyingProblem()->getHorizon()));
+        return std::make_tuple(this->current_state_, std::vector<double>(this->mdp->getNumAgents(), belief_reward), (this->step_ > this->mdp->getHorizon()));
     }
 
     template <class TBelief>
     std::shared_ptr<Action> BaseBeliefMDP<TBelief>::getRandomAction(const std::shared_ptr<State> &, number t)
     {
-        return this->getUnderlyingProblem()->getActionSpace(t)->sample()->toAction();
+        return this->mdp->getActionSpace(t)->sample()->toAction();
     }
 
     // ------------------------------------------------------

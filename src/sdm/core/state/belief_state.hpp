@@ -68,8 +68,6 @@ namespace sdm
     double norm_1() const;
     bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const;
 
-    TypeState getTypeState() const;
-
     void setDefaultValue(double);
     double getDefaultValue() const;
 

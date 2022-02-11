@@ -24,12 +24,22 @@ namespace sdm
 
     Pair<std::shared_ptr<State>, double> State::next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
-        return {observation->toState(), mdp->getTransitionProbability(this->toState(), action, observation->toState(), t)};
+        return std::make_pair(observation->toState(), mdp->getTransitionProbability(this->toState(), action, observation->toState(), t));
     }
 
     double State::getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t)
     {
         return mdp->getReward(this->toState(), action, t);
+    }
+
+    size_t State::hash(double precision) const
+    {
+        throw exception::Exception("Hash (i.e. size_t X::hash() const ) is not implemented for this class");
+    }
+
+    bool State::isEqual(const std::shared_ptr<State> &, double) const
+    {
+        throw exception::Exception("Equal Operator (i.e. bool X::operator==() const ) is not implemented for this class");
     }
 
     std::shared_ptr<BeliefInterface> State::toBelief()
@@ -50,21 +60,6 @@ namespace sdm
     std::shared_ptr<SerialState> State::toSerial()
     {
         return std::static_pointer_cast<SerialState>(this->getPointer());
-    }
-
-    TypeState State::getTypeState() const
-    {
-        return TypeState::STATE;
-    }
-
-    size_t State::hash(double precision) const
-    {
-        throw exception::Exception("Hash (i.e. size_t X::hash() const ) is not implemented for this class");
-    }
-
-    bool State::isEqual(const std::shared_ptr<State> &, double) const
-    {
-        throw exception::Exception("Equal Operator (i.e. bool X::operator==() const ) is not implemented for this class");
     }
 
 } // namespace sdm

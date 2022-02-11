@@ -219,11 +219,6 @@ namespace sdm
     return this->container.norm_1();
   }
 
-  TypeState Belief::getTypeState() const
-  {
-    return TypeState::BELIEF_STATE;
-  }
-
   void Belief::setDefaultValue(double default_value)
   {
     this->container.setDefault(default_value);

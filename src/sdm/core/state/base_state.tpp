@@ -1,44 +1,38 @@
 namespace sdm
 {
-    template <typename TState>
-    BaseState<TState>::BaseState() {}
+    template <typename TData>
+    BaseState<TData>::BaseState() {}
 
-    template <typename TState>
-    BaseState<TState>::BaseState(const TState &item) : state(item) {}
+    template <typename TData>
+    BaseState<TData>::BaseState(const TData &item) : state(item) {}
 
-    template <typename TState>
-    BaseState<TState>::~BaseState() {}
+    template <typename TData>
+    BaseState<TData>::~BaseState() {}
 
-    template <typename TState>
-    TState BaseState<TState>::getState() const
+    template <typename TData>
+    TData BaseState<TData>::getState() const
     {
         return this->state;
     }
 
-    template <typename TState>
-    void BaseState<TState>::setState(const TState &state)
+    template <typename TData>
+    void BaseState<TData>::setState(const TData &state)
     {
         this->state = state;
     }
 
-    template <typename TState>
-    std::string BaseState<TState>::str() const
+    template <typename TData>
+    std::string BaseState<TData>::str() const
     {
         std::ostringstream res;
-        res << "State(" << this->state << ")";
+        res << this->state;
         return res.str();
     }
 
-    template <typename TState>
-    bool BaseState<TState>::operator==(const BaseState &other) const
+    template <typename TData>
+    bool BaseState<TData>::operator==(const BaseState &other) const
     {
         return (this->getState() == other.getState());
-    }
-
-    template <typename TState>
-    TypeState BaseState<TState>::getTypeState() const 
-    {
-      return TypeState::STATE;
     }
 
 
@@ -48,14 +42,14 @@ namespace sdm
 namespace std
 {
 
-  template <typename TState>
-  struct hash<sdm::BaseState<TState>>
+  template <typename TData>
+  struct hash<sdm::BaseState<TData>>
   {
-    typedef sdm::BaseState<TState> argument_type;
+    typedef sdm::BaseState<TData> argument_type;
     typedef std::size_t result_type;
     inline result_type operator()(const argument_type &in) const
     {
-      return std::hash<TState>()(in.getState());
+      return std::hash<TData>()(in.state);
     }
   };
 }

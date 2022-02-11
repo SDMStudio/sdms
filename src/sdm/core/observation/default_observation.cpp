@@ -3,5 +3,5 @@
 
 namespace sdm
 {
-    const std::shared_ptr<Observation> NO_OBSERVATION = std::make_shared<DiscreteObservationString>("NoObs");
+    const std::shared_ptr<Observation> NO_OBSERVATION = std::make_shared<StringObservation>("NoObs");
 } // namespace sdm

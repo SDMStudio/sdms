@@ -205,8 +205,6 @@ namespace sdm
          */
         virtual const std::shared_ptr<PrivateOccupancyState> &getPrivateOccupancyState(const number &agent_id, const std::shared_ptr<HistoryInterface> &ihistory) const;
 
-        virtual TypeState getTypeState() const;
-
         virtual std::shared_ptr<OccupancyState> getptr();
 
         virtual std::string str() const;
@@ -215,9 +213,7 @@ namespace sdm
         virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
         virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
-        virtual double operator-(const std::shared_ptr<BeliefInterface> &other) const;
-        virtual double minus(const std::shared_ptr<BeliefInterface> &other) const;
-
+      
         virtual std::shared_ptr<Space> getActionSpaceAt(number t);
         virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
         virtual void setup();

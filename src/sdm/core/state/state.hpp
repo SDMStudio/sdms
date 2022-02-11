@@ -88,18 +88,6 @@ namespace sdm
          */
         virtual double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
 
-        /** @brief Cast the state into a belief */
-        virtual std::shared_ptr<BeliefInterface> toBelief();
-
-        /** @brief Cast the state into an occupancy state */
-        virtual std::shared_ptr<OccupancyStateInterface> toOccupancyState();
-
-        /** @brief Cast the state into a history */
-        virtual std::shared_ptr<HistoryInterface> toHistory();
-
-        /** @brief Cast the state into a serial interface */
-        virtual std::shared_ptr<SerialState> toSerial();
-
         /**
          * @brief Get the hash of the state.
          *
@@ -123,7 +111,18 @@ namespace sdm
 
         virtual std::string str() const = 0;
 
-        virtual TypeState getTypeState() const;
+
+        /** @brief Cast the state into a belief */
+        virtual std::shared_ptr<BeliefInterface> toBelief();
+
+        /** @brief Cast the state into an occupancy state */
+        virtual std::shared_ptr<OccupancyStateInterface> toOccupancyState();
+
+        /** @brief Cast the state into a history */
+        virtual std::shared_ptr<HistoryInterface> toHistory();
+
+        /** @brief Cast the state into a serial interface */
+        virtual std::shared_ptr<SerialState> toSerial();
     };
 
     template <typename TItem_1, typename TItem_2, class SuperClass = Item>
@@ -149,26 +148,4 @@ namespace sdm
 
     using JointHistoryStatePair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<State>>;
     using JointHistoryBeliefPair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<BeliefInterface>>;
-
-    using JointHistoryJointActionPair = StatePair<std::shared_ptr<JointHistoryInterface>, std::shared_ptr<Action>>;
-
-    using PrivateHierarchicalOccupancyStateJointHistoryPair = StatePair<std::shared_ptr<OccupancyStateInterface>, std::shared_ptr<JointHistoryInterface>>;
-
-    // using PrivateHierarchicalOccupancyStateJointHistoryJointActionPair = StatePair<std::shared_ptr<PrivateHierarchicalOccupancyStateJointHistoryPair>, std::shared_ptr<Action>>;
-
-    // template <typename TItem, typename SuperClass = Item>
-    // class JointItem : public SuperClass, public Joint<TItem>
-    // {
-
-    // };
-
-    // template <typename TState>
-    // using JointState = ItemPair<TState, State>;
-
-    // template <typename TAction>
-    // using JointAction = ItemPair<TAction, Action>;
-
-    // template <typename TObservation>
-    // using JointObservation = ItemPair<TObservation, Observation>;
-
 } // namespace sdm

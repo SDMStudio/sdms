@@ -40,10 +40,10 @@ namespace sdm
                 this->coord_garbage_ = this->coord_space_->getItem(this->getSizeX() * this->getSizeY() - 1)->to<CoordState>();
 
                 std::vector<std::shared_ptr<Action>> list_actions{
-                    std::make_shared<DiscreteActionString>("left"),
-                    std::make_shared<DiscreteActionString>("up"),
-                    std::make_shared<DiscreteActionString>("right"),
-                    std::make_shared<DiscreteActionString>("down")};
+                    std::make_shared<StringAction>("left"),
+                    std::make_shared<StringAction>("up"),
+                    std::make_shared<StringAction>("right"),
+                    std::make_shared<StringAction>("down")};
                 this->action_space_ = std::make_shared<DiscreteSpace>(list_actions);
             }
 
@@ -95,7 +95,7 @@ namespace sdm
 
             std::tuple<std::shared_ptr<State>, std::vector<double>, bool> RobotBin::step(std::shared_ptr<Action> action)
             {
-                auto str_action = std::dynamic_pointer_cast<DiscreteActionString>(action)->getAction();
+                auto str_action = std::dynamic_pointer_cast<StringAction>(action)->getAction();
                 bool is_done = true;
                 double reward = 0;
 

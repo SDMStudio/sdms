@@ -7,6 +7,9 @@ Copyright (c) 2016 Jilles Steeve Dibangoye
 
 #include <sdm/types.hpp>
 #include <sdm/core/base_item.hpp>
+#include <sdm/core/state/base_state.hpp>
+#include <sdm/core/action/base_action.hpp>
+#include <sdm/core/observation/base_observation.hpp>
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
@@ -36,20 +39,22 @@ namespace sdm
 
       std::shared_ptr<sdm::DecPOMDP> operator()(dpomdp_t const &ast)
       {
-        discrete_space_encoder ds_encoder;
-        multi_discrete_space_encoder mds_encoder;
+        discrete_space_encoder<StringItem> ds_encoder;
+        discrete_space_encoder<StringState> ds_state_encoder;
+        multi_discrete_space_encoder<StringAction> mds_action_encoder;
+        multi_discrete_space_encoder<StringObservation> mds_observation_encoder;
 
         // Encodes agent space
         std::shared_ptr<DiscreteSpace> agent_space = boost::apply_visitor(ds_encoder, ast.agent_param);
 
         // Encodes state space
-        std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_encoder, ast.state_param);
+        std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
 
         // Encodes action space
-        std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_encoder, ast.action_param);
+        std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
 
         // Encodes observation space
-        std::shared_ptr<MultiDiscreteSpace> obs_space = boost::apply_visitor(mds_encoder, ast.observation_param);
+        std::shared_ptr<MultiDiscreteSpace> obs_space = boost::apply_visitor(mds_observation_encoder, ast.observation_param);
 
         // Encodes the reward function
         tabular_rewards_encoder rews_encoder(state_space, agent_space, action_space);

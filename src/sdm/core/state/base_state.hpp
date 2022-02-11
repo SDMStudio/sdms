@@ -31,13 +31,12 @@ namespace sdm
    * ```
    * 
    */
-  template <typename TState>
+  template <typename TData>
   class BaseState : public State
-  // public BaseItem<TState>
   {
   public:
     BaseState();
-    BaseState(const TState &item);
+    BaseState(const TData &item);
     virtual ~BaseState();
 
     /**
@@ -45,28 +44,26 @@ namespace sdm
      * 
      * @return the data
      */
-    virtual TState getState() const;
+    virtual TData getState() const;
 
     /**
      * @brief Set the data corresponding to the stored state.
      * 
      * @param state the data
      */
-    virtual void setState(const TState &state);
+    virtual void setState(const TData &state);
 
     virtual std::string str() const;
 
     virtual bool operator==(const BaseState&other) const;
-
-    virtual TypeState getTypeState() const ;
     
-    TState state;
+    TData state;
   };
 
     /** @brief BaseState class with type `number` */
     using DiscreteState = BaseState<number>;
     /** @brief BaseState class with type `std::string` */
-    using DiscreteStateString = BaseState<std::string>;
+    using StringState = BaseState<std::string>;
     /** @brief BaseState class with type `double` */
     using ContinuousState = BaseState<double>;
 

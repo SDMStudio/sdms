@@ -376,53 +376,6 @@ namespace sdm
         return this->isEqual(*std::dynamic_pointer_cast<OccupancyState>(other));
     }
 
-    double OccupancyState::operator-(const std::shared_ptr<BeliefInterface> &other) const
-    {
-        double distance = 0.0;
-        std::set<std::shared_ptr<JointHistoryInterface>> this_jhistories = this->getJointHistories();
-        std::set<std::shared_ptr<JointHistoryInterface>> other_jhistories = other->toOccupancyState()->getJointHistories();
-        std::set<std::shared_ptr<JointHistoryInterface>> all_jhistories;
-        std::set_union(std::begin(this_jhistories), std::end(this_jhistories), std::begin(other_jhistories), std::end(other_jhistories), std::inserter(all_jhistories, std::begin(all_jhistories)));
-        // For all joint histories
-        for (const auto &jhistory : all_jhistories)
-        {
-            // For all states in the corresponding belief
-            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
-            {
-                // Add the distance
-                distance += std::abs(this->getProbability(jhistory, state) - other->toOccupancyState()->getProbability(jhistory, state));
-            }
-        }
-        return distance;
-    }
-
-    double OccupancyState::minus(const std::shared_ptr<BeliefInterface> &other) const
-    {
-
-        double distance = 0.0;
-        // For all joint histories in this
-        for (const auto &jhistory : this->getJointHistories())
-        {
-            // For all states in the corresponding belief
-            for (const auto &state : this->getBeliefAt(jhistory)->getStates())
-            {
-                // Add the distance
-                distance += std::abs(this->getProbability(jhistory, state) - other->toOccupancyState()->getProbability(jhistory, state));
-            }
-        }
-        // For all joint histories in other
-        for (const auto &jhistory : other->toOccupancyState()->getJointHistories())
-        {
-            // For all states in the corresponding belief
-            for (const auto &state : other->toOccupancyState()->getBeliefAt(jhistory)->getStates())
-            {
-                // Add the distance
-                distance += std::abs(this->getProbability(jhistory, state) - other->toOccupancyState()->getProbability(jhistory, state));
-            }
-        }
-        return distance;
-    }
-
     double OccupancyState::product(const std::shared_ptr<AlphaVector> &alpha)
     {
         double product = 0.0;
@@ -488,11 +441,6 @@ namespace sdm
     const std::vector<std::set<std::shared_ptr<HistoryInterface>>> &OccupancyState::getAllIndividualHistories() const
     {
         return this->all_list_ihistories_;
-    }
-
-    TypeState OccupancyState::getTypeState() const
-    {
-        return TypeState::OCCUPANCY_STATE;
     }
 
     void OccupancyState::setupIndividualHistories()

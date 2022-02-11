@@ -33,11 +33,6 @@ namespace sdm
         return (this->h % this->num_agents_);
     }
 
-    TypeState SerialOccupancyState::getTypeState() const
-    {
-        return TypeState::SERIAL_OCCUPANCY_STATE;
-    }
-
     std::string SerialOccupancyState::str() const
     {
         std::ostringstream res;

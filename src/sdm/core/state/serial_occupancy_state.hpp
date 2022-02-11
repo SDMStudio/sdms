@@ -26,7 +26,6 @@ namespace sdm
          * @return number
          */
         number getCurrentAgentId() const;
-        TypeState getTypeState() const;
         std::string str() const;
     };
 }

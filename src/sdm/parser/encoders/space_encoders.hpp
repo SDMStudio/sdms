@@ -12,6 +12,7 @@ namespace sdm
         /**
          * @brief encodes the input into a discrete space class
          */
+        template <typename TItem>
         struct discrete_space_encoder : boost::static_visitor<std::shared_ptr<DiscreteSpace>>
         {
             std::shared_ptr<DiscreteSpace> operator()(number ag) const;
@@ -21,6 +22,7 @@ namespace sdm
         /**
          * @brief encodes the input into a multi discrete space class
          */
+        template <typename TItem>
         struct multi_discrete_space_encoder : boost::static_visitor<std::shared_ptr<MultiDiscreteSpace>>
         {
             std::shared_ptr<MultiDiscreteSpace> operator()(const std::vector<number> &dim_spaces) const;
@@ -29,3 +31,5 @@ namespace sdm
     } // namespace ast
 
 } // namespace sdm
+
+#include <sdm/parser/encoders/space_encoders.tpp>

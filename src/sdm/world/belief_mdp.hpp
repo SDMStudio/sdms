@@ -146,7 +146,7 @@ namespace sdm
 
     public:
         /** @brief The underlying well defined POMDP */
-        std::shared_ptr<POMDPInterface> underlying_pomdp;
+        std::shared_ptr<POMDPInterface> pomdp;
 
         // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;

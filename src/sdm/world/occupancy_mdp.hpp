@@ -32,8 +32,8 @@ namespace sdm
         public:
                 BaseOccupancyMDP();
                 BaseOccupancyMDP(Config config);
-                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
-                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1,
+                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &decpomdp, Config config);
+                BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &decpomdp, number memory = -1,
                                  bool store_states = true, bool store_actions = true, int batch_size = 0);
 
                 ~BaseOccupancyMDP();
@@ -84,13 +84,11 @@ namespace sdm
                 // Temporary methods
                 // *****************
 
-                // void setInitialState(const std::shared_ptr<State> &state);
-                double getRewardBelief(const std::shared_ptr<BeliefInterface> &state, const std::shared_ptr<Action> &action, number t);
                 virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
 
         protected:
                 /** @brief The underlying well defined MPOMDP */
-                std::shared_ptr<MPOMDPInterface> underlying_mpomdp;
+                std::shared_ptr<MPOMDPInterface> decpomdp;
 
                 /** @brief Keep a pointer on the associated belief mdp that is used to compute next beliefs. */
                 std::shared_ptr<BeliefMDP> belief_mdp_;

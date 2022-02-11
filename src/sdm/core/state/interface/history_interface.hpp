@@ -54,9 +54,6 @@ namespace sdm
         virtual std::string str() const = 0;
         virtual std::string short_str() const = 0;
 
-        virtual TypeState getTypeState() const { return TypeState::STATE; }
-
-
         /**
          * @brief Transform the HistoryInterface in a JointHistoryInterface
          * 
