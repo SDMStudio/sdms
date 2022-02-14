@@ -110,7 +110,7 @@ namespace sdm
 
     std::shared_ptr<Action> DecentralizedLP::getVariableResult(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const IloCplex &cplex, const IloNumVarArray &var, number t)
     {
-        std::vector<std::shared_ptr<DeterministicDecisionRule>> actions;
+        std::vector<std::shared_ptr<DecisionRule>> actions;
 
         //Determine the element useful for create a JointDeterminiticDecisionRule
         for (number agent = 0; agent < this->getWorld()->getUnderlyingProblem()->getNumAgents(); agent++)

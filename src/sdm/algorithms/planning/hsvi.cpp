@@ -70,6 +70,7 @@ namespace sdm
                     // Update the value function (frontward update)
                     updateValue(state, t);
                 }
+
                 // Select next action
                 auto [action, value] = getUpperBound()->getGreedyActionAndValue(state, t);
                 
@@ -86,7 +87,7 @@ namespace sdm
                 this->updateValue(state, t);
             }
         }
-     catch (const std::exception &exc)
+        catch (const std::exception &exc)
         {
             // Catch anything thrown within try block that derives from std::exception
             std::cerr << "TSVI::explore(..) exception caught: " << exc.what() << std::endl;

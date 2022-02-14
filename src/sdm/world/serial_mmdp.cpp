@@ -205,7 +205,7 @@ namespace sdm
                 for (const auto &action : all_new_action)
                 {
                     // Add new serial state with the state of the problem and vector of action
-                    auto next_serial_state = std::make_shared<SerialState>(state->toState(), action);
+                    auto next_serial_state = std::make_shared<SerialState>(this->getNumAgents(), state->toState(), action);
                     std::shared_ptr<State> next_serial_state_str = next_serial_state;
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
@@ -260,13 +260,13 @@ namespace sdm
                     {
                         for (const auto next_hidden_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action), agent_id + 1))
                         {
-                            auto next_state = SerialState(next_hidden_state, JointAction());
+                            auto next_state = SerialState(this->getNumAgents(), next_hidden_state, JointAction());
                             dynamics->setReachablesStates(serial_state, serial_action, this->getPointeurState(next_state));
                         }
                     }
                     else
                     {
-                        auto next_state = SerialState(hidden_state, next_action);
+                        auto next_state = SerialState(this->getNumAgents(), hidden_state, next_action);
                         dynamics->setReachablesStates(serial_state, serial_action, this->getPointeurState(next_state));
                     }
                 }

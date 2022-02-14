@@ -15,7 +15,7 @@ namespace sdm
         }
     }
 
-    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &acc_histories, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<Space> &action_space) 
+    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &acc_histories, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<Space> &action_space)
     {
         if (action_space != nullptr)
             this->action_space = action_space->toDiscreteSpace();
@@ -56,21 +56,27 @@ namespace sdm
         }
     }
 
+    size_t DeterministicDecisionRule::hash(double precision ) const
+    {
+        size_t seed = 0;
+        for (const auto &[history, action] : this->map_history_to_action_)
+        {
+            sdm::hash_combine(seed, history);
+            sdm::hash_combine(seed, action);
+        }
+        return seed;
+    }
+
     std::string DeterministicDecisionRule::str() const
     {
         std::ostringstream res;
         res << "<decision-rule type=\"deterministic\">" << std::endl;
         for (const auto &[history, action] : this->map_history_to_action_)
         {
-            res << "\t<decision history=\"" << history->str() << "\" action=\"" << *action << "\"/>" << std::endl;
+            res << "\t<decision history=\"" << history->short_str() << "\" action=\"" << *action << "\"/>" << std::endl;
         }
         res << "<decision-rule/>";
         return res.str();
-    }
-
-    std::map<std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>> DeterministicDecisionRule::getMap() const
-    {
-        return this->map_history_to_action_;
     }
 
 } // namespace sdm

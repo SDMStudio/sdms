@@ -1,7 +1,8 @@
 #pragma once
 
 #include <sdm/core/state/jhistory_tree.hpp>
-#include <sdm/core/state/serial_occupancy_state.hpp>
+// #include <sdm/core/state/serial_occupancy_state.hpp>
+#include <sdm/core/state/occupancy_state_serial.hpp>
 #include <sdm/world/base/mmdp_interface.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 
@@ -11,28 +12,33 @@
  */
 namespace sdm
 {
-        class SerialOccupancyMDP : public BaseOccupancyMDP<SerialOccupancyState>,
+        class SerialOccupancyMDP : public BaseOccupancyMDP<OccupancyStateSerial>,
                                    public SerialProblemInterface
         {
         public:
                 SerialOccupancyMDP();
                 SerialOccupancyMDP(Config config);
                 SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
-                SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &dpomdp, number memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
                 number getAgentId(number t) const;
                 bool isLastAgent(number t) const;
                 double getDiscount(number t) const;
-                std::shared_ptr<SerialMMDPInterface> getUnderlyingSerialMMDP() const;
-                std::shared_ptr<SerialMPOMDPInterface> getUnderlyingSerialMPOMDP() const;
+                std::shared_ptr<MMDPInterface> getUnderlyingSerialMMDP() const;
+                std::shared_ptr<MPOMDPInterface> getUnderlyingSerialMPOMDP() const;
 
                 std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 std::shared_ptr<Action> computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t);
-
                 double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
+
+                virtual std::shared_ptr<JointObservation> getDefaultObservation() const;
 
         protected:
                 /** @brief The underlying well defined MPOMDP */
-                std::shared_ptr<SerialMPOMDPInterface> underlying_serial_mpomdp;
+                std::shared_ptr<MPOMDPInterface> underlying_serial_mpomdp;
+
+                std::shared_ptr<JointObservation> empty_observation;
+
+                void setupEmptyObservation();
         };
 } // namespace sdm

@@ -39,7 +39,7 @@ namespace sdm
 
     bool State::isEqual(const std::shared_ptr<State> &, double) const
     {
-        throw exception::Exception("Equal Operator (i.e. bool X::operator==() const ) is not implemented for this class");
+        throw exception::Exception("Equal Operator (i.e. bool X::isEqual() const ) is not implemented for this class");
     }
 
     std::shared_ptr<BeliefInterface> State::toBelief()

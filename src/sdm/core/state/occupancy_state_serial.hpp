@@ -1,0 +1,73 @@
+#pragma once
+
+#include <sdm/types.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/core/state/interface/serial_interface.hpp>
+#include <sdm/core/state/occupancy_state.hpp>
+#include <sdm/core/joint.hpp>
+
+namespace sdm
+{
+    /**
+     * @brief The serial state class: a statistics for serial reformulations.
+     *
+     * Serial states are statistics used to solve serial games (an alternative reformulation of
+     * simultaneous problems to drop the time complexity). A serial state is generally composed
+     * of the classic state plus the list of actions chosen by the previous agents.
+     *
+     */
+    class OccupancyStateSerial : public OccupancyState,
+                                 public SerialInterface
+    {
+    public:
+        OccupancyStateSerial();
+        OccupancyStateSerial(number num_agents, number h, StateType stateType = COMPRESSED, Joint<std::shared_ptr<DecisionRule>> actions = {});
+        OccupancyStateSerial(const OccupancyStateSerial &v);
+        virtual ~OccupancyStateSerial();
+
+        /**
+         * @brief Get the agent ID corresponding to the current state.
+         *
+         * @return the current agent ID
+         */
+        number getCurrentAgentId() const;
+
+        std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history)  const;
+
+        /**
+         * @brief Get the number of agents.
+         *
+         */
+        number getNumAgents() const;
+
+        std::shared_ptr<OccupancyState> make(number h);
+        std::shared_ptr<OccupancyState> copy();
+
+        Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+        double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
+
+        std::string str() const;
+
+        Joint<std::shared_ptr<DecisionRule>> actions = {};
+
+    protected:
+        std::shared_ptr<DecisionRule> getFullDecisionRule(const std::shared_ptr<MDPInterface> &mdp, Joint<std::shared_ptr<DecisionRule>> previous_dr, const std::shared_ptr<DecisionRule> &last_dr, number t);
+    };
+
+} // namespace sdm
+
+namespace std
+{
+    template <>
+    struct hash<sdm::OccupancyStateSerial>
+    {
+        inline std::size_t operator()(const sdm::OccupancyStateSerial &in) const
+        {
+            size_t seed = 0;
+            // Combine the hash of the current vector with the hashes of the previous ones
+            seed = std::hash<sdm::OccupancyState>()(in);
+            // sdm::hash_combine(seed, in.actions);
+            return seed;
+        }
+    };
+}

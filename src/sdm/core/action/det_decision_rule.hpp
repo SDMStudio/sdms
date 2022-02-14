@@ -58,7 +58,7 @@ namespace sdm
       return os;
     }
 
-    std::map<std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>> getMap() const;
+    size_t hash(double precision = 0) const;
 
   protected:
     std::map<std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>> map_history_to_action_;
@@ -71,17 +71,9 @@ namespace std
   template <>
   struct hash<sdm::DeterministicDecisionRule>
   {
-    typedef sdm::DeterministicDecisionRule argument_type;
-    typedef std::size_t result_type;
-    inline result_type operator()(const argument_type &in) const
+    inline std::size_t operator()(const sdm::DeterministicDecisionRule &in) const
     {
-      size_t seed = 0;
-      for (auto &[history, action] : in.getMap())
-      {
-        sdm::hash_combine(seed, history);
-        sdm::hash_combine(seed, action);
-      }
-      return seed;
+      return in.hash();
     }
   };
 }

@@ -15,7 +15,6 @@ namespace sdm
     {
     public:
         using value_type = double;
-        // using vector_type = MappedVector<std::shared_ptr<State>, value_type>;
         using matrix_type = MappedMatrix<std::shared_ptr<State>, std::shared_ptr<Action>, value_type>;
 
         TabularReward();

@@ -108,35 +108,4 @@ namespace sdm
         BoundInitializer::init(value_function);
     }
 
-    // ******************
-    // Blind Initializer
-    // ******************
-    BlindInitializer::BlindInitializer(std::shared_ptr<SolvableByDP> world, Config)
-    {
-        this->world_ = world;
-    }
-
-    void BlindInitializer::init(std::shared_ptr<ValueFunctionInterface> value_function)
-    {
-        auto underlying_problem = this->world_->getUnderlyingProblem();
-        std::vector<double> ra, rt;
-
-        for (number t = 0; t < value_function->getHorizon(); t++)
-        {
-            ra.clear();
-            for (auto &a : *underlying_problem->getActionSpace(t))
-            {
-                ra.push_back(std::numeric_limits<double>::max());
-                for (auto &s : *underlying_problem->getStateSpace(t))
-                {
-                    ra.back() = std::min(underlying_problem->getReward(s->toState(), a->toAction(), t), ra.back());
-                }
-            }
-            rt.push_back(*std::max_element(ra.begin(), ra.end()));
-        }
-
-        this->value_ = *std::min_element(rt.begin(), rt.end());
-        BoundInitializer::init(value_function);
-    }
-
 } // namespace sdm

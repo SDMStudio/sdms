@@ -46,7 +46,7 @@ namespace sdm
 
     /**
      * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 
-     * Some of the available initializers are : MinInitializer, MaxInitializer, BlindInitializer, ZeroInitializer. For a complete list of initializer, you can use :
+     * Some of the available initializers are : MinInitializer, MaxInitializer, ZeroInitializer. For a complete list of initializer, you can use :
      *      std::cout << InitializerFactory::available() << std::endl;
      *
      */
@@ -57,7 +57,6 @@ namespace sdm
         static inline map_type registry_ = {
             {"Min", &createInstance<MinInitializer>},
             {"Max", &createInstance<MaxInitializer>},
-            {"Blind", &createInstance<BlindInitializer>},
             {"Zero", &createInstance<ZeroInitializer>},
             //{"PolicyEvaluationInitializer", &createInstance,PolicyEvaluationInitializer>},
             {"Mdp", &createInstanceMdpValueIterationInit},

@@ -109,6 +109,9 @@ namespace sdm
          */
         virtual bool isEqual(const std::shared_ptr<State> &other, double precision = -1) const;
 
+        /**
+         * @brief Get string representation of the state.
+         */
         virtual std::string str() const = 0;
 
 

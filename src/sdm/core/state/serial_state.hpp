@@ -21,7 +21,7 @@ namespace sdm
   {
   public:
     SerialState();
-    SerialState(std::shared_ptr<State> state, JointAction actions);
+    SerialState(number num_agents, std::shared_ptr<State> state, JointAction actions);
     SerialState(const SerialState &v);
     virtual ~SerialState();
 
@@ -53,6 +53,12 @@ namespace sdm
     number getCurrentAgentId() const;
 
     /**
+     * @brief Get the number of agents.
+     *
+     */
+    number getNumAgents() const;
+
+    /**
      * @brief Set the agent ID corresponding to the current state.
      *
      */
@@ -60,11 +66,13 @@ namespace sdm
 
     std::string str() const;
 
+    bool operator==(const SerialState &) const;
+
   protected:
     /**
      * @brief The identifier of the agent that owns this state.
      */
-    number agentID_;
+    number agentID_, num_agents;
   };
 
 } // namespace sdm

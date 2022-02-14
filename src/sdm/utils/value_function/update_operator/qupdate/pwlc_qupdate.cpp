@@ -59,7 +59,6 @@ namespace sdm
             auto s_ = std::dynamic_pointer_cast<OccupancyState>(next_state);
             auto a = action->toDecisionRule(), a_ = next_action->toDecisionRule();
 
-            auto occupancy_mdp = std::dynamic_pointer_cast<OccupancyMDP>(this->getWorld());
             auto pomdp = std::dynamic_pointer_cast<POMDPInterface>(this->getWorld()->getUnderlyingProblem());
 
             for (auto o : s->getFullyUncompressedOccupancy()->getJointHistories())

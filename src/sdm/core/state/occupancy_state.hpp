@@ -39,8 +39,6 @@ namespace sdm
         virtual std::shared_ptr<OccupancyState> make(number h);
         virtual std::shared_ptr<OccupancyState> copy();
 
-        virtual void setStateType(const StateType &state_type);
-
         virtual size_t hash(double precision = PRECISION) const;
         virtual bool operator==(const OccupancyState &other) const;
         virtual bool isEqual(const OccupancyState &other, double precision = PRECISION) const;
@@ -57,7 +55,7 @@ namespace sdm
 
         virtual void addProbability(const std::shared_ptr<State> &joint_history, double proba);
         virtual void addProbability(const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<BeliefInterface> &belief, double proba);
-        virtual std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history);
+        virtual std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const;
 
         virtual bool checkCompatibility(const std::shared_ptr<Observation> &, const std::shared_ptr<Observation> &);
         virtual Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
@@ -213,7 +211,7 @@ namespace sdm
         virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
         virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
-      
+
         virtual std::shared_ptr<Space> getActionSpaceAt(number t);
         virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
         virtual void setup();
@@ -227,8 +225,6 @@ namespace sdm
     protected:
         /** @brief the number of agents */
         number num_agents_ = 2, h;
-
-        StateType state_type = COMPRESSED;
 
         /** @brief This representation of occupancy states consists of private occupancy states for each agent */
         Joint<RecursiveMap<std::shared_ptr<HistoryInterface>, std::shared_ptr<PrivateOccupancyState>>> tuple_of_maps_from_histories_to_private_occupancy_states_;
@@ -271,6 +267,10 @@ namespace sdm
          * @brief
          */
         std::unordered_map<number, std::unordered_map<std::shared_ptr<HistoryInterface>, std::set<std::shared_ptr<JointHistoryInterface>>>> ihistories_to_jhistory_;
+
+        virtual Pair<std::shared_ptr<State>, double> computeNext(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+        virtual Pair<std::shared_ptr<State>, double> computeNextKeepAll(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+        virtual Pair<std::shared_ptr<OccupancyStateInterface>, double> finalizeKeepAll(const std::shared_ptr<OccupancyStateInterface> &one_step_occupancy_state, const std::shared_ptr<OccupancyStateInterface> &fully_uncompressed_occupancy_state, number t);
 
         virtual void setupIndividualHistories();
         virtual void setupBeliefsAndHistories();

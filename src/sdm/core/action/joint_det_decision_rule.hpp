@@ -11,15 +11,14 @@ namespace sdm
      * @brief This class provide a way to manipulate a function that maps joint histories to joint actions.
      */
     class JointDeterministicDecisionRule
-        : public Joint<std::shared_ptr<DeterministicDecisionRule>>,
-          public DeterministicDecisionRule
+        : public DeterministicDecisionRule
     {
     public:
         using input_type = typename DeterministicDecisionRule::input_type;
         using output_type = typename DeterministicDecisionRule::output_type;
 
         JointDeterministicDecisionRule();
-        JointDeterministicDecisionRule(const Joint<std::shared_ptr<DeterministicDecisionRule>> &individual_decision_rules, const std::shared_ptr<Space> &action_space);
+        JointDeterministicDecisionRule(const Joint<std::shared_ptr<DecisionRule>> &individual_decision_rules, const std::shared_ptr<Space> &action_space);
         JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_histories, std::vector<std::vector<std::shared_ptr<Item>>> actions, const std::shared_ptr<Space> &action_space);
         JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr, const std::shared_ptr<Space> &action_space);
 
@@ -58,11 +57,16 @@ namespace sdm
 
         std::string str() const;
 
+        size_t hash(double precision = 0) const;
+
         friend std::ostream &operator<<(std::ostream &os, const JointDeterministicDecisionRule &joint_dr)
         {
             os << joint_dr.str();
             return os;
         }
+
+    protected:
+        Joint<std::shared_ptr<DecisionRule>> joint_idr;
     };
 
 } // namespace sdm
@@ -72,17 +76,9 @@ namespace std
     template <>
     struct hash<sdm::JointDeterministicDecisionRule>
     {
-        typedef sdm::JointDeterministicDecisionRule argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &joint_det_decision_rule) const
+        inline std::size_t operator()(const sdm::JointDeterministicDecisionRule &in) const
         {
-            size_t seed = 0;
-            for (auto &indiv_decision_rule_ptr : joint_det_decision_rule)
-            {
-                // Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, *indiv_decision_rule_ptr);
-            }
-            return seed;
+            return in.hash();
         }
     };
 }

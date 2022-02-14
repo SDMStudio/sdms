@@ -35,7 +35,7 @@ namespace sdm
   {
   public:
     BaseAction() {}
-    BaseAction(const TAction &action) : action_(action) {}
+    BaseAction(const TAction &action) : action(action) {}
     virtual ~BaseAction() {}
 
     /**
@@ -43,24 +43,35 @@ namespace sdm
      *
      * @return the data
      */
-    virtual TAction getAction() const { return this->action_; }
+    virtual TAction getAction() const { return this->action; }
 
     /**
      * @brief Set the data corresponding to the stored state.
      *
      * @param state the data
      */
-    virtual void setAction(const TAction &action) { this->action_ = action; }
+    virtual void setAction(const TAction &action) { this->action = action; }
 
     virtual std::string str() const
     {
       std::ostringstream res;
-      res << this->action_;
+      res << this->action;
       return res.str();
     }
 
+    /**
+     * @brief Get the hash of the base state.
+     */
+    // virtual size_t hash(double precision) const;
+
+    /**
+     * @brief Check equality between two base states.
+     */
+    // virtual bool isEqual(const std::shared_ptr<Action> &other, double precision = 0.) const;
+    // virtual bool isEqual(const BaseAction &other, double precision = 0.) const;
+
   protected:
-    TAction action_;
+    TAction action;
   };
 
   /** @brief BaseAction class with type `number` */
