@@ -13,6 +13,10 @@ namespace sdm
         : BaseOccupancyMDP<OccupancyStateSerial>(underlying_mpomdp, memory, store_states, store_actions, batch_size), underlying_serial_mpomdp(underlying_mpomdp)
     {
         this->setupEmptyObservation();
+        if (sdm::isInstanceOf<SerialProblemInterface>(underlying_serial_mpomdp))
+            this->horizon = underlying_serial_mpomdp->getHorizon();
+        else
+            this->horizon = underlying_serial_mpomdp->getHorizon() * underlying_serial_mpomdp->getNumAgents();
     }
 
     SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config) : BaseOccupancyMDP<OccupancyStateSerial>(dpomdp, config)
@@ -27,6 +31,11 @@ namespace sdm
         this->underlying_serial_mpomdp = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->getUnderlyingMPOMDP());
     }
 
+    number SerialOccupancyMDP::getHorizon() const
+    {
+        return this->horizon;
+    }
+
     number SerialOccupancyMDP::getAgentId(number t) const
     {
         return (t % this->underlying_serial_mpomdp->getNumAgents());
@@ -39,7 +48,7 @@ namespace sdm
 
     double SerialOccupancyMDP::getDiscount(number t) const
     {
-        return this->getUnderlyingSerialMMDP()->getDiscount(t);
+        return this->isLastAgent(t) ? this->underlying_serial_mpomdp->getDiscount(this->getAgentId(t)) : 1.0;
     }
 
     std::shared_ptr<MMDPInterface> SerialOccupancyMDP::getUnderlyingSerialMMDP() const
@@ -67,6 +76,7 @@ namespace sdm
 
         return individual_ddr_space;
     }
+
     double SerialOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
         return (!this->isLastAgent(t)) ? 0. : BaseOccupancyMDP<OccupancyStateSerial>::getReward(occupancy_state, decision_rule, t);
@@ -89,7 +99,8 @@ namespace sdm
         return std::make_shared<DeterministicDecisionRule>(inputs, outputs);
     }
 
-    void SerialOccupancyMDP::setupEmptyObservation() {
+    void SerialOccupancyMDP::setupEmptyObservation()
+    {
         // Set default joint observation : "No Observation"
         this->empty_observation = std::make_shared<JointObservation>();
 
@@ -100,11 +111,9 @@ namespace sdm
         }
     }
 
-
     std::shared_ptr<JointObservation> SerialOccupancyMDP::getDefaultObservation() const
     {
         return this->empty_observation;
     }
-
 
 } // namespace sdm

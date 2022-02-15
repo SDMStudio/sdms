@@ -21,6 +21,7 @@ namespace sdm
                 SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
                 SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, number memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
+                number getHorizon() const;
                 number getAgentId(number t) const;
                 bool isLastAgent(number t) const;
                 double getDiscount(number t) const;
@@ -37,7 +38,11 @@ namespace sdm
                 /** @brief The underlying well defined MPOMDP */
                 std::shared_ptr<MPOMDPInterface> underlying_serial_mpomdp;
 
+                /** @brief The empty observation */
                 std::shared_ptr<JointObservation> empty_observation;
+
+                /** @brief The horizon */
+                number horizon;
 
                 void setupEmptyObservation();
         };

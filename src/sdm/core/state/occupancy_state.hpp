@@ -210,8 +210,6 @@ namespace sdm
         virtual double product(const std::shared_ptr<AlphaVector> &alpha);
         virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
-        virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
-
         virtual std::shared_ptr<Space> getActionSpaceAt(number t);
         virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
         virtual void setup();

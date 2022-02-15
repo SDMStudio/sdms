@@ -390,12 +390,7 @@ namespace sdm
 
     bool OccupancyState::isEqual(const std::shared_ptr<State> &other, double precision) const
     {
-        return this->isEqual(*std::dynamic_pointer_cast<OccupancyState>(other), precision);
-    }
-
-    bool OccupancyState::operator==(const std::shared_ptr<BeliefInterface> &other) const
-    {
-        return this->isEqual(*std::dynamic_pointer_cast<OccupancyState>(other));
+        return this->isEqual(other, precision);
     }
 
     double OccupancyState::product(const std::shared_ptr<AlphaVector> &alpha)

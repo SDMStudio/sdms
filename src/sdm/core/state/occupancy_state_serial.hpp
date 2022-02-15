@@ -32,7 +32,8 @@ namespace sdm
          */
         number getCurrentAgentId() const;
 
-        std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history)  const;
+        std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const;
+        std::shared_ptr<Action> applyIndivDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const;
 
         /**
          * @brief Get the number of agents.
@@ -44,11 +45,17 @@ namespace sdm
         std::shared_ptr<OccupancyState> copy();
 
         Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+
         double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
+
+        bool operator==(const OccupancyStateSerial &other) const;
+        bool isEqual(const OccupancyStateSerial &other, double precision) const;
+        bool isEqual(const std::shared_ptr<State> &other, double precision) const;
 
         std::string str() const;
 
-        Joint<std::shared_ptr<DecisionRule>> actions = {};
+        Joint<std::shared_ptr<DecisionRule>> decision_rules = {};
+        std::unordered_map<std::shared_ptr<JointHistoryInterface>, Joint<std::shared_ptr<Action>>> actions = {};
 
     protected:
         std::shared_ptr<DecisionRule> getFullDecisionRule(const std::shared_ptr<MDPInterface> &mdp, Joint<std::shared_ptr<DecisionRule>> previous_dr, const std::shared_ptr<DecisionRule> &last_dr, number t);

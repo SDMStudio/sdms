@@ -383,9 +383,9 @@ namespace sdm
             }
             else if ((formalism == "extensive-occupancy-mdp") || (formalism == "Extensive-OccupancyMDP") || (formalism == "ext-oMDP") || (formalism == "ext-omdp"))
             {
-                auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
+                // auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
 
-                auto serial_omdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, store_state, store_action, batch_size);
+                auto serial_omdp = std::make_shared<SerialOccupancyMDP>(problem, memory, store_state, store_action, batch_size);
                 serial_omdp->setStateType(state_type);
                 formalism_problem = serial_omdp;
             }

@@ -19,7 +19,9 @@ using namespace sdm;
 int main(int argc, char **argv)
 {
 	std::string filename = (argc > 1) ? argv[1] : config::PROBLEM_PATH + "dpomdp/mabc.dpomdp";
-	number horizon = 10, truncation = 1;
+	number horizon = (argc > 2) ? std::stoi(argv[2]) : 10;
+	horizon *= 2;
+	number truncation = (argc > 3) ? std::stoi(argv[3]) : 1;
 	double error = 0.00001, discount = 1.;
 	try
 	{
@@ -35,7 +37,7 @@ int main(int argc, char **argv)
 		auto lb_init = std::make_shared<MinInitializer>(hsvi_mdp);
 		auto ub_init = std::make_shared<MaxInitializer>(hsvi_mdp);
 
-		// Instanciate action selection 
+		// Instanciate action selection
 		auto action_tabular = std::make_shared<ExhaustiveActionSelection>(hsvi_mdp);
 
 		// Declare bounds

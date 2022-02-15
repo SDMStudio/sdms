@@ -167,6 +167,7 @@ namespace sdm
 
                 // Check if the next belief is already in the graph
                 TBelief b = *std::dynamic_pointer_cast<TBelief>(computed_next_belief);
+
                 if (this->state_space_.find(b) == this->state_space_.end())
                 {
                     // Add the belief in the space of beliefs
