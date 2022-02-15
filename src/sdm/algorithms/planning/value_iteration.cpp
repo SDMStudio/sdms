@@ -67,18 +67,30 @@ namespace sdm
         printEndInfo();
     }
 
+    void ValueIteration::doOneStepTrial(number t)
+    {
+        // Select next states
+        auto state_space = this->selectStates(t);
+        for (const auto &state : *state_space)
+        {
+            // Update the value function (backward update)
+            this->updateValue(state->toState(), t);
+        }
+    }
+
     void ValueIteration::doTrial()
     {
         try
         {
-            for (int t = getWorld()->getHorizon() - 1; t >= 0; t--)
+            if (getWorld()->getHorizon() == 0)
             {
-                // Select next states
-                auto state_space = selectStates(t);
-                for (const auto &state : *state_space)
+                this->doOneStepTrial(0);
+            }
+            else
+            {
+                for (int t = getWorld()->getHorizon() - 1; t >= 0; t--)
                 {
-                    // Update the value function (backward update)
-                    this->updateValue(state->toState(), t);
+                    this->doOneStepTrial(t);
                 }
             }
         }

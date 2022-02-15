@@ -16,7 +16,7 @@ namespace sdm
     }
 
     template <class TOccupancyState>
-    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &decpomdp, number memory, bool store_states, bool store_actions, int batch_size)
+    BaseOccupancyMDP<TOccupancyState>::BaseOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &decpomdp, int memory, bool store_states, bool store_actions, int batch_size)
         : decpomdp(decpomdp), memory(memory)
     {
         this->store_states_ = store_states;
@@ -28,7 +28,7 @@ namespace sdm
         this->belief_mdp_ = std::make_shared<BeliefMDP>(decpomdp, batch_size, false, false);
 
         // Initialize initial history
-        this->initial_history_ = std::make_shared<JointHistoryTree>(this->mdp->getNumAgents(), (this->memory > 0) ? this->memory : -1);
+        this->initial_history_ = std::make_shared<JointHistoryTree>(this->mdp->getNumAgents(), this->memory);
 
         // Initialize initial occupancy state
         this->initial_state_ = std::make_shared<TOccupancyState>(this->mdp->getNumAgents(), 0);
@@ -129,7 +129,8 @@ namespace sdm
         // Increment step
         this->step_++;
 
-        return std::make_tuple(this->current_state_, std::vector<double>(this->mdp->getNumAgents(), occupancy_reward), (this->step_ > this->decpomdp->getHorizon()));
+        bool is_done = (this->getHorizon() > 0) ? (this->step_ >= this->getHorizon()) : false;
+        return std::make_tuple(this->current_state_, std::vector<double>(this->mdp->getNumAgents(), occupancy_reward), is_done);
     }
 
     // -----------------------

@@ -66,11 +66,11 @@ namespace sdm
 
     void PWLCValueFunction::initialize(double value, number t)
     {
-        this->default_values_per_horizon[t] = value;
+        this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t] = value;
         auto initial_state = this->getWorld()->getInitialState();
 
         // If there are not element at time t, we have to create the default State
-        if (this->representation[t].size() == 0)
+        if (this->representation[this->isInfiniteHorizon() ? 0 : t].size() == 0)
         {
             // Create the default state
             std::shared_ptr<AlphaVector> default_hyperplane;
@@ -124,11 +124,11 @@ namespace sdm
     void PWLCValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplan, number t)
     {
         // Add hyperplane in the hyperplane set
-        this->representation[t].insert(std::static_pointer_cast<AlphaVector>(new_hyperplan));
+        this->representation[this->isInfiniteHorizon() ? 0 : t].insert(std::static_pointer_cast<AlphaVector>(new_hyperplan));
 
         // Add state to all state update so far, only if the prunning used is Bounded
         if (this->type_of_maxplan_prunning_ == MaxplanPruning::Type::BOUNDED)
-            this->all_state_updated_so_far[t].insert(state);
+            this->all_state_updated_so_far[this->isInfiniteHorizon() ? 0 : t].insert(state);
     }
 
     double PWLCValueFunction::getBeta(const std::shared_ptr<Hyperplane> &hyperplane, const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
@@ -167,7 +167,7 @@ namespace sdm
 
     double PWLCValueFunction::getDefaultValue(number t)
     {
-        return this->default_values_per_horizon[t];
+        return this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t];
     }
 
     void PWLCValueFunction::prune(number t)

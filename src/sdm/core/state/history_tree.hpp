@@ -148,7 +148,10 @@ namespace sdm
             }
             if (backup && (this->getDepth() >= this->getMaxDepth()))
             {
-                return this->truncatedExpand<output>(observation, action, backup);
+                if (this->getMaxDepth() == 0)
+                    return std::static_pointer_cast<output>(this->getptr());
+                else
+                    return this->truncatedExpand<output>(observation, action, backup);
             }
             if (backup)
             {

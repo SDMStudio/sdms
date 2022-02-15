@@ -313,7 +313,7 @@ namespace sdm
             // Combine the hash of the current vector with the hashes of the previous ones
             sdm::hash_combine(seed, v);
         }
-        sdm::hash_combine(seed, this->h);
+        // sdm::hash_combine(seed, this->h);
 
         return seed;
     }
@@ -358,10 +358,10 @@ namespace sdm
             precision = Belief::PRECISION;
         }
 
-        if (this->h != other.h)
-        {
-            return false;
-        }
+        // if (this->h != other.h)
+        // {
+        //     return false;
+        // }
 
         // if (this->size() != other.size())
         // {
@@ -390,7 +390,7 @@ namespace sdm
 
     bool OccupancyState::isEqual(const std::shared_ptr<State> &other, double precision) const
     {
-        return this->isEqual(other, precision);
+        return this->isEqual(*std::dynamic_pointer_cast<OccupancyState>(other), precision);
     }
 
     double OccupancyState::product(const std::shared_ptr<AlphaVector> &alpha)

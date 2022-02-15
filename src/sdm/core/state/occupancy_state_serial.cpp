@@ -50,7 +50,8 @@ namespace sdm
 
     std::shared_ptr<Action> OccupancyStateSerial::applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
-        return dr->act(joint_history->getIndividualHistory(this->getCurrentAgentId()));
+        return OccupancyState::applyDR(dr, joint_history);
+        // return dr->act(joint_history->getIndividualHistory(this->getCurrentAgentId()));
     }
 
     std::shared_ptr<Action> OccupancyStateSerial::applyIndivDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const
@@ -101,6 +102,15 @@ namespace sdm
         }
     }
 
+    size_t OccupancyStateSerial::hash(double precision) const
+    {
+        size_t seed = OccupancyState::hash(precision);
+        // sdm::hash_combine(seed, this->h);
+
+        return seed;
+    }
+
+
     bool OccupancyStateSerial::operator==(const OccupancyStateSerial &other) const
     {
         return this->isEqual(other, OccupancyState::PRECISION);
@@ -108,6 +118,12 @@ namespace sdm
 
     bool OccupancyStateSerial::isEqual(const OccupancyStateSerial &other, double precision) const
     {
+
+        // if (this->h != other.h)
+        // {
+        //     return false;
+        // }
+        
         if (this->actions != other.actions)
         {
             return false;

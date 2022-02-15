@@ -12,7 +12,7 @@
 //     {
 //     public:
 //         NDOccupancyMDP();
-//         NDOccupancyMDP(const std::shared_ptr<NDPOMDPInterface> &ndpomdp, number memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
+//         NDOccupancyMDP(const std::shared_ptr<NDPOMDPInterface> &ndpomdp, int memory = -1, bool compression = true, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
 
 //         Pair<std::shared_ptr<State>, std::shared_ptr<State>> computeExactNextState(const std::shared_ptr<State> &occupancy_state,

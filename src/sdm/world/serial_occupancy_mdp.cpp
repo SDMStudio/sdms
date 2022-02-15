@@ -9,7 +9,7 @@ namespace sdm
         this->setupEmptyObservation();
     }
 
-    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_mpomdp, number memory, bool store_states, bool store_actions, int batch_size)
+    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_mpomdp, int memory, bool store_states, bool store_actions, int batch_size)
         : BaseOccupancyMDP<OccupancyStateSerial>(underlying_mpomdp, memory, store_states, store_actions, batch_size), underlying_serial_mpomdp(underlying_mpomdp)
     {
         this->setupEmptyObservation();

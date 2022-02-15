@@ -48,6 +48,7 @@ namespace sdm
 
         double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
 
+        size_t hash(double precision) const;
         bool operator==(const OccupancyStateSerial &other) const;
         bool isEqual(const OccupancyStateSerial &other, double precision) const;
         bool isEqual(const std::shared_ptr<State> &other, double precision) const;
@@ -70,11 +71,7 @@ namespace std
     {
         inline std::size_t operator()(const sdm::OccupancyStateSerial &in) const
         {
-            size_t seed = 0;
-            // Combine the hash of the current vector with the hashes of the previous ones
-            seed = std::hash<sdm::OccupancyState>()(in);
-            // sdm::hash_combine(seed, in.actions);
-            return seed;
+            return in.hash(sdm::OccupancyState::PRECISION);
         }
     };
 }

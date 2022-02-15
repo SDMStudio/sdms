@@ -21,17 +21,17 @@ namespace sdm
           PWLCValueFunctionInterface(world, initializer, action_selection)
     {
         // Create all different structure in order to use the hyperplan q-value function.
-        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->getHorizon() + 1, Container());
+        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, Container());
         this->default_values_per_horizon = std::vector<double>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, 0);
         this->default_hyperplane = std::vector<std::shared_ptr<BetaVector>>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, nullptr);
 
         number num_serial_agents = (sdm::isInstanceOf<SerialProblemInterface>(getWorld()->getUnderlyingProblem())) ? getWorld()->getUnderlyingProblem()->getNumAgents() : 1;
         number real_horizon = getWorld()->getHorizon() / num_serial_agents;
-        for (int t = 0; t < getWorld()->getHorizon(); t++)
+        for (int t = 0; t < (this->isInfiniteHorizon() ? 1 : getWorld()->getHorizon()); t++)
         {
             number real_current_horizon = t / num_serial_agents;
             double granul_t = PWLCQValueFunction::GRANULARITY_START + float(real_current_horizon) / (real_horizon - 1) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction::GRANULARITY_START);
-            std::cout << "t "<< t << " - g " << granul_t << std::endl;
+            std::cout << "t " << t << " - g " << granul_t << std::endl;
             granularity_per_horizon.push_back(granul_t);
         }
         granularity_per_horizon.push_back(1);
@@ -39,11 +39,11 @@ namespace sdm
 
     void PWLCQValueFunction::initialize(double value, number t)
     {
-        if (this->representation[t].size() == 0)
+        if (this->representation[this->isInfiniteHorizon() ? 0 : t].size() == 0)
         {
-            this->default_values_per_horizon[t] = value;
+            this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t] = value;
             // Setup default hyperplane
-            this->default_hyperplane[t] = std::make_shared<oBeta>(value);
+            this->default_hyperplane[this->isInfiniteHorizon() ? 0 : t] = std::make_shared<oBeta>(value);
         }
     }
 
@@ -56,11 +56,11 @@ namespace sdm
     {
         double qvalue = 0;
 
-        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[t];
-        auto hyperplane_iter = this->representation[t].find(state);
-        if (hyperplane_iter == this->representation[t].end())
+        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[this->isInfiniteHorizon() ? 0 : t];
+        auto hyperplane_iter = this->representation[this->isInfiniteHorizon() ? 0 : t].find(state);
+        if (hyperplane_iter == this->representation[this->isInfiniteHorizon() ? 0 : t].end())
         {
-            auto new_hyperplane = std::make_shared<oBeta>(this->default_values_per_horizon[t]);
+            auto new_hyperplane = std::make_shared<oBeta>(this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t]);
             this->addHyperplaneAt(state, new_hyperplane, t);
             qvalue = this->getDefaultValue(t);
         }
@@ -73,17 +73,17 @@ namespace sdm
 
     void PWLCQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplane, number t)
     {
-        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[t];
-        this->representation[t][state] = std::static_pointer_cast<BetaVector>(new_hyperplane);
+        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[this->isInfiniteHorizon() ? 0 : t];
+        this->representation[this->isInfiniteHorizon() ? 0 : t][state] = std::static_pointer_cast<BetaVector>(new_hyperplane);
     }
 
     std::shared_ptr<Hyperplane> PWLCQValueFunction::getHyperplaneAt(std::shared_ptr<State> state, number t)
     {
-        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[t];
-        auto tmp_it = this->representation[t].find(state);
-        if (tmp_it == this->representation[t].end())
+        PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[this->isInfiniteHorizon() ? 0 : t];
+        auto tmp_it = this->representation[this->isInfiniteHorizon() ? 0 : t].find(state);
+        if (tmp_it == this->representation[this->isInfiniteHorizon() ? 0 : t].end())
         {
-            auto new_hyperplane = std::make_shared<oBeta>(this->default_values_per_horizon[t]);
+            auto new_hyperplane = std::make_shared<oBeta>(this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t]);
             this->addHyperplaneAt(state, new_hyperplane, t);
             return new_hyperplane;
         }
@@ -106,7 +106,7 @@ namespace sdm
 
     double PWLCQValueFunction::getDefaultValue(number t)
     {
-        return this->default_values_per_horizon[t];
+        return this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t];
     }
 
     void PWLCQValueFunction::prune(number t) {}
@@ -125,17 +125,16 @@ namespace sdm
             res << "\t<value timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
             for (const auto &pair_state_hyperplane : this->representation[i])
             {
-
                 res << "\t\t<state>" << std::endl;
                 tools::indentedOutput(res, pair_state_hyperplane.first->str().c_str(), 3);
-                res << "\t\t</state>" << std::endl;
+                res << "\n\t\t</state>" << std::endl;
                 std::ostringstream hyperplan_str;
-                hyperplan_str << pair_state_hyperplane.second;
+                hyperplan_str << pair_state_hyperplane.second->str();
                 tools::indentedOutput(res, hyperplan_str.str().c_str(), 2);
             }
             res << "\t</value>" << std::endl;
         }
-        res << "</pwlc_qvalue_function>" << std::endl;
+        res << "</pwlc_qvalue_function>";
         return res.str();
     }
 } // namespace sdm

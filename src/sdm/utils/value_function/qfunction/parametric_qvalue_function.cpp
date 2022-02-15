@@ -26,38 +26,38 @@ namespace sdm
     void ParametricQValueFunction::initialize(double value, number t)
     {
         // If there are not element at time t, we have to create the default State
-        this->default_values_per_horizon[t] = value;
-        this->representation[t] = std::make_shared<oBeta>(value);
+        this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t] = value;
+        this->representation[this->isInfiniteHorizon() ? 0 : t] = std::make_shared<oBeta>(value);
     }
 
     double ParametricQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        return state->product(this->representation[t], action);
+        return state->product(this->representation[this->isInfiniteHorizon() ? 0 : t], action);
     }
 
     double ParametricQValueFunction::getQValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
-        return this->representation[t]->getValueAt(x, o, u);
+        return this->representation[this->isInfiniteHorizon() ? 0 : t]->getValueAt(x, o, u);
     }
 
     void ParametricQValueFunction::setQValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, double value, number t)
     {
-        this->representation[t]->setValueAt(x, o, u, value);
+        this->representation[this->isInfiniteHorizon() ? 0 : t]->setValueAt(x, o, u, value);
     }
 
     void ParametricQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &, const std::shared_ptr<Hyperplane> &new_hyperplane, number t)
     {
-        this->representation[t] = std::static_pointer_cast<BetaVector>(new_hyperplane);
+        this->representation[this->isInfiniteHorizon() ? 0 : t] = std::static_pointer_cast<BetaVector>(new_hyperplane);
     }
 
     std::shared_ptr<Hyperplane> ParametricQValueFunction::getHyperplaneAt(std::shared_ptr<State>, number t)
     {
-        return this->representation[t];
+        return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
 
     ParametricQValueFunction::Container ParametricQValueFunction::getRepresentation(number t)
     {
-        return this->representation[t];
+        return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
 
     std::vector<std::shared_ptr<Hyperplane>> ParametricQValueFunction::getHyperplanesAt(std::shared_ptr<State>, number t)
@@ -72,7 +72,7 @@ namespace sdm
 
     double ParametricQValueFunction::getDefaultValue(number t)
     {
-        return this->default_values_per_horizon[t];
+        return this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t];
     }
 
     void ParametricQValueFunction::prune(number t) {}
@@ -86,7 +86,7 @@ namespace sdm
             res << "\t\t<plan timestep=\"" << ((this->isInfiniteHorizon()) ? "all" : std::to_string(i)) << ">" << std::endl;
 
             std::ostringstream hyperplan_str;
-            hyperplan_str << this->representation[i];
+            hyperplan_str << this->representation[i]->str();
             tools::indentedOutput(res, hyperplan_str.str().c_str(), 3);
 
             res << "\n\t\t</plan>" << std::endl;

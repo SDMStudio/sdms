@@ -11,7 +11,7 @@ namespace sdm
           QValueFunction(world, initializer, action_selection, update_operator),
           TabularQValueFunctionInterface(world, initializer, action_selection)
     {
-        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
+        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, Container());
     }
 
     void TabularQValueFunction::initialize()
@@ -36,8 +36,7 @@ namespace sdm
 
     void TabularQValueFunction::setQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double value, number t)
     {
-        auto h = this->isInfiniteHorizon() ? 0 : t;
-        this->representation[h][state][action] = value;
+        this->representation[this->isInfiniteHorizon() ? 0 : t][state][action] = value;
     }
 
     int TabularQValueFunction::getNumStates() const

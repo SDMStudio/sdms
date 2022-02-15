@@ -287,6 +287,7 @@ namespace sdm
         // Get a random number between 0 and 1
         double epsilon = std::rand() / (double(RAND_MAX));
 
+
         // Go over all observations of the lower-level agent
         auto accessible_observation_space = this->getObservationSpaceAt(this->current_state_, action, this->step_);
         for (auto observation : *accessible_observation_space)
@@ -301,7 +302,8 @@ namespace sdm
                 break;
             }
         }
-        return std::make_tuple(this->current_state_, std::vector<double>(this->mdp->getNumAgents(), belief_reward), (this->step_ > this->mdp->getHorizon()));
+        bool is_done = (this->getHorizon() > 0) ? (this->step_ >= this->getHorizon()) : false;
+        return std::make_tuple(this->current_state_, std::vector<double>(this->mdp->getNumAgents(), belief_reward), is_done);
     }
 
     template <class TBelief>
