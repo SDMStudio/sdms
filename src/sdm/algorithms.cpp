@@ -252,12 +252,12 @@ namespace sdm
             if (qvalue_name.find("maxplan") != string::npos)
             {
                 std::cout << "maxplan" << std::endl;
-                qvalue = std::make_shared<PWLCQValueFunction>(problem, q_init, action_selection);
+                qvalue = std::make_shared<oPWLCQ>(problem, q_init, action_selection);
             }
             else if (qvalue_name.find("oneplan") != string::npos)
             {
                 std::cout << "oneplan" << std::endl;
-                qvalue = std::make_shared<ParametricQValueFunction>(problem, q_init, action_selection);
+                qvalue = std::make_shared<oParametricQ>(problem, q_init, action_selection);
             }
             else if (qvalue_name.find("tabular") != string::npos)
             {

@@ -22,6 +22,7 @@ namespace sdm
      * is assigned to each cluster of occupancy states (close to a granularity coefficient).
      *
      */
+    template <typename TBetaVector>
     class ParametricQValueFunction : public QValueFunction, public PWLCValueFunctionInterface
     {
     public:
@@ -125,4 +126,9 @@ namespace sdm
         std::vector<double> default_values_per_horizon;
     };
 
+    using bParametricQ = ParametricQValueFunction<bBeta>;
+    using oParametricQ = ParametricQValueFunction<oBeta>;
+
 } // namespace sdm
+
+#include <sdm/utils/value_function/qfunction/parametric_qvalue_function.tpp>

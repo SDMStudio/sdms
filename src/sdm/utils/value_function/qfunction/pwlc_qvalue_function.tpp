@@ -8,11 +8,17 @@
 
 namespace sdm
 {
-    double PWLCQValueFunction::GRANULARITY_START = 0.1;
-    double PWLCQValueFunction::GRANULARITY_END = 1.0;
-    double PWLCQValueFunction::GRANULARITY = PWLCQValueFunction::GRANULARITY_START;
+    template <typename TBetaVector>
+    double PWLCQValueFunction<TBetaVector>::GRANULARITY_START = 0.1;
 
-    PWLCQValueFunction::PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
+    template <typename TBetaVector>
+    double PWLCQValueFunction<TBetaVector>::GRANULARITY_END = 1.0;
+
+    template <typename TBetaVector>
+    double PWLCQValueFunction<TBetaVector>::GRANULARITY = PWLCQValueFunction<TBetaVector>::GRANULARITY_START;
+
+    template <typename TBetaVector>
+    PWLCQValueFunction<TBetaVector>::PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                            const std::shared_ptr<Initializer> &initializer,
                                            const std::shared_ptr<ActionSelectionInterface> &action_selection,
                                            const std::shared_ptr<PWLCQUpdateOperator> &update_operator)
@@ -30,29 +36,33 @@ namespace sdm
         for (int t = 0; t < (this->isInfiniteHorizon() ? 1 : getWorld()->getHorizon()); t++)
         {
             number real_current_horizon = t / num_serial_agents;
-            double granul_t = PWLCQValueFunction::GRANULARITY_START + float(real_current_horizon) / (real_horizon - 1) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction::GRANULARITY_START);
+
+            double granul_t = PWLCQValueFunction::GRANULARITY_START + float(real_current_horizon) / (real_horizon - 1) * (PWLCQValueFunction::GRANULARITY_END - PWLCQValueFunction<TBetaVector>::GRANULARITY_START);
             std::cout << "t " << t << " - g " << granul_t << std::endl;
             granularity_per_horizon.push_back(granul_t);
         }
         granularity_per_horizon.push_back(1);
     }
 
-    void PWLCQValueFunction::initialize(double value, number t)
+    template <typename TBetaVector>
+    void PWLCQValueFunction<TBetaVector>::initialize(double value, number t)
     {
         if (this->representation[this->isInfiniteHorizon() ? 0 : t].size() == 0)
         {
             this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t] = value;
             // Setup default hyperplane
-            this->default_hyperplane[this->isInfiniteHorizon() ? 0 : t] = std::make_shared<oBeta>(value);
+            this->default_hyperplane[this->isInfiniteHorizon() ? 0 : t] = std::make_shared<TBetaVector>(value);
         }
     }
 
-    void PWLCQValueFunction::initialize()
+    template <typename TBetaVector>
+    void PWLCQValueFunction<TBetaVector>::initialize()
     {
         this->initializer_->init(this->getptr());
     }
 
-    double PWLCQValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    template <typename TBetaVector>
+    double PWLCQValueFunction<TBetaVector>::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         double qvalue = 0;
 
@@ -60,7 +70,7 @@ namespace sdm
         auto hyperplane_iter = this->representation[this->isInfiniteHorizon() ? 0 : t].find(state);
         if (hyperplane_iter == this->representation[this->isInfiniteHorizon() ? 0 : t].end())
         {
-            auto new_hyperplane = std::make_shared<oBeta>(this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t]);
+            auto new_hyperplane = std::make_shared<TBetaVector>(this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t]);
             this->addHyperplaneAt(state, new_hyperplane, t);
             qvalue = this->getDefaultValue(t);
         }
@@ -71,19 +81,21 @@ namespace sdm
         return qvalue;
     }
 
-    void PWLCQValueFunction::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplane, number t)
+    template <typename TBetaVector>
+    void PWLCQValueFunction<TBetaVector>::addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplane, number t)
     {
         PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[this->isInfiniteHorizon() ? 0 : t];
         this->representation[this->isInfiniteHorizon() ? 0 : t][state] = std::static_pointer_cast<BetaVector>(new_hyperplane);
     }
 
-    std::shared_ptr<Hyperplane> PWLCQValueFunction::getHyperplaneAt(std::shared_ptr<State> state, number t)
+    template <typename TBetaVector>
+    std::shared_ptr<Hyperplane> PWLCQValueFunction<TBetaVector>::getHyperplaneAt(std::shared_ptr<State> state, number t)
     {
         PWLCQValueFunction::GRANULARITY = this->granularity_per_horizon[this->isInfiniteHorizon() ? 0 : t];
         auto tmp_it = this->representation[this->isInfiniteHorizon() ? 0 : t].find(state);
         if (tmp_it == this->representation[this->isInfiniteHorizon() ? 0 : t].end())
         {
-            auto new_hyperplane = std::make_shared<oBeta>(this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t]);
+            auto new_hyperplane = std::make_shared<TBetaVector>(this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t]);
             this->addHyperplaneAt(state, new_hyperplane, t);
             return new_hyperplane;
         }
@@ -94,29 +106,35 @@ namespace sdm
         }
     }
 
-    std::vector<std::shared_ptr<Hyperplane>> PWLCQValueFunction::getHyperplanesAt(std::shared_ptr<State> state, number t)
+    template <typename TBetaVector>
+    std::vector<std::shared_ptr<Hyperplane>> PWLCQValueFunction<TBetaVector>::getHyperplanesAt(std::shared_ptr<State> state, number t)
     {
         return {getHyperplaneAt(state, t - 1)};
     }
 
-    double PWLCQValueFunction::getBeta(const std::shared_ptr<Hyperplane> &hyperplane, const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
+    template <typename TBetaVector>
+    double PWLCQValueFunction<TBetaVector>::getBeta(const std::shared_ptr<Hyperplane> &hyperplane, const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, number t)
     {
         return hyperplane->getValueAt(x, o, u);
     }
 
-    double PWLCQValueFunction::getDefaultValue(number t)
+    template <typename TBetaVector>
+    double PWLCQValueFunction<TBetaVector>::getDefaultValue(number t)
     {
         return this->default_values_per_horizon[this->isInfiniteHorizon() ? 0 : t];
     }
 
-    void PWLCQValueFunction::prune(number t) {}
+    template <typename TBetaVector>
+    void PWLCQValueFunction<TBetaVector>::prune(number t) {}
 
-    PWLCQValueFunction::Container PWLCQValueFunction::getRepresentation(number t)
+    template <typename TBetaVector>
+    typename PWLCQValueFunction<TBetaVector>::Container PWLCQValueFunction<TBetaVector>::getRepresentation(number t)
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t];
     }
 
-    std::string PWLCQValueFunction::str() const
+    template <typename TBetaVector>
+    std::string PWLCQValueFunction<TBetaVector>::str() const
     {
         std::ostringstream res;
         res << "<pwlc_qvalue_function horizon=\"" << ((this->isInfiniteHorizon()) ? "inf" : std::to_string(this->getHorizon())) << "\">" << std::endl;

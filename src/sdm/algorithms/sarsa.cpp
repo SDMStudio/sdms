@@ -118,7 +118,7 @@ namespace sdm
 
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getEnv()))
         {
-            if (auto pwlc = sdm::isInstanceOf<PWLCQValueFunction>(this->q_value_))
+            if (auto pwlc = sdm::isInstanceOf<oPWLCQ>(this->q_value_))
             {
 
                 std::ostringstream output_nstates;

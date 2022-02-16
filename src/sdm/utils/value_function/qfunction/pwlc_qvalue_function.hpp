@@ -5,6 +5,8 @@
 #include <sdm/core/state/base_state.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/bbeta.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/obeta.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
 /**
@@ -20,6 +22,7 @@ namespace sdm
      * is assigned to each cluster of occupancy states (close to a granularity coefficient).
      *
      */
+    template <typename TBetaVector>
     class PWLCQValueFunction : public QValueFunction, public PWLCValueFunctionInterface
     {
 
@@ -156,7 +159,9 @@ namespace sdm
         std::vector<double> default_values_per_horizon;
     };
 
-    // using oPWLCQ = PWLCQValueFunction<oBeta>;
-    // using bPWLCQ = PWLCQValueFunction<bBeta>;
+    using bPWLCQ = PWLCQValueFunction<bBeta>;
+    using oPWLCQ = PWLCQValueFunction<oBeta>;
 
 } // namespace sdm
+
+#include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.tpp>
