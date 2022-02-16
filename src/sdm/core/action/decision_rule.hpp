@@ -4,6 +4,7 @@
 #include <map>
 
 #include <sdm/tools.hpp>
+#include <sdm/exception.hpp>
 #include <sdm/core/function.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
@@ -28,6 +29,17 @@ namespace sdm
          * @return the corresponding action
          */
         virtual std::shared_ptr<Action> act(const std::shared_ptr<HistoryInterface> &state) const = 0;
+
+        /**
+         * @brief Get the action deducted from a given state
+         *
+         * @param state the generic state
+         * @return the corresponding action
+         */
+        virtual std::shared_ptr<JointAction> act(const std::shared_ptr<JointHistoryInterface> &state) const
+        {
+            throw sdm::exception::NotImplementedException();
+        }
 
         /***
          * @brief Apply the DecisionRule function (similar to `act`)

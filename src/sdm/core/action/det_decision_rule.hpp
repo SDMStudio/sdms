@@ -33,6 +33,14 @@ namespace sdm
     std::shared_ptr<Action> act(const std::shared_ptr<HistoryInterface> &state) const;
 
     /**
+     * @brief Get the action deducted from a given joint history
+     * 
+     * @param jhistory the joint history
+     * @return the resulting joint action 
+     */
+    std::shared_ptr<JointAction> act(const std::shared_ptr<JointHistoryInterface> &jhistory) const;
+
+    /**
      * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
      *
      * @param s the state

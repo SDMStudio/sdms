@@ -12,6 +12,8 @@ namespace sdm
      */
     class JointHistoryInterface : virtual public HistoryInterface    {
     public:
+        virtual number getNumAgents() const = 0;
+
         virtual std::shared_ptr<HistoryInterface> getIndividualHistory(number agent_id) const = 0;
 
         virtual Joint<std::shared_ptr<HistoryInterface>> getIndividualHistories() const = 0;

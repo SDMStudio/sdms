@@ -94,7 +94,7 @@ namespace sdm
             {
                 for (const auto &action_value : state_vector.second)
                 {
-                    res << "\t\t" << state_vector.first->str() << ", " << action_value.first << " : " << action_value.second << std::endl;
+                    res << "\t\t" << state_vector.first->str() << ", " << action_value.first->str() << " : " << action_value.second << std::endl;
                 }
             }
             res << "\t</>" << std::endl;

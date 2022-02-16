@@ -37,6 +37,11 @@ namespace sdm
         return (iter != this->map_history_to_action_.end()) ? iter->second : nullptr;
     }
 
+    std::shared_ptr<JointAction> DeterministicDecisionRule::act(const std::shared_ptr<JointHistoryInterface> &jhistory) const
+    {
+        throw sdm::exception::NotImplementedException();
+    }
+
     // std::shared_ptr<Action> DeterministicDecisionRule::operator()(const std::shared_ptr<HistoryInterface> &s)
     // {
     //     return this->act(s);
@@ -56,7 +61,7 @@ namespace sdm
         }
     }
 
-    size_t DeterministicDecisionRule::hash(double precision ) const
+    size_t DeterministicDecisionRule::hash(double precision) const
     {
         size_t seed = 0;
         for (const auto &[history, action] : this->map_history_to_action_)

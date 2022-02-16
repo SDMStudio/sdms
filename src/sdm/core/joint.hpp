@@ -24,6 +24,8 @@ namespace sdm
     using value_type = T;
 
     Joint();
+    Joint(std::size_t size);
+    Joint(std::size_t size, T default_value);
     Joint(const std::vector<T> &joint_item);
     Joint(const std::vector<number> &, const std::vector<T> &joint_item);
     Joint(std::initializer_list<T> list_values);
