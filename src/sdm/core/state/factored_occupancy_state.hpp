@@ -39,10 +39,9 @@ namespace sdm
         /**
          * @brief Default Constructor 
          * Constructs a new Factored Occupancy State object, by initialising the tuple of individual occupancy states, one per agent.
-         * @param memory the length of the agents' memory
          * @param ndmdp the Network Distributed Markov Decision Process
          */
-        FactoredOccupancyState(int memory, const std::shared_ptr<NetworkedDistributedPOMDPInterface> &ndpomdp);
+        FactoredOccupancyState(const std::shared_ptr<NetworkedDistributedPOMDPInterface> &ndpomdp);
 
 
         /**

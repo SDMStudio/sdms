@@ -3,14 +3,14 @@
 
 namespace sdm
 {
-    FactoredOccupancyState::FactoredOccupancyState(int memory, const std::shared_ptr<NetworkedDistributedPOMDPInterface> &ndpomdp)
+    FactoredOccupancyState::FactoredOccupancyState(const std::shared_ptr<NetworkedDistributedPOMDPInterface> &ndpomdp)
     {
         std::vector<std::shared_ptr<State>> sub_states;
 
         for (auto i = 0; i < ndpomdp->getNumAgents(); ++i)
         {
             auto belief = ndpomdp->getBeliefState(i);                     // TODO define NetworkedDistributedPOMDPInterface::getBeliefState(int agent)
-            auto history = std::make_shared<JointHistoryTree>(1, memory); // TODO to be checked
+            auto history = std::make_shared<JointHistoryTree>(1, 0); // TODO to be checked
             auto occupancy = std::make_shared<OccupancyState>(1, 0);
             occupancy->setProbability(history, belief, 1.0);
             occupancy->finalize();

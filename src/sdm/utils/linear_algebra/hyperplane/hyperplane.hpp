@@ -7,6 +7,11 @@
 
 namespace sdm
 {
+
+    // TODO : etendre cette classe pour qu'elle prenne un parametre en plus qui correspond au nombre de group d'agents.
+    // chaque groupe aura sa propre sous-structure
+    // chacune des fonctions ci-dessous sera augmentee du numero du groupe
+    // le nombre de groupes et les numeros de groupes par defaut permettent de retombes sur la structure courante.
     class Hyperplane
     {
     public:
@@ -19,10 +24,14 @@ namespace sdm
             return other.isDominated(*this);
         }
 
+        //TODO mettre une valeur par defaut sur les const std::shared_ptr<HistoryInterface> &o, pour les cas ou il n'y a pas besoin, e.g., ndpomdp
         virtual double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o) const = 0;
+        //TODO mettre une valeur par defaut sur les const std::shared_ptr<HistoryInterface> &o, pour les cas ou il n'y a pas besoin, e.g., ndpomdp
         virtual double getValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u) const = 0;
 
+        //TODO mettre une valeur par defaut sur les const std::shared_ptr<HistoryInterface> &o, pour les cas ou il n'y a pas besoin, e.g., ndpomdp
         virtual void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, double value) = 0;
+        //TODO mettre une valeur par defaut sur les const std::shared_ptr<HistoryInterface> &o, pour les cas ou il n'y a pas besoin, e.g., ndpomdp
         virtual void setValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, double value) = 0;
 
         virtual size_t hash(double precision = -1) const = 0;

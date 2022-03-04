@@ -31,6 +31,7 @@ namespace sdm
         this->initial_history_ = std::make_shared<JointHistoryTree>(this->mdp->getNumAgents(), this->memory);
 
         // Initialize initial occupancy state
+        //TODO modifier pour rendre compatible avec factored_occupancy_state, i.e., en argument on trouve le modele decpomdp ou ndpomdp plus peut-etre la memoire.
         this->initial_state_ = std::make_shared<TOccupancyState>(this->mdp->getNumAgents(), 0);
 
         this->initial_state_->toOccupancyState()->setProbability(this->initial_history_->toJointHistory(), this->belief_mdp_->getInitialState()->toBelief(), 1);
@@ -179,9 +180,11 @@ namespace sdm
             std::vector<std::shared_ptr<Item>> inputs;
             // Outputed actions for each of these.
             std::vector<std::shared_ptr<Item>> outputs;
-            for (const auto &individual_history : ostate->getIndividualHistories(agent))
+            
+            //TODO rename "OccupancyStateInterface::getIndividualHistories" by "OccupancyStateInterface::getIndividualDescriptiveStatistics"
+            for (const auto &individual_descriptive_statistic : ostate->getIndividualHistories(agent))
             {
-                inputs.push_back(individual_history);
+                inputs.push_back(individual_descriptive_statistic);
                 outputs.push_back(this->decpomdp->getActionSpace(agent, t)->sample());
             }
             a.push_back(std::make_shared<DeterministicDecisionRule>(inputs, outputs));
@@ -200,9 +203,10 @@ namespace sdm
         for (int agent = 0; agent < this->mdp->getNumAgents(); agent++)
         {
             // Get individual histories of agent i.
-            std::set<std::shared_ptr<HistoryInterface>> individual_histories = ostate->toOccupancyState()->getIndividualHistories(agent);
+            //TODO rename "OccupancyStateInterface::getIndividualHistories" by "OccupancyStateInterface::getIndividualDescriptiveStatistics"
+            std::set<std::shared_ptr<HistoryInterface>> individual_descriptive_statistics = ostate->toOccupancyState()->getIndividualHistories(agent);
             // Get individual history space of agent i.
-            std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
+            std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_descriptive_statistics));
             // Get action space of agent i.
             std::shared_ptr<Space> individual_action_space = this->decpomdp->getActionSpace(agent, t);
             // Get individual ddr of agent i.
