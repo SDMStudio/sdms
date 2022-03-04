@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/core/state/jhistory_tree.hpp>
-// #include <sdm/core/state/serial_occupancy_state.hpp>
+#include <sdm/core/state/serial_occupancy_state.hpp>
 #include <sdm/core/state/occupancy_state_serial.hpp>
 #include <sdm/world/base/mmdp_interface.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
@@ -12,14 +12,15 @@
  */
 namespace sdm
 {
-        class SerialOccupancyMDP : public BaseOccupancyMDP<OccupancyStateSerial>,
+        template <typename TSerialOState>
+        class BaseSerialOccupancyMDP : public BaseOccupancyMDP<TSerialOState>,
                                    public SerialProblemInterface
         {
         public:
-                SerialOccupancyMDP();
-                SerialOccupancyMDP(Config config);
-                SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
-                SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, int memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                BaseSerialOccupancyMDP();
+                BaseSerialOccupancyMDP(Config config);
+                BaseSerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
+                BaseSerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, int memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
                 number getHorizon() const;
                 number getAgentId(number t) const;
@@ -46,4 +47,9 @@ namespace sdm
 
                 void setupEmptyObservation();
         };
+
+        using SerialOccupancyMDP = BaseSerialOccupancyMDP<OccupancyStateSerial>;
+        using OccupancySerialMDP = BaseSerialOccupancyMDP<SerialOccupancyState>;
 } // namespace sdm
+
+#include <sdm/world/serial_occupancy_mdp.tpp>

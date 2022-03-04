@@ -18,42 +18,12 @@ namespace sdm
         {
         }
 
-        double PWLCQUpdate::target(const std::shared_ptr<State> &state,
-                                   const std::shared_ptr<Action> &action,
-                                   double reward,
-                                   const std::shared_ptr<State> &next_state,
-                                   const std::shared_ptr<Action> &next_action,
-                                   number t)
-        {
-            return reward + getWorld()->getDiscount(t) * this->getQValueFunction()->getQValueAt(next_state, next_action, t + 1);
-        }
-
-        double PWLCQUpdate::delta(const std::shared_ptr<State> &state,
-                                  const std::shared_ptr<Action> &action,
-                                  double reward,
-                                  const std::shared_ptr<State> &next_state,
-                                  const std::shared_ptr<Action> &next_action,
-                                  number t)
-        {
-            double target_value = target(state, action, reward, next_state, next_action, t);
-            double delta = (target_value - this->getQValueFunction()->getQValueAt(state, action, t));
-            return delta;
-        }
-
         void PWLCQUpdate::update(double learning_rate, number t)
         {
-            // auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0];
-            // double delta = this->delta(state, action, reward, next_state, next_action, t);
-            // this->updateHyperplane(state->toOccupancyState(), action->toDecisionRule(), delta, learning_rate, t);
-            this->updateHyperplane(learning_rate, t);
-        }
+            auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0]; // 1.92
 
-        void PWLCQUpdate::updateHyperplane(double learning_rate, number t)
-        {
-            auto [state, action, reward, next_state, next_action] = this->experience_memory->sample(t)[0]; // 1.7
-
-            auto hyperplane = this->getQValueFunction()->getHyperplaneAt(state, t); // 0.9
-            auto hyperplane_ = this->getQValueFunction()->getHyperplaneAt(next_state, t + 1); //0.9
+            auto hyperplane = this->getQValueFunction()->getHyperplaneAt(state, t);           // 1.15
+            auto hyperplane_ = this->getQValueFunction()->getHyperplaneAt(next_state, t + 1); // 1.15
 
             auto s = state->toOccupancyState();
             auto s_ = std::dynamic_pointer_cast<OccupancyState>(next_state);
@@ -70,20 +40,20 @@ namespace sdm
                 {
                     double delta_xou = pomdp->getReward(x, u, t);
 
-                    if ((pomdp->getHorizon()==0) || (t + 1 < pomdp->getHorizon()))
+                    if ((pomdp->getHorizon() == 0) || (t + 1 < pomdp->getHorizon()))
                     {
                         for (const auto &x_ : pomdp->getReachableStates(x, u, t))
                         {
-                            for (const auto &z : pomdp->getReachableObservations(x, u, x_, t)) // 0.69
+                            for (const auto &z : pomdp->getReachableObservations(x, u, x_, t)) // 0.86
                             {
                                 // set next-step history h' = h + u + z
-                                auto o_ = o->expand(std::static_pointer_cast<JointObservation>(z)); //4.5
-                                auto &&c_o_ = s_->getCompressedJointHistory(o_); // 5.3
+                                auto o_ = o->expand(std::static_pointer_cast<JointObservation>(z)); // 5.2
+                                auto &&c_o_ = s_->getCompressedJointHistory(o_);                    // 5.8
 
-                                if (s_->getProbability(c_o_) == 0) // 0.39
+                                if (s_->getProbability(c_o_) == 0) // 0.54
                                     continue;
 
-                                auto u_ = s_->applyDR(a_, c_o_); // a_->act(c_o_); // 17.8 -> 8.39
+                                auto u_ = s_->applyDR(a_, c_o_); // a_->act(c_o_); // 8.39
 
                                 if (u_ == nullptr)
                                     continue;

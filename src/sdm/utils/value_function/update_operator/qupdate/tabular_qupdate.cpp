@@ -25,11 +25,8 @@ namespace sdm
         void TabularQUpdate::update(double learning_rate, number t)
         {
             auto [observation, action, reward, next_observation, next_action] = experience_memory->sample(t)[0];
-
             double delta = deltaSARSA(observation, action, reward, next_observation, next_action, t);
-
             double new_value = this->getQValueFunction()->getQValueAt(observation, action, t) + learning_rate * delta;
-
             this->getQValueFunction()->setQValueAt(observation, action, new_value, t);
         }
     }

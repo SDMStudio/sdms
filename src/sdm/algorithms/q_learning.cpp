@@ -46,6 +46,8 @@ namespace sdm
     {
         printStartInfo();
         startExecutionTime();
+        std::cout << "logging"<<std::endl;
+
         logging();
 
         // Run N episodes

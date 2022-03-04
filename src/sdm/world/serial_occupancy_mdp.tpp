@@ -4,13 +4,15 @@
 namespace sdm
 {
 
-    SerialOccupancyMDP::SerialOccupancyMDP()
+    template <typename TSerialOState>
+    BaseSerialOccupancyMDP<TSerialOState>::BaseSerialOccupancyMDP()
     {
         this->setupEmptyObservation();
     }
 
-    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_mpomdp, int memory, bool store_states, bool store_actions, int batch_size)
-        : BaseOccupancyMDP<OccupancyStateSerial>(underlying_mpomdp, memory, store_states, store_actions, batch_size), underlying_serial_mpomdp(underlying_mpomdp)
+    template <typename TSerialOState>
+    BaseSerialOccupancyMDP<TSerialOState>::BaseSerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &underlying_mpomdp, int memory, bool store_states, bool store_actions, int batch_size)
+        : BaseOccupancyMDP<TSerialOState>(underlying_mpomdp, memory, store_states, store_actions, batch_size), underlying_serial_mpomdp(underlying_mpomdp)
     {
         this->setupEmptyObservation();
         if (sdm::isInstanceOf<SerialProblemInterface>(underlying_serial_mpomdp))
@@ -19,49 +21,58 @@ namespace sdm
             this->horizon = underlying_serial_mpomdp->getHorizon() * underlying_serial_mpomdp->getNumAgents();
     }
 
-    SerialOccupancyMDP::SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config) : BaseOccupancyMDP<OccupancyStateSerial>(dpomdp, config)
+    template <typename TSerialOState>
+    BaseSerialOccupancyMDP<TSerialOState>::BaseSerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config) : BaseOccupancyMDP<TSerialOState>(dpomdp, config)
     {
         this->setupEmptyObservation();
         this->underlying_serial_mpomdp = std::dynamic_pointer_cast<SerialMPOMDPInterface>(dpomdp);
     }
 
-    SerialOccupancyMDP::SerialOccupancyMDP(Config config) : BaseOccupancyMDP<OccupancyStateSerial>(config)
+    template <typename TSerialOState>
+    BaseSerialOccupancyMDP<TSerialOState>::BaseSerialOccupancyMDP(Config config) : BaseOccupancyMDP<TSerialOState>(config)
     {
         this->setupEmptyObservation();
         this->underlying_serial_mpomdp = std::dynamic_pointer_cast<SerialMPOMDPInterface>(this->getUnderlyingMPOMDP());
     }
 
-    number SerialOccupancyMDP::getHorizon() const
+    template <typename TSerialOState>
+    number BaseSerialOccupancyMDP<TSerialOState>::getHorizon() const
     {
         return this->horizon;
     }
 
-    number SerialOccupancyMDP::getAgentId(number t) const
+    template <typename TSerialOState>
+    number BaseSerialOccupancyMDP<TSerialOState>::getAgentId(number t) const
     {
         return (t % this->underlying_serial_mpomdp->getNumAgents());
     }
 
-    bool SerialOccupancyMDP::isLastAgent(number t) const
+    template <typename TSerialOState>
+    bool BaseSerialOccupancyMDP<TSerialOState>::isLastAgent(number t) const
     {
         return (this->getAgentId(t) == (this->underlying_serial_mpomdp->getNumAgents() - 1));
     }
 
-    double SerialOccupancyMDP::getDiscount(number t) const
+    template <typename TSerialOState>
+    double BaseSerialOccupancyMDP<TSerialOState>::getDiscount(number t) const
     {
         return this->isLastAgent(t) ? this->underlying_serial_mpomdp->getDiscount(this->getAgentId(t)) : 1.0;
     }
 
-    std::shared_ptr<MMDPInterface> SerialOccupancyMDP::getUnderlyingSerialMMDP() const
+    template <typename TSerialOState>
+    std::shared_ptr<MMDPInterface> BaseSerialOccupancyMDP<TSerialOState>::getUnderlyingSerialMMDP() const
     {
         return this->underlying_serial_mpomdp;
     }
 
-    std::shared_ptr<MPOMDPInterface> SerialOccupancyMDP::getUnderlyingSerialMPOMDP() const
+    template <typename TSerialOState>
+    std::shared_ptr<MPOMDPInterface> BaseSerialOccupancyMDP<TSerialOState>::getUnderlyingSerialMPOMDP() const
     {
         return this->underlying_serial_mpomdp;
     }
 
-    std::shared_ptr<Space> SerialOccupancyMDP::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
+    template <typename TSerialOState>
+    std::shared_ptr<Space> BaseSerialOccupancyMDP<TSerialOState>::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
         // Transform in serial occupancy state
         auto serial_ostate = ostate->toOccupancyState();
@@ -77,12 +88,14 @@ namespace sdm
         return individual_ddr_space;
     }
 
-    double SerialOccupancyMDP::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
+    template <typename TSerialOState>
+    double BaseSerialOccupancyMDP<TSerialOState>::getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t)
     {
-        return (!this->isLastAgent(t)) ? 0. : BaseOccupancyMDP<OccupancyStateSerial>::getReward(occupancy_state, decision_rule, t);
+        return (!this->isLastAgent(t)) ? 0. : BaseOccupancyMDP<TSerialOState>::getReward(occupancy_state, decision_rule, t);
     }
 
-    std::shared_ptr<Action> SerialOccupancyMDP::computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t)
+    template <typename TSerialOState>
+    std::shared_ptr<Action> BaseSerialOccupancyMDP<TSerialOState>::computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t)
     {
         // Input states for the a of agent.
         std::vector<std::shared_ptr<Item>> inputs;
@@ -99,11 +112,11 @@ namespace sdm
         return std::make_shared<DeterministicDecisionRule>(inputs, outputs);
     }
 
-    void SerialOccupancyMDP::setupEmptyObservation()
+    template <typename TSerialOState>
+    void BaseSerialOccupancyMDP<TSerialOState>::setupEmptyObservation()
     {
         // Set default joint observation : "No Observation"
         this->empty_observation = std::make_shared<JointObservation>();
-
         // Create the Default Joint Observation
         for (number ag_id = 0; ag_id < this->underlying_serial_mpomdp->getNumAgents(); ag_id++)
         {
@@ -111,7 +124,8 @@ namespace sdm
         }
     }
 
-    std::shared_ptr<JointObservation> SerialOccupancyMDP::getDefaultObservation() const
+    template <typename TSerialOState>
+    std::shared_ptr<JointObservation> BaseSerialOccupancyMDP<TSerialOState>::getDefaultObservation() const
     {
         return this->empty_observation;
     }

@@ -4,6 +4,7 @@
 #include <sdm/core/action/decision_rule.hpp>
 #include <sdm/world/base/mmdp_interface.hpp>
 #include <sdm/core/action/joint_det_decision_rule.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 
 namespace sdm
 {
@@ -48,15 +49,25 @@ namespace sdm
         return this->num_agents_;
     }
 
-    std::shared_ptr<Action> OccupancyStateSerial::applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const
+    double OccupancyStateSerial::product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action)
     {
-        return OccupancyState::applyDR(dr, joint_history);
-        // return dr->act(joint_history->getIndividualHistory(this->getCurrentAgentId()));
+        double product = 0.0;
+        auto decision_rule = action->toDecisionRule();
+        for (auto history : this->getJointHistories())
+        {
+            auto action = this->applyIndivDR(decision_rule, history);
+            double proba_a = 1;
+
+            for (auto state : this->getBeliefAt(history)->getStates())
+            {
+                product += this->getProbability(history, state) * proba_a * beta->getValueAt(state, history, action);
+            }
+        }
+        return product;
     }
 
     std::shared_ptr<Action> OccupancyStateSerial::applyIndivDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
-        // return OccupancyState::applyDR(dr, joint_history);
         return dr->act(joint_history->getIndividualHistory(this->getCurrentAgentId()));
     }
 

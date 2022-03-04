@@ -32,7 +32,6 @@ namespace sdm
          */
         number getCurrentAgentId() const;
 
-        std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const;
         std::shared_ptr<Action> applyIndivDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const;
 
         /**
@@ -44,8 +43,9 @@ namespace sdm
         std::shared_ptr<OccupancyState> make(number h);
         std::shared_ptr<OccupancyState> copy();
 
-        Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
+        double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
+        Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
         double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
 
         size_t hash(double precision) const;

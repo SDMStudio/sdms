@@ -21,6 +21,7 @@
 
 #include <sdm/utils/value_function/update_operator/qupdate/tabular_qupdate.hpp>
 #include <sdm/utils/value_function/update_operator/qupdate/pwlc_qupdate.hpp>
+#include <sdm/utils/value_function/update_operator/qupdate/serial_pwlc_qupdate.hpp>
 
 //  ------------------------------------------------------------------------
 // |                     INCLUDE UPDATE REGISTRY                            |
