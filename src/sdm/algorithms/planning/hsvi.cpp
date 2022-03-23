@@ -36,9 +36,6 @@ namespace sdm
     {
         TSVI::initialize();
         getUpperBound()->initialize();
-
-        std::cout << this->getWorld()->getInitialState()->str() << std::endl;
-        std::cout << this->getUpperBound()->getValueAt(this->getWorld()->getInitialState()) << std::endl;
     }
 
     bool HSVI::stop(const std::shared_ptr<State> &state, double cost_so_far, number t)
@@ -186,12 +183,6 @@ namespace sdm
     void HSVI::logging()
     {
         auto initial_state = getWorld()->getInitialState();
-
-        std::cout << initial_state->str() << std::endl;
-        std::cout << this->getLowerBound()->str() << std::endl;
-        std::cout << this->getUpperBound()->str() << std::endl;
-        std::cout << this->getLowerBound()->getValueAt(initial_state) << std::endl;
-        std::cout << this->getUpperBound()->getValueAt(initial_state) << std::endl;
 
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getWorld()))
         {

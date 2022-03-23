@@ -25,7 +25,7 @@ namespace sdm
         this->mdp = decpomdp;
 
         // Initialize underlying belief mdp
-        this->belief_mdp_ = std::make_shared<BeliefMDP>(decpomdp, batch_size, false, false);
+        this->belief_mdp_ = std::make_shared<BeliefMDP>(decpomdp, batch_size, store_states, store_actions);
 
         // Initialize initial history
         this->initial_history_ = std::make_shared<JointHistoryTree>(this->mdp->getNumAgents(), this->memory);
@@ -123,6 +123,7 @@ namespace sdm
     {
         // Compute next reward
         double occupancy_reward = this->getReward(this->current_state_, action, this->step_);
+
 
         // Compute next occupancy state
         this->current_state_ = this->getNextStateAndProba(this->current_state_, action, sdm::NO_OBSERVATION, this->step_).first;
@@ -228,24 +229,6 @@ namespace sdm
     // -----------------------
     // Manipulate states
     // -------------------------
-
-    template <class TOccupancyState>
-    Pair<std::shared_ptr<State>, double> BaseOccupancyMDP<TOccupancyState>::computeNextStateAndProbability(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
-    {
-        if (this->batch_size_ == 0)
-        {
-            // Compute exact next state
-            // return this->computeExactNextState(ostate, action, observation, t);
-            auto next_state = ostate->next(this->mdp, action, observation, t);
-            return next_state;
-        }
-        else
-        {
-            // Compute sampled next state
-            return this->computeSampledNextState(ostate, action, observation, t);
-        }
-
-    }
 
     // template <class TOccupancyState>
     // Pair<std::shared_ptr<State>, double> BaseOccupancyMDP<TOccupancyState>::computeSampledNextState(const std::shared_ptr<State> &ostate, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)

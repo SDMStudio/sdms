@@ -99,12 +99,6 @@ namespace sdm
 
                 std::shared_ptr<BaseOccupancyMDP<TOccupancyState>> getptr();
 
-                // *****************
-                // Temporary methods
-                // *****************
-
-                virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-
         protected:
                 /** @brief The underlying well defined MPOMDP */
                 std::shared_ptr<MPOMDPInterface> decpomdp;

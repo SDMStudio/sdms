@@ -18,7 +18,7 @@ namespace sdm
     /**
      * @brief An occupancy state refers to the complete knowledge the central planner have access to take decisions.
      *
-     * Occupancy states are firstly defined by Dibangoye, Amato, Buffet and Charpillet
+     * Occupancy states are firstly introduced by Dibangoye, Amato, Buffet and Charpillet
      * in [Optimally Solving Dec-POMDPs as Continuous-State MDPs](https://hal.inria.fr/hal-01279444/document).
      * An occupancy state is defined as a posterior distribution over states and histories, given a complete information state
      * (i.e. \$\\xi_t (x_{t}, o_{t} ) = p(x_{t}, o_t \\mid i_{t})\$ ) .

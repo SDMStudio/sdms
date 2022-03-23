@@ -77,6 +77,13 @@ namespace sdm
         return std::make_shared<JointDeterministicDecisionRule>(previous_dr, mdp->getActionSpace(t));
     }
 
+    std::shared_ptr<JointAction> OccupancyStateSerial::getFullAction(const std::shared_ptr<MDPInterface> &mdp, Joint<std::shared_ptr<Action>> previous_action, const std::shared_ptr<Action> &last_action, number t)
+    {
+        previous_action.push_back(last_action);
+        return std::make_shared<JointAction>(previous_action);
+    }
+
+
     Pair<std::shared_ptr<State>, double> OccupancyStateSerial::next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         auto idr = action->toDecisionRule();
@@ -101,6 +108,7 @@ namespace sdm
 
     double OccupancyStateSerial::getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t)
     {
+        std::cout << "Path ICI !!!!" << std::endl;
         number simul_time = (t / this->getNumAgents());
         if (!this->isLastAgent(t))
         {

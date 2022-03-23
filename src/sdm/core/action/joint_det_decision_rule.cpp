@@ -64,7 +64,6 @@ namespace sdm
                 return nullptr;
             joint_action[agent] = individual_action;
         }
-
         return this->action_space->getItemAddress(joint_action)->toAction()->toJointAction();
     }
 

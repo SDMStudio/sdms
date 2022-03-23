@@ -25,7 +25,8 @@ namespace sdm
 
     std::shared_ptr<Action> SerialOccupancyState::applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
-        return dr->act(joint_history->getIndividualHistory(this->getCurrentAgentId()));
+        auto action = dr->act(joint_history->getIndividualHistory(this->getCurrentAgentId()));
+        return action;
     }
 
     number SerialOccupancyState::getCurrentAgentId() const

@@ -46,8 +46,6 @@ namespace sdm
     {
         printStartInfo();
         startExecutionTime();
-        std::cout << "logging"<<std::endl;
-
         logging();
 
         // Run N episodes
@@ -255,11 +253,6 @@ namespace sdm
 
     void QLearning::logging()
     {
-
-        std::cout << this->getEnv()->reset()->str() << std::endl;
-        std::cout << this->q_value_->str() << std::endl;
-        std::cout << this->q_value_->getValueAt(this->getEnv()->reset()) << std::endl;
-
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getEnv()))
         {
             if (auto pwlc = sdm::isInstanceOf<oPWLCQ>(this->q_value_))

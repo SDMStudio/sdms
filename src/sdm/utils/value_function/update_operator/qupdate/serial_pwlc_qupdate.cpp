@@ -44,7 +44,7 @@ namespace sdm
                     {
                         if (s->isLastAgent(t))
                         {
-                            auto joint_u = s->getFullAction(pomdp, s->actions, indiv_u);
+                            auto joint_u = s->getFullAction(pomdp, s->actions[o], indiv_u, t);
                             double delta_xou = pomdp->getReward(x, joint_u, t);
 
                             for (const auto &x_ : pomdp->getReachableStates(x, joint_u, t))
@@ -69,11 +69,10 @@ namespace sdm
                         }
                         else
                         {
-                            auto u_list = s->actions;
-                            u_list.push_back(indiv_u);
-                            auto x_ = std::make_shared<SerialState>(x, u_list);
+                            auto joint_u = s->getFullAction(pomdp, s->actions[o], indiv_u, t);
+                            auto x_ = std::make_shared<SerialState>(pomdp->getNumAgents(), x, *joint_u);
                             auto u_ = s_->applyIndivDR(a_, o);
-                            double delta_xou += hyperplane_->getValueAt(x_, o, u_);
+                            double delta_xou = hyperplane_->getValueAt(x_, o, u_);
                             hyperplane->setValueAt(x, o, indiv_u, hyperplane->getValueAt(x, o, indiv_u) + learning_rate * (delta_xou - hyperplane->getValueAt(x, o, indiv_u)));
                         }
                     }

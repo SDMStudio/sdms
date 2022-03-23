@@ -48,8 +48,8 @@ namespace sdm
                 void setupEmptyObservation();
         };
 
-        using SerialOccupancyMDP = BaseSerialOccupancyMDP<OccupancyStateSerial>;
-        using OccupancySerialMDP = BaseSerialOccupancyMDP<SerialOccupancyState>;
+        using SerialOccupancyMDP = BaseSerialOccupancyMDP<SerialOccupancyState>;
+        using OccupancySerialMDP = BaseSerialOccupancyMDP<OccupancyStateSerial>;
 } // namespace sdm
 
 #include <sdm/world/serial_occupancy_mdp.tpp>

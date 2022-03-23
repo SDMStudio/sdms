@@ -123,40 +123,5 @@ namespace sdm
             return new_hyperplane;
         }
 
-
-        //TODO verifier ce qui suit
-        std::shared_ptr<Hyperplane> PWLCUpdate::computeNewHyperplane(const std::shared_ptr<FactoredOccupancyState> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t){
-            auto ndpomdp = std::dynamic_pointer_cast<NDPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
-            auto occupancy_mdp = std::dynamic_pointer_cast<BeliefMDPInterface>(this->getWorld());
-
-            // Create the new hyperplan
-            //TODO rename Factored_oAlpha to oFactoredAlphaVector et utiliser les bons arguments
-            std::shared_ptr<oFactoredAlphaVector> new_hyperplane = std::make_shared<oFactoredAlphaVector>(this->getValueFunction()->getDefaultValue(t));
-
-            // Get the next occupancy state associated to the decision rule
-            auto next_occupancy_state = occupancy_mdp->getNextStateAndProba(occupancy_state, decision_rule, sdm::NO_OBSERVATION, t).first;
-
-            // Determine the best next hyperplan associated to the next occupancy state
-            auto best_next_hyperplane = this->getValueFunction()->getHyperplaneAt(next_occupancy_state, t + 1);
-
-            // Go over all joint history for the occupancy state
-            for(auto group=0; group<ndpomdp->getNumGroups(); ++group)
-            {
-                //TODO creer la fonction "getJointDescriptiveStatistics(group)" aui renvoie les tuples de statistics descriptives 
-                for (const auto &jdescriptive_statistic : occupancy_state->getJointDescriptiveStatistics(group))
-                {
-                    // WARNING Select the joint action of the group
-                    //TODO verifier cet instruction, i.e., modifier la fonction applyDR() pour identifier le group d'agents concernes 
-                    auto action = occupancy_state->applyDR(decision_rule->toDecisionRule(), jdescriptive_statistic, group);
-
-                    // Create new belief
-                    //TODO revoir la fonction "setValueAt(...)" afin qu'elle prenne en entrees "jdescriptive_statistic" et "group"
-                    //TODO revoir la fonction "getBeta(...)" afin qu'elle prenne en entrees "jdescriptive_statistic" et "group"
-                    new_hyperplane->setValueAt(jdescriptive_statistic, group, this->getValueFunction()->getBeta(best_next_hyperplane, jdescriptive_statistic, action, group, t));
-                }
-            }
-            return new_hyperplane;
-        }
-    
     }
 }

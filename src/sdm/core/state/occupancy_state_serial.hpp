@@ -57,6 +57,7 @@ namespace sdm
 
         Joint<std::shared_ptr<DecisionRule>> decision_rules = {};
         std::unordered_map<std::shared_ptr<JointHistoryInterface>, Joint<std::shared_ptr<Action>>> actions = {};
+        std::shared_ptr<JointAction> getFullAction(const std::shared_ptr<MDPInterface> &mdp, Joint<std::shared_ptr<Action>> previous_actions, const std::shared_ptr<Action> &last_action, number t);
 
     protected:
         std::shared_ptr<DecisionRule> getFullDecisionRule(const std::shared_ptr<MDPInterface> &mdp, Joint<std::shared_ptr<DecisionRule>> previous_dr, const std::shared_ptr<DecisionRule> &last_dr, number t);

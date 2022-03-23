@@ -89,7 +89,6 @@ namespace sdm
         if (this->batch_size_ == 0)
         {
             return belief->next(this->mdp, action, observation, t);
-            // return this->computeExactNextState(belief, action, observation, t);
         }
         else
         {
