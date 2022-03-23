@@ -8,8 +8,9 @@
 
 namespace sdm
 {
+
     /**
-     * @brief The serial state class: a statistics for serial reformulations.
+     * @brief The serial occupancy state class: a statistics for serial reformulations.
      *
      * Serial states are statistics used to solve serial games (an alternative reformulation of
      * simultaneous problems to drop the time complexity). A serial state is generally composed

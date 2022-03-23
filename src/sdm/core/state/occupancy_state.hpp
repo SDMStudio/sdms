@@ -16,7 +16,7 @@ namespace sdm
     class PrivateOccupancyState;
 
     /**
-     * @brief An occupancy state refers to the complete knowledge the central planner have access to take decisions.
+     * @brief The occupancy state class : a sufficient statistics for the central planner.
      *
      * Occupancy states are firstly introduced by Dibangoye, Amato, Buffet and Charpillet
      * in [Optimally Solving Dec-POMDPs as Continuous-State MDPs](https://hal.inria.fr/hal-01279444/document).

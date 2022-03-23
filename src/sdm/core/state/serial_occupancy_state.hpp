@@ -5,6 +5,15 @@
 
 namespace sdm
 {
+
+    /**
+     * @brief A serial occupancy state refers to the complete knowledge the central planner have access 
+     * to take decisions in serial decentralized POMDPs.
+     *
+     * Serial occupancy states (also known as sequential occupancy states) are firstly introduced by ... in [...](...).
+     * This class implement the serial occupancy state as a posterior distribution over serial states and histories, 
+     * given a complete information state (i.e. \$\\xi_t (x_{t, serial}, o_{t} ) = p(x_{t, serial}, o_t \\mid i_{t})\$ ) .
+     */
     class SerialOccupancyState : public OccupancyState, public SerialInterface
     {
     public:
@@ -16,8 +25,6 @@ namespace sdm
         std::shared_ptr<OccupancyState> make(number h);
         std::shared_ptr<OccupancyState> copy();
 
-        // Pair<std::shared_ptr<State>, double> next(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
-        // double getReward(const std::shared_ptr<MDPInterface> &mdp, const std::shared_ptr<Action> &action, number t);
         virtual std::shared_ptr<Action> applyDR(const std::shared_ptr<DecisionRule> &dr, const std::shared_ptr<JointHistoryInterface> &joint_history) const;
 
         /**

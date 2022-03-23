@@ -48,7 +48,19 @@ namespace sdm
                 void setupEmptyObservation();
         };
 
+        /**
+         * @brief This formulation is based on the serial reformulation of the 
+         * underlying Dec-POMDP. The occupancy state is a standard occupancy state,
+         * whose the states of the system are serialized.
+         */
         using SerialOccupancyMDP = BaseSerialOccupancyMDP<SerialOccupancyState>;
+
+        /**
+         * @brief This formulation is based on the classical model of the underlying 
+         * Dec-POMDP. The sufficient statistics used in this serial reformulation is 
+         * composed of the classical occupancy state plus the list of actions chosen 
+         * by the previous agents.
+         */
         using OccupancySerialMDP = BaseSerialOccupancyMDP<OccupancyStateSerial>;
 } // namespace sdm
 
