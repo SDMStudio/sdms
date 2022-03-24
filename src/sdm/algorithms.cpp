@@ -308,7 +308,7 @@ namespace sdm
             }
             else
             {
-                if (sdm::isInstanceOf<SerialProblemInterface>(problem))
+                if (sdm::isInstanceOf<OccupancySerialMDP>(problem))
                     update_operator = std::make_shared<update::SerialPWLCQUpdate>(experience_memory, qvalue, target_qvalue);
                 else
                     update_operator = std::make_shared<update::PWLCQUpdate>(experience_memory, qvalue, target_qvalue);
@@ -384,7 +384,7 @@ namespace sdm
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
-            else if ((formalism == "occupancy-extensive-mdp") || (formalism == "OccupancyExtensiveMDP") || (formalism == "oext-MDP") || (formalism == "oext-omdp"))
+            else if ((formalism == "occupancy-extensive-mdp") || (formalism == "OccupancyExtensiveMDP") || (formalism == "oext-MDP") || (formalism == "oext-mdp"))
             {
                 auto serial_omdp = std::make_shared<OccupancySerialMDP>(problem, memory, store_state, store_action, batch_size);
                 serial_omdp->setStateType(state_type);

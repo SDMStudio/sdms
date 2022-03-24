@@ -18,7 +18,7 @@ namespace sdm
 
     CompressedOccupancyState::CompressedOccupancyState(const CompressedOccupancyState &occupancy_state)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in CompressedOccupancyState()");
     }
 
     CompressedOccupancyState::~CompressedOccupancyState()

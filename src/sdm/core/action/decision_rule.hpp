@@ -38,7 +38,7 @@ namespace sdm
          */
         virtual std::shared_ptr<JointAction> act(const std::shared_ptr<JointHistoryInterface> &state) const
         {
-            throw sdm::exception::NotImplementedException();
+            throw sdm::exception::NotImplementedException("NotImplementedException raised in DecisionRule::act");
         }
 
         /***

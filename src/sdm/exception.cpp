@@ -13,7 +13,7 @@ namespace sdm
             return error_message.c_str();
         }
 
-        NotImplementedException::NotImplementedException() : Exception("Not Implemented Exception")
+        NotImplementedException::NotImplementedException(const std::string &msg_) : Exception(msg_)
         {
         }
 

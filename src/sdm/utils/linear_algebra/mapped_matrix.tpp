@@ -68,7 +68,7 @@ namespace sdm
     template <typename TLig, typename TCol, typename TValue>
     MappedMatrix<TLig, TCol, TValue> MappedMatrix<TLig, TCol, TValue>::dot(const MappedMatrix &) const
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in MappedMatrix::dot");
 
         // auto index_col_matrix2 = other_matrix.getIndexCol();
         // auto index_line_matrix2 = other_matrix.getIndexLine();

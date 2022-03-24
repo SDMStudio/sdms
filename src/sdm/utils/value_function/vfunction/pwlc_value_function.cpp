@@ -155,7 +155,7 @@ namespace sdm
 
     std::vector<std::shared_ptr<State>> PWLCValueFunction::getSupport(number t)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in PWLCValueFunction::getSupport");
         // return this->getHyperplanesAt(nullptr, t);
     }
 

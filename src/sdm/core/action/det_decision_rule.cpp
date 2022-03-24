@@ -39,7 +39,7 @@ namespace sdm
 
     std::shared_ptr<JointAction> DeterministicDecisionRule::act(const std::shared_ptr<JointHistoryInterface> &jhistory) const
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in DeterministicDecisionRule::act");
     }
 
     // std::shared_ptr<Action> DeterministicDecisionRule::operator()(const std::shared_ptr<HistoryInterface> &s)

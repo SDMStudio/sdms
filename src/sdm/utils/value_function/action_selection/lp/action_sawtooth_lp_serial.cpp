@@ -153,7 +153,7 @@ namespace sdm
     // void ActionSelectionSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number)
     void ActionSelectionSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &s_k, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in ActionSelectionSawtoothLPSerial::createSawtoothBigM");
         // try
         // {
         //     auto underlying_problem = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());

@@ -308,32 +308,32 @@ namespace sdm
 
     std::shared_ptr<Space> SerialMMDP::getActionSpaceAt(const std::shared_ptr<State> &, number)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::getActionSpaceAt");
     }
 
     std::shared_ptr<State> SerialMMDP::reset()
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::reset");
     }
 
     std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::step");
     }
 
     std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>, bool)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::step");
     }
 
     void SerialMMDP::setInternalState(std::shared_ptr<State>)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::setInternalState");
     }
 
     std::shared_ptr<State> SerialMMDP::getInternalState() const
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::setInternalState");
     }
 
     std::shared_ptr<Action> SerialMMDP::getRandomAction(const std::shared_ptr<State> &, number t)

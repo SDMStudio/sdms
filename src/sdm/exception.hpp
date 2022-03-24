@@ -56,7 +56,7 @@ namespace sdm
         class NotImplementedException : public Exception
         {
         public:
-            explicit NotImplementedException();
+            explicit NotImplementedException(const std::string &msg_ = "Not Implemented Exception");
         };
 
         /**

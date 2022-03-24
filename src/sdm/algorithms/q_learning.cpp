@@ -253,6 +253,7 @@ namespace sdm
 
     void QLearning::logging()
     {
+        std::cout << this->q_value_->str() << std::endl;
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getEnv()))
         {
             if (auto pwlc = sdm::isInstanceOf<oPWLCQ>(this->q_value_))

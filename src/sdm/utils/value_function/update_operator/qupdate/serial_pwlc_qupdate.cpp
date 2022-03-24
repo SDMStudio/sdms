@@ -46,11 +46,14 @@ namespace sdm
                         {
                             auto joint_u = s->getFullAction(pomdp, s->actions[o], indiv_u, t);
                             double delta_xou = pomdp->getReward(x, joint_u, t);
-
+                            std::cout << "x=" << x->str() << std::endl;
+                            std::cout << "o=" << o->short_str() << std::endl;
+                            std::cout << "joint_u=" << joint_u->str() << std::endl;
                             for (const auto &x_ : pomdp->getReachableStates(x, joint_u, t))
                             {
                                 for (const auto &z : pomdp->getReachableObservations(x, joint_u, x_, t)) // 0.86
                                 {
+                                    std::cout << "x=" << x->str() << "  z=" << z->str() << std::endl;
                                     // set next-step history h' = h + u + z
                                     auto o_ = o->expand(std::static_pointer_cast<JointObservation>(z)); // 5.2
                                     auto &&c_o_ = s_->getCompressedJointHistory(o_);                    // 5.8
@@ -58,21 +61,24 @@ namespace sdm
                                     if (s_->getProbability(c_o_) == 0) // 0.54
                                         continue;
 
-                                    auto u_ = s_->applyIndivDR(a_, c_o_); // a_->act(c_o_); // 8.39
+                                    auto u_ = s_->applyIndivDR(a_, c_o_); // 8.39
 
+                                    std::cout << "u_=" << u_->str() << std::endl;
                                     if (u_ == nullptr)
                                         continue;
                                     delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, joint_u, x_, z, t) * hyperplane_->getValueAt(x_, c_o_, u_);
                                 }
                             }
+                            std::cout << "delta_xou=" << delta_xou << std::endl;
                             hyperplane->setValueAt(x, o, indiv_u, hyperplane->getValueAt(x, o, indiv_u) + learning_rate * (delta_xou - hyperplane->getValueAt(x, o, indiv_u)));
                         }
                         else
                         {
-                            auto joint_u = s->getFullAction(pomdp, s->actions[o], indiv_u, t);
-                            auto x_ = std::make_shared<SerialState>(pomdp->getNumAgents(), x, *joint_u);
+                            auto u_list = s->actions[o];
+                            u_list.push_back(indiv_u);
                             auto u_ = s_->applyIndivDR(a_, o);
-                            double delta_xou = hyperplane_->getValueAt(x_, o, u_);
+                            double delta_xou = hyperplane_->getValueAt(x, o, u_);
+                            std::cout << "delta_xou(2)=" << delta_xou << std::endl;
                             hyperplane->setValueAt(x, o, indiv_u, hyperplane->getValueAt(x, o, indiv_u) + learning_rate * (delta_xou - hyperplane->getValueAt(x, o, indiv_u)));
                         }
                     }
