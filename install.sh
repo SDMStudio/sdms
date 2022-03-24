@@ -24,6 +24,7 @@ then
     echo -e "${LOG_SDMS}Starting installation on Mac OS X platform"
     # Install dependencies
     echo -e "${LOG_SDMS}Install dependencies"
+
     brew install eigen boost fmt gmp zlib zma unzip wget cmake clang
     # port install eigen boost libfmt unzip wget
 
@@ -41,10 +42,17 @@ then
         echo -e "${LOG_SDMS}PyTorch already installed"
     fi
 
+
+    # Hard copy Toolbar library and other required libs
+    cp lib/* /usr/lib/x86_64-linux-gnu/
+
+    echo -e "${LOG_SDMS}Create build directory."
+    rm -rf build
     mkdir -p ./build && cd ./build
 
-    # Build and install SDMS
-    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j install
+    echo -e "${LOG_SDMS}Build and install SDM'Studio."
+    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j 4 install
+
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
     if [ ${RESULT_INSTALL_SDMS} -eq 0 ];
@@ -55,30 +63,41 @@ then
         echo -e "${LOG_SDMS}Installation will stop" && exit $?
     fi
 
-
 elif [ "${machine}" == "Linux" ]; 
 then
+    declare -a dependencies=("libboost-all-dev" "libfmt-dev" "libgmp-dev" "zlib1g-dev" "liblzma-dev" "wget" "unzip" "cmake" "clang" )#libeigen3-dev
+ 
     # Install SDMS under GNU/Linux platform
     echo -e "${LOG_SDMS}Starting installation on Linux platform"
     # Install dependencies
     echo -e "${LOG_SDMS}Install dependencies"
-    apt-get -y update && apt-get install -y libeigen3-dev libboost-all-dev libfmt-dev libgmp-dev zlib1g-dev liblzma-dev wget unzip cmake clang
+
+    for dependency in ${dependencies[@]}; do
+        echo -ne "- $dependency : "
+        if [ $(dpkg-query -W -f='${Status}' $dependency 2>/dev/null | grep -c "ok installed") -eq 0 ];
+        then
+            apt-get install -y ${dependency};
+        else
+            echo -e "installed"
+        fi
+    done
+
     # Default URL for libtorch on LINUX
     url_libtorch='https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip'
-   
+    echo -ne "- pytorch : "
     # If Pytorch is not installed, we install it.
     if [ ! -d /opt/libtorch ]; then
         # If the user provide a custom argument
         [ $# -gt 0 ] && url_libtorch=$1
 
-        echo -e "${LOG_SDMS}Download PyTorch from $1"
+        echo -e "\n${LOG_SDMS}Download PyTorch from $1"
         wget "$url_libtorch" -O /tmp/tmp_libtorch.zip && unzip /tmp/tmp_libtorch.zip -d /opt && rm /tmp/tmp_libtorch.zip
     else
-        echo -e "${LOG_SDMS}PyTorch already installed"
+        echo -e "installed"
     fi
 
-    # Install Toolbar library 
-    cp lib/libtb2.so /lib/x86_64-linux-gnu/
+    # Hard copy Toolbar library and other required libs
+    cp lib/* /usr/lib/x86_64-linux-gnu/
 
     echo -e "${LOG_SDMS}Create build directory."
     rm -rf build

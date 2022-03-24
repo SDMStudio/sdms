@@ -557,8 +557,12 @@ namespace sdm
 
             if (algo_name == "BayesianGameSolver")
             {
+#ifdef WITH_CPLEX
                 auto formalism = parser::parse_file_bayesian(problem_path);
                 return std::make_shared<TwoPlayersBayesianGameSolver>(formalism, batch_size);
+#else
+                throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
+#endif
             }
             else
             {

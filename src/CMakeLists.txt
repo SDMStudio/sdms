@@ -28,6 +28,7 @@ add_definitions (-DLONGDOUBLE_PROB -DLONGLONG_COST -DWCSPFORMATONLY)
 include_directories(${SDMS_INCLUDE_DIRS}
 					${Boost_INCLUDE_DIRS}
 					${TOULBAR_INCLUDE_DIR}
+					${SPIRIT_INCLUDE_DIR}
 					)
 # LIB CORE
 file(

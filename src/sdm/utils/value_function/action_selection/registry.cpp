@@ -5,10 +5,12 @@
 SDMS_REGISTRY(action_selection)
 SDMS_REGISTER("Exhaustive", ExhaustiveActionSelection)
 SDMS_REGISTER("MaxplanSerial", ActionSelectionMaxplanSerial)
-SDMS_REGISTER("MaxplanLP", ActionSelectionMaxplanLP)
 SDMS_REGISTER("MaxplanWCSP", ActionSelectionMaxplanWCSP)
+#ifdef WITH_CPLEX
+SDMS_REGISTER("MaxplanLP", ActionSelectionMaxplanLP)
 SDMS_REGISTER("SawtoothLP", ActionSelectionSawtoothLP)
 SDMS_REGISTER("SawtoothLPSerial", ActionSelectionSawtoothLPSerial)
+#endif
 SDMS_END_REGISTRY()
 
 namespace sdm
