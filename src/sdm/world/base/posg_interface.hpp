@@ -4,9 +4,9 @@
  * @brief The file that contains the MDP class.
  * @version 1.0
  * @date 02/02/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
@@ -18,32 +18,12 @@
 namespace sdm
 {
     /**
-     * @brief The class for Discrete Markov Decision Processes. 
-     * 
+     * @brief The class for Discrete Markov Decision Processes.
+     *
      */
     class POSGInterface : virtual public MPOMDPInterface,
                           virtual public SGInterface
     {
-    public:
-        /**
-         * @brief Get the reward at timestep t when executing an action in a specific state.
-         * 
-         * @param state the current state
-         * @param action the action
-         * @param t the timestep
-         * @return double the reward for each agent
-         */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const = 0;
-
-        /**
-         * @brief Get the reward at timestep t when executing an action in a specific state.
-         * 
-         * @param state the current state
-         * @param action the action
-         * @param t the timestep
-         * @return double the reward for each agent
-         */
-        virtual double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number agent_id, number t) const = 0;
     };
 
 } // namespace sdm

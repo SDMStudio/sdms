@@ -16,7 +16,7 @@
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/distribution.hpp>
 #include <sdm/core/space/space.hpp>
-#include <sdm/core/reward/reward_interface.hpp>
+#include <sdm/core/reward/reward_model.hpp>
 #include <sdm/core/dynamics/state_dynamics_interface.hpp>
 #include <sdm/world/base/mdp_interface.hpp>
 #include <sdm/world/gym_interface.hpp>
@@ -34,7 +34,7 @@ namespace sdm
         MDP();
         MDP(const std::shared_ptr<Space> &state_space,
             const std::shared_ptr<Space> &action_space,
-            const std::shared_ptr<RewardInterface> &reward_space,
+            const std::shared_ptr<RewardModel> &reward_space,
             const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distribution,
             number horizon = 0,
@@ -120,7 +120,7 @@ namespace sdm
          * 
          * @return the reward function
          */
-        virtual std::shared_ptr<RewardInterface> getRewardSpace() const;
+        virtual std::shared_ptr<RewardModel> getRewardSpace() const;
 
         virtual double getMinReward(number t = 0) const;
 
@@ -218,7 +218,7 @@ namespace sdm
 
         std::shared_ptr<Space> action_space_;
 
-        std::shared_ptr<RewardInterface> reward_space_;
+        std::shared_ptr<RewardModel> reward_space_;
 
         std::shared_ptr<StateDynamicsInterface> state_dynamics_;
 

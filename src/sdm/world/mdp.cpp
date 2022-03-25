@@ -8,7 +8,7 @@ namespace sdm
 
     MDP::MDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
-             const std::shared_ptr<RewardInterface> &reward_space,
+             const std::shared_ptr<RewardModel> &reward_space,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distribution,
              number horizon,
@@ -82,24 +82,24 @@ namespace sdm
         return this->state_dynamics_;
     }
 
-    std::shared_ptr<RewardInterface> MDP::getRewardSpace() const
+    std::shared_ptr<RewardModel> MDP::getRewardSpace() const
     {
         return this->reward_space_;
     }
 
     double MDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
-        return this->reward_space_->getReward(state, action, t);
+        return this->reward_space_->getReward(state, action, 0, t);
     }
 
     double MDP::getMinReward(number t) const
     {
-        return this->reward_space_->getMinReward(t);
+        return this->reward_space_->getMinReward(0, t);
     }
 
     double MDP::getMaxReward(number t) const
     {
-        return this->reward_space_->getMaxReward(t);
+        return this->reward_space_->getMaxReward(0, t);
     }
 
     double MDP::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const

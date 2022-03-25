@@ -15,7 +15,7 @@
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/space/space.hpp>
 #include <sdm/core/distribution.hpp>
-#include <sdm/core/reward/reward_interface.hpp>
+#include <sdm/core/reward/reward_model.hpp>
 #include <sdm/core/dynamics/state_dynamics_interface.hpp>
 
 #include <sdm/world/mdp.hpp>
@@ -33,7 +33,7 @@ namespace sdm
         MMDP();
         MMDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
-             const std::shared_ptr<RewardInterface> &reward,
+             const std::shared_ptr<RewardModel> &reward,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
              number horizon = 0,

@@ -309,7 +309,7 @@ namespace sdm
                 }
                     std::cout << "End Reward"<<std::endl;
 
-                auto reward_fct = std::make_shared<TabularReward>();
+                auto reward_fct = std::make_shared<CooperativeRewardModel>();
                 for (const auto &state : *this->getStateSpace())
                 {
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(state);
@@ -328,7 +328,7 @@ namespace sdm
                                 joint_reward += this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2);
                             }
                         }
-                        reward_fct->setReward(state->toState(), joint_action->toAction(), joint_reward);
+                        reward_fct->setReward(state->toState(), joint_action->toAction(), 0, joint_reward);
                     }
                 }
                 this->reward_space_ = reward_fct;

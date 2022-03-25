@@ -1,51 +1,45 @@
-#include <sdm/world/mpomdp.hpp>
+#include <sdm/world/posg.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 
 namespace sdm
 {
+    POSG::POSG() {}
 
-    MPOMDP::MPOMDP() {}
+    POSG::POSG(const std::shared_ptr<Space> &state_space,
+               const std::shared_ptr<Space> &action_space,
+               const std::shared_ptr<Space> &obs_space,
+               const std::shared_ptr<RewardModel> &reward,
+               const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
+               const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
+               const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
+               number horizon,
+               double discount,
+               Criterion criterion) : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
+                                      POMDP(state_space, action_space, obs_space, reward, state_dynamics, obs_dynamics, start_distrib, horizon, discount, criterion),
+                                      MMDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion) {}
 
-    MPOMDP::MPOMDP(const std::shared_ptr<Space> &state_space,
-                   const std::shared_ptr<Space> &action_space,
-                   const std::shared_ptr<Space> &obs_space,
-                   const std::shared_ptr<RewardModel> &reward,
-                   const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
-                   const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
-                   const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
-                   number horizon,
-                   double discount,
-                   Criterion criterion)
-        : MDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion),
-          POMDP(state_space, action_space, obs_space, reward, state_dynamics, obs_dynamics, start_distrib, horizon, discount, criterion),
-          MMDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion)
+    double POSG::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
-        this->num_agents_ = std::static_pointer_cast<MultiDiscreteSpace>(action_space)->getNumSpaces();
+        return SG::getReward(state, action, t);
     }
 
-    MPOMDP::~MPOMDP() {}
-
-    std::shared_ptr<Space> MPOMDP::getObservationSpace(number t) const
+    double POSG::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number agent_id, number t) const
     {
-        return POMDP::getObservationSpace(t);
-    }
-    std::shared_ptr<Space> MPOMDP::getObservationSpace(number agent_id, number t) const
-    {
-        return std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(t))->getSpace(agent_id);
+        return SG::getReward(state, action, agent_id, t);
     }
 
-    std::string MPOMDP::toStdFormat()
+    std::string POSG::toStdFormat()
     {
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
         {
-
             auto state_space = std::static_pointer_cast<DiscreteSpace>(this->getStateSpace());
             auto action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getActionSpace());
             auto obs_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(0));
 
             std::ostringstream res;
             number n_agents = this->getNumAgents();
+
 
             res << "agents: " << n_agents << std::endl;
             res << "discount: " << this->getDiscount() / 1.0 << std::endl;
@@ -56,6 +50,7 @@ namespace sdm
             {
                 res << std::static_pointer_cast<DiscreteDistribution<std::shared_ptr<State>>>(this->getStartDistribution())->getProbability(initial_state->toState()) << " ";
             }
+
 
             // Action space
             res << "actions: \n";
@@ -70,6 +65,7 @@ namespace sdm
             {
                 res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(ag))->getNumItems() << "\n";
             }
+
 
             for (const auto &state : *state_space)
             {
@@ -115,6 +111,7 @@ namespace sdm
                 }
             }
 
+
             for (const auto &state : *state_space)
             {
                 for (const auto &action : *action_space)
@@ -126,8 +123,13 @@ namespace sdm
                         res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                     }
                     res << ": " << state_space->getItemIndex(state)
-                        << " : " << this->getReward(state->toState(), action->toAction())
-                        << std::endl;
+                        << " : ";
+                    for (number agent = 0; agent < n_agents; ++agent)
+                    {
+                        res << this->getReward(state->toState(), action->toAction(), agent, 0) << " ";
+                    }
+
+                    res << std::endl;
                 }
             }
             return res.str();
@@ -137,4 +139,4 @@ namespace sdm
             return "No known Standard format for Continuous MDPs.";
         }
     }
-}
+} // namespace sdm

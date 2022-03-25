@@ -29,76 +29,33 @@ namespace sdm
 {
   namespace parser
   {
+
     BOOST_SPIRIT_INSTANTIATE(dpomdp_type, iterator_type, context_type)
+    BOOST_SPIRIT_INSTANTIATE(posg_type, iterator_type, context_type)
 
-    std::shared_ptr<sdm::DecPOMDP> parse_string(std::string storage)
-    {
-      using sdm::parser::dpomdp_t; // Our grammar
-      sdm::ast::dpomdp_t ast;      // Our tree
+    // SDM_DECLARE_PARSER(GRAMMAR, TYPE_AST, TYPE_ENCODER, CLASSNAME, PARSER_NAME)
+    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::MDP, parseMDP)
+    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::POMDP, parsePOMDP)
+    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::MPOMDP, parseMPOMDP)
+    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::DecPOMDP, parseDecPOMDP)
+    SDMS_INSTANCIATE_PARSER(sdm::parser::posg_t, sdm::ast::posg_t, sdm::ast::posg_encoder, sdm::POSG, parsePOSG)
 
-      // Defines spaces and comments
-      using boost::spirit::x3::eol;
-      using boost::spirit::x3::lexeme;
-      using boost::spirit::x3::ascii::char_;
-      using boost::spirit::x3::ascii::space;
-      auto const space_comment = space | lexeme['#' >> *(char_ - eol) >> eol];
 
-      // Parse phrase (result in ast struct)
-      std::string::iterator begin = storage.begin();
-      std::string::iterator iter = begin;
-      std::string::iterator end = storage.end();
-      bool r = phrase_parse(iter, end, dpomdp_t, space_comment, ast);
-      std::string context(iter, end);
-
-      if (r && iter == end)
-      {
-        // Convert ast to DPOMDP class
-        sdm::ast::dpomdp_encoder encoder;
-        return encoder(ast);
-      }
-      else
-      {
-        std::string::iterator deb_line = iter, end_line = iter;
-        while (deb_line!=begin && *(deb_line-1) != '\n')
-          deb_line = deb_line - 1;
-        while (end_line!=end && *end_line != '\n')
-          end_line = end_line + 1;
-
-        std::string context(deb_line, end_line);
-        throw sdm::exception::ParsingException(context);
-      }
-    }
-
-    std::shared_ptr<sdm::DecPOMDP> parse_file(char const *filename)
-    {
-      std::ifstream in(filename, std::ios_base::in);
-
-      if (!in)
-      {
-        throw sdm::exception::FileNotFoundException(std::string(filename));
-      }
-
-      std::string storage;         // We will read the contents here.
-      in.unsetf(std::ios::skipws); // No white space skipping!
-      std::copy(
-          std::istream_iterator<char>(in),
-          std::istream_iterator<char>(),
-          std::back_inserter(storage));
-
-      std::shared_ptr<sdm::DecPOMDP> parsed_model = sdm::parser::parse_string(storage);
-      // parsed_model->setFileName(filename);
-      return parsed_model;
-    }
-
-    std::shared_ptr<sdm::DecPOMDP> parse_file(std::string filename, Config config)
+    std::shared_ptr<sdm::MPOMDP> parse_file(std::string filename, Config config)
     {
       if (regex_match(filename, std::regex(".*\\.ndpomdp$")) || regex_match(filename, std::regex(".*\\.NDPOMDP$")))
       {
         return std::make_shared<NetworkedDistributedPOMDP>(filename);
       }
+      else if (regex_match(filename, std::regex(".*\\.posg$")) || regex_match(filename, std::regex(".*\\.POSG$")))
+      {
+        auto posg = parsePOSG(filename.c_str());
+        posg->configure(config);
+        return posg;
+      }
       else
       {
-        std::shared_ptr<sdm::DecPOMDP> dpomdp = parse_file(filename.c_str());
+        auto dpomdp = parseMPOMDP(filename.c_str());
         dpomdp->configure(config);
         return dpomdp;
       }
