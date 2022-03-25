@@ -1,7 +1,8 @@
 [![SDMS Logo](https://raw.githubusercontent.com/SDMStudio/sdms/main/docs/sdms-logo-black2.png)](https://sdmstudio.github.io)
 ------------------------------------------------------
 
-[![License](https://img.shields.io/github/license/sdmstudio/sdms)](https://gitlab.inria.fr/chroma1/plasma/sdms/-/blob/main/LICENSE)
+
+[![License](https://img.shields.io/github/license/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/tag/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/tags)
 [![Contributors](https://img.shields.io/github/contributors-anon/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/graphs/contributors)
 
