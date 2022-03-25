@@ -8,7 +8,7 @@ namespace sdm
 
     MMDP::MMDP(const std::shared_ptr<Space> &state_space,
                const std::shared_ptr<Space> &action_space,
-               const std::shared_ptr<RewardInterface> &reward,
+               const std::shared_ptr<RewardModel> &reward,
                const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
                number horizon,

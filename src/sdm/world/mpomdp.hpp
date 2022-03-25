@@ -25,14 +25,14 @@ namespace sdm
     /**
      * @brief The class for Discrete Partially Observable Markov Decision Processes. 
      */
-    class MPOMDP : public MPOMDPInterface, public POMDP, public MMDP
+    class MPOMDP : virtual public MPOMDPInterface, virtual public POMDP, virtual public MMDP
     {
     public:
         MPOMDP();
         MPOMDP(const std::shared_ptr<Space> &state_space,
                const std::shared_ptr<Space> &action_space,
                const std::shared_ptr<Space> &obs_space,
-               const std::shared_ptr<RewardInterface> &reward,
+               const std::shared_ptr<RewardModel> &reward,
                const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
                const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,

@@ -45,6 +45,11 @@ namespace sdm
     struct reward_entry_1_t_class;
     struct reward_entry_2_t_class;
 
+    struct multi_reward_t_class;
+    struct multi_reward_entry_t_class;
+    struct multi_reward_entry_1_t_class;
+    struct multi_reward_entry_2_t_class;
+
     struct transition_t_class;
     struct transition_entry_t_class;
     struct transition_entry_1_t_class;
@@ -61,6 +66,8 @@ namespace sdm
     // Rules
     ///////////////////////////////////////////////////////////////////////////
     dpomdp_type const dpomdp_t = "dpomdp_t";
+    posg_type const posg_t = "posg_t";
+
     x3::rule<identifier_t_class, ast::identifier_t> const identifier_t = "identifier_t";
     x3::rule<identifiers_t_class, ast::identifiers_t> const identifiers_t = "identifiers_t";
 
@@ -70,6 +77,12 @@ namespace sdm
     x3::rule<reward_entry_t_class, ast::reward_entry_t> const reward_entry_t = "reward_entry_t";
     x3::rule<reward_entry_1_t_class, ast::reward_entry_1_t> const reward_entry_1_t = "reward_entry_1_t";
     x3::rule<reward_entry_2_t_class, ast::reward_entry_2_t> const reward_entry_2_t = "reward_entry_2_t";
+
+
+    x3::rule<multi_reward_t_class, ast::multi_reward_t> const multi_reward_t = "multi_reward_t";
+    x3::rule<multi_reward_entry_t_class, ast::multi_reward_entry_t> const multi_reward_entry_t = "multi_reward_entry_t";
+    x3::rule<multi_reward_entry_1_t_class, ast::multi_reward_entry_1_t> const multi_reward_entry_1_t = "multi_reward_entry_1_t";
+    x3::rule<multi_reward_entry_2_t_class, ast::multi_reward_entry_2_t> const multi_reward_entry_2_t = "multi_reward_entry_2_t";
 
     x3::rule<transition_t_class, ast::transition_t> const transition_t = "transition_t";
     x3::rule<transition_entry_t_class, ast::transition_entry_t> const transition_entry_t = "transition_entry_t";
@@ -104,6 +117,8 @@ namespace sdm
     auto const matrix_t_def = quoted_string | vector_of_vector_of_reals;
 
     ///////////////////////////////////////////////////////////////////////////////
+    // Reward
+    ///////////////////////////////////////////////////////////////////////////////
     auto const reward_entry_1_t_def =
         lit("R:") >> identifiers_t >> ':' >> identifier_t >> ':' >> float_;
 
@@ -113,8 +128,22 @@ namespace sdm
     auto const reward_entry_t_def = reward_entry_1_t | reward_entry_2_t;
 
     auto const reward_t_def = +reward_entry_t;
+
+
     ///////////////////////////////////////////////////////////////////////////////
-    //
+    // Multi Reward
+    ///////////////////////////////////////////////////////////////////////////////
+    auto const multi_reward_entry_1_t_def =
+        lit("R:") >> identifiers_t >> ':' >> identifier_t >> ':' >> identifier_t >> ':' >> float_;
+
+    auto const multi_reward_entry_2_t_def =
+        lit("R:") >> identifiers_t >> ':' >> identifier_t >> ':' >> vector_stochastic;
+
+    auto const multi_reward_entry_t_def = multi_reward_entry_1_t | multi_reward_entry_2_t;
+
+    auto const multi_reward_t_def = +multi_reward_entry_t;
+    ///////////////////////////////////////////////////////////////////////////////
+    // Transitions
     ///////////////////////////////////////////////////////////////////////////////
     auto const transition_entry_1_t_def =
         lit("T:") >> identifiers_t >> ':' >> identifier_t >> ':' >> identifier_t >> ':' >> float_;
@@ -129,7 +158,7 @@ namespace sdm
 
     auto const transition_t_def = +transition_entry_t;
     // ///////////////////////////////////////////////////////////////////////////////
-    //
+    // Observations
     // ///////////////////////////////////////////////////////////////////////////////
     auto const observation_entry_1_t_def =
         lit("O:") >> identifiers_t >> ':' >> identifier_t >> ':' >> identifiers_t >> ':' >> float_;
@@ -157,6 +186,18 @@ namespace sdm
         >> observation_t
         >> reward_t;
 
+
+    auto const posg_t_def =
+        lit("agents") >> ':' >> number_or_vector_of_names >> lit("discount") >> ':' >> float_
+        >> lit("values") >> ':' >> quoted_string
+        >> lit("states") >> ':' >> number_or_vector_of_names
+        >> lit("start") >> ':' >> vector_stochastic
+        >> lit("actions") >> ':' >> numbers_or_names
+        >> lit("observations") >> ':' >> numbers_or_names
+        >> transition_t
+        >> observation_t
+        >> multi_reward_t;
+
     BOOST_SPIRIT_DEFINE(identifier_t)
     BOOST_SPIRIT_DEFINE(identifiers_t)
     BOOST_SPIRIT_DEFINE(matrix_t)
@@ -174,7 +215,12 @@ namespace sdm
     BOOST_SPIRIT_DEFINE(reward_entry_2_t)
     BOOST_SPIRIT_DEFINE(reward_entry_t)
     BOOST_SPIRIT_DEFINE(reward_t)
+    BOOST_SPIRIT_DEFINE(multi_reward_entry_1_t)
+    BOOST_SPIRIT_DEFINE(multi_reward_entry_2_t)
+    BOOST_SPIRIT_DEFINE(multi_reward_entry_t)
+    BOOST_SPIRIT_DEFINE(multi_reward_t)
     BOOST_SPIRIT_DEFINE(dpomdp_t)
+    BOOST_SPIRIT_DEFINE(posg_t)
 
     ///////////////////////////////////////////////////////////////////////////
     // Annotation and Error handling

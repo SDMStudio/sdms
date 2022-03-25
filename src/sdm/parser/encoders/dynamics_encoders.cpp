@@ -17,7 +17,7 @@ namespace sdm
 
         void state_transition_encoder::operator()(const transition_entry_3_t &t3)
         {
-            joint_item_encode ja_encoder(this->action_space_, this->agent_space_);
+            joint_item_encoder ja_encoder(this->action_space_, this->agent_space_);
             std::vector<std::shared_ptr<Item>> joint_actions = ja_encoder.encode(t3.jaction);
 
             matrix_encoder m_encoder(this->state_space_->getNumItems(), this->state_space_->getNumItems());
@@ -40,7 +40,7 @@ namespace sdm
             vector_encoder bl_encoder(this->state_space_->getNumItems());
             std::shared_ptr<MappedVector<number, double>> prob = boost::apply_visitor(bl_encoder, t2.probabilities);
 
-            joint_item_encode ja_encoder(this->action_space_, this->agent_space_);
+            joint_item_encoder ja_encoder(this->action_space_, this->agent_space_);
             std::vector<std::shared_ptr<Item>> joint_actions = ja_encoder.encode(t2.jaction);
 
             state_encoder x_encoder(this->state_space_);
@@ -64,7 +64,7 @@ namespace sdm
             std::vector<std::shared_ptr<Item>> x_space = boost::apply_visitor(s_encoder, t1.current_state);
             std::vector<std::shared_ptr<Item>> y_space = boost::apply_visitor(s_encoder, t1.next_state);
 
-            joint_item_encode ja_encoder(this->action_space_, this->agent_space_);
+            joint_item_encoder ja_encoder(this->action_space_, this->agent_space_);
             std::vector<std::shared_ptr<Item>> joint_actions = ja_encoder.encode(t1.jaction);
 
             double prob = t1.probability;
@@ -115,7 +115,7 @@ namespace sdm
 
         void observation_transition_encoder::operator()(const observation_entry_3_t &z3)
         {
-            joint_item_encode ja_encoder(this->action_space_, this->agent_space_);
+            joint_item_encoder ja_encoder(this->action_space_, this->agent_space_);
             std::vector<std::shared_ptr<Item>> joint_actions = ja_encoder.encode(z3.jaction);
 
             matrix_encoder m_encoder(this->state_space_->getNumItems(), this->obs_space_->getNumItems());
@@ -145,7 +145,7 @@ namespace sdm
             vector_encoder bl_encoder(this->obs_space_->getNumItems());
             std::shared_ptr<MappedVector<number, double>> obs_prob = boost::apply_visitor(bl_encoder, z2.probabilities);
 
-            joint_item_encode ja_encoder(this->action_space_, this->agent_space_);
+            joint_item_encoder ja_encoder(this->action_space_, this->agent_space_);
             std::vector<std::shared_ptr<Item>> joint_actions = ja_encoder.encode(z2.jaction);
 
             state_encoder s_encoder(this->state_space_);
@@ -172,10 +172,10 @@ namespace sdm
 
         void observation_transition_encoder::operator()(const observation_entry_1_t &z1)
         {
-            joint_item_encode ja_encoder(this->action_space_, this->agent_space_);
+            joint_item_encoder ja_encoder(this->action_space_, this->agent_space_);
             std::vector<std::shared_ptr<Item>> joint_actions = ja_encoder.encode(z1.jaction);
 
-            joint_item_encode jz_encoder(this->obs_space_, this->agent_space_);
+            joint_item_encoder jz_encoder(this->obs_space_, this->agent_space_);
             std::vector<std::shared_ptr<Item>> joint_observations = jz_encoder.encode(z1.next_observation);
 
             state_encoder s_encoder(this->state_space_);

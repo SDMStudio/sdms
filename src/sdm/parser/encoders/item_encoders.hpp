@@ -8,14 +8,14 @@ namespace sdm
     namespace ast
     {
 
-        //! \struct item_encode
+        //! \struct item_encoder
         //! \brief encodes the input into a item index (string))
-        struct item_encode : boost::static_visitor<std::shared_ptr<Item>>
+        struct item_encoder : boost::static_visitor<std::shared_ptr<Item>>
         {
             std::shared_ptr<MultiDiscreteSpace> md_space_;
             number ag;
 
-            item_encode(const std::shared_ptr<MultiDiscreteSpace> &md_space, number ag) : boost::static_visitor<std::shared_ptr<Item>>()
+            item_encoder(const std::shared_ptr<MultiDiscreteSpace> &md_space, number ag) : boost::static_visitor<std::shared_ptr<Item>>()
             {
                 this->ag = ag;
                 this->md_space_ = md_space;
@@ -40,16 +40,16 @@ namespace sdm
             result_type operator()(const std::string &v) { return v; }
         };
 
-        //! \struct joint_item_encode
+        //! \struct joint_item_encoder
         //! \brief encodes the input into a joint element (vector of number)
-        class joint_item_encode
+        class joint_item_encoder
         {
         protected:
             std::shared_ptr<MultiDiscreteSpace> joint_item_space_;
             std::shared_ptr<DiscreteSpace> ag_space_;
 
         public:
-            joint_item_encode(const std::shared_ptr<MultiDiscreteSpace> &joint_item_space, const std::shared_ptr<DiscreteSpace> &ag_space)
+            joint_item_encoder(const std::shared_ptr<MultiDiscreteSpace> &joint_item_space, const std::shared_ptr<DiscreteSpace> &ag_space)
             {
                 this->ag_space_ = ag_space;
                 this->joint_item_space_ = joint_item_space;
@@ -72,7 +72,7 @@ namespace sdm
                     auto joint_item = std::make_shared<JointItem>();
                     for (number ag = 0; ag < this->ag_space_->getNumItems(); ++ag)
                     {
-                        item_encode a_encoder(this->joint_item_space_, ag);
+                        item_encoder a_encoder(this->joint_item_space_, ag);
                         std::shared_ptr<Item> a_ = boost::apply_visitor(a_encoder, list_items[ag]);
                         joint_item->push_back(a_);
                     }
