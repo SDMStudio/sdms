@@ -2,6 +2,7 @@
 
 #include <sdm/core/joint.hpp>
 #include <sdm/core/item.hpp>
+#include <sdm/core/space/space.hpp>
 #include <sdm/utils/struct/iterator.hpp>
 #include <sdm/utils/struct/iterator/combination_iterator.hpp>
 
@@ -35,7 +36,8 @@ namespace sdm
              */
             FunctionIterator(const std::vector<std::shared_ptr<Item>> &possible_inputs,
                              const std::vector<std::shared_ptr<ItemIterator>> &output_begin_iterators,
-                             const std::vector<std::shared_ptr<ItemIterator>> &output_end_iterators);
+                             const std::vector<std::shared_ptr<ItemIterator>> &output_end_iterators,
+                             const std::shared_ptr<Space> &action_space);
 
             std::shared_ptr<ItemIterator> operator++();
             std::shared_ptr<ItemIterator> operator+=(number n);
@@ -54,6 +56,8 @@ namespace sdm
             std::vector<std::shared_ptr<Item>> possible_inputs_;
             
             std::shared_ptr<Item> temporary_item;
+
+            std::shared_ptr<Space> action_space;
         };
     } // namespace iterator
 

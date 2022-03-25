@@ -118,7 +118,7 @@ namespace sdm
 
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getEnv()))
         {
-            if (auto pwlc = sdm::isInstanceOf<PWLCQValueFunction>(this->q_value_))
+            if (auto pwlc = sdm::isInstanceOf<oPWLCQ>(this->q_value_))
             {
 
                 std::ostringstream output_nstates;
@@ -127,12 +127,6 @@ namespace sdm
                 for (const auto &pwlc_q_t : pwlc->representation)
                 {
                     output_nstates << "\033[1m" << config::SDMS_THEME_1 << pwlc_q_t.size() << "\033[0m(";
-                    unsigned long size_support = 0;
-                    for (const auto &pwlc_q_t_tuple : pwlc_q_t)
-                    {
-                        size_support += pwlc_q_t_tuple.second->getState().size();
-                    }
-                    output_nstates << size_support << ")  ";
                 }
                 output_nstates << "]";
 

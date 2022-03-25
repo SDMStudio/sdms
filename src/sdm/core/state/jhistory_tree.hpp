@@ -75,6 +75,8 @@ namespace sdm
          */
         JointHistoryTree(const Joint<std::shared_ptr<HistoryInterface>> &ihistories);
 
+        number getNumAgents() const;
+
         std::shared_ptr<HistoryInterface> expand(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action = nullptr, bool backup = true);
         std::shared_ptr<JointHistoryInterface> expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action = nullptr, bool = true);
 

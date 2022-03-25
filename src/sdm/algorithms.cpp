@@ -252,12 +252,12 @@ namespace sdm
             if (qvalue_name.find("maxplan") != string::npos)
             {
                 std::cout << "maxplan" << std::endl;
-                qvalue = std::make_shared<PWLCQValueFunction>(problem, q_init, action_selection);
+                qvalue = std::make_shared<oPWLCQ>(problem, q_init, action_selection);
             }
             else if (qvalue_name.find("oneplan") != string::npos)
             {
                 std::cout << "oneplan" << std::endl;
-                qvalue = std::make_shared<ParametricQValueFunction>(problem, q_init, action_selection);
+                qvalue = std::make_shared<oParametricQ>(problem, q_init, action_selection);
             }
             else if (qvalue_name.find("tabular") != string::npos)
             {
@@ -308,7 +308,10 @@ namespace sdm
             }
             else
             {
-                update_operator = std::make_shared<update::PWLCQUpdate>(experience_memory, qvalue, target_qvalue);
+                if (sdm::isInstanceOf<OccupancySerialMDP>(problem))
+                    update_operator = std::make_shared<update::SerialPWLCQUpdate>(experience_memory, qvalue, target_qvalue);
+                else
+                    update_operator = std::make_shared<update::PWLCQUpdate>(experience_memory, qvalue, target_qvalue);
             }
 
             // Set update operator
@@ -381,10 +384,15 @@ namespace sdm
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
+            else if ((formalism == "occupancy-extensive-mdp") || (formalism == "OccupancyExtensiveMDP") || (formalism == "oext-MDP") || (formalism == "oext-mdp"))
+            {
+                auto serial_omdp = std::make_shared<OccupancySerialMDP>(problem, memory, store_state, store_action, batch_size);
+                serial_omdp->setStateType(state_type);
+                formalism_problem = serial_omdp;
+            }
             else if ((formalism == "extensive-occupancy-mdp") || (formalism == "Extensive-OccupancyMDP") || (formalism == "ext-oMDP") || (formalism == "ext-omdp"))
             {
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
-
                 auto serial_omdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, store_state, store_action, batch_size);
                 serial_omdp->setStateType(state_type);
                 formalism_problem = serial_omdp;
@@ -549,8 +557,12 @@ namespace sdm
 
             if (algo_name == "BayesianGameSolver")
             {
+#ifdef WITH_CPLEX
                 auto formalism = parser::parse_file_bayesian(problem_path);
                 return std::make_shared<TwoPlayersBayesianGameSolver>(formalism, batch_size);
+#else
+                throw sdm::exception::Exception("LP is disable. Please install CPLEX and recompile with adequate arguments.");
+#endif
             }
             else
             {

@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     
     // Creation of a Serial State
     auto joint_serial_action = JointAction({action_2});
-    auto serial_state = std::make_shared<SerialState>(state_0, joint_serial_action);
+    auto serial_state = std::make_shared<SerialState>(2, state_0, joint_serial_action);
 
     // Some Function of Serial State
     std::cout<<serial_state->str()<<std::endl;

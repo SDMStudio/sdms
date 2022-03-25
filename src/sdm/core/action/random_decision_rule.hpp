@@ -29,7 +29,7 @@ namespace sdm
          * @param state the generic state
          * @return the corresponding action
          */
-        std::shared_ptr<Action> act(const std::shared_ptr<State> &state) const;
+        std::shared_ptr<Action> act(const std::shared_ptr<HistoryInterface> &state) const;
 
         /**
          * @brief Get the probability of action 'action' in state 'state'
@@ -38,7 +38,7 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        double getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action) const;
+        double getProbability(const std::shared_ptr<HistoryInterface> &state, const std::shared_ptr<Action> &action) const;
 
         /**
          * @brief Sets the probability of selecting action a when observing state s.
@@ -47,11 +47,9 @@ namespace sdm
          * @param action the action
          * @param proba the probability
          */
-        void setProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double proba);
+        void setProbability(const std::shared_ptr<HistoryInterface> &state, const std::shared_ptr<Action> &action, double proba);
 
         std::string str() const;
-
-        bool elementExist(const std::shared_ptr<State> &);
 
     protected:
         std::shared_ptr<Space> action_space;

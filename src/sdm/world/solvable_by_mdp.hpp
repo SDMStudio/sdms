@@ -158,7 +158,7 @@ namespace sdm
         const std::shared_ptr<MDPInterface> &getUnderlyingMDP() const;
 
         /** @brief The underlying well defined problem */
-        std::shared_ptr<MDPInterface> underlying_problem_;
+        std::shared_ptr<MDPInterface> mdp;
 
         /** @brief The initial state */
         std::shared_ptr<State> initial_state_;

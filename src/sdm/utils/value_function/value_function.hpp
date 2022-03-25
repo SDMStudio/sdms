@@ -56,16 +56,7 @@ namespace sdm
          * @brief Call operator to get value of state.
          */
         double operator()(const std::shared_ptr<State> &state, const number &t = 0);
-
-        /**
-         * @brief Evaluate the value of an input state
-         *
-         * @param state the state to evaluate
-         * @param t the time step
-         * @return a state / value pair 
-         */
-        virtual Pair<std::shared_ptr<State>, double> evaluate(const std::shared_ptr<State> &state, number t) = 0;
-
+        
         /**
          * @brief Update the value at a given state
          *

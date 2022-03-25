@@ -67,7 +67,8 @@ namespace sdm
         return pow(this->getDiscount(t), this->getSimultaneousTime(t));
     }
 
-    number SerialMMDP::getSimultaneousTime(number t) const {
+    number SerialMMDP::getSimultaneousTime(number t) const
+    {
         return (t / this->getNumAgents());
     }
 
@@ -204,7 +205,7 @@ namespace sdm
                 for (const auto &action : all_new_action)
                 {
                     // Add new serial state with the state of the problem and vector of action
-                    auto next_serial_state = std::make_shared<SerialState>(state->toState(), action);
+                    auto next_serial_state = std::make_shared<SerialState>(this->getNumAgents(), state->toState(), action);
                     std::shared_ptr<State> next_serial_state_str = next_serial_state;
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
@@ -259,13 +260,13 @@ namespace sdm
                     {
                         for (const auto next_hidden_state : this->mmdp_->getReachableStates(hidden_state, this->getPointeurJointAction(next_action), agent_id + 1))
                         {
-                            auto next_state = SerialState(next_hidden_state, JointAction());
+                            auto next_state = SerialState(this->getNumAgents(), next_hidden_state, JointAction());
                             dynamics->setReachablesStates(serial_state, serial_action, this->getPointeurState(next_state));
                         }
                     }
                     else
                     {
-                        auto next_state = SerialState(hidden_state, next_action);
+                        auto next_state = SerialState(this->getNumAgents(), hidden_state, next_action);
                         dynamics->setReachablesStates(serial_state, serial_action, this->getPointeurState(next_state));
                     }
                 }
@@ -307,32 +308,32 @@ namespace sdm
 
     std::shared_ptr<Space> SerialMMDP::getActionSpaceAt(const std::shared_ptr<State> &, number)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::getActionSpaceAt");
     }
 
     std::shared_ptr<State> SerialMMDP::reset()
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::reset");
     }
 
     std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::step");
     }
 
     std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>, bool)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::step");
     }
 
     void SerialMMDP::setInternalState(std::shared_ptr<State>)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::setInternalState");
     }
 
     std::shared_ptr<State> SerialMMDP::getInternalState() const
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::setInternalState");
     }
 
     std::shared_ptr<Action> SerialMMDP::getRandomAction(const std::shared_ptr<State> &, number t)

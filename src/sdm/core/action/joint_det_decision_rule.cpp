@@ -7,134 +7,119 @@ namespace sdm
 {
     JointDeterministicDecisionRule::JointDeterministicDecisionRule() {}
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const Joint<std::shared_ptr<DeterministicDecisionRule>> &idr_list)
-        : Joint<std::shared_ptr<DeterministicDecisionRule>>(idr_list)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const Joint<std::shared_ptr<DecisionRule>> &idr_list, const std::shared_ptr<Space> &action_space)
     {
+        this->joint_idr = idr_list;
+        this->action_space = action_space->toDiscreteSpace();
     }
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_states, std::vector<std::vector<std::shared_ptr<Item>>> actions)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_histories, std::vector<std::vector<std::shared_ptr<Item>>> actions, const std::shared_ptr<Space> &action_space)
     {
-        assert(acc_states.size() == actions.size());
-        for (std::size_t agent = 0; agent < acc_states.size(); agent++)
+        assert(acc_histories.size() == actions.size());
+        if (action_space != nullptr)
+            this->action_space = action_space->toDiscreteSpace();
+        for (std::size_t agent = 0; agent < acc_histories.size(); agent++)
         {
-            this->push_back(std::make_shared<DeterministicDecisionRule>(acc_states[agent], actions[agent]));
+            this->joint_idr.push_back(std::make_shared<DeterministicDecisionRule>(acc_histories[agent], actions[agent]));
         }
     }
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr, const std::shared_ptr<Space> &action_space)
     {
         auto joint_indiv_dr = list_indiv_dr[0]->to<JointItem>();
+        if (action_space != nullptr)
+            this->action_space = action_space->toDiscreteSpace();
         for (const auto indiv_dr : *joint_indiv_dr)
         {
-            this->push_back(indiv_dr->to<DeterministicDecisionRule>());
+            this->joint_idr.push_back(indiv_dr->to<DeterministicDecisionRule>());
         }
     }
 
-    std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::shared_ptr<State> &joint_state) const
+    std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::shared_ptr<HistoryInterface> &joint_histories) const
     {
-        return this->act(std::static_pointer_cast<JointState>(joint_state));
+        return this->act(std::dynamic_pointer_cast<JointHistoryInterface>(joint_histories));
     }
 
-    std::shared_ptr<JointAction> JointDeterministicDecisionRule::act(const std::shared_ptr<JointState> &joint_state) const
+    std::shared_ptr<Action> JointDeterministicDecisionRule::act(const std::vector<std::shared_ptr<HistoryInterface>> &joint_histories) const
     {
-        std::shared_ptr<JointAction> joint_action = std::make_shared<JointAction>();
-        for (number agent = 0; agent < joint_state->size(); agent++)
+        JointAction joint_action;
+        for (number agent = 0; agent < joint_histories.size(); agent++)
         {
-            auto individual_action = this->get(agent)->act(joint_state->get(agent));
+            auto individual_action = this->joint_idr.get(agent)->act(joint_histories.at(agent));
             if (individual_action == nullptr)
                 return nullptr;
-            joint_action->push_back(individual_action);
+            joint_action.push_back(individual_action);
         }
-        
-        return joint_action;
+
+        return this->action_space->getItemAddress(joint_action)->toAction();
+    }
+
+    std::shared_ptr<JointAction> JointDeterministicDecisionRule::act(const std::shared_ptr<JointHistoryInterface> &joint_histories) const
+    {
+        JointAction joint_action(joint_histories->getNumAgents());
+        for (number agent = 0; agent < joint_histories->getNumAgents(); agent++)
+        {
+            auto individual_action = this->joint_idr.get(agent)->act(joint_histories->getIndividualHistory(agent));
+            if (individual_action == nullptr)
+                return nullptr;
+            joint_action[agent] = individual_action;
+        }
+        return this->action_space->getItemAddress(joint_action)->toAction()->toJointAction();
+    }
+
+    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<HistoryInterface> &jhistories, const std::shared_ptr<Action> &jaction) const
+    {
+        std::shared_ptr<JointHistoryInterface> joint_histories = std::dynamic_pointer_cast<JointHistoryInterface>(jhistories);
+        std::shared_ptr<JointAction> joint_action = std::static_pointer_cast<JointAction>(jaction);
+
+        return this->getProbability(joint_histories->getIndividualHistories(), joint_action);
     }
 
     // Get probabilities of decision a(u | o)
-    double JointDeterministicDecisionRule::getProbability(const JointState &states, const JointAction &actions) const
+    double JointDeterministicDecisionRule::getProbability(const std::vector<std::shared_ptr<HistoryInterface>> &histories, const std::shared_ptr<JointAction> &actions) const
     {
-        assert((this->size() == states.size()) && (this->size() == actions.size()));
+        assert((this->joint_idr.size() == histories.size()) && (this->joint_idr.size() == actions->size()));
 
         double probability = 1.;
-        for (number agent_id = 0; agent_id < this->size(); agent_id++)
+        for (number agent_id = 0; agent_id < this->joint_idr.size(); agent_id++)
         {
-            probability *= this->get(agent_id)->getProbability(states.at(agent_id), actions.at(agent_id));
+            probability *= this->joint_idr.get(agent_id)->getProbability(histories.at(agent_id), actions->at(agent_id));
         }
         return probability;
     }
 
-    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &joint_state, const std::shared_ptr<Action> &joint_action) const
+    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, const number &agent_id) const
     {
-        std::shared_ptr<JointState> joint_state_ = std::static_pointer_cast<JointState>(joint_state);
-        std::shared_ptr<JointAction> joint_action_ = std::static_pointer_cast<JointAction>(joint_action);
-
-        double probability = 1.;
-        for (number agent_id = 0; agent_id < this->size(); agent_id++)
-        {
-            probability *= this->get(agent_id)->getProbability(joint_state_->at(agent_id), joint_action_->at(agent_id));
-        }
-        return probability;
+        assert(agent_id < this->joint_idr.size());
+        return this->joint_idr.get(agent_id)->getProbability(history, action);
     }
 
-    double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const number &agent_id) const
-    {
-        assert(agent_id < this->size());
-        return this->get(agent_id)->getProbability(state, action);
-    }
-
-    void JointDeterministicDecisionRule::setProbability(const JointState &states, const JointAction &actions, double probability)
-    {
-        assert(probability == 1 || probability == 0);
-
-        if (this->size() == 0)
-        {
-            assert(states.size() == actions.size());
-            for (number agent_id = 0; agent_id < states.size(); agent_id++)
-            {
-                this->push_back(std::make_shared<DeterministicDecisionRule>());
-            }
-        }
-
-        assert((this->size() == states.size()) && (this->size() == actions.size()));
-
-        for (number agent_id = 0; agent_id < this->size(); agent_id++)
-        {
-            (*this)[agent_id]->setProbability(states.at(agent_id), actions.at(agent_id));
-        }
-    }
-
-    void JointDeterministicDecisionRule::setProbability(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, double)
+    void JointDeterministicDecisionRule::setProbability(const std::shared_ptr<HistoryInterface> &, const std::shared_ptr<Action> &, double)
     {
         throw exception::Exception("Not implemented exception (JointDeterministicDecisionRule::setProbability)");
     }
 
+    std::size_t JointDeterministicDecisionRule::hash(double precision) const
+    {
+        size_t seed = 0;
+        for (auto &indiv_decision_rule_ptr : this->joint_idr)
+        {
+            // Combine the hash of the current vector with the hashes of the previous ones
+            sdm::hash_combine(seed, indiv_decision_rule_ptr->hash(precision));
+        }
+        return seed;
+    }
     std::string JointDeterministicDecisionRule::str() const
     {
         std::ostringstream res;
         res << "<joint-decision-rule type=\"deterministic\">" << std::endl;
-        for (const auto &individual_ddr : *this)
+        for (const auto &individual_ddr : this->joint_idr)
         {
             tools::indentedOutput(res, individual_ddr->str().c_str(), 1);
             res << std::endl;
         }
         res << "<joint-decision-rule/>" << std::endl;
         return res.str();
-    }
-
-    bool JointDeterministicDecisionRule::elementExist(const std::shared_ptr<State> &joint_state)
-    {
-        auto joint_state_ = std::static_pointer_cast<JointState>(joint_state);
-
-        for (number agent = 0; agent < joint_state_->size(); agent++)
-        {
-            auto individual_decision_rule = this->get(agent);
-            auto individual_state = joint_state_->at(agent);
-
-            if (!individual_decision_rule->elementExist(individual_state))
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
 }

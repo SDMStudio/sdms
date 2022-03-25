@@ -5,6 +5,7 @@
 #include <sdm/core/state/interface/belief_interface.hpp>
 #include <sdm/utils/value_function/action_selection/action_selection_base.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/hyperplane.hpp>
 
 
 namespace sdm
@@ -37,8 +38,8 @@ namespace sdm
          * @param t the time step
          * @return action and corresponding value
          */
-        virtual Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t) = 0;
+        virtual Pair<std::shared_ptr<Action>, double> computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &hyperplane, number t) = 0;
 
-        double getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, const std::shared_ptr<BeliefInterface> &hyperplane, number t);
+        double getWeight(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface>& occupancy_state, const std::shared_ptr<JointHistoryInterface>& joint_history, const std::shared_ptr<Action>& action, const std::shared_ptr<Hyperplane> &hyperplane, number t);
     };
 }

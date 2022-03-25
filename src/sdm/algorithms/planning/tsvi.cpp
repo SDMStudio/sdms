@@ -35,10 +35,12 @@ namespace sdm
         } while (!stop(initial_state, 0, 0) && (time_max >= getExecutionTime())); // Do trials until convergence
         logging();                                                                // Print execution variables in logging output streams
         printEndInfo();
+
     }
 
     void TSVI::explore(const std::shared_ptr<State> &state, double cost_so_far, number t)
     {
+
         try
         {
             if (!stop(state, cost_so_far, t))

@@ -1,5 +1,3 @@
-#include <sdm/core/action/action.hpp>
-#include <sdm/core/state/state.hpp>
 
 #define DEFINE_JOINT(CLASS)                                                                                                                            \
     /* This macro allow to define a specific joint on std::shared_ptr<CLASS> that inherites from CLASS. */                                             \
@@ -10,6 +8,8 @@
         using value_type = std::shared_ptr<CLASS>;                                                                                                     \
                                                                                                                                                        \
         Joint() {}                                                                                                                                     \
+        Joint(std::size_t size) : std::vector<std::shared_ptr<CLASS>>(size) {}                                                                                              \
+        Joint(std::size_t size, std::shared_ptr<CLASS> default_value) : std::vector<std::shared_ptr<CLASS>>(size, default_value) {}                                                              \
         Joint(const std::vector<std::shared_ptr<CLASS>> &joint_item) : std::vector<std::shared_ptr<CLASS>>(joint_item) {}                              \
         Joint(const std::vector<number> &, const std::vector<std::shared_ptr<CLASS>> &joint_item) : std::vector<std::shared_ptr<CLASS>>(joint_item) {} \
         Joint(std::initializer_list<std::shared_ptr<CLASS>> list_values) : std::vector<std::shared_ptr<CLASS>>(list_values) {}                         \
@@ -82,6 +82,12 @@ namespace sdm
 
     template <typename T>
     Joint<T>::Joint() {}
+
+    template <typename T>
+    Joint<T>::Joint(std::size_t size) : std::vector<T>(size) {}
+
+    template <typename T>
+    Joint<T>::Joint(std::size_t size, T default_value) : std::vector<T>(size, default_value) {}
 
     template <typename T>
     Joint<T>::Joint(const std::vector<T> &joint_item) : std::vector<T>(joint_item) {}

@@ -135,16 +135,6 @@ namespace sdm
     };
   }
 
-  enum TypeState
-  {
-    STATE,
-    BELIEF_STATE,
-    OCCUPANCY_STATE,
-    SERIAL_OCCUPANCY_STATE,
-    SERIAL_STATE,
-    UNKNOWN
-  };
-
   enum TypeAction
   {
     ACTION,

@@ -2,6 +2,7 @@
 
 #include <sdm/core/state/jhistory_tree.hpp>
 #include <sdm/core/state/serial_occupancy_state.hpp>
+#include <sdm/core/state/occupancy_state_serial.hpp>
 #include <sdm/world/base/mmdp_interface.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 
@@ -11,30 +12,56 @@
  */
 namespace sdm
 {
-        class SerialOccupancyMDP : public OccupancyMDP,
+        template <typename TSerialOState>
+        class BaseSerialOccupancyMDP : public BaseOccupancyMDP<TSerialOState>,
                                    public SerialProblemInterface
         {
         public:
-                SerialOccupancyMDP();
-                SerialOccupancyMDP(Config config);
-                SerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
-                SerialOccupancyMDP(const std::shared_ptr<SerialMPOMDPInterface> &dpomdp, number memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
+                BaseSerialOccupancyMDP();
+                BaseSerialOccupancyMDP(Config config);
+                BaseSerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config);
+                BaseSerialOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, int memory = -1, bool store_states = true, bool store_actions = true, int batch_size = 0);
 
+                number getHorizon() const;
                 number getAgentId(number t) const;
                 bool isLastAgent(number t) const;
                 double getDiscount(number t) const;
-                std::shared_ptr<SerialMMDPInterface> getUnderlyingSerialMMDP() const;
-                std::shared_ptr<SerialMPOMDPInterface> getUnderlyingSerialMPOMDP() const;
+                std::shared_ptr<MMDPInterface> getUnderlyingSerialMMDP() const;
+                std::shared_ptr<MPOMDPInterface> getUnderlyingSerialMPOMDP() const;
 
-                std::shared_ptr<Action> applyDecisionRule(const std::shared_ptr<OccupancyStateInterface> &ostate, const std::shared_ptr<JointHistoryInterface> &joint_history, const std::shared_ptr<Action> &decision_rule, number t) const;
                 std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 std::shared_ptr<Action> computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t);
-
                 double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
-                std::shared_ptr<State> getDecisionRuleInput(const std::shared_ptr<JointHistoryInterface> &jhistory, number t) const;
+
+                virtual std::shared_ptr<JointObservation> getDefaultObservation() const;
 
         protected:
                 /** @brief The underlying well defined MPOMDP */
-                std::shared_ptr<SerialMPOMDPInterface> underlying_serial_mpomdp;
+                std::shared_ptr<MPOMDPInterface> underlying_serial_mpomdp;
+
+                /** @brief The empty observation */
+                std::shared_ptr<JointObservation> empty_observation;
+
+                /** @brief The horizon */
+                number horizon;
+
+                void setupEmptyObservation();
         };
+
+        /**
+         * @brief This formulation is based on the serial reformulation of the 
+         * underlying Dec-POMDP. The occupancy state is a standard occupancy state,
+         * whose the states of the system are serialized.
+         */
+        using SerialOccupancyMDP = BaseSerialOccupancyMDP<SerialOccupancyState>;
+
+        /**
+         * @brief This formulation is based on the classical model of the underlying 
+         * Dec-POMDP. The sufficient statistics used in this serial reformulation is 
+         * composed of the classical occupancy state plus the list of actions chosen 
+         * by the previous agents.
+         */
+        using OccupancySerialMDP = BaseSerialOccupancyMDP<OccupancyStateSerial>;
 } // namespace sdm
+
+#include <sdm/world/serial_occupancy_mdp.tpp>

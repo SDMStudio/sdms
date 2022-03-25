@@ -17,12 +17,12 @@ namespace sdm
         this->underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->occupancy_mdp->getUnderlyingMPOMDP());
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &hyperplane, number t)
     {
         return this->createAndSolveWCSP(value_function, state, hyperplane, t);
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanWCSP::createAndSolveWCSP(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &hyperplane, number t)
     {
         this->variables.clear();
 
@@ -33,7 +33,7 @@ namespace sdm
         number index;
 
         double value;
-        std::shared_ptr<Action> decision_rule;
+        std::shared_ptr<DecisionRule> decision_rule;
 
         tb2init();              // must be call before setting specific ToulBar2 options and creating a model
         ToulBar2::verbose = -1; // change to 0 or higher values to see more trace information
@@ -110,13 +110,12 @@ namespace sdm
 
 
             // Create JOint Deterministic Decision Rule
-            decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories, actions);
+            decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories, actions, this->underlying_problem->getActionSpace(t));
 
 
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
-                auto cjhist = joint_history;//occupancy_state->getCompressedJointHistory(joint_history);
-                auto action = occupancy_mdp->applyDecisionRule(occupancy_state, cjhist, decision_rule, t);
+                auto action = occupancy_state->applyDR(decision_rule, joint_history);
                 value += this->getWeight(value_function, occupancy_state, joint_history, action, hyperplane, t);
             }
         }
@@ -146,7 +145,7 @@ namespace sdm
         return (long)this->offset * (this->max - value);
     }
 
-    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    void ActionSelectionMaxplanWCSP::determineMaxValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<Hyperplane> &hyperplane, number t)
     {
         auto mpomdp = std::dynamic_pointer_cast<MPOMDPInterface>(this->getWorld()->getUnderlyingProblem());
 

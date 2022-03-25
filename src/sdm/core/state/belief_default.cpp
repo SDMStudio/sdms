@@ -35,12 +35,6 @@ namespace sdm
         return 0;
     }
 
-    bool BeliefDefault::isStateExist(const std::shared_ptr<State>& )const
-    {
-        return false;
-    }
-
-
     void BeliefDefault::setProbability(const std::shared_ptr<State> &, double )
     {
         throw sdm::exception::Exception("It isn't possible de add state in the class Default Belief");
@@ -57,11 +51,6 @@ namespace sdm
         return this->getDefaultValue() == other->getDefaultValue() ;
     }
 
-    double BeliefDefault::operator^(const std::shared_ptr<BeliefInterface> &other) const
-    {
-        return this->getDefaultValue() * other->getDefaultValue();
-    }
-
     double BeliefDefault::norm_1() const
     {
         return 0;
@@ -73,11 +62,5 @@ namespace sdm
         res << "BeliefDefault[ default :"<<this->getDefaultValue()<<"]";
         return res.str();
     }
-
-    std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> BeliefDefault::getVectorInferface()
-    {
-        return this->map_nul;
-    }
-
 
 }

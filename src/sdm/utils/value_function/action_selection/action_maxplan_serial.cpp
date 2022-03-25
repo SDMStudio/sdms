@@ -24,7 +24,7 @@ namespace sdm
         return this->serial_mpomdp;
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<BeliefInterface> &hyperplane, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::computeGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &hyperplane, number t)
     {
         auto serial_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(state);
         auto agent_id = this->getSerialProblem()->getAgentId(t);
@@ -46,7 +46,7 @@ namespace sdm
         return std::make_pair(decision_rule, decision_rule_value);
     }
 
-    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &occupancy_state, const std::shared_ptr<BeliefInterface> &next_hyperplane, const std::shared_ptr<HistoryInterface> &ihistory, number t)
+    Pair<std::shared_ptr<Action>, double> ActionSelectionMaxplanSerial::selectBestAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &occupancy_state, const std::shared_ptr<Hyperplane> &next_hyperplane, const std::shared_ptr<HistoryInterface> &ihistory, number t)
     {
         std::shared_ptr<Action> best_action;
         double action_value, argmax_local = std::numeric_limits<double>::lowest();
@@ -72,7 +72,7 @@ namespace sdm
         return {best_action, probability * argmax_local};
     }
 
-    double ActionSelectionMaxplanSerial::evaluateAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &private_occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<BeliefInterface> &next_hyperplane, number t)
+    double ActionSelectionMaxplanSerial::evaluateAction(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<OccupancyState> &private_occupancy_state, const std::shared_ptr<Action> &action, const std::shared_ptr<Hyperplane> &next_hyperplane, number t)
     {
         double value = 0.0;
         double discount = this->getWorld()->getDiscount(t);

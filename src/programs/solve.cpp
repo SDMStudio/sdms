@@ -123,8 +123,8 @@ int solve(int argv, char **args)
         ("rate_decay_start_time", po::value<double>(&QLearning::RATE_DECAY_START_TIME)->default_value(43200), "the decaying factor")
         ("rate_decay_duration", po::value<double>(&QLearning::DURATION_RATE_DECAY)->default_value(43200), "the decaying factor")
         ("q_init", po::value<string>(&lb_init), "the q-value function initialization method")
-        ("g_start", po::value<double>(&granularity_start)->default_value(PWLCQValueFunction::GRANULARITY_START), "The granularity...")
-        ("g_end", po::value<double>(&granularity_end)->default_value(PWLCQValueFunction::GRANULARITY_END), "The granularity...")
+        ("g_start", po::value<double>(&granularity_start)->default_value(oPWLCQ::GRANULARITY_START), "The granularity...")
+        ("g_end", po::value<double>(&granularity_end)->default_value(oPWLCQ::GRANULARITY_END), "The granularity...")
         ;
 
         po::options_description byg_config("Bayesian game solver configuration");
@@ -167,11 +167,11 @@ int solve(int argv, char **args)
         Belief::PRECISION = p_b;
         OccupancyState::PRECISION = p_o;
         PrivateOccupancyState::PRECISION_COMPRESSION = p_c;
-        PWLCQValueFunction::GRANULARITY_START = granularity_start;
-        PWLCQValueFunction::GRANULARITY_END = granularity_end;
+        oPWLCQ::GRANULARITY_START = granularity_start;
+        oPWLCQ::GRANULARITY_END = granularity_end;
 
         common::logo();
-
+        
         // Build algorithm
         algorithm = sdm::algo::make(algo_name,
                                     world,

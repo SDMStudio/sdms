@@ -11,11 +11,11 @@ namespace sdm
     {
     }
 
-    PrivateOccupancyState::PrivateOccupancyState(number num_agents) : OccupancyState(num_agents)
+    PrivateOccupancyState::PrivateOccupancyState(number num_agents, number h) : OccupancyState(num_agents, h)
     {
     }
 
-    PrivateOccupancyState::PrivateOccupancyState(number agent_id, number num_agents) : OccupancyState(num_agents), agent_id_(agent_id)
+    PrivateOccupancyState::PrivateOccupancyState(number agent_id, number num_agents, number h) : OccupancyState(num_agents, h), agent_id_(agent_id)
     {
     }
 
@@ -43,8 +43,8 @@ namespace sdm
         std::ostringstream res;
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
-        res << "<private-occupancy-state agent=\"" << this->agent_id_ << "\" size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
-        for (const auto &history_as_state : this->getIndexes())
+        res << "<private-occupancy-state agent=\"" << this->agent_id_ << "\" size=\"" << this->size() << "\">\n";
+        for (const auto &history_as_state : this->getStates())
         {
             auto joint_history = history_as_state->toHistory()->toJointHistory();
 
@@ -62,7 +62,7 @@ namespace sdm
     {
         // Copy full joint history
         auto partial_jhist = joint_history;
-        
+
         // Erase the component associated to the agent
         partial_jhist.erase(partial_jhist.begin() + this->getAgentId());
 
@@ -144,32 +144,3 @@ namespace sdm
     }
 
 } // namespace sdm
-
-namespace std
-{
-    template <>
-    struct hash<sdm::PrivateOccupancyState>
-    {
-        typedef sdm::PrivateOccupancyState argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            size_t seed = 0;
-            double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
-            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
-            std::vector<int> rounded;
-            for (const auto &pair_jhist_proba : ordered)
-            {
-                sdm::hash_combine(seed, pair_jhist_proba.first);
-                // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
-                rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
-            }
-            for (const auto &v : rounded)
-            {
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, v);
-            }
-            return seed;
-        }
-    };
-}

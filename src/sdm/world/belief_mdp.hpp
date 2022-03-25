@@ -146,7 +146,7 @@ namespace sdm
 
     public:
         /** @brief The underlying well defined POMDP */
-        std::shared_ptr<POMDPInterface> underlying_pomdp;
+        std::shared_ptr<POMDPInterface> pomdp;
 
         // If 0, it means the exact transitions will be used and not sampled ones.
         int batch_size_;
@@ -181,7 +181,6 @@ namespace sdm
          * 
          */
         virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
-        virtual Pair<std::shared_ptr<State>, double> computeExactNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
         virtual Pair<std::shared_ptr<State>, double> computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
     };
 

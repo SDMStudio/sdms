@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdm/core/state/state.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/hyperplane.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/prunable_structure.hpp>
 #include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
@@ -33,13 +34,13 @@ namespace sdm
          * @param new_hyperplane the new hyperplane
          * @param t the timestep
          */
-        virtual void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<State> &new_hyperplan, number t) = 0;
+        virtual void addHyperplaneAt(const std::shared_ptr<State> &state, const std::shared_ptr<Hyperplane> &new_hyperplan, number t) = 0;
 
-        virtual std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> state, number t) = 0;
+        virtual std::shared_ptr<Hyperplane> getHyperplaneAt(std::shared_ptr<State> state, number t) = 0;
 
-        virtual std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> state, number t) = 0;
+        virtual std::vector<std::shared_ptr<Hyperplane>> getHyperplanesAt(std::shared_ptr<State> state, number t) = 0;
 
-        virtual double getBeta(const std::shared_ptr<State> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual double getBeta(const std::shared_ptr<Hyperplane> &alpha, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t) = 0;
 
         virtual double getDefaultValue(number t) = 0;
     };

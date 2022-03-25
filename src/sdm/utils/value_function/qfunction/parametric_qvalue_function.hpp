@@ -2,7 +2,7 @@
 
 #include <sdm/utils/struct/tuple.hpp>
 #include <sdm/core/state/base_state.hpp>
-#include <sdm/utils/linear_algebra/hyperplane.hpp>
+#include <sdm/utils/linear_algebra/hyperplane/beta_vector.hpp>
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/value_function/qfunction/tabular_q_interface.hpp>
 #include <sdm/utils/value_function/qvalue_function.hpp>
@@ -22,10 +22,11 @@ namespace sdm
      * is assigned to each cluster of occupancy states (close to a granularity coefficient).
      *
      */
+    template <typename TBetaVector>
     class ParametricQValueFunction : public QValueFunction, public PWLCValueFunctionInterface
     {
     public:
-        using Container = std::shared_ptr<Hyperplane>;
+        using Container = std::shared_ptr<BetaVector>;
 
         /**
          * @brief Construct a piece-wise linear convex q-value function
@@ -81,13 +82,13 @@ namespace sdm
 
         void setQValueAt(const std::shared_ptr<State> &x, const std::shared_ptr<HistoryInterface> &o, const std::shared_ptr<Action> &u, double value, number t);
 
-        void addHyperplaneAt(const std::shared_ptr<State> &, const std::shared_ptr<State> &new_hyperplane, number t);
+        void addHyperplaneAt(const std::shared_ptr<State> &, const std::shared_ptr<Hyperplane> &new_hyperplane, number t);
 
-        std::shared_ptr<State> getHyperplaneAt(std::shared_ptr<State> , number t);
+        std::shared_ptr<Hyperplane> getHyperplaneAt(std::shared_ptr<State> , number t);
         
-        std::vector<std::shared_ptr<State>> getHyperplanesAt(std::shared_ptr<State> , number t);
+        std::vector<std::shared_ptr<Hyperplane>> getHyperplanesAt(std::shared_ptr<State> , number t);
 
-        double getBeta(const std::shared_ptr<State> &belief_state, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
+        double getBeta(const std::shared_ptr<Hyperplane> &hyperplane, const std::shared_ptr<State> &state, const std::shared_ptr<HistoryInterface> &history, const std::shared_ptr<Action> &action, number t);
 
         /**
          * @brief Prune unecessary components of the value function.
@@ -123,8 +124,11 @@ namespace sdm
          * @brief the default values, one for each decision epoch.
          */
         std::vector<double> default_values_per_horizon;
-
-        std::shared_ptr<OccupancyMDP> oMDP;
     };
 
+    using bParametricQ = ParametricQValueFunction<bBeta>;
+    using oParametricQ = ParametricQValueFunction<oBeta>;
+
 } // namespace sdm
+
+#include <sdm/utils/value_function/qfunction/parametric_qvalue_function.tpp>

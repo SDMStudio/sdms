@@ -27,7 +27,6 @@ namespace sdm
                 {
                     words.push_back(tmp);
                 }
-                // std::cout << result << std::endl;
                 std::vector<std::string> available_init;
                 for (auto const &pair_init : container)
                     available_init.push_back(pair_init.first);

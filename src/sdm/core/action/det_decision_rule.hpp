@@ -3,51 +3,60 @@
 
 #include <map>
 
-#include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/action/decision_rule.hpp>
+#include <sdm/core/state/interface/history_interface.hpp>
+#include <sdm/core/space/discrete_space.hpp>
 
 namespace sdm
 {
   /**
    * @brief This class provide a way to manipulate data relative to a deterministic decision rule.
-   * 
+   *
    * To represent a deterministic decision rule, we simply use a structure that map histories to actions.
-   * 
+   *
    */
   class DeterministicDecisionRule : public DecisionRule
   {
   public:
     DeterministicDecisionRule();
     DeterministicDecisionRule(const DeterministicDecisionRule &copy);
-    DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions);
-    DeterministicDecisionRule(const std::vector<std::shared_ptr<State>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions);
+    DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions, const std::shared_ptr<Space> &action_space = nullptr);
+    DeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<Space> &action_space = nullptr);
 
     /**
-     * @brief Get the action deducted from a given state 
-     * 
+     * @brief Get the action deducted from a given state
+     *
      * @param state the generic state
      * @return the corresponding action
      */
-    std::shared_ptr<Action> act(const std::shared_ptr<State> &state) const;
+    std::shared_ptr<Action> act(const std::shared_ptr<HistoryInterface> &state) const;
+
+    /**
+     * @brief Get the action deducted from a given joint history
+     * 
+     * @param jhistory the joint history
+     * @return the resulting joint action 
+     */
+    std::shared_ptr<JointAction> act(const std::shared_ptr<JointHistoryInterface> &jhistory) const;
 
     /**
      * @brief Get the probability of selecting action a in state s. This should return 0 if the action that corresponds to the state is a.
-     * 
+     *
      * @param s the state
      * @param a the action
      * @return the probability
      */
-    virtual double getProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a) const;
+    virtual double getProbability(const std::shared_ptr<HistoryInterface> &s, const std::shared_ptr<Action> &a) const;
 
     /**
      * @brief Set the probability of selecting action a in state s.
-     * 
+     *
      * @param s the state
      * @param a the action
      * @param proba the probability
      */
-    virtual void setProbability(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, double proba = 1);
+    virtual void setProbability(const std::shared_ptr<HistoryInterface> &s, const std::shared_ptr<Action> &a, double proba = 1);
 
     std::string str() const;
 
@@ -57,31 +66,22 @@ namespace sdm
       return os;
     }
 
-    std::map<std::shared_ptr<State>, std::shared_ptr<Action>> getMap() const;
-
-    bool elementExist(const std::shared_ptr<State>&);
+    size_t hash(double precision = 0) const;
 
   protected:
-    std::map<std::shared_ptr<State>, std::shared_ptr<Action>> map_state_to_action_;
+    std::map<std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>> map_history_to_action_;
+    std::shared_ptr<DiscreteSpace> action_space;
   };
 } // namespace sdm
 
 namespace std
 {
-    template <>
-    struct hash<sdm::DeterministicDecisionRule>
+  template <>
+  struct hash<sdm::DeterministicDecisionRule>
+  {
+    inline std::size_t operator()(const sdm::DeterministicDecisionRule &in) const
     {
-        typedef sdm::DeterministicDecisionRule argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            size_t seed = 0;
-            for (auto &[state, action] : in.getMap())
-            {
-                sdm::hash_combine(seed, state);
-                sdm::hash_combine(seed, action);
-            }
-            return seed;
-        }
-    };
+      return in.hash();
+    }
+  };
 }

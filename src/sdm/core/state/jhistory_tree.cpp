@@ -40,6 +40,10 @@ namespace sdm
     {
         this->push_back(ihist);
     }
+    number JointHistoryTree::getNumAgents() const
+    {
+        return Joint<std::shared_ptr<HistoryInterface>>::getNumAgents();
+    }
 
     std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action, bool backup)
     {
@@ -84,7 +88,6 @@ namespace sdm
 
     std::shared_ptr<HistoryInterface> JointHistoryTree::getIndividualHistory(number ag_id) const
     {
-        assert((ag_id < this->getNumAgents()) && (ag_id >= 0));
         return this->get(ag_id);
     }
 

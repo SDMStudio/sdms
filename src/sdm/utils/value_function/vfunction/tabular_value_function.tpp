@@ -18,7 +18,7 @@ namespace sdm
           ValueFunction(world, initializer, action_selection),
           TabularValueFunctionInterface(world, initializer, action_selection)
     {
-        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : this->horizon_ + 1, Container());
+        this->representation = std::vector<Container>(this->isInfiniteHorizon() ? 1 : world->getHorizon() + 1, Container());
     }
 
     template <class Hash, class KeyEqual>
@@ -43,14 +43,14 @@ namespace sdm
     template <class Hash, class KeyEqual>
     double BaseTabularValueFunction<Hash, KeyEqual>::getValueAt(const std::shared_ptr<State> &state, number t)
     {
-        if (t < this->getHorizon() && this->init_function_ != nullptr)
+        if (this->init_function_ != nullptr && (t < this->getHorizon() || this->isInfiniteHorizon()))
         {
-            if ((this->representation[t].find(state) == this->representation[t].end()))
+            if ((this->representation[this->isInfiniteHorizon() ? 0 : t].find(state) == this->representation[this->isInfiniteHorizon() ? 0 : t].end()))
             {
                 return this->getInitFunction()->operator()(state, t);
             }
         }
-        double value = this->representation[t].at(state);
+        double value = this->representation[this->isInfiniteHorizon() ? 0 : t].at(state);
         return value;
     }
 
@@ -122,7 +122,7 @@ namespace sdm
     template <class Hash, class KeyEqual>
     std::vector<std::shared_ptr<State>> BaseTabularValueFunction<Hash, KeyEqual>::getSupport(number t)
     {
-        return this->representation[t].getIndexes();
+        return this->representation[this->isInfiniteHorizon() ? 0 : t].getIndexes();
     }
 
     template <class Hash, class KeyEqual>

@@ -108,7 +108,6 @@ namespace sdm
         std::vector<std::shared_ptr<HistoryTree>> vector;
         for (const auto &children : Tree<Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>>>::getChildren())
         {
-            std::cout << "\n children " << *children << std::endl;
             vector.push_back(std::static_pointer_cast<HistoryTree>(children));
         }
         return vector;

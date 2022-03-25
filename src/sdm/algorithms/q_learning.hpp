@@ -2,8 +2,8 @@
  * @file hsvi.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
  * @brief HSVI algorithm
- * @version 0.1 
- * @date 22/12/2020 
+ * @version 0.1
+ * @date 22/12/2020
  *
  * @copyright Copyright (c) 2020
  *
@@ -72,7 +72,6 @@ namespace sdm
      */
     virtual void doEpisode();
     virtual void doEpisodeRecursive(const std::shared_ptr<State> &observation, number t);
-
 
     /**
      * @brief Finalize the episode
@@ -149,6 +148,8 @@ namespace sdm
      * @return the gym environment
      */
     std::shared_ptr<GymInterface> getEnv() const;
+
+    bool isInfiniteHorizon() const;
 
     /**
      * @brief Get the name of the algorithm as a string.

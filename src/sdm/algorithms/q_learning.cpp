@@ -44,7 +44,6 @@ namespace sdm
 
     void QLearning::solve()
     {
-
         printStartInfo();
         startExecutionTime();
         logging();
@@ -87,7 +86,7 @@ namespace sdm
 
     void QLearning::doEpisodeRecursive(const std::shared_ptr<State> &obs, number t)
     {
-        if ((this->is_done) || (t == this->horizon_))
+        if ((this->is_done) || t > this->max_num_steps_by_ep_)
             return;
 
         // Action selection following policy and exploration process
@@ -103,10 +102,10 @@ namespace sdm
         auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation, t + 1);
 
         // Push experience to memory
-        this->experience_memory_->push(obs, action, rewards[0], next_observation, next_greedy_action, t);
+        this->experience_memory_->push(obs, action, rewards[0], next_observation, next_greedy_action, (this->isInfiniteHorizon() ? 0 : t));
 
         // Backup and get Q Value Error
-        this->q_value_->updateValueAt(this->learning_rate, t);
+        this->q_value_->updateValueAt(this->learning_rate, (this->isInfiniteHorizon() ? 0 : t));
 
         endStep();
     }
@@ -254,10 +253,10 @@ namespace sdm
 
     void QLearning::logging()
     {
-
+        std::cout << this->q_value_->str() << std::endl;
         if (auto derived = std::dynamic_pointer_cast<BeliefMDPInterface>(getEnv()))
         {
-            if (auto pwlc = sdm::isInstanceOf<PWLCQValueFunction>(this->q_value_))
+            if (auto pwlc = sdm::isInstanceOf<oPWLCQ>(this->q_value_))
             {
 
                 std::ostringstream output_nstates;
@@ -265,13 +264,7 @@ namespace sdm
 
                 for (const auto &pwlc_q_t : pwlc->representation)
                 {
-                    output_nstates << "\033[1m" << config::SDMS_THEME_1 << pwlc_q_t.size() << "\033[0m(";
-                    unsigned long size_support = 0;
-                    for (const auto &pwlc_q_t_tuple : pwlc_q_t)
-                    {
-                        size_support += pwlc_q_t_tuple.second->getState().size();
-                    }
-                    output_nstates << size_support << ")  ";
+                    output_nstates << "\033[1m" << config::SDMS_THEME_1 << pwlc_q_t.size() << "\033[0m ";
                 }
                 output_nstates << "]";
 
@@ -306,6 +299,11 @@ namespace sdm
                                this->exploration_process->getEpsilon(),
                                this->learning_rate);
         }
+    }
+
+    bool QLearning::isInfiniteHorizon() const
+    {
+        return this->horizon_ == 0;
     }
 
 } // namespace sdm

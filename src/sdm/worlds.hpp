@@ -9,7 +9,6 @@
 #include <sdm/world/base/pomdp_interface.hpp>
 #include <sdm/world/base/mpomdp_interface.hpp>
 #include <sdm/world/base/belief_mdp_interface.hpp>
-#include <sdm/world/base/ndpomdp_interface.hpp>
 
 #include <sdm/world/gym_interface.hpp>
 #include <sdm/world/bayesian_game_interface.hpp>

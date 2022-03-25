@@ -15,8 +15,8 @@ namespace sdm
         static double PRECISION_COMPRESSION;
 
         PrivateOccupancyState();
-        PrivateOccupancyState(number num_agents);
-        PrivateOccupancyState(number agent_id, number num_agents);
+        PrivateOccupancyState(number num_agents, number h);
+        PrivateOccupancyState(number agent_id, number num_agents, number h);
         PrivateOccupancyState(const PrivateOccupancyState &);
         PrivateOccupancyState(const OccupancyState &);
 
@@ -69,3 +69,5 @@ namespace sdm
         std::unordered_map<Joint<std::shared_ptr<HistoryInterface>>, std::shared_ptr<JointHistoryInterface>> map_partial_to_jhist;
     };
 } // namespace sdm
+
+DEFINE_STD_HASH(sdm::PrivateOccupancyState, sdm::OccupancyState::PRECISION);

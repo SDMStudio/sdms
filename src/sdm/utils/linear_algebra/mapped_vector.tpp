@@ -397,7 +397,6 @@ namespace std
         {
             size_t seed = 0;
             double inverse_of_precision = 1. / precision;
-            std::map<Key, Value> ordered(in.begin(), in.end());
             std::map<Key, int> rounded;
             for (const auto &pair_item_value : in)
             {

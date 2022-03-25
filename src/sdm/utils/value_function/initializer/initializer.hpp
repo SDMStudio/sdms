@@ -101,18 +101,4 @@ namespace sdm
         void init(std::shared_ptr<ValueFunctionInterface> vf);
     };
 
-    /**
-     * @brief This initializer calculates the initial lower bound $\bar{V}_0$ using the blind  policy method [Hauskrecht, 1997].
-     *
-     * Trey Smith and Reid Simmons used this initialization procedure in https://arxiv.org/pdf/1207.4166.pdf .
-     *
-     */
-    class BlindInitializer : public BoundInitializer
-    {
-    public:
-        BlindInitializer(std::shared_ptr<SolvableByDP> world, Config config = {});
-
-        void init(std::shared_ptr<ValueFunctionInterface> vf);
-    };
-
 } // namespace sdm

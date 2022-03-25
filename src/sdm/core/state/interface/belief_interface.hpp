@@ -14,42 +14,45 @@ namespace sdm
     class BeliefInterface : public State
     {
     public:
-        using Vector = VectorInterface<std::shared_ptr<State>, double>;
-
         virtual std::vector<std::shared_ptr<State>> getStates() const = 0;
 
-        virtual size_t size() const = 0;
-
         virtual double getProbability(const std::shared_ptr<State> &state) const = 0;
-
         virtual void setProbability(const std::shared_ptr<State> &state, double proba) = 0;
-
         virtual void addProbability(const std::shared_ptr<State> &, double proba) = 0;
 
         virtual std::shared_ptr<State> sampleState() = 0;
 
         virtual void normalizeBelief(double norm_1) = 0;
-
-        virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
-        virtual bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const = 0;
-        virtual double operator^(const std::shared_ptr<BeliefInterface> &other) const = 0;
-        virtual double operator<(const std::shared_ptr<BeliefInterface> &other) const = 0;
-
-        virtual double norm_1() const = 0;
-
-        virtual void setDefaultValue(double) = 0;
         
+        virtual double norm_1() const = 0;
+        virtual bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const = 0;
+
+        virtual void setDefaultValue(double) = 0;        
         virtual double getDefaultValue() const = 0;
 
+        virtual size_t size() const = 0;
         virtual void finalize() = 0;
-
-        virtual std::shared_ptr<Vector> getVectorInferface() = 0;
-
-        TypeState getTypeState() const
-        {
-            return TypeState::BELIEF_STATE;
-        }
-
-        virtual bool isStateExist(const std::shared_ptr<State>& state_tmp)const =0;
     };
+
+    // class BeliefInterface2 : public State
+    // {
+    // public:
+    //     virtual double getProbability(const std::shared_ptr<State> &state) const = 0;
+
+    //     virtual std::shared_ptr<State> sampleState() = 0;
+
+    //     virtual void normalizeBelief(double norm_1) = 0;
+
+    //     virtual bool operator==(const std::shared_ptr<BeliefInterface> &other) const = 0;
+    //     virtual bool isEqualNorm1(const std::shared_ptr<BeliefInterface> &other, double precision) const = 0;
+    //     virtual double operator^(const std::shared_ptr<BeliefInterface> &other) const = 0;
+    //     virtual double operator<(const std::shared_ptr<BeliefInterface> &other) const = 0;
+
+    //     virtual double norm_1() const = 0;
+
+    //     virtual double getDefaultValue() const = 0;
+
+    //     virtual void finalize() = 0;
+
+    // };
 }

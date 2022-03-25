@@ -1,3 +1,4 @@
+#ifdef WITH_CPLEX
 #include <memory>
 #include <sdm/world/two_players_normal_form_game.hpp>
 #include <sdm/parser/parser.hpp>
@@ -29,3 +30,5 @@ int main(int argc, char **argv)
     solver->solve();    
     //solver->terminate();
 }
+
+#endif

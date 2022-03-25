@@ -66,14 +66,14 @@ namespace sdm
     double BaseSawtoothValueFunction<Hash, KeyEqual>::getRelaxedValueAt(const std::shared_ptr<State> &state, number t)
     {
         double relaxed_value = 0;
-        auto iter_relax = this->relaxation[t].find(state);
-        if (iter_relax == this->relaxation[t].end())
+        auto iter_relax = this->relaxation[this->isInfiniteHorizon() ? 0 : t].find(state);
+        if (iter_relax == this->relaxation[this->isInfiniteHorizon() ? 0 : t].end())
         {
             if (this->getInitFunction())
                 relaxed_value = this->getInitFunction()->operator()(state, t);
             else
-                relaxed_value = this->representation[t].getDefault();
-            this->relaxation[t].emplace(state, relaxed_value);
+                relaxed_value = this->representation[this->isInfiniteHorizon() ? 0 : t].getDefault();
+            this->relaxation[this->isInfiniteHorizon() ? 0 : t].emplace(state, relaxed_value);
         }
         else
         {
@@ -86,8 +86,8 @@ namespace sdm
     Pair<std::shared_ptr<State>, double> BaseSawtoothValueFunction<Hash, KeyEqual>::evaluate(const std::shared_ptr<State> &state, number t)
     {
 
-        auto iterator_on_point = this->representation[t].find(state);
-        if (iterator_on_point != this->representation[t].end())
+        auto iterator_on_point = this->representation[this->isInfiniteHorizon() ? 0 : t].find(state);
+        if (iterator_on_point != this->representation[this->isInfiniteHorizon() ? 0 : t].end())
         {
             return *iterator_on_point;
         }
@@ -99,7 +99,7 @@ namespace sdm
             double v_relax = this->getRelaxedValueAt(state, t);
 
             // Go over all points in the representation
-            for (const auto &point_k : this->representation[t])
+            for (const auto &point_k : this->representation[this->isInfiniteHorizon() ? 0 : t])
             {
                 // Dissociate element of the k-th point (state / value)
                 auto [s_k, v_k] = point_k;
@@ -243,7 +243,7 @@ namespace sdm
         // Erase pairwise epsilon-dominated points
         for (const auto &to_delete : point_to_delete)
         {
-            this->representation[t].erase(to_delete);
+            this->representation[this->isInfiniteHorizon() ? 0 : t].erase(to_delete);
         }
     }
 

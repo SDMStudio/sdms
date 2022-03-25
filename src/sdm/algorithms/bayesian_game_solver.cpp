@@ -1,3 +1,5 @@
+#ifdef WITH_CPLEX
+
 #include "sdm/algorithms/bayesian_game_solver.hpp"
 #include <sdm/exception.hpp>
 
@@ -117,3 +119,4 @@ void sdm::TwoPlayersBayesianGameSolver::test() {
 void sdm::TwoPlayersBayesianGameSolver::save() {
     throw sdm::exception::NotImplementedException();
 }
+#endif

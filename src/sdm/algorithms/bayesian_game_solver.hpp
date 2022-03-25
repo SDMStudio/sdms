@@ -1,5 +1,6 @@
-#pragma once
+#ifdef WITH_CPLEX
 
+#pragma once
 #include <sdm/world/bayesian_game_interface.hpp>
 #include <ilcplex/ilocplex.h>
 #include <sdm/public/algorithm.hpp>
@@ -38,3 +39,4 @@ namespace sdm
         int playerIndex;
     };
 };
+#endif

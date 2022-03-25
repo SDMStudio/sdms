@@ -124,7 +124,7 @@ namespace sdm
         number recover = 0;
 
         double Qrelaxation;
-        number agent_id = serial_mpomdp->getAgentId(t);
+        number agent_id = this->getSerialOccupancyMDP()->getAgentId(t);
         auto compressed_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(occupancy_state);
 
         con.add(IloRange(env, -IloInfinity, 0));
@@ -153,7 +153,7 @@ namespace sdm
     // void ActionSelectionSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<ValueFunctionInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, const std::shared_ptr<Observation> &, const std::shared_ptr<JointHistoryInterface> &, const std::shared_ptr<State> &, double, double, IloEnv &, IloRangeArray &, IloNumVarArray &, number &, number)
     void ActionSelectionSawtoothLPSerial::createSawtoothBigM(const std::shared_ptr<OccupancyStateInterface> &occupancy_state, const std::shared_ptr<OccupancyStateInterface> &s_k, const std::shared_ptr<State> &next_state, const std::shared_ptr<JointHistoryInterface> &next_joint_history, const std::shared_ptr<Observation> &next_observation, IloEnv &env, IloRangeArray &con, IloNumVarArray &var, number &index, number t)
     {
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in ActionSelectionSawtoothLPSerial::createSawtoothBigM");
         // try
         // {
         //     auto underlying_problem = std::dynamic_pointer_cast<SerialMMDP>(this->world_->getUnderlyingProblem());
@@ -197,7 +197,7 @@ namespace sdm
         double coef, ratio, difference = this->sawtooth_vf->getValueAt(s_k, t + 1) - this->sawtooth_vf->getRelaxedValueAt(s_k, t + 1);
 
         // Gets the current individual history conditional on the current joint history
-        number agent_id = serial_mpomdp->getAgentId(t);
+        number agent_id = this->getSerialOccupancyMDP()->getAgentId(t);
         auto compressed_occupancy_state = std::dynamic_pointer_cast<OccupancyState>(occupancy_state);
 
         IloExpr expr(env);
@@ -231,7 +231,7 @@ namespace sdm
 
     std::shared_ptr<JointObservation> ActionSelectionSawtoothLPSerial::determineNextJointObservation(const std::shared_ptr<JointHistoryInterface> &next_joint_history, number t)
     {
-        return (this->getSerialOccupancyMDP()->isLastAgent(t)) ? std::static_pointer_cast<JointObservation>(next_joint_history->getLastObservation()) : this->getSerialOccupancyMDP()->getUnderlyingSerialMPOMDP()->getDefaultObservation();
+        return (this->getSerialOccupancyMDP()->isLastAgent(t)) ? std::static_pointer_cast<JointObservation>(next_joint_history->getLastObservation()) : this->getSerialOccupancyMDP()->getDefaultObservation();
     }
 }
 

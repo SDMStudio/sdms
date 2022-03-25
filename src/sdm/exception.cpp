@@ -13,7 +13,7 @@ namespace sdm
             return error_message.c_str();
         }
 
-        NotImplementedException::NotImplementedException() : Exception("Not Implemented Exception")
+        NotImplementedException::NotImplementedException(const std::string &msg_) : Exception(msg_)
         {
         }
 
@@ -32,7 +32,7 @@ namespace sdm
             return file;
         }
 
-        ParsingException::ParsingException(const std::string &line_details_) : Exception("Parsing failed -> Stopped at: \"" + line_details_ + "\"\n"),
+        ParsingException::ParsingException(const std::string &line_details_) : Exception("Parsing failed. Stopped with the following context: \n" + line_details_ + "\n"),
                                                                                     line_details(line_details_)
         {
         }

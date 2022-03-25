@@ -10,7 +10,7 @@ namespace sdm
     std::shared_ptr<Action> StochasticDecisionRule::act(const std::shared_ptr<State> &) const
     {
         // return this->at(s);
-        throw sdm::exception::NotImplementedException();
+        throw sdm::exception::NotImplementedException("NotImplementedException raised in StochasticDecisionRule::act");
     }
 
     // template <typename std::shared_ptr<State>, typename std::shared_ptr<Action>>
@@ -68,13 +68,6 @@ namespace sdm
         }
         res << "<decision-rule/>" << std::endl;
         return res.str();
-    }
-
-    bool StochasticDecisionRule::elementExist(const std::shared_ptr<State>& state)
-    {
-        //A tester 
-        throw sdm::exception::NotImplementedException();
-        // return (this->find(state) != this->end()) ? true : false;
     }
 
 } // namespace sdm

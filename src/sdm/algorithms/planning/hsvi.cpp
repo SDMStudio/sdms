@@ -70,9 +70,10 @@ namespace sdm
                     // Update the value function (frontward update)
                     updateValue(state, t);
                 }
+
                 // Select next action
                 auto [action, value] = getUpperBound()->getGreedyActionAndValue(state, t);
-                
+
                 // Select next observation
                 for (const auto &observation : selectObservations(state, action, t))
                 {
