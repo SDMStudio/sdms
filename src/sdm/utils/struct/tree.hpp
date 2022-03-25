@@ -43,7 +43,8 @@ namespace sdm
      * 
      */
     template <typename T>
-    class Tree : public std::inheritable_enable_shared_from_this<Tree<T>>
+    class Tree
+    //public std::inheritable_enable_shared_from_this<Tree<T>>
     //public BoostSerializable<Tree<T>>
     {
     public:
@@ -88,9 +89,9 @@ namespace sdm
 
         std::vector<std::shared_ptr<Tree<T>>> getChildren() const;
 
-        void addChild(const T &child_item);
+        // void addChild(const T &child_item);
 
-        void addChildren(const std::vector<T> &child_items);
+        // void addChildren(const std::vector<T> &child_items);
 
         std::shared_ptr<Tree<T>> getParent() const;
 
@@ -104,7 +105,7 @@ namespace sdm
 
         std::string str() const;
 
-        std::shared_ptr<Tree<T>> getptr();
+        // std::shared_ptr<Tree<T>> getptr();
 
         template <class Archive>
         void serialize(Archive &archive, const unsigned int);
@@ -132,7 +133,7 @@ namespace sdm
         std::weak_ptr<Tree<T>> parent_;
 
         //! @brief mapping of items to successor trees
-        std::map<T, std::shared_ptr<Tree<T>>> children_;
+        std::unordered_map<T, std::shared_ptr<Tree<T>>> children_;
 
         bool is_origin = false;
     };

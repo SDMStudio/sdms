@@ -7,7 +7,7 @@ namespace sdm
     POMDP::POMDP(const std::shared_ptr<Space> &state_space,
                  const std::shared_ptr<Space> &action_space,
                  const std::shared_ptr<Space> &observation_space,
-                 const std::shared_ptr<RewardInterface> &reward,
+                 const std::shared_ptr<RewardModel> &reward,
                  const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                  const std::shared_ptr<ObservationDynamicsInterface> &observation_dynamics,
                  const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,

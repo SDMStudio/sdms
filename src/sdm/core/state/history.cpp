@@ -45,9 +45,4 @@ namespace sdm
     // {
     // }
 
-    // TypeState History::getTypeState() const
-    // {
-    //     return TypeState::STATE;
-    // }
-
 } // namespace sdm

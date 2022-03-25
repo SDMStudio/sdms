@@ -22,22 +22,33 @@
 namespace sdm
 {
     template <class TInit>
-    std::shared_ptr<Initializer> createInstance(std::shared_ptr<SolvableByHSVI> world) { return std::shared_ptr<TInit>(new TInit(world)); }
+    std::shared_ptr<Initializer> createInstance(std::shared_ptr<SolvableByHSVI> world) { return std::make_shared<TInit>(world); }
 
     template <class TInit>
-    std::shared_ptr<Initializer> createInstanceAlgoInit(std::shared_ptr<SolvableByHSVI> world,std::string algo_name, double error, int trials) { return std::shared_ptr<TInit>(new TInit(world,algo_name, error, trials)); }
+    std::shared_ptr<Initializer> createInstanceAlgoInit(std::shared_ptr<SolvableByHSVI> world, std::string algo_name) { return std::make_shared<TInit>(world, algo_name); }
 
-    std::shared_ptr<Initializer> createInstanceTabMDPInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "tabular_hsvi", 0, 200000)(); }
+    std::shared_ptr<Initializer> createInstanceMdpHsviInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>, world, "HSVI")(); }
 
-    std::shared_ptr<Initializer> createInstanceMDPValueIterationInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>,world, "ValueIteration", 0, 200000)(); }
+    std::shared_ptr<Initializer> createInstanceMdpValueIterationInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<MDPInitializer>, world, "ValueIteration")(); }
 
-    std::shared_ptr<Initializer> createInstanceTabPOMDPInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<POMDPInitializer>,world, "tabular_hsvi", 0.01, 200000)(); }
+    std::shared_ptr<Initializer> createInstanceTabPomdpHsviInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<POMDPInitializer>, world, "TabHSVI")(); }
+
+    std::shared_ptr<Initializer> createInstancePomdpHsviInit(std::shared_ptr<SolvableByHSVI> world) { return boost::bind(createInstanceAlgoInit<POMDPInitializer>, world, "HSVI")(); }
+
+    // template <class TInitializer, class... TParams>
+    // std::shared_ptr<Initializer> createInstanceWithParam(std::shared_ptr<SolvableByHSVI> world, const TParams... &params) { return std::make_shared<TInitializer>(world, params...); }
+
+    // template <class TInitializer, const char *name>
+    // std::shared_ptr<Initializer> createInstance(std::shared_ptr<SolvableByHSVI> world)
+    // {
+    //     return boost::bind(createInstanceWithParam<TInitializer>, world, "HSVI")();
+    // }
 
     /**
      * @brief The InitializerFactor class facilitates users to interact and instanciate value function initializers. 
-     * Some of the available initializers are : MinInitializer, MaxInitializer, BlindInitializer, ZeroInitializer. For a complete list of initializer, you can use :
+     * Some of the available initializers are : MinInitializer, MaxInitializer, ZeroInitializer. For a complete list of initializer, you can use :
      *      std::cout << InitializerFactory::available() << std::endl;
-     * 
+     *
      */
     class InitializerFactory
     {
@@ -46,12 +57,14 @@ namespace sdm
         static inline map_type registry_ = {
             {"Min", &createInstance<MinInitializer>},
             {"Max", &createInstance<MaxInitializer>},
-            {"Blind", &createInstance<BlindInitializer>},
-            {"Zero", &createInstance<ZeroInitializer<>>},
+            {"Zero", &createInstance<ZeroInitializer>},
             //{"PolicyEvaluationInitializer", &createInstance,PolicyEvaluationInitializer>},
-            {"MdpHsvi", &createInstanceTabMDPInit},
-            {"MdpValueIteration", &createInstanceMDPValueIterationInit},
-            {"PomdpHsvi", &createInstanceTabPOMDPInit},
+            {"Mdp", &createInstanceMdpValueIterationInit},
+            {"MdpValueIteration", &createInstanceMdpValueIterationInit},
+            {"MdpHsvi", &createInstanceMdpHsviInit},
+            {"Pomdp", &createInstancePomdpHsviInit},
+            {"PomdpHsvi", &createInstancePomdpHsviInit},
+            {"TabPomdpHsvi", &createInstanceTabPomdpHsviInit},
         };
 
     public:
@@ -68,7 +81,7 @@ namespace sdm
             return available_init;
         }
 
-        static std::shared_ptr<Initializer> make(std::string name,std::shared_ptr<SolvableByHSVI> world)
+        static std::shared_ptr<Initializer> make(std::string name, std::shared_ptr<SolvableByHSVI> world)
         {
             typename map_type::iterator it = InitializerFactory::getRegistry().find(name);
             if (it == InitializerFactory::getRegistry().end())
@@ -97,9 +110,9 @@ namespace sdm
         }
     };
 
-    std::shared_ptr<Initializer> makeInitializer(std::string init_name,std::shared_ptr<SolvableByHSVI> world)
+    std::shared_ptr<Initializer> makeInitializer(std::string init_name, std::shared_ptr<SolvableByHSVI> world)
     {
-        return InitializerFactory::make(init_name,world);
+        return InitializerFactory::make(init_name, world);
     }
 
 } // namespace sdm

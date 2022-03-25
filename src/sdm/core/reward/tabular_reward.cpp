@@ -6,69 +6,87 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 
 namespace sdm
 {
-  TabularReward::TabularReward() {}
-  
-  TabularReward::~TabularReward() {}
+  CooperativeRewardModel::CooperativeRewardModel() {}
 
-  TabularReward::TabularReward(const TabularReward &copy) : rewards_(copy.rewards_), max(copy.max), min(copy.min)
+  CooperativeRewardModel::~CooperativeRewardModel() {}
+
+  CooperativeRewardModel::CooperativeRewardModel(const CooperativeRewardModel &copy) : rewards_(copy.rewards_), max(copy.max), min(copy.min)
   {
   }
 
-  // TabularReward::TabularReward(number num_jactions, number num_states)
-  // {
-  //   this->initReward(num_jactions, num_states);
-  // }
-
-  void TabularReward::initReward(number, number)
+  void CooperativeRewardModel::initReward(number, number)
   {
-    // number a;
-    // for (a = 0; a < num_action; ++a)
-    // {
-    //   this->rewards.push_back(TabularReward::vector_type(num_states, 0.));
-    // }
   }
 
-  double TabularReward::getReward(const std::shared_ptr<State> &s, const std::shared_ptr<Action> &a, number) const
+  double CooperativeRewardModel::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number, number) const
   {
-    return this->rewards_.getValueAt(s, a);
+    return this->rewards_.getValueAt(state, action);
   }
 
-  // const TabularReward::vector_type &TabularReward::getReward(std::shared_ptr<Action> a) const
-  // {
-  //   return this->rewards_[a];
-  // }
-
-  // const std::vector<TabularReward::vector_type> &TabularReward::getReward() const
-  // {
-  //   return this->rewards;
-  // }
-
-  // void TabularReward::setReward(std::shared_ptr<Action> a, TabularReward::vector_type v)
-  // {
-  //   auto r = v.min();
-  //   this->min = std::min(r, this->min);
-
-  //   r = v.max();
-  //   this->max = std::max(r, this->max);
-
-  //   this->rewards[a] = v;
-  // }
-
-  void TabularReward::setReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, double reward, number)
+  void CooperativeRewardModel::setReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number, double reward, number)
   {
     this->min = std::min(reward, this->min);
     this->max = std::max(reward, this->max);
-    return this->rewards_.setValueAt(state, action, reward);
+    this->rewards_.setValueAt(state, action, reward);
   }
 
-  double TabularReward::getMaxReward(number) const
+  double CooperativeRewardModel::getMaxReward(number, number) const
   {
     return this->max;
   }
 
-  double TabularReward::getMinReward(number) const
+  double CooperativeRewardModel::getMinReward(number, number) const
   {
     return this->min;
+  }
+
+  CompetitiveRewardModel::CompetitiveRewardModel() {}
+
+  CompetitiveRewardModel::~CompetitiveRewardModel() {}
+
+  CompetitiveRewardModel::CompetitiveRewardModel(const CompetitiveRewardModel &copy) : rewards_(copy.rewards_), max(copy.max), min(copy.min)
+  {
+  }
+
+  void CompetitiveRewardModel::initReward(number, number)
+  {
+  }
+
+  double CompetitiveRewardModel::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number agent_id, number) const
+  {
+    return this->rewards_.at(state).at(action).at(agent_id);
+  }
+
+  void CompetitiveRewardModel::setReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, std::vector<double> rewards, number)
+  {
+    if (min.size() == 0)
+    {
+      this->min = std::vector<double>(rewards.size(), -std::numeric_limits<double>::max());
+      this->max = std::vector<double>(rewards.size(), std::numeric_limits<double>::max());
+    }
+    for (int ag = 0; ag < rewards.size(); ag++)
+    {
+      this->min[ag] = std::min(rewards[ag], this->min[ag]);
+      this->max[ag] = std::max(rewards[ag], this->max[ag]);
+    }
+    this->rewards_[state][action] = rewards;
+  }
+
+  void CompetitiveRewardModel::setReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number agent_id, double reward, number)
+  {
+    this->min[agent_id] = std::min(reward, this->min[agent_id]);
+    this->max[agent_id] = std::max(reward, this->max[agent_id]);
+    this->rewards_[state][action][agent_id] = reward;
+  }
+
+  double CompetitiveRewardModel::getMaxReward(number agent_id, number) const
+  {
+    return this->max.at(agent_id);
+  }
+
+  double CompetitiveRewardModel::getMinReward(number agent_id, number) const
+  {
+    return this->min.at(agent_id);
   }
 
 } // namespace sdm

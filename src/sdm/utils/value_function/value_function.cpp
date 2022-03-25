@@ -4,18 +4,26 @@
 
 namespace sdm
 {
-    ValueFunction::ValueFunction(number horizon, const std::shared_ptr<Initializer> &initializer, const std::shared_ptr<BackupInterfaceForValueFunction> &backup, const std::shared_ptr<ActionVFInterface> &action)
-        : BaseValueFunction(horizon), backup_(backup), action_(action), initializer_(initializer)
+    using namespace update;
+
+    ValueFunction::ValueFunction() {}
+
+    ValueFunction::ValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                                 const std::shared_ptr<Initializer> &initializer,
+                                 const std::shared_ptr<ActionSelectionInterface> &action_selection)
+        : ValueFunctionInterface(world, initializer, action_selection)
     {
     }
 
-    ValueFunction::ValueFunction(const ValueFunction &copy) : BaseValueFunction(copy), backup_(copy.backup_), init_function_(copy.init_function_), action_(copy.action_), initializer_(copy.initializer_)
+    ValueFunction::ValueFunction(const ValueFunction &copy)
+        : ValueFunction(copy.world_, copy.initializer_, copy.action_selection_)
     {
+        this->update_operator_ = copy.update_operator_;
     }
 
-    std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
+    double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        return this->init_function_;
+        return this->getWorld()->getReward(state, action, t) + this->getWorld()->getDiscount(t) * this->getWorld()->getExpectedNextValue(this->getptr(), state, action, t);
     }
 
     double ValueFunction::operator()(const std::shared_ptr<State> &state, const number &t)
@@ -23,106 +31,34 @@ namespace sdm
         return this->getValueAt(state, t);
     }
 
-    void ValueFunction::initialize(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
+    std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> ValueFunction::getInitFunction()
+    {
+        return this->init_function_;
+    }
+
+    void ValueFunction::setInitFunction(const std::shared_ptr<BinaryFunction<std::shared_ptr<State>, number, double>> &init_function)
     {
         this->init_function_ = init_function;
     }
 
+    void ValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
+    {
+        this->getUpdateOperator()->update(state, t);
+    }
+
+    std::shared_ptr<UpdateOperatorInterface> ValueFunction::getUpdateOperator() const
+    {
+        return this->update_operator_;
+    }
+    void ValueFunction::setUpdateOperator(std::shared_ptr<UpdateOperatorInterface> update_operator)
+    {
+        this->update_operator_ = update_operator;
+    }
+
     std::shared_ptr<ValueFunction> ValueFunction::getptr()
     {
-        return std::static_pointer_cast<ValueFunction>(this->shared_from_this());
+        return std::dynamic_pointer_cast<ValueFunction>(this->shared_from_this());
     }
-
-    std::shared_ptr<Action> ValueFunction::getBestAction(const std::shared_ptr<State> &state, number t)
-    {
-        return this->getBestActionAndValue(state, t).first;
-    }
-
-    Pair<std::shared_ptr<Action>, double> ValueFunction::getBestActionAndValue(const std::shared_ptr<State> &state, number t)
-    {
-#ifdef LOGTIME
-        std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-#endif
-
-        auto pair_action_value = this->action_->selectBestAction(this->getptr(), state, t);
-
-#ifdef LOGTIME
-        this->updateTime(time_start, "Best Action");
-#endif
-
-        return pair_action_value;
-    }
-
-#ifdef LOGTIME
-    void ValueFunction::updateTime(std::chrono::high_resolution_clock::time_point start_time, std::string information)
-    {
-        if (information == "backup")
-        {
-            this->total_time_update_backup += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Best Action")
-        {
-            this->total_time_update_best_action += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Exist")
-        {
-            this->total_time_exist += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Evaluate")
-        {
-            this->total_time_evaluate += std::Performance::computeTime(start_time);
-        }
-        else if (information == "GetValueAt")
-        {
-            this->time_get_value_at += std::Performance::computeTime(start_time);
-        }
-        else if (information == "UpdateValue")
-        {
-            this->time_update_value += std::Performance::computeTime(start_time);
-        }
-        else if (information == "Pruning")
-        {
-            this->time_pruning += std::Performance::computeTime(start_time);
-        }
-    }
-
-    double ValueFunction::getTime(std::string information)
-    {
-        if (information == "backup")
-        {
-            return this->total_time_update_backup;
-        }
-        else if (information == "Best Action")
-        {
-            return this->total_time_update_best_action;
-        }
-        else if (information == "Exist")
-        {
-            return this->total_time_exist;
-        }
-        else if (information == "Evaluate")
-        {
-            return this->total_time_evaluate;
-        }
-        else if (information == "GetValueAt")
-        {
-            return this->time_get_value_at;
-        }
-        else if (information == "UpdateValue")
-        {
-            return this->time_update_value;
-        }
-        else if (information == "Pruning")
-        {
-            return this->time_pruning;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-#endif
 
     size_t ValueFunction::getSize() const
     {
@@ -133,5 +69,4 @@ namespace sdm
         }
         return size_total;
     }
-
 } // namespace sdm

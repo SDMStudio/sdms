@@ -9,40 +9,40 @@ namespace sdm
     {
     public:
         /**
-         * @brief Set pair name identifier for a given variable 
+         * @brief Set pair name identifier for a given variable
          * @param const std::string& name
          * @param number identifier
          */
         void setNumber(const std::string &, number);
 
         /**
-         * @brief Get the name of a free variable  
-         * @param number identifier of a variable 
-         * @return std::string  name 
+         * @brief Get the name of a free variable
+         * @param number identifier of a variable
+         * @return std::string  name
          */
         std::string getVarNameWeight(number);
 
         /**
-         * @brief Get the name associated with a pair of action and joint history 
-         * @param action 
+         * @brief Get the name associated with a pair of action and joint history
+         * @param action
          * @param const typename TVector::jhistory_type&
-         * @return std::string name 
+         * @return std::string name
          */
-        std::string getVarNameJointHistoryDecisionRule(const std::shared_ptr<Action>&, const std::shared_ptr<JointHistoryInterface>&);
+        std::string getVarNameJointHistoryDecisionRule(const std::shared_ptr<Action> &, const std::shared_ptr<JointHistoryInterface> &);
 
         /**
-         * @brief Get the name associated with a pair of action and individual history 
-         * @param action 
+         * @brief Get the name associated with a pair of action and individual history
+         * @param action
          * @param typename TVector::jhistory_type::element_type::ihistory_type
          * @param agent
-         * @return std::string name 
+         * @return std::string name
          */
-        std::string getVarNameIndividualHistoryDecisionRule(const std::shared_ptr<Action>&,const std::shared_ptr<HistoryInterface>&, const number&);
+        std::string getVarNameIndividualHistoryDecisionRule(const std::shared_ptr<Action> &, const std::shared_ptr<HistoryInterface> &, const number &);
 
-        std::string getVarNameIndividualHistory(const std::shared_ptr<HistoryInterface>& ihistory, const number agent);
+        std::string getVarNameIndividualHistory(const std::shared_ptr<HistoryInterface> &ihistory, const number agent);
 
         /**
-         * @brief Get the identifier associated with a given name 
+         * @brief Get the identifier associated with a given name
          * @param const std::string& name
          * @return number  identifier
          */
@@ -51,13 +51,13 @@ namespace sdm
         /**
          * @brief Get the Var Name Weighted State Joint History object
          * @warning const TVector& should be something like const std::shared_ptr<TVector>& or  const TVector*&
-         * @return std::string 
+         * @return std::string
          */
-        std::string getVarNameWeightedStateJointHistory(const std::shared_ptr<State>&, const std::shared_ptr<State>&, const std::shared_ptr<JointHistoryInterface> &);
+        std::string getVarNameWeightedStateJointHistory(const std::shared_ptr<State> &s, const std::shared_ptr<State> &x, const std::shared_ptr<JointHistoryInterface> &o);
 
     protected:
         /**
-         * @brief mapping from variable names to variable identifiers 
+         * @brief mapping from variable names to variable identifiers
          */
         RecursiveMap<std::string, number> variables;
     };

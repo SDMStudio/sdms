@@ -1,20 +1,21 @@
 /**
- * @file value_function.hpp
+ * @file qvalue_function.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
  * @brief Defines the value function interface.
  * @version 0.1
  * @date 16/12/2020
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #pragma once
 
 #include <memory>
 
+#include <sdm/types.hpp>
 #include <sdm/core/function.hpp>
-#include <sdm/utils/linear_algebra/vector_interface.hpp>
-#include <sdm/utils/value_function/base_value_function.hpp>
+#include <sdm/utils/value_function/value_function_interface.hpp>
+#include <sdm/utils/value_function/update_operator/qupdate_operator.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -22,108 +23,68 @@
  */
 namespace sdm
 {
+    using namespace update;
+
     /**
      * @class QValueFunction
-     * @brief This class is the abstract class of value function. All value function must derived this class.
-     * 
-     * @tparam std::shared_ptr<State> Type of the state.
-     * @tparam std::shared_ptr<Action> Type of the action.
-     * @tparam double Type of the value.
+     *
+     * @brief This abstract class is made up of various methods specific to Q-value functions.
+     *
+     * All Q-value functions must inherit from this class to be considered as data structures
+     * usable by reinforcement learning algorithms
+     *
      */
-    template <class TInput = std::shared_ptr<State>>
-    class QValueFunction : public BaseValueFunction<Pair<TInput,std::shared_ptr<Action>>>
+    class QValueFunction : virtual public ValueFunctionInterface
     {
-    protected:
-        /**
-         * @brief Initialization function. If defined, algorithms on value functions will get inital values using this function.
-         * 
-         */
-        // std::shared_ptr<BinaryFunction<std::shared_ptr<State>, std::shared_ptr<Action>, number, double>> init_function_ = nullptr;
 
     public:
-        using TGlobalInput = Pair<TInput,std::shared_ptr<Action>>;
-
         QValueFunction();
 
-        /**
-         * @brief Construct a new Incremental Value Function object
-         * 
-         * @param problem 
-         * @param default_value 
-         */
-        QValueFunction(number horizon);
-
-        /**
-         * @brief Initialize the value function 
-         */
-        virtual void initialize() = 0;
-
-        /**
-         * @brief Initialize the value function with a default value
-         */
-        virtual void initialize(double v, number t = 0) = 0;
+        QValueFunction(const std::shared_ptr<SolvableByDP> &world,
+                       const std::shared_ptr<Initializer> &initializer = nullptr,
+                       const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
+                       const std::shared_ptr<QUpdateOperatorInterface> &update_operator = nullptr);
 
         /**
          * @brief Get the value at a given state
          */
-        double getValueAt(const TGlobalInput &input, number t = 0);
-
-        /**
-         * @brief Update the value at a given state
-         */
-        void updateValueAt(const TGlobalInput &input, number t = 0);
-
-        /**
-         * @brief Get the best action to do at a state
-         * 
-         * @param state the state
-         * @return the best action
-         */
-        std::shared_ptr<Action> getBestAction(const TGlobalInput &input, number t);
-        
-        /**
-         * @brief Get the q-values for all actions at a state
-         * 
-         * @param state the state
-         * @return the q-value vector 
-         */
-        virtual std::shared_ptr<VectorInterface<std::shared_ptr<Action>, double>> getQValuesAt(const TInput &state, number t) = 0;
+        double getValueAt(const std::shared_ptr<State> &state, number t = 0);
 
         /**
          * @brief Get the q-value given state and action
-         * 
+         *
          * @param state the state
          * @param action the action
          * @return the q-value
          */
-        virtual double getQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual double getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0) = 0;
 
         /**
-         * @brief Update the value at a given state
+         * @brief Update the value at a given time step
          */
-        virtual void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t = 0) = 0;
+        void updateValueAt(double learning_rate, number t = 0);
 
         /**
-         * @brief Update the value at a given state (given a target)
+         * @brief Get the update operator
          */
-        virtual void updateQValueAt(const TInput &state, const std::shared_ptr<Action> &action, number t, double target) = 0;
-
-        virtual bool isNotSeen(const TInput &state, number t) = 0;
-
-        virtual int getNumStates() const = 0;
-
-        // virtual void printNumberOfActions() = 0;
+        std::shared_ptr<QUpdateOperatorInterface> getUpdateOperator() const;
 
         /**
-         * @brief Define this function in order to be able to display the value function
+         * @brief Set the update operator
+         * 
+         * @param update_operator the update operator
          */
-        virtual std::string str() const = 0;
+        void setUpdateOperator(std::shared_ptr<QUpdateOperatorInterface> update_operator);
 
         /**
-         * @brief Get shared pointer on the current QValueFunction
+         * @brief Get a shared pointer on this q-value function
          */
         std::shared_ptr<QValueFunction> getptr();
 
+    protected:
+        /**
+         * @brief The operator used to update the value function
+         */
+        std::shared_ptr<QUpdateOperatorInterface> update_operator_;
     };
 } // namespace sdm
-#include <sdm/utils/value_function/qvalue_function.tpp>

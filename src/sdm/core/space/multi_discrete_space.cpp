@@ -103,7 +103,7 @@ namespace sdm
         this->generateItems();
     }
 
-    number MultiDiscreteSpace::getJointItemIndex(std::shared_ptr<Joint<std::shared_ptr<Item>>> &jitem) const
+    number MultiDiscreteSpace::getJointItemIndex(std::shared_ptr<JointItem> &jitem) const
     {
         return DiscreteSpace::getItemIndex(jitem);
     }

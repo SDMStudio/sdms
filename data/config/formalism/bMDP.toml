@@ -1,0 +1,9 @@
+name = "BeliefMDP"
+
+store_states = true
+store_actions = true
+batch_size = 0
+
+world = "tiger.dpomdp"
+discount = 1.0
+horizon = 10

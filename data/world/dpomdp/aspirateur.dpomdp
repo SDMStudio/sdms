@@ -1,0 +1,49 @@
+# This is a Dec-POMDP (.dpomdp) file for the broadcast channel problem.
+agents: 2
+discount: 1.0
+values: "reward"
+states: "S0" "S1" "S2"
+start:
+1.0 0.0 0.0
+actions:
+"move" "aspire"
+"move" "aspire"
+observations:
+"propre" "sale"
+"propre" "sale"
+T: "move" "move" : "S0" : "S1" : 1.0
+# T: "move" "move" : "S0" : "S2" : 0.5
+# T: "aspire" "aspire" : "S0" : "S0" : 1.0
+# T: "aspire" "move" : "S0" : "S1" : 1.0
+# T: "move" "aspire" : "S0" : "S2" : 1.0
+# T: "move" "move" : "S1" : "S2" : 0.5
+# T: "move" "move" : "S1" : "S0" : 0.5
+# T: "aspire" "aspire" : "S1" : "S1" : 1.0
+# T: "aspire" "move" : "S1" : "S0" : 1.0
+# T: "move" "aspire" : "S1" : "S1" : 1.0
+# T: "move" "move" : "S2" : "S0" : 0.5
+# T: "move" "move" : "S2" : "S1" : 0.5
+# T: "aspire" "aspire" : "S2" : "S2" : 1.0
+# T: "aspire" "move" : "S2" : "S2" : 1.0
+# T: "move" "aspire" : "S2" : "S0" : 1.0
+O: "*" : "move" "move" : "propre" "propre" : 1.0
+# O: "*" : "move" "move" : "propre" "sale" : 0.075
+# O: "*" : "move" "move" : "sale" "propre" : 0.075
+# O: "*" : "move" "move" : "sale" "sale" : 0.8
+# O: "*" : "aspire" "aspire" : "propre" "propre" : 0.8
+# O: "*" : "aspire" "aspire" : "propre" "sale" : 0.095
+# O: "*" : "aspire" "aspire" : "sale" "propre" : 0.095
+# O: "*" : "aspire" "aspire" : "sale" "sale" : 0.01
+# O: "*" : "aspire" "move" : "propre" "propre" : 0.2
+# O: "*" : "aspire" "move" : "propre" "sale" : 0.5
+# O: "*" : "aspire" "move" : "sale" "propre" : 0.1
+# O: "*" : "aspire" "move" : "sale" "sale" : 0.2
+# O: "*" : "move" "aspire" : "propre" "propre" : 0.2
+# O: "*" : "move" "aspire" : "propre" "sale" : 0.1
+# O: "*" : "move" "aspire" : "sale" "propre" : 0.5
+# O: "*" : "move" "aspire" : "sale" "sale" : 0.2
+R: "move" "move" : "S0" : -1
+# R: "*" : "*" : 0
+# R: "aspire" "move" : "S2" : -1
+# R: "move" "aspire" : "S1" : -1
+#

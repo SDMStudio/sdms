@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace sdm
 {
     /**
@@ -37,11 +39,14 @@ namespace sdm
         // ----------------- PATH PARAMETERS ----------------
         // --------------------------------------------------
 
-        /** @brief Path to the directory where problems are saved. */
+        /** @brief Path to the directory where problems are stored. */
         const std::string PROBLEM_PATH = "/usr/local/share/sdms/world/";
 
+        /** @brief Path to the directory where configuration files are stored. */
+        const std::string CONFIG_PATH = "/usr/local/share/sdms/config/";
 
-
+        /** @brief The name of the default world. */
+        const std::string DEFAULT_WORLD = "mabc.dpomdp";
 
         // --------------------------------------------------
         // ---------------- THEME PARAMETERS ----------------
@@ -50,13 +55,14 @@ namespace sdm
         /** @brief Color code for the main theme */
         const std::string SDMS_THEME_1 = "\033[1;36m";
 
+        /** @brief Color code for the secondary theme */
+        const std::string SDMS_THEME_2 = "\033[0;37m";
+
         /** @brief Color code for ***No Color*** */
         const std::string NO_COLOR = "\033[0m";
 
         /** @brief Custom parameter for logging */
         const std::string LOG_SDMS = SDMS_THEME_1 + "SDMS#>" + NO_COLOR + " ";
-
-
 
 
         // ----------------------------------------------------

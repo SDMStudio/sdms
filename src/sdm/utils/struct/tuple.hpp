@@ -6,13 +6,13 @@
 
 namespace sdm
 {
-    
+
     /**
-     * @brief sdm::Tuple is an alias to [std::tuple](https://en.cppreference.com/w/cpp/utility/tuple) class with added functionnalities. 
+     * @brief sdm::Tuple is an alias to [std::tuple](https://en.cppreference.com/w/cpp/utility/tuple) class with added functionnalities.
      * It is a generalization of sdm::Pair.
-     * 
+     *
      * @tparam T... the types of the elements that the tuple stores. Empty list is supported.
-     * 
+     *
      */
     template <class... T>
     using Tuple = std::tuple<T...>;
@@ -22,7 +22,8 @@ namespace sdm
     {
         os << "Tuple{";
         std::apply(
-            [&os](T const &...tupleArgs) {
+            [&os](T const &...tupleArgs)
+            {
                 std::size_t n{0};
                 ((os << tupleArgs << (++n != sizeof...(T) ? ", " : "")), ...);
             },
@@ -41,7 +42,7 @@ namespace std
         template <class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
         struct HashValueImpl
         {
-            static void apply(size_t &seed, Tuple const &tuple)
+            static void apply(size_t &seed, const Tuple &tuple)
             {
                 HashValueImpl<Tuple, Index - 1>::apply(seed, tuple);
                 sdm::hash_combine(seed, std::get<Index>(tuple));
@@ -51,7 +52,7 @@ namespace std
         template <class Tuple>
         struct HashValueImpl<Tuple, 0>
         {
-            static void apply(size_t &seed, Tuple const &tuple)
+            static void apply(size_t &seed, const Tuple &tuple)
             {
                 sdm::hash_combine(seed, std::get<0>(tuple));
             }
@@ -62,7 +63,7 @@ namespace std
     struct hash<sdm::Tuple<TT...>>
     {
         size_t
-        operator()(sdm::Tuple<TT...> const &tt) const
+        operator()(const sdm::Tuple<TT...> &tt) const
         {
             size_t seed = 0;
             HashValueImpl<sdm::Tuple<TT...>>::apply(seed, tt);

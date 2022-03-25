@@ -1,0 +1,15 @@
+name = "hoMDP"
+
+memory = 1
+store_states = true
+store_actions = true
+state_type = "COMPRESSED"
+batch_size = 0
+
+[world]
+name = "HierarchicalMPOMDP"
+
+[world.world]
+name = "tiger.dpomdp"
+horizon = 10
+discount = 1.0

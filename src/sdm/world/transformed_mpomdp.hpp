@@ -48,6 +48,14 @@ namespace sdm
         double getDiscount(number t) const;
 
         /**
+         * @brief Get the weighted discount factor at timestep t.
+         *
+         * @param t the timestep
+         * @return the discount factor
+         */
+        double getWeightedDiscount(number t) const;
+
+        /**
          * @brief Get the initial distribution over states.
          * 
          * @return the initial distribution over states
@@ -73,6 +81,7 @@ namespace sdm
         double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
 
         double getMinReward(number t) const;
+
         double getMaxReward(number t) const;
 
         /**
@@ -150,7 +159,7 @@ namespace sdm
          * @param t time step
          * @return the action space. 
          */
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t);
+        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
 
         /**
          * @brief Get ths observation space of agent i at timestep t.
@@ -179,21 +188,22 @@ namespace sdm
          * @param t time step.
          * @return the random action. 
          */
-        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<Observation> &observation, number t);
+        std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &observation, number t);
 
         /**
          * @brief Reset the environment and return initial observation.
          * @return the initial observation
          */
-        std::shared_ptr<Observation> reset();
+        std::shared_ptr<State> reset();
 
         /**
          * @brief Do a step on the environment.
          * @param action the action to execute
          * @return the information produced. Include : next observation, rewards, episode done  
          */
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-        std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+        
+        std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action, bool increment_timestep);
 
     protected:
         /** @brief The underlying MPOMDP */

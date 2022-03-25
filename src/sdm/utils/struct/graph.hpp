@@ -76,7 +76,6 @@ namespace sdm
         number getNumNodes() const;
 
         std::shared_ptr<GraphNode<TNode, TEdge>> getSuccessor(const TNode &node, const TEdge &edge) const;
-        std::shared_ptr<GraphNode<TNode, TEdge>> getPredecessor(const TNode &node, const TEdge &edge) const;
 
         void addSuccessor(const TNode &node_value, const TEdge &edge_value, const TNode &succ_node_value);
 

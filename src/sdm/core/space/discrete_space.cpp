@@ -4,7 +4,7 @@
 
 namespace sdm
 {
-    DiscreteSpace::DiscreteSpace() : num_items_(0) 
+    DiscreteSpace::DiscreteSpace() : num_items_(0)
     {
     }
 
@@ -59,10 +59,12 @@ namespace sdm
     std::shared_ptr<Item> DiscreteSpace::sample() const
     {
         assert(!this->all_items_.empty());
-        std::uniform_int_distribution<int> distr(0, this->all_items_.size() - 1);
-        return this->all_items_.left.at(distr(common::global_urng()));
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> distrib(0, this->all_items_.size()-1);
+        return this->all_items_.left.at(distrib(rng));
     }
-    
+
     number DiscreteSpace::getNumItems() const
     {
         // std::cout << "getNumItems() this->num_items_ " << this->num_items_ << std::endl;
@@ -78,20 +80,7 @@ namespace sdm
     {
         return this->all_items_.right.at(item);
     }
-
-    // template <typename T>
-    // std::shared_ptr<Item> DiscreteSpace::getItemAddress(const T &item_value)
-    // {
-    //     for (const auto &item : *this)
-    //     {
-    //         if (item_value == *std::static_pointer_cast<T>(item))
-    //         {
-    //             return item;
-    //         }
-    //     }
-    //     return nullptr;
-    // }
-
+    
     std::vector<number> DiscreteSpace::getDim() const
     {
         return {1};
@@ -184,9 +173,9 @@ namespace sdm
     {
         auto find = std::find(this->list_items_.begin(), this->list_items_.end(), item);
 
-        if(find != this->list_items_.end())
+        if (find != this->list_items_.end())
         {
-            return std::distance(this->list_items_.begin(),find);
+            return std::distance(this->list_items_.begin(), find);
         }
 
         return -1;

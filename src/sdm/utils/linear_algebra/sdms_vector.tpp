@@ -193,7 +193,7 @@ namespace sdm
     }
 
     template <class I, class T, class TBaseVector>
-    bool sdmsVector<I, T,TBaseVector>::is_equal(const sdmsVector &other, double precision) const
+    bool sdmsVector<I, T,TBaseVector>::isEqual(const sdmsVector &other, double precision) const
     {
         if( this->getIndexes() != other.getIndexes())
         {
@@ -213,7 +213,7 @@ namespace sdm
     template <class I, class T, class TBaseVector>
     bool sdmsVector<I, T,TBaseVector>::operator==(const sdmsVector &other) const
     {
-        return this->is_equal(other, PRECISION);
+        return this->isEqual(other, PRECISION);
     }
 
     template <class I, class T, class TBaseVector>

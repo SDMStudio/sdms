@@ -24,7 +24,7 @@ namespace sdm
                 this->current_iterators_[i] = this->current_iterators_[i]->operator+(1);
 
                 // Compare incremented i-th iterator to end iterator, 
-                if (*this->current_iterators_.at(i) != *this->end_iterators_.at(i))
+                if (this->current_iterators_.at(i)->operator!=(this->end_iterators_.at(i)))
                 {
                     // If the incremented i-th sub iterator is different to end iterator, stop the for loop and return incremented iterator
                     break;
@@ -92,7 +92,7 @@ namespace sdm
             }
             else
             {
-                auto joint_items = std::make_shared<Joint<std::shared_ptr<Item>>>();
+                auto joint_items = std::make_shared<JointItem>();
                 for (const auto &iter : this->current_iterators_)
                 {
                     joint_items->push_back(iter->operator*());

@@ -4,11 +4,11 @@
 
 namespace sdm
 {
-    MDP::MDP(){}
+    MDP::MDP() {}
 
     MDP::MDP(const std::shared_ptr<Space> &state_space,
              const std::shared_ptr<Space> &action_space,
-             const std::shared_ptr<RewardInterface> &reward_space,
+             const std::shared_ptr<RewardModel> &reward_space,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distribution,
              number horizon,
@@ -27,6 +27,17 @@ namespace sdm
 
     MDP::~MDP() {}
 
+    void MDP::configure(Config config)
+    {
+        double discount = config.get<double>("discount", -1.);
+        if (discount >= 0)
+            this->setDiscount(discount);
+
+        int horizon = config.get("horizon", -1);
+        if (horizon >= 0)
+            this->setHorizon(horizon);
+    }
+
     number MDP::getNumAgents() const
     {
         return this->num_agents_;
@@ -35,6 +46,11 @@ namespace sdm
     double MDP::getDiscount(number) const
     {
         return this->discount_;
+    }
+
+    double MDP::getWeightedDiscount(number t) const
+    {
+        return pow(this->getDiscount(t), t);
     }
 
     void MDP::setDiscount(double discount)
@@ -66,24 +82,24 @@ namespace sdm
         return this->state_dynamics_;
     }
 
-    std::shared_ptr<RewardInterface> MDP::getRewardSpace() const
+    std::shared_ptr<RewardModel> MDP::getRewardSpace() const
     {
         return this->reward_space_;
     }
 
     double MDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     {
-        return this->reward_space_->getReward(state, action, t);
+        return this->reward_space_->getReward(state, action, 0, t);
     }
 
     double MDP::getMinReward(number t) const
     {
-        return this->reward_space_->getMinReward(t);
+        return this->reward_space_->getMinReward(0, t);
     }
 
     double MDP::getMaxReward(number t) const
     {
-        return this->reward_space_->getMaxReward(t);
+        return this->reward_space_->getMaxReward(0, t);
     }
 
     double MDP::getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const
@@ -101,7 +117,7 @@ namespace sdm
         return this->state_space_;
     }
 
-    std::shared_ptr<Observation> MDP::reset()
+    std::shared_ptr<State> MDP::reset()
     {
         this->current_timestep_ = 0;
         this->setInternalState(this->getStartDistribution()->sample());
@@ -125,11 +141,11 @@ namespace sdm
         return this->getInternalState();
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action)
     {
         double reward = this->getReward(this->getInternalState(), action);
 
-        std::shared_ptr<Observation> observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
+        auto observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_)->toState();
 
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
 
@@ -138,27 +154,27 @@ namespace sdm
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action, bool increment_timestep)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> MDP::step(std::shared_ptr<Action> action, bool increment_timestep)
     {
         double reward = this->getReward(this->getInternalState(), action);
 
-        std::shared_ptr<Observation> observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
+        auto observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
 
         bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
 
         if (increment_timestep)
             this->current_timestep_++;
 
-        return std::make_tuple(observation, std::vector<double>{reward}, is_done);
+        return std::make_tuple(observation->toState(), std::vector<double>{reward}, is_done);
     }
 
     // Useless
-    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<Observation> &, number t)
+    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t);
     }
 
-    std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<Observation> &, number t)
+    std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t)->sample()->toAction();
     }

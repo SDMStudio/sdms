@@ -1,57 +1,76 @@
 #include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
-#include <sdm/utils/value_function/initializer/belief_2_occupancy_vf.hpp>
+#include <sdm/utils/value_function/initializer/pomdp_relaxation.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
 
-#include <sdm/utils/value_function/point_set_value_function.hpp>
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
+#include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
-#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_operator/vupdate/pwlc_update.hpp>
 
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
-
-namespace sdm
-{
-    namespace algo
-    {
-        // std::shared_ptr<sdm::HSVI> makeHSVI(std::shared_ptr<SolvableByHSVI> problem, std::string upper_bound, std::string lower_bound, std::string ub_init_name, std::string lb_init_name, double discount, double error, number horizon, int trials, std::string name, std::string current_type_of_resolution, number BigM, std::string type_sawtooth_linear_programming);
-    }
-}
+#include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 
 namespace sdm
 {
-    POMDPInitializer::POMDPInitializer(std::shared_ptr<SolvableByHSVI> world, std::string algo_name, double error, int trials) : algo_name_(algo_name), error_(error), trials_(trials), world_(world)
+    POMDPInitializer::POMDPInitializer(std::shared_ptr<SolvableByDP> world, Config config) : algo_config(config), world(world)
     {
+        // this->algorithm = sdm::algo::registry::make(config.get<std::string>("algo_name", "HSVI"), config);
     }
 
-    void POMDPInitializer::init(std::shared_ptr<ValueFunction> vf)
+    POMDPInitializer::POMDPInitializer(std::shared_ptr<SolvableByDP> world, std::string algo_name, double error, int trials) : world(world)
     {
-        // Get relaxed MDP problem and thgetUnderlyingProbleme underlying problem
-        auto pomdp = this->world_->getUnderlyingProblem();
-        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::static_pointer_cast<OccupancyMDP>(this->world_)->getUnderlyingBeliefMDP();
+        this->algo_config = {
+            {"algo_name", algo_name},
+            {"error", error},
+            {"trials", trials},
+        };
+    }
 
-        auto tabular_backup = std::make_shared<TabularBackup>(hsvi_pomdp);
-        auto maxplan_backup = std::make_shared<MaxPlanBackup>(hsvi_pomdp);
+    void POMDPInitializer::init(std::shared_ptr<ValueFunctionInterface> vf)
+    {
+        auto value_function = std::dynamic_pointer_cast<ValueFunction>(vf);
+        // Get relaxed belief MDP
+        std::shared_ptr<SolvableByHSVI> hsvi_pomdp = std::dynamic_pointer_cast<BeliefMDPInterface>(this->world)->getUnderlyingBeliefMDP();
 
-        auto action_tabular = std::make_shared<ActionVFTabulaire>(hsvi_pomdp);
-        auto action_maxplan = std::make_shared<ActionVFMaxplan>(hsvi_pomdp);
+        auto exhaustive_selection = std::make_shared<ExhaustiveActionSelection>(hsvi_pomdp);
 
         auto init_lb = std::make_shared<MinInitializer>(hsvi_pomdp);
-        auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp,"ValueIteration",0);
+        auto init_ub = std::make_shared<MDPInitializer>(hsvi_pomdp, "ValueIteration");
 
-        auto lb = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_lb, tabular_backup, action_tabular, false);
-        auto ub = std::make_shared<TabularValueFunction>(pomdp->getHorizon(), init_ub, tabular_backup, action_tabular, true);
+        std::string algo_name = this->algo_config.get("algo_name", std::string("HSVI"));
+        double error = this->algo_config.get("error", 0.001), time_max = this->algo_config.get("time_max", 3600);
+        int trials = this->algo_config.get("trials", 10000);
 
-        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, pomdp->getHorizon(), this->error_, 5000, "pomdp_"+ this->algo_name_+ "_init",1,1,1000);
+        std::shared_ptr<ValueFunction> lb, ub;
+        if (algo_name == "TabHSVI")
+        {
+            // Instanciate lower bound
+            lb = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection);
+            lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
+            // Instanciate upper bound
+            ub = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection);
+            ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+        }
+        else
+        {
+            // Instanciate lower bound
+            lb = std::make_shared<PWLCValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection, 1, MaxplanPruning::PAIRWISE);
+            lb->setUpdateOperator(std::make_shared<update::PWLCUpdate>(lb));
 
-        algorithm->do_initialize();
-        algorithm->do_solve();
-        
+            // Instanciate upper bound
+            ub = std::make_shared<SawtoothValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, 1, SawtoothPruning::PAIRWISE);
+            ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+        }
+
+        auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, error, trials, "PomdpHsvi_Init", 1, 1, time_max);
+
+        algorithm->initialize();
+        algorithm->solve();
+
         auto ubound = algorithm->getUpperBound();
 
-        vf->initialize(std::make_shared<Belief2OccupancyValueFunction>(ubound));
+        value_function->setInitFunction(std::make_shared<POMDPRelaxation>(ubound));
     }
 } // namespace sdm

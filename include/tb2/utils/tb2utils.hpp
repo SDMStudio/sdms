@@ -74,21 +74,21 @@ ostream& operator<<(ostream& os, pair<U, T> const& p)
     return os << "pair{" << p.first << "," << p.second << "}";
 }
 
-template <typename T>
-ostream& operator<<(ostream& os, vector<T> const& v)
-{
-    os << "v(sz=" << v.size() << ")[";
-    bool first = true;
-    for (auto&& t : v) {
-        if (first)
-            first = false;
-        else
-            os << ",";
-        os << t;
-    }
-    os << "]";
-    return os;
-}
+// template <typename T>
+// ostream& operator<<(ostream& os, vector<T> const& v)
+// {
+//     os << "v(sz=" << v.size() << ")[";
+//     bool first = true;
+//     for (auto&& t : v) {
+//         if (first)
+//             first = false;
+//         else
+//             os << ",";
+//         os << t;
+//     }
+//     os << "]";
+//     return os;
+// }
 
 // template<class T>
 // T abs(T x) {

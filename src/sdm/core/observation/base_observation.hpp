@@ -52,7 +52,7 @@ namespace sdm
   /** @brief BaseObservation class with type `number` */
   using DiscreteObservation = BaseObservation<number>;
   /** @brief BaseObservation class with type `std::string` */
-  using DiscreteObservationString = BaseObservation<std::string>;
+  using StringObservation = BaseObservation<std::string>;
   /** @brief BaseObservation class with type `double` */
   using ContinuousObservation = BaseObservation<double>;
 

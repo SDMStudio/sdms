@@ -80,9 +80,7 @@ namespace sdm
         double getInitialBelief(std::shared_ptr<State>);
         // virtual void execute(action, feedback *);
 
-        double getRewardF(state, agent, agent, action, action);
         double getObservation(agent, action, state, observation);
-
 
         // virtual number getNumStates() const;
 
@@ -103,7 +101,6 @@ namespace sdm
         //  */
         // std::vector<number> getNumActions() const;
 
-
         void setupDynamicsGenerator();
 
         /**
@@ -112,16 +109,20 @@ namespace sdm
          * @param jaction the joint action
          * @return a tuple containing reward, next_osbservation and next_state
          **/
-        std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number, number);
+        // std::tuple<std::vector<double>, observation, state> getDynamicsGenerator(number, number);
+        // std::set<std::shared_ptr<Observation>> getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const;
+        // double getObservationProbability(const std::shared_ptr<State> &, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, const std::shared_ptr<Observation> &observation, number t) const;
+        // std::shared_ptr<ObservationDynamicsInterface> getObservationDynamics() const;
+        // std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+
+        // double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const;
+        // double getMinReward(number) const;
+        // double getMaxReward(number) const;
+        double getRewardF(number state_id, number agent_id1, number agent_id2, number action_id1, number action_id2) const;
 
         // std::unordered_set<state> getStateSuccessor(state);
         // std::unordered_set<observation> getObservationSuccessor(agent, action, state);
         // std::tuple<state, observation, observation> getDynamicsGenerator(state, agent, action, agent, action);
 
-
-        // state getPGenerator(state);
-        // observation getQGenerator(agent, action, state);
-        // double getP(state, action, state);
-        // double getQ(state, agent, action, observation, agent, action, observation);
     };
 } // namespace sdm

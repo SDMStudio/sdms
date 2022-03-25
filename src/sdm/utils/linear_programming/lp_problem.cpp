@@ -7,13 +7,21 @@ namespace sdm
 {
     LPBase::LPBase() {}
 
-    LPBase::LPBase(const std::shared_ptr<SolvableByHSVI> &world) : world_(world) {}
+    LPBase::LPBase(const std::shared_ptr<SolvableByDP> &world) : world_(world) {}
 
     LPBase::~LPBase() {}
 
-    Pair<std::shared_ptr<Action>, double> LPBase::createLP(const std::shared_ptr<ValueFunction> &vf, const std::shared_ptr<State> &state, number t)
+    std::shared_ptr<SolvableByDP> LPBase::getWorld() const
+    {
+        return this->world_;
+    }
+
+    Pair<std::shared_ptr<Action>, double> LPBase::createLP(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, number t)
     {
         number index = 0;
+
+        // clear the set of variable names
+        this->variables.clear();
 
         //<! greedy decision, initialization
         std::shared_ptr<Action> action;
@@ -25,27 +33,27 @@ namespace sdm
             IloModel model(env);
 
             // Init the model
-            IloRangeArray con(env);
-            IloNumVarArray var(env);
+            IloRangeArray constraints(env);
+            IloNumVarArray variables(env);
 
             IloObjective obj = IloMaximize(env);
 
             ///////  BEGIN CORE CPLEX Code  ///////
 
             // Create all Variable of the LP problem
-            this->createVariables(vf, state, env, var, index, t);
+            this->createVariables(vf, state, env, variables, index, t);
 
             // Create the objective function of the LP problem
-            this->createObjectiveFunction(vf, state, var, obj, t);
+            this->createObjectiveFunction(vf, state, variables, obj, t);
 
             index = 0;
 
             // Create all Constraints of the LP problem
-            this->createConstraints(vf, state, env, model, con, var, index, t);
+            this->createConstraints(vf, state, env, model, constraints, variables, index, t);
 
             ///////  END CORE  CPLEX Code ///////
             model.add(obj);
-            model.add(con);
+            model.add(constraints);
             IloCplex cplex(model);
             cplex.setOut(env.getNullStream());
             cplex.setWarning(env.getNullStream());
@@ -56,12 +64,16 @@ namespace sdm
                 env.error() << "Failed to optimize MILP" << std::endl;
                 cplex.exportModel("lb_bellman_op.lp");
                 system("cat lb_bellman_op.lp");
-
             }
             else
             {
                 value = cplex.getObjValue();
-                action = this->getVariableResult(vf, state, cplex, var, t);
+                action = this->getVariableResult(vf, state, cplex, variables, t);
+                // if (t >= 2)
+                // {
+                //     cplex.exportModel("lb_bellman_op.lp");
+                //     system("cat lb_bellman_op.lp");
+                // }
             }
         }
         catch (IloException &e)

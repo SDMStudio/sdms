@@ -56,7 +56,19 @@ namespace sdm
         class NotImplementedException : public Exception
         {
         public:
-            explicit NotImplementedException();
+            explicit NotImplementedException(const std::string &msg_ = "Not Implemented Exception");
+        };
+
+        /**
+         * @brief Type error.
+         */
+        class TypeError : public Exception
+        {
+        public:
+            /** Constructor (C++ STL string).
+             *  @param file_ The file
+             */
+            explicit TypeError(const std::string&msg_);
         };
 
         /**

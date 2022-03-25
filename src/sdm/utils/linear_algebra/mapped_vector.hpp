@@ -81,26 +81,25 @@ namespace sdm
         T operator^(const MappedVector &) const;
         T operator*(const MappedVector &) const;
 
-        template <class TOutput>
-        std::shared_ptr<TOutput> add(const std::shared_ptr<TOutput> &other, double coef_this = 1., double coef_other = 1.) const
+        MappedVector add(const MappedVector &other, double coef_this = 1., double coef_other = 1.) const
         {
-            auto sum = std::make_shared<TOutput>();
+            MappedVector sum;
             for (const auto &item : this->getIndexes())
             {
-                sum->setValueAt(item, coef_this * this->getValueAt(item) + coef_other * other->getValueAt(item));
+                sum.setValueAt(item, coef_this * this->getValueAt(item) + coef_other * other.getValueAt(item));
             }
-            for (const auto &item : other->getIndexes())
+            for (const auto &item : other.getIndexes())
             {
-                sum->setValueAt(item, coef_this * this->getValueAt(item) + coef_other * other->getValueAt(item));
+                sum.setValueAt(item, coef_this * this->getValueAt(item) + coef_other * other.getValueAt(item));
             }
-            sum->finalize();
+            sum.finalize();
             return sum;
         }
 
         bool operator!=(const MappedVector &) const;
         bool operator<(const MappedVector &) const;
         bool operator==(const MappedVector &other) const;
-        bool is_equal(const MappedVector &other, double precision) const;
+        bool isEqual(const MappedVector &other, double precision) const;
 
         /**
          * @brief This method implements a non-commutative dot product

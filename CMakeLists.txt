@@ -8,20 +8,24 @@ set(CMAKE_C_COMPILER "clang")
 # Set the build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
-        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+        "Choose the type of build, options are: Debug Release RelWithDebInfo."
     FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-# Set compilation options
-SET(CMAKE_CXX_FLAGS "-Wall" )
-SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -Wall -pedantic") 
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -Wall -pedantic")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3") 
-
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+# Set compilation options
+SET(CMAKE_CXX_FLAGS "" CACHE STRING "" FORCE)
+SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g" CACHE STRING "" FORCE) 
+SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g" CACHE STRING "" FORCE)
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE) 
 
 # Set path to find additional dependencies
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+# set(CMAKE_MACOSX_RPATH 1)
+# set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+# SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Version of the std library
 set(CMAKE_CXX_STANDARD 17)
@@ -32,16 +36,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Project infos
 project(sdms
-VERSION 1.0
-LANGUAGES C CXX)
+        VERSION 1.0
+        LANGUAGES C CXX)
 
 set(PROJECT_DESCRIPTION "Sequential Decision Making Problem Solver.")
 
 # options for compilation
+option(SDMS_SHARED_LIB "If ON, build a shared libraries else build a static one" ON)
 option(SDMS_BUILD_SDMS "Build SDM'Studio" ON)
 option(SDMS_BUILD_DOCS "Build SDMS documentation" OFF)
 option(SDMS_BUILD_TESTS "Build tests for SDMS" OFF)
-option(SDMS_GLOBAL "Build SDM'Studio globally" ON)
 
 # Path to third party (can be defined if different from default) 
 # --> Pytorch
@@ -63,8 +67,11 @@ set(SDMS_DOC_DIR ${CMAKE_SOURCE_DIR}/docs)
 set(SDMS_DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 set(SDMS_MAN_DIR ${SDMS_DOC_DIR}/man)
 set(SDMS_WORLD_DIR ${SDMS_DATA_DIR}/world)
+set(SDMS_CONFIG_DIR ${SDMS_DATA_DIR}/config)
 
 set(TOULBAR_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/tb2)
+set(SPIRIT_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+
 
 set(INCLUDE_DIR ${SDMS_INCLUDE_DIRS}/sdm)
 set(SOURCE_DIR ${SDMS_SOURCE_DIRS}/sdm)
@@ -74,6 +81,7 @@ set(ALGOS_DIR ${SDMS_SOURCE_DIRS}/algos)
 
 # Set names of libraries
 set(LIB_SDMS ${CMAKE_PROJECT_NAME})
+set(LIB_SDMS_STATIC "${CMAKE_PROJECT_NAME}_static")
 
 # Build SDMS sources
 if(SDMS_BUILD_SDMS)

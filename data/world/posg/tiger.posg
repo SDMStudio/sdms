@@ -1,0 +1,47 @@
+# This is a Dec-POMDP (.dpomdp) file for the Dec-Tiger problem.
+agents: 2
+discount: 1.0
+values: "reward"
+states: "tiger-left"   "tiger-right"
+start:
+"uniform"
+actions:
+"open-left" "open-right" "listen"
+"open-left" "open-right" "listen"
+observations:
+"hear-left" "hear-right"
+"hear-left" "hear-right"
+T: "*" :
+"uniform"
+#T:open-right open-right :
+#uniform
+T: "listen" "listen" :
+"identity"
+O: "*" :
+"uniform"
+O: "listen" "listen" : "tiger-left" : "hear-left" "hear-left" : 0.7225
+O: "listen" "listen" : "tiger-left" : "hear-left" "hear-right" : 0.1275
+O: "listen" "listen" : "tiger-left" : "hear-right" "hear-left" : 0.1275
+O: "listen" "listen" : "tiger-left" : "hear-right" "hear-right" : 0.0225
+O: "listen" "listen" : "tiger-right" : "hear-right" "hear-right" : 0.7225
+O: "listen" "listen" : "tiger-right" : "hear-left" "hear-right" : 0.1275
+O: "listen" "listen" : "tiger-right" : "hear-right" "hear-left" : 0.1275
+O: "listen" "listen" : "tiger-right" : "hear-left" "hear-left" : 0.0225
+
+R: "listen" "listen" : "*" : -2 -2
+R: "open-left" "open-left" : "tiger-left" : -50 -50
+R: "open-right" "open-right" : "tiger-right" : -50 -50
+R: "open-left" "open-left" : "tiger-right" : +20 -20
+R: "open-right" "open-right" : "tiger-left" : +20 -20
+R: "open-left" "open-right" : "tiger-left" : -100 100
+R: "open-left" "open-right" : "tiger-right" : 100 -100
+R: "open-right" "open-left" : "tiger-left" : 100 -100
+R: "open-right" "open-left" : "tiger-right" : -100 100
+R: "open-left" "listen" : "tiger-left" : -101 101
+R: "listen" "open-right" : "tiger-right" : 101 -101
+R: "listen" "open-left" : "tiger-left" : 101 -101
+R: "open-right" "listen" : "tiger-right" : -101 101
+R: "listen" "open-right" : "tiger-left" : -9 9
+R: "listen" "open-left" : "tiger-right" : -9 9
+R: "open-right" "listen" : "tiger-left" : 9 -9
+R: "open-left" "listen" : "tiger-right" : 9 -9

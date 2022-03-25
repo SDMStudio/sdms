@@ -1,0 +1,5 @@
+# This file contains a basic configuration of HSVI 
+num_agents = 2
+
+agent1 = "example/alice.toml"
+agent2 = "example/bob.toml"

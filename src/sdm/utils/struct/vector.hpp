@@ -1,15 +1,13 @@
 #pragma once
 
-#include <sdm/types.hpp>
-
 #include <iostream>
 #include <boost/serialization/vector.hpp>
 
-namespace sdm
-{
-  // template <typename T>
-  // using Vector = std::vector<T>;
+#include <sdm/types.hpp>
 
+
+namespace std
+{
   template <typename T>
   std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
   {
@@ -23,10 +21,7 @@ namespace sdm
     os << "]";
     return os;
   }
-}
 
-namespace std
-{
   template <typename T>
   struct hash<std::vector<T>>
   {

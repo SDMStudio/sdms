@@ -127,25 +127,25 @@ namespace sdm{
     // MULTI-REWARD
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //  struct multi_reward_entry_1_t{
-    //   identifiers_t jaction;
-    //   identifier_t state;
-    //   identifier_t agent;
-    //   float reward;
-    // };
+     struct multi_reward_entry_1_t{
+      identifiers_t jaction;
+      identifier_t state;
+      identifier_t agent;
+      float reward;
+    };
 
-    // struct multi_reward_entry_2_t{
-    //   identifiers_t jaction;
-    //   identifier_t state;
-    //   real_vector_t rewards;
-    // };
+    struct multi_reward_entry_2_t{
+      identifiers_t jaction;
+      identifier_t state;
+      real_vector_t rewards;
+    };
 
-    // struct multi_reward_entry_t : x3::variant<multi_reward_entry_1_t, multi_reward_entry_2_t>{
-    //   using base_type::base_type;
-    //   using base_type::operator=;
-    // };
+    struct multi_reward_entry_t : x3::variant<multi_reward_entry_1_t, multi_reward_entry_2_t>{
+      using base_type::base_type;
+      using base_type::operator=;
+    };
 
-    // typedef std::vector<multi_reward_entry_t> multi_reward_t;
+    typedef std::vector<multi_reward_entry_t> multi_reward_t;
 
     struct dpomdp_t : x3::position_tagged{
       value_t  agent_param;
@@ -158,6 +158,20 @@ namespace sdm{
       transition_t transition_spec;
       observation_t observation_spec;
       reward_t reward_spec;
+    };
+
+
+    struct posg_t : x3::position_tagged{
+      value_t  agent_param;
+      float discount_param;
+      std::string value_param;
+      value_t state_param;
+      real_vector_t start_param;
+      values_t action_param;
+      values_t observation_param;
+      transition_t transition_spec;
+      observation_t observation_spec;
+      multi_reward_t multi_reward_spec;
     };
   }
 }

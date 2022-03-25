@@ -44,10 +44,12 @@ namespace sdm
          */
         std::vector<std::shared_ptr<Space>> output_space_;
 
+        std::shared_ptr<Space> action_space;
+
     public:
         using iterator_type = DiscreteSpace::iterator_type;
 
-        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::shared_ptr<Space> &output_space, bool store_functions = false);
+        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::shared_ptr<Space> &output_space, bool store_functions = false, const std::shared_ptr<Space>& action_space = nullptr);
 
         /**
          * @brief Construct a new Function Space object
@@ -55,7 +57,7 @@ namespace sdm
          * @param possible_inputs possible inputs
          * @param possible_outputs possible ouputs 
          */
-        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs, bool store_functions = false);
+        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<output_type> possible_outputs, bool store_functions = false, const std::shared_ptr<Space>& action_space = nullptr);
 
         /**
          * @brief Construct a new Function Space object
@@ -63,9 +65,9 @@ namespace sdm
          * @param input_space
          * @param output_sps output spaces, one for each input value (requirements : input_space->size() == output_spaces.size() or output_spaces.size()==1). 
          */
-        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::vector<std::shared_ptr<Space>> &output_spaces, bool store_functions = false);
+        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::vector<std::shared_ptr<Space>> &output_spaces, bool store_functions = false, const std::shared_ptr<Space>& action_space = nullptr);
 
-        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs, bool store_functions = false);
+        FunctionSpace(std::vector<input_type> possible_inputs, std::vector<std::vector<output_type>> possible_outputs, bool store_functions = false, const std::shared_ptr<Space>& action_space = nullptr);
 
         iterator_type begin();
         iterator_type end();

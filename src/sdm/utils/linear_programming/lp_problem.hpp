@@ -1,37 +1,37 @@
 #ifdef WITH_CPLEX
 #pragma once
 #include <sdm/world/solvable_by_hsvi.hpp>
-#include <sdm/core/state/interface/belief_interface.hpp>
+#include <sdm/utils/linear_programming/variable_naming.hpp>
 #include <sdm/utils/linear_programming/lp_problem_interface.hpp>
-// #include <sdm/utils/linear_algebra/vector_interface.hpp>
 
 namespace sdm
 {
-    class LPBase : public LPInterface
+    class LPBase : public LPInterface, public VarNaming
     {
     public:
         LPBase();
-        LPBase(const std::shared_ptr<SolvableByHSVI>&);
+        LPBase(const std::shared_ptr<SolvableByDP> &);
         ~LPBase();
 
         /**
-         * @brief Main function who is used to create the Linear program
-         * 
-         * @param occupancy_state 
-         * @param t 
-         * @return Pair<std::shared_ptr<Action>,double> 
+         * @brief Get the world 
          */
-        Pair<std::shared_ptr<Action>,double> createLP(const std::shared_ptr<ValueFunction>&vf, const std::shared_ptr<State> &occupancy_state, number t);
-
-
-    protected : 
-    
-        std::shared_ptr<SolvableByHSVI> world_;
+        std::shared_ptr<SolvableByDP> getWorld() const;
 
         /**
-         * @brief The temporary one-stage value function represention.
+         * @brief Main function who is used to create the Linear program and solve it.
+         * 
+         * @param occupancy_state the occupancy state
+         * @param t the time step
+         * @return the decision rule 
          */
-        std::shared_ptr<BeliefInterface> tmp_representation;
+        Pair<std::shared_ptr<Action>, double> createLP(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &occupancy_state, number t);
+
+    protected:
+        /**
+         * @brief The world
+         */
+        std::shared_ptr<SolvableByDP> world_;
     };
 }
 #endif

@@ -69,36 +69,33 @@ namespace sdm
         return value;
     }
 
-    template <typename T>
-    void Tree<T>::addChild(const T &child_item)
-    {
-        assert(this->getDepth() < this->getMaxDepth());
-        if (this->children_.find(child_item) == this->children_.end())
-        {
-            this->children_.emplace(child_item, std::make_shared<Tree<T>>(this->getptr(), child_item));
-        }
-    }
+    // template <typename T>
+    // void Tree<T>::addChild(const T &child_item)
+    // {
+    //     assert(this->getDepth() < this->getMaxDepth());
+    //     if (this->children_.find(child_item) == this->children_.end())
+    //     {
+    //         this->children_.emplace(child_item, std::make_shared<Tree<T>>(this->getptr(), child_item));
+    //     }
+    // }
 
-    template <typename T>
-    void Tree<T>::addChildren(const std::vector<T> &child_items)
-    {
-        for (int i = 0; i < child_items.size(); i++)
-        {
-            this->addChild(child_items[i]);
-        }
-    }
+    // template <typename T>
+    // void Tree<T>::addChildren(const std::vector<T> &child_items)
+    // {
+    //     for (int i = 0; i < child_items.size(); i++)
+    //     {
+    //         this->addChild(child_items[i]);
+    //     }
+    // }
 
     template <typename T>
     std::shared_ptr<Tree<T>> Tree<T>::getOrigin()
     {
-        if (this->isOrigin())
-        {
-            return this->getptr();
-        }
-        else
+        if (!this->isOrigin())
         {
             return this->origin_.lock();
         }
+        return nullptr;
     }
 
     template <typename T>
@@ -129,7 +126,7 @@ namespace sdm
         {
             std::ostringstream tmp;
             tmp << "<data>" << std::endl;
-            tmp << "\t"<< this->getData()->str() << std::endl;
+            tmp << "\t"<< this->getData() << std::endl;
             tmp << "</data>"<< std::endl;
             sdm::tools::indentedOutput(res, tmp.str().c_str(), this->getDepth() + 1);
         }
@@ -143,11 +140,11 @@ namespace sdm
         return res.str();
     }
 
-    template <typename T>
-    std::shared_ptr<Tree<T>> Tree<T>::getptr()
-    {
-        return this->shared_from_this();
-    }
+    // template <typename T>
+    // std::shared_ptr<Tree<T>> Tree<T>::getptr()
+    // {
+    //     return std::dynamic_pointer_cast<Tree<T>>(this->shared_from_this());
+    // }
 
     template <typename T>
     template <class Archive>

@@ -7,46 +7,9 @@
 #include <memory>
 #include <sdm/config.hpp>
 #include <sdm/exception.hpp>
-
-#include <sdm/algorithms.hpp>
-#include <sdm/algorithms/hsvi.hpp>
-
-#include <sdm/core/action/action.hpp>
-#include <sdm/core/base_item.hpp>
-#include <sdm/core/action/base_action.hpp>
-#include <sdm/core/state/state.hpp>
-#include <sdm/core/state/base_state.hpp>
-
-#include <sdm/world/solvable_by_mdp.hpp>
-#include <sdm/world/belief_mdp.hpp>
-#include <sdm/world/hierarchical_occupancy_mdp.hpp>
-#include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/world/serial_occupancy_mdp.hpp>
-#include <sdm/world/serialized_mpomdp.hpp>
-#include <sdm/world/hierarchical_mpomdp.hpp>
 #include <sdm/parser/parser.hpp>
 
-#include <sdm/utils/value_function/initializer/mdp_initializer.hpp>
-#include <sdm/utils/value_function/initializer/pomdp_initializer.hpp>
-
-#include <sdm/utils/value_function/backup/maxplan_backup.hpp>
-#include <sdm/utils/value_function/backup/tabular_backup.hpp>
-
-#include <sdm/utils/value_function/action_vf/action_tabulaire.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan.hpp>
-#include <sdm/utils/value_function/action_vf/action_sawtooth_lp.hpp>
-#include <sdm/utils/value_function/action_vf/action_sawtooth_lp_serial.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_serial.hpp>
-#include <sdm/utils/value_function/action_vf/action_maxplan_lp.hpp>
-
-#include <sdm/utils/value_function/tabular_value_function.hpp>
-#include <sdm/utils/value_function/point_set_value_function.hpp>
-#include <sdm/utils/value_function/hyperplan_value_function.hpp>
-
-#include <sdm/core/state/belief_state.hpp>
-#include <sdm/core/state/occupancy_state.hpp>
-#include <sdm/core/state/private_occupancy_state.hpp>
-#include <sdm/algorithms.hpp>
+#include <sdm/world/occupancy_mdp.hpp>
 
 using namespace sdm;
 namespace po = boost::program_options;
@@ -60,10 +23,15 @@ int main(int argc, char **argv)
         bool dyn_cast;
 
         po::options_description options("Options");
-        options.add_options()("help", "produce help message")("test", "test the policy found");
+        options.add_options()
+        ("help", "produce help message")
+        ("test", "test the policy found");
 
         po::options_description config("Configuration");
-        config.add_options()("path,p", po::value<std::string>(&path)->default_value("tiger"), "the path to the problem to be solved")("dynamic_cast,d", po::value<bool>(&dyn_cast)->default_value(true), "If true, store the macro actions when required.")("num_cast,n", po::value<unsigned long>(&n)->default_value(10000), "the frequency for updating the upper bound");
+        config.add_options()
+        ("path,p", po::value<std::string>(&path)->default_value("tiger"), "the path to the problem to be solved")
+        ("dynamic_cast,d", po::value<bool>(&dyn_cast)->default_value(true), "If true, store the macro actions when required.")
+        ("num_cast,n", po::value<unsigned long>(&n)->default_value(10000), "the frequency for updating the upper bound");
 
         po::options_description visible("\nUsage:\tsdms-solve [CONFIGS]\n\tSDMStudio solve [CONFIGS]\n\nSolve a path with specified algorithms and configurations.");
         visible.add(options).add(config);
@@ -103,7 +71,8 @@ int main(int argc, char **argv)
         else
         {
             for (unsigned long i = 0; i < n; i++)
-                auto ptr = std::static_pointer_cast<OccupancyMDP>(hsvi_mdp);
+                std::cout << "DEPRECATED TEST" << std::endl;
+                // auto ptr = std::static_pointer_cast<OccupancyMDP>(hsvi_mdp);
         }
     }
     catch (sdm::exception::Exception &e)

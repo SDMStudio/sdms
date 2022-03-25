@@ -1,0 +1,3 @@
+name = "mabc.dpomdp"
+horizon = 10
+discount = 1.0

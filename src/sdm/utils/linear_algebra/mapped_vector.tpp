@@ -189,7 +189,7 @@ namespace sdm
     }
 
     template <class TIndex, class T, class Hash, class KeyEqual>
-    bool MappedVector<TIndex, T, Hash, KeyEqual>::is_equal(const MappedVector<TIndex, T, Hash, KeyEqual> &other, double precision) const
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::isEqual(const MappedVector<TIndex, T, Hash, KeyEqual> &other, double precision) const
     {
         if (this->size() != other.size())
         {
@@ -221,7 +221,7 @@ namespace sdm
     template <class TIndex, class T, class Hash, class KeyEqual>
     bool MappedVector<TIndex, T, Hash, KeyEqual>::operator==(const MappedVector<TIndex, T, Hash, KeyEqual> &other) const
     {
-        return this->is_equal(other, PRECISION);
+        return this->isEqual(other, PRECISION);
     }
 
     template <class TIndex, class T, class Hash, class KeyEqual>
@@ -316,7 +316,6 @@ namespace sdm
     {
         if (this->v_indexes.size() > 0)
         {
-            assert((this->v_indexes.size() == this->size()));
             return this->v_indexes;
         }
         else
@@ -398,7 +397,6 @@ namespace std
         {
             size_t seed = 0;
             double inverse_of_precision = 1. / precision;
-            std::map<Key, Value> ordered(in.begin(), in.end());
             std::map<Key, int> rounded;
             for (const auto &pair_item_value : in)
             {

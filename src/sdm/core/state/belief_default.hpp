@@ -30,14 +30,9 @@ namespace sdm
         void addProbability(const std::shared_ptr<State> &, double proba);
 
         bool operator==(const std::shared_ptr<BeliefInterface> &other) const;
-        double operator^(const std::shared_ptr<BeliefInterface> &other) const;
         double norm_1() const;
 
         std::string str() const;
-
-        std::shared_ptr<VectorInterface<std::shared_ptr<State>,double>> getVectorInferface();
-
-        bool isStateExist(const std::shared_ptr<State>& state_tmp)const;
 
     protected : 
         double default_value_;

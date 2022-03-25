@@ -12,3 +12,8 @@ info
 *.csv
 *.qvalue
 run/expe_vrac
+run/expe_lattitude
+run/expe_icml22
+run/expe_long_icml22
+run/expe_gollum
+ibm

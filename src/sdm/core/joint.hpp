@@ -7,6 +7,8 @@
 #include <sdm/core/function.hpp>
 #include <sdm/core/item.hpp>
 #include <sdm/utils/struct/vector.hpp>
+#include <sdm/core/action/action.hpp>
+#include <sdm/core/state/state.hpp>
 
 namespace sdm
 {
@@ -22,6 +24,8 @@ namespace sdm
     using value_type = T;
 
     Joint();
+    Joint(std::size_t size);
+    Joint(std::size_t size, T default_value);
     Joint(const std::vector<T> &joint_item);
     Joint(const std::vector<number> &, const std::vector<T> &joint_item);
     Joint(std::initializer_list<T> list_values);
@@ -67,6 +71,11 @@ namespace sdm
       archive &boost::serialization::base_object<std::vector<T>>(*this);
     }
   };
+
+  using JointItem = Joint<std::shared_ptr<Item>>;
+  using JointAction = Joint<std::shared_ptr<Action>>;
+  using JointState = Joint<std::shared_ptr<State>>;
+  using JointObservation = Joint<std::shared_ptr<Observation>>;
 
 } // namespace sdm
 #include <sdm/core/joint.tpp>

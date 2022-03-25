@@ -1,0 +1,6 @@
+
+name = "TabularValueFunction"
+
+action_selection = "Exhaustive"
+update_operator = "TabularUpdate"
+initializer = "Zero"

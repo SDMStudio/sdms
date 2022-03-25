@@ -11,25 +11,25 @@ namespace sdm
     {
     }
 
-    PrivateOccupancyState::PrivateOccupancyState(number num_agents) : OccupancyState(num_agents)
+    PrivateOccupancyState::PrivateOccupancyState(number num_agents, number h) : OccupancyState(num_agents, h)
     {
     }
 
-    PrivateOccupancyState::PrivateOccupancyState(number agent_id, number num_agents) : OccupancyState(num_agents), agent_id_(agent_id)
+    PrivateOccupancyState::PrivateOccupancyState(number agent_id, number num_agents, number h) : OccupancyState(num_agents, h), agent_id_(agent_id)
     {
     }
 
     PrivateOccupancyState::PrivateOccupancyState(const PrivateOccupancyState &v)
         : OccupancyState(v),
           agent_id_(v.getAgentId()),
-          bimap_jhist_partial_jhist(v.bimap_jhist_partial_jhist)
+          map_jhist_to_partial(v.map_jhist_to_partial),
+          map_partial_to_jhist(v.map_partial_to_jhist)
     {
     }
 
     PrivateOccupancyState::PrivateOccupancyState(const OccupancyState &occupancy_state)
         : OccupancyState(occupancy_state),
-          agent_id_(0),
-          bimap_jhist_partial_jhist()
+          agent_id_(0)
     {
     }
 
@@ -38,35 +38,13 @@ namespace sdm
         return this->agent_id_;
     }
 
-    // template <typename TState, typename TJointHistory_p>
-    // std::string PrivateOccupancyState::str() const
-    // {
-    //     std::ostringstream res, tmp;
-    //     res << "<private-occupancy-state horizon='?'>" << std::endl;
-    //     for (const auto &pair_x_o_p : *this)
-    //     {
-    //         auto joint_hist = pair_x_o_p.first.second;
-
-    //         res << "\t<probability state=\"" << pair_x_o_p.first.first << "\">" << std::endl;
-    //         for (auto ihist : pair_x_o_p.first.second->getIndividualHistories())
-    //         {
-    //             res << tools::addIndent(ihist->str(), 2);
-    //         }
-    //         res << "\t\t" << pair_x_o_p.second << std::endl;
-    //         res << "\t<probability>" << std::endl;
-    //     }
-    //     res << "</private-occupancy-state>" << std::endl;
-
-    //     return res.str();
-    // }
-
     std::string PrivateOccupancyState::str() const
     {
         std::ostringstream res;
         res << std::setprecision(config::OCCUPANCY_DECIMAL_PRINT) << std::fixed;
 
-        res << "<private-occupancy-state agent=\"" << this->agent_id_ << "\" size=\"" << MappedVector<std::shared_ptr<State>>::size() << "\">\n";
-        for (const auto &history_as_state : this->getIndexes())
+        res << "<private-occupancy-state agent=\"" << this->agent_id_ << "\" size=\"" << this->size() << "\">\n";
+        for (const auto &history_as_state : this->getStates())
         {
             auto joint_history = history_as_state->toHistory()->toJointHistory();
 
@@ -84,7 +62,7 @@ namespace sdm
     {
         // Copy full joint history
         auto partial_jhist = joint_history;
-        
+
         // Erase the component associated to the agent
         partial_jhist.erase(partial_jhist.begin() + this->getAgentId());
 
@@ -94,12 +72,12 @@ namespace sdm
 
     const std::vector<std::shared_ptr<HistoryInterface>> &PrivateOccupancyState::getPartialJointHistory(const std::shared_ptr<JointHistoryInterface> &joint_history) const
     {
-        return bimap_jhist_partial_jhist.left.at(joint_history);
+        return this->map_jhist_to_partial.at(joint_history);
     }
 
     std::shared_ptr<JointHistoryInterface> PrivateOccupancyState::getJointHistoryFromPartial(const std::vector<std::shared_ptr<HistoryInterface>> &partial_joint_history) const
     {
-        return bimap_jhist_partial_jhist.right.at(partial_joint_history);
+        return this->map_partial_to_jhist.at(partial_joint_history);
     }
 
     void PrivateOccupancyState::finalize()
@@ -124,7 +102,8 @@ namespace sdm
             // Get partial joint history
             const auto &partial_jhist = this->getPartialJointHistory(joint_history->getIndividualHistories());
             //
-            this->bimap_jhist_partial_jhist.insert(bimap_value(joint_history, partial_jhist));
+            this->map_partial_to_jhist[partial_jhist] = joint_history;
+            this->map_jhist_to_partial[joint_history] = partial_jhist;
         }
     }
 
@@ -136,14 +115,14 @@ namespace sdm
             return false;
         }
         // Go over all partial joint histories and associated joint history
-        for (const auto &pair_partial_joint_history_joint_history : this->bimap_jhist_partial_jhist.right)
+        for (const auto &pair_partial_jhistory : this->map_partial_to_jhist)
         {
-            const auto &partial_joint_history = pair_partial_joint_history_joint_history.first;
-            const auto &current_joint_history = pair_partial_joint_history_joint_history.second;
+            const auto &partial_joint_history = pair_partial_jhistory.first;
+            const auto &current_joint_history = pair_partial_jhistory.second;
 
             // Get an iterator on the first partial joint history that is similar in "other"
-            auto iterator = other.bimap_jhist_partial_jhist.right.find(partial_joint_history);
-            if (iterator == other.bimap_jhist_partial_jhist.right.end())
+            auto iterator = other.map_partial_to_jhist.find(partial_joint_history);
+            if (iterator == other.map_partial_to_jhist.end())
             {
                 return false;
             }
@@ -165,36 +144,3 @@ namespace sdm
     }
 
 } // namespace sdm
-
-namespace std
-{
-    template <>
-    struct hash<sdm::PrivateOccupancyState>
-    {
-        typedef sdm::PrivateOccupancyState argument_type;
-        typedef std::size_t result_type;
-        inline result_type operator()(const argument_type &in) const
-        {
-            std::chrono::high_resolution_clock::time_point time_start = std::chrono::high_resolution_clock::now();
-
-            size_t seed = 0;
-            double inverse_of_precision = 1. / sdm::OccupancyState::PRECISION;
-            std::map<std::shared_ptr<sdm::State>, double> ordered(in.begin(), in.end());
-            std::vector<int> rounded;
-            for (const auto &pair_jhist_proba : ordered)
-            {
-                sdm::hash_combine(seed, pair_jhist_proba.first);
-                // sdm::hash_combine(seed, in.getBeliefAt(pair_jhist_proba.first->toHistory()->toJointHistory()));
-                rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
-            }
-            for (const auto &v : rounded)
-            {
-                //Combine the hash of the current vector with the hashes of the previous ones
-                sdm::hash_combine(seed, v);
-            }
-            in.updateTime(time_start, "Time Hash");
-            return seed;
-            // return std::hash<sdm::MappedVector<std::shared_ptr<sdm::State>>>()(in, sdm::OccupancyState::PRECISION);
-        }
-    };
-}

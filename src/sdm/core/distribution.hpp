@@ -16,7 +16,7 @@
 namespace sdm
 {
     template <typename T>
-    class Distribution : public std::enable_shared_from_this<Distribution<T>>
+    class Distribution
     {
     public:
         virtual T sample() const = 0;
@@ -29,6 +29,7 @@ namespace sdm
     {
     public:
         DiscreteDistribution();
+        DiscreteDistribution(const DiscreteDistribution<T>& copy);
         virtual ~DiscreteDistribution() {}
         virtual T sample() const;
 
@@ -37,10 +38,7 @@ namespace sdm
         virtual void setProbability(const T &item, double proba);
 
     protected:
-        typedef typename bimap_item_index<T>::value_type bimap_pair;
-
-        bimap_item_index<T> bimap_item_to_index_;
-        std::vector<double> probabilities_;
+        std::unordered_map<T, double> probabilities;
     };
 } // namespace sdm
 #include <sdm/core/distribution.tpp>

@@ -26,7 +26,7 @@ namespace sdm
         this->setupDefaultObs(n_agents, sdm::NO_OBSERVATION);
     }
 
-    JointHistoryTree::JointHistoryTree(std::shared_ptr<HistoryTree> parent, const std::shared_ptr<Observation> &item) : HistoryTree(parent, item)
+    JointHistoryTree::JointHistoryTree(std::shared_ptr<HistoryTree> parent, const Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>> &item) : HistoryTree(parent, item)
     {
         this->default_observation_ = std::static_pointer_cast<JointHistoryTree>(parent)->getDefaultObs();
     }
@@ -39,21 +39,42 @@ namespace sdm
     void JointHistoryTree::addIndividualHistory(std::shared_ptr<HistoryInterface> ihist)
     {
         this->push_back(ihist);
-        // this->is_origin = false;
+    }
+    number JointHistoryTree::getNumAgents() const
+    {
+        return Joint<std::shared_ptr<HistoryInterface>>::getNumAgents();
     }
 
-    std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &data, bool backup)
+    std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action, bool backup)
+    {
+        return this->expand(std::static_pointer_cast<JointObservation>(joint_observation), std::static_pointer_cast<JointAction>(joint_action), backup);
+    }
+
+    std::shared_ptr<HistoryTree> JointHistoryTree::expandHistoryTree(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Action> &joint_action, bool backup)
+    {
+        return this->expandJointHistoryTree(std::static_pointer_cast<JointObservation>(joint_observation), std::static_pointer_cast<JointAction>(joint_action), backup);
+    }
+
+    std::shared_ptr<JointHistoryInterface> JointHistoryTree::expand(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action, bool backup)
+    {
+        return this->expandJointHistoryTree(joint_observation, joint_action, backup);
+    }
+
+    std::shared_ptr<JointHistoryTree> JointHistoryTree::expandJointHistoryTree(const std::shared_ptr<JointObservation> &joint_observation, const std::shared_ptr<JointAction> &joint_action, bool backup)
     {
         std::shared_ptr<JointHistoryTree> h_joint;
 
-        if (*data != *this->default_observation_)
+        if (*joint_observation != *this->default_observation_)
         {
-            h_joint = HistoryTree::template expand<JointHistoryTree>(data, backup);
-            if (h_joint->getIndividualHistories().size() == 0)
+            h_joint = HistoryTree::template expand<JointHistoryTree>(joint_observation, joint_action, backup);
+            if (h_joint->size() == 0)
             {
                 for (number i = 0; i < this->getNumAgents(); i++)
                 {
-                    h_joint->addIndividualHistory(std::dynamic_pointer_cast<HistoryTree>(this->getIndividualHistory(i)->expand(data->get(i), backup)));
+                    if (joint_action != nullptr)
+                        h_joint->addIndividualHistory(this->getIndividualHistory(i)->expand(joint_observation->get(i), joint_action->get(i), backup));
+                    else
+                        h_joint->addIndividualHistory(this->getIndividualHistory(i)->expand(joint_observation->get(i), joint_action, backup));
                 }
             }
         }
@@ -65,14 +86,8 @@ namespace sdm
         return h_joint;
     }
 
-    std::shared_ptr<HistoryInterface> JointHistoryTree::expand(const std::shared_ptr<Observation> &joint_observation, bool backup)
-    {
-        return this->expand(std::static_pointer_cast<Joint<std::shared_ptr<Observation>>>(joint_observation), backup);
-    }
-
     std::shared_ptr<HistoryInterface> JointHistoryTree::getIndividualHistory(number ag_id) const
     {
-        assert((ag_id < this->getNumAgents()) && (ag_id >= 0));
         return this->get(ag_id);
     }
 
@@ -88,14 +103,14 @@ namespace sdm
         return res.str();
     }
 
-    void JointHistoryTree::setDefaultObs(const std::shared_ptr<Joint<std::shared_ptr<Observation>>> &default_observation)
+    void JointHistoryTree::setDefaultObs(const std::shared_ptr<JointObservation> &default_observation)
     {
         this->default_observation_ = default_observation;
     }
 
     void JointHistoryTree::setupDefaultObs(number n_agents, const std::shared_ptr<Observation> &default_observation)
     {
-        auto default_joint_observation = std::make_shared<Joint<std::shared_ptr<Observation>>>();
+        auto default_joint_observation = std::make_shared<JointObservation>();
         for (number i = 0; i < n_agents; i++)
         {
             default_joint_observation->push_back(default_observation);
@@ -103,14 +118,15 @@ namespace sdm
         this->setDefaultObs(default_joint_observation);
     }
 
-    std::shared_ptr<Joint<std::shared_ptr<Observation>>> JointHistoryTree::getDefaultObs()
+    std::shared_ptr<JointObservation> JointHistoryTree::getDefaultObs()
     {
         return this->default_observation_;
     }
 
     std::shared_ptr<JointHistoryTree> JointHistoryTree::getptr()
     {
-        return Tree<std::shared_ptr<Observation>>::downcasted_shared_from_this<JointHistoryTree>();
+        return std::static_pointer_cast<JointHistoryTree>(HistoryTree::getptr());
+        // return Tree<Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>>>::downcasted_shared_from_this<JointHistoryTree>();
     }
 
     std::shared_ptr<JointHistoryTree> JointHistoryTree::getParent() const
@@ -123,11 +139,6 @@ namespace sdm
         return std::static_pointer_cast<JointHistoryTree>(HistoryTree::getOrigin());
     }
 
-    void JointHistoryTree::isNotOrigin()
-    {
-        this->is_origin = false;
-    }
-
     std::vector<std::shared_ptr<JointHistoryTree>> JointHistoryTree::getChildren() const
     {
         std::vector<std::shared_ptr<JointHistoryTree>> vector;
@@ -138,7 +149,7 @@ namespace sdm
         return vector;
     }
 
-    std::shared_ptr<JointHistoryTree> JointHistoryTree::getChild(const std::shared_ptr<Observation> &child_item) const
+    std::shared_ptr<JointHistoryTree> JointHistoryTree::getChild(const Pair<std::shared_ptr<Observation>, std::shared_ptr<Action>> &child_item) const
     {
         return std::static_pointer_cast<JointHistoryTree>(HistoryTree::getChild(child_item));
     }

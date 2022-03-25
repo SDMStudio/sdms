@@ -28,8 +28,6 @@ namespace sdm
 
     //     std::string str() const;
 
-    //     TypeState getTypeState() const;
-
     // protected:
     //     std::vector<std::shared_ptr<Item>> history_;
     // };
@@ -51,8 +49,6 @@ namespace sdm
     //     std::shared_ptr<Observation> getObservationAt(number t);
 
     //     std::string str() const;
-
-    //     TypeState getTypeState() const;
 
     // protected:
     //     std::vector<std::shared_ptr<Observation>> history_;

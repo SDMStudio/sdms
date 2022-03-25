@@ -19,6 +19,11 @@ namespace sdm
         return this->mpomdp_->getDiscount(t);
     }
 
+    double TransformedMPOMDP::getWeightedDiscount(number t) const
+    {
+        return this->mpomdp_->getWeightedDiscount(t);
+    }
+
     std::shared_ptr<Distribution<std::shared_ptr<State>>> TransformedMPOMDP::getStartDistribution() const
     {
         return this->mpomdp_->getStartDistribution();
@@ -43,11 +48,11 @@ namespace sdm
         return this->mpomdp_->getMaxReward(t);
     }
 
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> TransformedMPOMDP::step(std::shared_ptr<Action> action)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> TransformedMPOMDP::step(std::shared_ptr<Action> action)
     {
         return this->mpomdp_->step(action);
     }
-    std::tuple<std::shared_ptr<Observation>, std::vector<double>, bool> TransformedMPOMDP::step(std::shared_ptr<Action> action, bool increment_timestep)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> TransformedMPOMDP::step(std::shared_ptr<Action> action, bool increment_timestep)
     {
         return this->mpomdp_->step(action, increment_timestep);
     }
@@ -97,7 +102,7 @@ namespace sdm
         return this->mpomdp_->getActionSpace(agent_id, t);
     }
 
-    std::shared_ptr<Space> TransformedMPOMDP::getActionSpaceAt(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<Space> TransformedMPOMDP::getActionSpaceAt(const std::shared_ptr<State> &observation, number t)
     {
         return this->mpomdp_->getActionSpaceAt(observation, t);
     }
@@ -113,12 +118,12 @@ namespace sdm
     }
 
 
-    std::shared_ptr<Action> TransformedMPOMDP::getRandomAction(const std::shared_ptr<Observation> &observation, number t)
+    std::shared_ptr<Action> TransformedMPOMDP::getRandomAction(const std::shared_ptr<State> &observation, number t)
     {
         return this->mpomdp_->getRandomAction(observation, t);
     }
 
-    std::shared_ptr<Observation> TransformedMPOMDP::reset()
+    std::shared_ptr<State> TransformedMPOMDP::reset()
     {
         return this->mpomdp_->reset();
     }

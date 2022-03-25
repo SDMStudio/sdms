@@ -1,14 +1,10 @@
-![SDMS Logo](https://gitlab.inria.fr/chroma1/plasma/sdms/raw/develop/docs/theme/sdms_theme/static/img/sdms-icon-sm.png)
----------------------------------------------------------------------------------------------------------------------------------
+[![SDMS Logo](https://raw.githubusercontent.com/SDMStudio/sdms/main/docs/sdms-logo-black2.png)](https://sdmstudio.github.io)
+------------------------------------------------------
 
-<!-- [![Build Status](https://travis-ci.com/hill-a/stable-baselines.svg?branch=master)](https://travis-ci.com/hill-a/stable-baselines) 
-[![Documentation Status](https://readthedocs.org/projects/stable-baselines/badge/?version=master)](https://stable-baselines.readthedocs.io/en/master/?badge=master) 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3bcb4cd6d76a4270acb16b5fe6dd9efa)](https://www.codacy.com/app/baselines_janitors/stable-baselines?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=hill-a/stable-baselines&amp;utm_campaign=Badge_Grade) 
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/3bcb4cd6d76a4270acb16b5fe6dd9efa)](https://www.codacy.com/app/baselines_janitors/stable-baselines?utm_source=github.com&utm_medium=referral&utm_content=hill-a/stable-baselines&utm_campaign=Badge_Coverage)
+[![License](https://img.shields.io/github/license/sdmstudio/sdms)](https://gitlab.inria.fr/chroma1/plasma/sdms/-/blob/main/LICENSE)
+[![Version](https://img.shields.io/github/v/tag/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/tags)
+[![Contributors](https://img.shields.io/github/contributors-anon/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/graphs/contributors)
 
-[![GitHub release](https://img.shields.io/github/release/SimonRit/RTK.svg)](https://github.com/SimonRit/RTK/releases/latest) -->
-<!-- [![PyPI](https://img.shields.io/pypi/v/itk-rtk.svg)](https://pypi.python.org/pypi/itk-rtk) -->
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://gitlab.inria.fr/chroma1/plasma/sdms/-/blob/main/LICENSE)
 
 SDM'Studio is a C++ librairy that provides efficient solvers for sequential decision making problems.
 
@@ -25,6 +21,10 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
     - [Solve a problem (with learning algorithm)](#solve-a-problem-with-learning-algorithm)
     - [Test a saved policy [TO DO]](#test-a-saved-policy-to-do)
 - [4. Get started](#4-get-started)
+- [5. TO DO](#5-to-do)
+    - [Serial PWLCQ](#serial-pwlcq)
+    - [NDPOMDP](#ndpomdp)
+    - [Structure](#structure)
 
 
 # 1. About SDM'Studio
@@ -51,7 +51,9 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 
 # 2. Installation
 
-Follow installation instructions on https://aldavid.gitlabpages.inria.fr/sdms/tutorials/install .
+Follow installation instructions on https://sdmstudio.github.io/tutorials/install 
+
+(aurelien : ) if u have issues with toulbar2 (error : cannot link -ltb2), then just put the .so of ltb2 that is in lib/ in /usr/lib.
 
 # 3. Basic Usage
 
@@ -116,3 +118,28 @@ int main(int argc, char **argv)
   return 0;
 }
 ```
+
+# 5. TO DO
+
+### Serial PWLCQ
+- Garder état simultané lié à l'état séquentialisé
+- Faire équivalence sur l'état simultané
+- Stocker a^{\kappa} lié au s^{\kappa}_{t} et le s^{\kappa}_{t+1} qui en résulte
+- Ne mettre à jour le a^kappa qu'à une fréquence fixé
+- Troncature = m donc à horizon infini on a que m+1 pas de temps 
+- 
+
+### NDPOMDP
+- faire en sorte de pouvoir charger n'importe quel problème simultané 
+- pouvoir le sérialiser
+- factoriser la représentation des états d'occupations et des structures de représentation (fonction de valeur, dynamique, reward)
+
+### Structure 
+- déplacer les définitions vers les states
+- transition et récompense
+- Récompense : 
+  - produit scalaire 
+  - ou récompense vectoriel
+- Transition :
+
+- SG, ZS-SG, ZS-POSG, POSG
