@@ -1,5 +1,8 @@
+#ifdef WITH_CPLEX
+
 #pragma once
 
+#include <ilcplex/ilocplex.h>
 #include <sdm/core/action/action.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
@@ -64,3 +67,5 @@ namespace sdm
         virtual std::shared_ptr<Action> getVariableResult(const std::shared_ptr<ValueFunctionInterface>&vf, const std::shared_ptr<State> &occupancy_state,const IloCplex &cplex, const IloNumVarArray &var, number t) =0;
     };
 }
+
+#endif
