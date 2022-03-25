@@ -68,7 +68,6 @@ R: "wait" "jump" : "S11" : 1
 R: "wait" "jump" : "S10" : 0
 R: "wait" "jump" : "S01" : 1
 R: "wait" "jump" : "S00" : 0
-
 R: "shoot" "jump" : "*" : 0
 R: "wait" "catch" : "*" : 0
 R: "shoot" "catch" : "S11" : 1
