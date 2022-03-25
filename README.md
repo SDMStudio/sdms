@@ -9,54 +9,26 @@
 
 SDM'Studio is a C++ librairy that provides efficient solvers for sequential decision making problems.
 
-- [1. About SDM'Studio](#1-about-sdmstudio)
-  - [1.1. Formalisms](#11-formalisms)
-    - [Multi-agent](#multi-agent)
-    - [Single-agent](#single-agent)
-  - [1.2. Algorithms](#12-algorithms)
-- [2. Installation](#2-installation)
-- [3. Basic Usage](#3-basic-usage)
-    - [List available algorithms](#list-available-algorithms)
-    - [List available worlds](#list-available-worlds)
-    - [Solve a problem (with planning algorithm)](#solve-a-problem-with-planning-algorithm)
-    - [Solve a problem (with learning algorithm)](#solve-a-problem-with-learning-algorithm)
-    - [Test a saved policy [TO DO]](#test-a-saved-policy-to-do)
-- [4. Get started](#4-get-started)
-- [5. TO DO](#5-to-do)
-    - [Serial PWLCQ](#serial-pwlcq)
-    - [NDPOMDP](#ndpomdp)
-    - [Structure](#structure)
+## About SDM'Studio
 
+### 1. Formalisms
 
-# 1. About SDM'Studio
+| POSG (oMG) |     Dec-POMDP (oMDP)    |      NDPODMP  (nd-oMDP)     |      POMDP (bMDP)       |        MDP       | serial-MMDP | serial-MPOMDP | serial-Dec-POMDP (ser-oMDP) |
+| :---: | :----------------: | :----------------: |:----------------: | :----------------: | :----------------: |:----------------: | :----------------: |
+|  :x:  | :heavy_check_mark: |  :x: |  :heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark: |
 
-## 1.1. Formalisms
-
-### Multi-agent
-| POSG  |     Dec-POMDP      | ZSPOSG |      NDPODMP       |  SG   | Dec-MDP |
-| :---: | :----------------: | :----: | :----------------: | :---: | :-----: |
-|  :x:  | :heavy_check_mark: |  :x:   | :heavy_check_mark: |  :x:  |   :x:   |
-
-
-### Single-agent
-|       POMDP        |        MDP         |
-| :----------------: | :----------------: |
-| :heavy_check_mark: | :heavy_check_mark: |
-
-## 1.2. Algorithms
+### 2. Algorithms
 
 |        HSVI        |     Q-Learning     |  Value Iteration   |         A*         | Policy Iteration | JESP  |
 | :----------------: | :----------------: | :----------------: | :----------------: | :--------------: | :---: |
 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |       :x:        |  :x:  |
 
 
-# 2. Installation
+## Installation
 
-Follow installation instructions on https://sdmstudio.github.io/tutorials/install 
+Follow installation instructions : https://sdmstudio.github.io/tutorials/install 
 
-(aurelien : ) if u have issues with toulbar2 (error : cannot link -ltb2), then just put the .so of ltb2 that is in lib/ in /usr/lib.
-
-# 3. Basic Usage
+## Basic Usage
 
 Several scripts are available after installing SDMS. The main program `SDMStudio` should cover most of the basic usage. If, this is not enough, you may have a look to other SDMS programs `sdms-xxxx`.
 
@@ -79,20 +51,8 @@ SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [
 **Exemple:** solve the multi-agent problem called *tiger* as it was a single-agent problem. HSVI will be used by default. 
 ```bash
 cd sdms/
-SDMStudio solve -p data/world/dpomdp/tiger.dpomdp -f pomdp -e 0.001 -d 1.0 -h 4
-```
-
-### Solve a problem (with learning algorithm)
-```bash
-SDMStudio learn [ARG...]
-SDMStudio learn [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-l LEARNING_RATE] [-d DISCOUNT] [-h HORIZON] [-t NUM_TIMESTEPS] [-n EXP_NAME]
-SDMStudio learn [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--lr LEARNING_RATE] [--discount DISCOUNT] [--horizon HORIZON] [--nb_timesteps NUM_TIMESTEPS] [--name EXP_NAME]
-```
-
-**Exemple:** solve the multi-agent problem called *tiger* as it was a single-agent problem. Q-learning will be used by default. 
-```bash
-cd sdms/
-SDMStudio learn -p data/world/dpomdp/tiger.dpomdp -f pomdp -l 0.01 -d 1.0 -h 4 -t 30000 
+SDMStudio solve -a hsvi -p tiger.dpomdp -f bMDP -e 0.001 -h 10 -d 1.0
+SDMStudio solve -a qlearning -w tiger.dpomdp -f bMDP -h 10 -d 1.0 -t 30000 
 ```
 
 ### Test a saved policy [TO DO]
@@ -100,7 +60,7 @@ SDMStudio learn -p data/world/dpomdp/tiger.dpomdp -f pomdp -l 0.01 -d 1.0 -h 4 -
 SDMStudio test [ARG...]
 ```
 
-# 4. Get started
+## Get started
 
 ```cpp
 #include <iostream>
@@ -120,7 +80,7 @@ int main(int argc, char **argv)
 }
 ```
 
-# 5. TO DO
+## TO DO
 
 ### Serial PWLCQ
 - Garder état simultané lié à l'état séquentialisé
