@@ -13,8 +13,6 @@
 
 #include <sdm/types.hpp>
 #include <sdm/common.hpp>
-#include <sdm/public/world.hpp>
-// #include <sdm/public/feedback.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/world/mpomdp.hpp>
