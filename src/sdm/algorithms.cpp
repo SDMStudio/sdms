@@ -349,13 +349,14 @@ namespace sdm
                                                       bool store_action,
                                                       number batch_size)
         {
+            // return sdm::formalism::registry::make(formalism, config);
+
             // Parse the problem
             auto problem = sdm::parser::parse_file(problem_path);
 
             problem->setHorizon(horizon);
             problem->setDiscount(discount);
 
-            // return sdm::world::make(formalism, problem, config);
 
             // Build the transformed problem
             std::shared_ptr<SolvableByHSVI> formalism_problem;
@@ -435,6 +436,7 @@ namespace sdm
                                                  std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                                  std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
+            // return sdm::algo::registry::make(algo_name, config);
 
             assert(((discount < 1) || (formalism->getHorizon() > 0)));
 

@@ -58,11 +58,13 @@ namespace sdm
             cumul += prob;
             if (epsilon < cumul)
             {
-                this->step_++;
                 this->current_state_ = candidate_state;
                 break;
             }
         }
-        return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), (this->step_ > this->getUnderlyingMPOMDP()->getHorizon()));
+
+        this->step_++;
+        bool is_done = (this->getHorizon() > 0) ? (this->step_ >= this->getHorizon()) : false;
+        return std::make_tuple(this->current_state_, std::vector<double>(this->getUnderlyingMPOMDP()->getNumAgents(), occupancy_reward), is_done);
     }
 } // namespace sdm

@@ -9,6 +9,7 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ExhaustiveActionSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {
+        
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
 
