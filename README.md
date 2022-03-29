@@ -1,4 +1,4 @@
-<img alt="SDMS'Studio" src="https://raw.githubusercontent.com/SDMStudio/sdms/develop/docs/sdms-icon-gray.png" width="600">
+<img alt="SDMS'Studio" src="https://raw.githubusercontent.com/SDMStudio/sdms/develop/docs/sdms-icon-gray.png" width="450">
 
 [![License](https://img.shields.io/github/license/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/tag/sdmstudio/sdms)](https://github.com/SDMStudio/sdms/tags)
