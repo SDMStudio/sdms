@@ -46,9 +46,9 @@ namespace sdm
                         {
                             auto joint_u = s->getFullAction(pomdp, s->actions[o], indiv_u, t);
                             double delta_xou = pomdp->getReward(x, joint_u, t);
-                            std::cout << "x=" << x->str() << std::endl;
-                            std::cout << "o=" << o->short_str() << std::endl;
-                            std::cout << "joint_u=" << joint_u->str() << std::endl;
+                            // std::cout << "x=" << x->str() << std::endl;
+                            // std::cout << "o=" << o->short_str() << std::endl;
+                            // std::cout << "joint_u=" << joint_u->str() << std::endl;
                             for (const auto &x_ : pomdp->getReachableStates(x, joint_u, t))
                             {
                                 for (const auto &z : pomdp->getReachableObservations(x, joint_u, x_, t)) // 0.86
@@ -61,11 +61,15 @@ namespace sdm
                                     if (s_->getProbability(c_o_) == 0) // 0.54
                                         continue;
 
+                                    std::cout << "a="<< a->str() << std::endl;
+                                    std::cout << "a_="<< a_->str() << std::endl;
                                     auto u_ = s_->applyIndivDR(a_, c_o_); // 8.39
 
                                     std::cout << "u_=" << u_->str() << std::endl;
                                     if (u_ == nullptr)
                                         continue;
+                                    std::cout << "hyperplan="<< hyperplane_->str() << std::endl;
+                                    std::cout << "val="<< hyperplane_->getValueAt(x_, c_o_, u_) << std::endl;
                                     delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, joint_u, x_, z, t) * hyperplane_->getValueAt(x_, c_o_, u_);
                                 }
                             }

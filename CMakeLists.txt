@@ -4,15 +4,21 @@ cmake_minimum_required(VERSION 3.8)
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_C_COMPILER "clang")
 
-
 # Set the build type
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
-        "Choose the type of build, options are: Debug Release RelWithDebInfo."
-    FORCE)
+set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
+"Choose the type of build, options are: Debug Release RelWithDebInfo."
+FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+
+# --> Install prefix
+if(NOT DEFINED CMAKE_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX "/usr/local")
+endif()
+message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 # Set compilation options
 SET(CMAKE_CXX_FLAGS "" CACHE STRING "" FORCE)
@@ -57,7 +63,6 @@ endif()
 if(NOT DEFINED CPLEX_ROOT_DIR)
     set(CPLEX_ROOT_DIR "/opt/ibm/ILOG/CPLEX_Studio201/" CACHE STRING "Path to ILOG CPLEX root directory (default: '/opt/ibm/ILOG/CPLEX_Studio201/')")
 endif()
-
 
 # Set useful variables
 set(SDMS_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src)

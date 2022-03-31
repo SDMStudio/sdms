@@ -91,7 +91,7 @@ namespace sdm
         if (!this->isLastAgent(t))
         {
             auto next_ostate = std::static_pointer_cast<OccupancyStateSerial>(this->copy());
-            next_ostate->h++;
+            next_ostate->h = t+1;
             next_ostate->decision_rules.push_back(idr);
             for (const auto &jhist : this->getJointHistories())
             {
@@ -102,7 +102,9 @@ namespace sdm
         else
         {
             auto res = OccupancyState::next(mdp, this->getFullDecisionRule(mdp, this->decision_rules, idr, simul_time), observation, simul_time);
-            return res;
+            auto ostate = std::dynamic_pointer_cast<OccupancyStateSerial>(res.first);
+            ostate->h = t+1;
+            return {ostate, res.second};
         }
     }
 
@@ -124,14 +126,14 @@ namespace sdm
     {
         size_t seed = OccupancyState::hash(precision);
         // sdm::hash_combine(seed, this->h);
-
         return seed;
     }
 
 
     bool OccupancyStateSerial::operator==(const OccupancyStateSerial &other) const
     {
-        return this->isEqual(other, OccupancyState::PRECISION);
+        auto eq = this->isEqual(other, OccupancyState::PRECISION);
+        return eq;
     }
 
     bool OccupancyStateSerial::isEqual(const OccupancyStateSerial &other, double precision) const
@@ -141,15 +143,22 @@ namespace sdm
         // {
         //     return false;
         // }
+        // std::cout << "areEqual=";
         
-        if (this->actions != other.actions)
-        {
-            return false;
-        }
-        else
-        {
-            return OccupancyState::isEqual(other, precision);
-        }
+        // if (this->actions != other.actions)
+        // {
+        //     std::cout << "FALSE =! actions"<<std::endl;
+        //     for (auto jhist : other.actions)
+        //     std::cout << jhist.first << " - "<< jhist.second << std::endl;
+        //     std::cout << this->actions.size() << std::endl;
+        //     return false;
+        // }
+        // else
+        // {
+            auto eq = OccupancyState::isEqual(other, precision);
+        //     std::cout << eq << std::endl;
+            return eq;
+        // }
     }
 
     bool OccupancyStateSerial::isEqual(const std::shared_ptr<State> &other, double precision) const
@@ -170,7 +179,7 @@ namespace sdm
             res << " serial_actions=(";
             for (number i = 0; i < this->decision_rules.size(); i++)
             {
-                res << this->decision_rules.at(i)->act(joint_history->getIndividualHistory(i))->str();
+                res << this->actions.at(joint_history);
             }
             res << ") belief=" << this->getBeliefAt(joint_history)->str() << ">\n";
             res << "\t\t\t" << this->getProbability(joint_history) << "\n";

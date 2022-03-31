@@ -302,17 +302,18 @@ namespace sdm
         size_t seed = 0;
         double inverse_of_precision = 1. / precision;
         std::map<std::shared_ptr<sdm::State>, double> ordered(this->container.begin(), this->container.end());
-        std::vector<int> rounded;
+        // std::vector<int> rounded;
         for (const auto &pair_jhist_proba : ordered)
         {
             sdm::hash_combine(seed, pair_jhist_proba.first);
-            rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
+            // rounded.push_back(lround(inverse_of_precision * pair_jhist_proba.second));
+            sdm::hash_combine(seed, lround(inverse_of_precision * pair_jhist_proba.second));
         }
-        for (const auto &v : rounded)
-        {
-            // Combine the hash of the current vector with the hashes of the previous ones
-            sdm::hash_combine(seed, v);
-        }
+        // for (const auto &v : rounded)
+        // {
+        //     // Combine the hash of the current vector with the hashes of the previous ones
+        //     sdm::hash_combine(seed, v);
+        // }
         // sdm::hash_combine(seed, this->h);
 
         return seed;

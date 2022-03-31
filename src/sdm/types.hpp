@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <chrono>
 #include <iostream>
+#include <unordered_map>
 #include <boost/bimap.hpp>
 
 #include "sys/types.h"
@@ -202,23 +203,6 @@ namespace sdm
 
 namespace std
 {
-
-  // template <typename T>
-  // struct hash<std::shared_ptr<T>>
-  // {
-  //   typedef std::shared_ptr<T> argument_type;
-  //   typedef std::size_t result_type;
-  //   inline result_type operator()(const argument_type &in) const
-  //   {
-  //     return std::hash<T>(*in);
-  //   }
-  // };
-
-  template <class T, class... Ts>
-  struct is_any : std::disjunction<std::is_same<T, Ts>...>
-  {
-  };
-
   /* Trick to allow multiple inheritance of objects
    * inheriting shared_from_this.
    * cf. https://stackoverflow.com/a/12793989/587407

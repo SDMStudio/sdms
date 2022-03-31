@@ -19,9 +19,9 @@ namespace sdm
 
     template <typename TBetaVector>
     PWLCQValueFunction<TBetaVector>::PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
-                                           const std::shared_ptr<Initializer> &initializer,
-                                           const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                                           const std::shared_ptr<PWLCQUpdateOperator> &update_operator)
+                                                        const std::shared_ptr<Initializer> &initializer,
+                                                        const std::shared_ptr<ActionSelectionInterface> &action_selection,
+                                                        const std::shared_ptr<PWLCQUpdateOperator> &update_operator)
         : ValueFunctionInterface(world, initializer, action_selection),
           QValueFunction(world, initializer, action_selection, update_operator),
           PWLCValueFunctionInterface(world, initializer, action_selection)
