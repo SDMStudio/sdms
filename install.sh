@@ -7,7 +7,7 @@
 
 # Variable declaration
 CPLEX_ROOT='/opt/ibm/ILOG/CPLEX_Studio201/' # default is "/opt/ibm/ILOG/CPLEX_Studio201/"
-INSTALL_PREFIX='/usr/local' # default is "/usr/local"
+INSTALL_PREFIX='/usr' # default is "/usr/local"
 TORCH_URL='' # default is pytorch for CPU
 PROC='4' # the default number of processors used is 4
  
@@ -106,13 +106,16 @@ then
         echo -e "installed"
     fi
 
+    # Install other libs : Hard copy Toolbar library and other required libs
+    echo -ne "- toolbar and boost_parser (building by sdms) : "
+    cp lib/* /usr/lib/x86_64-linux-gnu
+    echo -e "installed"
+
+
     # Create build directory
     echo -e "${LOG_SDMS}Create build directory."
     rm -rf build
     mkdir -p ./build && cd ./build
-
-    # Hard copy Toolbar library and other required libs
-    mkdir -p "${INSTALL_PREFIX}" && mkdir -p "${INSTALL_PREFIX}/lib" && cp lib/* "${INSTALL_PREFIX}/lib"
 
     # Build and install SDM'Studio
     echo -e "${LOG_SDMS}Build and install SDM'Studio."

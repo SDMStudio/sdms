@@ -74,8 +74,8 @@ namespace sdm
          * Exemple:
          *
          * ```cpp
-         * std::cout << getPathTo("/usr/local/share/sdms/world", "tiger", "pomdp") << std::endl;
-         * // OUTPUT : /usr/local/share/sdms/world/pomdp/tiger.pomdp
+         * std::cout << getPathTo("/usr/share/sdms/world", "tiger", "pomdp") << std::endl;
+         * // OUTPUT : /usr/share/sdms/world/pomdp/tiger.pomdp
          * ```
          *
          * @param base the repository that contains problems definitions

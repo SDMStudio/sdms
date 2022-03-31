@@ -40,10 +40,10 @@ namespace sdm
         // --------------------------------------------------
 
         /** @brief Path to the directory where problems are stored. */
-        const std::string PROBLEM_PATH = "/usr/local/share/sdms/world/";
+        const std::string PROBLEM_PATH = "/usr/share/sdms/world/";
 
         /** @brief Path to the directory where configuration files are stored. */
-        const std::string CONFIG_PATH = "/usr/local/share/sdms/config/";
+        const std::string CONFIG_PATH = "/usr/share/sdms/config/";
 
         /** @brief The name of the default world. */
         const std::string DEFAULT_WORLD = "mabc.dpomdp";
