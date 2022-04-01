@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
 # TO DO
 
-## Pour la soumission
+## Avant JMLR
 
 ### A debugguer
 
@@ -90,35 +90,43 @@ int main(int argc, char **argv)
 |   bMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |
 |   oMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  |
 | hier-MDP  | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |
-| hier-bMDP | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |      :x: (3)       |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |
+| hier-bMDP | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (2 ou 3)       |      :x: (2 ou 3)       |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |
 | hier-oMDP |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  |
 |  ext-MDP  | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |
 | ext-bMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |
 | ext-oMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | tab-exhaus, pwlc-exhaus, pwlc-serial |
 
+(1) segmentation fault de Q-learning tabulaire pour les MDPs (difficulté facile)
+(2) hierarchical oMDP ne converge pas vers la bonne valeur avec HSVI -- possiblement lié à la définition erronée de HierarchicalMPOMDP::getReachableObservations (difficulté moyenne)
+(3) pas de PWLCQUpdate défini pour les beliefMDP (difficulté moyenne)
+
 
 ### A finir
-- [] cas horizon infini 
-- [] configuration TOML (--> simplification de la déclaration des problèmes)
-- [] (ext-oMDP -> oext-MDP) utiliser référence sur états simultanés suivant pour le greedy et backup
+- [ ] installation Mac OSX 
+- [ ] cas horizon infini 
+- [ ] configuration TOML (--> simplification de la déclaration des problèmes)
+- [ ] (ext-oMDP -> oext-MDP) utiliser référence sur états simultanés suivant pour le greedy et backup
 
 ### A tester perfs
 
-- [] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle)
+- [ ] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle)
+
+### A documenter
+- [ ] Beaucoup de choses 
 
 ## Pour la suite
 
 ### Serial PWLCQ
 <!-- - [] Garder état simultané lié à l'état séquentialisé
 - [] Faire équivalence sur l'état simultané -->
-- [] Stocker a^{\kappa} lié au s^{\kappa}_{t} et le s^{\kappa}_{t+1} qui en résulte
-- [] Ne mettre à jour le a^kappa qu'à une fréquence fixée
+- [ ] Stocker a^{\kappa} lié au s^{\kappa}_{t} et le s^{\kappa}_{t+1} qui en résulte
+- [ ] Ne mettre à jour le a^kappa qu'à une fréquence fixée
 - [x] Troncature = m donc à horizon infini on a que m+1 pas de temps 
 
 ### NDPOMDP
-- [] faire en sorte de pouvoir charger n'importe quel problème simultané 
-- [] pouvoir le sérialiser
-- [] factoriser la représentation des états d'occupations et des structures de représentation (fonction de valeur, dynamique, reward)
+- [ ] faire en sorte de pouvoir charger n'importe quel problème simultané 
+- [ ] pouvoir le sérialiser
+- [ ] factoriser la représentation des états d'occupations et des structures de représentation (fonction de valeur, dynamique, reward)
 
 ### Structure 
 - [x] déplacer les définitions vers les states
