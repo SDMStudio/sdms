@@ -11,9 +11,9 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 
 ### 1. Formalisms
 
-| POSG (oMG) |     Dec-POMDP (oMDP)    |      NDPODMP  (nd-oMDP)     |      POMDP (bMDP)       |        MDP       | serial-MMDP | serial-MPOMDP | serial-Dec-POMDP (ser-oMDP) |
-| :---: | :----------------: | :----------------: |:----------------: | :----------------: | :----------------: |:----------------: | :----------------: |
-|  :x:  | :heavy_check_mark: |  :x: |  :heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark: | :heavy_check_mark: |:heavy_check_mark: |
+| POSG (oMG) |  Dec-POMDP (oMDP)  | NDPODMP  (nd-oMDP) |    POMDP (bMDP)    |        MDP         |    serial-MMDP     |   serial-MPOMDP    | serial-Dec-POMDP (ser-oMDP) |
+| :--------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :-------------------------: |
+|    :x:     | :heavy_check_mark: |        :x:         | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |     :heavy_check_mark:      |
 
 ### 2. Algorithms
 
@@ -78,27 +78,48 @@ int main(int argc, char **argv)
 }
 ```
 
-## TO DO
+# TO DO
+
+## Pour la soumission
+
+### A debugguer
+
+|           |  (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           |
+| :-------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------------------------: |
+|    MDP    | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |
+|   bMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |
+|   oMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  |
+| hier-MDP  | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |
+| hier-bMDP | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |      :x: (3)       |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |
+| hier-oMDP |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  |
+|  ext-MDP  | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |
+| ext-bMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |
+| ext-oMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | tab-exhaus, pwlc-exhaus, pwlc-serial |
+
+
+### A finir
+- [] cas horizon infini 
+- [] configuration TOML (--> simplification de la déclaration des problèmes)
+- [] (ext-oMDP -> oext-MDP) utiliser référence sur états simultanés suivant pour le greedy et backup
+
+### A tester perfs
+
+- [] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle)
+
+## Pour la suite
 
 ### Serial PWLCQ
-- Garder état simultané lié à l'état séquentialisé
-- Faire équivalence sur l'état simultané
-- Stocker a^{\kappa} lié au s^{\kappa}_{t} et le s^{\kappa}_{t+1} qui en résulte
-- Ne mettre à jour le a^kappa qu'à une fréquence fixé
-- Troncature = m donc à horizon infini on a que m+1 pas de temps 
-- 
+<!-- - [] Garder état simultané lié à l'état séquentialisé
+- [] Faire équivalence sur l'état simultané -->
+- [] Stocker a^{\kappa} lié au s^{\kappa}_{t} et le s^{\kappa}_{t+1} qui en résulte
+- [] Ne mettre à jour le a^kappa qu'à une fréquence fixée
+- [x] Troncature = m donc à horizon infini on a que m+1 pas de temps 
 
 ### NDPOMDP
-- faire en sorte de pouvoir charger n'importe quel problème simultané 
-- pouvoir le sérialiser
-- factoriser la représentation des états d'occupations et des structures de représentation (fonction de valeur, dynamique, reward)
+- [] faire en sorte de pouvoir charger n'importe quel problème simultané 
+- [] pouvoir le sérialiser
+- [] factoriser la représentation des états d'occupations et des structures de représentation (fonction de valeur, dynamique, reward)
 
 ### Structure 
-- déplacer les définitions vers les states
-- transition et récompense
-- Récompense : 
-  - produit scalaire 
-  - ou récompense vectoriel
-- Transition :
-
-- SG, ZS-SG, ZS-POSG, POSG
+- [x] déplacer les définitions vers les states
+- [x] pouvoir parser POSG
