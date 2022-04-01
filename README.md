@@ -102,10 +102,13 @@ int main(int argc, char **argv)
 
 
 ### A finir
-- [ ] installation Mac OSX 
 - [ ] cas horizon infini 
+  - simplement besoin de le tester dans les différents cas
 - [ ] configuration TOML (--> simplification de la déclaration des problèmes)
+  - me paraît intéressant pour simplifier le paramétrage d'SDMS mais peut attendre la semaine après soumission 
 - [ ] (ext-oMDP -> oext-MDP) utiliser référence sur états simultanés suivant pour le greedy et backup
+  - je ne suis pas 100% sûre de l'implémentation - à vérifier avant dans lancer les expés
+- [x] installation Mac OSX  
 
 ### A tester perfs
 
