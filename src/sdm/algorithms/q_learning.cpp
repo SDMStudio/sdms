@@ -96,10 +96,12 @@ namespace sdm
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
         this->is_done = is_done;
 
+
         this->doEpisodeRecursive(next_observation, t + 1);
 
         // Compute next greedy action
         auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation, t + 1);
+
 
         // Push experience to memory
         this->experience_memory_->push(obs, action, rewards[0], next_observation, next_greedy_action, (this->isInfiniteHorizon() ? 0 : t));

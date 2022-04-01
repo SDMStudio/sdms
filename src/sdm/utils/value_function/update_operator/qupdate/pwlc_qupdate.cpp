@@ -44,7 +44,7 @@ namespace sdm
                     {
                         for (const auto &x_ : pomdp->getReachableStates(x, u, t))
                         {
-                            for (const auto &z : pomdp->getReachableObservations(x, u, x_, t)) // 0.86
+                            for (const auto &z : *pomdp->getObservationSpace(t)) // pomdp->getReachableObservations(x, u, x_, t)) // 0.86
                             {
                                 // set next-step history h' = h + u + z
                                 auto o_ = o->expand(std::static_pointer_cast<JointObservation>(z)); // 5.2
@@ -57,7 +57,7 @@ namespace sdm
 
                                 if (u_ == nullptr)
                                     continue;
-                                delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, u, x_, z, t) * hyperplane_->getValueAt(x_, c_o_, u_);
+                                delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, u, x_, z->toObservation(), t) * hyperplane_->getValueAt(x_, c_o_, u_);
                             }
                         }
                     }
