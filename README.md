@@ -82,6 +82,11 @@ int main(int argc, char **argv)
 
 ## Avant JMLR
 
+***Planning semaine pro***
+- Lundi/Mardi : résoudre les croix (1) et (2) + tester horizon infini et le faire fonctionner
+- Mercredi/Jeudi matin : Finir la vérif d'installation Mac et mettre au propre la partie tuto installation via docker
+- Jeudi Après-midi/Vendredi/Lundi/.. : Vérifier amélioration serial, debugguer puis lancer expés 
+
 ### A debugguer
 
 |           |  (tab) VI ou PBVI  |  (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | Horizon infini |
