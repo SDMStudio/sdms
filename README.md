@@ -28,34 +28,34 @@ Follow instructions at https://sdmstudio.github.io/tutorials/install
 
 ## Basic Usage
 
-Several scripts are available after installing SDMS. The main program `SDMStudio` should cover most of the basic usage. If, this is not enough, you may have a look to other SDMS programs `sdms-xxxx`.
+Several scripts are available after installing SDMS. The main program `sdms` should cover most of the basic usage. If, this is not enough, you may have a look to other SDMS programs `sdms-xxxx`.
 
 ### List available algorithms
 ```bash
-SDMStudio algorithms
+sdms algorithms
 ```
 
 ### List available worlds
 ```bash
-SDMStudio worlds
+sdms worlds
 ```
 
 ### Solve a problem (with planning algorithm)
 ```bash
-SDMStudio solve [ARG...]
-SDMStudio solve [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-e ERROR] [-d DISCOUNT] [-h HORIZON] [-t TRIALS] [-n EXP_NAME]
-SDMStudio solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS] [--name EXP_NAME]
+sdms solve [ARG...]
+sdms solve [-a ALGO] [-p PROBLEM] [-f FORMALISM] [-e ERROR] [-d DISCOUNT] [-h HORIZON] [-t TRIALS] [-n EXP_NAME]
+sdms solve [--algorithm ALGO] [--problem PROBLEM] [--formalism FORMALISM] [--error ERROR] [--discount DISCOUNT] [--horizon HORIZON] [--trials TRIALS] [--name EXP_NAME]
 ```
 **Exemple:** solve the multi-agent problem called *tiger* as it was a single-agent problem. HSVI will be used by default. 
 ```bash
 cd sdms/
-SDMStudio solve -a hsvi -p tiger.dpomdp -f bMDP -e 0.001 -h 10 -d 1.0
-SDMStudio solve -a qlearning -w tiger.dpomdp -f bMDP -h 10 -d 1.0 -t 30000 
+sdms solve -a hsvi -p tiger.dpomdp -f bMDP -e 0.001 -h 10 -d 1.0
+sdms solve -a qlearning -w tiger.dpomdp -f bMDP -h 10 -d 1.0 -t 30000 
 ```
 
 ### Test a saved policy [TO DO]
 ```bash
-SDMStudio test [ARG...]
+sdms test [ARG...]
 ```
 
 ## Uninstalling
@@ -73,7 +73,7 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 
 ### A debugguer
 
-|           |  (tab) VI ou PBVI  |  (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | Horizon infini |
+|           |   (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | Horizon infini |
 | :-------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------------------------: |
 |    MDP    |         -          | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
 |   bMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
