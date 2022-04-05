@@ -44,17 +44,6 @@ namespace sdm
         std::shared_ptr<Distribution<std::shared_ptr<State>>> getStartDistribution() const;
 
         /**
-         * @brief Select the next state.
-         *
-         * @param state the state
-         * @param action the action
-         * @param t the timestep
-         * @param hsvi a pointer on the algorithm that makes the call
-         * @return the next state
-         */
-        // virtual std::shared_ptr<State> nextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t = 0, const std::shared_ptr<HSVI> &hsvi = nullptr);
-
-        /**
          * @brief Get the action space at a specific state and timestep.
          * The state dependency is required when the game forbid the usage of a number of actions in this state. It is also used in some reformulated problems where actions are decision rules.
          * The time dependency is required in extensive-form games in which some agents have a different action space.
@@ -152,6 +141,28 @@ namespace sdm
          * @return TAction
          */
         Pair<std::shared_ptr<Action>, double> selectNextAction(const std::shared_ptr<ValueFunction> &lb, const std::shared_ptr<ValueFunction> &ub, const std::shared_ptr<State> &s, number h);
+        
+        /**
+         * @brief Get random action.
+         * @param observation the observation in consideration.
+         * @param t time step.
+         * @return the random action. 
+         */
+        virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &state, number t);
+
+        /**
+         * @brief Reset the environment and return initial observation.
+         * @return the initial observation
+         */
+        virtual std::shared_ptr<State> reset();
+
+        /**
+         * @brief Do a step on the environment.
+         * @param action the action to execute
+         * @return the information produced. Include : next observation, rewards, episode done  
+         */
+        virtual std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
+
 
     protected:
         /** @brief Get the underlying mdp */

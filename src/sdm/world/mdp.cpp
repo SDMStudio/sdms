@@ -147,9 +147,9 @@ namespace sdm
 
         auto observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_)->toState();
 
-        bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
-
         this->current_timestep_++;
+
+        bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
 
         return std::make_tuple(observation, std::vector<double>{reward}, is_done);
     }
@@ -160,10 +160,10 @@ namespace sdm
 
         auto observation = this->sampleNextObservation(this->getInternalState(), action, this->current_timestep_);
 
-        bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
-
         if (increment_timestep)
             this->current_timestep_++;
+
+        bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
 
         return std::make_tuple(observation->toState(), std::vector<double>{reward}, is_done);
     }

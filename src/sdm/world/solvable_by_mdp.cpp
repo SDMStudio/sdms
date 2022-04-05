@@ -124,4 +124,19 @@ namespace sdm
         return state->next(this->mdp, action, observation, t);
     }
 
+    std::shared_ptr<Action> SolvableByMDP::getRandomAction(const std::shared_ptr<State> &state, number t)
+    {
+        return this->getUnderlyingMDP()->getRandomAction(state, t);
+    }
+
+    std::shared_ptr<State> SolvableByMDP::reset()
+    {
+        return this->getUnderlyingMDP()->reset();
+    }
+
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SolvableByMDP::step(std::shared_ptr<Action> action)
+    {
+        return this->getUnderlyingMDP()->step(action);
+    }
+
 }

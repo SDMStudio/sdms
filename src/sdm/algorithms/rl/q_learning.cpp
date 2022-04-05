@@ -46,9 +46,7 @@ namespace sdm
     {
         printStartInfo();
         startExecutionTime();
-        std::cout << "QLearing::logging"<<std::endl;
         logging();
-        std::cout << "(end) QLearing::logging"<<std::endl;
 
         // Run N episodes
         while (episode < num_episodes_)
@@ -91,32 +89,25 @@ namespace sdm
         if ((this->is_done) || t > this->max_num_steps_by_ep_)
             return;
 
-        std::cout << "Qlearning:1"<<std::endl;
         // Action selection following policy and exploration process
         auto action = this->selectAction(obs, t);
 
-        std::cout << "Qlearning:2"<<std::endl;
         // Execute one step in env and get next observation and rewards
         auto [next_observation, rewards, is_done] = this->getEnv()->step(action);
         this->is_done = is_done;
 
 
-        std::cout << "Qlearning:3"<<std::endl;
         this->doEpisodeRecursive(next_observation, t + 1);
 
-        std::cout << "Qlearning:4"<<std::endl;
         // Compute next greedy action
         auto [next_greedy_action, _] = this->q_value_->getGreedyActionAndValue(next_observation, t + 1);
 
 
-        std::cout << "Qlearning:5"<<std::endl;
         // Push experience to memory
         this->experience_memory_->push(obs, action, rewards[0], next_observation, next_greedy_action, (this->isInfiniteHorizon() ? 0 : t));
 
-        std::cout << "Qlearning:6"<<std::endl;
         // Backup and get Q Value Error
         this->q_value_->updateValueAt(this->learning_rate, (this->isInfiniteHorizon() ? 0 : t));
-        std::cout << "Qlearning:7"<<std::endl;
 
         endStep();
     }

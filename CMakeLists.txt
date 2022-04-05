@@ -109,6 +109,4 @@ endif()
 
 # Configure sdms.pc file and install it
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/sdms.pc.in ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc @ONLY)	
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc    
-        DESTINATION lib/pkgconfig/)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc DESTINATION lib/pkgconfig/)

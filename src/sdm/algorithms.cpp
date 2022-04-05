@@ -326,17 +326,11 @@ namespace sdm
                 
             if (algo_name == "qlearning")
             {
-                if (!sdm::isInstanceOf<GymInterface>(problem))
-                    algorithm = std::make_shared<QLearning>(problem->getUnderlyingProblem(), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
-                else
-                    algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
             }
             else if (algo_name == "sarsa")
             {
-                if (!sdm::isInstanceOf<GymInterface>(problem))
-                    algorithm = std::make_shared<SARSA>(problem->getUnderlyingProblem(), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
-                else
-                    algorithm = std::make_shared<SARSA>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                algorithm = std::make_shared<SARSA>(problem, experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
             }
             return algorithm;
         }
