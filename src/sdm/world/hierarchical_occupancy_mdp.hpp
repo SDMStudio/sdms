@@ -4,6 +4,7 @@
 #include <sdm/world/hierarchical_mpomdp.hpp>
 
 #include <sdm/core/state/jhistory_tree.hpp>
+#include <sdm/core/state/hierarchical_occupancy_state.hpp>
 
 /**
  * @namespace  sdm
@@ -15,7 +16,7 @@ namespace sdm
      * @brief
      *
      */
-    class HierarchicalOccupancyMDP : public OccupancyMDP
+    class HierarchicalOccupancyMDP : public BaseOccupancyMDP<HierarchicalOccupancyState>
     {
     public:
         HierarchicalOccupancyMDP();
@@ -32,7 +33,6 @@ namespace sdm
 
         virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
         virtual std::tuple<std::shared_ptr<State>, std::vector<double>, bool> step(std::shared_ptr<Action> action);
-        virtual bool checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation);
 
     protected:
         /** @brief the identifier of the agent at the last level of the hierarchy */

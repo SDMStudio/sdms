@@ -8,19 +8,21 @@ if(TORCH_FOUND)
 	include_directories(${TORCH_INCLUDE_DIRS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 	add_definitions("-DWITH_TORCH")
-endif()
-
-# Check CPLEX dependancy and include directories
+endif(TORCH_FOUND)
+	
+	# Check CPLEX dependancy and include directories
 if(CPLEX_FOUND)
 	include_directories(${CPLEX_INCLUDE_DIRS})
 	add_definitions("-DWITH_CPLEX")
 	add_definitions("-DIL_STD")
-endif()
+endif(CPLEX_FOUND)
 
+set(TB2_LIBRARIES sdms_tb2) #${SDMS_LIB_DIR}/libtb2.so)
+	
 # Add boost definitions
 add_definitions (-DBOOST)
 add_definitions (-DDENSE)
-
+	
 # Add TOULBAR2 definitions
 add_definitions (-DLONGDOUBLE_PROB -DLONGLONG_COST -DWCSPFORMATONLY)
 
@@ -68,9 +70,9 @@ set_property(TARGET value_function_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(sdms_value_function SHARED $<TARGET_OBJECTS:value_function_obj>)
-target_link_libraries(sdms_value_function sdms_core ${CPLEX_LIBRARIES})
+target_link_libraries(sdms_value_function sdms_core ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
 add_library(sdms_value_function_static STATIC $<TARGET_OBJECTS:value_function_obj>)
-target_link_libraries(sdms_value_function_static sdms_core_static ${CPLEX_LIBRARIES})
+target_link_libraries(sdms_value_function_static sdms_core_static ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
 
 # LIB WORLD
 file(
@@ -193,7 +195,6 @@ install(TARGETS ${LIB_SDMS_STATIC} DESTINATION lib)
 # Build main program
 set(SDMS_PROGRAM_NAME "SDMStudio")
 
-set(TB2_LIBRARIES sdms_tb2) #${SDMS_LIB_DIR}/libtb2.so)
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
 target_link_libraries(${SDMS_PROGRAM_NAME} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${TB2_LIBRARIES} ${LIB_SDMS_STATIC})
 

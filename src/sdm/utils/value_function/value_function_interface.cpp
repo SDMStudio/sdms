@@ -84,9 +84,19 @@ namespace sdm
         return this->initializer_;
     }
 
+    void ValueFunctionInterface::setInitializer(const std::shared_ptr<Initializer> &init)
+    {
+        this->initializer_ = init;
+    }
+
     std::shared_ptr<ActionSelectionInterface> ValueFunctionInterface::getActionSelection() const
     {
         return this->action_selection_;
+    }
+
+    void ValueFunctionInterface::setActionSelection(const std::shared_ptr<ActionSelectionInterface> &action_selection)
+    {
+        this->action_selection_ = action_selection;
     }
 
     std::shared_ptr<ValueFunction> ValueFunctionInterface::toValueFunction()

@@ -4,9 +4,9 @@
  * @brief Defines the value function interface.
  * @version 0.1
  * @date 16/12/2020
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #pragma once
 
@@ -32,29 +32,29 @@ namespace sdm
     class QValueFunction;
 
     /**
-     * @brief This class is the abstract class of all kind of value functions. 
-     * 
+     * @brief This class is the abstract class of all kind of value functions.
+     *
      * All {state,action,q}-value function must inherit from this class.
-     * 
+     *
      * Value functions can :
-     * 
-     * - be initialized --> thanks to the initializer 
-     * - be updated --> thanks to the update operator 
-     * - be used to select greedy action --> thanks to the action selection operator 
-     * 
+     *
+     * - be initialized --> thanks to the initializer
+     * - be updated --> thanks to the update operator
+     * - be used to select greedy action --> thanks to the action selection operator
+     *
      */
     class ValueFunctionInterface : public std::enable_shared_from_this<ValueFunctionInterface>
     {
     public:
         /**
          * @brief Default constructor
-         * 
+         *
          */
         ValueFunctionInterface();
 
         /**
          * @brief Construct a new value function with specific initializer, action selector and update operator.
-         * 
+         *
          * @param horizon the horizon
          * @param initializer the initializer
          * @param action_selection the action selection operator
@@ -70,7 +70,7 @@ namespace sdm
         virtual ~ValueFunctionInterface();
 
         /**
-         * @brief Initialize the value function 
+         * @brief Initialize the value function
          */
         virtual void initialize();
 
@@ -86,7 +86,7 @@ namespace sdm
 
         /**
          * @brief Get the q-value given state and action
-         * 
+         *
          * @param state the state
          * @param action the action
          * @return the q-value
@@ -95,7 +95,7 @@ namespace sdm
 
         /**
          * @brief Get the best action to do at a state
-         * 
+         *
          * @param state the state
          * @param t the time step
          * @return the best action
@@ -104,7 +104,7 @@ namespace sdm
 
         /**
          * @brief Select the best Action and the value associated for a precise state and a time step
-         * 
+         *
          * @param state the state
          * @param t the time step
          * @return the best action and the corresponding value
@@ -113,37 +113,37 @@ namespace sdm
 
         /**
          * @brief Get the corresponding world
-         * 
-         * @return the world 
+         *
+         * @return the world
          */
         virtual std::shared_ptr<SolvableByDP> getWorld() const;
 
         /**
-         * @brief Save a value function into a file. 
-         * 
-         * The extension of the file will indicate the type of formatage for 
-         * recording (`.txt` = text format, '.xml' = XML format, other = binary 
-         * format). 
-         * 
+         * @brief Save a value function into a file.
+         *
+         * The extension of the file will indicate the type of formatage for
+         * recording (`.txt` = text format, '.xml' = XML format, other = binary
+         * format).
+         *
          * @param filename the filename
-         * 
+         *
          */
         virtual void save(std::string);
 
         /**
          * @brief Load a value function from a file.
-         * 
-         * The extension of the file will indicate the type of formatage for 
-         * reading (`.txt` = text format, '.xml' = XML format, other = binary 
-         * format). 
-         * 
+         *
+         * The extension of the file will indicate the type of formatage for
+         * reading (`.txt` = text format, '.xml' = XML format, other = binary
+         * format).
+         *
          * @param filename the filename
-         * 
+         *
          */
         virtual void load(std::string);
 
         /**
-         * @brief Define this function in order to be able to display the value 
+         * @brief Define this function in order to be able to display the value
          * function
          */
         virtual std::string str() const = 0;
@@ -160,37 +160,46 @@ namespace sdm
 
         /**
          * @brief Checks if the problem has a finite horizon.
-         * 
-         * The problem has a finite horizon if the horizon is set to a value 
+         *
+         * The problem has a finite horizon if the horizon is set to a value
          * greater than zero.
-         * 
+         *
          */
         bool isFiniteHorizon() const;
 
         /**
          * @brief Checks if the problem has an infinite horizon.
-         * 
+         *
          * The problem has an infinite horizon if the horizon is set to zero.
-         * 
+         *
          */
         bool isInfiniteHorizon() const;
 
         /**
-         * @brief Get the initializer 
+         * @brief Get the initializer
          */
         std::shared_ptr<Initializer> getInitializer() const;
+
+        /**
+         * @brief Set the initializer
+         */
+        void setInitializer(const std::shared_ptr<Initializer> &init);
 
         /**
          * @brief Get the action selection operator
          */
         std::shared_ptr<ActionSelectionInterface> getActionSelection() const;
 
+        /**
+         * @brief Set the action selection operator
+         */
+        void setActionSelection(const std::shared_ptr<ActionSelectionInterface> &action_selection);
+
         friend std::ostream &operator<<(std::ostream &os, const ValueFunctionInterface &vf)
         {
             os << vf.str();
             return os;
         }
-
 
         /** @brief Cast the state into a history */
         virtual std::shared_ptr<ValueFunction> toValueFunction();
@@ -205,13 +214,13 @@ namespace sdm
         number horizon_;
 
         /**
-         * @brief The world 
-         * 
+         * @brief The world
+         *
          */
         std::shared_ptr<SolvableByDP> world_;
 
         /**
-         * @brief The initializer to use for this value function. 
+         * @brief The initializer to use for this value function.
          */
         std::shared_ptr<Initializer> initializer_;
 

@@ -9,17 +9,17 @@ namespace sdm
     }
 
     HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<HierarchicalMPOMDP> &underlying_dpomdp, int memory, bool store_states, bool store_actions, int batch_size)
-        : OccupancyMDP(underlying_dpomdp, memory, store_states, store_actions, batch_size)
+        : BaseOccupancyMDP<HierarchicalOccupancyState>(underlying_dpomdp, memory, store_states, store_actions, batch_size)
     {
         this->low_level_agent_id_ = 0;
     }
 
-    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config): OccupancyMDP(dpomdp, config)
+    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config): BaseOccupancyMDP<HierarchicalOccupancyState>(dpomdp, config)
     {
         this->low_level_agent_id_ = 0;
     }
 
-    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(Config config): OccupancyMDP(config)
+    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(Config config): BaseOccupancyMDP<HierarchicalOccupancyState>(config)
     {
         this->low_level_agent_id_ = 0;
     }
@@ -32,11 +32,6 @@ namespace sdm
     std::shared_ptr<Space> HierarchicalOccupancyMDP::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
     {
         return this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), t);
-    }
-
-    bool HierarchicalOccupancyMDP::checkCompatibility(const std::shared_ptr<Observation> &joint_observation, const std::shared_ptr<Observation> &observation)
-    {
-        return (std::static_pointer_cast<JointObservation>(joint_observation)->get(this->getLowLevelAgentID()) == observation);
     }
 
     std::tuple<std::shared_ptr<State>, std::vector<double>, bool> HierarchicalOccupancyMDP::step(std::shared_ptr<Action> action)
