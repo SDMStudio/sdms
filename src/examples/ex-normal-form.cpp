@@ -2,7 +2,7 @@
 #include <memory>
 #include <sdm/world/two_players_normal_form_game.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/algorithms/bayesian_game_solver.hpp>
+#include <sdm/algorithms/planning/bayesian_game_solver.hpp>
 #include <sdm/world/bayesian_game_interface.hpp>
 
 using namespace sdm;

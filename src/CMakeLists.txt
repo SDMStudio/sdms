@@ -53,8 +53,8 @@ add_library(core_obj OBJECT ${lib_core_src})
 set_property(TARGET core_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
-add_library(sdms_core SHARED $<TARGET_OBJECTS:core_obj>)
-add_library(sdms_core_static STATIC $<TARGET_OBJECTS:core_obj>)
+add_library(sdm_core SHARED $<TARGET_OBJECTS:core_obj>)
+add_library(sdm_core_static STATIC $<TARGET_OBJECTS:core_obj>)
 # LIB VALUE FUNCTION
 file(
 	GLOB_RECURSE
@@ -69,10 +69,10 @@ add_library(value_function_obj OBJECT ${lib_value_function_src})
 set_property(TARGET value_function_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
-add_library(sdms_value_function SHARED $<TARGET_OBJECTS:value_function_obj>)
-target_link_libraries(sdms_value_function sdms_core ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
-add_library(sdms_value_function_static STATIC $<TARGET_OBJECTS:value_function_obj>)
-target_link_libraries(sdms_value_function_static sdms_core_static ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
+add_library(sdm_value_function SHARED $<TARGET_OBJECTS:value_function_obj>)
+target_link_libraries(sdm_value_function sdm_core ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
+add_library(sdm_value_function_static STATIC $<TARGET_OBJECTS:value_function_obj>)
+target_link_libraries(sdm_value_function_static sdm_core_static ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
 
 # LIB WORLD
 file(
@@ -88,37 +88,16 @@ add_library(world_obj OBJECT ${lib_world_src})
 set_property(TARGET world_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
-add_library(sdms_world SHARED $<TARGET_OBJECTS:world_obj>)
-target_link_libraries(sdms_world sdms_core)
-add_library(sdms_world_static STATIC $<TARGET_OBJECTS:world_obj>)
-target_link_libraries(sdms_world_static sdms_core_static)
-
-# # LIB PARSER
-# file(
-# 	GLOB_RECURSE
-# 	lib_parser_src
-# 	${INCLUDE_DIR}/parser/**
-# )
-# # this is the "object library" target: compiles the sources only once
-# add_library(parser_obj OBJECT ${lib_parser_src})
-
-# # shared libraries need PIC
-# set_property(TARGET parser_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
-
-# # shared and static libraries built from the same object files
-# add_library(parser SHARED $<TARGET_OBJECTS:parser_obj>)
-# target_link_libraries(parser world)
-# add_library(parser_static STATIC $<TARGET_OBJECTS:parser_obj>)
-# target_link_libraries(parser_static world_static)
+add_library(sdm_world SHARED $<TARGET_OBJECTS:world_obj>)
+target_link_libraries(sdm_world sdm_core)
+add_library(sdm_world_static STATIC $<TARGET_OBJECTS:world_obj>)
+target_link_libraries(sdm_world_static sdm_core_static)
 
 # LIB PLANNING (=DynamicProgramming)
 file(
 	GLOB_RECURSE
 	lib_planning_src
 	${INCLUDE_DIR}/algorithms/planning/**
-	${INCLUDE_DIR}/algorithms/backward_induction.cpp
-	${INCLUDE_DIR}/algorithms/alpha_star.cpp
-	${INCLUDE_DIR}/algorithms/bayesian_game_solver.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(planning_obj OBJECT ${lib_planning_src})
@@ -127,18 +106,17 @@ add_library(planning_obj OBJECT ${lib_planning_src})
 set_property(TARGET planning_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
-add_library(sdms_planning SHARED $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(sdms_planning sdms_core sdms_value_function sdms_world fmt)
-add_library(sdms_planning_static STATIC $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(sdms_planning_static sdms_core_static sdms_value_function_static sdms_world_static fmt)
+add_library(sdm_planning SHARED $<TARGET_OBJECTS:planning_obj>)
+target_link_libraries(sdm_planning sdm_core sdm_value_function sdm_world fmt)
+add_library(sdm_planning_static STATIC $<TARGET_OBJECTS:planning_obj>)
+target_link_libraries(sdm_planning_static sdm_core_static sdm_value_function_static sdm_world_static fmt)
 
 # LIB REINFORCEMENT LEARNING
 file(
 	GLOB_RECURSE
 	lib_rl_src
 	${INCLUDE_DIR}/utils/rl/**
-	${INCLUDE_DIR}/algorithms/q_learning.cpp
-	${INCLUDE_DIR}/algorithms/sarsa.cpp
+	${INCLUDE_DIR}/algorithms/rl/**
 )
 # this is the "object library" target: compiles the sources only once
 add_library(rl_obj OBJECT ${lib_rl_src})
@@ -147,42 +125,43 @@ add_library(rl_obj OBJECT ${lib_rl_src})
 set_property(TARGET rl_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
-add_library(sdms_rl SHARED $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(sdms_rl sdms_core sdms_value_function sdms_world fmt)
-add_library(sdms_rl_static STATIC $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(sdms_rl_static sdms_core_static sdms_value_function_static sdms_world_static fmt)
+add_library(sdm_rl SHARED $<TARGET_OBJECTS:rl_obj>)
+target_link_libraries(sdm_rl sdm_core sdm_value_function sdm_world fmt)
+add_library(sdm_rl_static STATIC $<TARGET_OBJECTS:rl_obj>)
+target_link_libraries(sdm_rl_static sdm_core_static sdm_value_function_static sdm_world_static fmt)
 # LIB SDMS
 file(
 	GLOB_RECURSE
-	lib_sdms_src
+	lib_sdm_src
 	${INCLUDE_DIR}/algorithms.cpp
 )
 
-target_link_libraries(sdms_value_function sdms_planning_static sdms_rl_static)
-target_link_libraries(sdms_value_function_static sdms_planning_static sdms_rl_static)
+target_link_libraries(sdm_value_function ${TORCH_LIBRARIES} sdm_planning_static sdm_rl_static)
+target_link_libraries(sdm_value_function_static ${TORCH_LIBRARIES} sdm_planning_static sdm_rl_static)
 
 
 # this is the "object library" target: compiles the sources only once
-add_library(sdms_obj OBJECT ${lib_sdms_src})
+add_library(sdm_obj OBJECT ${lib_sdm_src})
 
 # shared libraries need PIC
-set_property(TARGET sdms_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET sdm_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
-add_library(${LIB_SDMS} SHARED $<TARGET_OBJECTS:sdms_obj>)
-target_link_libraries(${LIB_SDMS} sdms_value_function sdms_world sdms_planning sdms_rl)
-add_library(${LIB_SDMS_STATIC} STATIC $<TARGET_OBJECTS:sdms_obj>)
-target_link_libraries(${LIB_SDMS_STATIC} sdms_value_function_static sdms_world_static sdms_planning_static sdms_rl_static)
-install(TARGETS sdms_core DESTINATION lib)
-install(TARGETS sdms_core_static DESTINATION lib)
-install(TARGETS sdms_world DESTINATION lib)
-install(TARGETS sdms_world_static DESTINATION lib)
-install(TARGETS sdms_value_function DESTINATION lib)
-install(TARGETS sdms_value_function_static DESTINATION lib)
-install(TARGETS sdms_planning DESTINATION lib)
-install(TARGETS sdms_planning_static DESTINATION lib)
-install(TARGETS sdms_rl DESTINATION lib)
-install(TARGETS sdms_rl_static DESTINATION lib)
+add_library(${LIB_SDMS} SHARED $<TARGET_OBJECTS:sdm_obj> $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:planning_obj> $<TARGET_OBJECTS:rl_obj>)
+target_link_libraries(${LIB_SDMS} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+add_library(${LIB_SDMS_STATIC} STATIC $<TARGET_OBJECTS:sdm_obj> $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:planning_obj> $<TARGET_OBJECTS:rl_obj>)
+target_link_libraries(${LIB_SDMS_STATIC} -L${SDMS_LIB_DIR} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+
+install(TARGETS sdm_core DESTINATION lib)
+install(TARGETS sdm_core_static DESTINATION lib)
+install(TARGETS sdm_world DESTINATION lib)
+install(TARGETS sdm_world_static DESTINATION lib)
+install(TARGETS sdm_value_function DESTINATION lib)
+install(TARGETS sdm_value_function_static DESTINATION lib)
+install(TARGETS sdm_planning DESTINATION lib)
+install(TARGETS sdm_planning_static DESTINATION lib)
+install(TARGETS sdm_rl DESTINATION lib)
+install(TARGETS sdm_rl_static DESTINATION lib)
 install(TARGETS ${LIB_SDMS} DESTINATION lib)
 install(TARGETS ${LIB_SDMS_STATIC} DESTINATION lib)
 
@@ -193,10 +172,10 @@ install(TARGETS ${LIB_SDMS_STATIC} DESTINATION lib)
 ########### BUILD PROGRAMS ###########
 
 # Build main program
-set(SDMS_PROGRAM_NAME "SDMStudio")
+set(SDMS_PROGRAM_NAME ${CMAKE_PROJECT_NAME})
 
 add_executable(${SDMS_PROGRAM_NAME} main.cpp) 
-target_link_libraries(${SDMS_PROGRAM_NAME} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${TB2_LIBRARIES} ${LIB_SDMS_STATIC})
+target_link_libraries(${SDMS_PROGRAM_NAME} ${LIB_SDMS_STATIC})
 
 ########### INSTALL #################
 # Install programs

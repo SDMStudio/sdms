@@ -1,5 +1,5 @@
 #include <sdm/types.hpp>
-#include <sdm/algorithms/q_learning.hpp>
+#include <sdm/algorithms/rl/q_learning.hpp>
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/utils/value_function/qfunction/pwlc_qvalue_function.hpp>
 

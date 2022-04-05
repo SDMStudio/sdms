@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/tabular_update.hpp>
 
 namespace sdm
 {

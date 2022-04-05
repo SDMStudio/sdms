@@ -1,4 +1,4 @@
-#include <sdm/utils/value_function/update_operator/vupdate/lb_tabular_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/lb_tabular_update.hpp>
 
 namespace sdm
 {

@@ -1,4 +1,4 @@
-#include <sdm/utils/value_function/update_operator/qupdate/tabular_qupdate.hpp>
+#include <sdm/utils/value_function/update_rule/qupdate/tabular_qupdate.hpp>
 #include <sdm/utils/value_function/qfunction/tabular_q_interface.hpp>
 
 namespace sdm
@@ -8,7 +8,7 @@ namespace sdm
         TabularQUpdate::TabularQUpdate(
             std::shared_ptr<ExperienceMemory> experience_memory,
             std::shared_ptr<ValueFunctionInterface> q_value_table,
-            std::shared_ptr<ValueFunctionInterface> target_q_value_table) : TabularQUpdateOperator(experience_memory, q_value_table, target_q_value_table)
+            std::shared_ptr<ValueFunctionInterface> target_q_value_table) : TabularQUpdateRule(experience_memory, q_value_table, target_q_value_table)
         {
         }
 

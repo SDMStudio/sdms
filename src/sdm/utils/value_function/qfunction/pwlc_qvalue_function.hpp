@@ -58,12 +58,12 @@ namespace sdm
          * @param world the world
          * @param initializer the initializer
          * @param action the action selection
-         * @param update_operator the update operator
+         * @param update_rule the update operator
          */
         PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                            const std::shared_ptr<Initializer> &initializer = nullptr,
                            const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
-                           const std::shared_ptr<PWLCQUpdateOperator> &update_operator = nullptr);
+                           const std::shared_ptr<PWLCQUpdateRule> &update_rule = nullptr);
         /**
          * @brief Initialize the value function
          */

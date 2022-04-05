@@ -22,9 +22,9 @@ SDM'Studio is a C++ librairy that provides efficient solvers for sequential deci
 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |       :x:        |  :x:  |
 
 
-## Installation
+## Installing
 
-Follow installation instructions : https://sdmstudio.github.io/tutorials/install 
+Follow instructions at https://sdmstudio.github.io/tutorials/install 
 
 ## Basic Usage
 
@@ -58,25 +58,9 @@ SDMStudio solve -a qlearning -w tiger.dpomdp -f bMDP -h 10 -d 1.0 -t 30000
 SDMStudio test [ARG...]
 ```
 
-## Get started
+## Uninstalling
 
-```cpp
-#include <iostream>
-#include <sdm/worlds.hpp>
-#include <sdm/parser/parser.hpp>
-
-int main(int argc, char **argv)
-{
-	auto dpomdp_world= sdm::parser::parse_file("my_problem.dpomdp");
-  
-	std::cout << "Nb Agents : " << dpomdp_world->getNumAgents() << std::endl;
-  std::cout << "State Space : " << *dpomdp_world->getStateSpace() << std::endl;
-	std::cout << "Action Space : " << *dpomdp_world->getActionSpace() << std::endl;
-	std::cout << "Observation space : " << *dpomdp_world->getObsSpace() << std::endl;
-
-  return 0;
-}
-```
+Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from the build directory to uninstall SDM'Studio from their system.
 
 # TO DO
 
@@ -107,6 +91,11 @@ int main(int argc, char **argv)
 
 **(3)** pas de PWLCQUpdate défini pour les beliefMDP (difficulté moyenne)
 
+### A modifier
+- [x] Modifier UpdateOperator to UpdateRule
+- [x] Bouger algos dans algorithms/planning ou algorithms/rl
+- [ ] Tester BackwardInduction (et code example)
+- [ ] Sauvagarder et charger fonction de valeur
 
 ### A finir 
 - [ ] cas horizon infini 
@@ -123,10 +112,6 @@ int main(int argc, char **argv)
 - [ ] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle).
 
 ### A documenter
-- [ ] Modifier UpdateOperator to UpdateRule
-- [ ] Bouger algos dans algorithms/planning ou algorithms/rl
-- [ ] Tester BackwardInduction (et code example)
-
 - [ ] Beaucoup de choses 
 
 ## Pour la suite

@@ -1,16 +1,17 @@
 #pragma once
 
 #include <sdm/types.hpp>
-#include <sdm/utils/value_function/update_operator/qupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/qupdate_rule.hpp>
+#include <sdm/utils/value_function/update_rule/qupdate/pwlc_qupdate.hpp>
 
 namespace sdm
 {
     namespace update
     {
-        class PWLCQUpdate : public PWLCQUpdateOperator
+        class SerialPWLCQUpdate : public PWLCQUpdate
         {
         public:
-            PWLCQUpdate(std::shared_ptr<ExperienceMemory> experience_memory,
+            SerialPWLCQUpdate(std::shared_ptr<ExperienceMemory> experience_memory,
                         std::shared_ptr<ValueFunctionInterface> q_value_table,
                         std::shared_ptr<ValueFunctionInterface> target_q_value);
 

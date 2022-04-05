@@ -10,8 +10,8 @@ namespace sdm
     QValueFunction::QValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                    const std::shared_ptr<Initializer> &initializer,
                                    const std::shared_ptr<ActionSelectionInterface> &action,
-                                   const std::shared_ptr<QUpdateOperatorInterface> &update_operator)
-        : ValueFunctionInterface(world, initializer, action), update_operator_(update_operator)
+                                   const std::shared_ptr<QUpdateRuleInterface> &update_rule)
+        : ValueFunctionInterface(world, initializer, action), update_rule_(update_rule)
     {
     }
 
@@ -22,17 +22,17 @@ namespace sdm
 
     void QValueFunction::updateValueAt(double learning_rate, number t)
     {
-        this->getUpdateOperator()->update(learning_rate, t);
+        this->getUpdateRule()->update(learning_rate, t);
     }
 
-    std::shared_ptr<QUpdateOperatorInterface> QValueFunction::getUpdateOperator() const
+    std::shared_ptr<QUpdateRuleInterface> QValueFunction::getUpdateRule() const
     {
-        return this->update_operator_;
+        return this->update_rule_;
     }
 
-    void QValueFunction::setUpdateOperator(std::shared_ptr<QUpdateOperatorInterface> update_operator)
+    void QValueFunction::setUpdateRule(std::shared_ptr<QUpdateRuleInterface> update_rule)
     {
-        this->update_operator_ = update_operator;
+        this->update_rule_ = update_rule;
     }
 
     std::shared_ptr<QValueFunction> QValueFunction::getptr()

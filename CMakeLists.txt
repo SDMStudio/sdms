@@ -85,7 +85,7 @@ set(ALGOS_DIR ${SDMS_SOURCE_DIRS}/algos)
 
 
 # Set names of libraries
-set(LIB_SDMS ${CMAKE_PROJECT_NAME})
+set(LIB_SDMS "sdm")
 set(LIB_SDMS_STATIC "${CMAKE_PROJECT_NAME}_static")
 
 # Build SDMS sources

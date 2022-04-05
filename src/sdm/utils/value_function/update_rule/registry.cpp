@@ -1,6 +1,6 @@
 #include <sdm/macros.hpp>
-#include <sdm/utils/value_function/update_operator.hpp>
-#include <sdm/utils/value_function/update_operator/registry.hpp>
+#include <sdm/utils/value_function/update_rule.hpp>
+#include <sdm/utils/value_function/update_rule/registry.hpp>
 
 SDMS_REGISTRY(update)
 SDMS_REGISTER("TabularUpdate", TabularUpdate)
@@ -20,7 +20,7 @@ namespace sdm
             return available_init;
         }
 
-        std::shared_ptr<UpdateOperatorInterface> registry::make(std::string name, std::shared_ptr<ValueFunctionInterface> value_function)
+        std::shared_ptr<UpdateRuleInterface> registry::make(std::string name, std::shared_ptr<ValueFunctionInterface> value_function)
         {
             typename map_type::iterator it = registry::container.find(name);
             if (it == registry::container.end())

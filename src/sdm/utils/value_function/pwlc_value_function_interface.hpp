@@ -4,7 +4,7 @@
 #include <sdm/utils/linear_algebra/hyperplane/hyperplane.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/prunable_structure.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate_rule.hpp>
 
 namespace sdm
 {

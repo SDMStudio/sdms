@@ -2,10 +2,10 @@
 
 #include <sdm/config.hpp>
 #include <sdm/parser/parser.hpp>
-#include <sdm/algorithms/alpha_star.hpp>
+#include <sdm/algorithms/planning/alpha_star.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/tabular_update.hpp>
 
 using namespace sdm;
 
@@ -35,8 +35,8 @@ int main()
 	auto value_function = std::make_shared<TabularValueFunction>(oMDP, vf_init, vf_action_tabular);
 
 	// Instanciate update operator
-	auto vf_update_operator = std::make_shared<TabularUpdate>(value_function);
-	value_function->setUpdateOperator(vf_update_operator);
+	auto vf_update_rule = std::make_shared<TabularUpdate>(value_function);
+	value_function->setUpdateRule(vf_update_rule);
 
 	// Instanciate the algorithm
 	auto algo = std::make_shared<AlphaStar>(oMDP, value_function);

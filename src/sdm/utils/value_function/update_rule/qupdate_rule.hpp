@@ -18,7 +18,7 @@ namespace sdm
          * Any class inheriting from this interface can be used to update a value function.
          *
          */
-        class QUpdateOperatorInterface
+        class QUpdateRuleInterface
         {
         public:
             /**
@@ -35,7 +35,7 @@ namespace sdm
          * @tparam TQValueFunction the type of Q-value function
          */
         template <class TQValueFunction>
-        class QUpdateOperator : public QUpdateOperatorInterface
+        class QUpdateRule : public QUpdateRuleInterface
         {
         public:
             /**
@@ -43,7 +43,7 @@ namespace sdm
              *
              * @param qvalue_function the qvalue function
              */
-            QUpdateOperator(std::shared_ptr<ExperienceMemory> experience_memory,
+            QUpdateRule(std::shared_ptr<ExperienceMemory> experience_memory,
                             std::shared_ptr<ValueFunctionInterface> q_value,
                             std::shared_ptr<ValueFunctionInterface> target_q_value)
                 : experience_memory(experience_memory)
@@ -57,11 +57,11 @@ namespace sdm
                 }
                 else
                 {
-                    throw sdm::exception::TypeError("Cannot instanciate QUpdateOperator<T> with q-value function that does not derive from T.");
+                    throw sdm::exception::TypeError("Cannot instanciate QUpdateRule<T> with q-value function that does not derive from T.");
                 }
             }
 
-            virtual ~QUpdateOperator() {}
+            virtual ~QUpdateRule() {}
 
             /**
              * @brief Update the value function.
@@ -113,8 +113,8 @@ namespace sdm
             std::weak_ptr<TQValueFunction> q_value, target_q_value;
         };
 
-        using TabularQUpdateOperator = QUpdateOperator<TabularQValueFunctionInterface>;
-        using PWLCQUpdateOperator = QUpdateOperator<PWLCValueFunctionInterface>;
+        using TabularQUpdateRule = QUpdateRule<TabularQValueFunctionInterface>;
+        using PWLCQUpdateRule = QUpdateRule<PWLCValueFunctionInterface>;
 
     } // namespace update
 } // namespace sdm

@@ -18,7 +18,7 @@ namespace sdm
     ValueFunction::ValueFunction(const ValueFunction &copy)
         : ValueFunction(copy.world_, copy.initializer_, copy.action_selection_)
     {
-        this->update_operator_ = copy.update_operator_;
+        this->update_rule_ = copy.update_rule_;
     }
 
     double ValueFunction::getQValueAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
@@ -43,16 +43,16 @@ namespace sdm
 
     void ValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
     {
-        this->getUpdateOperator()->update(state, t);
+        this->getUpdateRule()->update(state, t);
     }
 
-    std::shared_ptr<UpdateOperatorInterface> ValueFunction::getUpdateOperator() const
+    std::shared_ptr<UpdateRuleInterface> ValueFunction::getUpdateRule() const
     {
-        return this->update_operator_;
+        return this->update_rule_;
     }
-    void ValueFunction::setUpdateOperator(std::shared_ptr<UpdateOperatorInterface> update_operator)
+    void ValueFunction::setUpdateRule(std::shared_ptr<UpdateRuleInterface> update_rule)
     {
-        this->update_operator_ = update_operator;
+        this->update_rule_ = update_rule;
     }
 
     std::shared_ptr<ValueFunction> ValueFunction::getptr()

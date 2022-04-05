@@ -7,8 +7,8 @@
 #include <sdm/utils/value_function/vfunction/sawtooth_value_function.hpp>
 #include <sdm/utils/value_function/vfunction/pwlc_value_function.hpp>
 
-#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/pwlc_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/pwlc_update.hpp>
 
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
 
@@ -48,20 +48,20 @@ namespace sdm
         {
             // Instanciate lower bound
             lb = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection);
-            lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
+            lb->setUpdateRule(std::make_shared<update::TabularUpdate>(lb));
             // Instanciate upper bound
             ub = std::make_shared<TabularValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection);
-            ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+            ub->setUpdateRule(std::make_shared<update::TabularUpdate>(ub));
         }
         else
         {
             // Instanciate lower bound
             lb = std::make_shared<PWLCValueFunction>(hsvi_pomdp, init_lb, exhaustive_selection, 1, MaxplanPruning::PAIRWISE);
-            lb->setUpdateOperator(std::make_shared<update::PWLCUpdate>(lb));
+            lb->setUpdateRule(std::make_shared<update::PWLCUpdate>(lb));
 
             // Instanciate upper bound
             ub = std::make_shared<SawtoothValueFunction>(hsvi_pomdp, init_ub, exhaustive_selection, 1, SawtoothPruning::PAIRWISE);
-            ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+            ub->setUpdateRule(std::make_shared<update::TabularUpdate>(ub));
         }
 
         auto algorithm = std::make_shared<HSVI>(hsvi_pomdp, lb, ub, error, trials, "PomdpHsvi_Init", 1, 1, time_max);

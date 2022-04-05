@@ -1,4 +1,4 @@
-#include <sdm/utils/value_function/update_operator/qupdate/pwlc_qupdate.hpp>
+#include <sdm/utils/value_function/update_rule/qupdate/pwlc_qupdate.hpp>
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
@@ -14,7 +14,7 @@ namespace sdm
         PWLCQUpdate::PWLCQUpdate(
             std::shared_ptr<ExperienceMemory> experience_memory,
             std::shared_ptr<ValueFunctionInterface> q_value,
-            std::shared_ptr<ValueFunctionInterface> target_q_value) : PWLCQUpdateOperator(experience_memory, q_value, target_q_value)
+            std::shared_ptr<ValueFunctionInterface> target_q_value) : PWLCQUpdateRule(experience_memory, q_value, target_q_value)
         {
         }
 

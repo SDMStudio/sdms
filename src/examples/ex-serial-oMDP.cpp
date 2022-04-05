@@ -11,7 +11,7 @@
 #include <sdm/world/serial_occupancy_mdp.hpp>
 #include <sdm/algorithms/planning/hsvi.hpp>
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/tabular_update.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 
 using namespace sdm;
@@ -47,15 +47,15 @@ int main(int argc, char **argv)
 		lb = std::make_shared<TabularValueFunction>(hsvi_mdp, lb_init, action_tabular);
 
 		// Instanciate lower bound update operator
-		auto lb_update_operator = std::make_shared<TabularUpdate>(lb);
-		lb->setUpdateOperator(lb_update_operator);
+		auto lb_update_rule = std::make_shared<TabularUpdate>(lb);
+		lb->setUpdateRule(lb_update_rule);
 
 		// Instanciate upper bound
 		ub = std::make_shared<TabularValueFunction>(hsvi_mdp, ub_init, action_tabular);
 
 		// Instanciate upper bound update operator
-		auto ub_update_operator = std::make_shared<TabularUpdate>(ub);
-		ub->setUpdateOperator(ub_update_operator);
+		auto ub_update_rule = std::make_shared<TabularUpdate>(ub);
+		ub->setUpdateRule(ub_update_rule);
 
 		// Instanciate HSVI
 		auto algo = std::make_shared<HSVI>(hsvi_mdp, lb, ub, error, 10000, "", 1, 1);

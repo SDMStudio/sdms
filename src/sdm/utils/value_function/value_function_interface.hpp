@@ -58,7 +58,7 @@ namespace sdm
          * @param horizon the horizon
          * @param initializer the initializer
          * @param action_selection the action selection operator
-         * @param update_operator the update operator
+         * @param update_rule the update operator
          */
         ValueFunctionInterface(const std::shared_ptr<SolvableByDP> &world,
                                const std::shared_ptr<Initializer> &initializer,

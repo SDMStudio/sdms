@@ -12,7 +12,7 @@
 
 #include <sdm/types.hpp>
 #include <sdm/public/algorithm.hpp>
-#include <sdm/algorithms/q_learning.hpp>
+#include <sdm/algorithms/rl/q_learning.hpp>
 #include <sdm/world/gym_interface.hpp>
 #include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/rl/exploration.hpp>

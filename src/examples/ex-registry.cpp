@@ -4,7 +4,7 @@
 #include <sdm/worlds.hpp>
 #include <sdm/world/gym.hpp>
 #include <sdm/utils/value_function.hpp>
-#include <sdm/utils/value_function/update_operator.hpp>
+#include <sdm/utils/value_function/update_rule.hpp>
 #include <sdm/utils/value_function/action_selection.hpp>
 
 int main(int argc, char **argv)
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     std::cout << "\n\033[1;34m" << "List of ACTION SELECTION ( sdm/utils/value_function/action_selection/registry.hpp )\033[0m" << std::endl;
     std::cout << sdm::action_selection::registry::available() << std::endl;
 
-    std::cout << "\n\033[1;34m" << "List of UPDATE OPERATORS ( sdm/utils/value_function/update_operator/registry.hpp )\033[0m" << std::endl;
+    std::cout << "\n\033[1;34m" << "List of UPDATE OPERATORS ( sdm/utils/value_function/update_rule/registry.hpp )\033[0m" << std::endl;
     std::cout << sdm::update::registry::available() << std::endl;
 
     std::cout << "\n\033[1;34m" << "List of WORLDS ( sdm/world/registry.hpp )\033[0m" << std::endl;

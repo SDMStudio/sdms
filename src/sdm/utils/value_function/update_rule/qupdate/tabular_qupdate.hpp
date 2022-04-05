@@ -2,13 +2,13 @@
 
 #include <sdm/types.hpp>
 #include <sdm/utils/rl/experience_memory.hpp>
-#include <sdm/utils/value_function/update_operator/qupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/qupdate_rule.hpp>
 
 namespace sdm
 {
     namespace update
     {
-        class TabularQUpdate : public TabularQUpdateOperator
+        class TabularQUpdate : public TabularQUpdateRule
         {
         public:
             TabularQUpdate(std::shared_ptr<ExperienceMemory> experience_memory,

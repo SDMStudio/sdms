@@ -5,7 +5,7 @@
 
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/action_selection/exhaustive_action_selection.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/tabular_update.hpp>
 
 #include <sdm/utils/value_function/initializer/mdp_relaxation.hpp>
 #include <sdm/world/solvable_by_mdp.hpp>
@@ -50,9 +50,9 @@ namespace sdm
 
             // Instanciate value function
             std::shared_ptr<sdm::ValueFunction> mdp_vf = std::make_shared<TabularValueFunction>(hsvi_mdp, vf_init, action_tabular);
-            mdp_vf->setUpdateOperator(std::make_shared<update::TabularUpdate>(mdp_vf));
+            mdp_vf->setUpdateRule(std::make_shared<update::TabularUpdate>(mdp_vf));
             std::shared_ptr<sdm::ValueFunction> tmp_mdp_vf = std::make_shared<TabularValueFunction>(hsvi_mdp, vf_init, action_tabular);
-            tmp_mdp_vf->setUpdateOperator(std::make_shared<update::TabularUpdate>(tmp_mdp_vf));
+            tmp_mdp_vf->setUpdateRule(std::make_shared<update::TabularUpdate>(tmp_mdp_vf));
 
             auto value_iteration = std::make_shared<ValueIteration>(hsvi_mdp, mdp_vf, error, trials, "MdpValueIteration_Init");
             value_iteration->setTmpValueFunction(tmp_mdp_vf);
@@ -73,11 +73,11 @@ namespace sdm
 
             // Lower bound instanciation
             auto lb = std::make_shared<TabularValueFunction>(hsvi_mdp, init_lb, action_tabular);
-            lb->setUpdateOperator(std::make_shared<update::TabularUpdate>(lb));
+            lb->setUpdateRule(std::make_shared<update::TabularUpdate>(lb));
 
             // Upper bound instanciation
             auto ub = std::make_shared<TabularValueFunction>(hsvi_mdp, init_ub, action_tabular);
-            ub->setUpdateOperator(std::make_shared<update::TabularUpdate>(ub));
+            ub->setUpdateRule(std::make_shared<update::TabularUpdate>(ub));
 
             // HSVI instanciation
             auto algorithm = std::make_shared<HSVI>(hsvi_mdp, lb, ub, error, trials, "MdpHsvi_Init");

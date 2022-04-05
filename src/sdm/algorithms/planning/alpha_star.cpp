@@ -1,4 +1,4 @@
-#include <sdm/algorithms/alpha_star.hpp>
+#include <sdm/algorithms/planning/alpha_star.hpp>
 
 #include <sdm/utils/value_function/vfunction/tabular_vf_interface.hpp>
 

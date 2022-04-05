@@ -15,7 +15,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/function.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
-#include <sdm/utils/value_function/update_operator/qupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/qupdate_rule.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -43,7 +43,7 @@ namespace sdm
         QValueFunction(const std::shared_ptr<SolvableByDP> &world,
                        const std::shared_ptr<Initializer> &initializer = nullptr,
                        const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
-                       const std::shared_ptr<QUpdateOperatorInterface> &update_operator = nullptr);
+                       const std::shared_ptr<QUpdateRuleInterface> &update_rule = nullptr);
 
         /**
          * @brief Get the value at a given state
@@ -67,14 +67,14 @@ namespace sdm
         /**
          * @brief Get the update operator
          */
-        std::shared_ptr<QUpdateOperatorInterface> getUpdateOperator() const;
+        std::shared_ptr<QUpdateRuleInterface> getUpdateRule() const;
 
         /**
          * @brief Set the update operator
          * 
-         * @param update_operator the update operator
+         * @param update_rule the update operator
          */
-        void setUpdateOperator(std::shared_ptr<QUpdateOperatorInterface> update_operator);
+        void setUpdateRule(std::shared_ptr<QUpdateRuleInterface> update_rule);
 
         /**
          * @brief Get a shared pointer on this q-value function
@@ -85,6 +85,6 @@ namespace sdm
         /**
          * @brief The operator used to update the value function
          */
-        std::shared_ptr<QUpdateOperatorInterface> update_operator_;
+        std::shared_ptr<QUpdateRuleInterface> update_rule_;
     };
 } // namespace sdm

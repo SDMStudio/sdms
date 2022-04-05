@@ -1,13 +1,14 @@
 find_package (Boost COMPONENTS system filesystem unit_test_framework iostreams REQUIRED)
+find_package(Torch REQUIRED)
 
-# find_package(Torch REQUIRED)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 # Add include directories
-include_directories(${SDMS_INCLUDE_DIRS}
-${Boost_INCLUDE_DIRS}
-${TOULBAR_INCLUDE_DIR}
-${SPIRIT_INCLUDE_DIR}
+include_directories(
+  ${SDMS_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${TOULBAR_INCLUDE_DIR}
+  ${SPIRIT_INCLUDE_DIR}
 )
 
 add_definitions (-DBOOST -DBOOST_TEST_DYN_LINK)

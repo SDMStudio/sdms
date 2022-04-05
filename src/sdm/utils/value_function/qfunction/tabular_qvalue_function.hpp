@@ -26,7 +26,7 @@ namespace sdm
         TabularQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                               const std::shared_ptr<Initializer> &initializer,
                               const std::shared_ptr<ActionSelectionInterface> &action_selection,
-                              const std::shared_ptr<TabularQUpdateOperator> &update_operator = nullptr);
+                              const std::shared_ptr<TabularQUpdateRule> &update_rule = nullptr);
 
         /**
          * @brief Initialize the value function by using initializer.

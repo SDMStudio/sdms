@@ -1,4 +1,4 @@
-#include <sdm/utils/value_function/update_operator/qupdate/serial_pwlc_qupdate.hpp>
+#include <sdm/utils/value_function/update_rule/qupdate/serial_pwlc_qupdate.hpp>
 #include <sdm/core/state/serial_state.hpp>
 #include <sdm/core/state/belief_state.hpp>
 #include <sdm/core/state/occupancy_state.hpp>

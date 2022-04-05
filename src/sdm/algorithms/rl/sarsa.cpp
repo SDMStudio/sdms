@@ -1,4 +1,4 @@
-#include <sdm/algorithms/sarsa.hpp>
+#include <sdm/algorithms/rl/sarsa.hpp>
 #include <sdm/core/action/random_decision_rule.hpp>
 
 #include <sdm/world/belief_mdp.hpp>

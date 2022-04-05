@@ -4,7 +4,7 @@
 #include <sdm/utils/value_function/registry.hpp>
 #include <sdm/utils/value_function/initializer/registry.hpp>
 #include <sdm/utils/value_function/action_selection/registry.hpp>
-#include <sdm/utils/value_function/update_operator/registry.hpp>
+#include <sdm/utils/value_function/update_rule/registry.hpp>
 #include <sstream>
 
 SDMS_REGISTRY(value)
@@ -55,8 +55,8 @@ namespace sdm
                 action_selection = sdm::action_selection::registry::make(act_opt_str.value(), world);
 
             auto vf = it->second(world, initializer, action_selection, config);
-            auto update_operator = sdm::update::registry::make(config.get("update_operator", std::string("TabularUpdate")), vf);
-            vf->setUpdateOperator(update_operator);
+            auto update_rule = sdm::update::registry::make(config.get("update_rule", std::string("TabularUpdate")), vf);
+            vf->setUpdateRule(update_rule);
             return vf;
         }
 

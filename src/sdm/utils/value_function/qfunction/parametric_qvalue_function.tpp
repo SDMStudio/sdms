@@ -10,9 +10,9 @@ namespace sdm
     ParametricQValueFunction<TBetaVector>::ParametricQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                                                        const std::shared_ptr<Initializer> &initializer,
                                                        const std::shared_ptr<ActionSelectionInterface> &action,
-                                                       const std::shared_ptr<PWLCQUpdateOperator> &update_operator)
+                                                       const std::shared_ptr<PWLCQUpdateRule> &update_rule)
         : ValueFunctionInterface(world, initializer, action),
-          QValueFunction(world, initializer, action, update_operator),
+          QValueFunction(world, initializer, action, update_rule),
           PWLCValueFunctionInterface(world, initializer, action)
     {
         // Create all different structure in order to use the hyperplan q-value function.

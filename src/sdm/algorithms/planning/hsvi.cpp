@@ -138,8 +138,8 @@ namespace sdm
     void HSVI::updateValue(const std::shared_ptr<State> &state, number t)
     {
         // auto [action, value] = this->getUpperBound()->getGreedyActionAndValue(state, t);
-        this->getUpperBound()->getUpdateOperator()->update(state, /* value, */ t);
-        this->getLowerBound()->getUpdateOperator()->update(state, /* action, */ t);
+        this->getUpperBound()->getUpdateRule()->update(state, /* value, */ t);
+        this->getLowerBound()->getUpdateRule()->update(state, /* action, */ t);
     }
 
     void HSVI::initTrial()

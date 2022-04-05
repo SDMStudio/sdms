@@ -2,7 +2,7 @@
 #pragma once
 
 #include <sdm/utils/linear_algebra/hyperplane/hyperplane.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate_rule.hpp>
 
 //TODO importer FactoredOccupancyState
 
@@ -10,7 +10,7 @@ namespace sdm
 {
     namespace update
     {
-        class PWLCUpdate : public PWLCUpdateOperator
+        class PWLCUpdate : public PWLCUpdateRule
         {
         public:
             PWLCUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function);

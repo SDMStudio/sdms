@@ -3,7 +3,7 @@
 #include <sdm/worlds.hpp>
 #include <sdm/utils/value_function/initializer.hpp>
 #include <sdm/utils/value_function/action_selection.hpp>
-#include <sdm/utils/value_function/update_operator.hpp>
+#include <sdm/utils/value_function/update_rule.hpp>
 
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
 #include <sdm/utils/value_function/qfunction/tabular_qvalue_function.hpp>
@@ -53,7 +53,7 @@ namespace sdm
             std::shared_ptr<sdm::ValueFunction> value_function;
             std::shared_ptr<sdm::Initializer> initializer;
             std::shared_ptr<ActionSelectionInterface> action_selection;
-            std::shared_ptr<UpdateOperatorInterface> update_operator;
+            std::shared_ptr<UpdateRuleInterface> update_rule;
 
             // Instanciate initializer
             initializer = sdm::initializer::registry::make(init_name, problem);
@@ -100,7 +100,7 @@ namespace sdm
                 value_function = std::make_shared<PWLCValueFunction>(problem, initializer, action_selection, freq_pruning, type_of_pruning);
 
                 // Update operator
-                update_operator = std::make_shared<update::PWLCUpdate>(value_function);
+                update_rule = std::make_shared<update::PWLCUpdate>(value_function);
             }
             else if (value_name.find("sawtooth") != string::npos)
             {
@@ -134,7 +134,7 @@ namespace sdm
                     value_function = std::make_shared<SawtoothValueFunction2>(problem, initializer, action_selection, freq_pruning, type_of_pruning);
 
                 // Update operator
-                update_operator = std::make_shared<update::TabularUpdate>(value_function);
+                update_rule = std::make_shared<update::TabularUpdate>(value_function);
             }
             else if (value_name.find("tabular") != string::npos)
             {
@@ -146,13 +146,13 @@ namespace sdm
                 else
                     value_function = std::make_shared<TabularValueFunction2>(problem, initializer, action_selection);
                 // Update operator
-                update_operator = pessimistic ? std::make_shared<update::LowerBoundTabularUpdate>(value_function) : std::make_shared<update::TabularUpdate>(value_function);
+                update_rule = pessimistic ? std::make_shared<update::LowerBoundTabularUpdate>(value_function) : std::make_shared<update::TabularUpdate>(value_function);
             }
             else
             {
                 std::cout << "Unrecognized value function name" << std::endl;
             }
-            value_function->setUpdateOperator(update_operator);
+            value_function->setUpdateRule(update_rule);
 
             return value_function;
         }
@@ -301,21 +301,21 @@ namespace sdm
             std::shared_ptr<QValueFunction> target_qvalue = makeQValueFunction(problem, qvalue_name, q_init_name);
 
             // Instanciate udpate operator
-            std::shared_ptr<QUpdateOperatorInterface> update_operator;
+            std::shared_ptr<QUpdateRuleInterface> update_rule;
             if (qvalue_name.find("tabular") != string::npos)
             {
-                update_operator = std::make_shared<update::TabularQUpdate>(experience_memory, qvalue, target_qvalue);
+                update_rule = std::make_shared<update::TabularQUpdate>(experience_memory, qvalue, target_qvalue);
             }
             else
             {
                 if (sdm::isInstanceOf<OccupancySerialMDP>(problem))
-                    update_operator = std::make_shared<update::SerialPWLCQUpdate>(experience_memory, qvalue, target_qvalue);
+                    update_rule = std::make_shared<update::SerialPWLCQUpdate>(experience_memory, qvalue, target_qvalue);
                 else
-                    update_operator = std::make_shared<update::PWLCQUpdate>(experience_memory, qvalue, target_qvalue);
+                    update_rule = std::make_shared<update::PWLCQUpdate>(experience_memory, qvalue, target_qvalue);
             }
 
             // Set update operator
-            qvalue->setUpdateOperator(update_operator);
+            qvalue->setUpdateRule(update_rule);
 
             // Instanciate algorithme
             std::shared_ptr<QLearning> algorithm;
@@ -454,7 +454,7 @@ namespace sdm
                 // std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism);
                 p_algo = makeRL(formalism, algo_name, value_function_1, init_v1, formalism->getHorizon(), discount, rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay, 1, trials, name);
             }
-            else if ((algo_name == "Alpha*") || (algo_name == "A*") || (algo_name == "a*"))
+            else if ((algo_name == "a*") || (algo_name == "Alpha*") || (algo_name == "A*"))
             {
                 if (isInstanceOf<BeliefMDPInterface>(formalism))
                 {
@@ -466,11 +466,11 @@ namespace sdm
                     throw sdm::exception::Exception("Formalism impossible for A* algorithm, the problem have to inherit from belief MDP");
                 }
             }
-            else if ((algo_name == "BackwardInduction"))
+            else if ((algo_name == "backward_induction") || (algo_name == "BackwardInduction"))
             {
                 p_algo = std::make_shared<BackwardInduction>(formalism);
             }
-            else if ((algo_name == "ValueIteration") || (algo_name == "VI"))
+            else if ((algo_name == "vi") || (algo_name == "ValueIteration"))
             {
                 p_algo = makeValueIteration(formalism, value_function_1, init_v1,
                                             error, store_state, name, time_max,

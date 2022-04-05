@@ -1,6 +1,6 @@
 #ifdef WITH_CPLEX
 
-#include "sdm/algorithms/bayesian_game_solver.hpp"
+#include "sdm/algorithms/planning/bayesian_game_solver.hpp"
 #include <sdm/exception.hpp>
 
 

@@ -17,7 +17,7 @@ namespace sdm
          * Any class inheriting from this interface can be used to update a value function.
          *
          */
-        class UpdateOperatorInterface
+        class UpdateRuleInterface
         {
         public:
             /**
@@ -49,11 +49,11 @@ namespace sdm
          * @tparam TValueFunction the type of value function
          */
         template <class TValueFunction>
-        class UpdateOperator : public UpdateOperatorInterface
+        class UpdateRule : public UpdateRuleInterface
         {
         public:
-            UpdateOperator() {}
-            UpdateOperator(const std::shared_ptr<ValueFunctionInterface> &value_function)
+            UpdateRule() {}
+            UpdateRule(const std::shared_ptr<ValueFunctionInterface> &value_function)
             {
                 if (auto derived = std::dynamic_pointer_cast<TValueFunction>(value_function))
                 {
@@ -61,10 +61,10 @@ namespace sdm
                 }
                 else
                 {
-                    throw sdm::exception::TypeError("Cannot instanciate UpdateOperator<T> with value function that does not derive from T.");
+                    throw sdm::exception::TypeError("Cannot instanciate UpdateRule<T> with value function that does not derive from T.");
                 }
             }
-            virtual ~UpdateOperator() {}
+            virtual ~UpdateRule() {}
 
 
             /**
@@ -108,7 +108,7 @@ namespace sdm
             std::weak_ptr<TValueFunction> value_function;
         };
 
-        using TabularUpdateOperator = UpdateOperator<TabularValueFunctionInterface>;
-        using PWLCUpdateOperator = UpdateOperator<PWLCValueFunctionInterface>;
+        using TabularUpdateRule = UpdateRule<TabularValueFunctionInterface>;
+        using PWLCUpdateRule = UpdateRule<PWLCValueFunctionInterface>;
     }
 }

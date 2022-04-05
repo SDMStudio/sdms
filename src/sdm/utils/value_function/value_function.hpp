@@ -4,7 +4,7 @@
 #include <sdm/core/function.hpp>
 #include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/value_function/value_function_interface.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate_rule.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -69,14 +69,14 @@ namespace sdm
         /**
          * @brief Get the update operator
          */
-        std::shared_ptr<UpdateOperatorInterface> getUpdateOperator() const;
+        std::shared_ptr<UpdateRuleInterface> getUpdateRule() const;
 
         /**
          * @brief Set the update operator
          * 
-         * @param update_operator the update operator
+         * @param update_rule the update operator
          */
-        void setUpdateOperator(std::shared_ptr<UpdateOperatorInterface> update_operator);
+        void setUpdateRule(std::shared_ptr<UpdateRuleInterface> update_rule);
 
         /**
          * @brief Get the Init Function
@@ -128,6 +128,6 @@ namespace sdm
         /**
          * @brief The operator used to update the value function
          */
-        std::shared_ptr<UpdateOperatorInterface> update_operator_;
+        std::shared_ptr<UpdateRuleInterface> update_rule_;
     };
 } // namespace sdm

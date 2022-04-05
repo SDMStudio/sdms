@@ -5,7 +5,7 @@
 #include <sdm/world/solvable_by_dp.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/action_selection/action_selection_interface.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate_rule.hpp>
 
 namespace sdm
 {

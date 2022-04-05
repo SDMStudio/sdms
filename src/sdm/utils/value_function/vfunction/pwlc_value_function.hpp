@@ -5,7 +5,7 @@
 #include <sdm/utils/config.hpp>
 #include <sdm/utils/value_function/initializer/initializer.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate_operator.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate_rule.hpp>
 #include <sdm/utils/linear_algebra/hyperplane/alpha_vector.hpp>
 #include <sdm/world/base/pomdp_interface.hpp>
 

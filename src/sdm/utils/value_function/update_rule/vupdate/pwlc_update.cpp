@@ -4,7 +4,7 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/occupancy_mdp.hpp>
 #include <sdm/utils/value_function/pwlc_value_function_interface.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/pwlc_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/pwlc_update.hpp>
 #include <sdm/utils/linear_algebra/hyperplane/balpha.hpp>
 #include <sdm/utils/linear_algebra/hyperplane/oalpha.hpp>
 
@@ -14,7 +14,7 @@ namespace sdm
     namespace update
     {
         PWLCUpdate::PWLCUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function)
-            : PWLCUpdateOperator(value_function) {}
+            : PWLCUpdateRule(value_function) {}
 
         void PWLCUpdate::update(const std::shared_ptr<State> &state, number t)
         {

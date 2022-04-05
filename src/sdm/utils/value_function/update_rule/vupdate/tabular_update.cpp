@@ -1,14 +1,14 @@
 #include <sdm/world/belief_mdp.hpp>
 #include <sdm/world/solvable_by_hsvi.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_value_function.hpp>
-#include <sdm/utils/value_function/update_operator/vupdate/tabular_update.hpp>
+#include <sdm/utils/value_function/update_rule/vupdate/tabular_update.hpp>
 
 namespace sdm
 {
     namespace update
     {
         TabularUpdate::TabularUpdate(const std::shared_ptr<ValueFunctionInterface> &value_function)
-            : TabularUpdateOperator(value_function)
+            : TabularUpdateRule(value_function)
         {
         }
 
