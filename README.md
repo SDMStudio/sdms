@@ -94,7 +94,7 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 ### A modifier
 - [x] Modifier UpdateOperator to UpdateRule
 - [x] Bouger algos dans algorithms/planning ou algorithms/rl
-- [ ] Tester BackwardInduction (et code example)
+- [x] Tester BackwardInduction (et code example)
 - [ ] Sauvagarder et charger fonction de valeur
 
 ### A finir 
