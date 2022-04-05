@@ -84,17 +84,17 @@ int main(int argc, char **argv)
 
 ### A debugguer
 
-|           |  (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | Horizon infini |
-| :-------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------------------------: | :------------: |
-|    MDP    | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |   non testé    |
-|   bMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |   non testé    |
-|   oMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  |   non testé    |
-| hier-MDP  | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |   non testé    |
-| hier-bMDP | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |    :x: (2 ou 3)    |    :x: (2 ou 3)    |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |   non testé    |
-| hier-oMDP |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  |   non testé    |
-|  ext-MDP  | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              |   non testé    |
-| ext-bMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |   non testé    |
-| ext-oMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | tab-exhaus, pwlc-exhaus, pwlc-serial |   non testé    |
+|           |  (tab) VI ou PBVI  |  (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | Horizon infini |
+| :-------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------------------------: |
+|    MDP    |         -          | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
+|   bMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
+|   oMDP    |         -          | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  | non testé      |
+| hier-MDP  |         -          | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
+| hier-bMDP | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |    :x: (2 ou 3)    |    :x: (2 ou 3)    |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
+| hier-oMDP |         -          |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  | non testé      |
+|  ext-MDP  |         -          | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
+| ext-bMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
+| ext-oMDP  |         -          | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | tab-exhaus, pwlc-exhaus, pwlc-serial | non testé      |
 
 **(1)** segmentation fault de Q-learning tabulaire pour les MDPs (difficulté facile)
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 **(3)** pas de PWLCQUpdate défini pour les beliefMDP (difficulté moyenne)
 
 
-### A finir
+### A finir 
 - [ ] cas horizon infini 
   - besoin de le tester dans les différents cas (algos/structures)
 - [ ] configuration TOML (--> simplification de la déclaration des problèmes)
@@ -112,11 +112,16 @@ int main(int argc, char **argv)
   - je ne suis pas 100% sûre de l'implémentation - à vérifier avant dans lancer les expés
 - [x] installation Mac OSX  
 
-### A tester perfs
+### A tester 
 
-- [ ] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle)
+- [ ] Avoir un `make test`  qui test sur de petits horizons différentes bench et algo.
+- [ ] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle).
 
 ### A documenter
+- [ ] Modifier UpdateOperator to UpdateRule
+- [ ] Bouger algos dans algorithms/planning ou algorithms/rl
+- [ ] Tester BackwardInduction (et code example)
+
 - [ ] Beaucoup de choses 
 
 ## Pour la suite
