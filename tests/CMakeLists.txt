@@ -3,12 +3,14 @@ find_package (Boost COMPONENTS system filesystem unit_test_framework iostreams R
 # find_package(Torch REQUIRED)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
-# include_directories(${SDMS_INCLUDE_DIRS}
-#                     ${Boost_INCLUDE_DIRS}
-# 					          ${TORCH_INCLUDE_DIRS}
-# 					          )
-          
-add_definitions (-DBOOST -DDENSE -DBOOST_TEST_DYN_LINK)
+# Add include directories
+include_directories(${SDMS_INCLUDE_DIRS}
+${Boost_INCLUDE_DIRS}
+${TOULBAR_INCLUDE_DIR}
+${SPIRIT_INCLUDE_DIR}
+)
+
+add_definitions (-DBOOST -DBOOST_TEST_DYN_LINK)
 
 # Store *.cpp files in a liste
 file(
@@ -21,7 +23,7 @@ file(
 foreach(f ${test_files})
   get_filename_component(testName ${f} NAME_WE) 
   add_executable (${testName} ${f}) 
-  target_link_libraries(${testName} -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${SDMS_LIB_DIR}/libtb2.so ${LIB_SDMS})
+  target_link_libraries(${testName} dl ${Boost_LIBRARIES} ${TORCH_LIBRARIES} ${TB2_LIBRARIES} ${LIB_SDMS_STATIC})
   add_test( NAME ${testName} 
             COMMAND ${testName}
           )
