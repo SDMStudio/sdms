@@ -323,13 +323,20 @@ namespace sdm
             std::transform(algo_name.begin(), algo_name.end(), algo_name.begin(), [](unsigned char c)
                            { return std::tolower(c); });
 
+                
             if (algo_name == "qlearning")
             {
-                algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                if (!sdm::isInstanceOf<GymInterface>(problem))
+                    algorithm = std::make_shared<QLearning>(problem->getUnderlyingProblem(), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                else
+                    algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
             }
             else if (algo_name == "sarsa")
             {
-                algorithm = std::make_shared<SARSA>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                if (!sdm::isInstanceOf<GymInterface>(problem))
+                    algorithm = std::make_shared<SARSA>(problem->getUnderlyingProblem(), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                else
+                    algorithm = std::make_shared<SARSA>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
             }
             return algorithm;
         }
@@ -451,7 +458,6 @@ namespace sdm
             else if ((algo_name == "qlearning") || (algo_name == "QLearning") || (algo_name == "QLEARNING") ||
                      (algo_name == "sarsa") || (algo_name == "Sarsa") || (algo_name == "SARSA"))
             {
-                // std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism);
                 p_algo = makeRL(formalism, algo_name, value_function_1, init_v1, formalism->getHorizon(), discount, rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay, 1, trials, name);
             }
             else if ((algo_name == "a*") || (algo_name == "Alpha*") || (algo_name == "A*"))

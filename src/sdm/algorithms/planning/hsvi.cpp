@@ -211,28 +211,4 @@ namespace sdm
 
     std::string HSVI::getAlgorithmName() { return "HSVI"; }
 
-    void HSVI::saveParams(std::string filename, std::string format)
-    {
-        std::ofstream ofs;
-        ofs.open(filename + format, std::ios::out | std::ios::app);
-
-        if ((format == ".md"))
-        {
-            ofs << "## " << filename << "(PARAMS)" << std::endl;
-
-            ofs << " | MAX_TRIAL | MAX_TIME | Error |  Horizon | p_o  | p_b | p_c | " << std::endl;
-            ofs << " | --------- | -------- | ----- |  ------- | ---  | --- | --- | " << std::endl;
-            ofs << " | " << num_max_trials;
-            ofs << " | " << time_max;
-            ofs << " | " << error;
-            ofs << " | " << getWorld()->getHorizon();
-            ofs << " | " << OccupancyState::PRECISION;
-            ofs << " | " << Belief::PRECISION;
-            ofs << " | " << PrivateOccupancyState::PRECISION_COMPRESSION;
-            ofs << " | " << std::endl
-                << std::endl;
-        }
-        ofs.close();
-    }
-
 } // namespace sdm

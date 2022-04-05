@@ -236,68 +236,6 @@ namespace sdm
     {
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
         {
-            // std::ostringstream res;
-            // number n_agents = this->getNumAgents();
-
-            // number ag;
-            // res << "<DiscreteMDP>" << std::endl;
-            // res << "\t<preamble>" << std::endl;
-            // // res << "\t\t<soundness>" << this->isSound() << "</soundness>" << std::endl;
-            // res << "\t\t<agents>" << n_agents << "</agents>" << std::endl;
-            // res << "\t\t<discount>" << this->getDiscount() << "</discount>" << std::endl;
-            // res << "\t\t<states>" << std::static_pointer_cast<DiscreteSpace>(this->getStateSpace())->getNumItems() << "</states>" << std::endl;
-            // res << "\t\t<start> [";
-            // for (const auto &state : *this->getStateSpace())
-            // {
-            //     res << this->getStartDistribution()->getProbability(std::static_pointer_cast<State>(state), nullptr) << " ";
-            // }
-            // res << "] </start>" << std::endl;
-
-            // res << "\t\t<actions>" << std::endl;
-            // for (ag = 0; ag < n_agents; ++ag)
-            //     res << "\t\t\t<agent id=\"" << ag << "\">" << this->getActionSpace()->getSpace(ag)->getNumItems() << "</agent>" << std::endl;
-            // res << "\t\t</actions>" << std::endl;
-
-            // res << "\t\t<observations>" << std::endl;
-            // for (ag = 0; ag < n_agents; ++ag)
-            //     res << "\t\t\t<agent id=\"" << ag << "\">" << this->getObsSpace()->getSpace(ag)->getNumItems() << "</agent>" << std::endl;
-            // res << "\t\t</observations>" << std::endl;
-
-            // res << "\t</preamble>" << std::endl;
-            // res << "\t<param>" << std::endl;
-
-            // number ja;
-            // res << "\t\t<reward>" << std::endl;
-            // for (ja = 0; ja < this->getActionSpace()->getNumItems(); ++ja)
-            // {
-            //     std::vector<number> v_ja = this->getActionSpace()->single2joint(ja);
-            //     res << "\t\t\t<reward-entry joint-action=\"";
-            //     for (number ag = 0; ag < n_agents; ++ag)
-            //     {
-            //         res << v_ja[ag] << " ";
-            //     }
-            //     res << "\" >" << std::endl;
-            //     res << "\t\t\t\t" << this->getRewardSpace()->getReward(ja) << std::endl;
-            //     res << "\t\t\t</reward-entry>" << std::endl;
-            // }
-
-            // res << "\t\t</reward>" << std::endl;
-
-            // observation jz;
-            // res << "\t\t<dynamics>" << std::endl;
-            // for (ja = 0; ja < this->getActionSpace()->getNumItems(); ++ja)
-            //     for (jz = 0; jz < this->getObsSpace()->getNumItems(); ++jz)
-            //     {
-            //         res << "\t\t\t<dynamics-entry jaction=\"" << ja << "\" jobservation=\"" << jz << "\">" << std::endl;
-            //         res << "\t\t\t\t" << this->getObsDynamics()->getDynamics(ja, jz) << std::endl;
-            //         res << "\t\t\t</dynamics-entry>" << std::endl;
-            //     }
-            // res << "\t\t</dynamics>" << std::endl;
-
-            // res << "\t</param>" << std::endl;
-            // res << "</decpomdp>" << std::endl;
-
-            // return res.str();
             return "No known XML format for Problems.";
         }
         else

@@ -16,12 +16,14 @@ namespace po = boost::program_options;
 void print_version()
 {
   std::cout << std::endl
-            << "SDMS Version :\t" << 1.0 << std::endl;
+            << "SDMS Version :\t" << "1.0" << std::endl;
   std::cout << "CXX Version  :\t" << 17 << std::endl;
   std::cout << "CXX Compiler :\t"
             << "clang" << std::endl;
   std::cout << "Authors      :\t"
-            << "David Albert" << std::endl
+            << "David Albert, Jilles Dibangoye" << std::endl;
+  std::cout << "Contact      :\t"
+            << "david.albert@cegetel.net" << std::endl
             << std::endl;
 }
 
