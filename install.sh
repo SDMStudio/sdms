@@ -7,7 +7,7 @@
 
 # Variable declaration
 CPLEX_ROOT='/opt/ibm/ILOG/CPLEX_Studio201/' # default is "/opt/ibm/ILOG/CPLEX_Studio201/"
-INSTALL_PREFIX='/usr' # default is "/usr/local"
+INSTALL_PREFIX='/usr/local/' # default is "/usr/local"
 TORCH_URL='' # default is pytorch for CPU
 PROC='4' # the default number of processors used is 4
  
