@@ -114,11 +114,13 @@ namespace sdm
         template <typename T>
         std::shared_ptr<Item> getItemAddress(const T &item_value)
         {
-            for (const auto &item : *this)
+            auto begin = this->begin();
+            auto end = this->end();
+            for (auto item = begin; it != end; it->operator++())
             {
-                if (item_value == *std::static_pointer_cast<T>(item))
+                if (item_value == *std::static_pointer_cast<T>(*item))
                 {
-                    return item;
+                    return *item;
                 }
             }
             return nullptr;
