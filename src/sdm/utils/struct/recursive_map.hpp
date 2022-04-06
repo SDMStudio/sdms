@@ -15,6 +15,7 @@
 #include <unordered_map>
 // #include <map>
 #include <vector>
+#include <iostream>
 
 // To be modified to change the map representation to store data.
 template <typename K, typename V>
