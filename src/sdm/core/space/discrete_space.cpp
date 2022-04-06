@@ -96,10 +96,12 @@ namespace sdm
 
             // Generate joint items and store in containers
             number counter = 0;
-            for (const auto &v : *this)
+            auto begin = this->begin();
+            auto end = this->end();
+            for (auto it = begin; it != end; it->operator++())
             {
-                this->all_items_.insert(items_bimap_value(counter, v));
-                this->list_items_.push_back(v);
+                this->all_items_.insert(items_bimap_value(counter, *it));
+                this->list_items_.push_back(*it);
                 counter++;
             }
             this->storeItems(true);
