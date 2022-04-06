@@ -5,9 +5,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <boost/bimap.hpp>
-
 #include "sys/types.h"
-#include "sys/sysinfo.h"
+
 
 #include <sdm/config.hpp>
 
@@ -249,27 +248,27 @@ namespace std
   struct Performance
   {
 
-    static long long RanMemoryUsed(struct sysinfo memInfo)
-    {
-      sysinfo(&memInfo);
+    // static long long RanMemoryUsed(struct sysinfo memInfo)
+    // {
+    //   sysinfo(&memInfo);
 
-      long long physMemUsed = memInfo.totalram - memInfo.freeram;
-      // Multiply in next statement to avoid int overflow on right hand side...
-      physMemUsed *= memInfo.mem_unit;
+    //   long long physMemUsed = memInfo.totalram - memInfo.freeram;
+    //   // Multiply in next statement to avoid int overflow on right hand side...
+    //   physMemUsed *= memInfo.mem_unit;
 
-      return physMemUsed / 1024 / 1024;
-    }
+    //   return physMemUsed / 1024 / 1024;
+    // }
 
-    static long long totalMemory(struct sysinfo memInfo)
-    {
-      sysinfo(&memInfo);
+    // static long long totalMemory(struct sysinfo memInfo)
+    // {
+    //   sysinfo(&memInfo);
 
-      long long totalPhysMem = memInfo.totalram;
-      // Multiply in next statement to avoid int overflow on right hand side...
-      totalPhysMem *= memInfo.mem_unit;
+    //   long long totalPhysMem = memInfo.totalram;
+    //   // Multiply in next statement to avoid int overflow on right hand side...
+    //   totalPhysMem *= memInfo.mem_unit;
 
-      return totalPhysMem / 1024 / 1024;
-    }
+    //   return totalPhysMem / 1024 / 1024;
+    // }
 
     // static void StartTime()
     // {
