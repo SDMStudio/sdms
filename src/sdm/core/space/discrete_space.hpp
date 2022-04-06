@@ -116,7 +116,7 @@ namespace sdm
         {
             auto begin = this->begin();
             auto end = this->end();
-            for (auto item = begin; it != end; it->operator++())
+            for (auto item = begin; item != end; item->operator++())
             {
                 if (item_value == *std::static_pointer_cast<T>(*item))
                 {

@@ -41,10 +41,10 @@ file(
 	${INCLUDE_DIR}/exception.cpp
 	${INCLUDE_DIR}/public/**
 	${INCLUDE_DIR}/core/**
+	${INCLUDE_DIR}/utils/config.cpp
 	${INCLUDE_DIR}/utils/struct/**
 	${INCLUDE_DIR}/utils/linear_algebra/**
 	${INCLUDE_DIR}/utils/toml/**
-	${INCLUDE_DIR}/utils/config.cpp
 )
 # this is the "object library" target: compiles the sources only once
 add_library(core_obj OBJECT ${lib_core_src})
@@ -72,9 +72,9 @@ set_property(TARGET world_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(sdm_world SHARED $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj>)
-target_link_libraries(sdm_world -L${SDMS_LIB_DIR} boost_iostreams ${Boost_LIBRARIES})
+target_link_libraries(sdm_world ${Boost_LIBRARIES})
 add_library(sdm_world_static STATIC $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj>)
-target_link_libraries(sdm_world_static -L${SDMS_LIB_DIR} boost_iostreams ${Boost_LIBRARIES})
+target_link_libraries(sdm_world_static ${Boost_LIBRARIES})
 
 # LIB VALUE FUNCTION
 file(
@@ -91,9 +91,9 @@ set_property(TARGET value_function_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(sdm_value_function SHARED $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>)
-target_link_libraries(sdm_value_function -L${SDMS_LIB_DIR} boost_iostreams ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
+target_link_libraries(sdm_value_function ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
 add_library(sdm_value_function_static STATIC $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>)
-target_link_libraries(sdm_value_function_static -L${SDMS_LIB_DIR} boost_iostreams ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
+target_link_libraries(sdm_value_function_static ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES})
 
 # LIB PLANNING (=DynamicProgramming)
 file(
@@ -109,9 +109,9 @@ set_property(TARGET planning_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(sdm_planning SHARED $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>  $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(sdm_planning -L${SDMS_LIB_DIR} boost_iostreams dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_planning dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 add_library(sdm_planning_static STATIC $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(sdm_planning_static -L${SDMS_LIB_DIR} boost_iostreams dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_planning_static dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 
 # LIB REINFORCEMENT LEARNING
 file(
@@ -128,9 +128,9 @@ set_property(TARGET rl_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(sdm_rl SHARED $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>  $<TARGET_OBJECTS:world_obj>  $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(sdm_rl -L${SDMS_LIB_DIR} boost_iostreams dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_rl dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 add_library(sdm_rl_static STATIC $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>  $<TARGET_OBJECTS:world_obj>  $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(sdm_rl_static -L${SDMS_LIB_DIR} boost_iostreams dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_rl_static dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 # LIB SDMS
 file(
 	GLOB_RECURSE
@@ -150,10 +150,10 @@ set_property(TARGET sdm_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # shared and static libraries built from the same object files
 add_library(${LIB_SDMS} SHARED $<TARGET_OBJECTS:sdm_obj> $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:planning_obj> $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(${LIB_SDMS} -L${SDMS_LIB_DIR} boost_iostreams dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(${LIB_SDMS} -dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 
 add_library(${LIB_SDMS_STATIC} STATIC $<TARGET_OBJECTS:sdm_obj> $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:planning_obj> $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(${LIB_SDMS_STATIC} -L${SDMS_LIB_DIR} boost_iostreams dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(${LIB_SDMS_STATIC} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 
 install(TARGETS sdm_core DESTINATION lib)
 install(TARGETS sdm_core_static DESTINATION lib)
