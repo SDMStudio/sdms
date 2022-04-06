@@ -91,10 +91,10 @@ namespace sdm
             return iterator->operator++();
         }
 
-        friend TItem &operator*(const std::shared_ptr<Iterator> &iterator)
-        {
-            return iterator->operator*();
-        }
+        // friend TItem &operator*(const std::shared_ptr<Iterator> &iterator)
+        // {
+        //     return iterator->operator*();
+        // }
 
         // friend TItem *operator->(const std::shared_ptr<iterator> &iterator)
         // {
