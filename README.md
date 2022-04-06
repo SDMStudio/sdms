@@ -68,8 +68,9 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 
 ***Planning semaine pro***
 - Lundi/Mardi : résoudre les croix (1) et (2) + tester horizon infini et le faire fonctionner
-- Mercredi/Jeudi matin : Finir la vérif d'installation Mac et mettre au propre la partie tuto installation via docker
-- Jeudi Après-midi/Vendredi/Lundi/.. : Vérifier amélioration serial, debugguer puis lancer expés 
+- Mercredi : Finir la vérif d'installation Mac et mettre au propre la partie tuto installation via docker
+- Jeudi/Vendredi : Parser spécifique pour chaque problème. Sauvagarder et charger fonction de valeur
+- Lundi/Mardi : Configuration TOML / soumission papier
 
 ### A debugguer
 
@@ -96,6 +97,7 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 - [x] Bouger algos dans algorithms/planning ou algorithms/rl
 - [x] Tester BackwardInduction (et code example)
 - [ ] Sauvagarder et charger fonction de valeur
+- [ ] Parser spécifique pour MDP, POMDP, MMDP, MPOMDP, POSG
 
 ### A finir 
 - [ ] cas horizon infini 
@@ -108,7 +110,7 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 
 ### A tester 
 
-- [ ] Avoir un `make test`  qui test sur de petits horizons différentes bench et algo.
+- [x] Avoir un `make test`  qui test sur de petits horizons différentes bench et algo.
 - [ ] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle).
 
 ### A documenter
