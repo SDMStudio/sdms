@@ -6,7 +6,7 @@ BLUE='\033[1;36m'
 NC='\033[0m' # No Color
 LOG_SDMS="${BLUE}SDMS#>${NC} "
 
-defaultDockerImage="blavad/sdms:0.7-cpu-devel"
+defaultDockerImage="blavad/sdms:latest"
 
 echo -ne "${LOG_SDMS}Name of the branch to install (default is the current branch) : "
 read branchName

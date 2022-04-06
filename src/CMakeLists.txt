@@ -17,7 +17,7 @@ if(CPLEX_FOUND)
 	add_definitions("-DIL_STD")
 endif(CPLEX_FOUND)
 
-set(TB2_LIBRARIES sdms_tb2) #${SDMS_LIB_DIR}/libtb2.so)
+set(TB2_LIBRARIES tb2) #${SDMS_LIB_DIR}/libtb2.so)
 	
 # Add boost definitions
 add_definitions (-DBOOST)

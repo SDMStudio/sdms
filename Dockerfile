@@ -1,4 +1,5 @@
 ARG BASE_IMAGE=ubuntu:18.04
+ARG IBM_PATH=/opt/ibm
 
 # Base image of SDMS for developers (contains all dependencies of sdms)
 # --> developers can use this base combined with "bind mount" tool of docker to develop on their machine and test their implementation in container 
@@ -7,7 +8,6 @@ ARG LIBTORCH_URL=https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-sh
 
 RUN apt-get -y update \
     && apt-get install -y  \
-    libeigen3-dev \
     libboost-all-dev \
     libfmt-dev \
     libgmp-dev \
@@ -24,8 +24,8 @@ RUN mkdir -p /opt \
     && unzip tmp_libtorch.zip -d /opt\
     && rm tmp_libtorch.zip
 
-COPY lib/libtb2.so /lib
-COPY ibm /opt/ibm
+COPY lib/* /lib/
+COPY ${IBM_PATH} /opt/ibm
 
 # Make a snapshot of the source code and build an image based on this source code at this moment.
 # The image contains the sources (/opt/sdms) and installed sdms base on these sources 
@@ -35,7 +35,7 @@ COPY . /opt/sdms
 WORKDIR /opt/sdms
 
 RUN rm -r ibm
-RUN mkdir build
+RUN mkdir -p build
 WORKDIR /opt/sdms/build
 
 RUN cmake .. \

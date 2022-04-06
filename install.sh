@@ -65,6 +65,11 @@ esac
 
 if [ "${machine}" == "Darwin" ] || [ "${machine}" == "Linux" ]; # Install SDMS under Mac OS X platform 
 then
+    SUDO=''
+    if (( $EUID != 0 )); then
+        SUDO='sudo'
+    fi
+   
     if [ "${machine}" == "Linux" ]; then
         echo -e "${LOG_SDMS}Starting installation on Linux platform"
         declare -a list_dependencies=( "libboost-all-dev" "libfmt-dev" "libgmp-dev" "zlib1g-dev" "liblzma-dev" "wget" "unzip" "cmake" "clang" )
@@ -81,7 +86,7 @@ then
         if [ $(dpkg-query -W -f='${Status}' ${dependency} 2>/dev/null | grep -c "ok installed") -eq 0 ];
         then
             if [ "${machine}" == "Linux" ]; then
-                sudo apt-get install -y ${dependency};
+                $SUDO apt-get install -y ${dependency};
             else   
                 brew install ${dependency};
             fi
@@ -101,14 +106,15 @@ then
     echo -ne "- pytorch : "
     if [ ! -d /opt/libtorch ]; then
         echo -e "\n${LOG_SDMS}Download PyTorch from $url_libtorch"
-        wget "$url_libtorch" -O /tmp/tmp_libtorch.zip && unzip /tmp/tmp_libtorch.zip -d /opt && rm /tmp/tmp_libtorch.zip
+        wget "$url_libtorch" -O /tmp/tmp_libtorch.zip
+        $SUDO unzip /tmp/tmp_libtorch.zip -d /opt && rm /tmp/tmp_libtorch.zip
     else
         echo -e "installed"
     fi
 
     # Install other libs : Hard copy Toolbar library and other required libs
     echo -ne "- toolbar and boost_parser (building by sdms) : "
-    cp lib/* /usr/lib/x86_64-linux-gnu
+    $SUDO cp lib/* /usr/lib/x86_64-linux-gnu
     echo -e "installed"
 
 
@@ -119,7 +125,8 @@ then
 
     # Build and install SDM'Studio
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
-    cmake -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Release -DCPLEX_ROOT_DIR="${CPLEX_ROOT}" .. && make -j ${PROC} install
+    cmake -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Release -DCPLEX_ROOT_DIR="${CPLEX_ROOT}" .. 
+    $SUDO make -j ${PROC} install
 
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
