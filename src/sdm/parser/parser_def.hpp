@@ -65,6 +65,9 @@ namespace sdm
     ///////////////////////////////////////////////////////////////////////////
     // Rules
     ///////////////////////////////////////////////////////////////////////////
+    mdp_type const mdp_t = "mdp_t";
+    mmdp_type const mmdp_t = "mmdp_t";
+    pomdp_type const pomdp_t = "pomdp_t";
     dpomdp_type const dpomdp_t = "dpomdp_t";
     posg_type const posg_t = "posg_t";
 
@@ -175,8 +178,27 @@ namespace sdm
 
     ///////////////////////////////////////////////////////////////////////////////
 
-    auto const dpomdp_t_def =
-        lit("agents") >> ':' >> number_or_vector_of_names >> lit("discount") >> ':' >> float_
+    auto const mdp_t_def =
+        lit("discount") >> ':' >> float_
+        >> lit("values") >> ':' >> quoted_string
+        >> lit("states") >> ':' >> number_or_vector_of_names
+        >> lit("start") >> ':' >> vector_stochastic
+        >> lit("actions") >> ':' >> numbers_or_names
+        >> transition_t
+        >> reward_t;
+
+    auto const mmdp_t_def =
+        lit("agents") >> ':' >> number_or_vector_of_names 
+        >> lit("discount") >> ':' >> float_
+        >> lit("values") >> ':' >> quoted_string
+        >> lit("states") >> ':' >> number_or_vector_of_names
+        >> lit("start") >> ':' >> vector_stochastic
+        >> lit("actions") >> ':' >> numbers_or_names
+        >> transition_t
+        >> reward_t;
+
+    auto const pomdp_t_def =
+        lit("discount") >> ':' >> float_
         >> lit("values") >> ':' >> quoted_string
         >> lit("states") >> ':' >> number_or_vector_of_names
         >> lit("start") >> ':' >> vector_stochastic
@@ -186,9 +208,21 @@ namespace sdm
         >> observation_t
         >> reward_t;
 
+    auto const dpomdp_t_def =
+        lit("agents") >> ':' >> number_or_vector_of_names 
+        >> lit("discount") >> ':' >> float_
+        >> lit("values") >> ':' >> quoted_string
+        >> lit("states") >> ':' >> number_or_vector_of_names
+        >> lit("start") >> ':' >> vector_stochastic
+        >> lit("actions") >> ':' >> numbers_or_names
+        >> lit("observations") >> ':' >> numbers_or_names
+        >> transition_t
+        >> observation_t
+        >> reward_t;
 
     auto const posg_t_def =
-        lit("agents") >> ':' >> number_or_vector_of_names >> lit("discount") >> ':' >> float_
+        lit("agents") >> ':' >> number_or_vector_of_names 
+        >> lit("discount") >> ':' >> float_
         >> lit("values") >> ':' >> quoted_string
         >> lit("states") >> ':' >> number_or_vector_of_names
         >> lit("start") >> ':' >> vector_stochastic
@@ -219,6 +253,9 @@ namespace sdm
     BOOST_SPIRIT_DEFINE(multi_reward_entry_2_t)
     BOOST_SPIRIT_DEFINE(multi_reward_entry_t)
     BOOST_SPIRIT_DEFINE(multi_reward_t)
+    BOOST_SPIRIT_DEFINE(mdp_t)
+    BOOST_SPIRIT_DEFINE(mmdp_t)
+    BOOST_SPIRIT_DEFINE(pomdp_t)
     BOOST_SPIRIT_DEFINE(dpomdp_t)
     BOOST_SPIRIT_DEFINE(posg_t)
 

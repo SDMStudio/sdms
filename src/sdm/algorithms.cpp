@@ -323,7 +323,6 @@ namespace sdm
             std::transform(algo_name.begin(), algo_name.end(), algo_name.begin(), [](unsigned char c)
                            { return std::tolower(c); });
 
-                
             if (algo_name == "qlearning")
             {
                 algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
@@ -352,6 +351,9 @@ namespace sdm
         {
             // return sdm::formalism::registry::make(formalism, config);
 
+            // Build the transformed problem
+            std::shared_ptr<SolvableByHSVI> formalism_problem;
+
             // Parse the problem
             auto problem = sdm::parser::parse_file(problem_path);
 
@@ -359,10 +361,7 @@ namespace sdm
             problem->setDiscount(discount);
 
 
-            // Build the transformed problem
-            std::shared_ptr<SolvableByHSVI> formalism_problem;
-
-            if ((formalism == "mdp") || (formalism == "MDP"))
+            if ((formalism == "mmdp") || (formalism == "MMDP"))
             {
                 formalism_problem = std::make_shared<SolvableByMDP>(problem);
             }

@@ -147,6 +147,41 @@ namespace sdm{
 
     typedef std::vector<multi_reward_entry_t> multi_reward_t;
 
+    struct mdp_t : x3::position_tagged{
+      value_t  agent_param;
+      float discount_param;
+      std::string value_param;
+      value_t state_param;
+      real_vector_t start_param;
+      values_t action_param;
+      transition_t transition_spec;
+      reward_t reward_spec;
+    };
+
+    struct mmdp_t : x3::position_tagged{
+      value_t  agent_param;
+      float discount_param;
+      std::string value_param;
+      value_t state_param;
+      real_vector_t start_param;
+      values_t action_param;
+      transition_t transition_spec;
+      reward_t reward_spec;
+    };
+
+    struct pomdp_t : x3::position_tagged{
+      value_t  agent_param;
+      float discount_param;
+      std::string value_param;
+      value_t state_param;
+      real_vector_t start_param;
+      values_t action_param;
+      values_t observation_param;
+      transition_t transition_spec;
+      observation_t observation_spec;
+      reward_t reward_spec;
+    };
+
     struct dpomdp_t : x3::position_tagged{
       value_t  agent_param;
       float discount_param;

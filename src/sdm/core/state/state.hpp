@@ -70,9 +70,9 @@ namespace sdm
 
         /**
          * @brief Compute the following state given an action a.
-         * 
+         *
          * @param mdp the Markov Decision Process
-         * @param action the action 
+         * @param action the action
          * @param t the timestep
          * @return std::shared_ptr<State> the next state
          */
@@ -80,9 +80,9 @@ namespace sdm
 
         /**
          * @brief Compute the reward of being in the current state and execute action a.
-         * 
+         *
          * @param mdp the Markov Decision Process
-         * @param action the action 
+         * @param action the action
          * @param t the timestep
          * @return double the reward
          */
@@ -114,7 +114,6 @@ namespace sdm
          */
         virtual std::string str() const = 0;
 
-
         /** @brief Cast the state into a belief */
         virtual std::shared_ptr<BeliefInterface> toBelief();
 
@@ -126,6 +125,13 @@ namespace sdm
 
         /** @brief Cast the state into a serial interface */
         virtual std::shared_ptr<SerialState> toSerial();
+
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int version)
+        {
+            std::cout << "Path in serialization state" << std::endl;
+            // this->serializer(archive, version);
+        }
     };
 
     template <typename TItem_1, typename TItem_2, class SuperClass = Item>

@@ -20,11 +20,11 @@ namespace sdm
     public:
         BoostSerializable() {}
         /**
-     * @brief Save a value function into a file. 
-     * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format). 
-     * 
-     * @param filename the filename 
-     */
+         * @brief Save a value function into a file.
+         * The extension of the file will indicate the type of formatage for recording (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
         void save(std::string filename)
         {
             std::ofstream ofs(filename);
@@ -32,11 +32,6 @@ namespace sdm
             {
                 boost::archive::text_oarchive output_archive(ofs);
                 this->serialize(output_archive, 0);
-                // else if (regex_match(filename, std::regex(".*\\.xml$")) || regex_match(filename, std::regex(".*\\.XML$")))
-                // {
-                //     boost::archive::xml_oarchive output_archive(ofs);
-                //     this->serialize(output_archive, 0);
-                // }
             }
             else
             {
@@ -47,11 +42,11 @@ namespace sdm
         }
 
         /**
-     * @brief Load a value function from a file.
-     * The extension of the file will indicate the type of formatage for reading (`.txt` = text format, '.xml' = XML format, other = binary format). 
-     * 
-     * @param filename the filename 
-     */
+         * @brief Load a value function from a file.
+         * The extension of the file will indicate the type of formatage for reading (`.txt` = text format, '.xml' = XML format, other = binary format).
+         *
+         * @param filename the filename
+         */
         void load(std::string filename)
         {
             std::ifstream ifs(filename);
@@ -59,11 +54,6 @@ namespace sdm
             {
                 boost::archive::text_iarchive input_archive(ifs);
                 this->serialize(input_archive, 0);
-                // else if (regex_match(filename, std::regex(".*\\.xml$")) || regex_match(filename, std::regex(".*\\.XML$")))
-                // {
-                //     boost::archive::xml_iarchive input_archive(ifs);
-                //     this->serialize(input_archive, 0);
-                // }
             }
             else
             {

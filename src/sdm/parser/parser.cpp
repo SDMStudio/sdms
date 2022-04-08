@@ -3,6 +3,7 @@ Copyright (C) 2016 Jilles Steeve Dibangoye
 ==============================================================================*/
 
 #include <sdm/exception.hpp>
+#include <sdm/tools.hpp>
 #include <sdm/parser/ast.hpp>
 #include <sdm/parser/parser.hpp>
 #include <sdm/parser/config.hpp>
@@ -30,24 +31,118 @@ namespace sdm
   namespace parser
   {
 
+    BOOST_SPIRIT_INSTANTIATE(mdp_type, iterator_type, context_type)
+    BOOST_SPIRIT_INSTANTIATE(mmdp_type, iterator_type, context_type)
+    BOOST_SPIRIT_INSTANTIATE(pomdp_type, iterator_type, context_type)
     BOOST_SPIRIT_INSTANTIATE(dpomdp_type, iterator_type, context_type)
     BOOST_SPIRIT_INSTANTIATE(posg_type, iterator_type, context_type)
 
-    // SDM_DECLARE_PARSER(GRAMMAR, TYPE_AST, TYPE_ENCODER, CLASSNAME, PARSER_NAME)
-    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::MDP, parseMDP)
-    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::POMDP, parsePOMDP)
-    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::MPOMDP, parseMPOMDP)
-    SDMS_INSTANCIATE_PARSER(sdm::parser::dpomdp_t, sdm::ast::dpomdp_t, sdm::ast::dpomdp_encoder, sdm::DecPOMDP, parseDecPOMDP)
-    SDMS_INSTANCIATE_PARSER(sdm::parser::posg_t, sdm::ast::posg_t, sdm::ast::posg_encoder, sdm::POSG, parsePOSG)
+    std::shared_ptr<MDP> parseMDP(std::string filename)
+    {
+      filename = sdm::tools::getWorldPath(filename);
+      sdm::ast::mdp_encoder encoder;
+      if (sdm::tools::hasExtension(filename, "mdp") || sdm::tools::hasExtension(filename, "MDP"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::mdp_t ast = buildAST<sdm::ast::mdp_t>(filename, sdm::parser::mdp_t);
+        return encoder(ast);
+      }
+      else
+      {
+        throw sdm::exception::Exception("Cannot parse '" + filename + "' into MMDP.");
+      }
+    }
 
+    std::shared_ptr<MMDP> parseMMDP(std::string filename)
+    {
+      filename = sdm::tools::getWorldPath(filename);
+      sdm::ast::mmdp_encoder encoder;
+      if (sdm::tools::hasExtension(filename, "mdp") || sdm::tools::hasExtension(filename, "MDP"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::mdp_t ast = buildAST<sdm::ast::mdp_t>(filename, sdm::parser::mdp_t);
+        return encoder(ast, false);
+      }
+      else if (sdm::tools::hasExtension(filename, "mmdp") || sdm::tools::hasExtension(filename, "MMDP"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::mmdp_t ast = buildAST<sdm::ast::mmdp_t>(filename, sdm::parser::mmdp_t);
+        return encoder(ast);
+      }
+      else if (sdm::tools::hasExtension(filename, "dpomdp") || sdm::tools::hasExtension(filename, "mpomdp"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::dpomdp_t ast = buildAST<sdm::ast::dpomdp_t>(filename, sdm::parser::dpomdp_t);
+        return encoder(ast);
+      }
+      else
+      {
+        throw sdm::exception::Exception("Cannot parse '" + filename + "' into MMDP.");
+      }
+    }
+
+    std::shared_ptr<POMDP> parsePOMDP(std::string filename)
+    {
+      filename = sdm::tools::getWorldPath(filename);
+      sdm::ast::pomdp_encoder encoder;
+      if (sdm::tools::hasExtension(filename, "pomdp") || sdm::tools::hasExtension(filename, "POMDP"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::pomdp_t ast = buildAST<sdm::ast::pomdp_t>(filename, sdm::parser::pomdp_t);
+        return encoder(ast);
+      }
+      else
+      {
+        throw sdm::exception::Exception("Cannot parse '" + filename + "' into POMDP.");
+      }
+    }
+
+    std::shared_ptr<MPOMDP> parseMPOMDP(std::string filename)
+    {
+      filename = sdm::tools::getWorldPath(filename);
+      sdm::ast::dpomdp_encoder encoder;
+      if (sdm::tools::hasExtension(filename, "pomdp") || sdm::tools::hasExtension(filename, "POMDP"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::pomdp_t ast = buildAST<sdm::ast::pomdp_t>(filename, sdm::parser::pomdp_t);
+        return encoder(ast);
+      }
+      else if (sdm::tools::hasExtension(filename, "dpomdp") || sdm::tools::hasExtension(filename, "mpomdp"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::dpomdp_t ast = buildAST<sdm::ast::dpomdp_t>(filename, sdm::parser::dpomdp_t);
+        return encoder(ast);
+      }
+      else
+      {
+        throw sdm::exception::Exception("Cannot parse '" + filename + "' into MPOMDP.");
+      }
+    }
+
+    std::shared_ptr<POSG> parsePOSG(std::string filename)
+    {
+      filename = sdm::tools::getWorldPath(filename);
+      sdm::ast::posg_encoder encoder;
+      if (sdm::tools::hasExtension(filename, "posg") || sdm::tools::hasExtension(filename, "POSG"))
+      {
+        /* Convert ast to MMDP class */
+        sdm::ast::posg_t ast = buildAST<sdm::ast::posg_t>(filename, sdm::parser::posg_t);
+        return encoder(ast);
+      }
+      else
+      {
+        throw sdm::exception::Exception("Cannot parse '" + filename + "' into POSG.");
+      }
+    }
 
     std::shared_ptr<sdm::MPOMDP> parse_file(std::string filename, Config config)
     {
-      if (regex_match(filename, std::regex(".*\\.ndpomdp$")) || regex_match(filename, std::regex(".*\\.NDPOMDP$")))
+      filename = sdm::tools::getWorldPath(filename);
+      if (tools::hasExtension(filename, "ndpomdp") || tools::hasExtension(filename, "NDPOMDP"))
       {
         return std::make_shared<NetworkedDistributedPOMDP>(filename);
       }
-      else if (regex_match(filename, std::regex(".*\\.posg$")) || regex_match(filename, std::regex(".*\\.POSG$")))
+      else if (tools::hasExtension(filename, "posg") || tools::hasExtension(filename, "POSG"))
       {
         auto posg = parsePOSG(filename.c_str());
         posg->configure(config);

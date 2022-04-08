@@ -73,19 +73,15 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
-    void BaseTabularValueFunction<Hash, KeyEqual>::save(std::string)
+    void BaseTabularValueFunction<Hash, KeyEqual>::save(std::string filename)
     {
-        // std::ofstream ofs("mabc.txt");
-        // boost::archive::binary_oarchive output_archive(ofs);
-        // // this->serialize(output_archive,0);
-        // this->representation[0].serialize(output_archive,0);
-        // ofs.close();
+        BoostSerializable<BaseTabularValueFunction>::save(filename);
     }
 
     template <class Hash, class KeyEqual>
-    void BaseTabularValueFunction<Hash, KeyEqual>::load(std::string)
+    void BaseTabularValueFunction<Hash, KeyEqual>::load(std::string filename)
     {
-        // BoostSerializable<BaseTabularValueFunction>::load(filename);
+        BoostSerializable<BaseTabularValueFunction>::load(filename);
     }
 
     template <class Hash, class KeyEqual>

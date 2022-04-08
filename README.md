@@ -97,7 +97,7 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 - [x] Bouger algos dans algorithms/planning ou algorithms/rl
 - [x] Tester BackwardInduction (et code example)
 - [ ] Sauvagarder et charger fonction de valeur
-- [ ] Parser spécifique pour MDP, POMDP, MMDP, MPOMDP, POSG
+- [x] Parser spécifique pour MDP, POMDP, MMDP, MPOMDP, POSG
 
 ### A finir 
 - [ ] cas horizon infini 
@@ -133,3 +133,12 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 ### Structure 
 - [x] déplacer les définitions vers les states
 - [x] pouvoir parser POSG
+
+
+## Doc 
+
+### Update Rule
+
+Appel à la fonction de valeur V qui appelle les données sur l'état s pour récupérer la les 
+
+### Select Action

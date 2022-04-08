@@ -18,6 +18,7 @@
 #include <assert.h>
 
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/unordered_map.hpp>
 
 #include <sdm/types.hpp>
 #include <sdm/utils/linear_algebra/vector_interface.hpp>

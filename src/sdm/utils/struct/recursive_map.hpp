@@ -1,12 +1,12 @@
 /**
  * @file recursive_map.cpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 17/12/2020
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #pragma once
 
@@ -31,7 +31,7 @@ namespace sdm
     /**
      * @class RecursiveMap
      * @brief The recursive map class (i.e. map<T0, map<T1, ..... , map<TN-1, TN>)
-     * 
+     *
      * @tparam T0 the type of the first map item
      * @tparam T1 the type of the second map item
      * @tparam Ts the type of the other map items
@@ -47,7 +47,7 @@ namespace sdm
 
     /**
      * @brief RecursiveMap specialization when it is simple map.
-     * 
+     *
      * @tparam T0 the type of the first map item
      * @tparam T1 the type of the second map item
      */
@@ -63,11 +63,11 @@ namespace sdm
         RecursiveMap(const map_t<T0, T1> &x) : map_t<T0, T1>(x) {}
         RecursiveMap(const RecursiveMap &rmap) : map_t<T0, T1>(rmap) {}
         RecursiveMap(std::initializer_list<value_type> vals) : map_t<T0, T1>(vals) {}
-        ~RecursiveMap(){}
+        ~RecursiveMap() {}
 
         /**
          * @brief Emplace a specific element.
-         * 
+         *
          * @param v0 the key
          * @param v1 the value
          */
@@ -91,12 +91,12 @@ namespace sdm
             return os;
         }
 
-    protected:
         friend class boost::serialization::access;
 
         template <class Archive>
         void serialize(Archive &archive, const unsigned int)
         {
+            std::cout << "RecursiveMap0::base_obj" << std::endl;
             archive &boost::serialization::base_object<map_t<T0, T1>>(*this);
         }
     };
@@ -120,11 +120,11 @@ namespace sdm
                 this->emplace(v.first, tmp);
             }
         }
-        ~RecursiveMap(){}
+        ~RecursiveMap() {}
 
         /**
          * @brief Recursively emplace a specific element.
-         * 
+         *
          * @param v0 first key
          * @param v1 second key
          * @param v2 third key
@@ -154,12 +154,12 @@ namespace sdm
             return os;
         }
 
-    protected:
         friend class boost::serialization::access;
 
         template <class Archive>
         void serialize(Archive &archive, const unsigned int)
         {
+            std::cout << "RecursiveMap1::base_obj" << std::endl;
             archive &boost::serialization::base_object<map_t<T0, RecursiveMap_t<T1, T2, Ts...>>>(*this);
         }
     };

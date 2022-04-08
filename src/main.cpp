@@ -32,7 +32,7 @@ void print_help()
   std::cout << std::endl
             << "Usage : sdms COMMAND" << std::endl
             << std::endl;
-  std::cout << "The best solver for sequential decision making problems." << std::endl
+  std::cout << "A solver for Partial Observable Multiagent Sequential Decision Making." << std::endl
             << std::endl;
   std::cout << "Commands:" << std::endl;
   std::cout << "  algorithms\t\tDisplay all available algorithms." << std::endl;

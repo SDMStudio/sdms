@@ -17,13 +17,13 @@ using namespace sdm;
 
 int main(int argc, char **argv)
 {
-	std::string filename = (argc > 1) ? argv[1] : config::PROBLEM_PATH + "dpomdp/mabc.dpomdp";
+	std::string filename = (argc > 1) ? argv[1] : "mabc.dpomdp";
 	number horizon = 10, truncation = 1;
 	double error = 0.00001, discount = 1.;
 	try
 	{
 		// Parse file into MPOMDP
-		auto mdp = sdm::parser::parse_file(filename);
+		auto mdp = sdm::parser::parseMPOMDP(filename);
 		mdp->setHorizon(horizon);
 		mdp->setDiscount(discount);
 
