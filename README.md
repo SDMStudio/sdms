@@ -118,6 +118,15 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 
 ## Pour la suite
 
+### Discussion sur l'amélioration d'architecture logiciel
+
+Architecture logicielle actuelle: 
+- Chaque module gère un traitement spécifique 
+  - `fonction de valeur` : stocke des valeurs par rapport à des états
+  - `update rule` : mets à jour un état étant donné une action
+- Certains modules sont génériques et peuvent utiliser les fonctions actuelles (de base) du state mais d'autres opérateurs sont particuliers à un type d'état et donc on voudrait 
+
+
 ### Serial PWLCQ
 <!-- - [] Garder état simultané lié à l'état séquentialisé
 - [] Faire équivalence sur l'état simultané -->
