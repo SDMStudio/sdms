@@ -12,7 +12,7 @@ namespace sdm
 
     SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp, Config config) : mdp(mdp)
     {
-        this->initial_state_ = this->mdp->getStateSpace(0)->sample()->toState();
+        this->initial_state_ = this->mdp->getStartDistribution()->sample()->toState();
     }
 
     SolvableByMDP::SolvableByMDP(Config config)

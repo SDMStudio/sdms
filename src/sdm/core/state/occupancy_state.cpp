@@ -31,6 +31,7 @@ namespace sdm
             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
             this->weight_of_private_occupancy_state_.push_back({});
             this->private_ihistory_map_.push_back({});
+            this->all_list_ihistories_.push_back({});
             //
             this->individual_hierarchical_history_vector_map_vector.push_back(std::make_shared<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>());
         }
@@ -203,7 +204,6 @@ namespace sdm
             }
         }
 
-        // std::cout << "next_one_step_left_compressed_occupancy_state="<< next_one_step_left_compressed_occupancy_state->str()<<std::endl;
 
         return this->finalizeNextState(next_one_step_left_compressed_occupancy_state, t);
     }

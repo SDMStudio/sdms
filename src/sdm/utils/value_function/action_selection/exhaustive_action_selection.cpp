@@ -13,6 +13,7 @@ namespace sdm
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
 
+
         // Go over all actions
         auto action_space = this->getWorld()->getActionSpaceAt(state, t);
         for (const auto &action : *action_space)

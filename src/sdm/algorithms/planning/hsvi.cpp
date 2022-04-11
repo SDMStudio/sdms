@@ -78,9 +78,12 @@ namespace sdm
                 for (const auto &observation : selectObservations(state, action, t))
                 {
                     // Determine the state for a given state, action and observation
-                    auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
+                    auto [next_state, proba] = getWorld()->getNextStateAndProba(state, action, observation, t);
                     // Recursive explore
-                    explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
+                    if (proba > 0)
+                    {
+                        explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
+                    }
                 }
 
                 // Update the value function (backward update)

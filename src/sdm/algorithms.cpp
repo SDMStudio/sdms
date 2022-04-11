@@ -354,62 +354,105 @@ namespace sdm
             // Build the transformed problem
             std::shared_ptr<SolvableByHSVI> formalism_problem;
 
-            // Parse the problem
-            auto problem = sdm::parser::parse_file(problem_path);
-
-            problem->setHorizon(horizon);
-            problem->setDiscount(discount);
-
-
-            if ((formalism == "mmdp") || (formalism == "MMDP"))
+            if ((formalism == "mdp") ||(formalism == "MDP") || (formalism == "mmdp") || (formalism == "MMDP"))
             {
+
+                // Parse the problem
+                auto problem = sdm::parser::parseMMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 formalism_problem = std::make_shared<SolvableByMDP>(problem);
             }
             else if ((formalism == "belief-mdp") || (formalism == "BeliefMDP") || (formalism == "bmdp") || (formalism == "bMDP"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 formalism_problem = std::make_shared<BeliefMDP>(problem, batch_size);
             }
             else if ((formalism == "occupancy-mdp") || (formalism == "OccupancyMDP") || (formalism == "omdp") || (formalism == "oMDP"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto omdp = std::make_shared<OccupancyMDP>(problem, memory, store_state, store_action, batch_size);
                 omdp->setStateType(state_type);
                 formalism_problem = omdp;
             }
             else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP") || (formalism == "ext-MDP") || (formalism == "ext-mdp"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_mmdp = std::make_shared<SerialMMDP>(problem);
                 formalism_problem = std::make_shared<SolvableByMDP>(serial_mmdp);
             }
             else if ((formalism == "extensive-belief-mdp") || (formalism == "Extensive-BeliefMDP") || (formalism == "ext-bMDP") || (formalism == "ext-bmdp"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
             else if ((formalism == "occupancy-extensive-mdp") || (formalism == "OccupancyExtensiveMDP") || (formalism == "oext-MDP") || (formalism == "oext-mdp"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_omdp = std::make_shared<OccupancySerialMDP>(problem, memory, store_state, store_action, batch_size);
                 serial_omdp->setStateType(state_type);
                 formalism_problem = serial_omdp;
             }
             else if ((formalism == "extensive-occupancy-mdp") || (formalism == "Extensive-OccupancyMDP") || (formalism == "ext-oMDP") || (formalism == "ext-omdp"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 auto serial_omdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, store_state, store_action, batch_size);
                 serial_omdp->setStateType(state_type);
                 formalism_problem = serial_omdp;
             }
-            else if ((formalism == "hierarchical-mdp") || (formalism == "Hierarchical-MDP") || (formalism == "hMDP") || (formalism == "hmdp"))
-            {
-                auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
-                formalism_problem = std::make_shared<SolvableByMDP>(hierarchical_mpomdp);
-            }
             else if ((formalism == "hierarchical-belief-mdp") || (formalism == "Hierarchical-BeliefMDP") || (formalism == "hbMDP") || (formalism == "hbmdp"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(hierarchical_mpomdp, batch_size);
             }
             else if ((formalism == "hierarchical-occupancy-mdp") || (formalism == "Hierarchical-OccupancyMDP") || (formalism == "hoMDP") || (formalism == "homdp"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
                 formalism_problem = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_mpomdp, memory, store_state, store_action, batch_size);
             }

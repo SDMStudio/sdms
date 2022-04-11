@@ -69,7 +69,7 @@ namespace sdm
         sdm::ast::mmdp_t ast = buildAST<sdm::ast::mmdp_t>(filename, sdm::parser::mmdp_t);
         return encoder(ast);
       }
-      else if (sdm::tools::hasExtension(filename, "dpomdp") || sdm::tools::hasExtension(filename, "mpomdp"))
+      else if (sdm::tools::hasExtension(filename, "dpomdp") || sdm::tools::hasExtension(filename, "mpomdp") || sdm::tools::hasExtension(filename, "DPOMDP") || sdm::tools::hasExtension(filename, "MPOMDP"))
       {
         /* Convert ast to MMDP class */
         sdm::ast::dpomdp_t ast = buildAST<sdm::ast::dpomdp_t>(filename, sdm::parser::dpomdp_t);
@@ -107,7 +107,7 @@ namespace sdm
         sdm::ast::pomdp_t ast = buildAST<sdm::ast::pomdp_t>(filename, sdm::parser::pomdp_t);
         return encoder(ast);
       }
-      else if (sdm::tools::hasExtension(filename, "dpomdp") || sdm::tools::hasExtension(filename, "mpomdp"))
+      else if (sdm::tools::hasExtension(filename, "dpomdp") || sdm::tools::hasExtension(filename, "mpomdp") || sdm::tools::hasExtension(filename, "DPOMDP") || sdm::tools::hasExtension(filename, "MPOMDP"))
       {
         /* Convert ast to MMDP class */
         sdm::ast::dpomdp_t ast = buildAST<sdm::ast::dpomdp_t>(filename, sdm::parser::dpomdp_t);

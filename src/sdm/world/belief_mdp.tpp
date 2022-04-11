@@ -256,6 +256,7 @@ namespace sdm
             // Compute next state
             auto [next_state, state_transition_proba] = this->getNextState(belief, action, observation->toObservation(), t);
 
+
             // Update the next expected value at the next state
             exp_next_v += state_transition_proba * value_function->getValueAt(next_state, t + 1);
         }
@@ -285,7 +286,6 @@ namespace sdm
 
         // Get a random number between 0 and 1
         double epsilon = std::rand() / (double(RAND_MAX));
-
 
         // Go over all observations of the lower-level agent
         auto accessible_observation_space = this->getObservationSpaceAt(this->current_state_, action, this->step_);

@@ -82,7 +82,7 @@ namespace sdm
     {
         try
         {
-            if (getWorld()->getHorizon() == 0)
+            if (getWorld()->isInfiniteHorizon())
             {
                 this->doOneStepTrial(0);
             }

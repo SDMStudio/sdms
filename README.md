@@ -76,21 +76,21 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 
 |           |   (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | Horizon infini |
 | :-------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------------------------: |
-|    MDP    |         -          | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
+|    MDP    |         -          | :heavy_check_mark: | :heavy_check_mark: |      :heavy_check_mark:       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
 |   bMDP    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
 |   oMDP    |         -          | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  | non testé      |
-| hier-MDP  |         -          | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
+| hier-MDP  |         -          | :heavy_check_mark: | :heavy_check_mark: |      :heavy_check_mark:       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
 | hier-bMDP | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |    :x: (2 ou 3)    |    :x: (2 ou 3)    |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
-| hier-oMDP |         -          |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  | non testé      |
-|  ext-MDP  |         -          | :heavy_check_mark: | :heavy_check_mark: |      :x: (1)       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
+| hier-oMDP |         -          |      :heavy_check_mark:       |      :heavy_check_mark:     | :x: |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  | non testé      |
+|  ext-MDP  |         -          | :heavy_check_mark: | :heavy_check_mark: |      :heavy_check_mark:       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
 | ext-bMDP  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
 | ext-oMDP  |         -          | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | tab-exhaus, pwlc-exhaus, pwlc-serial | non testé      |
 
-**(1)** segmentation fault de Q-learning tabulaire pour les MDPs (difficulté facile)
+[x] **(1)** segmentation fault de Q-learning tabulaire pour les MDPs (difficulté facile)
 
-**(2)** hierarchical oMDP ne converge pas vers la bonne valeur avec HSVI -- possiblement lié à la définition erronée de HierarchicalMPOMDP::getReachableObservations (difficulté moyenne)
+[ ] **(2)** hierarchical oMDP ne converge pas vers la bonne valeur avec HSVI -- possiblement lié à la définition erronée de HierarchicalMPOMDP::getReachableObservations (difficulté moyenne)
 
-**(3)** pas de PWLCQUpdate défini pour les beliefMDP (difficulté moyenne)
+[ ] **(3)** pas de PWLCQUpdate défini pour les beliefMDP (difficulté moyenne)
 
 ### A modifier
 - [x] Modifier UpdateOperator to UpdateRule
