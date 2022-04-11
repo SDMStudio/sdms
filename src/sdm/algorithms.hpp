@@ -135,7 +135,6 @@ namespace sdm
          */
         std::shared_ptr<Algorithm> make(std::string algo_name,
                                         std::string problem_path,
-                                        std::string formalism_name,
                                         number horizon = 10,
                                         double discount = 1.,
                                         double error = 0.01,

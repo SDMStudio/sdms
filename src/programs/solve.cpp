@@ -66,9 +66,9 @@ int solve(int argv, char **args)
 
         po::options_description config("Configuration");
         config.add_options()
-        ("algorithm,a", po::value<string>(&algo_name)->default_value("hsvi"), "the algorithm to use")
+        ("algorithm,a", po::value<string>(&algo_name)->default_value("o-hsvi"), "the algorithm to use")
         ("world,w", po::value<string>(&world)->default_value("mabc.dpomdp"), "the world to be solved")
-        ("formalism,f", po::value<string>(&formalism)->default_value("OccupancyMDP"), "the formalism to use")
+        // ("formalism,f", po::value<string>(&formalism)->default_value("OccupancyMDP"), "the formalism to use")
         ("horizon,h", po::value<number>(&horizon)->default_value(5), "the planning horizon")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("memory,m", po::value<int>(&memory)->default_value(-1), "the memory for history")
@@ -175,7 +175,6 @@ int solve(int argv, char **args)
         // Build algorithm
         algorithm = sdm::algo::make(algo_name,
                                     world,
-                                    formalism,
                                     horizon,
                                     discount,
                                     error,
