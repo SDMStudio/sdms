@@ -74,11 +74,11 @@ Linux users can run `cat install_manifest.txt | xargs -d '\n' rm` as root from t
 
 ### A debugguer
 
-|           |   (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | Horizon infini |
+|           |   (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | (tab) Horizon infini |
 | :-------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------------------------: |
-|    MDP    |      :heavy_check_mark: | :heavy_check_mark: |      :heavy_check_mark:       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
-|   bMDP    |  :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
-|   oMDP    |     :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  | non testé      |
+|    MDP    |      :heavy_check_mark: | :heavy_check_mark: |      :heavy_check_mark:       |         -          |         -          |         -          |              tab-exhaus              |:heavy_check_mark:      |
+|   bMDP    |  :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |      :x: (3)       |       tab-exhaus, pwlc-exhaus        |    :heavy_check_mark:   |
+|   oMDP    |     :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  |:heavy_check_mark:      |
 | hier-MDP  |   :heavy_check_mark: | :heavy_check_mark: |      :heavy_check_mark:       |         -          |         -          |         -          |              tab-exhaus              | non testé      |
 | hier-bMDP | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |    :x: (2 ou 3)    |    :x: (2 ou 3)    |      :x: (3)       |       tab-exhaus, pwlc-exhaus        | non testé      |
 | hier-oMDP |          :heavy_check_mark:       |      :heavy_check_mark:     | :heavy_check_mark: |      :x: (2)       |      :x: (2)       | :heavy_check_mark: |  tab-exhaus, pwlc-exhaus, pwlc-wscp  | non testé      |
