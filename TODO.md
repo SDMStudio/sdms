@@ -1,14 +1,6 @@
 
 # TO DO
 
-## Avant JMLR
-
-***Planning semaine pro***
-- Lundi/Mardi : résoudre les croix (1) et (2) + tester horizon infini et le faire fonctionner
-- Mercredi : Finir la vérif d'installation Mac et mettre au propre la partie tuto installation via docker
-- Jeudi/Vendredi : Parser spécifique pour chaque problème. Sauvagarder et charger fonction de valeur
-- Lundi/Mardi : Configuration TOML / soumission papier
-
 ### A debugguer
 
 |           |   (tab) VI ou PBVI  |     (tab) HSVI     |  (tab) QLearning   | (pwlc) VI ou PBVI  |  (pwlc/saw) HSVI   |  (pwlc) QLearning  |           action_selection           | (tab) Horizon infini |
@@ -24,30 +16,28 @@
 
 - [x] **(1)** segmentation fault de Q-learning tabulaire pour les MDPs (difficulté facile)
 
-- [ ] **(2)** hierarchical oMDP ne converge pas vers la bonne valeur avec HSVI -- possiblement lié à la définition erronée de HierarchicalMPOMDP::getReachableObservations (difficulté moyenne)
+- [ ] **(2)** hierarchical oMDP ne converge pas vers la bonne valeur en PWLC -- possiblement lié à la définition erronée de HierarchicalMPOMDP::getReachableObservations (difficulté moyenne)
 
 - [ ] **(3)** pas de PWLCQUpdate défini pour les beliefMDP (difficulté moyenne)
 
 - [ ] **(4)** la plateforme gère l'horizon infini comme un horizon égal à 0. On ne peut pas sérialiser un horizon de 0 autrement qu'en disant qu'il s'agit de l'horizon *n_agents*. Mais si on fait cela, ce n'est plus infini.
 
 
-### A modifier
+### Modifications / Ajouts
 - [x] Modifier UpdateOperator to UpdateRule
 - [x] Bouger algos dans algorithms/planning ou algorithms/rl
 - [x] Tester BackwardInduction (et code example)
 - [ ] Sauvagarder et charger fonction de valeur
 - [x] Parser spécifique pour MDP, POMDP, MMDP, MPOMDP, POSG
-
-### A finir 
-- [ ] cas horizon infini 
+- [ ] Cas horizon infini 
   - besoin de le tester dans les différents cas (algos/structures)
-- [ ] configuration TOML (--> simplification de la déclaration des problèmes)
+- [ ] Configuration TOML (--> simplification de la déclaration des problèmes)
   - me paraît intéressant pour simplifier le paramétrage d'SDMS mais peut attendre la semaine après soumission 
 - [ ] (ext-oMDP -> oext-MDP) utiliser référence sur états simultanés suivant pour le greedy et backup
   - je ne suis pas 100% sûre de l'implémentation - à vérifier avant dans lancer les expés
 - [x] installation Mac OSX  
 
-### A tester 
+### Tests
 
 - [x] Avoir un `make test`  qui test sur de petits horizons différentes bench et algo.
 - [ ] Tester perfs ext-oMDP avec PWLCQ (ancienne version vs nouvelle).
